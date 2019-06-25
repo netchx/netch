@@ -1,3 +1,6 @@
 [submodule "modes"]
 	path = modes
 	url = https://github.com/NetchX/NetchMode
+[submodule "translations"]
+	path = translations
+	url = https://github.com/NetchX/NetchTranslation
