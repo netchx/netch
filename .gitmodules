@@ -1,0 +1,3 @@
+[submodule "modes"]
+	path = modes
+	url = https://github.com/NetchX/NetchMode
