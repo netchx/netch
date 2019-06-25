@@ -1,0 +1,5 @@
+# Destiny 2
+scenesourcecef.exe
+Destiny 2 Launcher.exe
+destiny2.exe
+miniTicketDbg.exe
