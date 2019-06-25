@@ -196,7 +196,7 @@ MKDIR $(TargetDir)mode &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)binaries\$(PlatformName)\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)binaries\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1
 MOVE /Y $(TargetDir)bin\nfapinet.dll $(TargetDir)nfapi.dll &gt; NUL 2&gt;&amp;1
-COPY /Y $(SolutionDir)translations\i18n\*.txt $(TargetDir)i18n &gt; NUL 2&gt;&amp;1
+COPY /Y $(SolutionDir)translations\i18n\* $(TargetDir)i18n &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)modes\mode\*.txt $(TargetDir)mode &gt; NUL 2&gt;&amp;1
 </PostBuildEvent>
   </PropertyGroup>
