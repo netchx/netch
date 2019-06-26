@@ -18,13 +18,13 @@ namespace Netch.Utils
             return Encoding.UTF8.GetString(Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
         }
 
-        public static Objects.Server Parse(string text)
+        public static List<Objects.Server> Parse(string text)
         {
-            var data = new Objects.Server();
-
-
+            var list = new List<Objects.Server>();
+            
             if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
             {
+                var data = new Objects.Server();
                 data.Type = "Socks5";
 
                 var dict = new Dictionary<string, string>();
@@ -50,9 +50,12 @@ namespace Netch.Utils
                 {
                     data.Password = dict["pass"];
                 }
+
+                list.Add(data);
             }
             else if (text.StartsWith("ss://"))
             {
+                var data = new Objects.Server();
                 data.Type = "Shadowsocks";
 
                 try
@@ -90,6 +93,8 @@ namespace Netch.Utils
                         Logging.Info(String.Format("不支持的 SS 加密方式：{0}", data.EncryptMethod));
                         return null;
                     }
+
+                    list.Add(data);
                 }
                 catch (FormatException)
                 {
@@ -113,6 +118,8 @@ namespace Netch.Utils
                             Logging.Info(String.Format("不支持的 SS 加密方式：{0}", data.EncryptMethod));
                             return null;
                         }
+
+                        list.Add(data);
                     }
                     catch (UriFormatException)
                     {
@@ -120,8 +127,30 @@ namespace Netch.Utils
                     }
                 }
             }
+            else if (text.StartsWith("ssd://"))
+            {
+                var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
+
+                foreach (var server in json.servers)
+                {
+                    var data = new Objects.Server();
+                    data.Type = "Shadowsocks";
+
+                    data.Remark = server.remarks;
+                    data.Address = server.server;
+                    data.Port = (server.port != 0) ? server.port : json.port;
+                    data.Password = (server.password != null) ? server.password : json.password;
+                    data.EncryptMethod = (server.encryption != null) ? server.encryption : json.encryption;
+
+                    if (Global.EncryptMethods.SS.Contains(data.EncryptMethod))
+                    {
+                        list.Add(data);
+                    }
+                }
+            }
             else if (text.StartsWith("ssr://"))
             {
+                var data = new Objects.Server();
                 data.Type = "ShadowsocksR";
 
                 text = text.Substring(6);
@@ -183,13 +212,15 @@ namespace Netch.Utils
                 {
                     data.Type = "Shadowsocks";
                 }
+
+                list.Add(data);
             }
             else
             {
                 return null;
             }
 
-            return data;
+            return list;
         }
     }
 }

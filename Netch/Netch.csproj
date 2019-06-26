@@ -124,6 +124,8 @@
     <Compile Include="Objects\Information\SSR.cs" />
     <Compile Include="Objects\Mode.cs" />
     <Compile Include="Objects\Server.cs" />
+    <Compile Include="Objects\SSD\Main.cs" />
+    <Compile Include="Objects\SSD\Server.cs" />
     <Compile Include="Objects\State.cs" />
     <Compile Include="Objects\SubscribeLink.cs" />
     <Compile Include="Override\WebClient.cs">

@@ -245,7 +245,7 @@ namespace Netch.Forms
 
                         if (result != null)
                         {
-                            Global.Server.Add(result);
+                            Global.Server.AddRange(result);
                         }
                     }
                 }
@@ -306,12 +306,18 @@ namespace Netch.Forms
                                         {
                                             if (item.Link.Contains("n3ro"))
                                             {
-                                                result.Remark = result.Remark.Split('#')[0].Trim();
+                                                foreach (var x in result)
+                                                {
+                                                    x.Remark = x.Remark.Split('#')[0].Trim();
+                                                }
                                             }
 
-                                            result.Group = item.Remark;
+                                            foreach (var x in result)
+                                            {
+                                                x.Group = item.Remark;
+                                            }
 
-                                            Global.Server.Add(result);
+                                            Global.Server.AddRange(result);
                                         }
                                     }
                                 }
