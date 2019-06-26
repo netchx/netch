@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.ServiceProcess;
 using System.Threading;
 
 namespace Netch.Controllers
@@ -152,6 +153,8 @@ namespace Netch.Controllers
                 {
                     Instance.Kill();
                 }
+
+                new ServiceController("netfilter2").Stop();
             }
             catch (Exception e)
             {
