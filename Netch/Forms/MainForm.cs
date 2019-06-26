@@ -107,7 +107,7 @@ namespace Netch.Forms
 
                     // 计算延迟底色
                     SolidBrush brush;
-                    if (item.Delay == 999)
+                    if (item.Delay == -1)
                     {
                         // 灰色
                         brush = new SolidBrush(Color.Gray);
@@ -414,7 +414,7 @@ namespace Netch.Forms
                     Task.Run(server.Test);
                 }
 
-                Thread.Sleep(460);
+                Thread.Sleep(2000);
                 Refresh();
             });
         }

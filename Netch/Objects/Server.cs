@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace Netch.Objects
 {
@@ -70,7 +71,7 @@ namespace Netch.Objects
         /// <summary>
         ///     延迟
         /// </summary>
-        public int Delay = 1000;
+        public int Delay = -1;
 
         /// <summary>
 		///		获取备注
@@ -102,51 +103,59 @@ namespace Netch.Objects
         /// <returns>延迟</returns>
         public int Test()
         {
-            var list = new int[3];
-
-            for (int i = 0; i < 3; i++)
+            try
             {
-                using (var client = new Socket(SocketType.Stream, ProtocolType.Tcp))
+                var destination = Dns.GetHostAddressesAsync(Address);
+                if (!destination.Wait(1000))
                 {
-                    try
-                    {
-                        var destination = Dns.GetHostAddressesAsync(Address);
-                        if (!destination.Wait(1000))
-                        {
-                            list[i] = 460;
-                            continue;
-                        }
-
-                        if (destination.Result.Length == 0)
-                        {
-                            list[i] = 460;
-                            continue;
-                        }
-
-                        var watch = new Stopwatch();
-                        watch.Start();
-
-                        var task = client.BeginConnect(new IPEndPoint(destination.Result[0], Port), (result) =>
-                        {
-                            watch.Stop();
-                        }, 0);
-
-                        if (task.AsyncWaitHandle.WaitOne(460))
-                        {
-                            list[i] = (int)(watch.ElapsedMilliseconds >= 460 ? 460 : watch.ElapsedMilliseconds);
-                            continue;
-                        }
-
-                        list[i] = 460;
-                    }
-                    catch (Exception)
-                    {
-                        list[i] = 460;
-                    }
+                    return Delay = 999;
                 }
-            }
 
-            return Delay = (list[0] + list[1] + list[2]) / 3;
+                if (destination.Result.Length == 0)
+                {
+                    return Delay = 999;
+                }
+
+                var list = new Task<int>[3];
+                for (int i = 0; i < 3; i++)
+                {
+                    list[i] = Task.Run<int>(() =>
+                    {
+                        try
+                        {
+                            using (var client = new Socket(SocketType.Stream, ProtocolType.Tcp))
+                            {
+                                var watch = new Stopwatch();
+                                watch.Start();
+
+                                var task = client.BeginConnect(new IPEndPoint(destination.Result[0], Port), (result) =>
+                                {
+                                    watch.Stop();
+                                }, 0);
+
+                                if (task.AsyncWaitHandle.WaitOne(1000))
+                                {
+                                    return (int)(watch.ElapsedMilliseconds >= 460 ? 460 : watch.ElapsedMilliseconds);
+                                }
+
+                                return 999;
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            return 999;
+                        }
+                    });
+                }
+
+                Task.WaitAll(list);
+
+                return Delay = (list[0].Result + list[1].Result + list[2].Result) / 3;
+            }
+            catch (Exception)
+            {
+                return Delay = 999;
+            }
         }
     }
 }
