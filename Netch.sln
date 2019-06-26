@@ -4,6 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Netch", "Netch\Netch.csproj", "{4B041B91-5790-4571-8C58-C63FFE4BC9F8}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C} = {2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DriverUpdater", "DriverUpdater\DriverUpdater.csproj", "{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,14 @@ Global
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Release|x64.Build.0 = Release|x64
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Release|x86.ActiveCfg = Release|x86
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Release|x86.Build.0 = Release|x86
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Debug|x64.ActiveCfg = Debug|x64
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Debug|x64.Build.0 = Debug|x64
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Debug|x86.ActiveCfg = Debug|x86
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Debug|x86.Build.0 = Debug|x86
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Release|x64.ActiveCfg = Release|x64
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Release|x64.Build.0 = Release|x64
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Release|x86.ActiveCfg = Release|x86
+		{2AA17150-BA26-48B2-A0D4-D4AC4ABB641C}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
