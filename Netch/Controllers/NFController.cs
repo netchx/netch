@@ -89,6 +89,30 @@ namespace Netch.Controllers
                 }
             }
 
+            try
+            {
+                var service = new ServiceController("netfilter2");
+                if (service.Status == ServiceControllerStatus.Running)
+                {
+                    service.Stop();
+                    service.WaitForStatus(ServiceControllerStatus.Stopped);
+                }
+
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running);
+            }
+            catch (Exception e)
+            {
+                Utils.Logging.Info(e.ToString());
+
+                var result = nfapinet.NFAPI.nf_registerDriver("netfilter2");
+                if (result != nfapinet.NF_STATUS.NF_STATUS_SUCCESS)
+                {
+                    Utils.Logging.Info($"注册驱动失败，返回值：{result}");
+                    return false;
+                }
+            }
+
             var processes = "";
             foreach (var proc in mode.Rule)
             {
@@ -152,9 +176,12 @@ namespace Netch.Controllers
                 if (Instance != null && !Instance.HasExited)
                 {
                     Instance.Kill();
+                    Instance.WaitForExit();
                 }
 
-                new ServiceController("netfilter2").Stop();
+                var service = new ServiceController("netfilter2");
+                service.Stop();
+                service.WaitForStatus(ServiceControllerStatus.Stopped);
             }
             catch (Exception e)
             {
