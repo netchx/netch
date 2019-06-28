@@ -29,6 +29,21 @@ namespace Netch.Forms
             ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
 
+        public void TestServer()
+        {
+            foreach (var server in Global.Server)
+            {
+                Task.Run(server.Test);
+            }
+
+            Task.Run(() =>
+            {
+                Thread.Sleep(2000);
+
+                Refresh();
+            });
+        }
+
         public void InitServer()
         {
             ServerComboBox.Items.Clear();
@@ -186,10 +201,7 @@ namespace Netch.Forms
                 {
                     if (State == Objects.State.Waiting || State == Objects.State.Stopped)
                     {
-                        foreach (var server in Global.Server)
-                        {
-                            Task.Run(server.Test);
-                        }
+                        TestServer();
 
                         Thread.Sleep(10000);
                     }
@@ -489,10 +501,7 @@ namespace Netch.Forms
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Objects.State.Stopped;
 
-                    foreach (var server in Global.Server)
-                    {
-                        Task.Run(server.Test);
-                    }
+                    TestServer();
                 });
             }
         }
