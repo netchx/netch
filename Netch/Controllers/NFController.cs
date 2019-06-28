@@ -93,14 +93,29 @@ namespace Netch.Controllers
                 }
             }
 
+            // 初始化
             if (!Win32Native.srn_init())
             {
                 Utils.Logging.Info("初始化失败");
                 return false;
             }
 
+            // 设置驱动名
             Win32Native.srn_addOption(Win32Native.OptionType.OT_DRIVER_NAME, "netfilter2");
 
+            // 绕过 IPv4 环路地址
+            Win32Native.srn_startRule();
+            Win32Native.srn_addOption(Win32Native.OptionType.OT_REMOTE_ADDRESS, "127.0.0.0/8");
+            Win32Native.srn_addOption(Win32Native.OptionType.OT_ACTION, "bypass");
+            Win32Native.srn_endRule();
+
+            // 绕过 IPv6 环路地址
+            Win32Native.srn_startRule();
+            Win32Native.srn_addOption(Win32Native.OptionType.OT_REMOTE_ADDRESS, "[::1]/128");
+            Win32Native.srn_addOption(Win32Native.OptionType.OT_ACTION, "bypass");
+            Win32Native.srn_endRule();
+
+            // 设置需要劫持的进程
             foreach (var proc in mode.Rule)
             {
                 Win32Native.srn_startRule();
