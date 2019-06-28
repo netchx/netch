@@ -21,7 +21,7 @@ namespace Netch.Utils
         public static List<Objects.Server> Parse(string text)
         {
             var list = new List<Objects.Server>();
-            
+
             if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
             {
                 var data = new Objects.Server();

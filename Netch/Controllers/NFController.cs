@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
-using System.Threading;
 
 namespace Netch.Controllers
 {
@@ -117,7 +115,7 @@ namespace Netch.Controllers
 
                 Win32Native.srn_endRule();
             }
-            
+
             if (!Win32Native.srn_enable(1))
             {
                 Win32Native.srn_free();
