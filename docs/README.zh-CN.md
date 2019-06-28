@@ -5,8 +5,6 @@
 
 游戏加速工具
 
-[English](../README.md)
-
 ## 目录
 
 1. [下载与安装](#下载与安装)
@@ -21,32 +19,21 @@
 
 ## 下载与安装
 
-当前发布版本为免安装版本，解压后点击 Netch.exe 即可使用，目前仅支持 windows 。
+当前发布版本为免安装版本，解压后点击 Netch.exe 即可使用，目前仅支持 Windows 
 
 [最新版下载地址](https://github.com/netchx/Netch/releases/latest)
 
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
-
 ## 简介
+Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那样需要通过添加规则来实现黑名单代理， Netch 原理更类似 [SocksCap64](https://www.sockscap64.com/homepage/) ，通过扫描游戏目录获得需要代理的进程名进行代理
 
-Netch 是一款 windows 平台的开源游戏加速工具，不同于 SSTap 那样需要通过添加规则来实现黑名单代理， Netch 原理更类似 [Sockscap64](https://www.sockscap64.com/homepage/) ，通过扫描游戏目录获得需要代理的进程名进行代理。
+与此同时 Netch 避免了 SSTap 的 NAT 问题 <escape><a name = "ref_1_s"><a href="#ref_1_d"><sup>[1]</sup></a></a></escape>，检查 NAT 类型 <escape><a name = "ref_2_s"><a href="#ref_2_d"><sup>[2]</sup></a></a></escape> 即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况
 
-与此同时 Netch 避免了 SSTap 的 NAT 问题 <escape><a name = "ref_1_s"><a href="#ref_1_d"><sup>[1]</sup></a></a></escape>，检查 NAT 类型 <escape><a name = "ref_2_s"><a href="#ref_2_d"><sup>[2]</sup></a></a></escape> 即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况。
-
-进群提问前请务必先看下方使用方法和常见问题。
-
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
+进群提问前请务必先看下方使用方法和常见问题
 
 ## 使用方法
-
-[简体中文](usage.zh-Hans.md)
-
-[English](usage.en.md)
-
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
+[USAGE.zh-CN.md](USAGE.zh-CN.md)
 
 ## 常见问题 (Frequently Asked Questions)
-
 以下来自 Netch 版本发布频道[第 50 条消息](https://t.me/NetchXChannel/50)。
 
 >- Q：我的系统无法运行（秒出启动失败）
@@ -82,22 +69,11 @@ Netch 是一款 windows 平台的开源游戏加速工具，不同于 SSTap 那�
 
 >如果重装系统不能解决问题。建议大哥考虑一下购买一台新电脑
 
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
-
 ## 截图
-
 <escape><div title="主界面" align="middle"><img src="screenshots/main.png" height="80%" width="80%"></div><div align="middle">主界面</div></escape>
 
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
-
 ## 依赖
-
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
-<escape><a href = "#目录">&nbsp;↑&nbsp;</a></escape>
-
 ## 注释
-
-点击上箭头可返回原位置。
-
 <escape><a name = "ref_1_d"><a href = "#ref_1_d">[1]</a></a>&nbsp;<a href = "#ref_1_s">&nbsp;↑&nbsp;</a>&nbsp;<a href = "https://www.right.com.cn/forum/thread-199299-1-1.html">NAT原理</a></br><a name = "ref_2_d"><a href = "#ref_2_d">[2]</a></a>&nbsp;<a href = "#ref_2_s">&nbsp;↑&nbsp;</a>&nbsp;<a href = "https://github.com/HMBSbige/NatTypeTester">NAT类型检测工具</a></escape>
