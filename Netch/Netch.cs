@@ -45,11 +45,11 @@ namespace Netch
             {
                 try
                 {
-                    CultureCodeName = System.Globalization.CultureInfo.GetCultureInfo(args[0]).Name;
+                    CultureCodeName = CultureInfo.GetCultureInfo(args[0]).Name;
                 }
-                catch (System.Globalization.CultureNotFoundException)
+                catch (CultureNotFoundException)
                 {
-
+                    // 跳过
                 }
             }
 
@@ -60,9 +60,7 @@ namespace Netch
                 // 记录日志
                 Utils.Logging.Info($"当前语言：{CultureCodeName}");
             }
-
-            // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
-            else if (Directory.Exists("i18n"))
+            else if (Directory.Exists("i18n")) // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
             {
                 // 如果符合条件的语言文件存在，进行加载
                 if (File.Exists($"i18n\\{CultureCodeName}"))
@@ -74,10 +72,8 @@ namespace Netch
                 // 如果符合条件的语言文件不存在，使用默认语言en-US
                 Utils.Logging.Info($"当前语言：en-US");
             }
-
-            else
+            else // 如果外部文件均不存在，只是创建目录
             {
-                // 如果外部文件均不存在，只是创建目录
                 Directory.CreateDirectory("i18n");
                 // 记录日志
                 Utils.Logging.Info($"当前语言：en-US");
