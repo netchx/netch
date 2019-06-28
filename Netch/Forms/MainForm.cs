@@ -26,6 +26,7 @@ namespace Netch.Forms
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
+            ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
 
         public void InitServer()

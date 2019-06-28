@@ -129,6 +129,7 @@
     <Compile Include="Objects\SSD\Server.cs" />
     <Compile Include="Objects\State.cs" />
     <Compile Include="Objects\SubscribeLink.cs" />
+    <Compile Include="Override\ToolStripProfessionalRender.cs" />
     <Compile Include="Override\WebClient.cs">
       <SubType>Component</SubType>
     </Compile>

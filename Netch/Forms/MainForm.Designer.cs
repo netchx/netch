@@ -74,6 +74,7 @@
             this.VersionLabel});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
+            this.ToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
             this.ToolStrip.Size = new System.Drawing.Size(608, 25);
             this.ToolStrip.TabIndex = 0;
             // 
