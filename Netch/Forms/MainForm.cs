@@ -184,12 +184,19 @@ namespace Netch.Forms
             {
                 while (true)
                 {
-                    foreach (var server in Global.Server)
+                    if (State == Objects.State.Waiting || State == Objects.State.Stopped)
                     {
-                        Task.Run(server.Test);
-                    }
+                        foreach (var server in Global.Server)
+                        {
+                            Task.Run(server.Test);
+                        }
 
-                    Thread.Sleep(10000);
+                        Thread.Sleep(10000);
+                    }
+                    else
+                    {
+                        Thread.Sleep(200);
+                    }
                 }
             });
         }
@@ -481,6 +488,11 @@ namespace Netch.Forms
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Objects.State.Stopped;
+
+                    foreach (var server in Global.Server)
+                    {
+                        Task.Run(server.Test);
+                    }
                 });
             }
         }
