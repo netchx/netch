@@ -12,7 +12,7 @@ namespace Netch
         /// 应用程序的主入口点
         /// </summary>
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
             // 设置当前目录
             Directory.SetCurrentDirectory(Application.StartupPath);
@@ -37,22 +37,50 @@ namespace Netch
                 Directory.CreateDirectory("mode");
             }
 
-            Utils.Logging.Info($"当前语言：{CultureInfo.InstalledUICulture.Name}");
-            if (CultureInfo.InstalledUICulture.Name == "zh-CN")
-            {
-                Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-            }
+            // 得到当前线程语言代码
+            var CultureCodeName = CultureInfo.CurrentCulture.Name;
 
-            if (Directory.Exists("i18n"))
+            // 如果命令行参数只有一个，且传入有效语言代码，那么覆盖掉已得到的语言代码
+            if (args.Length == 1)
             {
-                if (File.Exists($"i18n\\{CultureInfo.InstalledUICulture.Name}"))
+                try
                 {
-                    Utils.i18N.Load(File.ReadAllText($"i18n\\{CultureInfo.InstalledUICulture.Name}"));
+                    CultureCodeName = System.Globalization.CultureInfo.GetCultureInfo(args[0]).Name;
+                }
+                catch (System.Globalization.CultureNotFoundException)
+                {
+
                 }
             }
+
+            // 加载内置资源中的语言
+            if (CultureCodeName == "zh-CN")
+            {
+                Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
+                // 记录日志
+                Utils.Logging.Info($"当前语言：{CultureCodeName}");
+            }
+
+            // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
+            else if (Directory.Exists("i18n"))
+            {
+                // 如果符合条件的语言文件存在，进行加载
+                if (File.Exists($"i18n\\{CultureCodeName}"))
+                {
+                    Utils.i18N.Load(File.ReadAllText($"i18n\\{CultureCodeName}"));
+                    // 记录日志
+                    Utils.Logging.Info($"当前语言：{CultureCodeName}");
+                }
+                // 如果符合条件的语言文件不存在，使用默认语言en-US
+                Utils.Logging.Info($"当前语言：en-US");
+            }
+
             else
             {
+                // 如果外部文件均不存在，只是创建目录
                 Directory.CreateDirectory("i18n");
+                // 记录日志
+                Utils.Logging.Info($"当前语言：en-US");
             }
 
             Application.EnableVisualStyles();
