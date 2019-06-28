@@ -9,16 +9,6 @@ namespace Netch.Controllers
     public class NFController
     {
         /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
-
-        /// <summary>
-        ///		当前状态
-        /// </summary>
-        public Objects.State State = Objects.State.Waiting;
-
-        /// <summary>
         ///		启动
         /// </summary>
         /// <param name="server">服务器</param>
@@ -26,18 +16,10 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Objects.Server server, Objects.Mode mode)
         {
-            if (!File.Exists("bin\\Redirector.exe"))
+            if (!File.Exists("NetchCore.dll"))
             {
+                Utils.Logging.Info("核心文件 NetchCore.dll 丢失");
                 return false;
-            }
-
-            // 清理上一次的日志文件，防止淤积占用磁盘空间
-            if (Directory.Exists("logging"))
-            {
-                if (File.Exists("logging\\redirector.log"))
-                {
-                    File.Delete("logging\\redirector.log");
-                }
             }
 
             // 生成驱动文件路径
@@ -113,57 +95,36 @@ namespace Netch.Controllers
                 }
             }
 
-            var processes = "";
+            if (!Win32Native.srn_init())
+            {
+                Utils.Logging.Info("初始化失败");
+                return false;
+            }
+
+            Win32Native.srn_addOption(Win32Native.OptionType.OT_DRIVER_NAME, "netfilter2");
+
             foreach (var proc in mode.Rule)
             {
-                processes += proc;
-                processes += ",";
-            }
-            processes = processes.Substring(0, processes.Length - 1);
-
-            Instance = MainController.GetProcess();
-            Instance.StartInfo.FileName = "bin\\Redirector.exe";
-            Instance.StartInfo.Arguments = String.Format("-r 127.0.0.1:2801 -p \"{0}\"", processes);
-
-            if (server.Type == "Socks5")
-            {
-                Instance.StartInfo.Arguments = String.Format("-r {0}:{1} -p \"{2}\"", server.Address, server.Port, processes);
+                Win32Native.srn_startRule();
+                Win32Native.srn_addOption(Win32Native.OptionType.OT_PROCESS_NAME, proc);
+                Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_ADDRESS, "127.0.0.1:2801");
 
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
-                    Instance.StartInfo.Arguments += String.Format(" -username \"{0}\" -password \"{1}\"", server.Username, server.Password);
+                    Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_USER_NAME, server.Username);
+                    Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_PASSWORD, server.Password);
                 }
+
+                Win32Native.srn_endRule();
             }
-
-            Instance.OutputDataReceived += OnOutputDataReceived;
-            Instance.ErrorDataReceived += OnOutputDataReceived;
-
-            State = Objects.State.Starting;
-            Instance.Start();
-            Instance.BeginOutputReadLine();
-            Instance.BeginErrorReadLine();
-            for (int i = 0; i < 1000; i++)
+            
+            if (!Win32Native.srn_enable(1))
             {
-                Thread.Sleep(10);
-
-                if (State == Objects.State.Started)
-                {
-                    return true;
-                }
-
-                if (State == Objects.State.Stopped)
-                {
-                    Utils.Logging.Info("NF 进程启动失败");
-
-                    Stop();
-
-                    return false;
-                }
+                Win32Native.srn_free();
+                return false;
             }
 
-            Utils.Logging.Info("NF 进程启动超时");
-            Stop();
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -173,11 +134,8 @@ namespace Netch.Controllers
         {
             try
             {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
+                Win32Native.srn_enable(0);
+                Win32Native.srn_free();
 
                 var service = new ServiceController("netfilter2");
                 service.Stop();
@@ -186,30 +144,6 @@ namespace Netch.Controllers
             catch (Exception e)
             {
                 Utils.Logging.Info(e.ToString());
-            }
-        }
-
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(e.Data))
-            {
-                File.AppendAllText("logging\\redirector.log", String.Format("{0}\r\n", e.Data));
-
-                if (State == Objects.State.Starting)
-                {
-                    if (Instance.HasExited)
-                    {
-                        State = Objects.State.Stopped;
-                    }
-                    else if (e.Data.Contains("Started"))
-                    {
-                        State = Objects.State.Started;
-                    }
-                    else if (e.Data.Contains("Failed") || e.Data.Contains("Unable"))
-                    {
-                        State = Objects.State.Stopped;
-                    }
-                }
             }
         }
     }
