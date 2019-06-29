@@ -245,7 +245,8 @@ namespace Netch.Forms
 
         private void AddShadowsocksRServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            (new Server.ShadowsocksR()).Show();
+            Hide();
         }
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -474,7 +475,8 @@ namespace Netch.Forms
                         (new Server.Shadowsocks(ServerComboBox.SelectedIndex)).Show();
                         break;
                     case "ShadowsocksR":
-                        return;
+                        (new Server.ShadowsocksR(ServerComboBox.SelectedIndex)).Show();
+                        break;
                     case "VMess":
                         return;
                     default:

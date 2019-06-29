@@ -23,6 +23,10 @@
     "Username": "用户名",
     "Password": "密码",
     "Encrypt Method": "加密方式",
+    "Protocol": "协议",
+    "Protocol Param": "协议参数",
+    "OBFS": "混淆",
+    "OBFS Param": "混淆参数",
     "Saved": "保存成功",
     
     "Subscribe": "订阅",
