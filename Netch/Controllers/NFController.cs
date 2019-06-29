@@ -72,14 +72,10 @@ namespace Netch.Controllers
             try
             {
                 var service = new ServiceController("netfilter2");
-                if (service.Status == ServiceControllerStatus.Running)
+                if (service.Status == ServiceControllerStatus.Stopped)
                 {
-                    service.Stop();
-                    service.WaitForStatus(ServiceControllerStatus.Stopped);
+                    service.Start();
                 }
-
-                service.Start();
-                service.WaitForStatus(ServiceControllerStatus.Running);
             }
             catch (Exception e)
             {
@@ -121,7 +117,6 @@ namespace Netch.Controllers
                 Win32Native.srn_startRule();
                 Win32Native.srn_addOption(Win32Native.OptionType.OT_PROCESS_NAME, proc);
                 Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_ADDRESS, "127.0.0.1:2801");
-
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
                     Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_USER_NAME, server.Username);
@@ -149,10 +144,6 @@ namespace Netch.Controllers
             {
                 Win32Native.srn_enable(0);
                 Win32Native.srn_free();
-
-                var service = new ServiceController("netfilter2");
-                service.Stop();
-                service.WaitForStatus(ServiceControllerStatus.Stopped);
             }
             catch (Exception e)
             {

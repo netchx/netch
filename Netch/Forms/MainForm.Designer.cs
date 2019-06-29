@@ -55,6 +55,7 @@
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
+            this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -158,6 +159,7 @@
             // AboutToolStripDropDownButton
             // 
             this.AboutToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.RestartServiceToolStripMenuItem,
             this.TelegarmGroupToolStripMenuItem,
             this.TelegramChannelToolStripMenuItem});
             this.AboutToolStripDropDownButton.Name = "AboutToolStripDropDownButton";
@@ -308,6 +310,13 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
+            // RestartServiceToolStripMenuItem
+            // 
+            this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.RestartServiceToolStripMenuItem.Text = "Restart Service";
+            this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -369,5 +378,6 @@
         private System.Windows.Forms.PictureBox EditPictureBox;
         private System.Windows.Forms.ToolStripButton FastCreateModeToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem TelegramChannelToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
     }
 }
