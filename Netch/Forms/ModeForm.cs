@@ -93,8 +93,8 @@ namespace Netch.Forms
         private void ScanButton_Click(object sender, EventArgs e)
         {
             var dialog = new FolderSelect.FolderSelectDialog();
-            dialog.Title = Utils.i18N.Translate("Select a Folder");
-            if (dialog.ShowDialog(IntPtr.Zero))
+            dialog.Title = Utils.i18N.Translate("Select a folder");
+            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()))
             {
                 ScanDirectory(dialog.FileName);
                 MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
