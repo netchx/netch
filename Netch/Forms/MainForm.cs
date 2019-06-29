@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -187,7 +186,6 @@ namespace Netch.Forms
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
             FastCreateModeToolStripButton.Text = Utils.i18N.Translate("Fast Create Mode");
             AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
-            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             TelegarmGroupToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Group");
             TelegramChannelToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Channel");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
@@ -368,37 +366,6 @@ namespace Netch.Forms
         {
             (new ModeForm()).Show();
             Hide();
-        }
-
-        private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            Task.Run(() =>
-            {
-                try
-                {
-                    var service = new ServiceController("netfilter2");
-                    if (service.Status == ServiceControllerStatus.Stopped)
-                    {
-                        service.Start();
-                        service.WaitForStatus(ServiceControllerStatus.Running);
-                    }
-                    else if (service.Status == ServiceControllerStatus.Running)
-                    {
-                        service.Stop();
-                        service.WaitForStatus(ServiceControllerStatus.Stopped);
-                        service.Start();
-                        service.WaitForStatus(ServiceControllerStatus.Running);
-                    }
-                }
-                catch (Exception)
-                {
-                    nfapinet.NFAPI.nf_registerDriver("netfilter2");
-                }
-
-                MessageBox.Show(Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Enabled = true;
-            });
         }
 
         private void TelegarmGroupToolStripMenuItem_Click(object sender, EventArgs e)
