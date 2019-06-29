@@ -1,11 +1,14 @@
 # 使用方法
+
 其他中文教程：
+
 - [【教程】运用 Netch ，享受游戏 - 萌鹰研究所](https://www.eaglemoe.com/archives/142)
 - [Netch：一款开源的网络游戏加速工具 - Rat's Blog](https://www.moerats.com/archives/959/)
 
 本页面的 [GitHub Pages](https://binglinggroup.github.io/archives/Netch_guide.html) 版本。
 
 ## 目录
+
 1. [步骤](#步骤)
    - 1.1 [新建代理配置](#新建代理配置)
    - 1.2 [模式](#模式)
@@ -17,9 +20,11 @@
 点击上箭头可返回目录。
 
 ## 步骤
+
 - 现在软件还处在早期开发阶段，可能后续版本会发生很大变化，操作仅供参考。
 
 ### 新建代理配置
+
 当前版本已添加配置编辑功能，根据自己的情况，使用订阅或者别的方法添加代理配置，我这里使用的是剪贴板导入。
 
 如果你想使用的代理工具目前 Netch 还不支持，可以通过 Socks5 代理进行中转，也就是让 Netch 访问你的代理工具提供的 Socks5 代理
@@ -29,6 +34,7 @@
 ~~如果你发现你的程序没我截图的看起来清晰，可以右键 Netch.exe -属性-兼容性-更改高 DPI 设置-替代高 DPI 缩放执行-系统(增强) ~~
 
 ### 模式
+
 如果你的游戏的模式已经被收录，也可以考虑直接使用已收录的模式。所有模式的文件，都在 `./mode/` 文件夹下，如果你需要多个模式的合并文件，可以使用记事本将其打开，将多个文件合并
 
 <escape><div title="点击快速创建模式.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 211537.png" height="80%" width="80%"></div><div align="middle">点击快速创建模式.jpg</div></escape>
@@ -42,6 +48,7 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 接着点击菜单栏上的快速创建模式
 
 ### 扫描
+
 在弹出的窗口中点击扫描
 
 <escape><div title="扫描.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 211842.png" height="50%" width="50%"></div><div align="middle">扫描.jpg</div></escape>
@@ -64,6 +71,7 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 <escape><div title="保存.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 212837.png" height="50%" width="50%"></div><div align="middle">保存.jpg</div></escape>
 
 ### 启动
+
 最后确认服务器一栏和模式一栏均为之前自己添加并需要使用的，没问题后点击启动即可
 
 <escape><div title="启动.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 213121.png" height="80%" width="80%"></div><div align="middle">启动.jpg</div></escape>
@@ -75,9 +83,11 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 如果需要 Steam ， Uplay 等启动器也被代理，参照前面的方式对 Steam ， Uplay 根目录也进行扫描即可
 
 ## 线路选择
+
 普通人可以入手 [N3RO](https://n3ro.io/register?ref=530) 的线路(不负责推荐)，根据 [Saber 大佬的科普](https://t.me/sabershome/197)， IPLC 的线路较为稳定
 
 ## 配合 udp2raw 使用
+
 打算使用自己租赁的服务器加速游戏的中二人士可以了解一下，多种网络工具配合使用，战公网
 
 [UDPSpeeder + udp2raw 使用教程](https://www.moerats.com/archives/662/)
