@@ -16,33 +16,38 @@ namespace Netch.Forms
         /// <summary>
 		///		扫描目录
 		/// </summary>
-		/// <param name="info">路径</param>
-		public void ScanDirectory(FileSystemInfo info)
+		/// <param name="DirName">路径</param>
+		public void ScanDirectory(String DirName)
         {
-            if (!info.Exists)
+            try
             {
-                return;
-            }
-
-            var dir = info as DirectoryInfo;
-            if (dir == null)
-            {
-                return;
-            }
-
-            FileSystemInfo[] files = dir.GetFileSystemInfos();
-            foreach (var f in files)
-            {
-                if (f is FileInfo file && !RuleListBox.Items.Contains(file.Name))
+                DirectoryInfo RDirInfo = new DirectoryInfo(DirName);
+                if (!RDirInfo.Exists)
                 {
-                    if (file.Name.EndsWith(".exe"))
-                    {
-                        RuleListBox.Items.Add(file.Name);
-                    }
+                    return;
                 }
-                else
+            }
+            catch (Exception)
+            {
+                return;
+            }
+
+            System.Collections.Generic.Stack<string> DirStack = new System.Collections.Generic.Stack<string>();
+            DirStack.Push(DirName);
+
+            while (DirStack.Count > 0)
+            {
+                DirectoryInfo DirInfo = new DirectoryInfo(DirStack.Pop());
+                foreach (DirectoryInfo DirChildInfo in DirInfo.GetDirectories())
                 {
-                    ScanDirectory(f);
+                    DirStack.Push(DirChildInfo.FullName);
+                }
+                foreach (FileInfo FileChildInfo in DirInfo.GetFiles())
+                {
+                    if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
+                    {
+                        RuleListBox.Items.Add(FileChildInfo.Name);
+                    }
                 }
             }
         }
@@ -87,14 +92,12 @@ namespace Netch.Forms
 
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            using (var dialog = new FolderBrowserDialog())
+            var dialog = new FolderSelect.FolderSelectDialog();
+            dialog.Title = Utils.i18N.Translate("Select a Folder");
+            if (dialog.ShowDialog(IntPtr.Zero))
             {
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    ScanDirectory(new DirectoryInfo(dialog.SelectedPath));
-
-                    MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                ScanDirectory(dialog.FileName);
+                MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
