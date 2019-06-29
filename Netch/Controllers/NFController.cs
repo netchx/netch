@@ -1,11 +1,23 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
+using System.Threading;
 
 namespace Netch.Controllers
 {
     public class NFController
     {
+        /// <summary>
+        ///     进程实例
+        /// </summary>
+        public Process Instance;
+
+        /// <summary>
+        ///     当前装填
+        /// </summary>
+        public Objects.State State = Objects.State.Waiting;
+
         /// <summary>
         ///		启动
         /// </summary>
@@ -14,10 +26,14 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Objects.Server server, Objects.Mode mode)
         {
-            if (!File.Exists("NetchCore.dll"))
+            if (!File.Exists("bin\\Redirector.exe"))
             {
-                Utils.Logging.Info("核心文件 NetchCore.dll 丢失");
                 return false;
+            }
+
+            if (File.Exists("logging\\redirector.log"))
+            {
+                File.Delete("logging\\redirector.log");
             }
 
             // 生成驱动文件路径
@@ -89,50 +105,56 @@ namespace Netch.Controllers
                 }
             }
 
-            // 初始化
-            if (!Win32Native.srn_init())
-            {
-                Utils.Logging.Info("初始化失败");
-                return false;
-            }
-
-            // 设置驱动名
-            Win32Native.srn_addOption(Win32Native.OptionType.OT_DRIVER_NAME, "netfilter2");
-
-            // 绕过 IPv4 环路地址
-            Win32Native.srn_startRule();
-            Win32Native.srn_addOption(Win32Native.OptionType.OT_REMOTE_ADDRESS, "127.0.0.0/8");
-            Win32Native.srn_addOption(Win32Native.OptionType.OT_ACTION, "bypass");
-            Win32Native.srn_endRule();
-
-            // 绕过 IPv6 环路地址
-            Win32Native.srn_startRule();
-            Win32Native.srn_addOption(Win32Native.OptionType.OT_REMOTE_ADDRESS, "[::1]/128");
-            Win32Native.srn_addOption(Win32Native.OptionType.OT_ACTION, "bypass");
-            Win32Native.srn_endRule();
-
-            // 设置需要劫持的进程
+            var processes = "";
             foreach (var proc in mode.Rule)
             {
-                Win32Native.srn_startRule();
-                Win32Native.srn_addOption(Win32Native.OptionType.OT_PROCESS_NAME, proc);
-                Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_ADDRESS, "127.0.0.1:2801");
+                processes += proc;
+                processes += ",";
+            }
+            processes = processes.Substring(0, processes.Length - 1);
+
+            Instance = MainController.GetProcess();
+            Instance.StartInfo.FileName = "bin\\Redirector.exe";
+            Instance.StartInfo.Arguments = String.Format("-r 127.0.0.1:2801 -p \"{0}\"", processes);
+
+            if (server.Type == "Socks5")
+            {
+                Instance.StartInfo.Arguments = String.Format("-r {0}:{1} -p \"{2}\"", server.Address, server.Port, processes);
+
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
-                    Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_USER_NAME, server.Username);
-                    Win32Native.srn_addOption(Win32Native.OptionType.OT_PROXY_PASSWORD, server.Password);
+                    Instance.StartInfo.Arguments += String.Format(" -username \"{0}\" -password \"{1}\"", server.Username, server.Password);
+                }
+            }
+
+            Instance.OutputDataReceived += OnOutputDataReceived;
+            Instance.ErrorDataReceived += OnOutputDataReceived;
+            State = Objects.State.Starting;
+            Instance.Start();
+            Instance.BeginOutputReadLine();
+            Instance.BeginErrorReadLine();
+            for (int i = 0; i < 1000; i++)
+            {
+                Thread.Sleep(10);
+
+                if (State == Objects.State.Started)
+                {
+                    return true;
                 }
 
-                Win32Native.srn_endRule();
+                if (State == Objects.State.Stopped)
+                {
+                    Utils.Logging.Info("NF 进程启动失败");
+
+                    Stop();
+
+                    return false;
+                }
             }
 
-            if (!Win32Native.srn_enable(1))
-            {
-                Win32Native.srn_free();
-                return false;
-            }
-
-            return true;
+            Utils.Logging.Info("NF 进程启动超时");
+            Stop();
+            return false;
         }
 
         /// <summary>
@@ -142,12 +164,39 @@ namespace Netch.Controllers
         {
             try
             {
-                Win32Native.srn_enable(0);
-                Win32Native.srn_free();
+                if (Instance != null && !Instance.HasExited)
+                {
+                    Instance.Kill();
+                    Instance.WaitForExit();
+                }
             }
             catch (Exception e)
             {
                 Utils.Logging.Info(e.ToString());
+            }
+        }
+
+        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!String.IsNullOrWhiteSpace(e.Data))
+            {
+                File.AppendAllText("logging\\redirector.log", String.Format("{0}\r\n", e.Data));
+
+                if (State == Objects.State.Starting)
+                {
+                    if (Instance.HasExited)
+                    {
+                        State = Objects.State.Stopped;
+                    }
+                    else if (e.Data.Contains("Started"))
+                    {
+                        State = Objects.State.Started;
+                    }
+                    else if (e.Data.Contains("Failed") || e.Data.Contains("Unable"))
+                    {
+                        State = Objects.State.Stopped;
+                    }
+                }
             }
         }
     }

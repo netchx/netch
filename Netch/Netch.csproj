@@ -138,7 +138,6 @@
     <Compile Include="Utils\i18N.cs" />
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="Utils\ShareLink.cs" />
-    <Compile Include="Win32Native.cs" />
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -200,9 +199,7 @@ MKDIR $(TargetDir)mode &gt; NUL 2&gt;&amp;1
 
 COPY /Y $(SolutionDir)binaries\$(PlatformName)\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)binaries\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1
-MOVE /Y $(TargetDir)bin\nfapi.dll $(TargetDir)nfapi.dll &gt; NUL 2&gt;&amp;1
 MOVE /Y $(TargetDir)bin\nfapinet.dll $(TargetDir)nfapinet.dll &gt; NUL 2&gt;&amp;1
-MOVE /Y $(TargetDir)bin\NetchCore.dll $(TargetDir)NetchCore.dll &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)translations\i18n\* $(TargetDir)i18n &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)modes\mode\*.txt $(TargetDir)mode &gt; NUL 2&gt;&amp;1</PostBuildEvent>
   </PropertyGroup>
