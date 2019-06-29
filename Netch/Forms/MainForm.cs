@@ -188,6 +188,7 @@ namespace Netch.Forms
             FastCreateModeToolStripButton.Text = Utils.i18N.Translate("Fast Create Mode");
             AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
+            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
             TelegarmGroupToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Group");
             TelegramChannelToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Channel");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
@@ -397,6 +398,50 @@ namespace Netch.Forms
                 }
 
                 MessageBox.Show(Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Enabled = true;
+            });
+        }
+
+        private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            Task.Run(() =>
+            {
+                var driver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
+                if (File.Exists(driver))
+                {
+                    try
+                    {
+                        var service = new ServiceController("netfilter2");
+                        if (service.Status == ServiceControllerStatus.Running)
+                        {
+                            service.Stop();
+                            service.WaitForStatus(ServiceControllerStatus.Stopped);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // 跳过
+                    }
+
+                    try
+                    {
+                        nfapinet.NFAPI.nf_unRegisterDriver("netfilter2");
+
+                        File.Delete(driver);
+
+                        MessageBox.Show(Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex.ToString(), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
                 Enabled = true;
             });
         }

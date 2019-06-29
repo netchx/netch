@@ -41,6 +41,7 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.FastCreateModeToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.AboutToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TelegarmGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TelegramChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
@@ -55,7 +56,7 @@
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
-            this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -160,11 +161,19 @@
             // 
             this.AboutToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.RestartServiceToolStripMenuItem,
+            this.UninstallServiceToolStripMenuItem,
             this.TelegarmGroupToolStripMenuItem,
             this.TelegramChannelToolStripMenuItem});
             this.AboutToolStripDropDownButton.Name = "AboutToolStripDropDownButton";
             this.AboutToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
             this.AboutToolStripDropDownButton.Text = "About";
+            // 
+            // RestartServiceToolStripMenuItem
+            // 
+            this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.RestartServiceToolStripMenuItem.Text = "Restart Service";
+            this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // TelegarmGroupToolStripMenuItem
             // 
@@ -310,12 +319,12 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // RestartServiceToolStripMenuItem
+            // UninstallServiceToolStripMenuItem
             // 
-            this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.RestartServiceToolStripMenuItem.Text = "Restart Service";
-            this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
+            this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
+            this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -379,5 +388,6 @@
         private System.Windows.Forms.ToolStripButton FastCreateModeToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem TelegramChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
     }
 }
