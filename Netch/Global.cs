@@ -10,6 +10,11 @@ namespace Netch
         public static Forms.MainForm MainForm;
 
         /// <summary>
+        ///     杂项配置
+        /// </summary>
+        public static Dictionary<string, int> Settings = new Dictionary<string, int>();
+
+        /// <summary>
         ///     服务器列表
         /// </summary>
         public static List<Objects.Server> Server = new List<Objects.Server>();
