@@ -144,7 +144,7 @@
     <Compile Include="3rd\FolderSelect\FolderSelect.cs" />
     <Compile Include="Utils\i18N.cs" />
     <Compile Include="Utils\Logging.cs" />
-    <Compile Include="Utils\Reflector.cs" />
+    <Compile Include="3rd\FolderSelect\Reflector.cs" />
     <Compile Include="Utils\ShareLink.cs" />
     <Compile Include="Win32Native.cs" />
     <EmbeddedResource Include="Forms\MainForm.resx">
