@@ -186,9 +186,10 @@ namespace Netch.Forms
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
             FastCreateModeToolStripButton.Text = Utils.i18N.Translate("Fast Create Mode");
-            AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
+            ServiceToolStripDropDownButton.Text = Utils.i18N.Translate("Service");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
+            AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
             TelegarmGroupToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Group");
             TelegramChannelToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Channel");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
