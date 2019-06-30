@@ -31,11 +31,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
             this.ServerToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddSocks5ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksRServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,6 +94,13 @@
             this.ServerToolStripDropDownButton.Size = new System.Drawing.Size(58, 22);
             this.ServerToolStripDropDownButton.Text = "Server";
             // 
+            // ImportServersFromClipboardToolStripMenuItem
+            // 
+            this.ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
+            this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
+            this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
+            // 
             // AddSocks5ServerToolStripMenuItem
             // 
             this.AddSocks5ServerToolStripMenuItem.Name = "AddSocks5ServerToolStripMenuItem";
@@ -121,13 +128,6 @@
             this.AddVMessServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
             this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
             this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddVMessServerToolStripMenuItem_Click);
-            // 
-            // ImportServersFromClipboardToolStripMenuItem
-            // 
-            this.ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
-            this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
-            this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
             // 
             // SubscribeToolStripDropDownButton
             // 
@@ -171,14 +171,14 @@
             // RestartServiceToolStripMenuItem
             // 
             this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
             this.RestartServiceToolStripMenuItem.Text = "Restart Service";
             this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
@@ -213,7 +213,7 @@
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(83, 22);
-            this.VersionLabel.Text = "1.0.9-STABLE";
+            this.VersionLabel.Text = "1.1.0-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
