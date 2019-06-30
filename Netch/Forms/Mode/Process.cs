@@ -107,7 +107,7 @@ namespace Netch.Forms.Mode
             {
                 if (RuleListBox.Items.Count != 0)
                 {
-                    var text = String.Format("# {0} 0\r\n", RemarkTextBox.Text);
+                    var text = String.Format("# {0}, 0\r\n", RemarkTextBox.Text);
                     foreach (var item in RuleListBox.Items)
                     {
                         var process = item as String;
