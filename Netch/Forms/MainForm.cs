@@ -89,6 +89,7 @@ namespace Netch.Forms
 
                 foreach (var name in Directory.GetFiles("mode", "*.txt"))
                 {
+                    var ok = true;
                     var mode = new Objects.Mode();
 
                     using (var sr = new StringReader(File.ReadAllText(name)))
@@ -100,7 +101,44 @@ namespace Netch.Forms
                         {
                             if (i == 0)
                             {
-                                mode.Remark = text.Substring(1).Trim();
+                                var splited = text.Trim().Substring(1).Split(',');
+
+                                if (splited.Length == 0)
+                                {
+                                    ok = false;
+                                    break;
+                                }
+
+                                if (splited.Length >= 1)
+                                {
+                                    mode.Remark = splited[0].Trim();
+                                }
+
+                                if (splited.Length >= 2)
+                                {
+                                    if (int.TryParse(splited[1], out int result))
+                                    {
+                                        mode.Type = result;
+                                    }
+                                    else
+                                    {
+                                        ok = false;
+                                        break;
+                                    }
+                                }
+
+                                if (splited.Length >= 3)
+                                {
+                                    if (int.TryParse(splited[2], out int result))
+                                    {
+                                        mode.BypassChina = (result == 1);
+                                    }
+                                    else
+                                    {
+                                        ok = false;
+                                        break;
+                                    }
+                                }
                             }
                             else
                             {
@@ -114,7 +152,10 @@ namespace Netch.Forms
                         }
                     }
 
-                    list.Add(mode);
+                    if (ok)
+                    {
+                        list.Add(mode);
+                    }
                 }
 
                 var array = list.ToArray();
