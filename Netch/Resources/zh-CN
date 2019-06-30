@@ -13,12 +13,15 @@
     "Stopped": "已停止",
     
     "Server": "服务器",
+    "Import Servers From Clipboard": "从剪贴板导入服务器",
     "Add [Socks5] Server": "添加 [Socks5] 服务器",
     "Add [Shadowsocks] Server": "添加 [Shadowsocks] 服务器",
     "Add [ShadowsocksR] Server": "添加 [ShadowsocksR] 服务器",
     "Add [VMess] Server": "添加 [VMess] 服务器",
     "VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect": "当前不支持 VMess 服务器。需要更多信息请查看我们的 Github 发布页\n\n点击 OK 将会跳转",
-    "Import Servers From Clipboard": "从剪贴板导入服务器",
+
+    "Mode": "模式",
+    "Create Process Mode": "创建进程模式",
 
     "Address": "地址",
     "Username": "用户名",
@@ -36,8 +39,6 @@
     "No subscription link": "没有任何一条订阅链接",
     "Updating in the background": "正在后台更新中",
     "Update completed": "更新完成",
-
-    "Fast Create Mode": "快速创建模式",
     
     "Service": "服务",
     "Restart Service": "重启服务",
@@ -50,7 +51,6 @@
     "Telegram Channel": "Telegram 频道",
 
     "Configuration": "配置信息",
-    "Mode": "模式",
 
     "Please press Stop button first": "请先点击停止按钮",
     "Please select an server first": "请先选择一个服务器",

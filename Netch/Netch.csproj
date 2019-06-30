@@ -96,11 +96,11 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\ModeForm.cs">
+    <Compile Include="Forms\Mode\Process.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\ModeForm.Designer.cs">
-      <DependentUpon>ModeForm.cs</DependentUpon>
+    <Compile Include="Forms\Mode\Process.Designer.cs">
+      <DependentUpon>Process.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Server\ShadowsocksR.cs">
       <SubType>Form</SubType>
@@ -150,8 +150,8 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ModeForm.resx">
-      <DependentUpon>ModeForm.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Mode\Process.resx">
+      <DependentUpon>Process.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ShadowsocksR.resx">
       <DependentUpon>ShadowsocksR.cs</DependentUpon>

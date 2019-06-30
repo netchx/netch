@@ -36,10 +36,11 @@
             this.AddShadowsocksServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksRServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ModeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FastCreateModeToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.ServiceToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -71,8 +72,8 @@
             this.ToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ServerToolStripDropDownButton,
+            this.ModeToolStripDropDownButton,
             this.SubscribeToolStripDropDownButton,
-            this.FastCreateModeToolStripButton,
             this.ServiceToolStripDropDownButton,
             this.AboutToolStripDropDownButton,
             this.VersionLabel});
@@ -129,6 +130,21 @@
             this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
             this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddVMessServerToolStripMenuItem_Click);
             // 
+            // ModeToolStripDropDownButton
+            // 
+            this.ModeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CreateProcessModeToolStripMenuItem});
+            this.ModeToolStripDropDownButton.Name = "ModeToolStripDropDownButton";
+            this.ModeToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
+            this.ModeToolStripDropDownButton.Text = "Mode";
+            // 
+            // CreateProcessModeToolStripMenuItem
+            // 
+            this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
+            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
+            this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
+            // 
             // SubscribeToolStripDropDownButton
             // 
             this.SubscribeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -151,13 +167,6 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
-            // 
-            // FastCreateModeToolStripButton
-            // 
-            this.FastCreateModeToolStripButton.Name = "FastCreateModeToolStripButton";
-            this.FastCreateModeToolStripButton.Size = new System.Drawing.Size(116, 22);
-            this.FastCreateModeToolStripButton.Text = "Fast Create Mode";
-            this.FastCreateModeToolStripButton.Click += new System.EventHandler(this.FastCreateModeToolStripButton_Click);
             // 
             // ServiceToolStripDropDownButton
             // 
@@ -394,10 +403,11 @@
         private System.Windows.Forms.PictureBox SpeedPictureBox;
         private System.Windows.Forms.PictureBox DeletePictureBox;
         private System.Windows.Forms.PictureBox EditPictureBox;
-        private System.Windows.Forms.ToolStripButton FastCreateModeToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem TelegramChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripDropDownButton ServiceToolStripDropDownButton;
+        private System.Windows.Forms.ToolStripDropDownButton ModeToolStripDropDownButton;
+        private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
     }
 }

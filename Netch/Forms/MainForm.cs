@@ -265,15 +265,16 @@ namespace Netch.Forms
 
             // 加载翻译
             ServerToolStripDropDownButton.Text = Utils.i18N.Translate("Server");
+            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
             AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
             AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
             AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
             AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
-            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
+            ModeToolStripDropDownButton.Text = Utils.i18N.Translate("Mode");
+            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
             SubscribeToolStripDropDownButton.Text = Utils.i18N.Translate("Subscribe");
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            FastCreateModeToolStripButton.Text = Utils.i18N.Translate("Fast Create Mode");
             ServiceToolStripDropDownButton.Text = Utils.i18N.Translate("Service");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
@@ -321,6 +322,30 @@ namespace Netch.Forms
             }
         }
 
+        private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var texts = Clipboard.GetText();
+            if (!String.IsNullOrWhiteSpace(texts))
+            {
+                using (var sr = new StringReader(texts))
+                {
+                    string text;
+
+                    while ((text = sr.ReadLine()) != null)
+                    {
+                        var result = Utils.ShareLink.Parse(text);
+
+                        if (result != null)
+                        {
+                            Global.Server.AddRange(result);
+                        }
+                    }
+                }
+
+                InitServer();
+            }
+        }
+
         private void AddSocks5ServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             (new Server.Socks5()).Show();
@@ -347,28 +372,10 @@ namespace Netch.Forms
             }
         }
 
-        private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
-            var texts = Clipboard.GetText();
-            if (!String.IsNullOrWhiteSpace(texts))
-            {
-                using (var sr = new StringReader(texts))
-                {
-                    string text;
-
-                    while ((text = sr.ReadLine()) != null)
-                    {
-                        var result = Utils.ShareLink.Parse(text);
-
-                        if (result != null)
-                        {
-                            Global.Server.AddRange(result);
-                        }
-                    }
-                }
-
-                InitServer();
-            }
+            (new Mode.Process()).Show();
+            Hide();
         }
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -457,12 +464,6 @@ namespace Netch.Forms
             {
                 MessageBox.Show(Utils.i18N.Translate("No subscription link"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-        }
-
-        private void FastCreateModeToolStripButton_Click(object sender, EventArgs e)
-        {
-            (new ModeForm()).Show();
-            Hide();
         }
 
         private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
