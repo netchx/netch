@@ -251,7 +251,8 @@ namespace Netch.Forms
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            (new MessageForm()).Show();
+            Hide();
         }
 
         private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
@@ -459,7 +460,7 @@ namespace Netch.Forms
 
         private void VersionLabel_Click(object sender, EventArgs e)
         {
-            TelegarmGroupToolStripMenuItem_Click(TelegarmGroupToolStripMenuItem, e);
+            Process.Start("https://github.com/netchx/Netch");
         }
 
         private void EditPictureBox_Click(object sender, EventArgs e)
