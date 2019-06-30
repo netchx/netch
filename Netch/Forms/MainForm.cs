@@ -251,8 +251,14 @@ namespace Netch.Forms
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new MessageForm()).Show();
-            Hide();
+            if (MessageBox.Show(
+            Utils.i18N.Translate("VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect"),
+            Utils.i18N.Translate("Information"),
+            MessageBoxButtons.OKCancel,
+            MessageBoxIcon.Information) == DialogResult.OK)
+            {
+                Process.Start("https://github.com/netchx/Netch/releases");
+            }
         }
 
         private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
