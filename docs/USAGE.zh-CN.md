@@ -15,9 +15,7 @@
    - 1.3 [扫描](#扫描)
    - 1.4 [启动](#启动)
 2. [线路选择](#线路选择)
-3. [配合 udp2raw 使用](#配合udp2raw使用)
-
-点击上箭头可返回目录。
+3. [配合 udp2raw 使用](#配合-udp2raw-使用)
 
 ## 步骤
 
@@ -31,7 +29,7 @@
 
 <escape><div title="剪贴板导入.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24_210438.png" height="80%" width="80%"></div><div align="middle">剪贴板导入.jpg</div></escape>
 
-~~如果你发现你的程序没我截图的看起来清晰，可以右键 Netch.exe -属性-兼容性-更改高 DPI 设置-替代高 DPI 缩放执行-系统(增强) ~~
+~~如果你发现你的程序没我截图的看起来清晰，可以右键 Netch.exe - 属性 - 兼容性 - 更改高 DPI 设置 - 替代高 DPI 缩放执行 - 系统（增强）~~
 
 ### 模式
 
@@ -39,7 +37,7 @@
 
 <escape><div title="点击快速创建模式.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 211537.png" height="80%" width="80%"></div><div align="middle">点击快速创建模式.jpg</div></escape>
 
-~~图中绿色的0是因为我使用了本地中转， Netch 内建的 ping 功能未能检测出真实的延迟数据 ~~
+~~图中绿色的0是因为我使用了本地中转， Netch 内建的 ping 功能未能检测出真实的延迟数据~~
 
 ping 的值未必准确，因为这只是你本地到代理服务器而非游戏服务器的延迟
 
@@ -53,16 +51,16 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 <escape><div title="扫描.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 211842.png" height="50%" width="50%"></div><div align="middle">扫描.jpg</div></escape>
 
-选择你要加速的游戏的安装路径，根据游戏不同，可能需要选择多个不同的目录进行扫描，参见[萌鹰的Netch教程](https://www.eaglemoe.com/archives/142)(包括 GTAOL 和 R6S 的配置方法)
+选择你要加速的游戏的安装路径，根据游戏不同，可能需要选择多个不同的目录进行扫描，参见[萌鹰的 Netch 教程](https://www.eaglemoe.com/archives/142)（包括 GTAOL 和 R6S 的配置方法）
 
->4. 选定 GTA5 游戏目录，点击确定，软件会自动扫描目录下的exe程式并填写进去。
+>4. 选定 GTA5 游戏目录，点击确定，软件会自动扫描目录下的 exe 程式并填写进去。
 >5. 再次点击扫描，选择 SocialClub 的安装地址（一般为 C:\Program Files\Rockstar Games\Social Club ），点击确定，点击保存。
 >
 >注意：加入游戏时请不要忘记加入社交组件，比如说 GTA 不要忘记 SocialClub ，彩虹六号不要忘记 Uplay 。
 
-这里以战争雷霆为例，只需添加战争雷霆游戏根目录即可，当前版本暂时不支持输入目录路径进行扫描
+这里以战争雷霆为例，只需添加战争雷霆游戏根目录即可
 
-<escape><div title="选择路径.jpg" align="middle"><img src="https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24 212036.png" height="50%" width="50%"></div><div align="middle">选择路径.jpg</div></escape>
+<escape><div title="选择路径.jpg" align="middle"><img src="screenshots/Browse_For_Folder.png" height="80%" width="80%"></div><div align="middle">选择路径.jpg</div></escape>
 
 扫描时可能需要稍等片刻，扫描后记得填写备注，如果需要添加单个程序，也可以在添加按钮左侧的编辑栏中手动输入并添加
 

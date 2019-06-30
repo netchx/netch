@@ -8,8 +8,6 @@
    - 1.3 [Scan](#scan)
    - 1.4 [Start](#start)
 
-Click up arrow to go back to TOC.
-
 ## Step by Step
 
 - Now Netch is under early development. Several changes may happen in the later releases. This guide for usage is just for your information.
@@ -49,9 +47,9 @@ Browse the installation path of the game which you want to accelerate. Depends o
 >
 >Note: Don't forget to add the SNS part of the game at the same time. For example, adding socialclub when adding GTA. Adding Uplay when adding Rainbow Six Siege.
 
-This demo takes Warthunder as the example. Since Warthunder can launch without Steam, just add its installation path is OK. Current version of Netch doesn't support directly entering the scan path.
+This demo takes Warthunder as the example. Since Warthunder can launch without Steam, just add its installation path is OK.
 
-<escape><div title="Browse For Folder" align="middle"><img src="screenshots/Browse_For_Folder.png" height="50%" width="50%"></div><div align="middle">Browse For Folder</div></escape>
+<escape><div title="Browse For Folder" align="middle"><img src="screenshots/Browse_For_Folder_en.png" height="80%" width="80%"></div><div align="middle">Browse For Folder</div></escape>
 
 It may take a few seconds to scan. Remember to fill in the Remark bar. If you need to add a single exe file, you can enter it in the edit bar to the left of the Add button.
 
