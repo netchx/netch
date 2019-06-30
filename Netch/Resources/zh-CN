@@ -17,6 +17,7 @@
     "Add [Shadowsocks] Server": "添加 [Shadowsocks] 服务器",
     "Add [ShadowsocksR] Server": "添加 [ShadowsocksR] 服务器",
     "Add [VMess] Server": "添加 [VMess] 服务器",
+    "VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect": "当前不支持 VMess 服务器。需要更多信息请查看我们的 Github 发布页\n\n点击 OK 将会跳转",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
 
     "Address": "地址",
