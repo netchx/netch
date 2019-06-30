@@ -5,7 +5,7 @@
 
 Game accelerator
 
-[简体中文](docs/README.zh-CN.md)
+[简体中文](docs/README.zh-CN.md) (此版本内容更丰富)
 
 ## TOC
 
@@ -15,8 +15,6 @@ Game accelerator
 4. [Screenshots](#screenshots)
 5. [Requirements](#requirements)
 6. [Explanatory note](#Explanatory-note)
-
-Click up arrow to go back to TOC.
 
 ## Download and Installation
 
