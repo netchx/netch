@@ -50,9 +50,34 @@ namespace Netch.Forms
             ServerComboBox.Items.Clear();
             ServerComboBox.Items.AddRange(Global.Server.ToArray());
 
-            if (ServerComboBox.Items.Count > 0)
+            // 查询Settings中是否正常加载了上次存储的服务器位置
+            if (Global.Settings.TryGetValue("ServerComboBoxSelectedIndex", out int count))
             {
-                ServerComboBox.SelectedIndex = 0;
+                // 如果值合法，选中该位置
+                if (count > 0 && count < ServerComboBox.Items.Count)
+                {
+                    ServerComboBox.SelectedIndex = count;
+                }
+                // 如果值非法，且当前ServerComboBox中有元素，选择第一个位置
+                else if (ServerComboBox.Items.Count > 0)
+                {
+                    ServerComboBox.SelectedIndex = 0;
+                }
+
+                // 如果当前ServerComboBox中没元素，不做处理
+            }
+            // 如果Settings没有加载上次的位置，给Settings添加元素
+            else
+            {
+                Global.Settings.Add("ServerComboBoxSelectedIndex", 0);
+                
+                // 如果当前ServerComboBox中有元素，选择第一个位置
+                if (ServerComboBox.Items.Count > 0)
+                {
+                    ServerComboBox.SelectedIndex = 0;
+                }
+
+                // 如果当前ServerComboBox中没元素，不做处理
             }
         }
 
@@ -100,9 +125,34 @@ namespace Netch.Forms
                 ModeComboBox.Items.AddRange(array);
             }
 
-            if (ModeComboBox.Items.Count > 0)
+            // 查询Settings中是否正常加载了上次存储的服务器位置
+            if (Global.Settings.TryGetValue("ModeComboBoxSelectedIndex", out int count))
             {
-                ModeComboBox.SelectedIndex = 0;
+                // 如果值合法，选中该位置
+                if (count > 0 && count < ModeComboBox.Items.Count)
+                {
+                    ModeComboBox.SelectedIndex = count;
+                }
+                // 如果值非法，且当前ModeComboBox中有元素，选择第一个位置
+                else if (ModeComboBox.Items.Count > 0)
+                {
+                    ModeComboBox.SelectedIndex = 0;
+                }
+
+                // 如果当前ModeComboBox中没元素，不做处理
+            }
+            // 如果Settings没有加载上次的位置，给Settings添加元素
+            else
+            {
+                Global.Settings.Add("ModeComboBoxSelectedIndex", 0);
+
+                // 如果当前ModeComboBox中有元素，选择第一个位置
+                if (ModeComboBox.Items.Count > 0)
+                {
+                    ModeComboBox.SelectedIndex = 0;
+                }
+
+                // 如果当前ModeComboBox中没元素，不做处理
             }
         }
 
@@ -227,7 +277,8 @@ namespace Netch.Forms
 
                     e.Cancel = true;
                 }
-
+                Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
+                Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
                 Utils.Configuration.Save();
             }
         }
@@ -468,6 +519,7 @@ namespace Netch.Forms
 
         private void EditPictureBox_Click(object sender, EventArgs e)
         {
+            // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
                 switch (Global.Server[ServerComboBox.SelectedIndex].Type)
@@ -497,6 +549,7 @@ namespace Netch.Forms
 
         private void DeletePictureBox_Click(object sender, EventArgs e)
         {
+            // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
                 var index = ServerComboBox.SelectedIndex;
@@ -533,12 +586,14 @@ namespace Netch.Forms
         {
             if (State == Objects.State.Waiting || State == Objects.State.Stopped)
             {
+                // 当前ServerComboBox中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select an server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
+                // 当前ModeComboBox中至少有一项
                 if (ModeComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
