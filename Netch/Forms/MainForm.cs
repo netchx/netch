@@ -50,7 +50,7 @@ namespace Netch.Forms
             ServerComboBox.Items.Clear();
             ServerComboBox.Items.AddRange(Global.Server.ToArray());
 
-            // 查询Settings中是否正常加载了上次存储的服务器位置
+            // 查询设置中是否正常加载了上次存储的服务器位置
             if (Global.Settings.TryGetValue("ServerComboBoxSelectedIndex", out int count))
             {
                 // 如果值合法，选中该位置
@@ -58,26 +58,24 @@ namespace Netch.Forms
                 {
                     ServerComboBox.SelectedIndex = count;
                 }
-                // 如果值非法，且当前ServerComboBox中有元素，选择第一个位置
-                else if (ServerComboBox.Items.Count > 0)
+                else if (ServerComboBox.Items.Count > 0) // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
                 {
                     ServerComboBox.SelectedIndex = 0;
                 }
 
-                // 如果当前ServerComboBox中没元素，不做处理
+                // 如果当前 ServerComboBox 中没元素，不做处理
             }
-            // 如果Settings没有加载上次的位置，给Settings添加元素
-            else
+            else // 如果设置中没有加载上次的位置，给设置添加元素
             {
                 Global.Settings.Add("ServerComboBoxSelectedIndex", 0);
                 
-                // 如果当前ServerComboBox中有元素，选择第一个位置
+                // 如果当前 ServerComboBox 中有元素，选择第一个位置
                 if (ServerComboBox.Items.Count > 0)
                 {
                     ServerComboBox.SelectedIndex = 0;
                 }
 
-                // 如果当前ServerComboBox中没元素，不做处理
+                // 如果当前 ServerComboBox 中没元素，不做处理
             }
         }
 
@@ -125,7 +123,7 @@ namespace Netch.Forms
                 ModeComboBox.Items.AddRange(array);
             }
 
-            // 查询Settings中是否正常加载了上次存储的服务器位置
+            // 查询设置中是否正常加载了上次存储的服务器位置
             if (Global.Settings.TryGetValue("ModeComboBoxSelectedIndex", out int count))
             {
                 // 如果值合法，选中该位置
@@ -133,26 +131,25 @@ namespace Netch.Forms
                 {
                     ModeComboBox.SelectedIndex = count;
                 }
-                // 如果值非法，且当前ModeComboBox中有元素，选择第一个位置
+                // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
                 else if (ModeComboBox.Items.Count > 0)
                 {
                     ModeComboBox.SelectedIndex = 0;
                 }
 
-                // 如果当前ModeComboBox中没元素，不做处理
+                // 如果当前 ModeComboBox 中没元素，不做处理
             }
-            // 如果Settings没有加载上次的位置，给Settings添加元素
-            else
+            else // 如果设置中没有加载上次的位置，给Settings添加元素
             {
                 Global.Settings.Add("ModeComboBoxSelectedIndex", 0);
 
-                // 如果当前ModeComboBox中有元素，选择第一个位置
+                // 如果当前 ModeComboBox 中有元素，选择第一个位置
                 if (ModeComboBox.Items.Count > 0)
                 {
                     ModeComboBox.SelectedIndex = 0;
                 }
 
-                // 如果当前ModeComboBox中没元素，不做处理
+                // 如果当前 ModeComboBox 中没元素，不做处理
             }
         }
 
