@@ -32,7 +32,7 @@ namespace Netch.Forms.Server
             OBFSParamLabel.Text = Utils.i18N.Translate("OBFS Param");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
-            foreach (var encrypt in Global.EncryptMethods.SS)
+            foreach (var encrypt in Global.EncryptMethods.SSR)
             {
                 EncryptMethodComboBox.Items.Add(encrypt);
             }
