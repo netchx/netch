@@ -5,11 +5,25 @@ namespace Netch.Utils
 {
     public static class Configuration
     {
+        /// <summary>
+        ///     数据目录
+        /// </summary>
+        public static readonly string DATA_DIR = "data";
 
-        private static readonly string DATA_DIR = "data";
-        private static readonly string SERVER_DAT = $"{DATA_DIR}\\server.dat";
-        private static readonly string LINK_DAT = $"{DATA_DIR}\\link.dat";
-        private static readonly string SETTINGS_DAT = $"{DATA_DIR}\\settings.dat";
+        /// <summary>
+        ///     服务器
+        /// </summary>
+        public static readonly string SERVER_DAT = $"{DATA_DIR}\\server.dat";
+
+        /// <summary>
+        ///     订阅链接
+        /// </summary>
+        public static readonly string LINK_DAT = $"{DATA_DIR}\\link.dat";
+
+        /// <summary>
+        ///     设置
+        /// </summary>
+        public static readonly string SETTINGS_DAT = $"{DATA_DIR}\\settings.dat";
 
         /// <summary>
         ///     加载配置
