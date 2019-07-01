@@ -32,7 +32,7 @@ namespace Netch.Controllers
                     }
                     else
                     {
-                        Instance = new MihaZupan.HttpToSocks5Proxy(server.Address, server.Port);
+                        Instance = new MihaZupan.HttpToSocks5Proxy(server.Address, server.Port, 2802);
                     }
                 }
                 else
