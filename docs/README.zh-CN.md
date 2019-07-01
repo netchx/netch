@@ -10,13 +10,13 @@
 1. [下载与安装](#下载与安装)
 2. [简介](#简介)
 3. [使用方法](#使用方法)
-4. [常见问题 \(Frequently Asked Questions\)](#常见问题-frequently-asked-questions)
+4. [常见问题 （Frequently Asked Questions）](#常见问题-（frequently-asked-questions）)
    - 4.1 [错误报告类问题](#错误报告类问题)
      - 4.1.1 [无法运行](#无法运行)
      - 4.1.2 [订阅无法导入](#订阅无法导入)
-     - 4.1.3 [无法进入游戏 / 模式无法使用](#无法进入游戏---模式无法使用)
+     - 4.1.3 [无法进入游戏 / 模式无法使用](#无法进入游戏--模式无法使用)
      - 4.1.4 [NAT 类型限制](#NAT-类型限制)
-     - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam---浏览器无法正常打开页面)
+     - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam--浏览器无法正常打开页面)
    - 4.2 [功能建议类问题](#功能建议类问题)
      - 4.2.1 [加入全局功能](#加入全局功能)
      - 4.2.2 [加入 VMess 代理功能](#加入-VMess-代理功能)
@@ -53,7 +53,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 
 [USAGE.zh-CN.md](USAGE.zh-CN.md)
 
-## 常见问题 (Frequently Asked Questions)
+## 常见问题 （Frequently Asked Questions）
 
 编辑自 Netch 版本发布频道[第 50 条消息](https://t.me/NetchXChannel/50)。
 
@@ -69,7 +69,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 >- Q：我的 win7 系统无法运行(秒出启动失败)，已确认是系统和软件版本位数一致
 >- A：如果是驱动问题，详见 [issue #14](https://github.com/netchx/Netch/issues/14) ，安装补丁 kb4503292 或者将系统更新至最新
 
->- Q：我的系统无法运行(打都打不开)
+>- Q：我的系统无法运行（打都打不开）
 >- A：看下面，装一下运行库
 >- Q：装了啊，提示已经安装，但是还是不行
 >- A：建议您重装一下系统（已知有用户系统被玩坏了，安装其实根本没装上）
@@ -87,7 +87,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 #### 订阅无法导入
 
 >- Q：为什么订阅导入不完整？
->- A：导入后看看 logging 目录里的 application.log 吧(也许会暗示什么)
+>- A：导入后看看 logging 目录里的 application.log 吧（也许会暗示什么）
 >- Q：啥也没有
 >- A：私发订阅链接看看（加群后联系@ConnectionRefused），一般来讲是订阅链接中有不被识别的 unicode 字符导致的，类似的问题参见 [issue #7](https://github.com/netchx/Netch/issues/7) ，这可能会是一个功能改进，但是目前没有时间表
 
