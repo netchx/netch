@@ -582,7 +582,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select an server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -603,7 +603,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select an server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -628,7 +628,7 @@ namespace Netch.Forms
                 // 当前ServerComboBox中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select an server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
