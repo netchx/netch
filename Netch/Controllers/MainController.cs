@@ -36,6 +36,11 @@ namespace Netch.Controllers
         public NFController pNFController = new NFController();
 
         /// <summary>
+        ///     HTTP 控制器
+        /// </summary>
+        public HTTPController pHTTPController = new HTTPController();
+
+        /// <summary>
         ///		启动
         /// </summary>
         /// <param name="server">服务器</param>
@@ -50,10 +55,10 @@ namespace Netch.Controllers
                     result = true;
                     break;
                 case "Shadowsocks":
-                    result = pSSController.Start(server);
+                    result = pSSController.Start(server, mode);
                     break;
                 case "ShadowsocksR":
-                    result = pSSRController.Start(server);
+                    result = pSSRController.Start(server, mode);
                     break;
                 case "VMess":
                     break;
@@ -63,7 +68,22 @@ namespace Netch.Controllers
 
             if (result)
             {
-                result = pNFController.Start(server, mode);
+                if (mode.Type == 0)
+                {
+                    result = pNFController.Start(server, mode);
+                }
+                else if (mode.Type == 1)
+                {
+                    result = false;
+                }
+                else if (mode.Type == 2)
+                {
+                    result = false;
+                }
+                else if (mode.Type == 3)
+                {
+                    result = pHTTPController.Start(server, mode);
+                }
             }
 
             if (!result)
@@ -82,6 +102,7 @@ namespace Netch.Controllers
             pNFController.Stop();
             pSSController.Stop();
             pSSRController.Stop();
+            pHTTPController.Stop();
         }
     }
 }

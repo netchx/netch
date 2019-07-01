@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Netch.Objects
 {
@@ -10,7 +11,7 @@ namespace Netch.Objects
         public string Remark;
 
         /// <summary>
-        ///     类型（0. 进程加速 1. TUN/TAP IP 加速 2. TUN/TAP 全局代理绕过 IP 地址 3. 系统代理）
+        ///     类型（0. 进程加速 1. TUN/TAP IP 加速 2. TUN/TAP 全局代理绕过 IP 地址 3. 系统代理 1000. 只启动 Socks5 代理）
         /// </summary>
         public int Type = 0;
 
@@ -30,7 +31,7 @@ namespace Netch.Objects
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return string.Format("[{0}] {1}", Type + 1, Remark);
+            return String.Format("[{0}] {1}", Type + 1, Remark);
         }
     }
 }

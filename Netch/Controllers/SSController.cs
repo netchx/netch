@@ -21,8 +21,9 @@ namespace Netch.Controllers
         ///		启动
         /// </summary>
         /// <param name="server">服务器</param>
-        /// <returns>是否成功</returns>
-        public bool Start(Objects.Server server)
+        /// <param name="mode">模式</param>
+        /// <returns>是否启动成功</returns>
+        public bool Start(Objects.Server server, Objects.Mode mode)
         {
             if (!File.Exists("bin\\Shadowsocks.exe"))
             {
@@ -40,7 +41,13 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
-            Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -l 2801 -m {2} -k \"{3}\" -u", server.Address, server.Port, server.EncryptMethod, server.Password);
+            Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u", server.Address, server.Port, server.EncryptMethod, server.Password);
+
+            if (mode.BypassChina)
+            {
+                Instance.StartInfo.Arguments += " --acl default.acl";
+            }
+
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 

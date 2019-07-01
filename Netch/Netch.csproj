@@ -85,7 +85,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="3rd\HttpToSocks5Proxy\Enums\AddressType.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\Enums\Authentication.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\Enums\Command.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\Enums\SocketConnectionResult.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\ErrorResponseBuilder.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\Helpers.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\HttpToSocks5Proxy.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\ProxyInfo.cs" />
+    <Compile Include="3rd\HttpToSocks5Proxy\Socks5.cs" />
     <Compile Include="3rd\NFSDK2\nfapinet.cs" />
+    <Compile Include="Controllers\HTTPController.cs" />
     <Compile Include="Controllers\MainController.cs" />
     <Compile Include="Controllers\NFController.cs" />
     <Compile Include="Controllers\SSRController.cs" />

@@ -45,7 +45,7 @@
         /// <summary>
         ///     本地地址
         /// </summary>
-        public string local_addr = "127.0.0.1";
+        public string local_addr = "0.0.0.0";
 
         /// <summary>
         ///     本地端口
