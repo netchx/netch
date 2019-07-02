@@ -275,9 +275,10 @@ namespace Netch.Forms
             SubscribeToolStripDropDownButton.Text = Utils.i18N.Translate("Subscribe");
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            ServiceToolStripDropDownButton.Text = Utils.i18N.Translate("Service");
+            OptionsToolStripDropDownButton.Text = Utils.i18N.Translate("Options");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
+            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
             AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
             TelegarmGroupToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Group");
             TelegramChannelToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Channel");
@@ -537,6 +538,18 @@ namespace Netch.Forms
                     MessageBox.Show(Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
+                Enabled = true;
+            });
+        }
+
+        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            Task.Run(() =>
+            {
+                InitMode();
+
+                MessageBox.Show(Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
             });
         }

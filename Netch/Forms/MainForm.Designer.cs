@@ -41,9 +41,10 @@
             this.SubscribeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ServiceToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.OptionsToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.TelegarmGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TelegramChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,7 +75,7 @@
             this.ServerToolStripDropDownButton,
             this.ModeToolStripDropDownButton,
             this.SubscribeToolStripDropDownButton,
-            this.ServiceToolStripDropDownButton,
+            this.OptionsToolStripDropDownButton,
             this.AboutToolStripDropDownButton,
             this.VersionLabel});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -168,14 +169,15 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
             // 
-            // ServiceToolStripDropDownButton
+            // OptionsToolStripDropDownButton
             // 
-            this.ServiceToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OptionsToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.RestartServiceToolStripMenuItem,
-            this.UninstallServiceToolStripMenuItem});
-            this.ServiceToolStripDropDownButton.Name = "ServiceToolStripDropDownButton";
-            this.ServiceToolStripDropDownButton.Size = new System.Drawing.Size(62, 22);
-            this.ServiceToolStripDropDownButton.Text = "Service";
+            this.UninstallServiceToolStripMenuItem,
+            this.ReloadModesToolStripMenuItem});
+            this.OptionsToolStripDropDownButton.Name = "OptionsToolStripDropDownButton";
+            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(62, 22);
+            this.OptionsToolStripDropDownButton.Text = "Options";
             // 
             // RestartServiceToolStripMenuItem
             // 
@@ -190,6 +192,13 @@
             this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
+            // 
+            // ReloadModesToolStripMenuItem
+            // 
+            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
+            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // AboutToolStripDropDownButton
             // 
@@ -406,8 +415,9 @@
         private System.Windows.Forms.ToolStripMenuItem TelegramChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripDropDownButton ServiceToolStripDropDownButton;
+        private System.Windows.Forms.ToolStripDropDownButton OptionsToolStripDropDownButton;
         private System.Windows.Forms.ToolStripDropDownButton ModeToolStripDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
     }
 }
