@@ -22,6 +22,16 @@ namespace Netch.Forms
         /// </summary>
         public Controllers.MainController MainController;
 
+        // <summary>
+        ///		当前正在处理的模式文件
+        /// </summary>
+        public static List<string> _changedFiles = new List<string>();
+
+        // <summary>
+        ///		用于上锁的对象
+        /// </summary>
+        static object lockObj = new object();
+
         public MainForm()
         {
             InitializeComponent();
@@ -43,6 +53,89 @@ namespace Netch.Forms
 
                 Refresh();
             });
+        }
+
+        public void ScanMode()
+        {
+            DirectoryInfo ModeDir = new DirectoryInfo(Global.MODE_DIR);
+            List<Objects.Mode> ModeNew = new List<Objects.Mode>();
+            
+            foreach (var fileInfo in ModeDir.GetFiles(Global.MODE_EXT))
+            {
+                var Index = Global.Mode.FindIndex(x => x.FileName == fileInfo.Name);
+                // 如果文件名在 Mode 列表内
+                if (Index != -1)
+                {
+                    if (Global.Mode[Index].LastWriteTime != fileInfo.LastWriteTime)
+                    {
+                        System.Security.Cryptography.SHA256 modeSHA256 = System.Security.Cryptography.SHA256.Create();
+                        var fs = fileInfo.Create();
+                        var FileSHA256 = modeSHA256.ComputeHash(fs);
+
+                        // mode 文件发生了改变，进行修改
+                        if (Global.Mode[Index].SHA256 != FileSHA256)
+                        {
+                            var mode = new Objects.Mode(fileInfo.FullName, out bool ok);
+                            if (ok)
+                            {
+                                ModeNew.Add(mode);
+                                
+                            }
+                            // 新文件格式有误
+                            else
+                            {
+                                // 跳过
+                            }
+                            continue;
+                        }
+                    }
+                    ModeNew.Add(Global.Mode[Index]);
+                }
+
+                // 如果文件名不在 Mode 列表内
+                else
+                {
+                    var mode = new Objects.Mode(fileInfo.FullName, out bool ok);
+                    if (ok)
+                    {
+                        ModeNew.Add(mode);
+                    }
+                    // 新文件格式有误
+                    else
+                    {
+                        // 跳过
+                    }
+                }
+            }
+
+            if (ModeNew.Count > 0)
+            {
+                ModeNew.Sort();
+                string SelectedFileName;
+                if (ModeComboBox.SelectedIndex > 0)
+                {
+                    SelectedFileName = Global.Mode[ModeComboBox.SelectedIndex].FileName;
+                    ModeComboBox.Items.Clear();
+                    Global.Mode.Clear();
+                    Global.Mode = ModeNew;
+                    ModeComboBox.Items.AddRange(ModeNew.ToArray());
+                    var Index = ModeNew.FindIndex(x => x.FileName == SelectedFileName);
+                    ModeComboBox.SelectedIndex = (Index > -1 ? Index : 0);
+                }
+                else
+                {
+                    ModeComboBox.Items.Clear();
+                    Global.Mode.Clear();
+                    Global.Mode = ModeNew;
+                    ModeComboBox.Items.AddRange(ModeNew.ToArray());
+                    ModeComboBox.SelectedIndex = 0;
+                }
+            }
+            else
+            {
+                ModeComboBox.Items.Clear();
+                Global.Mode.Clear();
+            }
         }
 
         public void InitServer()
@@ -83,85 +176,28 @@ namespace Netch.Forms
         {
             ModeComboBox.Items.Clear();
 
-            if (Directory.Exists("mode"))
+            if (Directory.Exists(Global.MODE_DIR))
             {
-                var list = new List<Objects.Mode>();
 
-                foreach (var name in Directory.GetFiles("mode", "*.txt"))
+                // 读取所有在文件夹 Global.RULE_DIR 中的 Mode 文件
+                foreach (var FullPathName in Directory.GetFiles(Global.MODE_DIR, Global.MODE_EXT))
                 {
-                    var ok = true;
-                    var mode = new Objects.Mode();
-
-                    using (var sr = new StringReader(File.ReadAllText(name)))
-                    {
-                        var i = 0;
-                        string text;
-
-                        while ((text = sr.ReadLine()) != null)
-                        {
-                            if (i == 0)
-                            {
-                                var splited = text.Trim().Substring(1).Split(',');
-
-                                if (splited.Length == 0)
-                                {
-                                    ok = false;
-                                    break;
-                                }
-
-                                if (splited.Length >= 1)
-                                {
-                                    mode.Remark = splited[0].Trim();
-                                }
-
-                                if (splited.Length >= 2)
-                                {
-                                    if (int.TryParse(splited[1], out int result))
-                                    {
-                                        mode.Type = result;
-                                    }
-                                    else
-                                    {
-                                        ok = false;
-                                        break;
-                                    }
-                                }
-
-                                if (splited.Length >= 3)
-                                {
-                                    if (int.TryParse(splited[2], out int result))
-                                    {
-                                        mode.BypassChina = (result == 1);
-                                    }
-                                    else
-                                    {
-                                        ok = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (!text.StartsWith("#") && !String.IsNullOrWhiteSpace(text))
-                                {
-                                    mode.Rule.Add(text.Trim());
-                                }
-                            }
-
-                            i++;
-                        }
-                    }
-
+                    var mode = new Objects.Mode(FullPathName, out bool ok);
                     if (ok)
                     {
-                        list.Add(mode);
+                        Global.Mode.Add(mode);
                     }
                 }
 
-                var array = list.ToArray();
-                Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+                Global.Mode.Sort();
 
-                ModeComboBox.Items.AddRange(array);
+                ModeComboBox.Items.AddRange(Global.Mode.ToArray());
+
+                Global.ModeWatch.Path = Global.MODE_DIR;
+                Global.ModeWatch.Filter = Global.MODE_EXT;
+                Global.ModeWatch.NotifyFilter = NotifyFilters.FileName;
+                Global.ModeWatch.Renamed += OnModeRenamed;
+                Global.ModeWatch.EnableRaisingEvents = true;
             }
 
             // 查询设置中是否正常加载了上次存储的服务器位置
@@ -192,6 +228,43 @@ namespace Netch.Forms
 
                 // 如果当前 ModeComboBox 中没元素，不做处理
             }
+        }
+
+        public void UpdateMode(int ModePos)
+        {
+            ModeComboBox.Items.Clear();
+            ModeComboBox.Items.AddRange(Global.Mode.ToArray());
+            ModeComboBox.SelectedIndex = ModePos;
+        }
+
+        private static void OnModeRenamed(object source, RenamedEventArgs e)
+        {
+            // 给资源上锁
+            lock(lockObj)
+            {
+                if (MainForm._changedFiles.Contains(e.FullPath))
+                {
+                    return;
+                }
+                MainForm._changedFiles.Add(e.FullPath);
+
+                var Index = Global.Mode.FindIndex(x => x.FileName == Path.GetFileName(e.OldFullPath));
+                if (Index > -1)
+                {
+                    Global.Mode[Index].FileName = Path.GetFileName(e.FullPath);
+                }
+            }
+
+            // 等待至少 5000 毫秒以后再释放资源
+            System.Timers.Timer timer = new System.Timers.Timer(5000) { AutoReset = false };
+            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
+            {
+                lock(lockObj)
+                {
+                    MainForm._changedFiles.Remove(e.FullPath);
+                }
+            };
+            timer.Start();
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -295,12 +368,19 @@ namespace Netch.Forms
                 {
                     if (State == Objects.State.Waiting || State == Objects.State.Stopped)
                     {
+                        if (!Global.ModeWatch.EnableRaisingEvents)
+                        {
+                            Global.ModeWatch.EnableRaisingEvents = true;
+                        }
                         TestServer();
-
                         Thread.Sleep(10000);
                     }
                     else
                     {
+                        if (Global.ModeWatch.EnableRaisingEvents)
+                        {
+                            Global.ModeWatch.EnableRaisingEvents = false;
+                        }
                         Thread.Sleep(200);
                     }
                 }
@@ -547,7 +627,7 @@ namespace Netch.Forms
             Enabled = false;
             Task.Run(() =>
             {
-                InitMode();
+                ScanMode();
 
                 MessageBox.Show(Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
