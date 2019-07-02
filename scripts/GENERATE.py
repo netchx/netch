@@ -5,7 +5,8 @@ import hashlib, os
 text = '''| 文件名 | SHA256 |
 | :- | :- |'''
 
-def checksum(filename, algorithm = hashlib.sha256()):
+def checksum(filename):
+    algorithm = hashlib.sha256()
     with open(filename, 'rb') as f:
         for byte_block in iter(lambda: f.read(4096), b''):
             algorithm.update(byte_block)
