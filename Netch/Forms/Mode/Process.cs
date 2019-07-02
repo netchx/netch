@@ -107,26 +107,31 @@ namespace Netch.Forms.Mode
             {
                 if (RuleListBox.Items.Count != 0)
                 {
+                    var mode = new Objects.Mode();
                     var text = String.Format("# {0}, 0\r\n", RemarkTextBox.Text);
+                    mode.Remark = RemarkTextBox.Text;
+                    mode.FileName = RemarkTextBox.Text + ".txt";
+                    mode.Type = 0;
                     foreach (var item in RuleListBox.Items)
                     {
                         var process = item as String;
-
+                        mode.Rule.Add(process);
                         text += process + "\r\n";
                     }
 
-                    text = text.Substring(0, text.Length - 2);
-
-                    if (!Directory.Exists("mode"))
+                    if (!Directory.Exists(Global.MODE_DIR))
                     {
-                        Directory.CreateDirectory("mode");
+                        Directory.CreateDirectory(Global.MODE_DIR);
                     }
 
-                    File.WriteAllText("mode\\" + (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds + ".txt", text);
+                    File.WriteAllText($"{Global.MODE_DIR}\\" + mode.FileName + ".txt", text);
+
+                    Global.Mode.Add(mode);
+                    Global.Mode.Sort();
+                    Global.MainForm.UpdateMode(Global.Mode.FindIndex(x => x.FileName == mode.FileName));
 
                     MessageBox.Show(Utils.i18N.Translate("Mode added successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    Global.MainForm.InitMode();
                     Close();
                 }
                 else
