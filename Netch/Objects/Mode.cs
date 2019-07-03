@@ -47,95 +47,92 @@ namespace Netch.Objects
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return String.Format($"[{Type + 1}] {Remark} ({FileName})");
+            return String.Format($"[{Type + 1}] {Remark} - {FileName}");
         }
 
         /// <summary>
         ///		从文件中创建模式
         /// </summary>
-        public Mode(string FullPathName, out bool IsOk)
+        public Mode(FileStream fs, out bool IsOk)
         {
-            using (FileStream fs = File.OpenRead(FullPathName))
+            FileName = Path.GetFileName(fs.Name);
+            var i = 0;
+            string text;
+
+            var sr = new StreamReader(fs);
+            var str = new StringReader(sr.ReadToEnd());
+
+            while ((text = str.ReadLine()) != null)
             {
-                FileName = Path.GetFileName(FullPathName);
-                var i = 0;
-                string text;
-
-                var sr = new StreamReader(fs);
-                var str = new StringReader(sr.ReadToEnd());
-
-                while ((text = str.ReadLine()) != null)
+                // 处理首行
+                if (i == 0)
                 {
-                    // 处理首行
-                    if (i == 0)
-                    {
-                        // 将首行的内容除掉第一个字符以外，用逗号分隔开，并去掉空格
-                        var splited = text.Trim().Substring(1).Split(',');
+                    // 将首行的内容除掉第一个字符以外，用逗号分隔开，并去掉空格
+                    var splited = text.Trim().Substring(1).Split(',');
 
-                        // 首行格式有误，首行为空格或者长度为 0
-                        if (splited.Length == 0)
+                    // 首行格式有误，首行为空格或者长度为 0
+                    if (splited.Length == 0)
+                    {
+                        IsOk = false;
+                        return;
+                    }
+
+                    // 首行如果有一个以上的内容，将第一个内容记录为备注
+                    if (splited.Length >= 1)
+                    {
+                        Remark = splited[0].Trim();
+                    }
+
+                    // 首行如果有2个以上的内容
+                    if (splited.Length >= 2)
+                    {
+                        // 如果第二个内容是 int 型，将其记录为模式类型
+                        if (int.TryParse(splited[1], out int result))
+                        {
+                            Type = result;
+                        }
+                        // 否则为格式有误
+                        else
                         {
                             IsOk = false;
                             return;
                         }
-
-                        // 首行如果有一个以上的内容，将第一个内容记录为备注
-                        if (splited.Length >= 1)
-                        {
-                            Remark = splited[0].Trim();
-                        }
-
-                        // 首行如果有2个以上的内容
-                        if (splited.Length >= 2)
-                        {
-                            // 如果第二个内容是 int 型，将其记录为模式类型
-                            if (int.TryParse(splited[1], out int result))
-                            {
-                                Type = result;
-                            }
-                            // 否则为格式有误
-                            else
-                            {
-                                IsOk = false;
-                                return;
-                            }
-                        }
-
-                        // 首行如果有3个以上的内容
-                        if (splited.Length >= 3)
-                        {
-                            // 如果第三个内容是 int 型，将其记录为是否绕过中国类型（1 为是，其他为否）
-                            if (int.TryParse(splited[2], out int result))
-                            {
-                                BypassChina = (result == 1);
-                            }
-                            // 否则为格式有误
-                            else
-                            {
-                                IsOk = false;
-                                return;
-                            }
-                        }
                     }
-                    // 处理其他行
-                    else
+
+                    // 首行如果有3个以上的内容
+                    if (splited.Length >= 3)
                     {
-                        // 只要不是注释，且不为空，将其加入模式中的规则部分
-                        if (!text.StartsWith("#") && !String.IsNullOrWhiteSpace(text))
+                        // 如果第三个内容是 int 型，将其记录为是否绕过中国类型（1 为是，其他为否）
+                        if (int.TryParse(splited[2], out int result))
                         {
-                            Rule.Add(text.Trim());
+                            BypassChina = (result == 1);
+                        }
+                        // 否则为格式有误
+                        else
+                        {
+                            IsOk = false;
+                            return;
                         }
                     }
-
-                    // 行数统计
-                    i++;
                 }
-                System.Security.Cryptography.SHA256 modeSHA256 = System.Security.Cryptography.SHA256.Create();
-                SHA256 = modeSHA256.ComputeHash(fs);
-                FileInfo ModeFI = new FileInfo(FullPathName);
-                LastWriteTime = ModeFI.LastWriteTime;
-                IsOk = true;
+                // 处理其他行
+                else
+                {
+                    // 只要不是注释，且不为空，将其加入模式中的规则部分
+                    if (!text.StartsWith("#") && !String.IsNullOrWhiteSpace(text))
+                    {
+                        Rule.Add(text.Trim());
+                    }
+                }
+
+                // 行数统计
+                i++;
             }
+            System.Security.Cryptography.SHA256 modeSHA256 = System.Security.Cryptography.SHA256.Create();
+            SHA256 = modeSHA256.ComputeHash(fs);
+            FileInfo ModeFI = new FileInfo(fs.Name);
+            LastWriteTime = ModeFI.LastWriteTime;
+            IsOk = true;
         }
 
         /// <summary>
