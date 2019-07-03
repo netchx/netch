@@ -22,16 +22,6 @@ namespace Netch.Forms
         /// </summary>
         public Controllers.MainController MainController;
 
-        // <summary>
-        ///		当前正在处理的模式文件
-        /// </summary>
-        public static List<string> _changedFiles = new List<string>();
-
-        // <summary>
-        ///		用于上锁的对象
-        /// </summary>
-        static object lockObj = new object();
-
         public MainForm()
         {
             InitializeComponent();
@@ -200,12 +190,6 @@ namespace Netch.Forms
                 Global.Mode.Sort();
 
                 ModeComboBox.Items.AddRange(Global.Mode.ToArray());
-
-                Global.ModeWatch.Path = Global.MODE_DIR;
-                Global.ModeWatch.Filter = Global.MODE_EXT;
-                Global.ModeWatch.NotifyFilter = NotifyFilters.FileName;
-                Global.ModeWatch.Renamed += OnModeRenamed;
-                Global.ModeWatch.EnableRaisingEvents = true;
             }
 
             // 查询设置中是否正常加载了上次存储的服务器位置
@@ -243,36 +227,6 @@ namespace Netch.Forms
             ModeComboBox.Items.Clear();
             ModeComboBox.Items.AddRange(Global.Mode.ToArray());
             ModeComboBox.SelectedIndex = ModePos;
-        }
-
-        private static void OnModeRenamed(object source, RenamedEventArgs e)
-        {
-            // 给资源上锁
-            lock (lockObj)
-            {
-                if (MainForm._changedFiles.Contains(e.FullPath))
-                {
-                    return;
-                }
-                MainForm._changedFiles.Add(e.FullPath);
-
-                var Index = Global.Mode.FindIndex(x => x.FileName == Path.GetFileName(e.OldFullPath));
-                if (Index > -1)
-                {
-                    Global.Mode[Index].FileName = Path.GetFileName(e.FullPath);
-                }
-            }
-
-            // 等待至少 5000 毫秒以后再释放资源
-            System.Timers.Timer timer = new System.Timers.Timer(5000) { AutoReset = false };
-            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
-            {
-                lock (lockObj)
-                {
-                    MainForm._changedFiles.Remove(e.FullPath);
-                }
-            };
-            timer.Start();
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -376,21 +330,11 @@ namespace Netch.Forms
                 {
                     if (State == Objects.State.Waiting || State == Objects.State.Stopped)
                     {
-                        // 非加速状态可以刷新 Mode 文件名
-                        if (!Global.ModeWatch.EnableRaisingEvents)
-                        {
-                            Global.ModeWatch.EnableRaisingEvents = true;
-                        }
                         TestServer();
                         Thread.Sleep(10000);
                     }
                     else
                     {
-                        // 启动加速后禁止刷新 Mode 文件名
-                        if (Global.ModeWatch.EnableRaisingEvents)
-                        {
-                            Global.ModeWatch.EnableRaisingEvents = false;
-                        }
                         Thread.Sleep(200);
                     }
                 }
@@ -585,7 +529,6 @@ namespace Netch.Forms
 
                 MessageBox.Show(Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
-                Select();
             });
         }
 
@@ -630,7 +573,6 @@ namespace Netch.Forms
                 }
 
                 Enabled = true;
-                Select();
             });
         }
 
@@ -643,7 +585,6 @@ namespace Netch.Forms
 
                 MessageBox.Show(Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
-                Select();
             });
         }
 

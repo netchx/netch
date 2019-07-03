@@ -35,11 +35,6 @@ namespace Netch
         public static readonly string MODE_EXT = "*.txt";
 
         /// <summary>
-        ///		查看模式文件是否被修改
-        /// </summary>
-        public static System.IO.FileSystemWatcher ModeWatch = new System.IO.FileSystemWatcher();
-
-        /// <summary>
         ///     订阅链接列表
         /// </summary>
         public static List<Objects.SubscribeLink> SubscribeLink = new List<Objects.SubscribeLink>();
