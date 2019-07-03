@@ -172,31 +172,31 @@
             // OptionsToolStripDropDownButton
             // 
             this.OptionsToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ReloadModesToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
-            this.UninstallServiceToolStripMenuItem,
-            this.ReloadModesToolStripMenuItem});
+            this.UninstallServiceToolStripMenuItem});
             this.OptionsToolStripDropDownButton.Name = "OptionsToolStripDropDownButton";
-            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(62, 22);
+            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(67, 22);
             this.OptionsToolStripDropDownButton.Text = "Options";
             // 
             // RestartServiceToolStripMenuItem
             // 
             this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.RestartServiceToolStripMenuItem.Text = "Restart Service";
             this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
             // ReloadModesToolStripMenuItem
             // 
             this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
             this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
