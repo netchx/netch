@@ -47,7 +47,7 @@ namespace Netch.Objects
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return String.Format($"[{Type + 1}] {Remark} - {FileName}");
+            return $"[{Type + 1}] {Remark}";
         }
 
         /// <summary>
