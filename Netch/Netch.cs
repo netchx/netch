@@ -32,9 +32,9 @@ namespace Netch
             }
 
             // 检查模式目录
-            if (!Directory.Exists(Global.MODE_DIR))
+            if (!Directory.Exists("mode"))
             {
-                Directory.CreateDirectory(Global.MODE_DIR);
+                Directory.CreateDirectory("mode");
             }
 
             // 得到当前线程语言代码

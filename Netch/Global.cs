@@ -20,21 +20,6 @@ namespace Netch
         public static List<Objects.Server> Server = new List<Objects.Server>();
 
         /// <summary>
-        ///     模式列表
-        /// </summary>
-        public static List<Objects.Mode> Mode = new List<Objects.Mode>();
-
-        /// <summary>
-        ///		模式相对路径
-        /// </summary>
-        public static readonly string MODE_DIR = "mode";
-
-        /// <summary>
-        ///		模式文件名后缀
-        /// </summary>
-        public static readonly string MODE_EXT = "*.txt";
-
-        /// <summary>
         ///     订阅链接列表
         /// </summary>
         public static List<Objects.SubscribeLink> SubscribeLink = new List<Objects.SubscribeLink>();
