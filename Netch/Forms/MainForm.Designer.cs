@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
             this.ServerToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
@@ -42,9 +43,9 @@
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
             this.TelegarmGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.TelegramChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,17 +61,23 @@
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
+            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.ShowMainForm = new System.Windows.Forms.ToolStripMenuItem();
+            this.UserClosing = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).BeginInit();
             this.StatusStrip.SuspendLayout();
+            this.NotifyMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // ToolStrip
             // 
             this.ToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ServerToolStripDropDownButton,
             this.ModeToolStripDropDownButton,
@@ -81,7 +88,7 @@
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
             this.ToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ToolStrip.Size = new System.Drawing.Size(608, 25);
+            this.ToolStrip.Size = new System.Drawing.Size(608, 27);
             this.ToolStrip.TabIndex = 0;
             // 
             // ServerToolStripDropDownButton
@@ -93,41 +100,41 @@
             this.AddShadowsocksRServerToolStripMenuItem,
             this.AddVMessServerToolStripMenuItem});
             this.ServerToolStripDropDownButton.Name = "ServerToolStripDropDownButton";
-            this.ServerToolStripDropDownButton.Size = new System.Drawing.Size(58, 22);
+            this.ServerToolStripDropDownButton.Size = new System.Drawing.Size(70, 24);
             this.ServerToolStripDropDownButton.Text = "Server";
             // 
             // ImportServersFromClipboardToolStripMenuItem
             // 
             this.ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
-            this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
             this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
             this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
             // 
             // AddSocks5ServerToolStripMenuItem
             // 
             this.AddSocks5ServerToolStripMenuItem.Name = "AddSocks5ServerToolStripMenuItem";
-            this.AddSocks5ServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.AddSocks5ServerToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
             this.AddSocks5ServerToolStripMenuItem.Text = "Add [Socks5] Server";
             this.AddSocks5ServerToolStripMenuItem.Click += new System.EventHandler(this.AddSocks5ServerToolStripMenuItem_Click);
             // 
             // AddShadowsocksServerToolStripMenuItem
             // 
             this.AddShadowsocksServerToolStripMenuItem.Name = "AddShadowsocksServerToolStripMenuItem";
-            this.AddShadowsocksServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.AddShadowsocksServerToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
             this.AddShadowsocksServerToolStripMenuItem.Text = "Add [Shadowsocks] Server";
             this.AddShadowsocksServerToolStripMenuItem.Click += new System.EventHandler(this.AddShadowsocksServerToolStripMenuItem_Click);
             // 
             // AddShadowsocksRServerToolStripMenuItem
             // 
             this.AddShadowsocksRServerToolStripMenuItem.Name = "AddShadowsocksRServerToolStripMenuItem";
-            this.AddShadowsocksRServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.AddShadowsocksRServerToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
             this.AddShadowsocksRServerToolStripMenuItem.Text = "Add [ShadowsocksR] Server";
             this.AddShadowsocksRServerToolStripMenuItem.Click += new System.EventHandler(this.AddShadowsocksRServerToolStripMenuItem_Click);
             // 
             // AddVMessServerToolStripMenuItem
             // 
             this.AddVMessServerToolStripMenuItem.Name = "AddVMessServerToolStripMenuItem";
-            this.AddVMessServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.AddVMessServerToolStripMenuItem.Size = new System.Drawing.Size(318, 26);
             this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
             this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddVMessServerToolStripMenuItem_Click);
             // 
@@ -136,13 +143,13 @@
             this.ModeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CreateProcessModeToolStripMenuItem});
             this.ModeToolStripDropDownButton.Name = "ModeToolStripDropDownButton";
-            this.ModeToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
+            this.ModeToolStripDropDownButton.Size = new System.Drawing.Size(67, 24);
             this.ModeToolStripDropDownButton.Text = "Mode";
             // 
             // CreateProcessModeToolStripMenuItem
             // 
             this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
-            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(248, 26);
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
             this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
             // 
@@ -152,20 +159,20 @@
             this.ManageSubscribeLinksToolStripMenuItem,
             this.UpdateServersFromSubscribeLinksToolStripMenuItem});
             this.SubscribeToolStripDropDownButton.Name = "SubscribeToolStripDropDownButton";
-            this.SubscribeToolStripDropDownButton.Size = new System.Drawing.Size(78, 22);
+            this.SubscribeToolStripDropDownButton.Size = new System.Drawing.Size(95, 24);
             this.SubscribeToolStripDropDownButton.Text = "Subscribe";
             // 
             // ManageSubscribeLinksToolStripMenuItem
             // 
             this.ManageSubscribeLinksToolStripMenuItem.Name = "ManageSubscribeLinksToolStripMenuItem";
-            this.ManageSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
+            this.ManageSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(362, 26);
             this.ManageSubscribeLinksToolStripMenuItem.Text = "Manage Subscribe Links";
             this.ManageSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.ManageSubscribeLinksToolStripMenuItem_Click);
             // 
             // UpdateServersFromSubscribeLinksToolStripMenuItem
             // 
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Name = "UpdateServersFromSubscribeLinksToolStripMenuItem";
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
+            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(362, 26);
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
             // 
@@ -176,29 +183,29 @@
             this.RestartServiceToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem});
             this.OptionsToolStripDropDownButton.Name = "OptionsToolStripDropDownButton";
-            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(67, 22);
+            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(81, 24);
             this.OptionsToolStripDropDownButton.Text = "Options";
+            // 
+            // ReloadModesToolStripMenuItem
+            // 
+            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(211, 26);
+            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
+            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // RestartServiceToolStripMenuItem
             // 
             this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(211, 26);
             this.RestartServiceToolStripMenuItem.Text = "Restart Service";
             this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(211, 26);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
-            // 
-            // ReloadModesToolStripMenuItem
-            // 
-            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
-            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // AboutToolStripDropDownButton
             // 
@@ -206,20 +213,20 @@
             this.TelegarmGroupToolStripMenuItem,
             this.TelegramChannelToolStripMenuItem});
             this.AboutToolStripDropDownButton.Name = "AboutToolStripDropDownButton";
-            this.AboutToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
+            this.AboutToolStripDropDownButton.Size = new System.Drawing.Size(69, 24);
             this.AboutToolStripDropDownButton.Text = "About";
             // 
             // TelegarmGroupToolStripMenuItem
             // 
             this.TelegarmGroupToolStripMenuItem.Name = "TelegarmGroupToolStripMenuItem";
-            this.TelegarmGroupToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.TelegarmGroupToolStripMenuItem.Size = new System.Drawing.Size(223, 26);
             this.TelegarmGroupToolStripMenuItem.Text = "Telegarm Group";
             this.TelegarmGroupToolStripMenuItem.Click += new System.EventHandler(this.TelegarmGroupToolStripMenuItem_Click);
             // 
             // TelegramChannelToolStripMenuItem
             // 
             this.TelegramChannelToolStripMenuItem.Name = "TelegramChannelToolStripMenuItem";
-            this.TelegramChannelToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
+            this.TelegramChannelToolStripMenuItem.Size = new System.Drawing.Size(223, 26);
             this.TelegramChannelToolStripMenuItem.Text = "Telegram Channel";
             this.TelegramChannelToolStripMenuItem.Click += new System.EventHandler(this.TelegramChannelToolStripMenuItem_Click);
             // 
@@ -230,7 +237,7 @@
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(83, 22);
+            this.VersionLabel.Size = new System.Drawing.Size(104, 24);
             this.VersionLabel.Text = "1.1.0-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
@@ -288,7 +295,7 @@
             this.ModeLabel.AutoSize = true;
             this.ModeLabel.Location = new System.Drawing.Point(6, 56);
             this.ModeLabel.Name = "ModeLabel";
-            this.ModeLabel.Size = new System.Drawing.Size(43, 17);
+            this.ModeLabel.Size = new System.Drawing.Size(53, 20);
             this.ModeLabel.TabIndex = 3;
             this.ModeLabel.Text = "Mode";
             // 
@@ -300,7 +307,7 @@
             this.ModeComboBox.IntegralHeight = false;
             this.ModeComboBox.Location = new System.Drawing.Point(57, 53);
             this.ModeComboBox.Name = "ModeComboBox";
-            this.ModeComboBox.Size = new System.Drawing.Size(455, 24);
+            this.ModeComboBox.Size = new System.Drawing.Size(455, 28);
             this.ModeComboBox.TabIndex = 2;
             this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -313,7 +320,7 @@
             this.ServerComboBox.Location = new System.Drawing.Point(57, 22);
             this.ServerComboBox.MaxDropDownItems = 16;
             this.ServerComboBox.Name = "ServerComboBox";
-            this.ServerComboBox.Size = new System.Drawing.Size(455, 24);
+            this.ServerComboBox.Size = new System.Drawing.Size(455, 28);
             this.ServerComboBox.TabIndex = 1;
             this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -322,17 +329,18 @@
             this.ServerLabel.AutoSize = true;
             this.ServerLabel.Location = new System.Drawing.Point(6, 26);
             this.ServerLabel.Name = "ServerLabel";
-            this.ServerLabel.Size = new System.Drawing.Size(45, 17);
+            this.ServerLabel.Size = new System.Drawing.Size(56, 20);
             this.ServerLabel.TabIndex = 0;
             this.ServerLabel.Text = "Server";
             // 
             // StatusStrip
             // 
+            this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusLabel});
-            this.StatusStrip.Location = new System.Drawing.Point(0, 154);
+            this.StatusStrip.Location = new System.Drawing.Point(0, 150);
             this.StatusStrip.Name = "StatusStrip";
-            this.StatusStrip.Size = new System.Drawing.Size(608, 22);
+            this.StatusStrip.Size = new System.Drawing.Size(608, 26);
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
@@ -340,7 +348,7 @@
             // 
             this.StatusLabel.BackColor = System.Drawing.Color.Transparent;
             this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(177, 17);
+            this.StatusLabel.Size = new System.Drawing.Size(220, 20);
             this.StatusLabel.Text = "Status: Waiting for command";
             // 
             // ControlButton
@@ -353,9 +361,40 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
+            // NotifyIcon
+            // 
+            this.NotifyIcon.ContextMenuStrip = this.NotifyMenu;
+            this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
+            this.NotifyIcon.Text = "Netch";
+            this.NotifyIcon.Visible = true;
+            this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseDoubleClick);
+            // 
+            // NotifyMenu
+            // 
+            this.NotifyMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.NotifyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ShowMainForm,
+            this.UserClosing});
+            this.NotifyMenu.Name = "NotifyMenu";
+            this.NotifyMenu.Size = new System.Drawing.Size(154, 52);
+            // 
+            // ShowMainForm
+            // 
+            this.ShowMainForm.Name = "ShowMainForm";
+            this.ShowMainForm.Size = new System.Drawing.Size(153, 24);
+            this.ShowMainForm.Text = "显示主界面";
+            this.ShowMainForm.Click += new System.EventHandler(this.ShowMainForm_Click);
+            // 
+            // UserClosing
+            // 
+            this.UserClosing.Name = "UserClosing";
+            this.UserClosing.Size = new System.Drawing.Size(153, 24);
+            this.UserClosing.Text = "退出";
+            this.UserClosing.Click += new System.EventHandler(this.UserClosing_Click);
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(608, 176);
             this.Controls.Add(this.ControlButton);
@@ -381,6 +420,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).EndInit();
             this.StatusStrip.ResumeLayout(false);
             this.StatusStrip.PerformLayout();
+            this.NotifyMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -419,5 +459,9 @@
         private System.Windows.Forms.ToolStripDropDownButton ModeToolStripDropDownButton;
         private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
+        private System.Windows.Forms.NotifyIcon NotifyIcon;
+        private System.Windows.Forms.ContextMenuStrip NotifyMenu;
+        private System.Windows.Forms.ToolStripMenuItem ShowMainForm;
+        private System.Windows.Forms.ToolStripMenuItem UserClosing;
     }
 }
