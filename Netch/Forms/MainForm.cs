@@ -311,15 +311,14 @@ namespace Netch.Forms
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                if (State != Objects.State.Waiting && State != Objects.State.Stopped)
-                {
-                    MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //取消"关闭窗口"事件
+                e.Cancel = true; // 取消关闭窗体 
 
-                    e.Cancel = true;
-                }
-                Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
-                Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
-                Utils.Configuration.Save();
+                //使关闭时窗口向右下角缩小的效果
+                this.WindowState = FormWindowState.Minimized;
+                this.NotifyIcon.Visible = true;
+                //this.m_cartoonForm.CartoonClose();
+                this.Hide();
             }
         }
 
@@ -695,6 +694,54 @@ namespace Netch.Forms
                     TestServer();
                 });
             }
+        }
+
+        private void ShowMainForm_Click(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Visible = true;
+                this.ShowInTaskbar = true;  //显示在系统任务栏 
+                this.WindowState = FormWindowState.Normal;  //还原窗体 
+                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+            }
+            this.Activate();
+        }
+
+        private void UserClosing_Click(object sender, EventArgs e)
+        {
+            Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
+            Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
+            Utils.Configuration.Save();
+
+            if (State != Objects.State.Waiting && State != Objects.State.Stopped)
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                this.Visible = true;
+                this.ShowInTaskbar = true;  //显示在系统任务栏 
+                this.WindowState = FormWindowState.Normal;  //还原窗体 
+                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+
+                return;
+            }
+
+            this.NotifyIcon.Visible = false;
+            this.Close();
+            this.Dispose();
+            System.Environment.Exit(System.Environment.ExitCode);
+        }
+
+        private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Visible = true;
+                this.ShowInTaskbar = true;  //显示在系统任务栏 
+                this.WindowState = FormWindowState.Normal;  //还原窗体 
+                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+            }
+            this.Activate();
         }
     }
 }
