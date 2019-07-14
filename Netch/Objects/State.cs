@@ -28,6 +28,12 @@
         /// <summary>
         ///     已停止
         /// </summary>
-        Stopped
+        Stopped,
+
+
+        /// <summary>
+        ///     退出中
+        /// </summary>
+        Terminating
     }
 }

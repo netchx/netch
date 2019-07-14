@@ -43,6 +43,17 @@ namespace Netch.Objects
         /// </summary>
         public string Password;
 
+
+        /// <summary>
+        ///		用户 ID（V2）
+        /// </summary>
+        public string UserID = String.Empty;
+
+        /// <summary>
+        ///		额外 ID（V2）
+        /// </summary>
+        public int AlterID = 0;
+
         /// <summary>
         ///     加密方式
         /// </summary>
@@ -69,6 +80,41 @@ namespace Netch.Objects
         public string OBFSParam;
 
         /// <summary>
+        ///		传输协议（V2）
+        /// </summary>
+        public string TransferProtocol = "tcp";
+
+        /// <summary>
+        ///		伪装类型（V2）
+        /// </summary>
+        public string FakeType = String.Empty;
+
+        /// <summary>
+        ///		伪装域名（V2：HTTP、WebSocket、HTTP/2）
+        /// </summary>
+        public string Host = String.Empty;
+
+        /// <summary>
+        ///		传输路径（V2：WebSocket、HTTP/2）
+        /// </summary>
+        public string Path = String.Empty;
+
+        /// <summary>
+        ///		QUIC 加密方式（V2）
+        /// </summary>
+        public string QUICSecurity = "none";
+
+        /// <summary>
+        ///		QUIC 加密密钥（V2）
+        /// </summary>
+        public string QUICSecret = String.Empty;
+
+        /// <summary>
+        ///		TLS 底层传输安全（V2）
+        /// </summary>
+        public bool TLSSecure = false;
+
+        /// <summary>
         ///     延迟
         /// </summary>
         public int Delay = -1;
@@ -92,6 +138,8 @@ namespace Netch.Objects
                     return $"[SS] {Remark}";
                 case "ShadowsocksR":
                     return $"[SR] {Remark}";
+                case "VMess":
+                    return $"[V2] {Remark}";
                 default:
                     return "WTF";
             }

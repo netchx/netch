@@ -100,6 +100,7 @@
     <Compile Include="Controllers\NFController.cs" />
     <Compile Include="Controllers\SSRController.cs" />
     <Compile Include="Controllers\SSController.cs" />
+    <Compile Include="Controllers\V2RayController.cs" />
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -111,6 +112,12 @@
     </Compile>
     <Compile Include="Forms\Mode\Process.Designer.cs">
       <DependentUpon>Process.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Server\Vmess.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Server\Vmess.Designer.cs">
+      <DependentUpon>Vmess.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Server\ShadowsocksR.cs">
       <SubType>Form</SubType>
@@ -138,6 +145,7 @@
     </Compile>
     <Compile Include="Global.cs" />
     <Compile Include="Netch.cs" />
+    <Compile Include="Objects\Information\VMess.cs" />
     <Compile Include="Objects\Information\SSR.cs" />
     <Compile Include="Objects\Mode.cs" />
     <Compile Include="Objects\Server.cs" />
@@ -145,6 +153,7 @@
     <Compile Include="Objects\SSD\Server.cs" />
     <Compile Include="Objects\State.cs" />
     <Compile Include="Objects\SubscribeLink.cs" />
+    <Compile Include="Objects\VMess.cs" />
     <Compile Include="Override\ToolStripProfessionalRender.cs" />
     <Compile Include="Override\WebClient.cs">
       <SubType>Component</SubType>
@@ -162,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Mode\Process.resx">
       <DependentUpon>Process.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Server\Vmess.resx">
+      <DependentUpon>Vmess.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ShadowsocksR.resx">
       <DependentUpon>ShadowsocksR.cs</DependentUpon>

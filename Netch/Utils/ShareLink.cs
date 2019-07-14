@@ -230,6 +230,59 @@ namespace Netch.Utils
 
                     list.Add(data);
                 }
+                else if (text.StartsWith("vmess://"))
+                {
+                    var data = new Objects.Server();
+                    data.Type = "VMess";
+
+                    text = text.Substring(8);
+                    var vmess = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.VMess>(URLSafeBase64Decode(text));
+
+                    data.Remark = vmess.ps;
+                    data.Address = vmess.add;
+                    data.Port = vmess.port;
+                    data.UserID = vmess.id;
+                    data.AlterID = vmess.aid;
+
+                    data.TransferProtocol = vmess.net;
+                    if (!Global.TransferProtocols.Contains(data.TransferProtocol))
+                    {
+                        Logging.Info(String.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
+                        return null;
+                    }
+
+                    data.FakeType = vmess.type;
+                    if (!Global.FakeTypes.Contains(data.FakeType))
+                    {
+                        Logging.Info(String.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
+                        return null;
+                    }
+
+                    if(data.TransferProtocol == "quic")
+                    {
+                        if(!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
+                        {
+                            Logging.Info(String.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
+                            return null;
+                        }
+                        else
+                        {
+                            data.QUICSecurity = vmess.host;
+                            data.QUICSecret = vmess.path;
+                        }
+
+                    }
+                    else
+                    {
+                        data.Host = vmess.host;
+                        data.Path = vmess.path;
+                    }
+                    data.TLSSecure = vmess.tls == "tls";
+
+                    data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
+
+                    list.Add(data);
+                }
                 else
                 {
                     return null;
