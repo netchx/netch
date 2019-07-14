@@ -41,6 +41,11 @@ namespace Netch.Controllers
         public HTTPController pHTTPController = new HTTPController();
 
         /// <summary>
+        ///     V2Ray 控制器
+        /// </summary>
+        public V2RayController pV2RayController = new V2RayController();
+
+        /// <summary>
         ///		启动
         /// </summary>
         /// <param name="server">服务器</param>
@@ -61,6 +66,7 @@ namespace Netch.Controllers
                     result = pSSRController.Start(server, mode);
                     break;
                 case "VMess":
+                    result = pV2RayController.Start(server, mode);
                     break;
                 default:
                     break;
@@ -102,6 +108,7 @@ namespace Netch.Controllers
             pNFController.Stop();
             pSSController.Stop();
             pSSRController.Stop();
+            pV2RayController.Stop();
             pHTTPController.Stop();
         }
     }

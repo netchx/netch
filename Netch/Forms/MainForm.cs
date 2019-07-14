@@ -287,7 +287,8 @@ namespace Netch.Forms
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             ControlButton.Text = Utils.i18N.Translate("Start");
             StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-
+            //增加最小化至通知栏的提示
+            NotifyIcon.BalloonTipText = Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore.");
             // 自动检测延迟
             Task.Run(() =>
             {
@@ -309,7 +310,7 @@ namespace Netch.Forms
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing)
+            if (e.CloseReason == CloseReason.UserClosing && State != Objects.State.Terminating)
             {
                 //取消"关闭窗口"事件
                 e.Cancel = true; // 取消关闭窗体 
@@ -317,8 +318,12 @@ namespace Netch.Forms
                 //使关闭时窗口向右下角缩小的效果
                 this.WindowState = FormWindowState.Minimized;
                 this.NotifyIcon.Visible = true;
+                //增加提示语
+                this.NotifyIcon.BalloonTipTitle = "Netch";
+                this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                this.NotifyIcon.ShowBalloonTip(5);
                 //this.m_cartoonForm.CartoonClose();
-                this.Hide();
+                Hide();
             }
         }
 
@@ -366,10 +371,14 @@ namespace Netch.Forms
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            /*
             if (MessageBox.Show(Utils.i18N.Translate("VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect"), Utils.i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
                 Process.Start("https://github.com/NetchX/Netch/releases");
             }
+            */
+            (new Server.VMess()).Show();
+            Hide();
         }
 
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
@@ -585,7 +594,8 @@ namespace Netch.Forms
                         (new Server.ShadowsocksR(ServerComboBox.SelectedIndex)).Show();
                         break;
                     case "VMess":
-                        return;
+                        (new Server.VMess(ServerComboBox.SelectedIndex)).Show();
+                        break;
                     default:
                         return;
                 }
@@ -726,6 +736,7 @@ namespace Netch.Forms
                 return;
             }
 
+            State = Objects.State.Terminating;
             this.NotifyIcon.Visible = false;
             this.Close();
             this.Dispose();

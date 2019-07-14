@@ -83,6 +83,26 @@ namespace Netch
                 "chacha20",
                 "chacha20-ietf"
             };
+            /// <summary>
+            ///		VMess 解密列表
+            /// </summary>
+            public static List<string> VMess = new List<string>()
+            {
+                "none",
+                "auto",
+                "aes-128-gcm",
+                "chacha20-poly1305"
+            };
+
+            /// <summary>
+            ///		VMess QUIC 加密列表
+            /// </summary>
+            public static List<string> VMessQUIC = new List<string>()
+            {
+                "none",
+                "aes-128-gcm",
+                "chacha20-poly1305"
+            };
         }
 
         /// <summary>
@@ -107,6 +127,32 @@ namespace Netch
             "http_simple",
             "http_post",
             "tls1.2_ticket_auth"
+        };
+
+        /// <summary>
+        ///		V2Ray 传输协议
+        /// </summary>
+        public static List<string> TransferProtocols = new List<string>()
+        {
+            "tcp",
+            "kcp",
+            "ws",
+            "h2",
+            "quic"
+        };
+
+        /// <summary>
+        ///		V2Ray 伪装类型
+        /// </summary>
+        public static List<string> FakeTypes = new List<string>()
+        {
+            "none",
+            "http",
+            "srtp",
+            "utp",
+            "wechat-video",
+            "dtls",
+            "wireguard"
         };
     }
 }
