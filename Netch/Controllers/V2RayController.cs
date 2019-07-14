@@ -202,7 +202,7 @@ namespace Netch.Controllers
                     {
                         State = Objects.State.Started;
                     }
-                    else if (e.Data.Contains("config file not readable") || e.Data.Contains("port"))
+                    else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to"))
                     {
                         State = Objects.State.Stopped;
                     }
