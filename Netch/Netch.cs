@@ -18,6 +18,29 @@ namespace Netch
             // 创建互斥体防止多次运行
             using (var mutex = new Mutex(false, "Global\\Netch"))
             {
+                // 设置当前目录
+                Directory.SetCurrentDirectory(Application.StartupPath);
+
+                // 检查日志目录
+                if (!Directory.Exists("logging"))
+                {
+                    Directory.CreateDirectory("logging");
+                }
+                else
+                {
+                    // 清理上一次的日志文件，防止淤积占用磁盘空间
+                    if (File.Exists("logging\\application.log"))
+                    {
+                        File.Delete("logging\\application.log");
+                    }
+                }
+
+                // 检查模式目录
+                if (!Directory.Exists("mode"))
+                {
+                    Directory.CreateDirectory("mode");
+                }
+
                 // 得到当前线程语言代码
                 var CultureCodeName = CultureInfo.CurrentCulture.Name;
 
@@ -70,29 +93,6 @@ namespace Netch
 
                     // 退出进程
                     Environment.Exit(1);
-                }
-
-                // 设置当前目录
-                Directory.SetCurrentDirectory(Application.StartupPath);
-
-                // 检查日志目录
-                if (!Directory.Exists("logging"))
-                {
-                    Directory.CreateDirectory("logging");
-                }
-                else
-                {
-                    // 清理上一次的日志文件，防止淤积占用磁盘空间
-                    if (File.Exists("logging\\application.log"))
-                    {
-                        File.Delete("logging\\application.log");
-                    }
-                }
-
-                // 检查模式目录
-                if (!Directory.Exists("mode"))
-                {
-                    Directory.CreateDirectory("mode");
                 }
 
                 Application.EnableVisualStyles();
