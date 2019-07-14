@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Netch
@@ -15,90 +14,100 @@ namespace Netch
         [STAThread]
         public static void Main(string[] args)
         {
-            // 创建互斥体防止多次运行
-            using (var mutex = new Mutex(false, "Global\\Netch"))
+            // 设置当前目录
+            Directory.SetCurrentDirectory(Application.StartupPath);
+
+            // 检查日志目录
+            if (!Directory.Exists("logging"))
             {
-                // 得到当前线程语言代码
-                var CultureCodeName = CultureInfo.CurrentCulture.Name;
-
-                // 如果命令行参数只有一个，且传入有效语言代码，那么覆盖掉已得到的语言代码
-                if (args.Length == 1)
+                Directory.CreateDirectory("logging");
+            }
+            else
+            {
+                // 清理上一次的日志文件，防止淤积占用磁盘空间
+                if (File.Exists("logging\\application.log"))
                 {
-                    try
-                    {
-                        CultureCodeName = CultureInfo.GetCultureInfo(args[0]).Name;
-                    }
-                    catch (CultureNotFoundException)
-                    {
-                        // 跳过
-                    }
+                    File.Delete("logging\\application.log");
                 }
+            }
 
-                // 加载内置资源中的语言
-                if (CultureCodeName == "zh-CN")
+            // 检查模式目录
+            if (!Directory.Exists("mode"))
+            {
+                Directory.CreateDirectory("mode");
+            }
+
+            // 得到当前线程语言代码
+            var CultureCodeName = CultureInfo.CurrentCulture.Name;
+
+            // 如果命令行参数只有一个，且传入有效语言代码，那么覆盖掉已得到的语言代码
+            if (args.Length == 1)
+            {
+                try
                 {
-                    Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
+                    CultureCodeName = CultureInfo.GetCultureInfo(args[0]).Name;
+                }
+                catch (CultureNotFoundException)
+                {
+                    // 跳过
+                }
+            }
 
+            // 加载内置资源中的语言
+            if (CultureCodeName == "zh-CN")
+            {
+                Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
+                // 记录日志
+                Utils.Logging.Info($"当前语言：{CultureCodeName}");
+            }
+            else if (Directory.Exists("i18n")) // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
+            {
+                // 如果符合条件的语言文件存在，进行加载
+                if (File.Exists($"i18n\\{CultureCodeName}"))
+                {
+                    Utils.i18N.Load(File.ReadAllText($"i18n\\{CultureCodeName}"));
                     // 记录日志
                     Utils.Logging.Info($"当前语言：{CultureCodeName}");
                 }
-                else if (Directory.Exists("i18n")) // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
-                {
-                    // 如果符合条件的语言文件存在，进行加载
-                    if (File.Exists($"i18n\\{CultureCodeName}"))
-                    {
-                        Utils.i18N.Load(File.ReadAllText($"i18n\\{CultureCodeName}"));
-                        // 记录日志
-                        Utils.Logging.Info($"当前语言：{CultureCodeName}");
-                    }
-                    // 如果符合条件的语言文件不存在，使用默认语言en-US
-                    Utils.Logging.Info($"当前语言：en-US");
-                }
-                else // 如果外部文件均不存在，只是创建目录
-                {
-                    Directory.CreateDirectory("i18n");
-
-                    // 记录日志
-                    Utils.Logging.Info($"当前语言：en-US");
-                }
-
-                // 检查是否已经运行
-                if (!mutex.WaitOne(0, false))
-                {
-                    // 弹出提示
-                    MessageBox.Show(Utils.i18N.Translate("Netch is already running"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    // 退出进程
-                    Environment.Exit(1);
-                }
-
-                // 设置当前目录
-                Directory.SetCurrentDirectory(Application.StartupPath);
-
-                // 检查日志目录
-                if (!Directory.Exists("logging"))
-                {
-                    Directory.CreateDirectory("logging");
-                }
-                else
-                {
-                    // 清理上一次的日志文件，防止淤积占用磁盘空间
-                    if (File.Exists("logging\\application.log"))
-                    {
-                        File.Delete("logging\\application.log");
-                    }
-                }
-
-                // 检查模式目录
-                if (!Directory.Exists("mode"))
-                {
-                    Directory.CreateDirectory("mode");
-                }
-
+                // 如果符合条件的语言文件不存在，使用默认语言en-US
+                Utils.Logging.Info($"当前语言：en-US");
+            }
+            else // 如果外部文件均不存在，只是创建目录
+            {
+                Directory.CreateDirectory("i18n");
+                // 记录日志
+                Utils.Logging.Info($"当前语言：en-US");
+            }
+            if (RunningInstance() == null)
+            {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(Global.MainForm = new Forms.MainForm());
             }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Netch is already running"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
         }
+		
+        /// 判断是否运行进程
+        public static System.Diagnostics.Process RunningInstance()
+        {
+            System.Diagnostics.Process current = System.Diagnostics.Process.GetCurrentProcess();
+            System.Diagnostics.Process[] processes = System.Diagnostics.Process.GetProcesses();
+            foreach (System.Diagnostics.Process process in processes) //查找相同名称的进程 
+            {
+                if (process.Id != current.Id) //忽略当前进程 
+                {
+                    if (process.ProcessName == current.ProcessName)//判断进程名称是否和当前运行进程名称一样
+                    {
+                        return process;
+                    }
+                }
+            }
+            return null;
+        }
+
+
     }
 }
