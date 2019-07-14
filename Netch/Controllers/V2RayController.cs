@@ -59,7 +59,7 @@ namespace Netch.Controllers
                                         {
                                             id = server.UserID,
                                             alterId = server.AlterID,
-                                            secirity = server.EncryptMethod
+                                            security = server.EncryptMethod
                                         }
                                     }
                                 }

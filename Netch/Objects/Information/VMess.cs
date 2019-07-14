@@ -26,7 +26,7 @@ namespace Netch.Objects.Information
 
             public int alterId;
 
-            public string secirity;
+            public string security;
         }
 
         public class VNext
