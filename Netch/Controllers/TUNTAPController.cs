@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -60,6 +60,27 @@ namespace Netch.Controllers
         /// </summary>
         public bool SetupBypass()
         {
+            // 让服务器 IP 走直连
+            foreach (var address in ServerAddresses)
+            {
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.CreateRoute(address.ToString(), 32, Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
+
+            // 处理全局绕过 IP
+            foreach (var ip in Global.BypassIPs)
+            {
+                var info = ip.Split('/');
+                var address = IPAddress.Parse(info[0]);
+
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.CreateRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
+
             // 处理模式的绕过中国
             if (SavedMode.BypassChina)
             {
@@ -119,27 +140,6 @@ namespace Netch.Controllers
                     }
                 }
             }
-
-            // 处理全局绕过 IP
-            foreach (var ip in Global.BypassIPs)
-            {
-                var info = ip.Split('/');
-                var address = IPAddress.Parse(info[0]);
-
-                if (!IPAddress.IsLoopback(address))
-                {
-                    NativeMethods.CreateRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
-                }
-            }
-
-            // 让服务器 IP 走直连
-            foreach (var address in ServerAddresses)
-            {
-                if (!IPAddress.IsLoopback(address))
-                {
-                    NativeMethods.CreateRoute(address.ToString(), 32, Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
-                }
-            }
             return true;
         }
 
@@ -149,29 +149,6 @@ namespace Netch.Controllers
         /// </summary>
         public bool ClearBypass()
         {
-            foreach (var address in ServerAddresses)
-            {
-                if (!IPAddress.IsLoopback(address))
-                {
-                    NativeMethods.DeleteRoute(address.ToString(), 32, Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
-                }
-            }
-
-            if (SavedMode.BypassChina)
-            {
-                using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
-                {
-                    string text;
-
-                    while ((text = sr.ReadLine()) != null)
-                    {
-                        var info = text.Split('/');
-
-                        NativeMethods.DeleteRoute(info[0], int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
-                    }
-                }
-            }
-
             if (SavedMode.Type == 2)
             {
                 NativeMethods.DeleteRoute("0.0.0.0", 0, Global.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index, 10);
@@ -205,6 +182,21 @@ namespace Netch.Controllers
                 }
             }
 
+            if (SavedMode.BypassChina)
+            {
+                using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
+                {
+                    string text;
+
+                    while ((text = sr.ReadLine()) != null)
+                    {
+                        var info = text.Split('/');
+
+                        NativeMethods.DeleteRoute(info[0], int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                    }
+                }
+            }
+
             foreach (var ip in Global.BypassIPs)
             {
                 var info = ip.Split('/');
@@ -213,6 +205,14 @@ namespace Netch.Controllers
                 if (!IPAddress.IsLoopback(address))
                 {
                     NativeMethods.DeleteRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
+
+            foreach (var address in ServerAddresses)
+            {
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.DeleteRoute(address.ToString(), 32, Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                 }
             }
             return true;
