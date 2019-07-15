@@ -104,7 +104,7 @@
     <Compile Include="Controllers\SSRController.cs" />
     <Compile Include="Controllers\SSController.cs" />
     <Compile Include="Controllers\TUNTAPController.cs" />
-    <Compile Include="Controllers\V2RayController.cs" />
+    <Compile Include="Controllers\VMessController.cs" />
     <Compile Include="Forms\GlobalBypassIPForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -29,8 +29,8 @@ namespace Netch.Controllers
         /// <summary>
         ///     保存传入的规则
         /// </summary>
-        public Objects.Server SavedServer;
-        public Objects.Mode SavedMode;
+        public Objects.Server SavedServer = new Objects.Server();
+        public Objects.Mode SavedMode = new Objects.Mode();
 
 
         /// <summary>

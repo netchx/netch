@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Netch.Controllers
 {
-    public class V2RayController
+    public class VMessController
     {
         /// <summary>
         ///		进程实例
