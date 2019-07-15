@@ -65,6 +65,7 @@
             this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ShowMainForm = new System.Windows.Forms.ToolStripMenuItem();
             this.UserClosing = new System.Windows.Forms.ToolStripMenuItem();
+            this.SettingsButton = new System.Windows.Forms.Button();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -392,11 +393,22 @@
             this.UserClosing.Text = "退出";
             this.UserClosing.Click += new System.EventHandler(this.UserClosing_Click);
             // 
+            // SettingsButton
+            // 
+            this.SettingsButton.Location = new System.Drawing.Point(12, 120);
+            this.SettingsButton.Name = "SettingsButton";
+            this.SettingsButton.Size = new System.Drawing.Size(72, 24);
+            this.SettingsButton.TabIndex = 4;
+            this.SettingsButton.Text = "Settings";
+            this.SettingsButton.UseVisualStyleBackColor = true;
+            this.SettingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(608, 176);
+            this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.StatusStrip);
             this.Controls.Add(this.ConfigurationGroupBox);
@@ -463,5 +475,6 @@
         private System.Windows.Forms.ContextMenuStrip NotifyMenu;
         private System.Windows.Forms.ToolStripMenuItem ShowMainForm;
         private System.Windows.Forms.ToolStripMenuItem UserClosing;
+        private System.Windows.Forms.Button SettingsButton;
     }
 }

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.NetworkInformation;
 
 namespace Netch
 {
@@ -8,6 +11,8 @@ namespace Netch
         ///     主窗体
         /// </summary>
         public static Forms.MainForm MainForm;
+
+        public static Forms.SettingForm SettingForm;
 
         /// <summary>
         ///     杂项配置
@@ -154,5 +159,86 @@ namespace Netch
             "dtls",
             "wireguard"
         };
+
+        /// <summary>
+        ///		适配器
+        /// </summary>
+        public static class Adapter
+        {
+            /// <summary>
+            ///		索引
+            /// </summary>
+            public static int Index = -1;
+
+            /// <summary>
+            ///		地址
+            /// </summary>
+            public static IPAddress Address;
+
+            /// <summary>
+            ///		网关
+            /// </summary>
+            public static IPAddress Gateway;
+        }
+
+        /// <summary>
+        ///		TUN/TAP 适配器
+        /// </summary>
+        public static class TUNTAP
+        {
+            /// <summary>
+            ///		适配器
+            /// </summary>
+            public static NetworkInterface Adapter;
+
+            /// <summary>
+            ///		索引
+            /// </summary>
+            public static int Index = -1;
+
+            /// <summary>
+            ///		组件 ID
+            /// </summary>
+            public static string ComponentID = String.Empty;
+
+            /// <summary>
+            ///		地址
+            /// </summary>
+            public static IPAddress Address = IPAddress.Parse("10.0.236.10");
+
+            /// <summary>
+            ///		掩码
+            /// </summary>
+            public static IPAddress Netmask = IPAddress.Parse("255.255.255.0");
+
+            /// <summary>
+            ///		网关
+            /// </summary>
+            public static IPAddress Gateway = IPAddress.Parse("10.0.236.1");
+
+            /// <summary>
+            ///		DNS
+            /// </summary>
+            public static List<IPAddress> DNS = new List<IPAddress>()
+            {
+                IPAddress.Parse("1.1.1.1")
+            };
+
+            /// <summary>
+            ///		使用伪装 DNS
+            /// </summary>
+            public static bool UseFakeDNS = false;
+
+            /// <summary>
+            ///		使用自定义 DNS 设置
+            /// </summary>
+            public static bool UseCustomDNS = false;
+        }
+
+        /// <summary>
+        ///		全局绕过 IP 列表
+        /// </summary>
+        public static List<string> BypassIPs = new List<string>();
+
     }
 }

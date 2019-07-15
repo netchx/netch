@@ -34,7 +34,10 @@ namespace Netch.Forms
         {
             foreach (var server in Global.Server)
             {
-                Task.Run(server.Test);
+                Task.Run(()=>
+                {
+                    server.Test();
+                });
             }
 
             Task.Run(() =>
@@ -285,6 +288,7 @@ namespace Netch.Forms
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             ServerLabel.Text = Utils.i18N.Translate("Server");
             ModeLabel.Text = Utils.i18N.Translate("Mode");
+            SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
             StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             //增加最小化至通知栏的提示
@@ -635,7 +639,10 @@ namespace Netch.Forms
             {
                 foreach (var server in Global.Server)
                 {
-                    Task.Run(server.Test);
+                    Task.Run(()=>
+                    {
+                        server.Test();
+                    });
                 }
 
                 Thread.Sleep(2000);
@@ -753,6 +760,12 @@ namespace Netch.Forms
                 this.NotifyIcon.Visible = true;  //托盘图标隐藏 
             }
             this.Activate();
+        }
+
+        private void SettingsButton_Click(object sender, EventArgs e)
+        {
+            (Global.SettingForm = new SettingForm()).Show();
+            Hide();
         }
     }
 }

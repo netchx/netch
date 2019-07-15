@@ -3,8 +3,6 @@
     "Information": "信息",
     "Error": "错误",
 
-    "Netch is already running": "Netch 已经在运行中",
-
     "Start": "启动",
     "Stop": "停止",
     "Waiting for command": "等待命令中",
@@ -88,5 +86,12 @@
     "Remark can not be empty": "备注不可为空",
     "Link can not be empty": "链接不可为空",
     "Link must start with http:// or https://": "链接必须以 http:// 或 https:// 开头",
-    "Successfully saved": "保存成功"
+    "Successfully saved": "保存成功",
+	
+	"Settings": "设置",
+	"Netmask": "子网掩码",
+	"Gateway": "网关",
+	"Use Custom DNS": "使用自定义 DNS",
+	"Global Bypass IPs": "全局直连 IP"
+	
 }
