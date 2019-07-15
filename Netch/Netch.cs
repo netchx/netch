@@ -21,35 +21,33 @@ namespace Netch
                 // 设置当前目录
                 Directory.SetCurrentDirectory(Application.StartupPath);
 
-                // 检查日志目录
-                if (!Directory.Exists("logging"))
+                // 预创建目录
+                var directories = new String[] { "mode", "i18n", "logging" };
+                foreach (var item in directories)
                 {
-                    Directory.CreateDirectory("logging");
-                }
-                else
-                {
-                    // 清理上一次的日志文件，防止淤积占用磁盘空间
-                    if (File.Exists("logging\\application.log"))
+                    // 检查是否已经存在
+                    if (!Directory.Exists(item))
                     {
-                        File.Delete("logging\\application.log");
+                        // 创建目录
+                        Directory.CreateDirectory(item);
                     }
                 }
 
-                // 检查模式目录
-                if (!Directory.Exists("mode"))
+                // 清理上一次的日志文件，防止淤积占用磁盘空间
+                if (File.Exists("logging\\application.log"))
                 {
-                    Directory.CreateDirectory("mode");
+                    File.Delete("logging\\application.log");
                 }
 
                 // 得到当前线程语言代码
-                var CultureCodeName = CultureInfo.CurrentCulture.Name;
+                var culture = CultureInfo.CurrentCulture.Name;
 
                 // 如果命令行参数只有一个，且传入有效语言代码，那么覆盖掉已得到的语言代码
                 if (args.Length == 1)
                 {
                     try
                     {
-                        CultureCodeName = CultureInfo.GetCultureInfo(args[0]).Name;
+                        culture = CultureInfo.GetCultureInfo(args[0]).Name;
                     }
                     catch (CultureNotFoundException)
                     {
@@ -57,32 +55,32 @@ namespace Netch
                     }
                 }
 
-                // 加载内置资源中的语言
-                if (CultureCodeName == "zh-CN")
+                // 记录当前系统语言
+                Utils.Logging.Info($"当前系统语言：{culture}");
+
+                // 尝试加载内置中文语言
+                if (culture == "zh-CN")
                 {
+                    // 加载语言
                     Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
 
-                    // 记录日志
-                    Utils.Logging.Info($"当前语言：{CultureCodeName}");
+                    // 记录当前程序语言
+                    Utils.Logging.Info($"当前程序语言：{culture}");
                 }
-                else if (Directory.Exists("i18n")) // 如果当前语言不是内置资源中的语言，将符合当前语言的外部文件加载进来作为翻译
-                {
-                    // 如果符合条件的语言文件存在，进行加载
-                    if (File.Exists($"i18n\\{CultureCodeName}"))
-                    {
-                        Utils.i18N.Load(File.ReadAllText($"i18n\\{CultureCodeName}"));
-                        // 记录日志
-                        Utils.Logging.Info($"当前语言：{CultureCodeName}");
-                    }
-                    // 如果符合条件的语言文件不存在，使用默认语言en-US
-                    Utils.Logging.Info($"当前语言：en-US");
-                }
-                else // 如果外部文件均不存在，只是创建目录
-                {
-                    Directory.CreateDirectory("i18n");
 
+                // 从外置文件中加载语言
+                if (File.Exists($"i18n\\{culture}"))
+                {
+                    // 加载语言
+                    Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
+
+                    // 记录当前程序语言
+                    Utils.Logging.Info($"当前程序语言：{culture}");
+                }
+                else
+                {
                     // 记录日志
-                    Utils.Logging.Info($"当前语言：en-US");
+                    Utils.Logging.Info("当前程序语言：en_US");
                 }
 
                 // 检查是否已经运行
