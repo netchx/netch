@@ -67,6 +67,9 @@
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -100,7 +103,14 @@
     <Compile Include="Controllers\NFController.cs" />
     <Compile Include="Controllers\SSRController.cs" />
     <Compile Include="Controllers\SSController.cs" />
+    <Compile Include="Controllers\TUNTAPController.cs" />
     <Compile Include="Controllers\V2RayController.cs" />
+    <Compile Include="Forms\GlobalBypassIPForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GlobalBypassIPForm.Designer.cs">
+      <DependentUpon>GlobalBypassIPForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -137,6 +147,12 @@
     <Compile Include="Forms\Server\Shadowsocks.Designer.cs">
       <DependentUpon>Shadowsocks.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SettingForm.Designer.cs">
+      <DependentUpon>SettingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SubscribeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +160,7 @@
       <DependentUpon>SubscribeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="Netch.cs" />
     <Compile Include="Objects\Information\VMess.cs" />
     <Compile Include="Objects\Information\SSR.cs" />
@@ -165,7 +182,11 @@
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="3rd\FolderSelect\Reflector.cs" />
     <Compile Include="Utils\ShareLink.cs" />
+    <Compile Include="Utils\TUNTAP.cs" />
     <Compile Include="Win32Native.cs" />
+    <EmbeddedResource Include="Forms\GlobalBypassIPForm.resx">
+      <DependentUpon>GlobalBypassIPForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -183,6 +204,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\Shadowsocks.resx">
       <DependentUpon>Shadowsocks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SettingForm.resx">
+      <DependentUpon>SettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SubscribeForm.resx">
       <DependentUpon>SubscribeForm.cs</DependentUpon>
@@ -208,6 +232,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Resources\CNIP" />
+    <None Include="Resources\defaultTUNTAP" />
     <None Include="Resources\zh-CN" />
   </ItemGroup>
   <ItemGroup>

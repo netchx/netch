@@ -31,6 +31,11 @@ namespace Netch.Controllers
         public SSRController pSSRController = new SSRController();
 
         /// <summary>
+        ///     V2Ray 控制器
+        /// </summary>
+        public V2RayController pV2RayController = new V2RayController();
+
+        /// <summary>
         ///		NF 控制器
         /// </summary>
         public NFController pNFController = new NFController();
@@ -40,10 +45,11 @@ namespace Netch.Controllers
         /// </summary>
         public HTTPController pHTTPController = new HTTPController();
 
+
         /// <summary>
-        ///     V2Ray 控制器
+        ///     TUN/TAP 控制器
         /// </summary>
-        public V2RayController pV2RayController = new V2RayController();
+        public TUNTAPController pTUNTAPController = new TUNTAPController();
 
         /// <summary>
         ///		启动
@@ -80,11 +86,11 @@ namespace Netch.Controllers
                 }
                 else if (mode.Type == 1)
                 {
-                    result = false;
+                    result = pTUNTAPController.Start(server,mode);
                 }
                 else if (mode.Type == 2)
                 {
-                    result = false;
+                    result = pTUNTAPController.Start(server, mode);
                 }
                 else if (mode.Type == 3)
                 {
@@ -109,6 +115,7 @@ namespace Netch.Controllers
             pSSController.Stop();
             pSSRController.Stop();
             pV2RayController.Stop();
+            pTUNTAPController.Stop();
             pHTTPController.Stop();
         }
     }

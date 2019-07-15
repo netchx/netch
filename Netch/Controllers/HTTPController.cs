@@ -12,7 +12,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     实例
         /// </summary>
-        public MihaZupan.HttpToSocks5Proxy Instance;
+        public MihaZupan.HttpToSocks5Proxy Instance = null;
 
         /// <summary>
         ///		启动
@@ -67,7 +67,10 @@ namespace Netch.Controllers
             {
                 try
                 {
-                    Instance.StopInternalServer();
+                    if(Instance != null)
+                    {
+                        Instance.StopInternalServer();
+                    }
                 }
                 catch (Exception e)
                 {
