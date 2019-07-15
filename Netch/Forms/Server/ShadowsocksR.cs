@@ -19,7 +19,7 @@ namespace Netch.Forms.Server
             Index = index;
         }
 
-        private void Shadowsocks_Load(object sender, EventArgs e)
+        private void ShadowsocksR_Load(object sender, EventArgs e)
         {
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             RemarkLabel.Text = Utils.i18N.Translate("Remark");
@@ -53,7 +53,7 @@ namespace Netch.Forms.Server
                 AddressTextBox.Text = Global.Server[Index].Address;
                 PortTextBox.Text = Global.Server[Index].Port.ToString();
                 PasswordTextBox.Text = Global.Server[Index].Password;
-                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Server[Index].EncryptMethod);
+                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(Global.Server[Index].EncryptMethod);
                 ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(Global.Server[Index].Protocol);
                 ProtocolParamTextBox.Text = Global.Server[Index].ProtocolParam;
                 OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Server[Index].OBFS);
@@ -67,7 +67,7 @@ namespace Netch.Forms.Server
             }
         }
 
-        private void Shadowsocks_FormClosing(object sender, FormClosingEventArgs e)
+        private void ShadowsocksR_FormClosing(object sender, FormClosingEventArgs e)
         {
             Global.MainForm.Show();
         }
