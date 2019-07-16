@@ -69,18 +69,6 @@ namespace Netch.Controllers
                 }
             }
 
-            // 处理全局绕过 IP
-            foreach (var ip in Global.BypassIPs)
-            {
-                var info = ip.Split('/');
-                var address = IPAddress.Parse(info[0]);
-
-                if (!IPAddress.IsLoopback(address))
-                {
-                    NativeMethods.CreateRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
-                }
-            }
-
             // 处理模式的绕过中国
             if (SavedMode.BypassChina)
             {
@@ -94,6 +82,18 @@ namespace Netch.Controllers
 
                         NativeMethods.CreateRoute(info[0], int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                     }
+                }
+            }
+
+            // 处理全局绕过 IP
+            foreach (var ip in Global.BypassIPs)
+            {
+                var info = ip.Split('/');
+                var address = IPAddress.Parse(info[0]);
+
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.CreateRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                 }
             }
 
@@ -182,6 +182,17 @@ namespace Netch.Controllers
                 }
             }
 
+            foreach (var ip in Global.BypassIPs)
+            {
+                var info = ip.Split('/');
+                var address = IPAddress.Parse(info[0]);
+
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.DeleteRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
+
             if (SavedMode.BypassChina)
             {
                 using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
@@ -194,17 +205,6 @@ namespace Netch.Controllers
 
                         NativeMethods.DeleteRoute(info[0], int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                     }
-                }
-            }
-
-            foreach (var ip in Global.BypassIPs)
-            {
-                var info = ip.Split('/');
-                var address = IPAddress.Parse(info[0]);
-
-                if (!IPAddress.IsLoopback(address))
-                {
-                    NativeMethods.DeleteRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                 }
             }
 
