@@ -32,7 +32,7 @@ namespace Netch.Utils
 
         public static readonly string TUNTAP_INI = $"{DATA_DIR}\\tuntap.ini";
 
-        public static readonly string BYPASS_DAT = $"{DATA_DIR}\\bypass.data";
+        public static readonly string BYPASS_DAT = $"{DATA_DIR}\\bypass.dat";
 
         /// <summary>
         ///     加载配置

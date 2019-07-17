@@ -19,12 +19,10 @@ namespace Netch.Controllers
         /// </summary>
         public Objects.State State = Objects.State.Waiting;
 
-
         /// <summary>
         ///		服务器 IP 地址
         /// </summary>
         public IPAddress[] ServerAddresses = new IPAddress[0];
-
 
         /// <summary>
         ///     保存传入的规则
@@ -32,11 +30,10 @@ namespace Netch.Controllers
         public Objects.Server SavedServer = new Objects.Server();
         public Objects.Mode SavedMode = new Objects.Mode();
 
-
         /// <summary>
         ///     配置 TUNTAP 适配器
         /// </summary>
-        public bool ConfigureTUNTAP()
+        public bool Configure()
         {
             // 查询服务器 IP 地址
             var destination = Dns.GetHostAddressesAsync(SavedServer.Address);
@@ -233,7 +230,7 @@ namespace Netch.Controllers
             SavedMode = mode;
             SavedServer = server;
 
-            ConfigureTUNTAP();
+            Configure();
             SetupBypass();
 
             Instance = new Process();
