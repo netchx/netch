@@ -34,7 +34,7 @@ namespace Netch.Forms
         {
             foreach (var server in Global.Server)
             {
-                Task.Run(()=>
+                Task.Run(() =>
                 {
                     server.Test();
                 });
@@ -71,7 +71,7 @@ namespace Netch.Forms
             else // 如果设置中没有加载上次的位置，给设置添加元素
             {
                 Global.Settings.Add("ServerComboBoxSelectedIndex", 0);
-                
+
                 // 如果当前 ServerComboBox 中有元素，选择第一个位置
                 if (ServerComboBox.Items.Count > 0)
                 {
@@ -639,7 +639,7 @@ namespace Netch.Forms
             {
                 foreach (var server in Global.Server)
                 {
-                    Task.Run(()=>
+                    Task.Run(() =>
                     {
                         server.Test();
                     });

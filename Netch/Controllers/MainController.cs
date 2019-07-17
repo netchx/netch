@@ -86,7 +86,7 @@ namespace Netch.Controllers
                 }
                 else if (mode.Type == 1)
                 {
-                    result = pTUNTAPController.Start(server,mode);
+                    result = pTUNTAPController.Start(server, mode);
                 }
                 else if (mode.Type == 2)
                 {

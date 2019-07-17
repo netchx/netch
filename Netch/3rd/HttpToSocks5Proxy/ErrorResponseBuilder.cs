@@ -14,7 +14,7 @@ namespace MihaZupan
                 case SocketConnectionResult.HostUnreachable:
                 case SocketConnectionResult.ConnectionRefused:
                 case SocketConnectionResult.ConnectionReset:
-                    return string.Concat(httpVersion, "502 ", error.ToString(),  "\r\n\r\n");
+                    return string.Concat(httpVersion, "502 ", error.ToString(), "\r\n\r\n");
 
                 default:
                     return string.Concat(httpVersion, "500 Internal Server Error\r\nX-Proxy-Error-Type: ", error.ToString(), "\r\n\r\n");

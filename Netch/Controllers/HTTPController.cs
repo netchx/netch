@@ -1,9 +1,5 @@
 ﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Netch.Controllers
 {
@@ -54,7 +50,7 @@ namespace Netch.Controllers
                 Utils.Logging.Info(e.ToString());
                 return false;
             }
-            
+
             return true;
         }
 
@@ -67,7 +63,7 @@ namespace Netch.Controllers
             {
                 try
                 {
-                    if(Instance != null)
+                    if (Instance != null)
                     {
                         Instance.StopInternalServer();
                     }

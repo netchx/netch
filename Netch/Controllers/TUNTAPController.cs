@@ -7,17 +7,17 @@ using System.Threading;
 
 namespace Netch.Controllers
 {
-	public class TUNTAPController
-	{
-		/// <summary>
-		///		进程实例（tun2socks）
-		/// </summary>
-		public Process Instance;
+    public class TUNTAPController
+    {
+        /// <summary>
+        ///		进程实例（tun2socks）
+        /// </summary>
+        public Process Instance;
 
-		/// <summary>
-		///		当前状态
-		/// </summary>
-		public Objects.State State = Objects.State.Waiting;
+        /// <summary>
+        ///		当前状态
+        /// </summary>
+        public Objects.State State = Objects.State.Waiting;
 
 
         /// <summary>
@@ -224,8 +224,8 @@ namespace Netch.Controllers
         /// <param name="server">配置</param>
         /// <returns>是否成功</returns>
         public bool Start(Objects.Server server, Objects.Mode mode)
-		{
-            if(!File.Exists("bin\\tun2socks.exe"))
+        {
+            if (!File.Exists("bin\\tun2socks.exe"))
             {
                 return false;
             }
@@ -236,102 +236,102 @@ namespace Netch.Controllers
             ConfigureTUNTAP();
             SetupBypass();
 
-			Instance = new Process();
-			Instance.StartInfo.WorkingDirectory = String.Format("{0}\\bin", Directory.GetCurrentDirectory());
-			Instance.StartInfo.FileName = String.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
+            Instance = new Process();
+            Instance.StartInfo.WorkingDirectory = String.Format("{0}\\bin", Directory.GetCurrentDirectory());
+            Instance.StartInfo.FileName = String.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
 
-			var dns = "1.1.1.1";
-			if (Global.TUNTAP.UseCustomDNS)
-			{
-				dns = "";
-				foreach (var value in Global.TUNTAP.DNS)
-				{
-					dns += value;
-					dns += ',';
-				}
+            var dns = "1.1.1.1";
+            if (Global.TUNTAP.UseCustomDNS)
+            {
+                dns = "";
+                foreach (var value in Global.TUNTAP.DNS)
+                {
+                    dns += value;
+                    dns += ',';
+                }
 
-				dns = dns.Trim();
-				dns = dns.Substring(0, dns.Length - 1);
-			}
+                dns = dns.Trim();
+                dns = dns.Substring(0, dns.Length - 1);
+            }
 
-			if (Global.TUNTAP.UseFakeDNS)
-			{
-				dns += " -fakeDns";
-			}
+            if (Global.TUNTAP.UseFakeDNS)
+            {
+                dns += " -fakeDns";
+            }
 
-			if (server.Type == "Socks5")
-			{
-				Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Address, server.Port, Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
-			}
-			else
-			{
-				Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:2801 -tunAddr {0} -tunMask {1} -tunGw {2} -tunDns {3}", Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
-			}
+            if (server.Type == "Socks5")
+            {
+                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Address, server.Port, Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
+            }
+            else
+            {
+                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:2801 -tunAddr {0} -tunMask {1} -tunGw {2} -tunDns {3}", Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
+            }
 
-			Instance.StartInfo.CreateNoWindow = true;
-			Instance.StartInfo.RedirectStandardError = true;
-			Instance.StartInfo.RedirectStandardInput = true;
-			Instance.StartInfo.RedirectStandardOutput = true;
-			Instance.StartInfo.UseShellExecute = false;
-			Instance.EnableRaisingEvents = true;
-			Instance.ErrorDataReceived += OnOutputDataReceived;
-			Instance.OutputDataReceived += OnOutputDataReceived;
+            Instance.StartInfo.CreateNoWindow = true;
+            Instance.StartInfo.RedirectStandardError = true;
+            Instance.StartInfo.RedirectStandardInput = true;
+            Instance.StartInfo.RedirectStandardOutput = true;
+            Instance.StartInfo.UseShellExecute = false;
+            Instance.EnableRaisingEvents = true;
+            Instance.ErrorDataReceived += OnOutputDataReceived;
+            Instance.OutputDataReceived += OnOutputDataReceived;
 
-			State = Objects.State.Starting;
-			Instance.Start();
-			Instance.BeginErrorReadLine();
-			Instance.BeginOutputReadLine();
-			Instance.PriorityClass = ProcessPriorityClass.RealTime;
+            State = Objects.State.Starting;
+            Instance.Start();
+            Instance.BeginErrorReadLine();
+            Instance.BeginOutputReadLine();
+            Instance.PriorityClass = ProcessPriorityClass.RealTime;
 
-			for (int i = 0; i < 1000; i++)
-			{
-				Thread.Sleep(10);
+            for (int i = 0; i < 1000; i++)
+            {
+                Thread.Sleep(10);
 
-				if (State == Objects.State.Started)
-				{
-					return true;
-				}
+                if (State == Objects.State.Started)
+                {
+                    return true;
+                }
 
-				if (State == Objects.State.Stopped)
-				{
-					Stop();
-					return false;
-				}
-			}
+                if (State == Objects.State.Stopped)
+                {
+                    Stop();
+                    return false;
+                }
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		/// <summary>
-		///		停止
-		/// </summary>
-		public void Stop()
-		{
-			if (Instance != null && !Instance.HasExited)
-			{
-				Instance.Kill();
-			}
+        /// <summary>
+        ///		停止
+        /// </summary>
+        public void Stop()
+        {
+            if (Instance != null && !Instance.HasExited)
+            {
+                Instance.Kill();
+            }
             ClearBypass();
-		}
+        }
 
-		public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-		{
-			if (!String.IsNullOrEmpty(e.Data))
-			{
-				File.AppendAllText("logging\\tun2socks.log", String.Format("{0}\r\n", e.Data.Trim()));
+        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (!String.IsNullOrEmpty(e.Data))
+            {
+                File.AppendAllText("logging\\tun2socks.log", String.Format("{0}\r\n", e.Data.Trim()));
 
-				if (State == Objects.State.Starting)
-				{
-					if (e.Data.Contains("Running"))
-					{
-						State = Objects.State.Started;
-					}
-					else if (e.Data.Contains("failed") || e.Data.Contains("invalid vconfig file"))
-					{
-						State = Objects.State.Stopped;
-					}
-				}
-			}
-		}
-	}
+                if (State == Objects.State.Starting)
+                {
+                    if (e.Data.Contains("Running"))
+                    {
+                        State = Objects.State.Started;
+                    }
+                    else if (e.Data.Contains("failed") || e.Data.Contains("invalid vconfig file"))
+                    {
+                        State = Objects.State.Stopped;
+                    }
+                }
+            }
+        }
+    }
 }

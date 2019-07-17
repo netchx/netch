@@ -1,8 +1,4 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-
-namespace Netch.Objects
+﻿namespace Netch.Objects
 {
     /// <summary>
     ///     使用 v2rayN 定义的 VMess 链接格式

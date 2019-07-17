@@ -159,7 +159,7 @@ namespace Netch.Utils
                     if (shadowsocksr.Length > 6)
                     {
                         var buff = "";
-                        
+
                         for (int i = 0; i < shadowsocksr.Length - 5; i++)
                         {
                             buff += shadowsocksr[i];
@@ -258,9 +258,9 @@ namespace Netch.Utils
                         return null;
                     }
 
-                    if(data.TransferProtocol == "quic")
+                    if (data.TransferProtocol == "quic")
                     {
-                        if(!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
+                        if (!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
                         {
                             Logging.Info(String.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
                             return null;
