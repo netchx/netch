@@ -30,6 +30,12 @@ namespace Netch.Controllers
         public Objects.Server SavedServer = new Objects.Server();
         public Objects.Mode SavedMode = new Objects.Mode();
 
+
+        /// <summary>
+        ///     本地 DNS 服务控制器
+        /// </summary>
+        public DNSController pDNSController = new DNSController();
+
         /// <summary>
         ///     配置 TUNTAP 适配器
         /// </summary>
@@ -237,7 +243,7 @@ namespace Netch.Controllers
             Instance.StartInfo.WorkingDirectory = String.Format("{0}\\bin", Directory.GetCurrentDirectory());
             Instance.StartInfo.FileName = String.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
 
-            var dns = "1.1.1.1";
+            string dns;
             if (Global.TUNTAP.UseCustomDNS)
             {
                 dns = "";
@@ -249,6 +255,11 @@ namespace Netch.Controllers
 
                 dns = dns.Trim();
                 dns = dns.Substring(0, dns.Length - 1);
+            }
+            else
+            {
+                pDNSController.Start();
+                dns = "127.0.0.1";
             }
 
             if (Global.TUNTAP.UseFakeDNS)
@@ -308,6 +319,7 @@ namespace Netch.Controllers
             {
                 Instance.Kill();
             }
+            pDNSController.Stop();
             ClearBypass();
         }
 
