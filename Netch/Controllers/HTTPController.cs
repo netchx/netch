@@ -8,7 +8,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     实例
         /// </summary>
-        public MihaZupan.HttpToSocks5Proxy Instance = null;
+        public PrivoxyController Instance = new PrivoxyController();
 
         /// <summary>
         ///		启动
@@ -24,16 +24,16 @@ namespace Netch.Controllers
                 {
                     if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                     {
-                        Instance = new MihaZupan.HttpToSocks5Proxy(server.Address, server.Port, server.Username, server.Password, 2802);
+                        return false;
                     }
                     else
                     {
-                        Instance = new MihaZupan.HttpToSocks5Proxy(server.Address, server.Port, 2802);
+                        Instance.Start(server, mode);
                     }
                 }
                 else
                 {
-                    Instance = new MihaZupan.HttpToSocks5Proxy("127.0.0.1", 2801, 2802);
+                    Instance.Start(server, mode);
                 }
 
                 using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
@@ -63,10 +63,7 @@ namespace Netch.Controllers
             {
                 try
                 {
-                    if (Instance != null)
-                    {
-                        Instance.StopInternalServer();
-                    }
+                    Instance.Stop();
                 }
                 catch (Exception e)
                 {
