@@ -1,5 +1,4 @@
 ﻿using DnsClient.Protocol;
-using System;
 using System.Linq;
 
 namespace DnsClient

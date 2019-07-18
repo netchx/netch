@@ -43,7 +43,7 @@ namespace System.Linq
         /// </summary>
         /// <param name="records">The records.</param>
         /// <returns>The list of <see cref="SoaRecord"/>.</returns>
-        
+
         public static IEnumerable<SoaRecord> SoaRecords(this IEnumerable<DnsResourceRecord> records)
         {
             return records.OfType<SoaRecord>();
@@ -124,7 +124,7 @@ namespace System.Linq
         /// </summary>
         /// <param name="records">The records.</param>
         /// <returns>The list of <see cref="MxRecord"/>.</returns>
-        
+
         public static IEnumerable<MxRecord> MxRecords(this IEnumerable<DnsResourceRecord> records)
         {
             return records.OfType<MxRecord>();
