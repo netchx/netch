@@ -11,7 +11,13 @@ namespace Netch.Objects
         public string Remark;
 
         /// <summary>
-        ///     类型（0. 进程加速 1. TUN/TAP IP 加速 2. TUN/TAP 全局代理绕过 IP 地址 3. 系统代理 1000. 只启动 Socks5 代理）
+        ///     类型
+        ///     0. 进程加速
+        ///     1. TUN/TAP 规则内 IP CIDR 加速
+        ///     2. TUN/TAP 全局，绕过规则内 IP CIDR
+        ///     3. HTTP 代理（自动设置到系统代理）
+        ///     4. Socks5 代理（不自动设置到系统代理）
+        ///     5. Socks5 + HTTP 代理（不自动设置到系统代理）
         /// </summary>
         public int Type = 0;
 

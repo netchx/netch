@@ -92,9 +92,17 @@ namespace Netch.Controllers
                 {
                     result = pTUNTAPController.Start(server, mode);
                 }
-                else if (mode.Type == 3)
+                else if (mode.Type == 3 || mode.Type == 5)
                 {
                     result = pHTTPController.Start(server, mode);
+                }
+                else if (mode.Type == 4)
+                {
+                    // 跳过
+                }
+                else
+                {
+                    result = false;
                 }
             }
 
@@ -111,12 +119,12 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            pNFController.Stop();
             pSSController.Stop();
             pSSRController.Stop();
             pVMessController.Stop();
-            pTUNTAPController.Stop();
+            pNFController.Stop();
             pHTTPController.Stop();
+            pTUNTAPController.Stop();
         }
     }
 }

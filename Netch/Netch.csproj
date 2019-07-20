@@ -226,11 +226,11 @@
     <Compile Include="Forms\Mode\Process.Designer.cs">
       <DependentUpon>Process.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Server\Vmess.cs">
+    <Compile Include="Forms\Server\VMess.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Server\Vmess.Designer.cs">
-      <DependentUpon>Vmess.cs</DependentUpon>
+    <Compile Include="Forms\Server\VMess.Designer.cs">
+      <DependentUpon>VMess.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Server\ShadowsocksR.cs">
       <SubType>Form</SubType>
@@ -297,8 +297,8 @@
     <EmbeddedResource Include="Forms\Mode\Process.resx">
       <DependentUpon>Process.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Server\Vmess.resx">
-      <DependentUpon>Vmess.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Server\VMess.resx">
+      <DependentUpon>VMess.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Server\ShadowsocksR.resx">
       <DependentUpon>ShadowsocksR.cs</DependentUpon>

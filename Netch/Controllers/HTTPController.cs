@@ -36,13 +36,16 @@ namespace Netch.Controllers
                     Instance.Start(server, mode);
                 }
 
-                using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
+                if (mode.Type != 5)
                 {
-                    registry.SetValue("ProxyEnable", 1);
-                    registry.SetValue("ProxyServer", "127.0.0.1:2802");
+                    using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
+                    {
+                        registry.SetValue("ProxyEnable", 1);
+                        registry.SetValue("ProxyServer", "127.0.0.1:2802");
 
-                    Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
-                    Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
+                        Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
+                        Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
+                    }
                 }
             }
             catch (Exception e)
