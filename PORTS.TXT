@@ -1,0 +1,3 @@
+UDP/53 => UDP DNS to TCP DNS
+TCP/2801 => Socks5
+TCP/2802 => HTTP
