@@ -94,6 +94,7 @@
             // 
             // ServerToolStripDropDownButton
             // 
+            this.ServerToolStripDropDownButton.AutoToolTip = false;
             this.ServerToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ImportServersFromClipboardToolStripMenuItem,
             this.AddSocks5ServerToolStripMenuItem,
@@ -141,6 +142,7 @@
             // 
             // ModeToolStripDropDownButton
             // 
+            this.ModeToolStripDropDownButton.AutoToolTip = false;
             this.ModeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CreateProcessModeToolStripMenuItem});
             this.ModeToolStripDropDownButton.Name = "ModeToolStripDropDownButton";
@@ -156,6 +158,7 @@
             // 
             // SubscribeToolStripDropDownButton
             // 
+            this.SubscribeToolStripDropDownButton.AutoToolTip = false;
             this.SubscribeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ManageSubscribeLinksToolStripMenuItem,
             this.UpdateServersFromSubscribeLinksToolStripMenuItem});
@@ -179,6 +182,7 @@
             // 
             // OptionsToolStripDropDownButton
             // 
+            this.OptionsToolStripDropDownButton.AutoToolTip = false;
             this.OptionsToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ReloadModesToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
@@ -210,6 +214,7 @@
             // 
             // AboutToolStripDropDownButton
             // 
+            this.AboutToolStripDropDownButton.AutoToolTip = false;
             this.AboutToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TelegarmGroupToolStripMenuItem,
             this.TelegramChannelToolStripMenuItem});
