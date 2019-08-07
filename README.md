@@ -30,7 +30,7 @@ Current release is portable. Unzip and click to run. Currently only support wind
 
 ## Description
 
-Netch is an open source game accelerator. Unlike [SSTap](https://www.sockscap64.com/sstap-enjoy-gaming-enjoy-sstap/), which needs to add rules to function as a blacklist proxy, Netch is more similar to [Sockscap64](https://www.sockscap64.com/homepage/), which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server. Now supports Socks5, Shadowsocks, ShadowsocksR. VMess is on the way.
+Netch is an open source game accelerator. Unlike [SSTap](https://www.sockscap64.com/sstap-enjoy-gaming-enjoy-sstap/), which needs to add rules to function as a blacklist proxy, Netch is more similar to [Sockscap64](https://www.sockscap64.com/homepage/), which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server. Now supports Socks5, Shadowsocks, ShadowsocksR, Vmess.
 
 As well, Netch avoid the restricted NAT problem caused by SSTap<escape><a name = "ref_1_s"><a href="#ref_1_d"><sup>[1]</sup></a></a></escape>. You can use an NATTypeTester<escape><a name = "ref_2_s"><a href="#ref_2_d"><sup>[2]</sup></a></a></escape> to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
 

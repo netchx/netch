@@ -10,7 +10,7 @@
 1. [下载与安装](#下载与安装)
 2. [简介](#简介)
 3. [使用方法](#使用方法)
-4. [常见问题 （Frequently Asked Questions）](#常见问题-（frequently-asked-questions）)
+4. [常见问题 （Frequently Asked Questions）](#常见问题-frequently-asked-questions)
    - 4.1 [错误报告类问题](#错误报告类问题)
      - 4.1.1 [无法运行](#无法运行)
      - 4.1.2 [订阅无法导入](#订阅无法导入)
@@ -18,12 +18,9 @@
      - 4.1.4 [NAT 类型限制](#NAT-类型限制)
      - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam--浏览器无法正常打开页面)
    - 4.2 [功能建议类问题](#功能建议类问题)
-     - 4.2.1 [加入全局功能](#加入全局功能)
-     - 4.2.2 [加入 VMess 代理功能](#加入-VMess-代理功能)
-     - 4.2.3 [加入任务栏托盘功能](#加入任务栏托盘功能)
-     - 4.2.4 [加入本地代理功能](#加入本地代理功能)
-     - 4.2.5 [加入更多的 SSR 参数支持](#加入更多的-SSR-参数支持)
-     - 4.2.6 [加入 macos 支持](#加入-macos-支持)
+     - 4.2.1 [加入本地代理功能](#加入本地代理功能)
+     - 4.2.2 [加入更多的 SSR 参数支持](#加入更多的-SSR-参数支持)
+     - 4.2.3 [加入 macos 支持](#加入-macos-支持)
 5. [截图](#截图)
 6. [依赖](#依赖)
 7. [证书](#证书)
@@ -31,7 +28,7 @@
 
 ## 下载与安装
 
-当前发布版本为免安装版本，解压后点击 Netch.exe 即可使用，目前仅支持 Windows。
+当前发布版本为免安装版本，解压后点击 Netch.exe 即可使用，目前仅支持 Windows
 
 **注意**
 
@@ -43,7 +40,7 @@
 
 ## 简介
 
-Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那样需要通过添加规则来实现黑名单代理， Netch 原理更类似 [SocksCap64](https://www.sockscap64.com/homepage/) ，通过扫描游戏目录获得需要代理的进程名进行代理
+Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现类似 [SocksCap64](https://www.sockscap64.com/homepage/) 那样的进程代理，也可以实现 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 那样的全局 TUN/TAP 代理，和 [shadowsocks-windows](https://github.com/shadowsocks/shadowsocks-windows) 那样的本地 Socks5，HTTP 和系统代理。至于连接至远程服务器的代理协议，目前 Netch 支持以下代理协议：Shadowsocks，Vmess，Socks5，ShadowsocksR
 
 与此同时 Netch 避免了 SSTap 的 NAT 问题 <escape><a name = "ref_1_s"><a href="#ref_1_d"><sup>[1]</sup></a></a></escape>，检查 NAT 类型 <escape><a name = "ref_2_s"><a href="#ref_2_d"><sup>[2]</sup></a></a></escape> 即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况
 
@@ -52,6 +49,8 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 ## 使用方法
 
 [USAGE.zh-CN.md](USAGE.zh-CN.md)
+
+Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译。
 
 ## 常见问题 （Frequently Asked Questions）
 
@@ -80,7 +79,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 >- A：重装系统谢谢（已知有用户系统被玩坏了，安装其实根本没装上）
 
 >- Q：有时候报错提示 ShadowsocksR 进程已停止运行
->- A：您好，这个问题我这里处理不了。我没法去修改 ssr-libev 的代码让其不异常退出
+>- A：您好，这个问题我这里处理不了，我没法去修改 ssr-libev 的代码让其不异常退出，未来版本也会取消内置的 ShadowsocksR 支持，参考[加入更多的 SSR 参数支持](#加入更多的-SSR-参数支持)
 
 >如果重装系统不能解决问题。建议大哥考虑一下购买一台新电脑
 
@@ -94,7 +93,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 #### 无法进入游戏 / 模式无法使用
 
 >- Q： xxx 游戏扫描后仍然无法代理
->- A：除了自带的模式经测试后可用，其他游戏确实会出现代理后反而无法连接进入游戏的情况，譬如守望先锋必须只代理 Overwatch Launcher.exe 而不是其他 exe 才能进游戏。还有就是确保你的代理参数中没有不适合游戏的部分，譬如 shadowsocks 参数中就不建议 timeout 参数设置过短，否则会影响战网客户端的正常连接
+>- A：除了自带的模式经测试后可用，其他游戏确实会出现代理后反而无法连接进入游戏的情况，譬如守望先锋必须只代理 Overwatch Launcher.exe 而不是其他 exe 才能进游戏。还有就是确保你的代理参数中没有不适合游戏的部分，譬如 shadowsocks 参数中就不建议 timeout 参数设置过短，否则会影响战网客户端的正常连接。以及，务必确保你代理的进程名和 Netch 使用到的 exe 名称不一样，否则可能会发生代理回环。譬如 `bin` 文件夹下的 `Shadowsocks.exe`，如果你使用 `Shadowsocks` 代理，模式中就不应该出现 `Shadowsocks.exe` 这样的进程名。你可以通过修改你要代理的 exe 的名称，来避免这个问题
 
 #### NAT 类型限制
 
@@ -111,23 +110,6 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 
 ### 功能建议类问题
 
-#### 加入全局功能
-
->- Q：为什么不能全局代理
->- A：请等待我加入 TUN/TAP 技术支持（不会很快开发出来）
-
-#### 加入 VMess 代理功能
-
->- Q：说好的支持 V2Ray 呢，怎么没有，~~还搞小弹框~~
->- A： VMess 参数看得脑壳疼，~~但既然写了支持那么还是会迟早加入的~~
->- A：目前可以[通过 Socks5 代理进行中转](USAGE.zh-CN.md#新建代理配置)
-
-#### 加入任务栏托盘功能
-
->- Q：为什么不加入任务栏托盘功能
->- A：~~项目的主要开发者不喜欢用任务栏托盘~~
->- A：会考虑加入，但不会是高优先级，你可以考虑通过 Pull Request 的方式为本软件加入该支持
-
 #### 加入本地代理功能
 
 >- Q：我想在电脑上代理斯维奇
@@ -137,7 +119,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 #### 加入更多的 SSR 参数支持
 
 >- Q：希望能加入更多的 SSR 参数支持，我那个机场的订阅好多节点无法导入 [issue #11](https://github.com/netchx/Netch/issues/11)
->- A：这得看 [shadowsocksr-libev](https://github.com/shadowsocksr-backup/shadowsocksr-libev) 对这方面的支持程度了，目前没有把 shadowsocksr 相关代码集成进软件内的计划，你同样可以考虑[通过 Socks5 代理进行中转](USAGE.zh-CN.md#新建代理配置)
+>- A：根据最新的 [项目计划表](https://github.com/NetchX/Netch/projects/1#card-24809942)，shadowsocksr的支持将在未来的版本由于各种原因而被放弃。在未来的版本中，可以[通过 Socks5 代理进行中转](USAGE.zh-CN.md#新建代理配置)
 
 #### 加入 macos 支持
 
@@ -146,7 +128,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，不同于 SSTap 那�
 
 ## 截图
 
-<escape><div title="主界面" align="middle"><img src="screenshots/main.png" height="80%" width="80%"></div><div align="middle">主界面</div></escape>
+![主界面](screenshots/main.png)
 
 ## 依赖
 
