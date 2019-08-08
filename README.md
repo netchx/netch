@@ -26,7 +26,7 @@ Current release is portable. Unzip and click to run. Currently only support wind
 - Windows-32bit system install the x86 one.
 - Otherwise you will encounter some driver-related problems.
 
-[Latest Release](https://github.com/netchx/Netch/releases/latest)
+[Latest Release](https://github.com/netchx/Netch/releases)
 
 ## Description
 
