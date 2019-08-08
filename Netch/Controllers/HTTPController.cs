@@ -8,7 +8,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     实例
         /// </summary>
-        public PrivoxyController Instance = new PrivoxyController();
+        public PrivoxyController pPrivoxyController = new PrivoxyController();
 
         /// <summary>
         ///		启动
@@ -28,16 +28,17 @@ namespace Netch.Controllers
                     }
                     else
                     {
-                        Instance.Start(server, mode);
+                        pPrivoxyController.Start(server, mode);
                     }
                 }
                 else
                 {
-                    Instance.Start(server, mode);
+                    pPrivoxyController.Start(server, mode);
                 }
 
                 if (mode.Type != 5)
                 {
+                    // HTTP 系统代理模式，启动系统代理
                     using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
                     {
                         registry.SetValue("ProxyEnable", 1);
@@ -66,7 +67,7 @@ namespace Netch.Controllers
             {
                 try
                 {
-                    Instance.Stop();
+                    pPrivoxyController.Stop();
                 }
                 catch (Exception e)
                 {

@@ -82,23 +82,27 @@ namespace Netch.Controllers
             {
                 if (mode.Type == 0)
                 {
+                    // 进程代理模式，启动 NF 控制器
                     result = pNFController.Start(server, mode);
                 }
                 else if (mode.Type == 1)
                 {
+                    // TUN/TAP 全局代理模式，启动 TUN/TAP 控制器
                     result = pTUNTAPController.Start(server, mode);
                 }
                 else if (mode.Type == 2)
                 {
+                    // TUN/TAP 全局代理模式，启动 TUN/TAP 控制器
                     result = pTUNTAPController.Start(server, mode);
                 }
                 else if (mode.Type == 3 || mode.Type == 5)
                 {
+                    // HTTP 系统代理和 Socks5 和 HTTP 代理模式，启动 HTTP 控制器
                     result = pHTTPController.Start(server, mode);
                 }
                 else if (mode.Type == 4)
                 {
-                    // 跳过
+                    // Socks5 代理模式，不需要启动额外的控制器
                 }
                 else
                 {
