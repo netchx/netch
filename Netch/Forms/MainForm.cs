@@ -215,12 +215,7 @@ namespace Netch.Forms
 
                     // 计算延迟底色
                     SolidBrush brush;
-                    if (item.Delay == -1)
-                    {
-                        // 灰色
-                        brush = new SolidBrush(Color.Gray);
-                    }
-                    else if (item.Delay > 200)
+                    if (item.Delay > 200)
                     {
                         // 红色
                         brush = new SolidBrush(Color.Red);
@@ -230,10 +225,15 @@ namespace Netch.Forms
                         // 黄色
                         brush = new SolidBrush(Color.Yellow);
                     }
-                    else
+                    else if (item.Delay > 0)
                     {
                         // 绿色
                         brush = new SolidBrush(Color.FromArgb(50, 255, 56));
+                    }
+                    else
+                    {
+                        // 灰色
+                        brush = new SolidBrush(Color.Gray);
                     }
 
                     // 绘制延迟底色
