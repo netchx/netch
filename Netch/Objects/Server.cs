@@ -153,15 +153,10 @@ namespace Netch.Objects
         {
             try
             {
-                var destination = Dns.GetHostAddressesAsync(Address);
-                if (!destination.Wait(1000))
+                var destination = Utils.DNS.Lookup(Address);
+                if (destination == null)
                 {
-                    return Delay = 999;
-                }
-
-                if (destination.Result.Length == 0)
-                {
-                    return Delay = 999;
+                    return Delay = -2;
                 }
 
                 var list = new Task<int>[3];
@@ -176,33 +171,35 @@ namespace Netch.Objects
                                 var watch = new Stopwatch();
                                 watch.Start();
 
-                                var task = client.BeginConnect(new IPEndPoint(destination.Result[0], Port), (result) =>
+                                var task = client.BeginConnect(new IPEndPoint(destination, Port), (result) =>
                                 {
                                     watch.Stop();
                                 }, 0);
 
                                 if (task.AsyncWaitHandle.WaitOne(1000))
                                 {
-                                    return (int)(watch.ElapsedMilliseconds >= 460 ? 460 : watch.ElapsedMilliseconds);
+                                    return (int)watch.ElapsedMilliseconds;
                                 }
 
-                                return 999;
+                                return 1000;
                             }
                         }
                         catch (Exception)
                         {
-                            return 999;
+                            return -4;
                         }
                     });
                 }
 
                 Task.WaitAll(list);
 
-                return Delay = (list[0].Result + list[1].Result + list[2].Result) / 3;
+                var min = Math.Min(list[0].Result, list[1].Result);
+                min = Math.Min(min, list[2].Result);
+                return Delay = min;
             }
             catch (Exception)
             {
-                return Delay = 999;
+                return Delay = -4;
             }
         }
     }
