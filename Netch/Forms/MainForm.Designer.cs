@@ -46,9 +46,7 @@
             this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AboutToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
-            this.TelegarmGroupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.TelegramChannelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
@@ -63,8 +61,8 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.ShowMainForm = new System.Windows.Forms.ToolStripMenuItem();
-            this.UserClosing = new System.Windows.Forms.ToolStripMenuItem();
+            this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
@@ -84,7 +82,7 @@
             this.ModeToolStripDropDownButton,
             this.SubscribeToolStripDropDownButton,
             this.OptionsToolStripDropDownButton,
-            this.AboutToolStripDropDownButton,
+            this.AboutToolStripButton,
             this.VersionLabel});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
             this.ToolStrip.Name = "ToolStrip";
@@ -212,29 +210,13 @@
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
-            // AboutToolStripDropDownButton
+            // AboutToolStripButton
             // 
-            this.AboutToolStripDropDownButton.AutoToolTip = false;
-            this.AboutToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.TelegarmGroupToolStripMenuItem,
-            this.TelegramChannelToolStripMenuItem});
-            this.AboutToolStripDropDownButton.Name = "AboutToolStripDropDownButton";
-            this.AboutToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
-            this.AboutToolStripDropDownButton.Text = "About";
-            // 
-            // TelegarmGroupToolStripMenuItem
-            // 
-            this.TelegarmGroupToolStripMenuItem.Name = "TelegarmGroupToolStripMenuItem";
-            this.TelegarmGroupToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.TelegarmGroupToolStripMenuItem.Text = "Telegarm Group";
-            this.TelegarmGroupToolStripMenuItem.Click += new System.EventHandler(this.TelegarmGroupToolStripMenuItem_Click);
-            // 
-            // TelegramChannelToolStripMenuItem
-            // 
-            this.TelegramChannelToolStripMenuItem.Name = "TelegramChannelToolStripMenuItem";
-            this.TelegramChannelToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
-            this.TelegramChannelToolStripMenuItem.Text = "Telegram Channel";
-            this.TelegramChannelToolStripMenuItem.Click += new System.EventHandler(this.TelegramChannelToolStripMenuItem_Click);
+            this.AboutToolStripButton.AutoToolTip = false;
+            this.AboutToolStripButton.Name = "AboutToolStripButton";
+            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 22);
+            this.AboutToolStripButton.Text = "About";
+            this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
             // 
             // VersionLabel
             // 
@@ -243,7 +225,7 @@
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(35, 22);
+            this.VersionLabel.Size = new System.Drawing.Size(83, 22);
             this.VersionLabel.Text = "1.2.0-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
@@ -372,31 +354,31 @@
             this.NotifyIcon.ContextMenuStrip = this.NotifyMenu;
             this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
             this.NotifyIcon.Text = "Netch";
-            this.NotifyIcon.Visible = true;
             this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseDoubleClick);
             // 
             // NotifyMenu
             // 
             this.NotifyMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.NotifyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ShowMainForm,
-            this.UserClosing});
+            this.ShowMainFormToolStripButton,
+            this.ExitToolStripButton});
             this.NotifyMenu.Name = "NotifyMenu";
-            this.NotifyMenu.Size = new System.Drawing.Size(137, 48);
+            this.NotifyMenu.ShowItemToolTips = false;
+            this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
             // 
-            // ShowMainForm
+            // ShowMainFormToolStripButton
             // 
-            this.ShowMainForm.Name = "ShowMainForm";
-            this.ShowMainForm.Size = new System.Drawing.Size(136, 22);
-            this.ShowMainForm.Text = "显示主界面";
-            this.ShowMainForm.Click += new System.EventHandler(this.ShowMainForm_Click);
+            this.ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
+            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(107, 22);
+            this.ShowMainFormToolStripButton.Text = "Show";
+            this.ShowMainFormToolStripButton.Click += new System.EventHandler(this.ShowMainFormToolStripButton_Click);
             // 
-            // UserClosing
+            // ExitToolStripButton
             // 
-            this.UserClosing.Name = "UserClosing";
-            this.UserClosing.Size = new System.Drawing.Size(136, 22);
-            this.UserClosing.Text = "退出";
-            this.UserClosing.Click += new System.EventHandler(this.UserClosing_Click);
+            this.ExitToolStripButton.Name = "ExitToolStripButton";
+            this.ExitToolStripButton.Size = new System.Drawing.Size(107, 22);
+            this.ExitToolStripButton.Text = "Exit";
+            this.ExitToolStripButton.Click += new System.EventHandler(this.ExitToolStripButton_Click);
             // 
             // SettingsButton
             // 
@@ -448,7 +430,6 @@
         private System.Windows.Forms.ToolStrip ToolStrip;
         private System.Windows.Forms.ToolStripDropDownButton ServerToolStripDropDownButton;
         private System.Windows.Forms.ToolStripDropDownButton SubscribeToolStripDropDownButton;
-        private System.Windows.Forms.ToolStripDropDownButton AboutToolStripDropDownButton;
         private System.Windows.Forms.ToolStripLabel VersionLabel;
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label ServerLabel;
@@ -465,11 +446,9 @@
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem TelegarmGroupToolStripMenuItem;
         private System.Windows.Forms.PictureBox SpeedPictureBox;
         private System.Windows.Forms.PictureBox DeletePictureBox;
         private System.Windows.Forms.PictureBox EditPictureBox;
-        private System.Windows.Forms.ToolStripMenuItem TelegramChannelToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripDropDownButton OptionsToolStripDropDownButton;
@@ -478,8 +457,9 @@
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.ContextMenuStrip NotifyMenu;
-        private System.Windows.Forms.ToolStripMenuItem ShowMainForm;
-        private System.Windows.Forms.ToolStripMenuItem UserClosing;
+        private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;
+        private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
         private System.Windows.Forms.Button SettingsButton;
+        private System.Windows.Forms.ToolStripButton AboutToolStripButton;
     }
 }

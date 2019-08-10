@@ -282,17 +282,17 @@ namespace Netch.Forms
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
             ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
-            AboutToolStripDropDownButton.Text = Utils.i18N.Translate("About");
-            TelegarmGroupToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Group");
-            TelegramChannelToolStripMenuItem.Text = Utils.i18N.Translate("Telegram Channel");
+            AboutToolStripButton.Text = Utils.i18N.Translate("About");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             ServerLabel.Text = Utils.i18N.Translate("Server");
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
             StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-            //增加最小化至通知栏的提示
             NotifyIcon.BalloonTipText = Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore.");
+            ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
+            ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
+
             // 自动检测延迟
             Task.Run(() =>
             {
@@ -316,17 +316,18 @@ namespace Netch.Forms
         {
             if (e.CloseReason == CloseReason.UserClosing && State != Objects.State.Terminating)
             {
-                //取消"关闭窗口"事件
+                // 取消"关闭窗口"事件
                 e.Cancel = true; // 取消关闭窗体 
 
-                //使关闭时窗口向右下角缩小的效果
+                // 使关闭时窗口向右下角缩小的效果
                 this.WindowState = FormWindowState.Minimized;
                 this.NotifyIcon.Visible = true;
-                //增加提示语
+
+                // 显示提示语
                 this.NotifyIcon.BalloonTipTitle = "Netch";
                 this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
                 this.NotifyIcon.ShowBalloonTip(5);
-                //this.m_cartoonForm.CartoonClose();
+
                 Hide();
             }
         }
@@ -375,12 +376,6 @@ namespace Netch.Forms
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            /*
-            if (MessageBox.Show(Utils.i18N.Translate("VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect"), Utils.i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
-            {
-                Process.Start("https://github.com/NetchX/Netch/releases");
-            }
-            */
             (new Server.VMess()).Show();
             Hide();
         }
@@ -566,19 +561,9 @@ namespace Netch.Forms
             });
         }
 
-        private void TelegarmGroupToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://t.me/NetchX");
-        }
-
-        private void TelegramChannelToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://t.me/NetchXChannel");
-        }
-
         private void VersionLabel_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/netchx/Netch");
+            Process.Start("https://github.com/NetchX/Netch/releases");
         }
 
         private void EditPictureBox_Click(object sender, EventArgs e)
@@ -713,19 +698,20 @@ namespace Netch.Forms
             }
         }
 
-        private void ShowMainForm_Click(object sender, EventArgs e)
+        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
             if (this.WindowState == FormWindowState.Minimized)
             {
                 this.Visible = true;
-                this.ShowInTaskbar = true;  //显示在系统任务栏 
-                this.WindowState = FormWindowState.Normal;  //还原窗体 
-                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+                this.ShowInTaskbar = true;  // 显示在系统任务栏 
+                this.WindowState = FormWindowState.Normal;  // 还原窗体 
+                this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
             }
+
             this.Activate();
         }
 
-        private void UserClosing_Click(object sender, EventArgs e)
+        private void ExitToolStripButton_Click(object sender, EventArgs e)
         {
             Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
             Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
@@ -736,9 +722,9 @@ namespace Netch.Forms
                 MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 this.Visible = true;
-                this.ShowInTaskbar = true;  //显示在系统任务栏 
-                this.WindowState = FormWindowState.Normal;  //还原窗体 
-                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+                this.ShowInTaskbar = true;  // 显示在系统任务栏 
+                this.WindowState = FormWindowState.Normal;  // 还原窗体 
+                this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
 
                 return;
             }
@@ -765,6 +751,12 @@ namespace Netch.Forms
         private void SettingsButton_Click(object sender, EventArgs e)
         {
             (Global.SettingForm = new SettingForm()).Show();
+            Hide();
+        }
+
+        private void AboutToolStripButton_Click(object sender, EventArgs e)
+        {
+            (new AboutForm()).Show();
             Hide();
         }
     }

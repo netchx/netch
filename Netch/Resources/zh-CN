@@ -60,8 +60,9 @@
     "Modes have been reload": "模式已重载",
 
     "About": "关于",
-    "Telegram Group": "Telegram 群组",
-    "Telegram Channel": "Telegram 频道",
+    "Group": "群组",
+    "Channel": "频道",
+    "Sponsor": "赞助商",
 
     "Configuration": "配置信息",
 
@@ -94,6 +95,8 @@
 	"Netmask": "子网掩码",
 	"Gateway": "网关",
 	"Use Custom DNS": "使用自定义 DNS",
-	"Global Bypass IPs": "全局直连 IP"
-	
+	"Global Bypass IPs": "全局直连 IP",
+    
+    "Show": "显示",
+    "Exit": "退出"
 }
