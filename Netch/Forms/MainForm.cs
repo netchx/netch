@@ -225,7 +225,7 @@ namespace Netch.Forms
                         // 黄色
                         brush = new SolidBrush(Color.Yellow);
                     }
-                    else if (item.Delay > 0)
+                    else if (item.Delay >= 0)
                     {
                         // 绿色
                         brush = new SolidBrush(Color.FromArgb(50, 255, 56));
