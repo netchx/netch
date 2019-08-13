@@ -93,10 +93,20 @@ namespace Netch
                     Environment.Exit(1);
                 }
 
+                // 绑定错误捕获
+                Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+                Application.ThreadException += Application_OnException;
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(Global.MainForm = new Forms.MainForm());
             }
+        }
+
+        public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
+        {
+            MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.Exit();
         }
     }
 }
