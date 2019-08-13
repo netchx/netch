@@ -12,16 +12,14 @@ namespace Netch.Controllers
         {
             try
             {
-                Task.Run(() =>
-                {
-                    Server.Listen(new IPEndPoint(IPAddress.IPv6Any, 53)).Wait();
-                });
+                _ = Server.Listen(new IPEndPoint(IPAddress.IPv6Any, 53));
             }
             catch (Exception e)
             {
                 Utils.Logging.Info(e.ToString());
                 return false;
             }
+
             return true;
         }
 
