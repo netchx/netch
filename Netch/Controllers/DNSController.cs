@@ -25,7 +25,7 @@ namespace Netch.Controllers
             return true;
         }
 
-        public bool Stop()
+        public void Stop()
         {
             try
             {
@@ -34,9 +34,7 @@ namespace Netch.Controllers
             catch (Exception e)
             {
                 Utils.Logging.Info(e.ToString());
-                return false;
             }
-            return true;
         }
     }
 }

@@ -315,12 +315,20 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            if (Instance != null && !Instance.HasExited)
+            try
             {
-                Instance.Kill();
+                if (Instance != null && !Instance.HasExited)
+                {
+                    Instance.Kill();
+                }
+
+                pDNSController.Stop();
+                ClearBypass();
             }
-            pDNSController.Stop();
-            ClearBypass();
+            catch (Exception e)
+            {
+                Utils.Logging.Info(e.ToString());
+            }
         }
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
