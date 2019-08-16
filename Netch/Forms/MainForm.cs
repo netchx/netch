@@ -26,6 +26,7 @@ namespace Netch.Forms
         {
             InitializeComponent();
 
+            NotifyIcon.Visible = true;
             CheckForIllegalCrossThreadCalls = false;
             ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
