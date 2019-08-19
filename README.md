@@ -1,7 +1,6 @@
 # Netch
 
-[![](https://img.shields.io/badge/Telegram-Group-blue.svg)](https://t.me/NetchX)
-[![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/NetchXChannel)
+[![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/NetchX)
 
 Game accelerator
 
