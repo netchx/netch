@@ -1,7 +1,6 @@
 # Netch
 
-[![](https://img.shields.io/badge/Telegram-群组-blue.svg)](https://t.me/NetchX)
-[![](https://img.shields.io/badge/Telegram-频道-blue.svg)](https://t.me/NetchXChannel)
+[![](https://img.shields.io/badge/Telegram-频道-blue.svg)](https://t.me/NetchX)
 
 游戏加速工具
 
