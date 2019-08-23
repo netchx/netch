@@ -1,5 +1,4 @@
 # Netch
-
 [![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/NetchX)
 
 Game accelerator
@@ -39,7 +38,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap<escape><a name =
 
 ## Screenshots
 
-<escape><div title="Start" align="middle"><img src="docs/screenshots/main_en.png" height="80%" width="80%"></div><div align="middle">main</div></escape>
+![](docs/screenshots/main_en.png)
 
 ## Requirements
 

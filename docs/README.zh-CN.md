@@ -1,5 +1,4 @@
 # Netch
-
 [![](https://img.shields.io/badge/Telegram-频道-blue.svg)](https://t.me/NetchX)
 
 游戏加速工具
@@ -105,7 +104,7 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 #### Steam / 浏览器无法正常打开页面
 
 >- Q：用来加速 Steam / 浏览器，结果无法正常打开页面
->- A：有人测试可行有人测试不可行。首先声明一下，本软件的功能主要不是用来代理 Steam / 浏览器打开页面的，建议使用专门的工具，如 [steamcommunity 302](https://www.dogfight360.com/blog/686/)，浏览器则建议用 shadowsocks-windows， clash for windows 等等，你甚至可以尝试 ~~shadowsocks-windows over Netch~~，这可能会是一个功能改进，但是目前没有时间表
+>- A：有人测试可行有人测试不可行。首先声明一下，本软件的功能主要不是用来代理 Steam / 浏览器打开页面的，建议使用专门的工具，如 [SteamCommunity 302](https://www.dogfight360.com/blog/686/)，浏览器则建议用 shadowsocks-windows， clash for windows 等等，你甚至可以尝试 ~~shadowsocks-windows over Netch~~，这可能会是一个功能改进，但是目前没有时间表
 
 ### 功能建议类问题
 
@@ -120,10 +119,10 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 >- Q：希望能加入更多的 SSR 参数支持，我那个机场的订阅好多节点无法导入 [issue #11](https://github.com/netchx/Netch/issues/11)
 >- A：根据最新的 [项目计划表](https://github.com/NetchX/Netch/projects/1#card-24809942)，shadowsocksr的支持将在未来的版本由于各种原因而被放弃。在未来的版本中，可以[通过 Socks5 代理进行中转](USAGE.zh-CN.md#新建代理配置)
 
-#### 加入 macos 支持
+#### 加入 MacOS 支持
 
->- Q：希望加入 macos 支持
->- A：这位亲请考虑赞助一台 mac 给开发者使用呢
+>- Q：希望加入 MacOS 支持
+>- A：这位亲请考虑赞助一台 MacBook Pro 给开发者使用呢
 
 ## 截图
 
