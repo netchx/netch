@@ -119,7 +119,14 @@ namespace Netch.Controllers
 
             if (server.Type == "Socks5")
             {
-                Instance.StartInfo.Arguments = String.Format("-r {0}:{1} -p \"{2}\"", server.Address, server.Port, processes);
+                var result = Utils.DNS.Lookup(server.Address);
+                if (result == null)
+                {
+                    Utils.Logging.Info("无法解析服务器 IP 地址");
+                    return false;
+                }
+
+                Instance.StartInfo.Arguments = String.Format("-r {0}:{1} -p \"{2}\"", result.ToString(), server.Port, processes);
 
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
