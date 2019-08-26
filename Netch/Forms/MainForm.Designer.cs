@@ -226,7 +226,7 @@
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(83, 22);
-            this.VersionLabel.Text = "1.2.1-STABLE";
+            this.VersionLabel.Text = "1.2.2-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
