@@ -62,31 +62,67 @@ namespace Netch.Utils
 
                     try
                     {
-                        var finder = new Regex(@"ss://(?<base64>[A-Za-z0-9+-/=_]+)(?:#(?<tag>\S+))?", RegexOptions.IgnoreCase);
-                        var parser = new Regex(@"^((?<method>.+?):(?<password>.*)@(?<hostname>.+?):(?<port>\d+?))$", RegexOptions.IgnoreCase);
-                        var match = finder.Match(text);
-                        if (!match.Success)
+                        if(!text.Contains("/?"))
                         {
-                            throw new FormatException();
-                        }
+                            var finder = new Regex(@"ss://(?<base64>[A-Za-z0-9+-/=_]+)(?:#(?<tag>\S+))?", RegexOptions.IgnoreCase);
+                            var parser = new Regex(@"^((?<method>.+?):(?<password>.*)@(?<hostname>.+?):(?<port>\d+?))$", RegexOptions.IgnoreCase);
+                            var match = finder.Match(text);
+                            if (!match.Success)
+                            {
+                                throw new FormatException();
+                            }
 
-                        var base64 = match.Groups["base64"].Value.TrimEnd('/');
-                        var tag = match.Groups["tag"].Value;
-                        if (!String.IsNullOrEmpty(tag))
+                            var base64 = match.Groups["base64"].Value.TrimEnd('/');
+                            var tag = match.Groups["tag"].Value;
+                            if (!String.IsNullOrEmpty(tag))
+                            {
+                                data.Remark = HttpUtility.UrlDecode(tag);
+                            }
+
+                            match = parser.Match(URLSafeBase64Decode(base64));
+                            if (!match.Success)
+                            {
+                                throw new FormatException();
+                            }
+
+                            data.Address = match.Groups["hostname"].Value;
+                            data.Port = int.Parse(match.Groups["port"].Value);
+                            data.Password = match.Groups["password"].Value;
+                            data.EncryptMethod = match.Groups["method"].Value;
+                        }
+                        else
                         {
-                            data.Remark = HttpUtility.UrlDecode(tag);
-                        }
+                            if (text.Contains("#"))
+                            {
+                                data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
+                                text = text.Split('#')[0];
+                            }
+                            var finder = new Regex(@"ss://(?<base64>.+?)@(?<server>.+?):(?<port>\d+?)/\?plugin=(?<plugin>.+)");
+                            var parser = new Regex(@"^(?<method>.+?):(?<password>.+)$");
+                            var match = finder.Match(text);
+                            if (!match.Success)
+                            {
+                                throw new FormatException();
+                            }
 
-                        match = parser.Match(URLSafeBase64Decode(base64));
-                        if (!match.Success)
-                        {
-                            throw new FormatException();
-                        }
+                            data.Address = match.Groups["server"].Value;
+                            data.Port = int.Parse(match.Groups["port"].Value);
+                            var plugins = HttpUtility.UrlDecode(match.Groups["plugin"].Value).Split(';');
+                            if (plugins[0] == "obfs-local")
+                                plugins[0] = "simple-obfs";
 
-                        data.Address = match.Groups["hostname"].Value;
-                        data.Port = int.Parse(match.Groups["port"].Value);
-                        data.Password = match.Groups["password"].Value;
-                        data.EncryptMethod = match.Groups["method"].Value;
+                            var base64 = URLSafeBase64Decode(match.Groups["base64"].Value);
+                            match = parser.Match(base64);
+                            if (!match.Success)
+                            {
+                                throw new FormatException();
+                            }
+
+                            data.EncryptMethod = match.Groups["method"].Value;
+                            data.Password = match.Groups["password"].Value;
+                            data.Plugin = plugins[0];
+                            data.PluginOptions = plugins[1];
+                        }
 
                         if (!Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {

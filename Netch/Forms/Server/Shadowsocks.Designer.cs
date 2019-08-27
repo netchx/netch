@@ -30,6 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Shadowsocks));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.EncryptMethodLabel = new System.Windows.Forms.Label();
+            this.EncryptMethodComboBox = new System.Windows.Forms.ComboBox();
+            this.PasswordTextBox = new System.Windows.Forms.TextBox();
+            this.PasswordLabel = new System.Windows.Forms.Label();
             this.AddressLabel = new System.Windows.Forms.Label();
             this.PortTextBox = new System.Windows.Forms.TextBox();
             this.AddressTextBox = new System.Windows.Forms.TextBox();
@@ -37,15 +41,19 @@
             this.RemarkLabel = new System.Windows.Forms.Label();
             this.PortLabel = new System.Windows.Forms.Label();
             this.ControlButton = new System.Windows.Forms.Button();
-            this.EncryptMethodLabel = new System.Windows.Forms.Label();
-            this.EncryptMethodComboBox = new System.Windows.Forms.ComboBox();
-            this.PasswordTextBox = new System.Windows.Forms.TextBox();
-            this.PasswordLabel = new System.Windows.Forms.Label();
+            this.PluginLabel = new System.Windows.Forms.Label();
+            this.PluginTextBox = new System.Windows.Forms.TextBox();
+            this.PluginOptionsTextBox = new System.Windows.Forms.TextBox();
+            this.PluginOptionsLabel = new System.Windows.Forms.Label();
             this.ConfigurationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // ConfigurationGroupBox
             // 
+            this.ConfigurationGroupBox.Controls.Add(this.PluginOptionsTextBox);
+            this.ConfigurationGroupBox.Controls.Add(this.PluginOptionsLabel);
+            this.ConfigurationGroupBox.Controls.Add(this.PluginTextBox);
+            this.ConfigurationGroupBox.Controls.Add(this.PluginLabel);
             this.ConfigurationGroupBox.Controls.Add(this.EncryptMethodLabel);
             this.ConfigurationGroupBox.Controls.Add(this.EncryptMethodComboBox);
             this.ConfigurationGroupBox.Controls.Add(this.PasswordTextBox);
@@ -58,10 +66,47 @@
             this.ConfigurationGroupBox.Controls.Add(this.PortLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(420, 139);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(420, 197);
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
+            // 
+            // EncryptMethodLabel
+            // 
+            this.EncryptMethodLabel.AutoSize = true;
+            this.EncryptMethodLabel.Location = new System.Drawing.Point(10, 110);
+            this.EncryptMethodLabel.Name = "EncryptMethodLabel";
+            this.EncryptMethodLabel.Size = new System.Drawing.Size(101, 17);
+            this.EncryptMethodLabel.TabIndex = 13;
+            this.EncryptMethodLabel.Text = "Encrypt Method";
+            // 
+            // EncryptMethodComboBox
+            // 
+            this.EncryptMethodComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.EncryptMethodComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.EncryptMethodComboBox.FormattingEnabled = true;
+            this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 106);
+            this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
+            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 24);
+            this.EncryptMethodComboBox.TabIndex = 12;
+            this.EncryptMethodComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            // 
+            // PasswordTextBox
+            // 
+            this.PasswordTextBox.Location = new System.Drawing.Point(120, 77);
+            this.PasswordTextBox.Name = "PasswordTextBox";
+            this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PasswordTextBox.TabIndex = 10;
+            this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PasswordLabel
+            // 
+            this.PasswordLabel.AutoSize = true;
+            this.PasswordLabel.Location = new System.Drawing.Point(10, 80);
+            this.PasswordLabel.Name = "PasswordLabel";
+            this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
+            this.PasswordLabel.TabIndex = 11;
+            this.PasswordLabel.Text = "Password";
             // 
             // AddressLabel
             // 
@@ -116,7 +161,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 157);
+            this.ControlButton.Location = new System.Drawing.Point(357, 215);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 1;
@@ -124,48 +169,45 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // EncryptMethodLabel
+            // PluginLabel
             // 
-            this.EncryptMethodLabel.AutoSize = true;
-            this.EncryptMethodLabel.Location = new System.Drawing.Point(10, 110);
-            this.EncryptMethodLabel.Name = "EncryptMethodLabel";
-            this.EncryptMethodLabel.Size = new System.Drawing.Size(101, 17);
-            this.EncryptMethodLabel.TabIndex = 13;
-            this.EncryptMethodLabel.Text = "Encrypt Method";
+            this.PluginLabel.AutoSize = true;
+            this.PluginLabel.Location = new System.Drawing.Point(10, 140);
+            this.PluginLabel.Name = "PluginLabel";
+            this.PluginLabel.Size = new System.Drawing.Size(43, 17);
+            this.PluginLabel.TabIndex = 14;
+            this.PluginLabel.Text = "Plugin";
             // 
-            // EncryptMethodComboBox
+            // PluginTextBox
             // 
-            this.EncryptMethodComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.EncryptMethodComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.EncryptMethodComboBox.FormattingEnabled = true;
-            this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 106);
-            this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
-            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 24);
-            this.EncryptMethodComboBox.TabIndex = 12;
-            this.EncryptMethodComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.PluginTextBox.Location = new System.Drawing.Point(120, 137);
+            this.PluginTextBox.Name = "PluginTextBox";
+            this.PluginTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PluginTextBox.TabIndex = 15;
+            this.PluginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // PasswordTextBox
+            // PluginOptionsTextBox
             // 
-            this.PasswordTextBox.Location = new System.Drawing.Point(120, 77);
-            this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PasswordTextBox.TabIndex = 10;
-            this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.PluginOptionsTextBox.Location = new System.Drawing.Point(120, 166);
+            this.PluginOptionsTextBox.Name = "PluginOptionsTextBox";
+            this.PluginOptionsTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PluginOptionsTextBox.TabIndex = 17;
+            this.PluginOptionsTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // PasswordLabel
+            // PluginOptionsLabel
             // 
-            this.PasswordLabel.AutoSize = true;
-            this.PasswordLabel.Location = new System.Drawing.Point(10, 80);
-            this.PasswordLabel.Name = "PasswordLabel";
-            this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
-            this.PasswordLabel.TabIndex = 11;
-            this.PasswordLabel.Text = "Password";
+            this.PluginOptionsLabel.AutoSize = true;
+            this.PluginOptionsLabel.Location = new System.Drawing.Point(10, 169);
+            this.PluginOptionsLabel.Name = "PluginOptionsLabel";
+            this.PluginOptionsLabel.Size = new System.Drawing.Size(93, 17);
+            this.PluginOptionsLabel.TabIndex = 16;
+            this.PluginOptionsLabel.Text = "Plugin Options";
             // 
             // Shadowsocks
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(444, 192);
+            this.ClientSize = new System.Drawing.Size(444, 248);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -198,5 +240,9 @@
         private System.Windows.Forms.ComboBox EncryptMethodComboBox;
         private System.Windows.Forms.TextBox PasswordTextBox;
         private System.Windows.Forms.Label PasswordLabel;
+        private System.Windows.Forms.TextBox PluginOptionsTextBox;
+        private System.Windows.Forms.Label PluginOptionsLabel;
+        private System.Windows.Forms.TextBox PluginTextBox;
+        private System.Windows.Forms.Label PluginLabel;
     }
 }

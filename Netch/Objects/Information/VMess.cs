@@ -172,9 +172,24 @@ namespace Netch.Objects.Information
             public OutboundMux mux;
         }
 
+        public class RoutingRules
+        {
+            public string type = "field";
+
+            public List<string> port;
+
+            public string outboundTag;
+
+            public List<string> ip;
+
+            public List<string> domain;
+        }
+
         public class Routing
         {
             public string domainStrategy = "IPIfNonMatch";
+
+            public List<RoutingRules> rules;
         }
 
         public class Config
