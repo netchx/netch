@@ -41,8 +41,15 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
-            Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u", server.Address, server.Port, server.EncryptMethod, server.Password);
-
+            if(server.Plugin.Length != 0)
+            {
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u --plugin {4} --plugin-opts \"{5}\"", server.Address, server.Port, server.EncryptMethod, server.Password, server.Plugin, server.PluginOptions);
+            }
+            else
+            {
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u", server.Address, server.Port, server.EncryptMethod, server.Password);
+            }
+            
             if (mode.BypassChina)
             {
                 Instance.StartInfo.Arguments += " --acl default.acl";
@@ -112,7 +119,7 @@ namespace Netch.Controllers
                     {
                         State = Objects.State.Started;
                     }
-                    else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage"))
+                    else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly"))
                     {
                         State = Objects.State.Stopped;
                     }

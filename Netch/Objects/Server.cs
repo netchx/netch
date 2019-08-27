@@ -43,7 +43,6 @@ namespace Netch.Objects
         /// </summary>
         public string Password;
 
-
         /// <summary>
         ///		用户 ID（V2）
         /// </summary>
@@ -78,6 +77,16 @@ namespace Netch.Objects
         ///     混淆参数
         /// </summary>
         public string OBFSParam;
+
+        /// <summary>
+        ///     插件（SS）
+        /// </summary>
+        public string Plugin;
+
+        /// <summary>
+        ///     插件参数（SS）
+        /// </summary>
+        public string PluginOptions;
 
         /// <summary>
         ///		传输协议（V2）
