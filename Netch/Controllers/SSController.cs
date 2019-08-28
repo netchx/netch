@@ -42,7 +42,7 @@ namespace Netch.Controllers
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
             
-            if(server.Plugin.Length != 0 && server.PluginOptions.Length != 0)
+            if(!String.IsNullOrWhiteSpace(server.Plugin) && !String.IsNullOrWhiteSpace(server.PluginOptions))
             {
                 Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u --plugin {4} --plugin-opts \"{5}\"", server.Address, server.Port, server.EncryptMethod, server.Password, server.Plugin, server.PluginOptions);
             }

@@ -81,12 +81,12 @@ namespace Netch.Objects
         /// <summary>
         ///     插件（SS）
         /// </summary>
-        public string Plugin = "";
+        public string Plugin;
 
         /// <summary>
         ///     插件参数（SS）
         /// </summary>
-        public string PluginOptions = "";
+        public string PluginOptions;
 
         /// <summary>
         ///		传输协议（V2）
