@@ -31,7 +31,7 @@ namespace Netch.Controllers
                 }
             }
 
-            if (!File.Exists("bin\\default.conf"))
+            if (!File.Exists("bin\\Privoxy.exe") || !File.Exists("bin\\default.conf"))
             {
                 return false;
             }
@@ -62,7 +62,10 @@ namespace Netch.Controllers
         {
             try
             {
-                Instance.Kill();
+                if (Instance != null && !Instance.HasExited)
+                {
+                    Instance.Kill();
+                }
             }
             catch (Exception)
             {
