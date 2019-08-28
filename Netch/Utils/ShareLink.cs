@@ -321,6 +321,7 @@ namespace Netch.Utils
                 }
                 else
                 {
+                    System.Windows.Forms.MessageBox.Show("未找到可导入的链接！", "错误", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
                     return null;
                 }
             }
