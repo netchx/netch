@@ -120,8 +120,8 @@ namespace Netch.Utils
 
                             data.EncryptMethod = match.Groups["method"].Value;
                             data.Password = match.Groups["password"].Value;
-                            data.Plugin = plugins[0];
-                            data.PluginOptions = plugins[1];
+                            data.OBFS = plugins[0];
+                            data.OBFSParam = plugins[1];
                         }
 
                         if (!Global.EncryptMethods.SS.Contains(data.EncryptMethod))

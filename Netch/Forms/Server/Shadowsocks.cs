@@ -42,8 +42,8 @@ namespace Netch.Forms.Server
                 PortTextBox.Text = Global.Server[Index].Port.ToString();
                 PasswordTextBox.Text = Global.Server[Index].Password;
                 EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Server[Index].EncryptMethod);
-                PluginTextBox.Text = Global.Server[Index].Plugin;
-                PluginOptionsTextBox.Text = Global.Server[Index].PluginOptions;
+                PluginTextBox.Text = Global.Server[Index].OBFS;
+                PluginOptionsTextBox.Text = Global.Server[Index].OBFSParam;
             }
             else
             {
@@ -93,8 +93,8 @@ namespace Netch.Forms.Server
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
-                    Plugin = PluginTextBox.Text,
-                    PluginOptions = PluginOptionsTextBox.Text                 
+                    OBFS = PluginTextBox.Text,
+                    OBFSParam = PluginOptionsTextBox.Text                 
                 });
             }
             else
@@ -108,8 +108,8 @@ namespace Netch.Forms.Server
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
-                    Plugin = PluginTextBox.Text,
-                    PluginOptions = PluginOptionsTextBox.Text
+                    OBFS = PluginTextBox.Text,
+                    OBFSParam = PluginOptionsTextBox.Text
                 };
             }
 

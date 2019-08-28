@@ -69,24 +69,14 @@ namespace Netch.Objects
         public string ProtocolParam;
 
         /// <summary>
-        ///     混淆
+        ///     混淆（SSR）/ 插件（SS）
         /// </summary>
         public string OBFS;
 
         /// <summary>
-        ///     混淆参数
+        ///     混淆参数（SSR）/ 插件参数（SS）
         /// </summary>
         public string OBFSParam;
-
-        /// <summary>
-        ///     插件（SS）
-        /// </summary>
-        public string Plugin;
-
-        /// <summary>
-        ///     插件参数（SS）
-        /// </summary>
-        public string PluginOptions;
 
         /// <summary>
         ///		传输协议（V2）
