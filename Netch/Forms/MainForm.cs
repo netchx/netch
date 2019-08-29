@@ -27,7 +27,7 @@ namespace Netch.Forms
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
-            ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
+            //ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
 
         public void TestServer()
@@ -267,18 +267,18 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            ServerToolStripDropDownButton.Text = Utils.i18N.Translate("Server");
+            ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
             ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
             AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
             AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
             AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
             AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
-            ModeToolStripDropDownButton.Text = Utils.i18N.Translate("Mode");
+            ModeToolStripMenuItem.Text = Utils.i18N.Translate("Mode");
             CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
-            SubscribeToolStripDropDownButton.Text = Utils.i18N.Translate("Subscribe");
+            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate("Subscribe");
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            OptionsToolStripDropDownButton.Text = Utils.i18N.Translate("Options");
+            OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
             ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
