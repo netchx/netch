@@ -42,20 +42,14 @@ namespace Netch.Forms
 
         public void TestServer()
         {
-            foreach (var server in Global.Server)
+            var list = new Task[Global.Server.Count];
+
+            for (int i = 0; i < Global.Server.Count; i++)
             {
-                Task.Run(() =>
-                {
-                    server.Test();
-                });
+                list[i] = Task.Run(() => Global.Server[i].Test());
             }
 
-            Task.Run(() =>
-            {
-                Thread.Sleep(2000);
-
-                Refresh();
-            });
+            Task.WaitAll(list);
         }
 
         public void InitServer()
@@ -631,17 +625,15 @@ namespace Netch.Forms
 
         private void SpeedPictureBox_Click(object sender, EventArgs e)
         {
+            Enabled = false;
+            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Testing")}";
+
             Task.Run(() =>
             {
-                foreach (var server in Global.Server)
-                {
-                    Task.Run(() =>
-                    {
-                        server.Test();
-                    });
-                }
+                TestServer();
 
-                Thread.Sleep(2000);
+                Enabled = true;
+                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Test done")}";
                 Refresh();
             });
         }
