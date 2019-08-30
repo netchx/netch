@@ -22,6 +22,16 @@ namespace Netch.Forms
         /// </summary>
         public Controllers.MainController MainController;
 
+        /// <summary>
+        ///     上一次上传的流量
+        /// </summary>
+        public long LastUploadBandwidth = 0;
+
+        /// <summary>
+        ///     上一次下载的流量
+        /// </summary>
+        public long LastDownlaodBandwidth = 0;
+
         public MainForm()
         {
             InitializeComponent();
@@ -288,7 +298,7 @@ namespace Netch.Forms
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
-            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0KB";
+            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
             StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             NotifyIcon.BalloonTipText = Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore.");
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
@@ -661,9 +671,17 @@ namespace Netch.Forms
 
                 Task.Run(() =>
                 {
+                    var server = ServerComboBox.SelectedItem as Objects.Server;
+                    var mode = ModeComboBox.SelectedItem as Objects.Mode;
+
                     MainController = new Controllers.MainController();
-                    if (MainController.Start(ServerComboBox.SelectedItem as Objects.Server, ModeComboBox.SelectedItem as Objects.Mode))
+                    if (MainController.Start(server, mode))
                     {
+                        if (mode.Type == 0)
+                        {
+                            MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
+                        }
+
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}";
@@ -689,6 +707,11 @@ namespace Netch.Forms
                 {
                     MainController.Stop();
 
+                    LastUploadBandwidth = 0;
+                    LastDownlaodBandwidth = 0;
+                    UploadSpeedLabel.Text = "↑: 0 KB/s";
+                    DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                    UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
                     ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
@@ -759,6 +782,16 @@ namespace Netch.Forms
         {
             (new AboutForm()).Show();
             Hide();
+        }
+
+        public void OnBandwidthUpdated(long upload, long download)
+        {
+            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
+            UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
+            DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownlaodBandwidth)}/s";
+
+            LastUploadBandwidth = upload;
+            LastDownlaodBandwidth = download;
         }
     }
 }

@@ -3,11 +3,24 @@ using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Netch.Controllers
 {
     public class NFController
     {
+        /// <summary>
+        ///     流量变动事件
+        /// </summary>
+        public event BandwidthUpdateHandler OnBandwidthUpdated;
+
+        /// <summary>
+        ///     流量变动处理器
+        /// </summary>
+        /// <param name="upload">上传</param>
+        /// <param name="download">下载</param>
+        public delegate void BandwidthUpdateHandler(long upload, Int64 download);
+
         /// <summary>
         ///     进程实例
         /// </summary>
@@ -202,6 +215,26 @@ namespace Netch.Controllers
                     else if (e.Data.Contains("Failed") || e.Data.Contains("Unable"))
                     {
                         State = Objects.State.Stopped;
+                    }
+                }
+                else if (State == Objects.State.Started)
+                {
+                    if (e.Data.StartsWith("[Application][Bandwidth]"))
+                    {
+                        var splited = e.Data.Replace("[Application][Bandwidth]", "").Trim().Split(',');
+                        if (splited.Length == 2)
+                        {
+                            var uploadSplited = splited[0].Split(':');
+                            var downloadSplited = splited[1].Split(':');
+
+                            if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
+                            {
+                                if (long.TryParse(uploadSplited[1], out long upload) && long.TryParse(downloadSplited[1], out long download))
+                                {
+                                    Task.Run(() => OnBandwidthUpdated(upload, download));
+                                }
+                            }
+                        }
                     }
                 }
             }

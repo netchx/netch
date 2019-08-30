@@ -308,6 +308,7 @@
     <Compile Include="Utils\Logging.cs" />
     <Compile Include="3rd\FS\Reflector.cs" />
     <Compile Include="Resolver.cs" />
+    <Compile Include="Utils\Bandwidth.cs" />
     <Compile Include="Utils\ShareLink.cs" />
     <Compile Include="Utils\TUNTAP.cs" />
     <Compile Include="Win32Native.cs" />
