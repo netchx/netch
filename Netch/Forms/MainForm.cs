@@ -792,6 +792,7 @@ namespace Netch.Forms
 
             LastUploadBandwidth = upload;
             LastDownlaodBandwidth = download;
+            Refresh();
         }
     }
 }
