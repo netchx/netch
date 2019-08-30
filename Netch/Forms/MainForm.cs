@@ -288,6 +288,7 @@ namespace Netch.Forms
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
+            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0KB";
             StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             NotifyIcon.BalloonTipText = Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore.");
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");

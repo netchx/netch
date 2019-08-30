@@ -64,6 +64,9 @@
             this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsButton = new System.Windows.Forms.Button();
+            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ToolStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -328,7 +331,10 @@
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.StatusLabel});
+            this.UploadSpeedLabel,
+            this.DownloadSpeedLabel,
+            this.StatusLabel,
+            this.UsedBandwidthLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 154);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(608, 22);
@@ -393,6 +399,24 @@
             this.SettingsButton.Text = "Settings";
             this.SettingsButton.UseVisualStyleBackColor = true;
             this.SettingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
+            // 
+            // UsedBandwidthLabel
+            // 
+            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
+            this.UsedBandwidthLabel.Size = new System.Drawing.Size(68, 17);
+            this.UsedBandwidthLabel.Text = "Used: 0KB";
+            // 
+            // UploadSpeedLabel
+            // 
+            this.UploadSpeedLabel.Name = "UploadSpeedLabel";
+            this.UploadSpeedLabel.Size = new System.Drawing.Size(55, 17);
+            this.UploadSpeedLabel.Text = "↑: 0KB/s";
+            // 
+            // DownloadSpeedLabel
+            // 
+            this.DownloadSpeedLabel.Name = "DownloadSpeedLabel";
+            this.DownloadSpeedLabel.Size = new System.Drawing.Size(55, 17);
+            this.DownloadSpeedLabel.Text = "↓: 0KB/s";
             // 
             // MainForm
             // 
@@ -465,5 +489,8 @@
         private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
         private System.Windows.Forms.Button SettingsButton;
         private System.Windows.Forms.ToolStripButton AboutToolStripButton;
+        private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
+        private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
+        private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
     }
 }
