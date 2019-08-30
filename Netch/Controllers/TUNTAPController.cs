@@ -245,6 +245,11 @@ namespace Netch.Controllers
                 return false;
             }
 
+            if (File.Exists("logging\\tun2socks.log"))
+            {
+                File.Delete("logging\\tun2socks.log");
+            }
+
             SavedMode = mode;
             SavedServer = server;
 
