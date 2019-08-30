@@ -43,10 +43,11 @@ namespace Netch.Forms
         public void TestServer()
         {
             var list = new Task[Global.Server.Count];
+            var count = 0;
 
-            for (int i = 0; i < Global.Server.Count; i++)
+            foreach (var server in Global.Server)
             {
-                list[i] = Task.Run(() => Global.Server[i].Test());
+                list[count++] = Task.Run(() => server.Test());
             }
 
             Task.WaitAll(list);

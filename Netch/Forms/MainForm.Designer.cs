@@ -57,9 +57,9 @@
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
+            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -341,6 +341,13 @@
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
+            // UsedBandwidthLabel
+            // 
+            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
+            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
+            this.UsedBandwidthLabel.Text = "Used: 0 KB";
+            this.UsedBandwidthLabel.Visible = false;
+            // 
             // UploadSpeedLabel
             // 
             this.UploadSpeedLabel.Name = "UploadSpeedLabel";
@@ -354,13 +361,6 @@
             this.DownloadSpeedLabel.Size = new System.Drawing.Size(59, 17);
             this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
             this.DownloadSpeedLabel.Visible = false;
-            // 
-            // UsedBandwidthLabel
-            // 
-            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
-            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
-            this.UsedBandwidthLabel.Text = "Used: 0 KB";
-            this.UsedBandwidthLabel.Visible = false;
             // 
             // StatusLabel
             // 
@@ -384,7 +384,6 @@
             this.NotifyIcon.ContextMenuStrip = this.NotifyMenu;
             this.NotifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("NotifyIcon.Icon")));
             this.NotifyIcon.Text = "Netch";
-            this.NotifyIcon.Visible = true;
             this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseDoubleClick);
             // 
             // NotifyMenu
