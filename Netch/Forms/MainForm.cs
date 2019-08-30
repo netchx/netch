@@ -711,7 +711,7 @@ namespace Netch.Forms
                         UploadSpeedLabel.Text = "↑: 0 KB/s";
                         DownloadSpeedLabel.Text = "↓: 0 KB/s";
                         UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
+                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
                     }
 
                     ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
