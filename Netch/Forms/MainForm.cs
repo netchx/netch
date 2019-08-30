@@ -679,6 +679,7 @@ namespace Netch.Forms
                     {
                         if (mode.Type == 0)
                         {
+                            UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                             MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
                         }
 
@@ -705,13 +706,21 @@ namespace Netch.Forms
 
                 Task.Run(() =>
                 {
+                    var server = ServerComboBox.SelectedItem as Objects.Server;
+                    var mode = ModeComboBox.SelectedItem as Objects.Mode;
+
                     MainController.Stop();
 
-                    LastUploadBandwidth = 0;
-                    LastDownlaodBandwidth = 0;
-                    UploadSpeedLabel.Text = "↑: 0 KB/s";
-                    DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                    UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                    if (mode.Type == 0)
+                    {
+                        LastUploadBandwidth = 0;
+                        LastDownlaodBandwidth = 0;
+                        UploadSpeedLabel.Text = "↑: 0 KB/s";
+                        DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                        UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
+                    }
+
                     ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";

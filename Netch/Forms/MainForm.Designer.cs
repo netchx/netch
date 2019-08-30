@@ -331,9 +331,9 @@
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.UsedBandwidthLabel,
             this.UploadSpeedLabel,
             this.DownloadSpeedLabel,
-            this.UsedBandwidthLabel,
             this.StatusLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 154);
             this.StatusStrip.Name = "StatusStrip";
@@ -346,18 +346,21 @@
             this.UploadSpeedLabel.Name = "UploadSpeedLabel";
             this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
             this.UploadSpeedLabel.Text = "↑: 0 KB/s";
+            this.UploadSpeedLabel.Visible = false;
             // 
             // DownloadSpeedLabel
             // 
             this.DownloadSpeedLabel.Name = "DownloadSpeedLabel";
             this.DownloadSpeedLabel.Size = new System.Drawing.Size(59, 17);
             this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
+            this.DownloadSpeedLabel.Visible = false;
             // 
             // UsedBandwidthLabel
             // 
             this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
             this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
             this.UsedBandwidthLabel.Text = "Used: 0 KB";
+            this.UsedBandwidthLabel.Visible = false;
             // 
             // StatusLabel
             // 
