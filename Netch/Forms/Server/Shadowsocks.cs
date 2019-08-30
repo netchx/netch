@@ -26,6 +26,8 @@ namespace Netch.Forms.Server
             AddressLabel.Text = Utils.i18N.Translate("Address");
             PasswordLabel.Text = Utils.i18N.Translate("Password");
             EncryptMethodLabel.Text = Utils.i18N.Translate("Encrypt Method");
+            PluginLabel.Text = Utils.i18N.Translate("Plugin");
+            PluginOptionsLabel.Text = Utils.i18N.Translate("Plugin Options");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
             foreach (var encrypt in Global.EncryptMethods.SS)
@@ -40,6 +42,8 @@ namespace Netch.Forms.Server
                 PortTextBox.Text = Global.Server[Index].Port.ToString();
                 PasswordTextBox.Text = Global.Server[Index].Password;
                 EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Server[Index].EncryptMethod);
+                PluginTextBox.Text = Global.Server[Index].OBFS;
+                PluginOptionsTextBox.Text = Global.Server[Index].OBFSParam;
             }
             else
             {
@@ -88,7 +92,9 @@ namespace Netch.Forms.Server
                     Address = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
-                    EncryptMethod = EncryptMethodComboBox.Text
+                    EncryptMethod = EncryptMethodComboBox.Text,
+                    OBFS = PluginTextBox.Text,
+                    OBFSParam = PluginOptionsTextBox.Text                 
                 });
             }
             else
@@ -101,7 +107,9 @@ namespace Netch.Forms.Server
                     Address = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
-                    EncryptMethod = EncryptMethodComboBox.Text
+                    EncryptMethod = EncryptMethodComboBox.Text,
+                    OBFS = PluginTextBox.Text,
+                    OBFSParam = PluginOptionsTextBox.Text
                 };
             }
 

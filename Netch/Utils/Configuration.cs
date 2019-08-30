@@ -101,6 +101,12 @@ namespace Netch.Utils
                     Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(SETTINGS_DAT));
                 }
             }
+            else
+            {
+                // 创建 data 文件夹并保存默认设置
+                Save();
+            }
+
         }
 
         /// <summary>

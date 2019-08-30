@@ -43,7 +43,6 @@ namespace Netch.Objects
         /// </summary>
         public string Password;
 
-
         /// <summary>
         ///		用户 ID（V2）
         /// </summary>
@@ -70,12 +69,12 @@ namespace Netch.Objects
         public string ProtocolParam;
 
         /// <summary>
-        ///     混淆
+        ///     混淆（SSR）/ 插件（SS）
         /// </summary>
         public string OBFS;
 
         /// <summary>
-        ///     混淆参数
+        ///     混淆参数（SSR）/ 插件参数（SS）
         /// </summary>
         public string OBFSParam;
 

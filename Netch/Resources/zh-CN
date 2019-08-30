@@ -43,6 +43,8 @@
     "OBFS": "混淆",
     "OBFS Param": "混淆参数",
     "Saved": "保存成功",
+    "Plugin": "插件",
+    "Plugin Options": "插件参数",
     
     "Subscribe": "订阅",
     "Manage Subscribe Links": "管理订阅链接",
@@ -70,6 +72,7 @@
     "Please select a server first": "请先选择一个服务器",
     "Please select an mode first": "请先选择一个模式",
 
+    "Used": "已使用",
     "Status": "状态",
 
     "Remark": "备注",

@@ -26,6 +26,18 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Objects.Server server, Objects.Mode mode)
         {
+            foreach (var proc in Process.GetProcessesByName("v2ray"))
+            {
+                try
+                {
+                    proc.Kill();
+                }
+                catch (Exception)
+                {
+                    // 跳过
+                }
+            }
+
             if (!File.Exists("bin\\v2ray.exe") || !File.Exists("bin\\v2ctl.exe"))
             {
                 return false;
@@ -38,23 +50,27 @@ namespace Netch.Controllers
 
             File.WriteAllText("data\\last.json", Newtonsoft.Json.JsonConvert.SerializeObject(new Objects.Information.VMess.Config()
             {
-                inbounds = new List<Objects.Information.VMess.Inbounds>() {
+                inbounds = new List<Objects.Information.VMess.Inbounds>()
+                {
                     new Objects.Information.VMess.Inbounds()
                     {
                         settings = new Objects.Information.VMess.InboundSettings()
                     }
                 },
-                outbounds = new List<Objects.Information.VMess.Outbounds>() {
+                outbounds = new List<Objects.Information.VMess.Outbounds>()
+                {
                     new Objects.Information.VMess.Outbounds()
                     {
                         settings = new Objects.Information.VMess.OutboundSettings()
                         {
-                            vnext = new List<Objects.Information.VMess.VNext>() {
+                            vnext = new List<Objects.Information.VMess.VNext>()
+                            {
                                 new Objects.Information.VMess.VNext()
                                 {
                                     address = server.Address,
                                     port = server.Port,
-                                    users = new List<Objects.Information.VMess.User> {
+                                    users = new List<Objects.Information.VMess.User>
+                                    {
                                         new Objects.Information.VMess.User()
                                         {
                                             id = server.UserID,
@@ -116,9 +132,45 @@ namespace Netch.Controllers
                             tlsSettings = new Objects.Information.VMess.TLSSettings()
                         },
                         mux = new Objects.Information.VMess.OutboundMux()
+                    },
+                    new Objects.Information.VMess.Outbounds()
+                    {
+                        tag = "direct",
+                        protocol = "freedom",
+                        settings = null,
+                        streamSettings = null,
+                        mux = null
                     }
                 },
                 routing = new Objects.Information.VMess.Routing()
+                {
+                    rules = new List<Objects.Information.VMess.RoutingRules>()
+                    {
+                        mode.BypassChina == true ? new Objects.Information.VMess.RoutingRules()
+                        {
+                            type = "field",
+                            ip = new List<string>
+                            {
+                                "geoip:cn",
+                                "geoip:private"
+                                
+                            },
+                            domain = new List<string>
+                            {
+                                "geosite:cn"
+                            },
+                            outboundTag = "direct"
+                        } : new Objects.Information.VMess.RoutingRules()
+                        {
+                            type = "field",
+                            ip = new List<string>
+                            {
+                                "geoip:private"
+                            },
+                            outboundTag = "direct"
+                        }
+                    }
+                }
             }));
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间

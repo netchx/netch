@@ -151,6 +151,7 @@ namespace Netch.Forms.Server
             }
 
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Global.MainForm.InitServer();
             Close();
         }
     }

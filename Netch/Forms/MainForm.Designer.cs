@@ -31,18 +31,18 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ToolStrip = new System.Windows.Forms.ToolStrip();
-            this.ServerToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddSocks5ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksRServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ModeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.SubscribeToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.OptionsToolStripDropDownButton = new System.Windows.Forms.ToolStripDropDownButton();
+            this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,6 +57,9 @@
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
+            this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -78,10 +81,10 @@
             this.ToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ServerToolStripDropDownButton,
-            this.ModeToolStripDropDownButton,
-            this.SubscribeToolStripDropDownButton,
-            this.OptionsToolStripDropDownButton,
+            this.ServerToolStripMenuItem,
+            this.ModeToolStripMenuItem,
+            this.SubscribeToolStripMenuItem,
+            this.OptionsToolStripMenuItem,
             this.AboutToolStripButton,
             this.VersionLabel});
             this.ToolStrip.Location = new System.Drawing.Point(0, 0);
@@ -90,18 +93,18 @@
             this.ToolStrip.Size = new System.Drawing.Size(608, 25);
             this.ToolStrip.TabIndex = 0;
             // 
-            // ServerToolStripDropDownButton
+            // ServerToolStripMenuItem
             // 
-            this.ServerToolStripDropDownButton.AutoToolTip = false;
-            this.ServerToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ServerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ImportServersFromClipboardToolStripMenuItem,
             this.AddSocks5ServerToolStripMenuItem,
             this.AddShadowsocksServerToolStripMenuItem,
             this.AddShadowsocksRServerToolStripMenuItem,
             this.AddVMessServerToolStripMenuItem});
-            this.ServerToolStripDropDownButton.Name = "ServerToolStripDropDownButton";
-            this.ServerToolStripDropDownButton.Size = new System.Drawing.Size(58, 22);
-            this.ServerToolStripDropDownButton.Text = "Server";
+            this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
+            this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
+            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 24);
+            this.ServerToolStripMenuItem.Text = "Server";
             // 
             // ImportServersFromClipboardToolStripMenuItem
             // 
@@ -138,14 +141,14 @@
             this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
             this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddVMessServerToolStripMenuItem_Click);
             // 
-            // ModeToolStripDropDownButton
+            // ModeToolStripMenuItem
             // 
-            this.ModeToolStripDropDownButton.AutoToolTip = false;
-            this.ModeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CreateProcessModeToolStripMenuItem});
-            this.ModeToolStripDropDownButton.Name = "ModeToolStripDropDownButton";
-            this.ModeToolStripDropDownButton.Size = new System.Drawing.Size(56, 22);
-            this.ModeToolStripDropDownButton.Text = "Mode";
+            this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
+            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.ModeToolStripMenuItem.Text = "Mode";
             // 
             // CreateProcessModeToolStripMenuItem
             // 
@@ -154,15 +157,15 @@
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
             this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
             // 
-            // SubscribeToolStripDropDownButton
+            // SubscribeToolStripMenuItem
             // 
-            this.SubscribeToolStripDropDownButton.AutoToolTip = false;
-            this.SubscribeToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.SubscribeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ManageSubscribeLinksToolStripMenuItem,
             this.UpdateServersFromSubscribeLinksToolStripMenuItem});
-            this.SubscribeToolStripDropDownButton.Name = "SubscribeToolStripDropDownButton";
-            this.SubscribeToolStripDropDownButton.Size = new System.Drawing.Size(78, 22);
-            this.SubscribeToolStripDropDownButton.Text = "Subscribe";
+            this.SubscribeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.SubscribeToolStripMenuItem.Name = "SubscribeToolStripMenuItem";
+            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(77, 24);
+            this.SubscribeToolStripMenuItem.Text = "Subscribe";
             // 
             // ManageSubscribeLinksToolStripMenuItem
             // 
@@ -178,16 +181,16 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
             // 
-            // OptionsToolStripDropDownButton
+            // OptionsToolStripMenuItem
             // 
-            this.OptionsToolStripDropDownButton.AutoToolTip = false;
-            this.OptionsToolStripDropDownButton.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ReloadModesToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem});
-            this.OptionsToolStripDropDownButton.Name = "OptionsToolStripDropDownButton";
-            this.OptionsToolStripDropDownButton.Size = new System.Drawing.Size(67, 22);
-            this.OptionsToolStripDropDownButton.Text = "Options";
+            this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
+            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 24);
+            this.OptionsToolStripMenuItem.Text = "Options";
             // 
             // ReloadModesToolStripMenuItem
             // 
@@ -212,21 +215,24 @@
             // 
             // AboutToolStripButton
             // 
+            this.AboutToolStripButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.AboutToolStripButton.AutoToolTip = false;
+            this.AboutToolStripButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 1);
             this.AboutToolStripButton.Name = "AboutToolStripButton";
-            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 22);
+            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 24);
             this.AboutToolStripButton.Text = "About";
             this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
             // 
             // VersionLabel
             // 
+            this.VersionLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.VersionLabel.BackColor = System.Drawing.Color.Transparent;
             this.VersionLabel.ForeColor = System.Drawing.Color.Red;
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(83, 22);
-            this.VersionLabel.Text = "1.2.1-STABLE";
+            this.VersionLabel.Text = "1.2.6-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
@@ -248,7 +254,7 @@
             // SpeedPictureBox
             // 
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Image = global::Netch.Properties.Resources.speed;
+            this.SpeedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("SpeedPictureBox.Image")));
             this.SpeedPictureBox.Location = new System.Drawing.Point(562, 26);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
             this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -259,7 +265,7 @@
             // DeletePictureBox
             // 
             this.DeletePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeletePictureBox.Image = global::Netch.Properties.Resources.delete;
+            this.DeletePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("DeletePictureBox.Image")));
             this.DeletePictureBox.Location = new System.Drawing.Point(540, 26);
             this.DeletePictureBox.Name = "DeletePictureBox";
             this.DeletePictureBox.Size = new System.Drawing.Size(16, 16);
@@ -270,7 +276,7 @@
             // EditPictureBox
             // 
             this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditPictureBox.Image = global::Netch.Properties.Resources.edit;
+            this.EditPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("EditPictureBox.Image")));
             this.EditPictureBox.Location = new System.Drawing.Point(518, 26);
             this.EditPictureBox.Name = "EditPictureBox";
             this.EditPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -325,12 +331,33 @@
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.UploadSpeedLabel,
+            this.DownloadSpeedLabel,
+            this.UsedBandwidthLabel,
             this.StatusLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 154);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(608, 22);
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
+            // 
+            // UploadSpeedLabel
+            // 
+            this.UploadSpeedLabel.Name = "UploadSpeedLabel";
+            this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
+            this.UploadSpeedLabel.Text = "↑: 0 KB/s";
+            // 
+            // DownloadSpeedLabel
+            // 
+            this.DownloadSpeedLabel.Name = "DownloadSpeedLabel";
+            this.DownloadSpeedLabel.Size = new System.Drawing.Size(59, 17);
+            this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
+            // 
+            // UsedBandwidthLabel
+            // 
+            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
+            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
+            this.UsedBandwidthLabel.Text = "Used: 0 KB";
             // 
             // StatusLabel
             // 
@@ -429,8 +456,8 @@
         #endregion
 
         private System.Windows.Forms.ToolStrip ToolStrip;
-        private System.Windows.Forms.ToolStripDropDownButton ServerToolStripDropDownButton;
-        private System.Windows.Forms.ToolStripDropDownButton SubscribeToolStripDropDownButton;
+        private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SubscribeToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel VersionLabel;
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label ServerLabel;
@@ -452,8 +479,8 @@
         private System.Windows.Forms.PictureBox EditPictureBox;
         private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripDropDownButton OptionsToolStripDropDownButton;
-        private System.Windows.Forms.ToolStripDropDownButton ModeToolStripDropDownButton;
+        private System.Windows.Forms.ToolStripMenuItem OptionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
@@ -462,5 +489,8 @@
         private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
         private System.Windows.Forms.Button SettingsButton;
         private System.Windows.Forms.ToolStripButton AboutToolStripButton;
+        private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
+        private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
+        private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
     }
 }
