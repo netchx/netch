@@ -66,12 +66,15 @@ namespace Netch.Controllers
                     result = true;
                     break;
                 case "Shadowsocks":
+                    Kill("Shadowsocks");
                     result = pSSController.Start(server, mode);
                     break;
                 case "ShadowsocksR":
+                    Kill("ShadowsocksR");
                     result = pSSRController.Start(server, mode);
                     break;
                 case "VMess":
+                    Kill("v2ray");
                     result = pVMessController.Start(server, mode);
                     break;
                 default:
@@ -129,6 +132,29 @@ namespace Netch.Controllers
             pNFController.Stop();
             pHTTPController.Stop();
             pTUNTAPController.Stop();
+        }
+
+        public void Kill(string procName)
+        {
+            if (!Global.Settings.TryGetValue("EnableKillProcess", out int Enable))
+            {
+                Global.Settings.Add("EnableKillProcess", 1);
+                Enable = 1;
+            }
+            foreach (var proc in Process.GetProcessesByName(procName))
+            {
+                try
+                {
+                    if (Enable != 0)
+                    {
+                        proc.Kill();
+                    }
+                }
+                catch (Exception)
+                {
+                    // 跳过
+                }
+            }
         }
     }
 }
