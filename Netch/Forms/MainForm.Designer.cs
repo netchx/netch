@@ -43,7 +43,7 @@
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ReloadConfigurationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
@@ -184,7 +184,7 @@
             // OptionsToolStripMenuItem
             // 
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ReloadModesToolStripMenuItem,
+            this.ReloadConfigurationToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
@@ -192,12 +192,12 @@
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 24);
             this.OptionsToolStripMenuItem.Text = "Options";
             // 
-            // ReloadModesToolStripMenuItem
+            // ReloadConfigurationToolStripMenuItem
             // 
-            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
-            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
-            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
+            this.ReloadConfigurationToolStripMenuItem.Name = "ReloadConfigurationToolStripMenuItem";
+            this.ReloadConfigurationToolStripMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.ReloadConfigurationToolStripMenuItem.Text = "Reload Configuration";
+            this.ReloadConfigurationToolStripMenuItem.Click += new System.EventHandler(this.ReloadConfigurationToolStripMenuItem_Click);
             // 
             // RestartServiceToolStripMenuItem
             // 
@@ -304,6 +304,7 @@
             this.ModeComboBox.Size = new System.Drawing.Size(455, 24);
             this.ModeComboBox.TabIndex = 2;
             this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.ModeComboBox.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectedIndexChanged);
             // 
             // ServerComboBox
             // 
@@ -317,6 +318,7 @@
             this.ServerComboBox.Size = new System.Drawing.Size(455, 24);
             this.ServerComboBox.TabIndex = 1;
             this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.ServerComboBox.SelectedIndexChanged += new System.EventHandler(this.ComboBox_SelectedIndexChanged);
             // 
             // ServerLabel
             // 
@@ -485,7 +487,7 @@
         private System.Windows.Forms.ToolStripMenuItem OptionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ReloadConfigurationToolStripMenuItem;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.ContextMenuStrip NotifyMenu;
         private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;

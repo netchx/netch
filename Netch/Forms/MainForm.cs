@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -271,6 +272,9 @@ namespace Netch.Forms
             // 加载模式
             InitMode();
 
+            // 更新通知栏图标文本
+            UpdateNotifyIconText();
+
             // 加载翻译
             ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
             ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
@@ -286,7 +290,7 @@ namespace Netch.Forms
             OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
-            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
+            ReloadConfigurationToolStripMenuItem.Text = Utils.i18N.Translate("Reload Configuration");
             AboutToolStripButton.Text = Utils.i18N.Translate("About");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             ServerLabel.Text = Utils.i18N.Translate("Server");
@@ -468,6 +472,7 @@ namespace Netch.Forms
                     }
 
                     InitServer();
+                    Utils.Configuration.Save();
                     DeletePictureBox.Enabled = true;
                     MessageBox.Show(Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 });
@@ -478,6 +483,18 @@ namespace Netch.Forms
             {
                 MessageBox.Show(Utils.i18N.Translate("No subscription link"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        private void ReloadConfigurationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Task.Run(() =>
+            {
+                Utils.Configuration.Load();
+                InitServer();
+                InitMode();
+
+                MessageBox.Show(Utils.i18N.Translate("Configuration have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
         }
 
         private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
@@ -555,18 +572,6 @@ namespace Netch.Forms
             });
         }
 
-        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            Task.Run(() =>
-            {
-                InitMode();
-
-                MessageBox.Show(Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Enabled = true;
-            });
-        }
-
         private void VersionLabel_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/NetchX/Netch/releases");
@@ -639,6 +644,12 @@ namespace Netch.Forms
             });
         }
 
+        private void ComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
+            Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
+        }
+
         private void ControlButton_Click(object sender, EventArgs e)
         {
             if (State == Objects.State.Waiting || State == Objects.State.Stopped)
@@ -689,6 +700,7 @@ namespace Netch.Forms
                         State = Objects.State.Stopped;
                     }
                 });
+                UpdateNotifyIconText();
             }
             else
             {
@@ -786,6 +798,38 @@ namespace Netch.Forms
             Hide();
         }
 
+        private void UpdateNotifyIconText()
+        {
+            string text1 = String.Format("Netch {0}", this.VersionLabel.Text);
+            string text2;
+            string text3;
+            if (State == Objects.State.Starting)
+            {
+                text2 = String.Format("\nServer: {0}", this.ServerComboBox.Text);
+                text3 = String.Format("\nMode: {0}", this.ModeComboBox.Text);
+            }
+            else
+            {
+                text2 = "";
+                text3 = "";
+            }
+
+            string text = text1 + text2 + text3;
+
+            if (text.Length >= 128)
+            {
+                throw new ArgumentOutOfRangeException("Text limited to 127 characters");
+            }
+
+            Type t = typeof(NotifyIcon);
+            BindingFlags hidden = BindingFlags.NonPublic | BindingFlags.Instance;
+            t.GetField("text", hidden).SetValue(this.NotifyIcon, text);
+            if ((bool)t.GetField("added", hidden).GetValue(this.NotifyIcon))
+            {
+                t.GetMethod("UpdateIcon", hidden).Invoke(this.NotifyIcon, new object[] { true });
+            }
+        }
+
         public void OnBandwidthUpdated(long upload, long download)
         {
             UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
@@ -796,5 +840,7 @@ namespace Netch.Forms
             LastDownlaodBandwidth = download;
             Refresh();
         }
+
+
     }
 }
