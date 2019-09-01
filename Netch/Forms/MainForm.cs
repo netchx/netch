@@ -37,7 +37,7 @@ namespace Netch.Forms
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
-            ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
+            //MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
 
         public void TestServer()
@@ -657,7 +657,7 @@ namespace Netch.Forms
                     return;
                 }
 
-                ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
                 State = Objects.State.Starting;
@@ -683,7 +683,7 @@ namespace Netch.Forms
                     }
                     else
                     {
-                        ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                        MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
                         State = Objects.State.Stopped;
@@ -714,7 +714,7 @@ namespace Netch.Forms
                         UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
                     }
 
-                    ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Objects.State.Stopped;
