@@ -25,18 +25,6 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Objects.Server server, Objects.Mode mode)
         {
-            foreach (var proc in Process.GetProcessesByName("Shadowsocks"))
-            {
-                try
-                {
-                    proc.Kill();
-                }
-                catch (Exception)
-                {
-                    // 跳过
-                }
-            }
-
             if (!File.Exists("bin\\Shadowsocks.exe"))
             {
                 return false;
