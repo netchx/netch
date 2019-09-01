@@ -56,11 +56,11 @@ namespace Netch.Controllers
             
             if(!String.IsNullOrWhiteSpace(server.OBFS) && !String.IsNullOrWhiteSpace(server.OBFSParam))
             {
-                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u --plugin {4} --plugin-opts \"{5}\"", server.Address, server.Port, server.EncryptMethod, server.Password, server.OBFS, server.OBFSParam);
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u --plugin {5} --plugin-opts \"{6}\"", server.Address, server.Port, Global.Settings["Socks5Port"], server.EncryptMethod, server.Password, server.OBFS, server.OBFSParam);
             }
             else
             {
-                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l 2801 -m {2} -k \"{3}\" -u", server.Address, server.Port, server.EncryptMethod, server.Password);
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u", server.Address, server.Port, Global.Settings["Socks5Port"], server.EncryptMethod, server.Password);
             }
             
             if (mode.BypassChina)

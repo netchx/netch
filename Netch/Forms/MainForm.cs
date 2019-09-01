@@ -66,14 +66,16 @@ namespace Netch.Forms
                 {
                     ServerComboBox.SelectedIndex = count;
                 }
-                else if (ServerComboBox.Items.Count > 0) // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
+                // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
+                else if (ServerComboBox.Items.Count > 0) 
                 {
                     ServerComboBox.SelectedIndex = 0;
                 }
 
                 // 如果当前 ServerComboBox 中没元素，不做处理
             }
-            else // 如果设置中没有加载上次的位置，给设置添加元素
+            // 如果设置中没有加载上次的位置，给设置添加元素
+            else
             {
                 Global.Settings.Add("ServerComboBoxSelectedIndex", 0);
 
@@ -86,6 +88,45 @@ namespace Netch.Forms
                 // 如果当前 ServerComboBox 中没元素，不做处理
             }
         }
+
+        public void InitSettings()
+        {
+
+            // 查询设置中是否正常加载了上次存储的 HTTP 端口
+            if (Global.Settings.TryGetValue("HTTPPort", out int HTTPPort))
+            {
+                // 如果值非法，置为默认值 2802
+                if (HTTPPort < 0 || HTTPPort > 65535)
+                {
+                    Global.Settings.Add("HTTPPort", 2802);
+                }
+
+                // 如果值合法，不做处理
+            }
+            // 如果设置中没有加载上次存储的 http 端口，置为默认值
+            else
+            {
+                Global.Settings.Add("HTTPPort", 2802);
+            }
+
+            // 查询设置中是否正常加载了上次存储的 Socks5 端口
+            if (Global.Settings.TryGetValue("Socks5Port", out int Socks5Port))
+            {
+                // 如果值非法，置为默认值 2801
+                if (Socks5Port < 0 || Socks5Port > 65535)
+                {
+                    Global.Settings.Add("Socks5Port", 2801);
+                }
+
+                // 如果值合法，不做处理
+            }
+            // 如果设置中没有加载上次存储的 http 端口，置为默认值
+            else
+            {
+                Global.Settings.Add("Socks5Port", 2801);
+            }
+        }
+
 
         public void InitMode()
         {
@@ -267,6 +308,9 @@ namespace Netch.Forms
 
             // 加载服务器
             InitServer();
+
+            // 加载设置
+            InitSettings();
 
             // 加载模式
             InitMode();
@@ -678,7 +722,15 @@ namespace Netch.Forms
 
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
-                        StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}";
+                        if (mode.Type != 3 && mode.Type != 5)
+                        {
+                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Port")}{Utils.i18N.Translate(": ")}{Global.Settings["Socks5Port"]}{")"}";
+                        }
+                        else
+                        {
+                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Port")}{Utils.i18N.Translate(": ")}{Global.Settings["Socks5Port"]}{" | HTTP "}{Utils.i18N.Translate("Port")}{Utils.i18N.Translate(": ")}{Global.Settings["HTTPPort"]}{")"}";
+                        }
+
                         State = Objects.State.Started;
                     }
                     else
