@@ -290,7 +290,7 @@ namespace Netch.Controllers
             }
             else
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:2801 -tunAddr {0} -tunMask {1} -tunGw {2} -tunDns {3}", Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
+                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4}", Global.Settings["Socks5Port"], Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
             }
 
             Instance.StartInfo.CreateNoWindow = true;
