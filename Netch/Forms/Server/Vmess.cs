@@ -79,19 +79,19 @@ namespace Netch.Forms.Server
 
             if (Index != -1)
             {
-                RemarkTextBox.Text = Global.Server[Index].Remark;
-                AddressTextBox.Text = Global.Server[Index].Address;
-                PortTextBox.Text = Global.Server[Index].Port.ToString();
-                UserIDTextBox.Text = Global.Server[Index].UserID;
-                AlterIDTextBox.Text = Global.Server[Index].AlterID.ToString();
-                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.VMess.IndexOf(Global.Server[Index].EncryptMethod);
-                TransferProtocolComboBox.SelectedIndex = Global.TransferProtocols.IndexOf(Global.Server[Index].TransferProtocol);
-                FakeTypeComboBox.SelectedIndex = Global.FakeTypes.IndexOf(Global.Server[Index].FakeType);
-                HostTextBox.Text = Global.Server[Index].Host;
-                PathTextBox.Text = Global.Server[Index].Path;
-                QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(Global.Server[Index].QUICSecurity);
-                QUICSecretTextBox.Text = Global.Server[Index].QUICSecret;
-                TLSSecureCheckBox.Checked = Global.Server[Index].TLSSecure;
+                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
+                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
+                UserIDTextBox.Text = Global.Settings.Server[Index].UserID;
+                AlterIDTextBox.Text = Global.Settings.Server[Index].AlterID.ToString();
+                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.VMess.IndexOf(Global.Settings.Server[Index].EncryptMethod);
+                TransferProtocolComboBox.SelectedIndex = Global.TransferProtocols.IndexOf(Global.Settings.Server[Index].TransferProtocol);
+                FakeTypeComboBox.SelectedIndex = Global.FakeTypes.IndexOf(Global.Settings.Server[Index].FakeType);
+                HostTextBox.Text = Global.Settings.Server[Index].Host;
+                PathTextBox.Text = Global.Settings.Server[Index].Path;
+                QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(Global.Settings.Server[Index].QUICSecurity);
+                QUICSecretTextBox.Text = Global.Settings.Server[Index].QUICSecret;
+                TLSSecureCheckBox.Checked = Global.Settings.Server[Index].TLSSecure;
             }
             else
             {
@@ -111,7 +111,7 @@ namespace Netch.Forms.Server
         {
             if (Index == -1)
             {
-                Global.Server.Add(new Objects.Server()
+                Global.Settings.Server.Add(new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "VMess",
@@ -131,7 +131,7 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Server[Index] = new Objects.Server()
+                Global.Settings.Server[Index] = new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "VMess",

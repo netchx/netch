@@ -15,7 +15,7 @@ namespace Netch.Forms
         {
             SubscribeLinkListView.Items.Clear();
 
-            foreach (var link in Global.SubscribeLink)
+            foreach (var link in Global.Settings.SubscribeLink)
             {
                 SubscribeLinkListView.Items.Add(new ListViewItem(new String[] { link.Remark, link.Link }));
             }
@@ -49,10 +49,10 @@ namespace Netch.Forms
                     for (int i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
                     {
                         var item = SubscribeLinkListView.SelectedItems[i];
-                        var link = Global.SubscribeLink[item.Index];
+                        var link = Global.Settings.SubscribeLink[item.Index];
 
                         var list = new List<Objects.Server>();
-                        foreach (var server in Global.Server)
+                        foreach (var server in Global.Settings.Server)
                         {
                             if (server.Group != link.Remark)
                             {
@@ -60,8 +60,8 @@ namespace Netch.Forms
                             }
                         }
 
-                        Global.Server = list;
-                        Global.SubscribeLink.RemoveAt(item.Index);
+                        Global.Settings.Server = list;
+                        Global.Settings.SubscribeLink.RemoveAt(item.Index);
                         SubscribeLinkListView.Items.Remove(item);
 
                         Global.MainForm.InitServer();
@@ -78,7 +78,7 @@ namespace Netch.Forms
                 {
                     if (LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) || LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
                     {
-                        Global.SubscribeLink.Add(new Objects.SubscribeLink()
+                        Global.Settings.SubscribeLink.Add(new Objects.SubscribeLink()
                         {
                             Remark = RemarkTextBox.Text,
                             Link = LinkTextBox.Text

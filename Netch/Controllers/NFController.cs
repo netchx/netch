@@ -128,7 +128,7 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Redirector.exe";
-            Instance.StartInfo.Arguments = String.Format("-r 127.0.0.1:{0} -p \"{1}\"", Global.Settings["Socks5Port"], processes);
+            Instance.StartInfo.Arguments = String.Format("-r 127.0.0.1:{0} -p \"{1}\"", Global.Settings.Socks5LocalPort, processes);
 
             if (server.Type == "Socks5")
             {

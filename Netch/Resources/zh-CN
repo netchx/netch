@@ -97,7 +97,7 @@
     "Successfully saved": "保存成功",
 
   "Settings": "设置",
-  "Port": "端口",
+  "Local Port": "本地端口",
 	"Netmask": "子网掩码",
 	"Gateway": "网关",
 	"Use Custom DNS": "使用自定义 DNS",

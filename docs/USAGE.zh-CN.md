@@ -28,19 +28,20 @@
     - 对于老用户而言，版本更新日志里如果提到要更新驱动，或者你发现无法使用本模式时，可以通过运行 `DriverUpdater.exe` 的方式强制覆盖旧驱动
     - 相关代码 [NFController.cs](..\Netch\Controllers\NFController.cs)
 - 模式 3：TUN/TAP 全局代理模式
-  - 可以通过左下角的`设置`来配置直连 IP 段
+  - 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS，直连 IP 段
   - 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
   - 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
 - 模式 4：HTTP 系统代理
   - 默认地址和端口为 127.0.0.1:2802
   - 会被设置为系统代理
-- 模式 5：Socks5 代理
+- 模式 5：本地 Socks5 代理
   - 默认地址和端口为 127.0.0.1:2801
   - 不会被设置为系统代理
   - 注意如果是使用 Firefox 的网络设置，请仅设置 Socks5 代理，清除其他代理配置，并取消勾选`为所有协议使用相同的代理服务器`
-- 模式 6：Socks5 和 HTTP 代理
-  - Socks5 代理的地址和端口为 127.0.0.1:2801
-  - HTTP 代理的地址和端口为 127.0.0.1:2802
+  - 其他模式均含 Socks5 代理
+- 模式 6：本地 Socks5 和 HTTP 代理
+  - Socks5 代理的默认地址和端口为 127.0.0.1:2801
+  - HTTP 代理的默认地址和端口为 127.0.0.1:2802
   - 不会被设置为系统代理
 
 以及是否 Bypass China，如果模式名中有 Bypass China 的部分，即该模式会跳过国内 IP 段

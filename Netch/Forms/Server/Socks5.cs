@@ -30,11 +30,11 @@ namespace Netch.Forms.Server
 
             if (Index != -1)
             {
-                RemarkTextBox.Text = Global.Server[Index].Remark;
-                AddressTextBox.Text = Global.Server[Index].Address;
-                PortTextBox.Text = Global.Server[Index].Port.ToString();
-                UsernameTextBox.Text = Global.Server[Index].Username;
-                PasswordTextBox.Text = Global.Server[Index].Password;
+                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
+                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
+                UsernameTextBox.Text = Global.Settings.Server[Index].Username;
+                PasswordTextBox.Text = Global.Settings.Server[Index].Password;
             }
         }
 
@@ -72,7 +72,7 @@ namespace Netch.Forms.Server
         {
             if (Index == -1)
             {
-                Global.Server.Add(new Objects.Server()
+                Global.Settings.Server.Add(new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "Socks5",
@@ -84,10 +84,10 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Server[Index] = new Objects.Server()
+                Global.Settings.Server[Index] = new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
-                    Group = Global.Server[Index].Group,
+                    Group = Global.Settings.Server[Index].Group,
                     Type = "Socks5",
                     Address = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),

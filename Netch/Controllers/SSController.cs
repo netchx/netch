@@ -41,14 +41,14 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
-            
-            if(!String.IsNullOrWhiteSpace(server.OBFS) && !String.IsNullOrWhiteSpace(server.OBFSParam))
+
+            if (!String.IsNullOrWhiteSpace(server.OBFS) && !String.IsNullOrWhiteSpace(server.OBFSParam))
             {
-                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u --plugin {5} --plugin-opts \"{6}\"", server.Address, server.Port, Global.Settings["Socks5Port"], server.EncryptMethod, server.Password, server.OBFS, server.OBFSParam);
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u --plugin {5} --plugin-opts \"{6}\"", server.Address, server.Port, Global.Settings.Socks5LocalPort, server.EncryptMethod, server.Password, server.OBFS, server.OBFSParam);
             }
             else
             {
-                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u", server.Address, server.Port, Global.Settings["Socks5Port"], server.EncryptMethod, server.Password);
+                Instance.StartInfo.Arguments = String.Format("-s {0} -p {1} -b 0.0.0.0 -l {2} -m {3} -k \"{4}\" -u", server.Address, server.Port, Global.Settings.Socks5LocalPort, server.EncryptMethod, server.Password);
             }
             
             if (mode.BypassChina)

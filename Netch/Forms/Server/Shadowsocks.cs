@@ -37,13 +37,13 @@ namespace Netch.Forms.Server
 
             if (Index != -1)
             {
-                RemarkTextBox.Text = Global.Server[Index].Remark;
-                AddressTextBox.Text = Global.Server[Index].Address;
-                PortTextBox.Text = Global.Server[Index].Port.ToString();
-                PasswordTextBox.Text = Global.Server[Index].Password;
-                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Server[Index].EncryptMethod);
-                PluginTextBox.Text = Global.Server[Index].OBFS;
-                PluginOptionsTextBox.Text = Global.Server[Index].OBFSParam;
+                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
+                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
+                PasswordTextBox.Text = Global.Settings.Server[Index].Password;
+                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Settings.Server[Index].EncryptMethod);
+                PluginTextBox.Text = Global.Settings.Server[Index].OBFS;
+                PluginOptionsTextBox.Text = Global.Settings.Server[Index].OBFSParam;
             }
             else
             {
@@ -85,7 +85,7 @@ namespace Netch.Forms.Server
         {
             if (Index == -1)
             {
-                Global.Server.Add(new Objects.Server()
+                Global.Settings.Server.Add(new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "Shadowsocks",
@@ -99,10 +99,10 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Server[Index] = new Objects.Server()
+                Global.Settings.Server[Index] = new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
-                    Group = Global.Server[Index].Group,
+                    Group = Global.Settings.Server[Index].Group,
                     Type = "Shadowsocks",
                     Address = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
