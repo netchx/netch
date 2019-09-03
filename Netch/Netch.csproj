@@ -85,9 +85,6 @@
     <ApplicationManifest>App.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
-      <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -291,6 +288,7 @@
     <Compile Include="Objects\Information\SSR.cs" />
     <Compile Include="Objects\Mode.cs" />
     <Compile Include="Objects\Server.cs" />
+    <Compile Include="Objects\Setting.cs" />
     <Compile Include="Objects\SSD\Main.cs" />
     <Compile Include="Objects\SSD\Server.cs" />
     <Compile Include="Objects\State.cs" />

@@ -36,7 +36,7 @@ namespace Netch.Controllers
                 return false;
             }
 
-            File.WriteAllText("data\\privoxy.conf", File.ReadAllText("bin\\default.conf").Replace("_BIND_PORT_", Global.Settings["HTTPPort"].ToString()).Replace("_DEST_PORT_", Global.Settings["Socks5Port"].ToString()));
+            File.WriteAllText("data\\privoxy.conf", File.ReadAllText("bin\\default.conf").Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString()).Replace("_DEST_PORT_", Global.Settings.Socks5LocalPort.ToString()));
 
             Instance = new Process()
             {
