@@ -18,7 +18,7 @@ namespace Netch.Forms
             DeleteButton.Text = Utils.i18N.Translate("Delete");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
-            IPListBox.Items.AddRange(Global.BypassIPs.ToArray());
+            IPListBox.Items.AddRange(Global.Settings.BypassIPs.ToArray());
 
             for (var i = 32; i >= 1; i--)
             {
@@ -65,10 +65,10 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            Global.BypassIPs.Clear();
+            Global.Settings.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
             {
-                Global.BypassIPs.Add(ip as String);
+                Global.Settings.BypassIPs.Add(ip as String);
             }
 
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

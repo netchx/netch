@@ -28,9 +28,7 @@ namespace Netch.Utils
         /// <summary>
         ///     设置
         /// </summary>
-        public static readonly string SETTINGS_DAT = $"{DATA_DIR}\\settings.dat";
-
-        public static readonly string TUNTAP_INI = $"{DATA_DIR}\\tuntap.ini";
+        public static readonly string SETTINGS_JSON = $"{DATA_DIR}\\settings.json";
 
         public static readonly string BYPASS_DAT = $"{DATA_DIR}\\bypass.dat";
 
@@ -41,64 +39,75 @@ namespace Netch.Utils
         {
             if (Directory.Exists(DATA_DIR))
             {
-                if (File.Exists(TUNTAP_INI))
+                if (File.Exists(SETTINGS_JSON))
                 {
-                    var parser = new IniParser.FileIniDataParser();
-                    var data = parser.ReadFile(TUNTAP_INI);
-
-                    if (IPAddress.TryParse(data["Generic"]["Address"], out var address))
+                    try
                     {
-                        Global.TUNTAP.Address = address;
+                        Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.Setting>(File.ReadAllText(SETTINGS_JSON));
                     }
 
-                    if (IPAddress.TryParse(data["Generic"]["Netmask"], out var netmask))
+                    catch (Newtonsoft.Json.JsonException)
                     {
-                        Global.TUNTAP.Netmask = netmask;
-                    }
 
-                    if (IPAddress.TryParse(data["Generic"]["Gateway"], out var gateway))
-                    {
-                        Global.TUNTAP.Gateway = gateway;
                     }
+                }
 
-                    var dns = new List<IPAddress>();
-                    foreach (var ip in data["Generic"]["DNS"].Split(','))
+                // 旧版本配置文件支持
+                if (Global.Settings.Server.Count == 0)
+                {
+                    if (File.Exists(SERVER_DAT))
                     {
-                        if (IPAddress.TryParse(ip, out var value))
+                        try
                         {
-                            dns.Add(value);
+                            Global.Settings.Server = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.Server>>(File.ReadAllText(SERVER_DAT));
+                            // 如果成功读取就删除旧版本配置文件
+                            File.Delete(SERVER_DAT);
+                        }
+
+                        catch (Newtonsoft.Json.JsonException)
+                        {
+
+                        }
+
+                    }
+                }
+
+                // 旧版本配置文件支持
+                if (Global.Settings.SubscribeLink.Count == 0)
+                {
+                    if (File.Exists(LINK_DAT))
+                    {
+                        try
+                        {
+                            Global.Settings.SubscribeLink = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.SubscribeLink>>(File.ReadAllText(LINK_DAT));
+                            // 如果成功读取就删除旧版本配置文件
+                            File.Delete(LINK_DAT);
+                        }
+
+                        catch (Newtonsoft.Json.JsonException)
+                        {
+
                         }
                     }
+                }
 
-                    if (Boolean.TryParse(data["Generic"]["UseCustomDNS"], out var useCustomDNS))
+                // 旧版本配置文件支持
+                if (Global.Settings.BypassIPs.Count == 0)
+                {
+                    if (File.Exists(BYPASS_DAT))
                     {
-                        Global.TUNTAP.UseCustomDNS = useCustomDNS;
+                        try
+                        {
+                            Global.Settings.BypassIPs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<String>>(File.ReadAllText(BYPASS_DAT));
+                            // 如果成功读取就删除旧版本配置文件
+                            File.Delete(BYPASS_DAT);
+                        }
+
+                        catch (Newtonsoft.Json.JsonException)
+                        {
+
+                        }
                     }
-
-                    if (dns.Count > 0)
-                    {
-                        Global.TUNTAP.DNS = dns;
-                    }
-                }
-
-                if (File.Exists(BYPASS_DAT))
-                {
-                    Global.BypassIPs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<String>>(File.ReadAllText(BYPASS_DAT));
-                }
-
-                if (File.Exists(SERVER_DAT))
-                {
-                    Global.Server = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.Server>>(File.ReadAllText(SERVER_DAT));
-                }
-
-                if (File.Exists(LINK_DAT))
-                {
-                    Global.SubscribeLink = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.SubscribeLink>>(File.ReadAllText(LINK_DAT));
-                }
-
-                if (File.Exists(SETTINGS_DAT))
-                {
-                    Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(File.ReadAllText(SETTINGS_DAT));
                 }
             }
             else
@@ -118,35 +127,7 @@ namespace Netch.Utils
             {
                 Directory.CreateDirectory(DATA_DIR);
             }
-            if (!File.Exists(TUNTAP_INI))
-            {
-                File.WriteAllBytes(TUNTAP_INI, Properties.Resources.defaultTUNTAP);
-            }
-
-            var parser = new IniParser.FileIniDataParser();
-            var data = parser.ReadFile(TUNTAP_INI);
-
-            data["Generic"]["Address"] = Global.TUNTAP.Address.ToString();
-            data["Generic"]["Netmask"] = Global.TUNTAP.Netmask.ToString();
-            data["Generic"]["Gateway"] = Global.TUNTAP.Gateway.ToString();
-
-            var dns = "";
-            foreach (var ip in Global.TUNTAP.DNS)
-            {
-                dns += ip.ToString();
-                dns += ',';
-            }
-            dns = dns.Trim();
-            data["Generic"]["DNS"] = dns.Substring(0, dns.Length - 1);
-
-            data["Generic"]["UseCustomDNS"] = Global.TUNTAP.UseCustomDNS.ToString();
-
-            parser.WriteFile(TUNTAP_INI, data);
-
-            File.WriteAllText(BYPASS_DAT, Newtonsoft.Json.JsonConvert.SerializeObject(Global.BypassIPs, Newtonsoft.Json.Formatting.Indented));
-            File.WriteAllText(SERVER_DAT, Newtonsoft.Json.JsonConvert.SerializeObject(Global.Server, Newtonsoft.Json.Formatting.Indented));
-            File.WriteAllText(LINK_DAT, Newtonsoft.Json.JsonConvert.SerializeObject(Global.SubscribeLink, Newtonsoft.Json.Formatting.Indented));
-            File.WriteAllText(SETTINGS_DAT, Newtonsoft.Json.JsonConvert.SerializeObject(Global.Settings, Newtonsoft.Json.Formatting.Indented));
+            File.WriteAllText(SETTINGS_JSON, Newtonsoft.Json.JsonConvert.SerializeObject(Global.Settings, Newtonsoft.Json.Formatting.Indented));
         }
 
         /// <summary>

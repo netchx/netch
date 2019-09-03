@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.ToolStrip = new System.Windows.Forms.ToolStrip();
+            this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddSocks5ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,9 +57,9 @@
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
+            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
@@ -67,7 +67,7 @@
             this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsButton = new System.Windows.Forms.Button();
-            this.ToolStrip.SuspendLayout();
+            this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).BeginInit();
@@ -76,22 +76,22 @@
             this.NotifyMenu.SuspendLayout();
             this.SuspendLayout();
             // 
-            // ToolStrip
+            // MenuStrip
             // 
-            this.ToolStrip.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.ToolStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.ToolStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.MenuStrip.BackColor = System.Drawing.SystemColors.Control;
+            this.MenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ServerToolStripMenuItem,
             this.ModeToolStripMenuItem,
             this.SubscribeToolStripMenuItem,
             this.OptionsToolStripMenuItem,
             this.AboutToolStripButton,
             this.VersionLabel});
-            this.ToolStrip.Location = new System.Drawing.Point(0, 0);
-            this.ToolStrip.Name = "ToolStrip";
-            this.ToolStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.ToolStrip.Size = new System.Drawing.Size(608, 25);
-            this.ToolStrip.TabIndex = 0;
+            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
+            this.MenuStrip.Name = "MenuStrip";
+            this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
+            this.MenuStrip.Size = new System.Drawing.Size(608, 26);
+            this.MenuStrip.TabIndex = 0;
             // 
             // ServerToolStripMenuItem
             // 
@@ -232,7 +232,7 @@
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(83, 22);
-            this.VersionLabel.Text = "1.2.6-STABLE";
+            this.VersionLabel.Text = "1.2.7-STABLE";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
@@ -331,9 +331,9 @@
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.UsedBandwidthLabel,
             this.UploadSpeedLabel,
             this.DownloadSpeedLabel,
-            this.UsedBandwidthLabel,
             this.StatusLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 154);
             this.StatusStrip.Name = "StatusStrip";
@@ -341,23 +341,26 @@
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
+            // UsedBandwidthLabel
+            // 
+            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
+            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
+            this.UsedBandwidthLabel.Text = "Used: 0 KB";
+            this.UsedBandwidthLabel.Visible = false;
+            // 
             // UploadSpeedLabel
             // 
             this.UploadSpeedLabel.Name = "UploadSpeedLabel";
             this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
             this.UploadSpeedLabel.Text = "↑: 0 KB/s";
+            this.UploadSpeedLabel.Visible = false;
             // 
             // DownloadSpeedLabel
             // 
             this.DownloadSpeedLabel.Name = "DownloadSpeedLabel";
             this.DownloadSpeedLabel.Size = new System.Drawing.Size(59, 17);
             this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
-            // 
-            // UsedBandwidthLabel
-            // 
-            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
-            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
-            this.UsedBandwidthLabel.Text = "Used: 0 KB";
+            this.DownloadSpeedLabel.Visible = false;
             // 
             // StatusLabel
             // 
@@ -427,7 +430,7 @@
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.StatusStrip);
             this.Controls.Add(this.ConfigurationGroupBox);
-            this.Controls.Add(this.ToolStrip);
+            this.Controls.Add(this.MenuStrip);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -438,8 +441,8 @@
             this.Text = "Netch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
-            this.ToolStrip.ResumeLayout(false);
-            this.ToolStrip.PerformLayout();
+            this.MenuStrip.ResumeLayout(false);
+            this.MenuStrip.PerformLayout();
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
@@ -455,7 +458,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ToolStrip ToolStrip;
+        private System.Windows.Forms.MenuStrip MenuStrip;
         private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem SubscribeToolStripMenuItem;
         private System.Windows.Forms.ToolStripLabel VersionLabel;

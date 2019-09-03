@@ -21,18 +21,27 @@
 
 - 模式 1：进程代理模式
   - 根据进程名进行代理
+  - 底层依赖于 [NetFilter SDK](https://netfiltersdk.com) 和 Redirector.exe（未开源）等
+  - 对于第一次使用 Netch 的用户而言，不需要做多余的事情
+    - 若 [NetFilter SDK](https://netfiltersdk.com) 的驱动不存在，会自动安装
+    - 自动安装驱动时不会判断旧驱动是否需要更新
+    - 对于老用户而言，版本更新日志里如果提到要更新驱动，或者你发现无法使用本模式时，可以通过运行 `DriverUpdater.exe` 的方式强制覆盖旧驱动
+    - 相关代码 [NFController.cs](..\Netch\Controllers\NFController.cs)
 - 模式 3：TUN/TAP 全局代理模式
-  - 可以通过左下角的`设置`来配置直连 IP 段
+  - 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS，直连 IP 段
+  - 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
+  - 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
 - 模式 4：HTTP 系统代理
   - 默认地址和端口为 127.0.0.1:2802
   - 会被设置为系统代理
-- 模式 5：Socks5 代理
+- 模式 5：本地 Socks5 代理
   - 默认地址和端口为 127.0.0.1:2801
   - 不会被设置为系统代理
   - 注意如果是使用 Firefox 的网络设置，请仅设置 Socks5 代理，清除其他代理配置，并取消勾选`为所有协议使用相同的代理服务器`
-- 模式 6：Socks5 和 HTTP 代理
-  - Socks5 代理的地址和端口为 127.0.0.1:2801
-  - HTTP 代理的地址和端口为 127.0.0.1:2802
+  - 其他模式均含 Socks5 代理
+- 模式 6：本地 Socks5 和 HTTP 代理
+  - Socks5 代理的默认地址和端口为 127.0.0.1:2801
+  - HTTP 代理的默认地址和端口为 127.0.0.1:2802
   - 不会被设置为系统代理
 
 以及是否 Bypass China，如果模式名中有 Bypass China 的部分，即该模式会跳过国内 IP 段
@@ -47,7 +56,7 @@
 
 ![剪贴板导入](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24_210438.png)
 
-如果你发现你的程序没我截图的看起来清晰，可以右键`Netch.exe - 属性 - 兼容性 - 更改高 DPI 设置 - 替代高 DPI 缩放执行 - 系统（增强）`
+如果你发现你的程序没我截图的看起来清晰，可以右键 `Netch.exe - 属性 - 兼容性 - 更改高 DPI 设置 - 替代高 DPI 缩放执行 - 系统（增强）`
 
 ### 模式
 

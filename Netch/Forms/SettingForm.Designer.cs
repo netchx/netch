@@ -29,6 +29,11 @@
 		private void InitializeComponent()
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
+            this.PortGroupBox = new System.Windows.Forms.GroupBox();
+            this.HTTPPortLabel = new System.Windows.Forms.Label();
+            this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
+            this.Socks5PortLabel = new System.Windows.Forms.Label();
+            this.Socks5PortTextBox = new System.Windows.Forms.TextBox();
             this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
             this.TUNTAPUseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.TUNTAPDNSLabel = new System.Windows.Forms.Label();
@@ -41,8 +46,56 @@
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
+            this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // PortGroupBox
+            // 
+            this.PortGroupBox.Controls.Add(this.HTTPPortLabel);
+            this.PortGroupBox.Controls.Add(this.HTTPPortTextBox);
+            this.PortGroupBox.Controls.Add(this.Socks5PortLabel);
+            this.PortGroupBox.Controls.Add(this.Socks5PortTextBox);
+            this.PortGroupBox.Location = new System.Drawing.Point(12, 12);
+            this.PortGroupBox.Name = "PortGroupBox";
+            this.PortGroupBox.Size = new System.Drawing.Size(420, 90);
+            this.PortGroupBox.TabIndex = 0;
+            this.PortGroupBox.TabStop = false;
+            this.PortGroupBox.Text = "Port";
+            // 
+            // HTTPPortLabel
+            // 
+            this.HTTPPortLabel.AutoSize = true;
+            this.HTTPPortLabel.Location = new System.Drawing.Point(9, 54);
+            this.HTTPPortLabel.Name = "HTTPPortLabel";
+            this.HTTPPortLabel.Size = new System.Drawing.Size(38, 17);
+            this.HTTPPortLabel.TabIndex = 3;
+            this.HTTPPortLabel.Text = "HTTP";
+            // 
+            // HTTPPortTextBox
+            // 
+            this.HTTPPortTextBox.Location = new System.Drawing.Point(120, 51);
+            this.HTTPPortTextBox.Name = "HTTPPortTextBox";
+            this.HTTPPortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.HTTPPortTextBox.TabIndex = 2;
+            this.HTTPPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // Socks5PortLabel
+            // 
+            this.Socks5PortLabel.AutoSize = true;
+            this.Socks5PortLabel.Location = new System.Drawing.Point(9, 25);
+            this.Socks5PortLabel.Name = "Socks5PortLabel";
+            this.Socks5PortLabel.Size = new System.Drawing.Size(49, 17);
+            this.Socks5PortLabel.TabIndex = 1;
+            this.Socks5PortLabel.Text = "Socks5";
+            // 
+            // Socks5PortTextBox
+            // 
+            this.Socks5PortTextBox.Location = new System.Drawing.Point(120, 22);
+            this.Socks5PortTextBox.Name = "Socks5PortTextBox";
+            this.Socks5PortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.Socks5PortTextBox.TabIndex = 0;
+            this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPGroupBox
             // 
@@ -55,10 +108,10 @@
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPNetmaskTextBox);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressLabel);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
-            this.TUNTAPGroupBox.Location = new System.Drawing.Point(12, 12);
+            this.TUNTAPGroupBox.Location = new System.Drawing.Point(12, 108);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
             this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 162);
-            this.TUNTAPGroupBox.TabIndex = 0;
+            this.TUNTAPGroupBox.TabIndex = 3;
             this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
             // 
@@ -68,9 +121,10 @@
             this.TUNTAPUseCustomDNSCheckBox.Location = new System.Drawing.Point(287, 138);
             this.TUNTAPUseCustomDNSCheckBox.Name = "TUNTAPUseCustomDNSCheckBox";
             this.TUNTAPUseCustomDNSCheckBox.Size = new System.Drawing.Size(127, 21);
-            this.TUNTAPUseCustomDNSCheckBox.TabIndex = 8;
+            this.TUNTAPUseCustomDNSCheckBox.TabIndex = 12;
             this.TUNTAPUseCustomDNSCheckBox.Text = "Use Custom DNS";
             this.TUNTAPUseCustomDNSCheckBox.UseVisualStyleBackColor = true;
+            this.TUNTAPUseCustomDNSCheckBox.CheckedChanged += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
             // 
             // TUNTAPDNSLabel
             // 
@@ -86,7 +140,7 @@
             this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 109);
             this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
             this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 23);
-            this.TUNTAPDNSTextBox.TabIndex = 6;
+            this.TUNTAPDNSTextBox.TabIndex = 10;
             this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPGatewayLabel
@@ -103,7 +157,7 @@
             this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
             this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
             this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 23);
-            this.TUNTAPGatewayTextBox.TabIndex = 4;
+            this.TUNTAPGatewayTextBox.TabIndex = 8;
             this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPNetmaskLabel
@@ -120,7 +174,7 @@
             this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
             this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
             this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 23);
-            this.TUNTAPNetmaskTextBox.TabIndex = 2;
+            this.TUNTAPNetmaskTextBox.TabIndex = 6;
             this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPAddressLabel
@@ -137,25 +191,25 @@
             this.TUNTAPAddressTextBox.Location = new System.Drawing.Point(120, 22);
             this.TUNTAPAddressTextBox.Name = "TUNTAPAddressTextBox";
             this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 23);
-            this.TUNTAPAddressTextBox.TabIndex = 0;
+            this.TUNTAPAddressTextBox.TabIndex = 4;
             this.TUNTAPAddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 180);
+            this.ControlButton.Location = new System.Drawing.Point(357, 276);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
-            this.ControlButton.TabIndex = 1;
+            this.ControlButton.TabIndex = 16;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 180);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 276);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
-            this.GlobalBypassIPsButton.TabIndex = 2;
+            this.GlobalBypassIPsButton.TabIndex = 14;
             this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
             this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
@@ -164,7 +218,8 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(444, 215);
+            this.ClientSize = new System.Drawing.Size(444, 311);
+            this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.TUNTAPGroupBox);
@@ -178,15 +233,22 @@
             this.Text = "Settings";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingForm_FormClosing);
             this.Load += new System.EventHandler(this.SettingForm_Load);
+            this.PortGroupBox.ResumeLayout(false);
+            this.PortGroupBox.PerformLayout();
             this.TUNTAPGroupBox.ResumeLayout(false);
             this.TUNTAPGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
 		}
 
-		#endregion
+        #endregion
 
-		private System.Windows.Forms.GroupBox TUNTAPGroupBox;
+        private System.Windows.Forms.GroupBox PortGroupBox;
+        private System.Windows.Forms.Label HTTPPortLabel;
+        private System.Windows.Forms.TextBox HTTPPortTextBox;
+        private System.Windows.Forms.Label Socks5PortLabel;
+        private System.Windows.Forms.TextBox Socks5PortTextBox;
+        private System.Windows.Forms.GroupBox TUNTAPGroupBox;
 		private System.Windows.Forms.TextBox TUNTAPAddressTextBox;
 		private System.Windows.Forms.Label TUNTAPAddressLabel;
 		private System.Windows.Forms.TextBox TUNTAPNetmaskTextBox;
@@ -198,5 +260,5 @@
 		private System.Windows.Forms.Button ControlButton;
 		private System.Windows.Forms.Button GlobalBypassIPsButton;
 		private System.Windows.Forms.CheckBox TUNTAPUseCustomDNSCheckBox;
-	}
+    }
 }

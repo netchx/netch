@@ -12,22 +12,10 @@ namespace Netch
         /// </summary>
         public static Forms.MainForm MainForm;
 
+        /// <summary>
+        ///     设置窗体
+        /// </summary>
         public static Forms.SettingForm SettingForm;
-
-        /// <summary>
-        ///     杂项配置
-        /// </summary>
-        public static Dictionary<string, int> Settings = new Dictionary<string, int>();
-
-        /// <summary>
-        ///     服务器列表
-        /// </summary>
-        public static List<Objects.Server> Server = new List<Objects.Server>();
-
-        /// <summary>
-        ///     订阅链接列表
-        /// </summary>
-        public static List<Objects.SubscribeLink> SubscribeLink = new List<Objects.SubscribeLink>();
 
         /// <summary>
 		///		SS/SSR 加密方式
@@ -200,45 +188,11 @@ namespace Netch
             ///		组件 ID
             /// </summary>
             public static string ComponentID = String.Empty;
-
-            /// <summary>
-            ///		地址
-            /// </summary>
-            public static IPAddress Address = IPAddress.Parse("10.0.236.10");
-
-            /// <summary>
-            ///		掩码
-            /// </summary>
-            public static IPAddress Netmask = IPAddress.Parse("255.255.255.0");
-
-            /// <summary>
-            ///		网关
-            /// </summary>
-            public static IPAddress Gateway = IPAddress.Parse("10.0.236.1");
-
-            /// <summary>
-            ///		DNS
-            /// </summary>
-            public static List<IPAddress> DNS = new List<IPAddress>()
-            {
-                IPAddress.Parse("1.1.1.1")
-            };
-
-            /// <summary>
-            ///		使用伪装 DNS
-            /// </summary>
-            public static bool UseFakeDNS = false;
-
-            /// <summary>
-            ///		使用自定义 DNS 设置
-            /// </summary>
-            public static bool UseCustomDNS = false;
         }
 
         /// <summary>
-        ///		全局绕过 IP 列表
+        ///     用于读取和写入的配置
         /// </summary>
-        public static List<string> BypassIPs = new List<string>();
-
+        public static Objects.Setting Settings = new Objects.Setting();
     }
 }

@@ -37,60 +37,41 @@ namespace Netch.Forms
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
-            //ToolStrip.Renderer = new Override.ToolStripProfessionalRender();
+            // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
         }
 
         public void TestServer()
         {
-            foreach (var server in Global.Server)
+            var list = new Task[Global.Settings.Server.Count];
+            var count = 0;
+
+            foreach (var server in Global.Settings.Server)
             {
-                Task.Run(() =>
-                {
-                    server.Test();
-                });
+                list[count++] = Task.Run(() => server.Test());
             }
 
-            Task.Run(() =>
-            {
-                Thread.Sleep(2000);
-
-                Refresh();
-            });
+            Task.WaitAll(list);
         }
 
         public void InitServer()
         {
             ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Server.ToArray());
+            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
 
-            // 查询设置中是否正常加载了上次存储的服务器位置
-            if (Global.Settings.TryGetValue("ServerComboBoxSelectedIndex", out int count))
+            // 如果值合法，选中该位置
+            if (Global.Settings.ServerComboBoxSelectedIndex > 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
             {
-                // 如果值合法，选中该位置
-                if (count > 0 && count < ServerComboBox.Items.Count)
-                {
-                    ServerComboBox.SelectedIndex = count;
-                }
-                else if (ServerComboBox.Items.Count > 0) // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
-                {
-                    ServerComboBox.SelectedIndex = 0;
-                }
-
-                // 如果当前 ServerComboBox 中没元素，不做处理
+                ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
             }
-            else // 如果设置中没有加载上次的位置，给设置添加元素
+            // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
+            else if (ServerComboBox.Items.Count > 0) 
             {
-                Global.Settings.Add("ServerComboBoxSelectedIndex", 0);
-
-                // 如果当前 ServerComboBox 中有元素，选择第一个位置
-                if (ServerComboBox.Items.Count > 0)
-                {
-                    ServerComboBox.SelectedIndex = 0;
-                }
-
-                // 如果当前 ServerComboBox 中没元素，不做处理
+                ServerComboBox.SelectedIndex = 0;
             }
+
+            // 如果当前 ServerComboBox 中没元素，不做处理
         }
+
 
         public void InitMode()
         {
@@ -177,34 +158,18 @@ namespace Netch.Forms
                 ModeComboBox.Items.AddRange(array);
             }
 
-            // 查询设置中是否正常加载了上次存储的服务器位置
-            if (Global.Settings.TryGetValue("ModeComboBoxSelectedIndex", out int count))
+            // 如果值合法，选中该位置
+            if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
             {
-                // 如果值合法，选中该位置
-                if (count > 0 && count < ModeComboBox.Items.Count)
-                {
-                    ModeComboBox.SelectedIndex = count;
-                }
-                // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
-                else if (ModeComboBox.Items.Count > 0)
-                {
-                    ModeComboBox.SelectedIndex = 0;
-                }
-
-                // 如果当前 ModeComboBox 中没元素，不做处理
+                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
             }
-            else // 如果设置中没有加载上次的位置，给Settings添加元素
+            // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
+            else if (ModeComboBox.Items.Count > 0)
             {
-                Global.Settings.Add("ModeComboBoxSelectedIndex", 0);
-
-                // 如果当前 ModeComboBox 中有元素，选择第一个位置
-                if (ModeComboBox.Items.Count > 0)
-                {
-                    ModeComboBox.SelectedIndex = 0;
-                }
-
-                // 如果当前 ModeComboBox 中没元素，不做处理
+                ModeComboBox.SelectedIndex = 0;
             }
+
+            // 如果当前 ModeComboBox 中没元素，不做处理
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -358,7 +323,7 @@ namespace Netch.Forms
 
                         if (result != null)
                         {
-                            Global.Server.AddRange(result);
+                            Global.Settings.Server.AddRange(result);
                         }
                     }
                 }
@@ -405,12 +370,12 @@ namespace Netch.Forms
 
         private void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (Global.SubscribeLink.Count > 0)
+            if (Global.Settings.SubscribeLink.Count > 0)
             {
                 DeletePictureBox.Enabled = false;
                 Task.Run(() =>
                 {
-                    foreach (var item in Global.SubscribeLink)
+                    foreach (var item in Global.Settings.SubscribeLink)
                     {
                         using (var client = new Override.WebClient())
                         {
@@ -428,14 +393,14 @@ namespace Netch.Forms
                                 }
 
                                 var list = new List<Objects.Server>();
-                                foreach (var server in Global.Server)
+                                foreach (var server in Global.Settings.Server)
                                 {
                                     if (server.Group != item.Remark)
                                     {
                                         list.Add(server);
                                     }
                                 }
-                                Global.Server = list;
+                                Global.Settings.Server = list;
 
                                 using (var sr = new StringReader(response))
                                 {
@@ -460,7 +425,7 @@ namespace Netch.Forms
                                                 x.Group = item.Remark;
                                             }
 
-                                            Global.Server.AddRange(result);
+                                            Global.Settings.Server.AddRange(result);
                                         }
                                     }
                                 }
@@ -582,7 +547,7 @@ namespace Netch.Forms
             // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
-                switch (Global.Server[ServerComboBox.SelectedIndex].Type)
+                switch (Global.Settings.Server[ServerComboBox.SelectedIndex].Type)
                 {
                     case "Socks5":
                         (new Server.Socks5(ServerComboBox.SelectedIndex)).Show();
@@ -615,7 +580,7 @@ namespace Netch.Forms
             {
                 var index = ServerComboBox.SelectedIndex;
 
-                Global.Server.Remove(ServerComboBox.SelectedItem as Objects.Server);
+                Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Objects.Server);
                 ServerComboBox.Items.RemoveAt(index);
 
                 if (ServerComboBox.Items.Count > 0)
@@ -631,17 +596,15 @@ namespace Netch.Forms
 
         private void SpeedPictureBox_Click(object sender, EventArgs e)
         {
+            Enabled = false;
+            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Testing")}";
+
             Task.Run(() =>
             {
-                foreach (var server in Global.Server)
-                {
-                    Task.Run(() =>
-                    {
-                        server.Test();
-                    });
-                }
+                TestServer();
 
-                Thread.Sleep(2000);
+                Enabled = true;
+                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Test done")}";
                 Refresh();
             });
         }
@@ -664,7 +627,7 @@ namespace Netch.Forms
                     return;
                 }
 
-                ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
                 State = Objects.State.Starting;
@@ -679,17 +642,26 @@ namespace Netch.Forms
                     {
                         if (mode.Type == 0)
                         {
+                            UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                             MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
                         }
 
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
-                        StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}";
+                        if (mode.Type != 3 && mode.Type != 5)
+                        {
+                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{")"}";
+                        }
+                        else
+                        {
+                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{" | HTTP "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                        }
+
                         State = Objects.State.Started;
                     }
                     else
                     {
-                        ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                        MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
                         State = Objects.State.Stopped;
@@ -705,14 +677,22 @@ namespace Netch.Forms
 
                 Task.Run(() =>
                 {
+                    var server = ServerComboBox.SelectedItem as Objects.Server;
+                    var mode = ModeComboBox.SelectedItem as Objects.Mode;
+
                     MainController.Stop();
 
-                    LastUploadBandwidth = 0;
-                    LastDownlaodBandwidth = 0;
-                    UploadSpeedLabel.Text = "↑: 0 KB/s";
-                    DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                    UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                    ToolStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                    if (mode.Type == 0)
+                    {
+                        LastUploadBandwidth = 0;
+                        LastDownlaodBandwidth = 0;
+                        UploadSpeedLabel.Text = "↑: 0 KB/s";
+                        DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                        UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
+                    }
+
+                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Objects.State.Stopped;
@@ -737,8 +717,8 @@ namespace Netch.Forms
 
         private void ExitToolStripButton_Click(object sender, EventArgs e)
         {
-            Global.Settings["ServerComboBoxSelectedIndex"] = ServerComboBox.SelectedIndex;
-            Global.Settings["ModeComboBoxSelectedIndex"] = ModeComboBox.SelectedIndex;
+            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
             Utils.Configuration.Save();
 
             if (State != Objects.State.Waiting && State != Objects.State.Stopped)

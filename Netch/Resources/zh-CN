@@ -74,6 +74,8 @@
 
     "Used": "已使用",
     "Status": "状态",
+    "Testing": "测试中",
+    "Test done": "测试完成",
 
     "Remark": "备注",
     "Add": "添加",
@@ -93,12 +95,14 @@
     "Link can not be empty": "链接不可为空",
     "Link must start with http:// or https://": "链接必须以 http:// 或 https:// 开头",
     "Successfully saved": "保存成功",
-	
-	"Settings": "设置",
+
+  "Settings": "设置",
+  "Local Port": "本地端口",
 	"Netmask": "子网掩码",
 	"Gateway": "网关",
 	"Use Custom DNS": "使用自定义 DNS",
-	"Global Bypass IPs": "全局直连 IP",
+  "Global Bypass IPs": "全局直连 IP",
+  "Port value illegal. Try again.": "端口值非法。请重试。",
     
     "Show": "显示",
     "Exit": "退出"

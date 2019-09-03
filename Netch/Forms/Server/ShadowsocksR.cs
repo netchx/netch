@@ -49,15 +49,15 @@ namespace Netch.Forms.Server
 
             if (Index != -1)
             {
-                RemarkTextBox.Text = Global.Server[Index].Remark;
-                AddressTextBox.Text = Global.Server[Index].Address;
-                PortTextBox.Text = Global.Server[Index].Port.ToString();
-                PasswordTextBox.Text = Global.Server[Index].Password;
-                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(Global.Server[Index].EncryptMethod);
-                ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(Global.Server[Index].Protocol);
-                ProtocolParamTextBox.Text = Global.Server[Index].ProtocolParam;
-                OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Server[Index].OBFS);
-                OBFSParamTextBox.Text = Global.Server[Index].OBFSParam;
+                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
+                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
+                PasswordTextBox.Text = Global.Settings.Server[Index].Password;
+                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(Global.Settings.Server[Index].EncryptMethod);
+                ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(Global.Settings.Server[Index].Protocol);
+                ProtocolParamTextBox.Text = Global.Settings.Server[Index].ProtocolParam;
+                OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Settings.Server[Index].OBFS);
+                OBFSParamTextBox.Text = Global.Settings.Server[Index].OBFSParam;
             }
             else
             {
@@ -101,7 +101,7 @@ namespace Netch.Forms.Server
         {
             if (Index == -1)
             {
-                Global.Server.Add(new Objects.Server()
+                Global.Settings.Server.Add(new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "ShadowsocksR",
@@ -117,10 +117,10 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Server[Index] = new Objects.Server()
+                Global.Settings.Server[Index] = new Objects.Server()
                 {
                     Remark = RemarkTextBox.Text,
-                    Group = Global.Server[Index].Group,
+                    Group = Global.Settings.Server[Index].Group,
                     Type = "ShadowsocksR",
                     Address = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),

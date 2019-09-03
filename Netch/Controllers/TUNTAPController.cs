@@ -89,7 +89,7 @@ namespace Netch.Controllers
             }
 
             // 处理全局绕过 IP
-            foreach (var ip in Global.BypassIPs)
+            foreach (var ip in Global.Settings.BypassIPs)
             {
                 var info = ip.Split('/');
                 var address = IPAddress.Parse(info[0]);
@@ -103,7 +103,7 @@ namespace Netch.Controllers
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
                 // 创建默认路由
-                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index, 10))
+                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
                     State = Objects.State.Stopped;
 
@@ -138,7 +138,7 @@ namespace Netch.Controllers
                     {
                         if (int.TryParse(info[1], out var prefix))
                         {
-                            NativeMethods.CreateRoute(info[0], prefix, Global.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index);
+                            NativeMethods.CreateRoute(info[0], prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
                         }
                     }
                 }
@@ -154,7 +154,7 @@ namespace Netch.Controllers
         {
             if (SavedMode.Type == 2)
             {
-                NativeMethods.DeleteRoute("0.0.0.0", 0, Global.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index, 10);
+                NativeMethods.DeleteRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index, 10);
 
                 foreach (var ip in SavedMode.Rule)
                 {
@@ -179,13 +179,13 @@ namespace Netch.Controllers
                     {
                         if (int.TryParse(info[1], out var prefix))
                         {
-                            NativeMethods.DeleteRoute(info[0], prefix, Global.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index);
+                            NativeMethods.DeleteRoute(info[0], prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
                         }
                     }
                 }
             }
 
-            foreach (var ip in Global.BypassIPs)
+            foreach (var ip in Global.Settings.BypassIPs)
             {
                 var info = ip.Split('/');
                 var address = IPAddress.Parse(info[0]);
@@ -261,10 +261,10 @@ namespace Netch.Controllers
             Instance.StartInfo.FileName = String.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
 
             string dns;
-            if (Global.TUNTAP.UseCustomDNS)
+            if (Global.Settings.TUNTAP.UseCustomDNS)
             {
                 dns = "";
-                foreach (var value in Global.TUNTAP.DNS)
+                foreach (var value in Global.Settings.TUNTAP.DNS)
                 {
                     dns += value;
                     dns += ',';
@@ -279,18 +279,18 @@ namespace Netch.Controllers
                 dns = "127.0.0.1";
             }
 
-            if (Global.TUNTAP.UseFakeDNS)
+            if (Global.Settings.TUNTAP.UseFakeDNS)
             {
                 dns += " -fakeDns";
             }
 
             if (server.Type == "Socks5")
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Address, server.Port, Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
+                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Address, server.Port, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns);
             }
             else
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:2801 -tunAddr {0} -tunMask {1} -tunGw {2} -tunDns {3}", Global.TUNTAP.Address, Global.TUNTAP.Netmask, Global.TUNTAP.Gateway, dns);
+                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4}", Global.Settings.Socks5LocalPort, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns);
             }
 
             Instance.StartInfo.CreateNoWindow = true;

@@ -66,12 +66,15 @@ namespace Netch.Controllers
                     result = true;
                     break;
                 case "Shadowsocks":
+                    KillProcess("Shadowsocks");
                     result = pSSController.Start(server, mode);
                     break;
                 case "ShadowsocksR":
+                    KillProcess("ShadowsocksR");
                     result = pSSRController.Start(server, mode);
                     break;
                 case "VMess":
+                    KillProcess("v2ray");
                     result = pVMessController.Start(server, mode);
                     break;
                 default:
@@ -129,6 +132,34 @@ namespace Netch.Controllers
             pNFController.Stop();
             pHTTPController.Stop();
             pTUNTAPController.Stop();
+        }
+
+        public void KillProcess(String name) {
+            Process[] processes = Process.GetProcessesByName(name);
+            foreach (Process p in processes)
+            {
+                if (IsChildProcess(p, name))
+                {
+                    p.Kill();
+                }
+            }
+        }
+
+        private static bool IsChildProcess(Process process,string name)
+        {
+            bool result;
+            try
+            {
+                string FileName = (Directory.GetCurrentDirectory() + "\\bin\\" + name + ".exe").ToLower();
+                string procFileName = process.MainModule.FileName.ToLower();
+                result = FileName.Equals(procFileName, StringComparison.Ordinal);
+            }
+            catch (Exception e)
+            {
+                Utils.Logging.Info(e.Message);
+                result = false;
+            }
+            return result;
         }
     }
 }
