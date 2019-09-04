@@ -42,7 +42,8 @@ namespace Netch.Controllers
                 {
                     new Objects.Information.VMess.Inbounds()
                     {
-                        settings = new Objects.Information.VMess.InboundSettings()
+                        settings = new Objects.Information.VMess.InboundSettings(),
+                        port = Global.Settings.Socks5LocalPort
                     }
                 },
                 outbounds = new List<Objects.Information.VMess.Outbounds>()

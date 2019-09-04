@@ -81,8 +81,8 @@ namespace Netch
             /// </summary>
             public static List<string> VMess = new List<string>()
             {
-                "none",
                 "auto",
+                "none",
                 "aes-128-gcm",
                 "chacha20-poly1305"
             };
