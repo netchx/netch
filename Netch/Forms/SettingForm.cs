@@ -101,7 +101,6 @@ namespace Netch.Forms
             try
             {
                 var Socks5Port = Int32.Parse(Socks5PortTextBox.Text);
-                
 
                 if (Socks5Port > 0 && Socks5Port < 65536)
                 {

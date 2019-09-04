@@ -32,6 +32,10 @@ namespace Netch.Utils
 
         public static readonly string BYPASS_DAT = $"{DATA_DIR}\\bypass.dat";
 
+        public static readonly string SETTINGS_DAT = $"{DATA_DIR}\\settings.dat";
+
+        public static readonly string TUNTAP_INI = $"{DATA_DIR}\\tuntap.ini";
+
         /// <summary>
         ///     加载配置
         /// </summary>
@@ -50,6 +54,76 @@ namespace Netch.Utils
                     {
 
                     }
+                }
+
+                // 旧版本配置文件支持
+                if (File.Exists(TUNTAP_INI))
+                {
+                    try
+                    {
+                        var parser = new IniParser.FileIniDataParser();
+                        var data = parser.ReadFile(TUNTAP_INI);
+
+                        if (IPAddress.TryParse(data["Generic"]["Address"], out var address))
+                        {
+                            Global.Settings.TUNTAP.Address = data["Generic"]["Address"];
+                        }
+
+                        if (IPAddress.TryParse(data["Generic"]["Netmask"], out var netmask))
+                        {
+                            Global.Settings.TUNTAP.Netmask = data["Generic"]["Netmask"];
+                        }
+
+                        if (IPAddress.TryParse(data["Generic"]["Gateway"], out var gateway))
+                        {
+                            Global.Settings.TUNTAP.Gateway = data["Generic"]["Gateway"];
+                        }
+
+                        var dns = new List<string>();
+                        foreach (var ip in data["Generic"]["DNS"].Split(','))
+                        {
+                            if (IPAddress.TryParse(ip, out var value))
+                            {
+                                dns.Add(ip);
+                            }
+                        }
+
+                        if (Boolean.TryParse(data["Generic"]["UseCustomDNS"], out var useCustomDNS))
+                        {
+                            Global.Settings.TUNTAP.UseCustomDNS = useCustomDNS;
+                        }
+
+                        if (dns.Count > 0)
+                        {
+                            Global.Settings.TUNTAP.DNS = dns;
+                        }
+
+                        // 如果成功读取就删除旧版本配置文件
+                        File.Delete(TUNTAP_INI);
+                    }
+
+                    catch (IniParser.Exceptions.ParsingException)
+                    {
+
+                    }
+                }
+
+                if (File.Exists(SETTINGS_DAT))
+                {
+                    try
+                    {
+                        var LegacySettingTemp = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.LegacySetting>(File.ReadAllText(SETTINGS_DAT));
+                        Global.Settings.ServerComboBoxSelectedIndex = LegacySettingTemp.ServerComboBoxSelectedIndex;
+                        Global.Settings.ModeComboBoxSelectedIndex = LegacySettingTemp.ModeComboBoxSelectedIndex;
+                        // 如果成功读取就删除旧版本配置文件
+                        File.Delete(SETTINGS_DAT);
+                    }
+
+                    catch (Newtonsoft.Json.JsonException)
+                    {
+
+                    }
+
                 }
 
                 // 旧版本配置文件支持

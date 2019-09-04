@@ -81,4 +81,20 @@ namespace Netch.Objects
         /// </summary>
         public List<string> BypassIPs = new List<string>();
     }
+
+    /// <summary>
+    ///     用于读取和写入的老配置文件的类
+    /// </summary>
+    public class LegacySetting
+    {
+        /// <summary>
+        ///		服务器选择位置
+        /// </summary>
+        public int ServerComboBoxSelectedIndex = 0;
+
+        /// <summary>
+        ///		模式选择位置
+        /// </summary>
+        public int ModeComboBoxSelectedIndex = 0;
+    }
 }
