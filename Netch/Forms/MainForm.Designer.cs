@@ -232,7 +232,7 @@
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(83, 22);
-            this.VersionLabel.Text = "1.2.7-STABLE";
+            this.VersionLabel.Text = "1.2.8-BETA";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
@@ -331,10 +331,10 @@
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.StatusLabel,
             this.UsedBandwidthLabel,
-            this.UploadSpeedLabel,
             this.DownloadSpeedLabel,
-            this.StatusLabel});
+            this.UploadSpeedLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 154);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(608, 22);
