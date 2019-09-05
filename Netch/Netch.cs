@@ -93,6 +93,20 @@ namespace Netch
                     Environment.Exit(1);
                 }
 
+                var OSArch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+                var ProcessArch = Environment.Is64BitProcess ? "x64" : "x86";
+
+                // 如果系统位数与程序位数不一致
+                if (Environment.Is64BitOperatingSystem != Environment.Is64BitProcess)
+                {
+
+                    // 弹出提示
+                    MessageBox.Show($"{Utils.i18N.Translate("Netch is not compatible with your system.")}\n{Utils.i18N.Translate("Current arch of Netch:")} {ProcessArch}\n{Utils.i18N.Translate("Current arch of system:")} {OSArch}", Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    // 退出进程
+                    Environment.Exit(1);
+                }
+
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
                 Application.ThreadException += Application_OnException;

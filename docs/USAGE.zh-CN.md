@@ -8,6 +8,12 @@
 ## 目录
 
 1. [模式介绍](#模式介绍)
+   - 1.1 [模式 1 进程代理模式](#模式-1-进程代理模式)
+   - 1.2 [模式 2（需要自己新建模式文件） TUN/TAP IP 黑名单代理模式](#模式-2需要自己新建模式文件-tuntap-ip-黑名单代理模式)
+   - 1.3 [模式 3 TUN/TAP （IP 白名单）全局代理模式](#模式-3-tuntap-ip-白名单全局代理模式)
+   - 1.4 [模式 4 HTTP 系统代理](#模式-4-HTTP-系统代理)
+   - 1.5 [模式 5 本地 Socks5 代理](#模式-5-本地-Socks5-代理)
+   - 1.6 [模式 6 本地 Socks5 和 HTTP 代理](#模式-6-本地-Socks5-和-HTTP-代理)
 2. [新建进程代理模式](#新建进程代理模式)
    - 2.1 [模式](#模式)
    - 2.2 [扫描](#扫描)
@@ -17,32 +23,55 @@
 
 ## 模式介绍
 
-目前 Netch 有以下五种模式可用。模式号即模式菜单中最左边中括号内数字。
+目前 Netch 有以下六种模式可用，所有模式文件都在 `mode` 文件夹下。模式号即模式菜单中最左边中括号内数字。
 
-- 模式 1：进程代理模式
-  - 根据进程名进行代理
-  - 底层依赖于 [NetFilter SDK](https://netfiltersdk.com) 和 Redirector.exe（未开源）等
-  - 对于第一次使用 Netch 的用户而言，不需要做多余的事情
-    - 若 [NetFilter SDK](https://netfiltersdk.com) 的驱动不存在，会自动安装
-    - 自动安装驱动时不会判断旧驱动是否需要更新
-    - 对于老用户而言，版本更新日志里如果提到要更新驱动，或者你发现无法使用本模式时，可以通过运行 `DriverUpdater.exe` 的方式强制覆盖旧驱动
-    - 相关代码 [NFController.cs](..\Netch\Controllers\NFController.cs)
-- 模式 3：TUN/TAP 全局代理模式
-  - 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS，直连 IP 段
-  - 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
-  - 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
-- 模式 4：HTTP 系统代理
-  - 默认地址和端口为 127.0.0.1:2802
-  - 会被设置为系统代理
-- 模式 5：本地 Socks5 代理
-  - 默认地址和端口为 127.0.0.1:2801
-  - 不会被设置为系统代理
-  - 注意如果是使用 Firefox 的网络设置，请仅设置 Socks5 代理，清除其他代理配置，并取消勾选`为所有协议使用相同的代理服务器`
-  - 其他模式均含 Socks5 代理
-- 模式 6：本地 Socks5 和 HTTP 代理
-  - Socks5 代理的默认地址和端口为 127.0.0.1:2801
-  - HTTP 代理的默认地址和端口为 127.0.0.1:2802
-  - 不会被设置为系统代理
+### 模式 1 进程代理模式
+
+- 根据进程名进行代理
+- 底层依赖于 [NetFilter SDK](https://netfiltersdk.com) 和 Redirector.exe（未开源）等
+- 对于第一次使用 Netch 的用户而言，不需要做多余的事情
+  - 若 [NetFilter SDK](https://netfiltersdk.com) 的驱动不存在，会自动安装
+  - 自动安装驱动时不会判断旧驱动是否需要更新
+  - 对于老用户而言，版本更新日志里如果提到要更新驱动，或者你发现无法使用本模式时，可以通过运行 `DriverUpdater.exe` 的方式强制覆盖旧驱动
+  - 相关代码 [NFController.cs](..\Netch\Controllers\NFController.cs)
+
+### 模式 2（需要自己新建模式文件） TUN/TAP IP 黑名单代理模式
+
+- 黑名单代理指的是，除了名单内的 IP 走代理，其他连接都不走代理
+- 需要自己新建模式文件，第一行写法同模式 3，只是需要把 2 改成 1
+- 后续内容的格式同 [SSTap-rules](https://github.com/FQrabbit/SSTap-Rule)，任何规则问题建议到那边去提
+- 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS
+- 该模式下直连 IP 段无效，暂时没有代码实现
+- 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
+- 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2SSTap-beta-setup) 的方式获得该适配器
+
+### 模式 3 TUN/TAP （IP 白名单）全局代理模式
+
+- 白名单代理指的是，除了名单内的 IP 不走代理，其他连接都走代理
+- 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS，直连 IP 段
+- 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
+- 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
+
+### 模式 4 HTTP 系统代理
+
+- 默认地址和端口为 127.0.0.1:2802
+- 端口可以在左下角设置里面更改
+- 会被设置为系统代理
+
+### 模式 5 本地 Socks5 代理
+
+- 默认地址和端口为 127.0.0.1:2801
+- 端口可以在左下角设置里面更改
+- 不会被设置为系统代理，对于 Chrome 之类使用系统代理的浏览器需要设置使用插件 SwitchyOmega 之后才能被正常代理
+- 注意如果是使用 Firefox 的网络设置，请仅设置 Socks5 代理，清除其他代理配置，并取消勾选`为所有协议使用相同的代理服务器`
+- 其他模式均含 Socks5 代理，本模式可以理解为仅 Socks5 代理
+
+### 模式 6 本地 Socks5 和 HTTP 代理
+
+- Socks5 代理的默认地址和端口为 127.0.0.1:2801
+- HTTP 代理的默认地址和端口为 127.0.0.1:2802
+- 端口可以在左下角设置里面更改
+- 不会被设置为系统代理
 
 以及是否 Bypass China，如果模式名中有 Bypass China 的部分，即该模式会跳过国内 IP 段
 
