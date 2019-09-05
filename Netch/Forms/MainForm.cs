@@ -648,13 +648,46 @@ namespace Netch.Forms
 
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
+
                         if (mode.Type != 3 && mode.Type != 5)
                         {
-                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{")"}";
+                            if (server.Type != "Socks5")
+                            {
+                                if (Global.Settings.LocalAddress == "0.0.0.0")
+                                {
+
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort})";
+                                }
+                                else
+                                {
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{")"}";
+                                }
+                            }
+                            else
+                            {
+                                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}";
+                            }
                         }
                         else
                         {
-                            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}{" (Socks5 "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{" | HTTP "}{Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                            if (server.Type != "Socks5")
+                            {
+                                if (Global.Settings.LocalAddress == "0.0.0.0")
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                                else
+                                {
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
+                                }
+                            }
+                            else
+                            {
+                                if (Global.Settings.LocalAddress == "0.0.0.0")
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                                else
+                                {
+                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
+                                }
+                            }
                         }
 
                         State = Objects.State.Started;

@@ -64,6 +64,11 @@ namespace Netch.Objects
         /// </summary>
         public int Socks5LocalPort = 2801;
 
+        /// <summary>
+        ///		HTTP 和 Socks5 本地代理地址
+        /// </summary>
+        public string LocalAddress = "127.0.0.1";
+
         public TUNTAPConfig TUNTAP = new TUNTAPConfig();
 
         /// <summary>

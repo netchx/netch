@@ -63,7 +63,14 @@ namespace Netch.Controllers
             switch (server.Type)
             {
                 case "Socks5":
-                    result = true;
+                    if (mode.Type == 4)
+                    {
+                        result = false;
+                    }
+                    else
+                    {
+                        result = true;
+                    }
                     break;
                 case "Shadowsocks":
                     KillProcess("Shadowsocks");
