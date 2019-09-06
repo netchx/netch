@@ -42,7 +42,7 @@ namespace Netch.Controllers
                     using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
                     {
                         registry.SetValue("ProxyEnable", 1);
-                        registry.SetValue("ProxyServer", String.Format("127.0.0.1:{0}", Global.Settings.HTTPLocalPort));
+                        registry.SetValue("ProxyServer", $"{Global.Settings.LocalAddress}:{Global.Settings.HTTPLocalPort}");
 
                         Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
                         Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);

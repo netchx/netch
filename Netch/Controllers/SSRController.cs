@@ -45,7 +45,8 @@ namespace Netch.Controllers
                 protocol_param = server.ProtocolParam,
                 obfs = server.OBFS,
                 obfs_param = server.OBFSParam,
-                local_port = Global.Settings.Socks5LocalPort
+                local_port = Global.Settings.Socks5LocalPort,
+                local_address = Global.Settings.LocalAddress
             }));
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间

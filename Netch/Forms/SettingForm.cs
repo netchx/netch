@@ -45,6 +45,7 @@ namespace Netch.Forms
         {
             Text = Utils.i18N.Translate("Settings");
             PortGroupBox.Text = Utils.i18N.Translate("Local Port");
+            AllowDevicesCheckBox.Text = Utils.i18N.Translate("Allow other Devices to connect");
             TUNTAPAddressLabel.Text = Utils.i18N.Translate("Address");
             TUNTAPNetmaskLabel.Text = Utils.i18N.Translate("Netmask");
             TUNTAPGatewayLabel.Text = Utils.i18N.Translate("Gateway");
@@ -60,11 +61,6 @@ namespace Netch.Forms
             TUNTAPGatewayTextBox.Text = Global.Settings.TUNTAP.Gateway;
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
-
-            if (!TUNTAPUseCustomDNSCheckBox.Checked)
-            {
-                TUNTAPDNSTextBox.Enabled = false;
-            }
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -82,6 +78,26 @@ namespace Netch.Forms
             {
                 Global.Settings.TUNTAP.DNS.Add("1.1.1.1");
                 TUNTAPDNSTextBox.Text = "1.1.1.1";
+            }
+
+            if (!TUNTAPUseCustomDNSCheckBox.Checked)
+            {
+                TUNTAPDNSTextBox.Enabled = false;
+            }
+
+            // 设置本地代理是否允许其他设备连接
+            if (Global.Settings.LocalAddress == "127.0.0.1")
+            {
+                AllowDevicesCheckBox.Checked = false;
+            }
+            else if (Global.Settings.LocalAddress == "0.0.0.0")
+            {
+                AllowDevicesCheckBox.Checked = true;
+            }
+            else
+            {
+                Global.Settings.LocalAddress = "127.0.0.1";
+                AllowDevicesCheckBox.Checked = false;
             }
         }
 
@@ -138,6 +154,15 @@ namespace Netch.Forms
                 MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
+            }
+
+            if (AllowDevicesCheckBox.Checked)
+            {
+                Global.Settings.LocalAddress = "0.0.0.0";
+            }
+            else
+            {
+                Global.Settings.LocalAddress = "127.0.0.1";
             }
 
             Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;

@@ -30,6 +30,7 @@
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
+            this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.HTTPPortLabel = new System.Windows.Forms.Label();
             this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
             this.Socks5PortLabel = new System.Windows.Forms.Label();
@@ -52,16 +53,28 @@
             // 
             // PortGroupBox
             // 
+            this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Controls.Add(this.HTTPPortLabel);
             this.PortGroupBox.Controls.Add(this.HTTPPortTextBox);
             this.PortGroupBox.Controls.Add(this.Socks5PortLabel);
             this.PortGroupBox.Controls.Add(this.Socks5PortTextBox);
             this.PortGroupBox.Location = new System.Drawing.Point(12, 12);
             this.PortGroupBox.Name = "PortGroupBox";
-            this.PortGroupBox.Size = new System.Drawing.Size(420, 90);
+            this.PortGroupBox.Size = new System.Drawing.Size(420, 106);
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
-            this.PortGroupBox.Text = "Port";
+            this.PortGroupBox.Text = "Local Port";
+            // 
+            // AllowDevicesCheckBox
+            // 
+            this.AllowDevicesCheckBox.AutoSize = true;
+            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(120, 80);
+            this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
+            this.AllowDevicesCheckBox.Size = new System.Drawing.Size(206, 21);
+            this.AllowDevicesCheckBox.TabIndex = 13;
+            this.AllowDevicesCheckBox.Text = "Allow other Devices to connect";
+            this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.AllowDevicesCheckBox.UseVisualStyleBackColor = true;
             // 
             // HTTPPortLabel
             // 
@@ -108,9 +121,9 @@
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPNetmaskTextBox);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressLabel);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
-            this.TUNTAPGroupBox.Location = new System.Drawing.Point(12, 108);
+            this.TUNTAPGroupBox.Location = new System.Drawing.Point(12, 123);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
-            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 162);
+            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 165);
             this.TUNTAPGroupBox.TabIndex = 3;
             this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
@@ -118,7 +131,7 @@
             // TUNTAPUseCustomDNSCheckBox
             // 
             this.TUNTAPUseCustomDNSCheckBox.AutoSize = true;
-            this.TUNTAPUseCustomDNSCheckBox.Location = new System.Drawing.Point(287, 138);
+            this.TUNTAPUseCustomDNSCheckBox.Location = new System.Drawing.Point(120, 138);
             this.TUNTAPUseCustomDNSCheckBox.Name = "TUNTAPUseCustomDNSCheckBox";
             this.TUNTAPUseCustomDNSCheckBox.Size = new System.Drawing.Size(127, 21);
             this.TUNTAPUseCustomDNSCheckBox.TabIndex = 12;
@@ -196,7 +209,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 276);
+            this.ControlButton.Location = new System.Drawing.Point(357, 294);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 16;
@@ -206,7 +219,7 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 276);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 294);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 14;
@@ -218,7 +231,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(444, 311);
+            this.ClientSize = new System.Drawing.Size(444, 331);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
@@ -260,5 +273,6 @@
 		private System.Windows.Forms.Button ControlButton;
 		private System.Windows.Forms.Button GlobalBypassIPsButton;
 		private System.Windows.Forms.CheckBox TUNTAPUseCustomDNSCheckBox;
+        private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
     }
 }
