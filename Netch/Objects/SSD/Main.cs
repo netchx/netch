@@ -25,6 +25,16 @@ namespace Netch.Objects.SSD
         public string password;
 
         /// <summary>
+        ///     插件
+        /// </summary>
+        public string plugin;
+
+        /// <summary>
+        ///     插件参数
+        /// </summary>
+        public string plugin_options;
+
+        /// <summary>
         ///     服务器数组
         /// </summary>
         public List<Server> servers;

@@ -177,6 +177,8 @@ namespace Netch.Utils
                         data.Port = (server.port != 0) ? server.port : json.port;
                         data.Password = (server.password != null) ? server.password : json.password;
                         data.EncryptMethod = (server.encryption != null) ? server.encryption : json.encryption;
+                        data.OBFS = (String.IsNullOrEmpty(json.plugin)) ? (String.IsNullOrEmpty(server.plugin) ? null : server.plugin) : json.plugin;
+                        data.OBFSParam = (String.IsNullOrEmpty(json.plugin_options)) ? (String.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options) : json.plugin_options;
 
                         if (Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {

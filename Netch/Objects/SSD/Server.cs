@@ -23,6 +23,16 @@
         public string password;
 
         /// <summary>
+        ///     插件
+        /// </summary>
+        public string plugin;
+
+        /// <summary>
+        ///     插件参数
+        /// </summary>
+        public string plugin_options;
+
+        /// <summary>
         ///     备注
         /// </summary>
         public string remarks;
