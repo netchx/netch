@@ -4,6 +4,9 @@
     "Error": "错误",
 
     "Netch is already running": "Netch 已经在运行中",
+    "Netch is not compatible with your system.": "Netch 和你的系统不兼容",
+    "Current arch of Netch:": "当前 Netch 架构：",
+    "Current arch of system:": "当前系统架构：",
 
     "Start": "启动",
     "Stop": "停止",
