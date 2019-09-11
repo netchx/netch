@@ -90,23 +90,23 @@
             // 
             this.ProcessNameTextBox.Location = new System.Drawing.Point(6, 15);
             this.ProcessNameTextBox.Name = "ProcessNameTextBox";
-            this.ProcessNameTextBox.Size = new System.Drawing.Size(222, 23);
+            this.ProcessNameTextBox.Size = new System.Drawing.Size(222, 27);
             this.ProcessNameTextBox.TabIndex = 0;
             // 
             // RuleListBox
             // 
             this.RuleListBox.FormattingEnabled = true;
-            this.RuleListBox.ItemHeight = 17;
+            this.RuleListBox.ItemHeight = 20;
             this.RuleListBox.Location = new System.Drawing.Point(6, 48);
             this.RuleListBox.Name = "RuleListBox";
-            this.RuleListBox.Size = new System.Drawing.Size(315, 140);
+            this.RuleListBox.Size = new System.Drawing.Size(315, 124);
             this.RuleListBox.TabIndex = 2;
             // 
             // RemarkTextBox
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(71, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(250, 23);
+            this.RemarkTextBox.Size = new System.Drawing.Size(250, 27);
             this.RemarkTextBox.TabIndex = 1;
             // 
             // RemarkLabel
@@ -114,7 +114,7 @@
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(12, 22);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
+            this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -128,10 +128,10 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // ModeForm
+            // Process
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(351, 327);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
@@ -140,7 +140,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
-            this.Name = "ModeForm";
+            this.Name = "Process";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Fast Create Mode";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModeForm_FormClosing);

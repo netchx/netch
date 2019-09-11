@@ -81,23 +81,23 @@
             this.PrefixComboBox.Location = new System.Drawing.Point(271, 235);
             this.PrefixComboBox.MaxDropDownItems = 4;
             this.PrefixComboBox.Name = "PrefixComboBox";
-            this.PrefixComboBox.Size = new System.Drawing.Size(39, 25);
+            this.PrefixComboBox.Size = new System.Drawing.Size(39, 28);
             this.PrefixComboBox.TabIndex = 2;
             // 
             // IPTextBox
             // 
             this.IPTextBox.Location = new System.Drawing.Point(6, 236);
             this.IPTextBox.Name = "IPTextBox";
-            this.IPTextBox.Size = new System.Drawing.Size(259, 23);
+            this.IPTextBox.Size = new System.Drawing.Size(259, 27);
             this.IPTextBox.TabIndex = 1;
             // 
             // IPListBox
             // 
             this.IPListBox.FormattingEnabled = true;
-            this.IPListBox.ItemHeight = 17;
+            this.IPListBox.ItemHeight = 20;
             this.IPListBox.Location = new System.Drawing.Point(6, 22);
             this.IPListBox.Name = "IPListBox";
-            this.IPListBox.Size = new System.Drawing.Size(304, 208);
+            this.IPListBox.Size = new System.Drawing.Size(304, 204);
             this.IPListBox.TabIndex = 0;
             // 
             // ControlButton
@@ -112,8 +112,8 @@
             // 
             // GlobalBypassIPForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(340, 348);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.IPGroupBox);

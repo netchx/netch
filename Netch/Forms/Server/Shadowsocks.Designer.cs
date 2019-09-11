@@ -30,6 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Shadowsocks));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.PluginOptionsTextBox = new System.Windows.Forms.TextBox();
+            this.PluginOptionsLabel = new System.Windows.Forms.Label();
+            this.PluginTextBox = new System.Windows.Forms.TextBox();
+            this.PluginLabel = new System.Windows.Forms.Label();
             this.EncryptMethodLabel = new System.Windows.Forms.Label();
             this.EncryptMethodComboBox = new System.Windows.Forms.ComboBox();
             this.PasswordTextBox = new System.Windows.Forms.TextBox();
@@ -41,10 +45,6 @@
             this.RemarkLabel = new System.Windows.Forms.Label();
             this.PortLabel = new System.Windows.Forms.Label();
             this.ControlButton = new System.Windows.Forms.Button();
-            this.PluginLabel = new System.Windows.Forms.Label();
-            this.PluginTextBox = new System.Windows.Forms.TextBox();
-            this.PluginOptionsTextBox = new System.Windows.Forms.TextBox();
-            this.PluginOptionsLabel = new System.Windows.Forms.Label();
             this.ConfigurationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,12 +71,46 @@
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
             // 
+            // PluginOptionsTextBox
+            // 
+            this.PluginOptionsTextBox.Location = new System.Drawing.Point(120, 166);
+            this.PluginOptionsTextBox.Name = "PluginOptionsTextBox";
+            this.PluginOptionsTextBox.Size = new System.Drawing.Size(294, 27);
+            this.PluginOptionsTextBox.TabIndex = 17;
+            this.PluginOptionsTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PluginOptionsLabel
+            // 
+            this.PluginOptionsLabel.AutoSize = true;
+            this.PluginOptionsLabel.Location = new System.Drawing.Point(10, 169);
+            this.PluginOptionsLabel.Name = "PluginOptionsLabel";
+            this.PluginOptionsLabel.Size = new System.Drawing.Size(116, 20);
+            this.PluginOptionsLabel.TabIndex = 16;
+            this.PluginOptionsLabel.Text = "Plugin Options";
+            // 
+            // PluginTextBox
+            // 
+            this.PluginTextBox.Location = new System.Drawing.Point(120, 137);
+            this.PluginTextBox.Name = "PluginTextBox";
+            this.PluginTextBox.Size = new System.Drawing.Size(294, 27);
+            this.PluginTextBox.TabIndex = 15;
+            this.PluginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PluginLabel
+            // 
+            this.PluginLabel.AutoSize = true;
+            this.PluginLabel.Location = new System.Drawing.Point(10, 140);
+            this.PluginLabel.Name = "PluginLabel";
+            this.PluginLabel.Size = new System.Drawing.Size(54, 20);
+            this.PluginLabel.TabIndex = 14;
+            this.PluginLabel.Text = "Plugin";
+            // 
             // EncryptMethodLabel
             // 
             this.EncryptMethodLabel.AutoSize = true;
             this.EncryptMethodLabel.Location = new System.Drawing.Point(10, 110);
             this.EncryptMethodLabel.Name = "EncryptMethodLabel";
-            this.EncryptMethodLabel.Size = new System.Drawing.Size(101, 17);
+            this.EncryptMethodLabel.Size = new System.Drawing.Size(127, 20);
             this.EncryptMethodLabel.TabIndex = 13;
             this.EncryptMethodLabel.Text = "Encrypt Method";
             // 
@@ -87,7 +121,7 @@
             this.EncryptMethodComboBox.FormattingEnabled = true;
             this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 106);
             this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
-            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 24);
+            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 28);
             this.EncryptMethodComboBox.TabIndex = 12;
             this.EncryptMethodComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -95,7 +129,7 @@
             // 
             this.PasswordTextBox.Location = new System.Drawing.Point(120, 77);
             this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PasswordTextBox.Size = new System.Drawing.Size(294, 27);
             this.PasswordTextBox.TabIndex = 10;
             this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -104,7 +138,7 @@
             this.PasswordLabel.AutoSize = true;
             this.PasswordLabel.Location = new System.Drawing.Point(10, 80);
             this.PasswordLabel.Name = "PasswordLabel";
-            this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
+            this.PasswordLabel.Size = new System.Drawing.Size(78, 20);
             this.PasswordLabel.TabIndex = 11;
             this.PasswordLabel.Text = "Password";
             // 
@@ -113,7 +147,7 @@
             this.AddressLabel.AutoSize = true;
             this.AddressLabel.Location = new System.Drawing.Point(10, 51);
             this.AddressLabel.Name = "AddressLabel";
-            this.AddressLabel.Size = new System.Drawing.Size(56, 17);
+            this.AddressLabel.Size = new System.Drawing.Size(69, 20);
             this.AddressLabel.TabIndex = 5;
             this.AddressLabel.Text = "Address";
             // 
@@ -121,7 +155,7 @@
             // 
             this.PortTextBox.Location = new System.Drawing.Point(358, 48);
             this.PortTextBox.Name = "PortTextBox";
-            this.PortTextBox.Size = new System.Drawing.Size(56, 23);
+            this.PortTextBox.Size = new System.Drawing.Size(56, 27);
             this.PortTextBox.TabIndex = 4;
             this.PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -129,7 +163,7 @@
             // 
             this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
             this.AddressTextBox.Name = "AddressTextBox";
-            this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
+            this.AddressTextBox.Size = new System.Drawing.Size(232, 27);
             this.AddressTextBox.TabIndex = 2;
             this.AddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -137,7 +171,7 @@
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(120, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RemarkTextBox.Size = new System.Drawing.Size(294, 27);
             this.RemarkTextBox.TabIndex = 1;
             this.RemarkTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -146,7 +180,7 @@
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(10, 22);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
+            this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -155,7 +189,7 @@
             this.PortLabel.AutoSize = true;
             this.PortLabel.Location = new System.Drawing.Point(351, 51);
             this.PortLabel.Name = "PortLabel";
-            this.PortLabel.Size = new System.Drawing.Size(11, 17);
+            this.PortLabel.Size = new System.Drawing.Size(13, 20);
             this.PortLabel.TabIndex = 3;
             this.PortLabel.Text = ":";
             // 
@@ -169,44 +203,10 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // PluginLabel
-            // 
-            this.PluginLabel.AutoSize = true;
-            this.PluginLabel.Location = new System.Drawing.Point(10, 140);
-            this.PluginLabel.Name = "PluginLabel";
-            this.PluginLabel.Size = new System.Drawing.Size(43, 17);
-            this.PluginLabel.TabIndex = 14;
-            this.PluginLabel.Text = "Plugin";
-            // 
-            // PluginTextBox
-            // 
-            this.PluginTextBox.Location = new System.Drawing.Point(120, 137);
-            this.PluginTextBox.Name = "PluginTextBox";
-            this.PluginTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PluginTextBox.TabIndex = 15;
-            this.PluginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // PluginOptionsTextBox
-            // 
-            this.PluginOptionsTextBox.Location = new System.Drawing.Point(120, 166);
-            this.PluginOptionsTextBox.Name = "PluginOptionsTextBox";
-            this.PluginOptionsTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PluginOptionsTextBox.TabIndex = 17;
-            this.PluginOptionsTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // PluginOptionsLabel
-            // 
-            this.PluginOptionsLabel.AutoSize = true;
-            this.PluginOptionsLabel.Location = new System.Drawing.Point(10, 169);
-            this.PluginOptionsLabel.Name = "PluginOptionsLabel";
-            this.PluginOptionsLabel.Size = new System.Drawing.Size(93, 17);
-            this.PluginOptionsLabel.TabIndex = 16;
-            this.PluginOptionsLabel.Text = "Plugin Options";
-            // 
             // Shadowsocks
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(444, 248);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);

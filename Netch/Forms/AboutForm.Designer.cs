@@ -30,11 +30,11 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
             this.SponsorGroupBox = new System.Windows.Forms.GroupBox();
+            this.SponsorPictureBox = new System.Windows.Forms.PictureBox();
             this.TelegramLabel = new System.Windows.Forms.Label();
             this.GroupLinkLabel = new System.Windows.Forms.LinkLabel();
             this.ChannelLabel = new System.Windows.Forms.LinkLabel();
             this.Prefix = new System.Windows.Forms.Label();
-            this.SponsorPictureBox = new System.Windows.Forms.PictureBox();
             this.NetchPictureBox = new System.Windows.Forms.PictureBox();
             this.SponsorGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SponsorPictureBox)).BeginInit();
@@ -51,46 +51,6 @@
             this.SponsorGroupBox.TabStop = false;
             this.SponsorGroupBox.Text = "Sponsor";
             // 
-            // TelegramLabel
-            // 
-            this.TelegramLabel.AutoSize = true;
-            this.TelegramLabel.Location = new System.Drawing.Point(88, 215);
-            this.TelegramLabel.Name = "TelegramLabel";
-            this.TelegramLabel.Size = new System.Drawing.Size(63, 17);
-            this.TelegramLabel.TabIndex = 3;
-            this.TelegramLabel.Text = "Telegram";
-            // 
-            // GroupLinkLabel
-            // 
-            this.GroupLinkLabel.AutoSize = true;
-            this.GroupLinkLabel.Location = new System.Drawing.Point(155, 215);
-            this.GroupLinkLabel.Name = "GroupLinkLabel";
-            this.GroupLinkLabel.Size = new System.Drawing.Size(45, 17);
-            this.GroupLinkLabel.TabIndex = 4;
-            this.GroupLinkLabel.TabStop = true;
-            this.GroupLinkLabel.Text = "Group";
-            this.GroupLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.GroupLinkLabel_LinkClicked);
-            // 
-            // ChannelLabel
-            // 
-            this.ChannelLabel.AutoSize = true;
-            this.ChannelLabel.Location = new System.Drawing.Point(206, 215);
-            this.ChannelLabel.Name = "ChannelLabel";
-            this.ChannelLabel.Size = new System.Drawing.Size(54, 17);
-            this.ChannelLabel.TabIndex = 5;
-            this.ChannelLabel.TabStop = true;
-            this.ChannelLabel.Text = "Channel";
-            this.ChannelLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ChannelLabel_LinkClicked);
-            // 
-            // Prefix
-            // 
-            this.Prefix.AutoSize = true;
-            this.Prefix.Location = new System.Drawing.Point(197, 215);
-            this.Prefix.Name = "Prefix";
-            this.Prefix.Size = new System.Drawing.Size(13, 17);
-            this.Prefix.TabIndex = 6;
-            this.Prefix.Text = "/";
-            // 
             // SponsorPictureBox
             // 
             this.SponsorPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -102,6 +62,46 @@
             this.SponsorPictureBox.TabIndex = 1;
             this.SponsorPictureBox.TabStop = false;
             this.SponsorPictureBox.Click += new System.EventHandler(this.SponsorPictureBox_Click);
+            // 
+            // TelegramLabel
+            // 
+            this.TelegramLabel.AutoSize = true;
+            this.TelegramLabel.Location = new System.Drawing.Point(88, 215);
+            this.TelegramLabel.Name = "TelegramLabel";
+            this.TelegramLabel.Size = new System.Drawing.Size(78, 20);
+            this.TelegramLabel.TabIndex = 3;
+            this.TelegramLabel.Text = "Telegram";
+            // 
+            // GroupLinkLabel
+            // 
+            this.GroupLinkLabel.AutoSize = true;
+            this.GroupLinkLabel.Location = new System.Drawing.Point(155, 215);
+            this.GroupLinkLabel.Name = "GroupLinkLabel";
+            this.GroupLinkLabel.Size = new System.Drawing.Size(55, 20);
+            this.GroupLinkLabel.TabIndex = 4;
+            this.GroupLinkLabel.TabStop = true;
+            this.GroupLinkLabel.Text = "Group";
+            this.GroupLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.GroupLinkLabel_LinkClicked);
+            // 
+            // ChannelLabel
+            // 
+            this.ChannelLabel.AutoSize = true;
+            this.ChannelLabel.Location = new System.Drawing.Point(206, 215);
+            this.ChannelLabel.Name = "ChannelLabel";
+            this.ChannelLabel.Size = new System.Drawing.Size(67, 20);
+            this.ChannelLabel.TabIndex = 5;
+            this.ChannelLabel.TabStop = true;
+            this.ChannelLabel.Text = "Channel";
+            this.ChannelLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ChannelLabel_LinkClicked);
+            // 
+            // Prefix
+            // 
+            this.Prefix.AutoSize = true;
+            this.Prefix.Location = new System.Drawing.Point(197, 215);
+            this.Prefix.Name = "Prefix";
+            this.Prefix.Size = new System.Drawing.Size(15, 20);
+            this.Prefix.TabIndex = 6;
+            this.Prefix.Text = "/";
             // 
             // NetchPictureBox
             // 
@@ -117,8 +117,8 @@
             // 
             // AboutForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(338, 474);
             this.Controls.Add(this.Prefix);
             this.Controls.Add(this.ChannelLabel);

@@ -73,7 +73,7 @@
             // 
             this.LinkTextBox.Location = new System.Drawing.Point(67, 45);
             this.LinkTextBox.Name = "LinkTextBox";
-            this.LinkTextBox.Size = new System.Drawing.Size(293, 23);
+            this.LinkTextBox.Size = new System.Drawing.Size(293, 27);
             this.LinkTextBox.TabIndex = 3;
             // 
             // LinkLabel
@@ -81,7 +81,7 @@
             this.LinkLabel.AutoSize = true;
             this.LinkLabel.Location = new System.Drawing.Point(11, 48);
             this.LinkLabel.Name = "LinkLabel";
-            this.LinkLabel.Size = new System.Drawing.Size(31, 17);
+            this.LinkLabel.Size = new System.Drawing.Size(38, 20);
             this.LinkLabel.TabIndex = 2;
             this.LinkLabel.Text = "Link";
             // 
@@ -89,7 +89,7 @@
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(67, 16);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(293, 23);
+            this.RemarkTextBox.Size = new System.Drawing.Size(293, 27);
             this.RemarkTextBox.TabIndex = 1;
             // 
             // RemarkLabel
@@ -97,7 +97,7 @@
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(11, 19);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
+            this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -137,22 +137,23 @@
             // 
             // pContextMenuStrip
             // 
+            this.pContextMenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.DeleteToolStripMenuItem});
             this.pContextMenuStrip.Name = "pContextMenuStrip";
-            this.pContextMenuStrip.Size = new System.Drawing.Size(114, 26);
+            this.pContextMenuStrip.Size = new System.Drawing.Size(127, 28);
             // 
             // DeleteToolStripMenuItem
             // 
             this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
-            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(126, 24);
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
             // 
             // SubscribeForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(630, 339);
             this.Controls.Add(this.SubscribeLinkListView);
             this.Controls.Add(this.ControlButton);

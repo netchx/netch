@@ -84,7 +84,7 @@
             this.OBFSParamLabel.AutoSize = true;
             this.OBFSParamLabel.Location = new System.Drawing.Point(10, 230);
             this.OBFSParamLabel.Name = "OBFSParamLabel";
-            this.OBFSParamLabel.Size = new System.Drawing.Size(80, 17);
+            this.OBFSParamLabel.Size = new System.Drawing.Size(96, 20);
             this.OBFSParamLabel.TabIndex = 21;
             this.OBFSParamLabel.Text = "OBFS Param";
             // 
@@ -92,7 +92,7 @@
             // 
             this.OBFSParamTextBox.Location = new System.Drawing.Point(120, 227);
             this.OBFSParamTextBox.Name = "OBFSParamTextBox";
-            this.OBFSParamTextBox.Size = new System.Drawing.Size(294, 23);
+            this.OBFSParamTextBox.Size = new System.Drawing.Size(294, 27);
             this.OBFSParamTextBox.TabIndex = 20;
             this.OBFSParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -101,7 +101,7 @@
             this.OBFSLabel.AutoSize = true;
             this.OBFSLabel.Location = new System.Drawing.Point(10, 200);
             this.OBFSLabel.Name = "OBFSLabel";
-            this.OBFSLabel.Size = new System.Drawing.Size(39, 17);
+            this.OBFSLabel.Size = new System.Drawing.Size(47, 20);
             this.OBFSLabel.TabIndex = 19;
             this.OBFSLabel.Text = "OBFS";
             // 
@@ -112,7 +112,7 @@
             this.OBFSComboBox.FormattingEnabled = true;
             this.OBFSComboBox.Location = new System.Drawing.Point(120, 196);
             this.OBFSComboBox.Name = "OBFSComboBox";
-            this.OBFSComboBox.Size = new System.Drawing.Size(294, 24);
+            this.OBFSComboBox.Size = new System.Drawing.Size(294, 28);
             this.OBFSComboBox.TabIndex = 18;
             this.OBFSComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -121,7 +121,7 @@
             this.ProtocolParamLabel.AutoSize = true;
             this.ProtocolParamLabel.Location = new System.Drawing.Point(10, 170);
             this.ProtocolParamLabel.Name = "ProtocolParamLabel";
-            this.ProtocolParamLabel.Size = new System.Drawing.Size(98, 17);
+            this.ProtocolParamLabel.Size = new System.Drawing.Size(121, 20);
             this.ProtocolParamLabel.TabIndex = 17;
             this.ProtocolParamLabel.Text = "Protocol Param";
             // 
@@ -129,7 +129,7 @@
             // 
             this.ProtocolParamTextBox.Location = new System.Drawing.Point(120, 167);
             this.ProtocolParamTextBox.Name = "ProtocolParamTextBox";
-            this.ProtocolParamTextBox.Size = new System.Drawing.Size(294, 23);
+            this.ProtocolParamTextBox.Size = new System.Drawing.Size(294, 27);
             this.ProtocolParamTextBox.TabIndex = 16;
             this.ProtocolParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -138,7 +138,7 @@
             this.ProtocolLabel.AutoSize = true;
             this.ProtocolLabel.Location = new System.Drawing.Point(10, 140);
             this.ProtocolLabel.Name = "ProtocolLabel";
-            this.ProtocolLabel.Size = new System.Drawing.Size(57, 17);
+            this.ProtocolLabel.Size = new System.Drawing.Size(72, 20);
             this.ProtocolLabel.TabIndex = 15;
             this.ProtocolLabel.Text = "Protocol";
             // 
@@ -149,7 +149,7 @@
             this.ProtocolComboBox.FormattingEnabled = true;
             this.ProtocolComboBox.Location = new System.Drawing.Point(120, 136);
             this.ProtocolComboBox.Name = "ProtocolComboBox";
-            this.ProtocolComboBox.Size = new System.Drawing.Size(294, 24);
+            this.ProtocolComboBox.Size = new System.Drawing.Size(294, 28);
             this.ProtocolComboBox.TabIndex = 14;
             this.ProtocolComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -158,7 +158,7 @@
             this.EncryptMethodLabel.AutoSize = true;
             this.EncryptMethodLabel.Location = new System.Drawing.Point(10, 110);
             this.EncryptMethodLabel.Name = "EncryptMethodLabel";
-            this.EncryptMethodLabel.Size = new System.Drawing.Size(101, 17);
+            this.EncryptMethodLabel.Size = new System.Drawing.Size(127, 20);
             this.EncryptMethodLabel.TabIndex = 13;
             this.EncryptMethodLabel.Text = "Encrypt Method";
             // 
@@ -169,7 +169,7 @@
             this.EncryptMethodComboBox.FormattingEnabled = true;
             this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 106);
             this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
-            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 24);
+            this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 28);
             this.EncryptMethodComboBox.TabIndex = 12;
             this.EncryptMethodComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
@@ -177,7 +177,7 @@
             // 
             this.PasswordTextBox.Location = new System.Drawing.Point(120, 77);
             this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PasswordTextBox.Size = new System.Drawing.Size(294, 27);
             this.PasswordTextBox.TabIndex = 10;
             this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -186,7 +186,7 @@
             this.PasswordLabel.AutoSize = true;
             this.PasswordLabel.Location = new System.Drawing.Point(10, 80);
             this.PasswordLabel.Name = "PasswordLabel";
-            this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
+            this.PasswordLabel.Size = new System.Drawing.Size(78, 20);
             this.PasswordLabel.TabIndex = 11;
             this.PasswordLabel.Text = "Password";
             // 
@@ -195,7 +195,7 @@
             this.AddressLabel.AutoSize = true;
             this.AddressLabel.Location = new System.Drawing.Point(10, 51);
             this.AddressLabel.Name = "AddressLabel";
-            this.AddressLabel.Size = new System.Drawing.Size(56, 17);
+            this.AddressLabel.Size = new System.Drawing.Size(69, 20);
             this.AddressLabel.TabIndex = 5;
             this.AddressLabel.Text = "Address";
             // 
@@ -203,7 +203,7 @@
             // 
             this.PortTextBox.Location = new System.Drawing.Point(358, 48);
             this.PortTextBox.Name = "PortTextBox";
-            this.PortTextBox.Size = new System.Drawing.Size(56, 23);
+            this.PortTextBox.Size = new System.Drawing.Size(56, 27);
             this.PortTextBox.TabIndex = 4;
             this.PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -211,7 +211,7 @@
             // 
             this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
             this.AddressTextBox.Name = "AddressTextBox";
-            this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
+            this.AddressTextBox.Size = new System.Drawing.Size(232, 27);
             this.AddressTextBox.TabIndex = 2;
             this.AddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -219,7 +219,7 @@
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(120, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RemarkTextBox.Size = new System.Drawing.Size(294, 27);
             this.RemarkTextBox.TabIndex = 1;
             this.RemarkTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -228,7 +228,7 @@
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(10, 22);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
+            this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -237,7 +237,7 @@
             this.PortLabel.AutoSize = true;
             this.PortLabel.Location = new System.Drawing.Point(351, 51);
             this.PortLabel.Name = "PortLabel";
-            this.PortLabel.Size = new System.Drawing.Size(11, 17);
+            this.PortLabel.Size = new System.Drawing.Size(13, 20);
             this.PortLabel.TabIndex = 3;
             this.PortLabel.Text = ":";
             // 
@@ -253,8 +253,8 @@
             // 
             // ShadowsocksR
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(444, 310);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);

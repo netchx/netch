@@ -70,7 +70,7 @@
             this.AllowDevicesCheckBox.AutoSize = true;
             this.AllowDevicesCheckBox.Location = new System.Drawing.Point(120, 80);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
-            this.AllowDevicesCheckBox.Size = new System.Drawing.Size(206, 21);
+            this.AllowDevicesCheckBox.Size = new System.Drawing.Size(259, 24);
             this.AllowDevicesCheckBox.TabIndex = 13;
             this.AllowDevicesCheckBox.Text = "Allow other Devices to connect";
             this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -81,7 +81,7 @@
             this.HTTPPortLabel.AutoSize = true;
             this.HTTPPortLabel.Location = new System.Drawing.Point(9, 54);
             this.HTTPPortLabel.Name = "HTTPPortLabel";
-            this.HTTPPortLabel.Size = new System.Drawing.Size(38, 17);
+            this.HTTPPortLabel.Size = new System.Drawing.Size(48, 20);
             this.HTTPPortLabel.TabIndex = 3;
             this.HTTPPortLabel.Text = "HTTP";
             // 
@@ -89,7 +89,7 @@
             // 
             this.HTTPPortTextBox.Location = new System.Drawing.Point(120, 51);
             this.HTTPPortTextBox.Name = "HTTPPortTextBox";
-            this.HTTPPortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.HTTPPortTextBox.Size = new System.Drawing.Size(294, 27);
             this.HTTPPortTextBox.TabIndex = 2;
             this.HTTPPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -98,7 +98,7 @@
             this.Socks5PortLabel.AutoSize = true;
             this.Socks5PortLabel.Location = new System.Drawing.Point(9, 25);
             this.Socks5PortLabel.Name = "Socks5PortLabel";
-            this.Socks5PortLabel.Size = new System.Drawing.Size(49, 17);
+            this.Socks5PortLabel.Size = new System.Drawing.Size(60, 20);
             this.Socks5PortLabel.TabIndex = 1;
             this.Socks5PortLabel.Text = "Socks5";
             // 
@@ -106,7 +106,7 @@
             // 
             this.Socks5PortTextBox.Location = new System.Drawing.Point(120, 22);
             this.Socks5PortTextBox.Name = "Socks5PortTextBox";
-            this.Socks5PortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.Socks5PortTextBox.Size = new System.Drawing.Size(294, 27);
             this.Socks5PortTextBox.TabIndex = 0;
             this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -133,7 +133,7 @@
             this.TUNTAPUseCustomDNSCheckBox.AutoSize = true;
             this.TUNTAPUseCustomDNSCheckBox.Location = new System.Drawing.Point(120, 138);
             this.TUNTAPUseCustomDNSCheckBox.Name = "TUNTAPUseCustomDNSCheckBox";
-            this.TUNTAPUseCustomDNSCheckBox.Size = new System.Drawing.Size(127, 21);
+            this.TUNTAPUseCustomDNSCheckBox.Size = new System.Drawing.Size(154, 24);
             this.TUNTAPUseCustomDNSCheckBox.TabIndex = 12;
             this.TUNTAPUseCustomDNSCheckBox.Text = "Use Custom DNS";
             this.TUNTAPUseCustomDNSCheckBox.UseVisualStyleBackColor = true;
@@ -144,7 +144,7 @@
             this.TUNTAPDNSLabel.AutoSize = true;
             this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
             this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
-            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(34, 17);
+            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(41, 20);
             this.TUNTAPDNSLabel.TabIndex = 7;
             this.TUNTAPDNSLabel.Text = "DNS";
             // 
@@ -152,7 +152,7 @@
             // 
             this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 109);
             this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
-            this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 23);
+            this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 27);
             this.TUNTAPDNSTextBox.TabIndex = 10;
             this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -161,7 +161,7 @@
             this.TUNTAPGatewayLabel.AutoSize = true;
             this.TUNTAPGatewayLabel.Location = new System.Drawing.Point(9, 83);
             this.TUNTAPGatewayLabel.Name = "TUNTAPGatewayLabel";
-            this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(57, 17);
+            this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(71, 20);
             this.TUNTAPGatewayLabel.TabIndex = 5;
             this.TUNTAPGatewayLabel.Text = "Gateway";
             // 
@@ -169,7 +169,7 @@
             // 
             this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
             this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
-            this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 23);
+            this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 27);
             this.TUNTAPGatewayTextBox.TabIndex = 8;
             this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -178,7 +178,7 @@
             this.TUNTAPNetmaskLabel.AutoSize = true;
             this.TUNTAPNetmaskLabel.Location = new System.Drawing.Point(9, 54);
             this.TUNTAPNetmaskLabel.Name = "TUNTAPNetmaskLabel";
-            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(60, 17);
+            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(73, 20);
             this.TUNTAPNetmaskLabel.TabIndex = 3;
             this.TUNTAPNetmaskLabel.Text = "Netmask";
             // 
@@ -186,7 +186,7 @@
             // 
             this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
             this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
-            this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 23);
+            this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 27);
             this.TUNTAPNetmaskTextBox.TabIndex = 6;
             this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -195,7 +195,7 @@
             this.TUNTAPAddressLabel.AutoSize = true;
             this.TUNTAPAddressLabel.Location = new System.Drawing.Point(9, 25);
             this.TUNTAPAddressLabel.Name = "TUNTAPAddressLabel";
-            this.TUNTAPAddressLabel.Size = new System.Drawing.Size(56, 17);
+            this.TUNTAPAddressLabel.Size = new System.Drawing.Size(69, 20);
             this.TUNTAPAddressLabel.TabIndex = 1;
             this.TUNTAPAddressLabel.Text = "Address";
             // 
@@ -203,7 +203,7 @@
             // 
             this.TUNTAPAddressTextBox.Location = new System.Drawing.Point(120, 22);
             this.TUNTAPAddressTextBox.Name = "TUNTAPAddressTextBox";
-            this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 23);
+            this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 27);
             this.TUNTAPAddressTextBox.TabIndex = 4;
             this.TUNTAPAddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -229,8 +229,8 @@
             // 
             // SettingForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(444, 331);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);

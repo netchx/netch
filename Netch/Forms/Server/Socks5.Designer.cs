@@ -68,7 +68,7 @@
             this.PasswordLabel.AutoSize = true;
             this.PasswordLabel.Location = new System.Drawing.Point(10, 109);
             this.PasswordLabel.Name = "PasswordLabel";
-            this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
+            this.PasswordLabel.Size = new System.Drawing.Size(78, 20);
             this.PasswordLabel.TabIndex = 13;
             this.PasswordLabel.Text = "Password";
             // 
@@ -76,7 +76,7 @@
             // 
             this.UsernameTextBox.Location = new System.Drawing.Point(120, 77);
             this.UsernameTextBox.Name = "UsernameTextBox";
-            this.UsernameTextBox.Size = new System.Drawing.Size(294, 23);
+            this.UsernameTextBox.Size = new System.Drawing.Size(294, 27);
             this.UsernameTextBox.TabIndex = 12;
             this.UsernameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -84,7 +84,7 @@
             // 
             this.PasswordTextBox.Location = new System.Drawing.Point(120, 106);
             this.PasswordTextBox.Name = "PasswordTextBox";
-            this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PasswordTextBox.Size = new System.Drawing.Size(294, 27);
             this.PasswordTextBox.TabIndex = 10;
             this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -93,7 +93,7 @@
             this.UsernameLabel.AutoSize = true;
             this.UsernameLabel.Location = new System.Drawing.Point(10, 80);
             this.UsernameLabel.Name = "UsernameLabel";
-            this.UsernameLabel.Size = new System.Drawing.Size(67, 17);
+            this.UsernameLabel.Size = new System.Drawing.Size(82, 20);
             this.UsernameLabel.TabIndex = 11;
             this.UsernameLabel.Text = "Username";
             // 
@@ -102,7 +102,7 @@
             this.AddressLabel.AutoSize = true;
             this.AddressLabel.Location = new System.Drawing.Point(10, 51);
             this.AddressLabel.Name = "AddressLabel";
-            this.AddressLabel.Size = new System.Drawing.Size(56, 17);
+            this.AddressLabel.Size = new System.Drawing.Size(69, 20);
             this.AddressLabel.TabIndex = 5;
             this.AddressLabel.Text = "Address";
             // 
@@ -110,7 +110,7 @@
             // 
             this.PortTextBox.Location = new System.Drawing.Point(358, 48);
             this.PortTextBox.Name = "PortTextBox";
-            this.PortTextBox.Size = new System.Drawing.Size(56, 23);
+            this.PortTextBox.Size = new System.Drawing.Size(56, 27);
             this.PortTextBox.TabIndex = 4;
             this.PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -118,7 +118,7 @@
             // 
             this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
             this.AddressTextBox.Name = "AddressTextBox";
-            this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
+            this.AddressTextBox.Size = new System.Drawing.Size(232, 27);
             this.AddressTextBox.TabIndex = 2;
             this.AddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -126,7 +126,7 @@
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(120, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RemarkTextBox.Size = new System.Drawing.Size(294, 27);
             this.RemarkTextBox.TabIndex = 1;
             this.RemarkTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -135,7 +135,7 @@
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(10, 22);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
+            this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -144,7 +144,7 @@
             this.PortLabel.AutoSize = true;
             this.PortLabel.Location = new System.Drawing.Point(351, 51);
             this.PortLabel.Name = "PortLabel";
-            this.PortLabel.Size = new System.Drawing.Size(11, 17);
+            this.PortLabel.Size = new System.Drawing.Size(13, 20);
             this.PortLabel.TabIndex = 3;
             this.PortLabel.Text = ":";
             // 
@@ -160,8 +160,8 @@
             // 
             // Socks5
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(444, 192);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
