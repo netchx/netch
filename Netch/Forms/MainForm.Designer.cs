@@ -90,7 +90,7 @@
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.MenuStrip.Size = new System.Drawing.Size(608, 30);
+            this.MenuStrip.Size = new System.Drawing.Size(608, 29);
             this.MenuStrip.TabIndex = 0;
             // 
             // ServerToolStripMenuItem
@@ -103,7 +103,7 @@
             this.AddVMessServerToolStripMenuItem});
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
-            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(70, 25);
+            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(70, 24);
             this.ServerToolStripMenuItem.Text = "Server";
             // 
             // ImportServersFromClipboardToolStripMenuItem
@@ -147,7 +147,7 @@
             this.CreateProcessModeToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
-            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(67, 25);
+            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(67, 24);
             this.ModeToolStripMenuItem.Text = "Mode";
             // 
             // CreateProcessModeToolStripMenuItem
@@ -164,7 +164,7 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem});
             this.SubscribeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.SubscribeToolStripMenuItem.Name = "SubscribeToolStripMenuItem";
-            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(95, 25);
+            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(95, 24);
             this.SubscribeToolStripMenuItem.Text = "Subscribe";
             // 
             // ManageSubscribeLinksToolStripMenuItem
@@ -189,7 +189,7 @@
             this.UninstallServiceToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
-            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(81, 25);
+            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(81, 24);
             this.OptionsToolStripMenuItem.Text = "Options";
             // 
             // ReloadModesToolStripMenuItem
@@ -219,7 +219,7 @@
             this.AboutToolStripButton.AutoToolTip = false;
             this.AboutToolStripButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 1);
             this.AboutToolStripButton.Name = "AboutToolStripButton";
-            this.AboutToolStripButton.Size = new System.Drawing.Size(59, 25);
+            this.AboutToolStripButton.Size = new System.Drawing.Size(59, 24);
             this.AboutToolStripButton.Text = "About";
             this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
             // 
@@ -231,7 +231,7 @@
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(87, 23);
+            this.VersionLabel.Size = new System.Drawing.Size(87, 22);
             this.VersionLabel.Text = "1.2.8-BETA";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
@@ -415,7 +415,7 @@
             // 
             this.SettingsButton.Location = new System.Drawing.Point(12, 120);
             this.SettingsButton.Name = "SettingsButton";
-            this.SettingsButton.Size = new System.Drawing.Size(72, 24);
+            this.SettingsButton.Size = new System.Drawing.Size(75, 27);
             this.SettingsButton.TabIndex = 4;
             this.SettingsButton.Text = "Settings";
             this.SettingsButton.UseVisualStyleBackColor = true;
