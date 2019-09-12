@@ -211,7 +211,7 @@
             // 
             this.ControlButton.Location = new System.Drawing.Point(357, 294);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 16;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -221,7 +221,7 @@
             // 
             this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 294);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
-            this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
+            this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 30);
             this.GlobalBypassIPsButton.TabIndex = 14;
             this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
@@ -231,7 +231,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 331);
+            this.ClientSize = new System.Drawing.Size(444, 337);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);

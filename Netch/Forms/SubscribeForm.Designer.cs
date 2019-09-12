@@ -55,15 +55,15 @@
             this.groupBox1.Controls.Add(this.RemarkLabel);
             this.groupBox1.Location = new System.Drawing.Point(12, 226);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(366, 103);
+            this.groupBox1.Size = new System.Drawing.Size(379, 110);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             // 
             // AddButton
             // 
-            this.AddButton.Location = new System.Drawing.Point(285, 74);
+            this.AddButton.Location = new System.Drawing.Point(291, 74);
             this.AddButton.Name = "AddButton";
-            this.AddButton.Size = new System.Drawing.Size(75, 23);
+            this.AddButton.Size = new System.Drawing.Size(75, 30);
             this.AddButton.TabIndex = 4;
             this.AddButton.Text = "Add";
             this.AddButton.UseVisualStyleBackColor = true;
@@ -71,7 +71,7 @@
             // 
             // LinkTextBox
             // 
-            this.LinkTextBox.Location = new System.Drawing.Point(67, 45);
+            this.LinkTextBox.Location = new System.Drawing.Point(73, 45);
             this.LinkTextBox.Name = "LinkTextBox";
             this.LinkTextBox.Size = new System.Drawing.Size(293, 27);
             this.LinkTextBox.TabIndex = 3;
@@ -79,7 +79,7 @@
             // LinkLabel
             // 
             this.LinkLabel.AutoSize = true;
-            this.LinkLabel.Location = new System.Drawing.Point(11, 48);
+            this.LinkLabel.Location = new System.Drawing.Point(6, 48);
             this.LinkLabel.Name = "LinkLabel";
             this.LinkLabel.Size = new System.Drawing.Size(38, 20);
             this.LinkLabel.TabIndex = 2;
@@ -87,7 +87,7 @@
             // 
             // RemarkTextBox
             // 
-            this.RemarkTextBox.Location = new System.Drawing.Point(67, 16);
+            this.RemarkTextBox.Location = new System.Drawing.Point(73, 16);
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(293, 27);
             this.RemarkTextBox.TabIndex = 1;
@@ -95,7 +95,7 @@
             // RemarkLabel
             // 
             this.RemarkLabel.AutoSize = true;
-            this.RemarkLabel.Location = new System.Drawing.Point(11, 19);
+            this.RemarkLabel.Location = new System.Drawing.Point(6, 16);
             this.RemarkLabel.Name = "RemarkLabel";
             this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
@@ -105,7 +105,7 @@
             // 
             this.ControlButton.Location = new System.Drawing.Point(543, 306);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 2;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -154,7 +154,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(630, 339);
+            this.ClientSize = new System.Drawing.Size(630, 348);
             this.Controls.Add(this.SubscribeLinkListView);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.groupBox1);

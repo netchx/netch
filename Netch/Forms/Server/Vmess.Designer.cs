@@ -88,15 +88,16 @@
             this.ConfigurationGroupBox.Controls.Add(this.PortLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(420, 373);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(456, 378);
             this.ConfigurationGroupBox.TabIndex = 1;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
             // 
             // TLSSecureCheckBox
             // 
+            this.TLSSecureCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.TLSSecureCheckBox.AutoSize = true;
-            this.TLSSecureCheckBox.Location = new System.Drawing.Point(302, 346);
+            this.TLSSecureCheckBox.Location = new System.Drawing.Point(332, 346);
             this.TLSSecureCheckBox.Name = "TLSSecureCheckBox";
             this.TLSSecureCheckBox.Size = new System.Drawing.Size(111, 24);
             this.TLSSecureCheckBox.TabIndex = 24;
@@ -123,7 +124,7 @@
             // 
             // QUICSecretTextBox
             // 
-            this.QUICSecretTextBox.Location = new System.Drawing.Point(120, 317);
+            this.QUICSecretTextBox.Location = new System.Drawing.Point(150, 317);
             this.QUICSecretTextBox.Name = "QUICSecretTextBox";
             this.QUICSecretTextBox.Size = new System.Drawing.Size(294, 27);
             this.QUICSecretTextBox.TabIndex = 21;
@@ -134,7 +135,7 @@
             this.QUICSecurityComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.QUICSecurityComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.QUICSecurityComboBox.FormattingEnabled = true;
-            this.QUICSecurityComboBox.Location = new System.Drawing.Point(120, 286);
+            this.QUICSecurityComboBox.Location = new System.Drawing.Point(150, 286);
             this.QUICSecurityComboBox.Name = "QUICSecurityComboBox";
             this.QUICSecurityComboBox.Size = new System.Drawing.Size(294, 28);
             this.QUICSecurityComboBox.TabIndex = 20;
@@ -151,7 +152,7 @@
             // 
             // PathTextBox
             // 
-            this.PathTextBox.Location = new System.Drawing.Point(120, 257);
+            this.PathTextBox.Location = new System.Drawing.Point(150, 257);
             this.PathTextBox.Name = "PathTextBox";
             this.PathTextBox.Size = new System.Drawing.Size(294, 27);
             this.PathTextBox.TabIndex = 18;
@@ -168,7 +169,7 @@
             // 
             // HostTextBox
             // 
-            this.HostTextBox.Location = new System.Drawing.Point(120, 228);
+            this.HostTextBox.Location = new System.Drawing.Point(150, 228);
             this.HostTextBox.Name = "HostTextBox";
             this.HostTextBox.Size = new System.Drawing.Size(294, 27);
             this.HostTextBox.TabIndex = 16;
@@ -188,7 +189,7 @@
             this.FakeTypeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.FakeTypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.FakeTypeComboBox.FormattingEnabled = true;
-            this.FakeTypeComboBox.Location = new System.Drawing.Point(120, 197);
+            this.FakeTypeComboBox.Location = new System.Drawing.Point(150, 197);
             this.FakeTypeComboBox.Name = "FakeTypeComboBox";
             this.FakeTypeComboBox.Size = new System.Drawing.Size(294, 28);
             this.FakeTypeComboBox.TabIndex = 14;
@@ -208,7 +209,7 @@
             this.TransferProtocolComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.TransferProtocolComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.TransferProtocolComboBox.FormattingEnabled = true;
-            this.TransferProtocolComboBox.Location = new System.Drawing.Point(120, 166);
+            this.TransferProtocolComboBox.Location = new System.Drawing.Point(150, 166);
             this.TransferProtocolComboBox.Name = "TransferProtocolComboBox";
             this.TransferProtocolComboBox.Size = new System.Drawing.Size(294, 28);
             this.TransferProtocolComboBox.TabIndex = 12;
@@ -228,7 +229,7 @@
             this.EncryptMethodComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.EncryptMethodComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.EncryptMethodComboBox.FormattingEnabled = true;
-            this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 135);
+            this.EncryptMethodComboBox.Location = new System.Drawing.Point(150, 135);
             this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
             this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 28);
             this.EncryptMethodComboBox.TabIndex = 10;
@@ -245,7 +246,7 @@
             // 
             // AlterIDTextBox
             // 
-            this.AlterIDTextBox.Location = new System.Drawing.Point(120, 106);
+            this.AlterIDTextBox.Location = new System.Drawing.Point(150, 106);
             this.AlterIDTextBox.Name = "AlterIDTextBox";
             this.AlterIDTextBox.Size = new System.Drawing.Size(54, 27);
             this.AlterIDTextBox.TabIndex = 8;
@@ -262,7 +263,7 @@
             // 
             // UserIDTextBox
             // 
-            this.UserIDTextBox.Location = new System.Drawing.Point(120, 77);
+            this.UserIDTextBox.Location = new System.Drawing.Point(150, 77);
             this.UserIDTextBox.Name = "UserIDTextBox";
             this.UserIDTextBox.Size = new System.Drawing.Size(294, 27);
             this.UserIDTextBox.TabIndex = 6;
@@ -270,7 +271,7 @@
             // 
             // PortTextBox
             // 
-            this.PortTextBox.Location = new System.Drawing.Point(360, 48);
+            this.PortTextBox.Location = new System.Drawing.Point(390, 48);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(54, 27);
             this.PortTextBox.TabIndex = 5;
@@ -278,7 +279,7 @@
             // 
             // AddressTextBox
             // 
-            this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
+            this.AddressTextBox.Location = new System.Drawing.Point(150, 48);
             this.AddressTextBox.Name = "AddressTextBox";
             this.AddressTextBox.Size = new System.Drawing.Size(234, 27);
             this.AddressTextBox.TabIndex = 3;
@@ -295,7 +296,7 @@
             // 
             // RemarkTextBox
             // 
-            this.RemarkTextBox.Location = new System.Drawing.Point(120, 19);
+            this.RemarkTextBox.Location = new System.Drawing.Point(150, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(294, 27);
             this.RemarkTextBox.TabIndex = 1;
@@ -313,7 +314,7 @@
             // PortLabel
             // 
             this.PortLabel.AutoSize = true;
-            this.PortLabel.Location = new System.Drawing.Point(353, 51);
+            this.PortLabel.Location = new System.Drawing.Point(381, 51);
             this.PortLabel.Name = "PortLabel";
             this.PortLabel.Size = new System.Drawing.Size(13, 20);
             this.PortLabel.TabIndex = 4;
@@ -321,9 +322,10 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 391);
+            this.ControlButton.AutoSize = true;
+            this.ControlButton.Location = new System.Drawing.Point(393, 396);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 2;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -333,7 +335,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 426);
+            this.ClientSize = new System.Drawing.Size(478, 438);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -349,6 +351,7 @@
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

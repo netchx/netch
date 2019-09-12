@@ -48,16 +48,17 @@
             this.IPGroupBox.Controls.Add(this.IPListBox);
             this.IPGroupBox.Location = new System.Drawing.Point(12, 12);
             this.IPGroupBox.Name = "IPGroupBox";
-            this.IPGroupBox.Size = new System.Drawing.Size(316, 295);
+            this.IPGroupBox.Size = new System.Drawing.Size(316, 309);
             this.IPGroupBox.TabIndex = 0;
             this.IPGroupBox.TabStop = false;
             this.IPGroupBox.Text = "IPs";
             // 
             // AddButton
             // 
-            this.AddButton.Location = new System.Drawing.Point(198, 266);
+            this.AddButton.AutoSize = true;
+            this.AddButton.Location = new System.Drawing.Point(184, 269);
             this.AddButton.Name = "AddButton";
-            this.AddButton.Size = new System.Drawing.Size(53, 23);
+            this.AddButton.Size = new System.Drawing.Size(53, 30);
             this.AddButton.TabIndex = 4;
             this.AddButton.Text = "Add";
             this.AddButton.UseVisualStyleBackColor = true;
@@ -65,9 +66,10 @@
             // 
             // DeleteButton
             // 
-            this.DeleteButton.Location = new System.Drawing.Point(257, 266);
+            this.DeleteButton.AutoSize = true;
+            this.DeleteButton.Location = new System.Drawing.Point(243, 269);
             this.DeleteButton.Name = "DeleteButton";
-            this.DeleteButton.Size = new System.Drawing.Size(53, 23);
+            this.DeleteButton.Size = new System.Drawing.Size(67, 30);
             this.DeleteButton.TabIndex = 3;
             this.DeleteButton.Text = "Delete";
             this.DeleteButton.UseVisualStyleBackColor = true;
@@ -102,9 +104,10 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(253, 313);
+            this.ControlButton.AutoSize = true;
+            this.ControlButton.Location = new System.Drawing.Point(255, 327);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -114,7 +117,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(340, 348);
+            this.ClientSize = new System.Drawing.Size(340, 370);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.IPGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -130,6 +133,7 @@
             this.IPGroupBox.ResumeLayout(false);
             this.IPGroupBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

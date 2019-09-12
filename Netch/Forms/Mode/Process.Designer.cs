@@ -51,16 +51,17 @@
             this.ConfigurationGroupBox.Controls.Add(this.RemarkLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(327, 275);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(338, 286);
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
             // 
             // ScanButton
             // 
-            this.ScanButton.Location = new System.Drawing.Point(6, 246);
+            this.ScanButton.AutoSize = true;
+            this.ScanButton.Location = new System.Drawing.Point(12, 246);
             this.ScanButton.Name = "ScanButton";
-            this.ScanButton.Size = new System.Drawing.Size(75, 23);
+            this.ScanButton.Size = new System.Drawing.Size(75, 30);
             this.ScanButton.TabIndex = 4;
             this.ScanButton.Text = "Scan";
             this.ScanButton.UseVisualStyleBackColor = true;
@@ -70,17 +71,17 @@
             // 
             this.ProcessGroupBox.Controls.Add(this.AddButton);
             this.ProcessGroupBox.Controls.Add(this.ProcessNameTextBox);
-            this.ProcessGroupBox.Location = new System.Drawing.Point(6, 194);
+            this.ProcessGroupBox.Location = new System.Drawing.Point(12, 188);
             this.ProcessGroupBox.Name = "ProcessGroupBox";
-            this.ProcessGroupBox.Size = new System.Drawing.Size(315, 46);
+            this.ProcessGroupBox.Size = new System.Drawing.Size(320, 52);
             this.ProcessGroupBox.TabIndex = 3;
             this.ProcessGroupBox.TabStop = false;
             // 
             // AddButton
             // 
-            this.AddButton.Location = new System.Drawing.Point(234, 15);
+            this.AddButton.Location = new System.Drawing.Point(239, 15);
             this.AddButton.Name = "AddButton";
-            this.AddButton.Size = new System.Drawing.Size(75, 23);
+            this.AddButton.Size = new System.Drawing.Size(75, 30);
             this.AddButton.TabIndex = 1;
             this.AddButton.Text = "Add";
             this.AddButton.UseVisualStyleBackColor = true;
@@ -88,7 +89,7 @@
             // 
             // ProcessNameTextBox
             // 
-            this.ProcessNameTextBox.Location = new System.Drawing.Point(6, 15);
+            this.ProcessNameTextBox.Location = new System.Drawing.Point(6, 17);
             this.ProcessNameTextBox.Name = "ProcessNameTextBox";
             this.ProcessNameTextBox.Size = new System.Drawing.Size(222, 27);
             this.ProcessNameTextBox.TabIndex = 0;
@@ -97,7 +98,7 @@
             // 
             this.RuleListBox.FormattingEnabled = true;
             this.RuleListBox.ItemHeight = 20;
-            this.RuleListBox.Location = new System.Drawing.Point(6, 48);
+            this.RuleListBox.Location = new System.Drawing.Point(12, 52);
             this.RuleListBox.Name = "RuleListBox";
             this.RuleListBox.Size = new System.Drawing.Size(315, 124);
             this.RuleListBox.TabIndex = 2;
@@ -106,13 +107,13 @@
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(71, 19);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(250, 27);
+            this.RemarkTextBox.Size = new System.Drawing.Size(256, 27);
             this.RemarkTextBox.TabIndex = 1;
             // 
             // RemarkLabel
             // 
             this.RemarkLabel.AutoSize = true;
-            this.RemarkLabel.Location = new System.Drawing.Point(12, 22);
+            this.RemarkLabel.Location = new System.Drawing.Point(8, 22);
             this.RemarkLabel.Name = "RemarkLabel";
             this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
@@ -120,9 +121,10 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(264, 293);
+            this.ControlButton.AutoSize = true;
+            this.ControlButton.Location = new System.Drawing.Point(275, 304);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -132,7 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(351, 327);
+            this.ClientSize = new System.Drawing.Size(364, 344);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -150,6 +152,7 @@
             this.ProcessGroupBox.ResumeLayout(false);
             this.ProcessGroupBox.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
