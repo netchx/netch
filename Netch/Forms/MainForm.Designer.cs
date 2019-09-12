@@ -90,7 +90,7 @@
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.MenuStrip.Size = new System.Drawing.Size(608, 29);
+            this.MenuStrip.Size = new System.Drawing.Size(628, 29);
             this.MenuStrip.TabIndex = 0;
             // 
             // ServerToolStripMenuItem
@@ -246,7 +246,7 @@
             this.ConfigurationGroupBox.Controls.Add(this.ServerLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 28);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(584, 86);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(604, 105);
             this.ConfigurationGroupBox.TabIndex = 1;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
@@ -255,7 +255,7 @@
             // 
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.SpeedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("SpeedPictureBox.Image")));
-            this.SpeedPictureBox.Location = new System.Drawing.Point(562, 26);
+            this.SpeedPictureBox.Location = new System.Drawing.Point(574, 30);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
             this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
             this.SpeedPictureBox.TabIndex = 9;
@@ -266,7 +266,7 @@
             // 
             this.DeletePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.DeletePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("DeletePictureBox.Image")));
-            this.DeletePictureBox.Location = new System.Drawing.Point(540, 26);
+            this.DeletePictureBox.Location = new System.Drawing.Point(552, 30);
             this.DeletePictureBox.Name = "DeletePictureBox";
             this.DeletePictureBox.Size = new System.Drawing.Size(16, 16);
             this.DeletePictureBox.TabIndex = 8;
@@ -277,7 +277,7 @@
             // 
             this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.EditPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("EditPictureBox.Image")));
-            this.EditPictureBox.Location = new System.Drawing.Point(518, 26);
+            this.EditPictureBox.Location = new System.Drawing.Point(530, 30);
             this.EditPictureBox.Name = "EditPictureBox";
             this.EditPictureBox.Size = new System.Drawing.Size(16, 16);
             this.EditPictureBox.TabIndex = 7;
@@ -287,7 +287,7 @@
             // ModeLabel
             // 
             this.ModeLabel.AutoSize = true;
-            this.ModeLabel.Location = new System.Drawing.Point(6, 56);
+            this.ModeLabel.Location = new System.Drawing.Point(6, 66);
             this.ModeLabel.Name = "ModeLabel";
             this.ModeLabel.Size = new System.Drawing.Size(53, 20);
             this.ModeLabel.TabIndex = 3;
@@ -299,7 +299,7 @@
             this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ModeComboBox.FormattingEnabled = true;
             this.ModeComboBox.IntegralHeight = false;
-            this.ModeComboBox.Location = new System.Drawing.Point(57, 53);
+            this.ModeComboBox.Location = new System.Drawing.Point(68, 62);
             this.ModeComboBox.Name = "ModeComboBox";
             this.ModeComboBox.Size = new System.Drawing.Size(455, 28);
             this.ModeComboBox.TabIndex = 2;
@@ -311,7 +311,7 @@
             this.ServerComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ServerComboBox.FormattingEnabled = true;
             this.ServerComboBox.IntegralHeight = false;
-            this.ServerComboBox.Location = new System.Drawing.Point(57, 22);
+            this.ServerComboBox.Location = new System.Drawing.Point(68, 24);
             this.ServerComboBox.MaxDropDownItems = 16;
             this.ServerComboBox.Name = "ServerComboBox";
             this.ServerComboBox.Size = new System.Drawing.Size(455, 28);
@@ -321,7 +321,7 @@
             // ServerLabel
             // 
             this.ServerLabel.AutoSize = true;
-            this.ServerLabel.Location = new System.Drawing.Point(6, 26);
+            this.ServerLabel.Location = new System.Drawing.Point(6, 28);
             this.ServerLabel.Name = "ServerLabel";
             this.ServerLabel.Size = new System.Drawing.Size(56, 20);
             this.ServerLabel.TabIndex = 0;
@@ -335,9 +335,9 @@
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel});
-            this.StatusStrip.Location = new System.Drawing.Point(0, 150);
+            this.StatusStrip.Location = new System.Drawing.Point(0, 180);
             this.StatusStrip.Name = "StatusStrip";
-            this.StatusStrip.Size = new System.Drawing.Size(608, 26);
+            this.StatusStrip.Size = new System.Drawing.Size(628, 26);
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
@@ -371,9 +371,10 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(521, 120);
+            this.ControlButton.AutoSize = true;
+            this.ControlButton.Location = new System.Drawing.Point(541, 141);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 27);
+            this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 3;
             this.ControlButton.Text = "Start";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -413,9 +414,10 @@
             // 
             // SettingsButton
             // 
-            this.SettingsButton.Location = new System.Drawing.Point(12, 120);
+            this.SettingsButton.AutoSize = true;
+            this.SettingsButton.Location = new System.Drawing.Point(12, 141);
             this.SettingsButton.Name = "SettingsButton";
-            this.SettingsButton.Size = new System.Drawing.Size(75, 27);
+            this.SettingsButton.Size = new System.Drawing.Size(79, 30);
             this.SettingsButton.TabIndex = 4;
             this.SettingsButton.Text = "Settings";
             this.SettingsButton.UseVisualStyleBackColor = true;
@@ -425,7 +427,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(608, 176);
+            this.ClientSize = new System.Drawing.Size(628, 206);
             this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.StatusStrip);

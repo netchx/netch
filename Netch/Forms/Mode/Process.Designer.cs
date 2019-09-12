@@ -51,7 +51,7 @@
             this.ConfigurationGroupBox.Controls.Add(this.RemarkLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(338, 286);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(338, 291);
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
@@ -59,7 +59,7 @@
             // ScanButton
             // 
             this.ScanButton.AutoSize = true;
-            this.ScanButton.Location = new System.Drawing.Point(12, 246);
+            this.ScanButton.Location = new System.Drawing.Point(12, 247);
             this.ScanButton.Name = "ScanButton";
             this.ScanButton.Size = new System.Drawing.Size(75, 30);
             this.ScanButton.TabIndex = 4;
@@ -71,7 +71,7 @@
             // 
             this.ProcessGroupBox.Controls.Add(this.AddButton);
             this.ProcessGroupBox.Controls.Add(this.ProcessNameTextBox);
-            this.ProcessGroupBox.Location = new System.Drawing.Point(12, 188);
+            this.ProcessGroupBox.Location = new System.Drawing.Point(12, 189);
             this.ProcessGroupBox.Name = "ProcessGroupBox";
             this.ProcessGroupBox.Size = new System.Drawing.Size(320, 52);
             this.ProcessGroupBox.TabIndex = 3;
@@ -98,14 +98,14 @@
             // 
             this.RuleListBox.FormattingEnabled = true;
             this.RuleListBox.ItemHeight = 20;
-            this.RuleListBox.Location = new System.Drawing.Point(12, 52);
+            this.RuleListBox.Location = new System.Drawing.Point(12, 59);
             this.RuleListBox.Name = "RuleListBox";
             this.RuleListBox.Size = new System.Drawing.Size(315, 124);
             this.RuleListBox.TabIndex = 2;
             // 
             // RemarkTextBox
             // 
-            this.RemarkTextBox.Location = new System.Drawing.Point(71, 19);
+            this.RemarkTextBox.Location = new System.Drawing.Point(71, 26);
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(256, 27);
             this.RemarkTextBox.TabIndex = 1;
@@ -113,7 +113,7 @@
             // RemarkLabel
             // 
             this.RemarkLabel.AutoSize = true;
-            this.RemarkLabel.Location = new System.Drawing.Point(8, 22);
+            this.RemarkLabel.Location = new System.Drawing.Point(8, 29);
             this.RemarkLabel.Name = "RemarkLabel";
             this.RemarkLabel.Size = new System.Drawing.Size(64, 20);
             this.RemarkLabel.TabIndex = 0;
@@ -122,7 +122,7 @@
             // ControlButton
             // 
             this.ControlButton.AutoSize = true;
-            this.ControlButton.Location = new System.Drawing.Point(275, 304);
+            this.ControlButton.Location = new System.Drawing.Point(275, 309);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 1;
@@ -134,7 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(364, 344);
+            this.ClientSize = new System.Drawing.Size(364, 349);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));

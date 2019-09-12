@@ -58,7 +58,7 @@
             this.ConfigurationGroupBox.Controls.Add(this.PortLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(420, 139);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(427, 158);
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
@@ -66,7 +66,7 @@
             // PasswordLabel
             // 
             this.PasswordLabel.AutoSize = true;
-            this.PasswordLabel.Location = new System.Drawing.Point(10, 109);
+            this.PasswordLabel.Location = new System.Drawing.Point(10, 121);
             this.PasswordLabel.Name = "PasswordLabel";
             this.PasswordLabel.Size = new System.Drawing.Size(78, 20);
             this.PasswordLabel.TabIndex = 13;
@@ -74,7 +74,7 @@
             // 
             // UsernameTextBox
             // 
-            this.UsernameTextBox.Location = new System.Drawing.Point(120, 77);
+            this.UsernameTextBox.Location = new System.Drawing.Point(120, 85);
             this.UsernameTextBox.Name = "UsernameTextBox";
             this.UsernameTextBox.Size = new System.Drawing.Size(294, 27);
             this.UsernameTextBox.TabIndex = 12;
@@ -82,7 +82,7 @@
             // 
             // PasswordTextBox
             // 
-            this.PasswordTextBox.Location = new System.Drawing.Point(120, 106);
+            this.PasswordTextBox.Location = new System.Drawing.Point(120, 118);
             this.PasswordTextBox.Name = "PasswordTextBox";
             this.PasswordTextBox.Size = new System.Drawing.Size(294, 27);
             this.PasswordTextBox.TabIndex = 10;
@@ -91,7 +91,7 @@
             // UsernameLabel
             // 
             this.UsernameLabel.AutoSize = true;
-            this.UsernameLabel.Location = new System.Drawing.Point(10, 80);
+            this.UsernameLabel.Location = new System.Drawing.Point(10, 88);
             this.UsernameLabel.Name = "UsernameLabel";
             this.UsernameLabel.Size = new System.Drawing.Size(82, 20);
             this.UsernameLabel.TabIndex = 11;
@@ -100,7 +100,7 @@
             // AddressLabel
             // 
             this.AddressLabel.AutoSize = true;
-            this.AddressLabel.Location = new System.Drawing.Point(10, 51);
+            this.AddressLabel.Location = new System.Drawing.Point(10, 55);
             this.AddressLabel.Name = "AddressLabel";
             this.AddressLabel.Size = new System.Drawing.Size(69, 20);
             this.AddressLabel.TabIndex = 5;
@@ -108,7 +108,7 @@
             // 
             // PortTextBox
             // 
-            this.PortTextBox.Location = new System.Drawing.Point(358, 48);
+            this.PortTextBox.Location = new System.Drawing.Point(358, 52);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(56, 27);
             this.PortTextBox.TabIndex = 4;
@@ -116,7 +116,7 @@
             // 
             // AddressTextBox
             // 
-            this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
+            this.AddressTextBox.Location = new System.Drawing.Point(120, 52);
             this.AddressTextBox.Name = "AddressTextBox";
             this.AddressTextBox.Size = new System.Drawing.Size(232, 27);
             this.AddressTextBox.TabIndex = 2;
@@ -142,7 +142,7 @@
             // PortLabel
             // 
             this.PortLabel.AutoSize = true;
-            this.PortLabel.Location = new System.Drawing.Point(349, 51);
+            this.PortLabel.Location = new System.Drawing.Point(349, 55);
             this.PortLabel.Name = "PortLabel";
             this.PortLabel.Size = new System.Drawing.Size(13, 20);
             this.PortLabel.TabIndex = 3;
@@ -151,7 +151,7 @@
             // ControlButton
             // 
             this.ControlButton.AutoSize = true;
-            this.ControlButton.Location = new System.Drawing.Point(357, 157);
+            this.ControlButton.Location = new System.Drawing.Point(364, 176);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 1;
@@ -163,7 +163,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 192);
+            this.ClientSize = new System.Drawing.Size(448, 219);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));

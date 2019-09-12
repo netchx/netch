@@ -48,7 +48,7 @@
             this.IPGroupBox.Controls.Add(this.IPListBox);
             this.IPGroupBox.Location = new System.Drawing.Point(12, 12);
             this.IPGroupBox.Name = "IPGroupBox";
-            this.IPGroupBox.Size = new System.Drawing.Size(316, 309);
+            this.IPGroupBox.Size = new System.Drawing.Size(326, 317);
             this.IPGroupBox.TabIndex = 0;
             this.IPGroupBox.TabStop = false;
             this.IPGroupBox.Text = "IPs";
@@ -56,7 +56,7 @@
             // AddButton
             // 
             this.AddButton.AutoSize = true;
-            this.AddButton.Location = new System.Drawing.Point(184, 269);
+            this.AddButton.Location = new System.Drawing.Point(190, 273);
             this.AddButton.Name = "AddButton";
             this.AddButton.Size = new System.Drawing.Size(53, 30);
             this.AddButton.TabIndex = 4;
@@ -67,7 +67,7 @@
             // DeleteButton
             // 
             this.DeleteButton.AutoSize = true;
-            this.DeleteButton.Location = new System.Drawing.Point(243, 269);
+            this.DeleteButton.Location = new System.Drawing.Point(249, 273);
             this.DeleteButton.Name = "DeleteButton";
             this.DeleteButton.Size = new System.Drawing.Size(67, 30);
             this.DeleteButton.TabIndex = 3;
@@ -80,7 +80,7 @@
             this.PrefixComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.PrefixComboBox.FormattingEnabled = true;
             this.PrefixComboBox.IntegralHeight = false;
-            this.PrefixComboBox.Location = new System.Drawing.Point(271, 235);
+            this.PrefixComboBox.Location = new System.Drawing.Point(277, 235);
             this.PrefixComboBox.MaxDropDownItems = 4;
             this.PrefixComboBox.Name = "PrefixComboBox";
             this.PrefixComboBox.Size = new System.Drawing.Size(39, 28);
@@ -99,13 +99,13 @@
             this.IPListBox.ItemHeight = 20;
             this.IPListBox.Location = new System.Drawing.Point(6, 22);
             this.IPListBox.Name = "IPListBox";
-            this.IPListBox.Size = new System.Drawing.Size(304, 204);
+            this.IPListBox.Size = new System.Drawing.Size(310, 204);
             this.IPListBox.TabIndex = 0;
             // 
             // ControlButton
             // 
             this.ControlButton.AutoSize = true;
-            this.ControlButton.Location = new System.Drawing.Point(255, 327);
+            this.ControlButton.Location = new System.Drawing.Point(263, 335);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 30);
             this.ControlButton.TabIndex = 1;
@@ -117,7 +117,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(340, 370);
+            this.ClientSize = new System.Drawing.Size(350, 377);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.IPGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
