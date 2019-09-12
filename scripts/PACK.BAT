@@ -13,14 +13,14 @@ CD x64
 DEL /F /S /Q *.config
 DEL /F /S /Q *.pdb
 DEL /F /S /Q *.xml
-bc c -l:9 -r Netch.x64.7z *
+7z a -r Netch.x64.7z *
 MOVE Netch.x64.7z ..\release
 
 CD ..\x86
 DEL /F /S /Q *.config
 DEL /F /S /Q *.pdb
 DEL /F /S /Q *.xml
-bc c -l:9 -r Netch.x86.7z *
+7z a -r Netch.x86.7z *
 MOVE Netch.x86.7z ..\release
 
 CD ..
