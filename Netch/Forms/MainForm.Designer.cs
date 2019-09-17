@@ -57,10 +57,10 @@
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
-            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -103,7 +103,7 @@
             this.AddVMessServerToolStripMenuItem});
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
-            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 24);
+            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
             this.ServerToolStripMenuItem.Text = "Server";
             // 
             // ImportServersFromClipboardToolStripMenuItem
@@ -147,7 +147,7 @@
             this.CreateProcessModeToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
-            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 24);
+            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
             this.ModeToolStripMenuItem.Text = "Mode";
             // 
             // CreateProcessModeToolStripMenuItem
@@ -164,7 +164,7 @@
             this.UpdateServersFromSubscribeLinksToolStripMenuItem});
             this.SubscribeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.SubscribeToolStripMenuItem.Name = "SubscribeToolStripMenuItem";
-            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(77, 24);
+            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(77, 21);
             this.SubscribeToolStripMenuItem.Text = "Subscribe";
             // 
             // ManageSubscribeLinksToolStripMenuItem
@@ -189,7 +189,7 @@
             this.UninstallServiceToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
-            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 24);
+            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
             this.OptionsToolStripMenuItem.Text = "Options";
             // 
             // ReloadModesToolStripMenuItem
@@ -219,7 +219,7 @@
             this.AboutToolStripButton.AutoToolTip = false;
             this.AboutToolStripButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 1);
             this.AboutToolStripButton.Name = "AboutToolStripButton";
-            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 24);
+            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 21);
             this.AboutToolStripButton.Text = "About";
             this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
             // 
@@ -231,7 +231,7 @@
             this.VersionLabel.IsLink = true;
             this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(83, 22);
+            this.VersionLabel.Size = new System.Drawing.Size(70, 19);
             this.VersionLabel.Text = "1.2.8-BETA";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
@@ -341,19 +341,19 @@
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;
             // 
+            // StatusLabel
+            // 
+            this.StatusLabel.BackColor = System.Drawing.Color.Transparent;
+            this.StatusLabel.Name = "StatusLabel";
+            this.StatusLabel.Size = new System.Drawing.Size(177, 17);
+            this.StatusLabel.Text = "Status: Waiting for command";
+            // 
             // UsedBandwidthLabel
             // 
             this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
             this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
             this.UsedBandwidthLabel.Text = "Used: 0 KB";
             this.UsedBandwidthLabel.Visible = false;
-            // 
-            // UploadSpeedLabel
-            // 
-            this.UploadSpeedLabel.Name = "UploadSpeedLabel";
-            this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
-            this.UploadSpeedLabel.Text = "↑: 0 KB/s";
-            this.UploadSpeedLabel.Visible = false;
             // 
             // DownloadSpeedLabel
             // 
@@ -362,12 +362,12 @@
             this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
             this.DownloadSpeedLabel.Visible = false;
             // 
-            // StatusLabel
+            // UploadSpeedLabel
             // 
-            this.StatusLabel.BackColor = System.Drawing.Color.Transparent;
-            this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(177, 17);
-            this.StatusLabel.Text = "Status: Waiting for command";
+            this.UploadSpeedLabel.Name = "UploadSpeedLabel";
+            this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
+            this.UploadSpeedLabel.Text = "↑: 0 KB/s";
+            this.UploadSpeedLabel.Visible = false;
             // 
             // ControlButton
             // 
@@ -423,8 +423,8 @@
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(608, 176);
             this.Controls.Add(this.SettingsButton);
             this.Controls.Add(this.ControlButton);

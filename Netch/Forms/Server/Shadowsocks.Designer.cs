@@ -30,6 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Shadowsocks));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
+            this.PluginOptionsTextBox = new System.Windows.Forms.TextBox();
+            this.PluginOptionsLabel = new System.Windows.Forms.Label();
+            this.PluginTextBox = new System.Windows.Forms.TextBox();
+            this.PluginLabel = new System.Windows.Forms.Label();
             this.EncryptMethodLabel = new System.Windows.Forms.Label();
             this.EncryptMethodComboBox = new System.Windows.Forms.ComboBox();
             this.PasswordTextBox = new System.Windows.Forms.TextBox();
@@ -41,10 +45,6 @@
             this.RemarkLabel = new System.Windows.Forms.Label();
             this.PortLabel = new System.Windows.Forms.Label();
             this.ControlButton = new System.Windows.Forms.Button();
-            this.PluginLabel = new System.Windows.Forms.Label();
-            this.PluginTextBox = new System.Windows.Forms.TextBox();
-            this.PluginOptionsTextBox = new System.Windows.Forms.TextBox();
-            this.PluginOptionsLabel = new System.Windows.Forms.Label();
             this.ConfigurationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,6 +70,40 @@
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
+            // 
+            // PluginOptionsTextBox
+            // 
+            this.PluginOptionsTextBox.Location = new System.Drawing.Point(120, 166);
+            this.PluginOptionsTextBox.Name = "PluginOptionsTextBox";
+            this.PluginOptionsTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PluginOptionsTextBox.TabIndex = 17;
+            this.PluginOptionsTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PluginOptionsLabel
+            // 
+            this.PluginOptionsLabel.AutoSize = true;
+            this.PluginOptionsLabel.Location = new System.Drawing.Point(10, 169);
+            this.PluginOptionsLabel.Name = "PluginOptionsLabel";
+            this.PluginOptionsLabel.Size = new System.Drawing.Size(93, 17);
+            this.PluginOptionsLabel.TabIndex = 16;
+            this.PluginOptionsLabel.Text = "Plugin Options";
+            // 
+            // PluginTextBox
+            // 
+            this.PluginTextBox.Location = new System.Drawing.Point(120, 137);
+            this.PluginTextBox.Name = "PluginTextBox";
+            this.PluginTextBox.Size = new System.Drawing.Size(294, 23);
+            this.PluginTextBox.TabIndex = 15;
+            this.PluginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // PluginLabel
+            // 
+            this.PluginLabel.AutoSize = true;
+            this.PluginLabel.Location = new System.Drawing.Point(10, 140);
+            this.PluginLabel.Name = "PluginLabel";
+            this.PluginLabel.Size = new System.Drawing.Size(43, 17);
+            this.PluginLabel.TabIndex = 14;
+            this.PluginLabel.Text = "Plugin";
             // 
             // EncryptMethodLabel
             // 
@@ -169,44 +203,10 @@
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // PluginLabel
-            // 
-            this.PluginLabel.AutoSize = true;
-            this.PluginLabel.Location = new System.Drawing.Point(10, 140);
-            this.PluginLabel.Name = "PluginLabel";
-            this.PluginLabel.Size = new System.Drawing.Size(43, 17);
-            this.PluginLabel.TabIndex = 14;
-            this.PluginLabel.Text = "Plugin";
-            // 
-            // PluginTextBox
-            // 
-            this.PluginTextBox.Location = new System.Drawing.Point(120, 137);
-            this.PluginTextBox.Name = "PluginTextBox";
-            this.PluginTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PluginTextBox.TabIndex = 15;
-            this.PluginTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // PluginOptionsTextBox
-            // 
-            this.PluginOptionsTextBox.Location = new System.Drawing.Point(120, 166);
-            this.PluginOptionsTextBox.Name = "PluginOptionsTextBox";
-            this.PluginOptionsTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PluginOptionsTextBox.TabIndex = 17;
-            this.PluginOptionsTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // PluginOptionsLabel
-            // 
-            this.PluginOptionsLabel.AutoSize = true;
-            this.PluginOptionsLabel.Location = new System.Drawing.Point(10, 169);
-            this.PluginOptionsLabel.Name = "PluginOptionsLabel";
-            this.PluginOptionsLabel.Size = new System.Drawing.Size(93, 17);
-            this.PluginOptionsLabel.TabIndex = 16;
-            this.PluginOptionsLabel.Text = "Plugin Options";
-            // 
             // Shadowsocks
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(444, 248);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
