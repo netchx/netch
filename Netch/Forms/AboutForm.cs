@@ -41,7 +41,7 @@ namespace Netch.Forms
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
         {
-            Process.Start("https://n3ro.io/register?ref=530");
+            Process.Start("https://home.yoyu.dev/aff.php?aff=407");
         }
     }
 }

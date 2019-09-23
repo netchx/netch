@@ -373,7 +373,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Netch.ico" />
-    <None Include="Resources\N3RO.jpg" />
+    <Content Include="Resources\YoYu.png" />
     <None Include="Resources\Netch.png" />
     <None Include="Resources\speed.png" />
     <None Include="Resources\edit.png" />
