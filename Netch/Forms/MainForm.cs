@@ -32,6 +32,11 @@ namespace Netch.Forms
         /// </summary>
         public long LastDownlaodBandwidth = 0;
 
+        /// <summary>
+        ///     是否第一次打开
+        /// </summary>
+        public bool IsFirstOpened = true;
+
         public MainForm()
         {
             InitializeComponent();
@@ -42,15 +47,10 @@ namespace Netch.Forms
 
         public void TestServer()
         {
-            var list = new Task[Global.Settings.Server.Count];
-            var count = 0;
-
-            foreach (var server in Global.Settings.Server)
+            Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server =>
             {
-                list[count++] = Task.Run(() => server.Test());
-            }
-
-            Task.WaitAll(list);
+                server.Test();
+            });
         }
 
         public void InitServer()
@@ -299,10 +299,15 @@ namespace Netch.Forms
                 this.WindowState = FormWindowState.Minimized;
                 this.NotifyIcon.Visible = true;
 
-                // 显示提示语
-                this.NotifyIcon.BalloonTipTitle = "Netch";
-                this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-                this.NotifyIcon.ShowBalloonTip(5);
+                if (IsFirstOpened)
+                {
+                    // 显示提示语
+                    this.NotifyIcon.BalloonTipTitle = "Netch";
+                    this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                    this.NotifyIcon.ShowBalloonTip(5);
+
+                    IsFirstOpened = false;
+                }
 
                 Hide();
             }
@@ -587,6 +592,7 @@ namespace Netch.Forms
                 {
                     ServerComboBox.SelectedIndex = (index != 0) ? index - 1 : index;
                 }
+                Utils.Configuration.Save();
             }
             else
             {

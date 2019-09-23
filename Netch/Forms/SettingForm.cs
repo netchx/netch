@@ -212,7 +212,9 @@ namespace Netch.Forms
 
             Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;
 
+            Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Close();
         }
     }
 }

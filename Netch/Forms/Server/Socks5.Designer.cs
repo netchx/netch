@@ -69,7 +69,7 @@
             this.PasswordLabel.Location = new System.Drawing.Point(10, 109);
             this.PasswordLabel.Name = "PasswordLabel";
             this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
-            this.PasswordLabel.TabIndex = 13;
+            this.PasswordLabel.TabIndex = 8;
             this.PasswordLabel.Text = "Password";
             // 
             // UsernameTextBox
@@ -77,7 +77,7 @@
             this.UsernameTextBox.Location = new System.Drawing.Point(120, 77);
             this.UsernameTextBox.Name = "UsernameTextBox";
             this.UsernameTextBox.Size = new System.Drawing.Size(294, 23);
-            this.UsernameTextBox.TabIndex = 12;
+            this.UsernameTextBox.TabIndex = 7;
             this.UsernameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // PasswordTextBox
@@ -85,7 +85,7 @@
             this.PasswordTextBox.Location = new System.Drawing.Point(120, 106);
             this.PasswordTextBox.Name = "PasswordTextBox";
             this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PasswordTextBox.TabIndex = 10;
+            this.PasswordTextBox.TabIndex = 9;
             this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UsernameLabel
@@ -94,7 +94,7 @@
             this.UsernameLabel.Location = new System.Drawing.Point(10, 80);
             this.UsernameLabel.Name = "UsernameLabel";
             this.UsernameLabel.Size = new System.Drawing.Size(67, 17);
-            this.UsernameLabel.TabIndex = 11;
+            this.UsernameLabel.TabIndex = 6;
             this.UsernameLabel.Text = "Username";
             // 
             // AddressLabel
@@ -103,7 +103,7 @@
             this.AddressLabel.Location = new System.Drawing.Point(10, 51);
             this.AddressLabel.Name = "AddressLabel";
             this.AddressLabel.Size = new System.Drawing.Size(56, 17);
-            this.AddressLabel.TabIndex = 5;
+            this.AddressLabel.TabIndex = 2;
             this.AddressLabel.Text = "Address";
             // 
             // PortTextBox
@@ -111,7 +111,7 @@
             this.PortTextBox.Location = new System.Drawing.Point(358, 48);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(56, 23);
-            this.PortTextBox.TabIndex = 4;
+            this.PortTextBox.TabIndex = 5;
             this.PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AddressTextBox
@@ -119,7 +119,7 @@
             this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
             this.AddressTextBox.Name = "AddressTextBox";
             this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
-            this.AddressTextBox.TabIndex = 2;
+            this.AddressTextBox.TabIndex = 3;
             this.AddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // RemarkTextBox
@@ -145,7 +145,7 @@
             this.PortLabel.Location = new System.Drawing.Point(351, 51);
             this.PortLabel.Name = "PortLabel";
             this.PortLabel.Size = new System.Drawing.Size(11, 17);
-            this.PortLabel.TabIndex = 3;
+            this.PortLabel.TabIndex = 4;
             this.PortLabel.Text = ":";
             // 
             // ControlButton

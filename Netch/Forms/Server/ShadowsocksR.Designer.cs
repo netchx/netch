@@ -85,7 +85,7 @@
             this.OBFSParamLabel.Location = new System.Drawing.Point(10, 230);
             this.OBFSParamLabel.Name = "OBFSParamLabel";
             this.OBFSParamLabel.Size = new System.Drawing.Size(80, 17);
-            this.OBFSParamLabel.TabIndex = 21;
+            this.OBFSParamLabel.TabIndex = 16;
             this.OBFSParamLabel.Text = "OBFS Param";
             // 
             // OBFSParamTextBox
@@ -93,7 +93,7 @@
             this.OBFSParamTextBox.Location = new System.Drawing.Point(120, 227);
             this.OBFSParamTextBox.Name = "OBFSParamTextBox";
             this.OBFSParamTextBox.Size = new System.Drawing.Size(294, 23);
-            this.OBFSParamTextBox.TabIndex = 20;
+            this.OBFSParamTextBox.TabIndex = 17;
             this.OBFSParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // OBFSLabel
@@ -102,7 +102,7 @@
             this.OBFSLabel.Location = new System.Drawing.Point(10, 200);
             this.OBFSLabel.Name = "OBFSLabel";
             this.OBFSLabel.Size = new System.Drawing.Size(39, 17);
-            this.OBFSLabel.TabIndex = 19;
+            this.OBFSLabel.TabIndex = 14;
             this.OBFSLabel.Text = "OBFS";
             // 
             // OBFSComboBox
@@ -113,7 +113,7 @@
             this.OBFSComboBox.Location = new System.Drawing.Point(120, 196);
             this.OBFSComboBox.Name = "OBFSComboBox";
             this.OBFSComboBox.Size = new System.Drawing.Size(294, 24);
-            this.OBFSComboBox.TabIndex = 18;
+            this.OBFSComboBox.TabIndex = 15;
             this.OBFSComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
             // ProtocolParamLabel
@@ -122,7 +122,7 @@
             this.ProtocolParamLabel.Location = new System.Drawing.Point(10, 170);
             this.ProtocolParamLabel.Name = "ProtocolParamLabel";
             this.ProtocolParamLabel.Size = new System.Drawing.Size(98, 17);
-            this.ProtocolParamLabel.TabIndex = 17;
+            this.ProtocolParamLabel.TabIndex = 12;
             this.ProtocolParamLabel.Text = "Protocol Param";
             // 
             // ProtocolParamTextBox
@@ -130,7 +130,7 @@
             this.ProtocolParamTextBox.Location = new System.Drawing.Point(120, 167);
             this.ProtocolParamTextBox.Name = "ProtocolParamTextBox";
             this.ProtocolParamTextBox.Size = new System.Drawing.Size(294, 23);
-            this.ProtocolParamTextBox.TabIndex = 16;
+            this.ProtocolParamTextBox.TabIndex = 13;
             this.ProtocolParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ProtocolLabel
@@ -139,7 +139,7 @@
             this.ProtocolLabel.Location = new System.Drawing.Point(10, 140);
             this.ProtocolLabel.Name = "ProtocolLabel";
             this.ProtocolLabel.Size = new System.Drawing.Size(57, 17);
-            this.ProtocolLabel.TabIndex = 15;
+            this.ProtocolLabel.TabIndex = 10;
             this.ProtocolLabel.Text = "Protocol";
             // 
             // ProtocolComboBox
@@ -150,7 +150,7 @@
             this.ProtocolComboBox.Location = new System.Drawing.Point(120, 136);
             this.ProtocolComboBox.Name = "ProtocolComboBox";
             this.ProtocolComboBox.Size = new System.Drawing.Size(294, 24);
-            this.ProtocolComboBox.TabIndex = 14;
+            this.ProtocolComboBox.TabIndex = 11;
             this.ProtocolComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
             // EncryptMethodLabel
@@ -159,7 +159,7 @@
             this.EncryptMethodLabel.Location = new System.Drawing.Point(10, 110);
             this.EncryptMethodLabel.Name = "EncryptMethodLabel";
             this.EncryptMethodLabel.Size = new System.Drawing.Size(101, 17);
-            this.EncryptMethodLabel.TabIndex = 13;
+            this.EncryptMethodLabel.TabIndex = 8;
             this.EncryptMethodLabel.Text = "Encrypt Method";
             // 
             // EncryptMethodComboBox
@@ -170,7 +170,7 @@
             this.EncryptMethodComboBox.Location = new System.Drawing.Point(120, 106);
             this.EncryptMethodComboBox.Name = "EncryptMethodComboBox";
             this.EncryptMethodComboBox.Size = new System.Drawing.Size(294, 24);
-            this.EncryptMethodComboBox.TabIndex = 12;
+            this.EncryptMethodComboBox.TabIndex = 9;
             this.EncryptMethodComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
             // PasswordTextBox
@@ -178,7 +178,7 @@
             this.PasswordTextBox.Location = new System.Drawing.Point(120, 77);
             this.PasswordTextBox.Name = "PasswordTextBox";
             this.PasswordTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PasswordTextBox.TabIndex = 10;
+            this.PasswordTextBox.TabIndex = 7;
             this.PasswordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // PasswordLabel
@@ -187,7 +187,7 @@
             this.PasswordLabel.Location = new System.Drawing.Point(10, 80);
             this.PasswordLabel.Name = "PasswordLabel";
             this.PasswordLabel.Size = new System.Drawing.Size(64, 17);
-            this.PasswordLabel.TabIndex = 11;
+            this.PasswordLabel.TabIndex = 6;
             this.PasswordLabel.Text = "Password";
             // 
             // AddressLabel
@@ -196,7 +196,7 @@
             this.AddressLabel.Location = new System.Drawing.Point(10, 51);
             this.AddressLabel.Name = "AddressLabel";
             this.AddressLabel.Size = new System.Drawing.Size(56, 17);
-            this.AddressLabel.TabIndex = 5;
+            this.AddressLabel.TabIndex = 2;
             this.AddressLabel.Text = "Address";
             // 
             // PortTextBox
@@ -204,7 +204,7 @@
             this.PortTextBox.Location = new System.Drawing.Point(358, 48);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(56, 23);
-            this.PortTextBox.TabIndex = 4;
+            this.PortTextBox.TabIndex = 5;
             this.PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AddressTextBox
@@ -212,7 +212,7 @@
             this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
             this.AddressTextBox.Name = "AddressTextBox";
             this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
-            this.AddressTextBox.TabIndex = 2;
+            this.AddressTextBox.TabIndex = 3;
             this.AddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // RemarkTextBox
@@ -238,7 +238,7 @@
             this.PortLabel.Location = new System.Drawing.Point(351, 51);
             this.PortLabel.Name = "PortLabel";
             this.PortLabel.Size = new System.Drawing.Size(11, 17);
-            this.PortLabel.TabIndex = 3;
+            this.PortLabel.TabIndex = 4;
             this.PortLabel.Text = ":";
             // 
             // ControlButton
