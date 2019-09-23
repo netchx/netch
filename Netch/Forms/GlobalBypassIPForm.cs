@@ -71,7 +71,9 @@ namespace Netch.Forms
                 Global.Settings.BypassIPs.Add(ip as String);
             }
 
+            Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Close();
         }
     }
 }

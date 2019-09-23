@@ -107,6 +107,7 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Successfully saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
