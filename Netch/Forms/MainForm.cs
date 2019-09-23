@@ -47,15 +47,10 @@ namespace Netch.Forms
 
         public void TestServer()
         {
-            var list = new Task[Global.Settings.Server.Count];
-            var count = 0;
-
-            foreach (var server in Global.Settings.Server)
+            Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server =>
             {
-                list[count++] = Task.Run(() => server.Test());
-            }
-
-            Task.WaitAll(list);
+                server.Test();
+            });
         }
 
         public void InitServer()
