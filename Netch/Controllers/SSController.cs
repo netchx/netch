@@ -15,7 +15,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Objects.State State = Objects.State.Waiting;
+        public Models.State State = Models.State.Waiting;
 
         /// <summary>
         ///		启动
@@ -23,7 +23,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Objects.Server server, Objects.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
             if (!File.Exists("bin\\Shadowsocks.exe"))
             {
@@ -31,12 +31,9 @@ namespace Netch.Controllers
             }
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间
-            if (Directory.Exists("logging"))
+            if (File.Exists("logging\\shadowsocks.log"))
             {
-                if (File.Exists("logging\\shadowsocks.log"))
-                {
-                    File.Delete("logging\\shadowsocks.log");
-                }
+                File.Delete("logging\\shadowsocks.log");
             }
 
             Instance = MainController.GetProcess();
@@ -59,7 +56,7 @@ namespace Netch.Controllers
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
-            State = Objects.State.Starting;
+            State = Models.State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
@@ -67,12 +64,12 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Objects.State.Started)
+                if (State == Models.State.Started)
                 {
                     return true;
                 }
 
-                if (State == Objects.State.Stopped)
+                if (State == Models.State.Stopped)
                 {
                     Utils.Logging.Info("SS 进程启动失败");
 
@@ -110,19 +107,19 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
 
-                if (State == Objects.State.Starting)
+                if (State == Models.State.Starting)
                 {
                     if (Instance.HasExited)
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                     else if (e.Data.Contains("listening at"))
                     {
-                        State = Objects.State.Started;
+                        State = Models.State.Started;
                     }
                     else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly"))
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                 }
             }
