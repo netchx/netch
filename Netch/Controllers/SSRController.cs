@@ -15,7 +15,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Objects.State State = Objects.State.Waiting;
+        public Models.State State = Models.State.Waiting;
 
         /// <summary>
         ///		启动
@@ -23,44 +23,44 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Objects.Server server, Objects.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
             if (!File.Exists("bin\\ShadowsocksR.exe"))
             {
                 return false;
             }
 
-            if (!Directory.Exists("data"))
-            {
-                Directory.CreateDirectory("data");
-            }
-
-            File.WriteAllText("data\\last.json", Newtonsoft.Json.JsonConvert.SerializeObject(new Objects.Information.SSR()
-            {
-                server = server.Address,
-                server_port = server.Port,
-                password = server.Password,
-                method = server.EncryptMethod,
-                protocol = server.Protocol,
-                protocol_param = server.ProtocolParam,
-                obfs = server.OBFS,
-                obfs_param = server.OBFSParam,
-                local_port = Global.Settings.Socks5LocalPort,
-                local_address = Global.Settings.LocalAddress
-            }));
-
             // 清理上一次的日志文件，防止淤积占用磁盘空间
-            if (Directory.Exists("logging"))
+            if (File.Exists("logging\\shadowsocksr.log"))
             {
-                if (File.Exists("logging\\shadowsocksr.log"))
-                {
-                    File.Delete("logging\\shadowsocksr.log");
-                }
+                File.Delete("logging\\shadowsocksr.log");
             }
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\ShadowsocksR.exe";
-            Instance.StartInfo.Arguments = "-c ..\\data\\last.json -u";
+            Instance.StartInfo.Arguments = $"-s {server.Address} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod}";
+
+            if (!String.IsNullOrEmpty(server.Protocol))
+            {
+                Instance.StartInfo.Arguments += $" -O {server.Protocol}";
+
+                if (!String.IsNullOrEmpty(server.ProtocolParam))
+                {
+                    Instance.StartInfo.Arguments += $" -G \"{server.ProtocolParam}\"";
+                }
+            }
+
+            if (!String.IsNullOrEmpty(server.OBFS))
+            {
+                Instance.StartInfo.Arguments += $" -o {server.OBFS}";
+
+                if (!String.IsNullOrEmpty(server.OBFSParam))
+                {
+                    Instance.StartInfo.Arguments += $" -g \"{server.OBFSParam}\"";
+                }
+            }
+
+            Instance.StartInfo.Arguments += $" -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -u";
 
             if (mode.BypassChina)
             {
@@ -70,7 +70,7 @@ namespace Netch.Controllers
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
-            State = Objects.State.Starting;
+            State = Models.State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
@@ -78,16 +78,12 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Objects.State.Started)
+                if (State == Models.State.Started)
                 {
-                    if (File.Exists("data\\last.json"))
-                    {
-                        File.Delete("data\\last.json");
-                    }
                     return true;
                 }
 
-                if (State == Objects.State.Stopped)
+                if (State == Models.State.Stopped)
                 {
                     Utils.Logging.Info("SSR 进程启动失败");
 
@@ -125,19 +121,19 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\shadowsocksr.log", $"{e.Data}\r\n");
 
-                if (State == Objects.State.Starting)
+                if (State == Models.State.Starting)
                 {
                     if (Instance.HasExited)
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                     else if (e.Data.Contains("listening at"))
                     {
-                        State = Objects.State.Started;
+                        State = Models.State.Started;
                     }
                     else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage"))
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                 }
             }
