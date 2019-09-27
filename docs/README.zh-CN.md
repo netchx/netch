@@ -15,7 +15,7 @@
      - 4.1.3 [进程模式下无法进入游戏 / 无法成功代理](#进程模式下无法进入游戏--无法成功代理)
        - 4.1.3.1 [进程模式规则问题](#进程模式规则问题)
        - 4.1.3.2 [shadowsocks 参数问题](#shadowsocks-参数问题)
-       - 4.1.3.3 [bin/Redirector.exe 问题](#binRedirector.exe-问题)
+       - 4.1.3.3 [bin/Redirector.exe 问题](#binredirectorexe-问题)
        - 4.1.3.4 [进程模式以外的方法](#进程模式以外的方法)
      - 4.1.4 [NAT 类型限制](#NAT-类型限制)
      - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam--浏览器无法正常打开页面)
@@ -109,7 +109,11 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 
 ##### bin/Redirector.exe 问题
 
-该文件是闭源的，主要是负责和底层 Netfilter SDK 的控制，其各个版本之间还有细微差距，经反馈，较为稳定的为 1.2.4-STABLE 及之前的和 1.2.9 的版本，以下为推荐的旧版本下载链接，请大家自行尝试。下载后，只需将 `bin/Redirector.exe` 覆盖即可
+**暂时不要提关于 bin/Redirector.exe 的新 issue，请等待开发者重构相关代码**
+
+- 因为新版本出来以后老问题可能都会消失所以不需要提新 issue
+
+该文件是闭源的，主要是负责和底层 Netfilter SDK 的控制，其各个版本之间还有细微差距，经反馈，较为稳定的为 1.0.9-STABLE - 1.2.4-STABLE（无流量统计）和 1.2.9 的版本，以下为推荐的旧版本下载链接，请大家自行尝试。下载后，只需将 `bin/Redirector.exe` 覆盖即可
 
 只有 1.3.0 及以后和 1.2.4-STABLE 及以前的 `bin/Redirector.exe` 有处理进程所在中文路径的能力，如果需要使用不支持中文路径的 `bin/Redirector.exe`，请自行修改进程所在路径
 
@@ -131,6 +135,7 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 
 ```bash
 $ git log --pretty=oneline --decorate --source --tags binaries/x64/Redirector.exe
+e3a9a75343bd808593a5e93781e42e414e9c8e1c 190927 1.3.1 Return short path when fetching long path fails
 4860e038c7d667026b48e7ea7e42a777646c6782 190917 1.3.0 Fix path contains chinese
 349c44f8947e5f6aae8677b2ea93ea7eb441a537 190906 1.2.9 Update redirector, now support custom tcp port with -t arg
 ed60a46dee8179836773731c0970d2e004375024 190904 1.2.9 Fix and optimize redirector

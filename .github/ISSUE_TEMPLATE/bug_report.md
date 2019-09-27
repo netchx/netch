@@ -9,6 +9,8 @@ assignees: ''
 
 **Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.**
 
+**Temporarily don't accept any issues about `bin/Redirector.exe`. Because its codes is refactoring now. Perhaps the issues you encountered will be solved in new version.**
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
