@@ -142,7 +142,7 @@
             this.MaximizeBox = false;
             this.Name = "Process";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Fast Create Mode";
+            this.Text = "Create Process Mode";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModeForm_FormClosing);
             this.Load += new System.EventHandler(this.ModeForm_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);

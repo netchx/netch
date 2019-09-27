@@ -54,7 +54,7 @@ namespace Netch.Forms.Mode
 
         private void ModeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Fast Create Mode");
+            Text = Utils.i18N.Translate("Create Process Mode");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             RemarkLabel.Text = Utils.i18N.Translate("Remark");
             AddButton.Text = Utils.i18N.Translate("Add");
