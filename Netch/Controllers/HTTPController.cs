@@ -16,7 +16,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Objects.Server server, Objects.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
             try
             {

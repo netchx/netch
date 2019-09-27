@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Netch.Objects.Information
+namespace Netch.Models.Information
 {
     public class VMess
     {

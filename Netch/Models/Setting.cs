@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Netch.Objects
+namespace Netch.Models
 {
     /// <summary>
     ///		TUN/TAP 适配器配置类
@@ -74,12 +74,12 @@ namespace Netch.Objects
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Objects.Server> Server = new List<Objects.Server>();
+        public List<Models.Server> Server = new List<Models.Server>();
 
         /// <summary>
         ///     订阅链接列表
         /// </summary>
-        public List<Objects.SubscribeLink> SubscribeLink = new List<Objects.SubscribeLink>();
+        public List<Models.SubscribeLink> SubscribeLink = new List<Models.SubscribeLink>();
 
         /// <summary>
         ///		全局绕过 IP 列表

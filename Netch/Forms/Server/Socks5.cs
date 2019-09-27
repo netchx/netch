@@ -72,7 +72,7 @@ namespace Netch.Forms.Server
         {
             if (Index == -1)
             {
-                Global.Settings.Server.Add(new Objects.Server()
+                Global.Settings.Server.Add(new Models.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "Socks5",
@@ -84,7 +84,7 @@ namespace Netch.Forms.Server
             }
             else
             {
-                Global.Settings.Server[Index] = new Objects.Server()
+                Global.Settings.Server[Index] = new Models.Server()
                 {
                     Remark = RemarkTextBox.Text,
                     Group = Global.Settings.Server[Index].Group,

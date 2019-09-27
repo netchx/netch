@@ -51,7 +51,7 @@ namespace Netch.Forms
                         var item = SubscribeLinkListView.SelectedItems[i];
                         var link = Global.Settings.SubscribeLink[item.Index];
 
-                        var list = new List<Objects.Server>();
+                        var list = new List<Models.Server>();
                         foreach (var server in Global.Settings.Server)
                         {
                             if (server.Group != link.Remark)
@@ -78,7 +78,7 @@ namespace Netch.Forms
                 {
                     if (LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) || LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
                     {
-                        Global.Settings.SubscribeLink.Add(new Objects.SubscribeLink()
+                        Global.Settings.SubscribeLink.Add(new Models.SubscribeLink()
                         {
                             Remark = RemarkTextBox.Text,
                             Link = LinkTextBox.Text

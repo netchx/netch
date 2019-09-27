@@ -1,11 +1,13 @@
-﻿namespace Netch.Objects.SSD
+﻿using System.Collections.Generic;
+
+namespace Netch.Models.SSD
 {
-    public class Server
+    public class Main
     {
         /// <summary>
-        ///     服务器地址
+        ///     机场名
         /// </summary>
-        public string server;
+        public string airport;
 
         /// <summary>
         ///     端口
@@ -33,8 +35,8 @@
         public string plugin_options;
 
         /// <summary>
-        ///     备注
+        ///     服务器数组
         /// </summary>
-        public string remarks;
+        public List<Server> servers;
     }
 }

@@ -193,6 +193,6 @@ namespace Netch
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>
-        public static Objects.Setting Settings = new Objects.Setting();
+        public static Models.Setting Settings = new Models.Setting();
     }
 }

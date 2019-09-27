@@ -18,15 +18,15 @@ namespace Netch.Utils
             return Encoding.UTF8.GetString(Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
         }
 
-        public static List<Objects.Server> Parse(string text)
+        public static List<Models.Server> Parse(string text)
         {
-            var list = new List<Objects.Server>();
+            var list = new List<Models.Server>();
 
             try
             {
                 if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
                 {
-                    var data = new Objects.Server();
+                    var data = new Models.Server();
                     data.Type = "Socks5";
 
                     var dict = new Dictionary<string, string>();
@@ -57,7 +57,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ss://"))
                 {
-                    var data = new Objects.Server();
+                    var data = new Models.Server();
                     data.Type = "Shadowsocks";
                     /*
                     try
@@ -243,11 +243,11 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssd://"))
                 {
-                    var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
+                    var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
 
                     foreach (var server in json.servers)
                     {
-                        var data = new Objects.Server();
+                        var data = new Models.Server();
                         data.Type = "Shadowsocks";
 
                         data.Remark = server.remarks;
@@ -266,7 +266,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssr://"))
                 {
-                    var data = new Objects.Server();
+                    var data = new Models.Server();
                     data.Type = "ShadowsocksR";
 
                     text = text.Substring(6);
@@ -409,11 +409,11 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("vmess://"))
                 {
-                    var data = new Objects.Server();
+                    var data = new Models.Server();
                     data.Type = "VMess";
 
                     text = text.Substring(8);
-                    var vmess = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.VMess>(URLSafeBase64Decode(text));
+                    var vmess = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VMess>(URLSafeBase64Decode(text));
 
                     data.Remark = vmess.ps;
                     data.Address = vmess.add;

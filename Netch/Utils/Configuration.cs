@@ -47,7 +47,7 @@ namespace Netch.Utils
                 {
                     try
                     {
-                        Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.Setting>(File.ReadAllText(SETTINGS_JSON));
+                        Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Setting>(File.ReadAllText(SETTINGS_JSON));
                     }
 
                     catch (Newtonsoft.Json.JsonException)
@@ -112,7 +112,7 @@ namespace Netch.Utils
                 {
                     try
                     {
-                        var LegacySettingTemp = Newtonsoft.Json.JsonConvert.DeserializeObject<Objects.LegacySetting>(File.ReadAllText(SETTINGS_DAT));
+                        var LegacySettingTemp = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_DAT));
                         Global.Settings.ServerComboBoxSelectedIndex = LegacySettingTemp.ServerComboBoxSelectedIndex;
                         Global.Settings.ModeComboBoxSelectedIndex = LegacySettingTemp.ModeComboBoxSelectedIndex;
                         // 如果成功读取就删除旧版本配置文件
@@ -133,7 +133,7 @@ namespace Netch.Utils
                     {
                         try
                         {
-                            Global.Settings.Server = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.Server>>(File.ReadAllText(SERVER_DAT));
+                            Global.Settings.Server = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.Server>>(File.ReadAllText(SERVER_DAT));
                             // 如果成功读取就删除旧版本配置文件
                             File.Delete(SERVER_DAT);
                         }
@@ -153,7 +153,7 @@ namespace Netch.Utils
                     {
                         try
                         {
-                            Global.Settings.SubscribeLink = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Objects.SubscribeLink>>(File.ReadAllText(LINK_DAT));
+                            Global.Settings.SubscribeLink = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.SubscribeLink>>(File.ReadAllText(LINK_DAT));
                             // 如果成功读取就删除旧版本配置文件
                             File.Delete(LINK_DAT);
                         }

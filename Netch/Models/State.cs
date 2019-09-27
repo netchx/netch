@@ -1,4 +1,4 @@
-﻿namespace Netch.Objects
+﻿namespace Netch.Models
 {
     /// <summary>
     ///     状态

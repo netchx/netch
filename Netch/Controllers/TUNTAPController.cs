@@ -17,7 +17,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Objects.State State = Objects.State.Waiting;
+        public Models.State State = Models.State.Waiting;
 
         /// <summary>
         ///		服务器 IP 地址
@@ -27,8 +27,8 @@ namespace Netch.Controllers
         /// <summary>
         ///     保存传入的规则
         /// </summary>
-        public Objects.Server SavedServer = new Objects.Server();
-        public Objects.Mode SavedMode = new Objects.Mode();
+        public Models.Server SavedServer = new Models.Server();
+        public Models.Mode SavedMode = new Models.Mode();
 
 
         /// <summary>
@@ -105,7 +105,7 @@ namespace Netch.Controllers
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
-                    State = Objects.State.Stopped;
+                    State = Models.State.Stopped;
 
                     foreach (var address in ServerAddresses)
                     {
@@ -226,7 +226,7 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="server">配置</param>
         /// <returns>是否成功</returns>
-        public bool Start(Objects.Server server, Objects.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
             foreach (var proc in Process.GetProcessesByName("tun2socks"))
             {
@@ -302,7 +302,7 @@ namespace Netch.Controllers
             Instance.ErrorDataReceived += OnOutputDataReceived;
             Instance.OutputDataReceived += OnOutputDataReceived;
 
-            State = Objects.State.Starting;
+            State = Models.State.Starting;
             Instance.Start();
             Instance.BeginErrorReadLine();
             Instance.BeginOutputReadLine();
@@ -312,12 +312,12 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Objects.State.Started)
+                if (State == Models.State.Started)
                 {
                     return true;
                 }
 
-                if (State == Objects.State.Stopped)
+                if (State == Models.State.Stopped)
                 {
                     Stop();
                     return false;
@@ -354,15 +354,15 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\tun2socks.log", String.Format("{0}\r\n", e.Data.Trim()));
 
-                if (State == Objects.State.Starting)
+                if (State == Models.State.Starting)
                 {
                     if (e.Data.Contains("Running"))
                     {
-                        State = Objects.State.Started;
+                        State = Models.State.Started;
                     }
                     else if (e.Data.Contains("failed") || e.Data.Contains("invalid vconfig file"))
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                 }
             }

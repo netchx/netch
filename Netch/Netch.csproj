@@ -287,16 +287,15 @@
     <Compile Include="Global.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Netch.cs" />
-    <Compile Include="Objects\Information\VMess.cs" />
-    <Compile Include="Objects\Information\SSR.cs" />
-    <Compile Include="Objects\Mode.cs" />
-    <Compile Include="Objects\Server.cs" />
-    <Compile Include="Objects\Setting.cs" />
-    <Compile Include="Objects\SSD\Main.cs" />
-    <Compile Include="Objects\SSD\Server.cs" />
-    <Compile Include="Objects\State.cs" />
-    <Compile Include="Objects\SubscribeLink.cs" />
-    <Compile Include="Objects\VMess.cs" />
+    <Compile Include="Models\Information\VMess.cs" />
+    <Compile Include="Models\Mode.cs" />
+    <Compile Include="Models\Server.cs" />
+    <Compile Include="Models\Setting.cs" />
+    <Compile Include="Models\SSD\Main.cs" />
+    <Compile Include="Models\SSD\Server.cs" />
+    <Compile Include="Models\State.cs" />
+    <Compile Include="Models\SubscribeLink.cs" />
+    <Compile Include="Models\VMess.cs" />
     <Compile Include="Override\ToolStripProfessionalRender.cs" />
     <Compile Include="Override\WebClient.cs">
       <SubType>Component</SubType>

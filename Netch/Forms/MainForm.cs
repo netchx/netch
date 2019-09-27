@@ -15,7 +15,7 @@ namespace Netch.Forms
         /// <summary>
         ///     当前状态
         /// </summary>
-        public Objects.State State = Objects.State.Waiting;
+        public Models.State State = Models.State.Waiting;
 
         /// <summary>
         ///     主控制器
@@ -79,12 +79,12 @@ namespace Netch.Forms
 
             if (Directory.Exists("mode"))
             {
-                var list = new List<Objects.Mode>();
+                var list = new List<Models.Mode>();
 
                 foreach (var name in Directory.GetFiles("mode", "*.txt"))
                 {
                     var ok = true;
-                    var mode = new Objects.Mode();
+                    var mode = new Models.Mode();
 
                     using (var sr = new StringReader(File.ReadAllText(name)))
                     {
@@ -184,9 +184,9 @@ namespace Netch.Forms
                 // 绘制 备注/名称 字符串
                 e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, new SolidBrush(Color.Black), e.Bounds);
 
-                if (cbx.Items[e.Index] is Objects.Server)
+                if (cbx.Items[e.Index] is Models.Server)
                 {
-                    var item = cbx.Items[e.Index] as Objects.Server;
+                    var item = cbx.Items[e.Index] as Models.Server;
 
                     // 计算延迟底色
                     SolidBrush brush;
@@ -217,9 +217,9 @@ namespace Netch.Forms
                     // 绘制延迟字符串
                     e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
                 }
-                else if (cbx.Items[e.Index] is Objects.Mode)
+                else if (cbx.Items[e.Index] is Models.Mode)
                 {
-                    var item = cbx.Items[e.Index] as Objects.Mode;
+                    var item = cbx.Items[e.Index] as Models.Mode;
 
                     // 绘制延迟底色
                     e.Graphics.FillRectangle(new SolidBrush(Color.Gray), ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
@@ -274,7 +274,7 @@ namespace Netch.Forms
             {
                 while (true)
                 {
-                    if (State == Objects.State.Waiting || State == Objects.State.Stopped)
+                    if (State == Models.State.Waiting || State == Models.State.Stopped)
                     {
                         TestServer();
 
@@ -290,7 +290,7 @@ namespace Netch.Forms
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && State != Objects.State.Terminating)
+            if (e.CloseReason == CloseReason.UserClosing && State != Models.State.Terminating)
             {
                 // 取消"关闭窗口"事件
                 e.Cancel = true; // 取消关闭窗体 
@@ -397,7 +397,7 @@ namespace Netch.Forms
                                     // 跳过
                                 }
 
-                                var list = new List<Objects.Server>();
+                                var list = new List<Models.Server>();
                                 foreach (var server in Global.Settings.Server)
                                 {
                                     if (server.Group != item.Remark)
@@ -585,7 +585,7 @@ namespace Netch.Forms
             {
                 var index = ServerComboBox.SelectedIndex;
 
-                Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Objects.Server);
+                Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Models.Server);
                 ServerComboBox.Items.RemoveAt(index);
 
                 if (ServerComboBox.Items.Count > 0)
@@ -617,7 +617,7 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            if (State == Objects.State.Waiting || State == Objects.State.Stopped)
+            if (State == Models.State.Waiting || State == Models.State.Stopped)
             {
                 // 当前ServerComboBox中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
@@ -636,12 +636,12 @@ namespace Netch.Forms
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
-                State = Objects.State.Starting;
+                State = Models.State.Starting;
 
                 Task.Run(() =>
                 {
-                    var server = ServerComboBox.SelectedItem as Objects.Server;
-                    var mode = ModeComboBox.SelectedItem as Objects.Mode;
+                    var server = ServerComboBox.SelectedItem as Models.Server;
+                    var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController = new Controllers.MainController();
                     if (MainController.Start(server, mode))
@@ -696,14 +696,14 @@ namespace Netch.Forms
                             }
                         }
 
-                        State = Objects.State.Started;
+                        State = Models.State.Started;
                     }
                     else
                     {
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                 });
             }
@@ -712,12 +712,12 @@ namespace Netch.Forms
                 ControlButton.Enabled = false;
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopping")}";
-                State = Objects.State.Stopping;
+                State = Models.State.Stopping;
 
                 Task.Run(() =>
                 {
-                    var server = ServerComboBox.SelectedItem as Objects.Server;
-                    var mode = ModeComboBox.SelectedItem as Objects.Mode;
+                    var server = ServerComboBox.SelectedItem as Models.Server;
+                    var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController.Stop();
 
@@ -734,7 +734,7 @@ namespace Netch.Forms
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
-                    State = Objects.State.Stopped;
+                    State = Models.State.Stopped;
 
                     TestServer();
                 });
@@ -760,7 +760,7 @@ namespace Netch.Forms
             Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
             Utils.Configuration.Save();
 
-            if (State != Objects.State.Waiting && State != Objects.State.Stopped)
+            if (State != Models.State.Waiting && State != Models.State.Stopped)
             {
                 MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -772,7 +772,7 @@ namespace Netch.Forms
                 return;
             }
 
-            State = Objects.State.Terminating;
+            State = Models.State.Terminating;
             this.NotifyIcon.Visible = false;
             this.Close();
             this.Dispose();

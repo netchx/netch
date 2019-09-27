@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Netch.Objects
+namespace Netch.Models
 {
     public class Mode
     {

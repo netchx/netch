@@ -16,7 +16,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Objects.State State = Objects.State.Waiting;
+        public Models.State State = Models.State.Waiting;
 
         /// <summary>
         ///		启动
@@ -24,7 +24,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Objects.Server server, Objects.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
             if (!File.Exists("bin\\v2ray.exe") || !File.Exists("bin\\v2ctl.exe"))
             {
@@ -36,32 +36,32 @@ namespace Netch.Controllers
                 Directory.CreateDirectory("data");
             }
 
-            File.WriteAllText("data\\last.json", Newtonsoft.Json.JsonConvert.SerializeObject(new Objects.Information.VMess.Config()
+            File.WriteAllText("data\\last.json", Newtonsoft.Json.JsonConvert.SerializeObject(new Models.Information.VMess.Config()
             {
-                inbounds = new List<Objects.Information.VMess.Inbounds>()
+                inbounds = new List<Models.Information.VMess.Inbounds>()
                 {
-                    new Objects.Information.VMess.Inbounds()
+                    new Models.Information.VMess.Inbounds()
                     {
-                        settings = new Objects.Information.VMess.InboundSettings(),
+                        settings = new Models.Information.VMess.InboundSettings(),
                         port = Global.Settings.Socks5LocalPort,
                         listen = Global.Settings.LocalAddress
                     }
                 },
-                outbounds = new List<Objects.Information.VMess.Outbounds>()
+                outbounds = new List<Models.Information.VMess.Outbounds>()
                 {
-                    new Objects.Information.VMess.Outbounds()
+                    new Models.Information.VMess.Outbounds()
                     {
-                        settings = new Objects.Information.VMess.OutboundSettings()
+                        settings = new Models.Information.VMess.OutboundSettings()
                         {
-                            vnext = new List<Objects.Information.VMess.VNext>()
+                            vnext = new List<Models.Information.VMess.VNext>()
                             {
-                                new Objects.Information.VMess.VNext()
+                                new Models.Information.VMess.VNext()
                                 {
                                     address = server.Address,
                                     port = server.Port,
-                                    users = new List<Objects.Information.VMess.User>
+                                    users = new List<Models.Information.VMess.User>
                                     {
-                                        new Objects.Information.VMess.User()
+                                        new Models.Information.VMess.User()
                                         {
                                             id = server.UserID,
                                             alterId = server.AlterID,
@@ -71,59 +71,59 @@ namespace Netch.Controllers
                                 }
                             }
                         },
-                        streamSettings = new Objects.Information.VMess.StreamSettings()
+                        streamSettings = new Models.Information.VMess.StreamSettings()
                         {
                             network = server.TransferProtocol,
                             security = server.TLSSecure == true ? "tls" : "",
-                            wsSettings = server.TransferProtocol == "ws" ? new Objects.Information.VMess.WebSocketSettings()
+                            wsSettings = server.TransferProtocol == "ws" ? new Models.Information.VMess.WebSocketSettings()
                             {
                                 path = server.Path == "" ? "/" : server.Path,
-                                headers = new Objects.Information.VMess.WSHeaders()
+                                headers = new Models.Information.VMess.WSHeaders()
                                 {
                                     Host = server.Host == "" ? server.Address : server.Host
                                 }
                             } : null,
-                            tcpSettings = server.FakeType == "http" ? new Objects.Information.VMess.TCPSettings()
+                            tcpSettings = server.FakeType == "http" ? new Models.Information.VMess.TCPSettings()
                             {
-                                header = new Objects.Information.VMess.TCPHeaders()
+                                header = new Models.Information.VMess.TCPHeaders()
                                 {
                                     type = server.FakeType,
-                                    request = new Objects.Information.VMess.TCPRequest()
+                                    request = new Models.Information.VMess.TCPRequest()
                                     {
                                         path = server.Path == "" ? "/" : server.Path,
-                                        headers = new Objects.Information.VMess.TCPRequestHeaders()
+                                        headers = new Models.Information.VMess.TCPRequestHeaders()
                                         {
                                             Host = server.Host == "" ? server.Address : server.Host
                                         }
                                     }
                                 }
                             } : null,
-                            kcpSettings = server.TransferProtocol == "kcp" ? new Objects.Information.VMess.KCPSettings()
+                            kcpSettings = server.TransferProtocol == "kcp" ? new Models.Information.VMess.KCPSettings()
                             {
-                                header = new Objects.Information.VMess.TCPHeaders()
+                                header = new Models.Information.VMess.TCPHeaders()
                                 {
                                     type = server.FakeType
                                 }
                             } : null,
-                            quicSettings = server.TransferProtocol == "quic" ? new Objects.Information.VMess.QUICSettings()
+                            quicSettings = server.TransferProtocol == "quic" ? new Models.Information.VMess.QUICSettings()
                             {
                                 security = server.QUICSecurity,
                                 key = server.QUICSecret,
-                                header = new Objects.Information.VMess.TCPHeaders()
+                                header = new Models.Information.VMess.TCPHeaders()
                                 {
                                     type = server.FakeType
                                 }
                             } : null,
-                            httpSettings = server.TransferProtocol == "h2" ? new Objects.Information.VMess.HTTPSettings()
+                            httpSettings = server.TransferProtocol == "h2" ? new Models.Information.VMess.HTTPSettings()
                             {
                                 host = server.Host == "" ? server.Address : server.Host,
                                 path = server.Path == "" ? "/" : server.Path
                             } : null,
-                            tlsSettings = new Objects.Information.VMess.TLSSettings()
+                            tlsSettings = new Models.Information.VMess.TLSSettings()
                         },
-                        mux = new Objects.Information.VMess.OutboundMux()
+                        mux = new Models.Information.VMess.OutboundMux()
                     },
-                    new Objects.Information.VMess.Outbounds()
+                    new Models.Information.VMess.Outbounds()
                     {
                         tag = "direct",
                         protocol = "freedom",
@@ -132,11 +132,11 @@ namespace Netch.Controllers
                         mux = null
                     }
                 },
-                routing = new Objects.Information.VMess.Routing()
+                routing = new Models.Information.VMess.Routing()
                 {
-                    rules = new List<Objects.Information.VMess.RoutingRules>()
+                    rules = new List<Models.Information.VMess.RoutingRules>()
                     {
-                        mode.BypassChina == true ? new Objects.Information.VMess.RoutingRules()
+                        mode.BypassChina == true ? new Models.Information.VMess.RoutingRules()
                         {
                             type = "field",
                             ip = new List<string>
@@ -150,7 +150,7 @@ namespace Netch.Controllers
                                 "geosite:cn"
                             },
                             outboundTag = "direct"
-                        } : new Objects.Information.VMess.RoutingRules()
+                        } : new Models.Information.VMess.RoutingRules()
                         {
                             type = "field",
                             ip = new List<string>
@@ -179,7 +179,7 @@ namespace Netch.Controllers
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
-            State = Objects.State.Starting;
+            State = Models.State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
@@ -187,7 +187,7 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Objects.State.Started)
+                if (State == Models.State.Started)
                 {
                     if (File.Exists("data\\last.json"))
                     {
@@ -196,7 +196,7 @@ namespace Netch.Controllers
                     return true;
                 }
 
-                if (State == Objects.State.Stopped)
+                if (State == Models.State.Stopped)
                 {
                     Utils.Logging.Info("V2Ray 进程启动失败");
 
@@ -234,19 +234,19 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\v2ray.log", $"{e.Data}\r\n");
 
-                if (State == Objects.State.Starting)
+                if (State == Models.State.Starting)
                 {
                     if (Instance.HasExited)
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                     else if (e.Data.Contains("started"))
                     {
-                        State = Objects.State.Started;
+                        State = Models.State.Started;
                     }
                     else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to"))
                     {
-                        State = Objects.State.Stopped;
+                        State = Models.State.Stopped;
                     }
                 }
             }
