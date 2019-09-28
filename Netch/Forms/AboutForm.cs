@@ -36,7 +36,7 @@ namespace Netch.Forms
 
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://t.me/NetchXChannel");
+            Process.Start("https://t.me/NetchX");
         }
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
