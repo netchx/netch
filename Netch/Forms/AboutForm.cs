@@ -14,8 +14,7 @@ namespace Netch.Forms
         private void AboutForm_Load(object sender, EventArgs e)
         {
             Text = Utils.i18N.Translate("About");
-            GroupLinkLabel.Text = Utils.i18N.Translate("Group");
-            ChannelLabel.Text = Utils.i18N.Translate("Channel");
+            ChannelLabel.Text = Utils.i18N.Translate("Telegram Channel");
             SponsorGroupBox.Text = Utils.i18N.Translate("Sponsor");
         }
 
@@ -29,14 +28,9 @@ namespace Netch.Forms
             Process.Start("https://github.com/NetchX/Netch");
         }
 
-        private void GroupLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            Process.Start("https://t.me/NetchX");
-        }
-
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://t.me/NetchXChannel");
+            Process.Start("https://t.me/NetchX");
         }
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)

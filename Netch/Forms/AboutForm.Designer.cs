@@ -31,10 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
             this.SponsorGroupBox = new System.Windows.Forms.GroupBox();
             this.SponsorPictureBox = new System.Windows.Forms.PictureBox();
-            this.TelegramLabel = new System.Windows.Forms.Label();
-            this.GroupLinkLabel = new System.Windows.Forms.LinkLabel();
             this.ChannelLabel = new System.Windows.Forms.LinkLabel();
-            this.Prefix = new System.Windows.Forms.Label();
             this.NetchPictureBox = new System.Windows.Forms.PictureBox();
             this.SponsorGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SponsorPictureBox)).BeginInit();
@@ -63,45 +60,16 @@
             this.SponsorPictureBox.TabStop = false;
             this.SponsorPictureBox.Click += new System.EventHandler(this.SponsorPictureBox_Click);
             // 
-            // TelegramLabel
-            // 
-            this.TelegramLabel.AutoSize = true;
-            this.TelegramLabel.Location = new System.Drawing.Point(88, 215);
-            this.TelegramLabel.Name = "TelegramLabel";
-            this.TelegramLabel.Size = new System.Drawing.Size(63, 17);
-            this.TelegramLabel.TabIndex = 3;
-            this.TelegramLabel.Text = "Telegram";
-            // 
-            // GroupLinkLabel
-            // 
-            this.GroupLinkLabel.AutoSize = true;
-            this.GroupLinkLabel.Location = new System.Drawing.Point(155, 215);
-            this.GroupLinkLabel.Name = "GroupLinkLabel";
-            this.GroupLinkLabel.Size = new System.Drawing.Size(45, 17);
-            this.GroupLinkLabel.TabIndex = 4;
-            this.GroupLinkLabel.TabStop = true;
-            this.GroupLinkLabel.Text = "Group";
-            this.GroupLinkLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.GroupLinkLabel_LinkClicked);
-            // 
             // ChannelLabel
             // 
             this.ChannelLabel.AutoSize = true;
-            this.ChannelLabel.Location = new System.Drawing.Point(206, 215);
+            this.ChannelLabel.Location = new System.Drawing.Point(116, 215);
             this.ChannelLabel.Name = "ChannelLabel";
-            this.ChannelLabel.Size = new System.Drawing.Size(54, 17);
+            this.ChannelLabel.Size = new System.Drawing.Size(113, 17);
             this.ChannelLabel.TabIndex = 5;
             this.ChannelLabel.TabStop = true;
-            this.ChannelLabel.Text = "Channel";
+            this.ChannelLabel.Text = "Telegram Channel";
             this.ChannelLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.ChannelLabel_LinkClicked);
-            // 
-            // Prefix
-            // 
-            this.Prefix.AutoSize = true;
-            this.Prefix.Location = new System.Drawing.Point(197, 215);
-            this.Prefix.Name = "Prefix";
-            this.Prefix.Size = new System.Drawing.Size(13, 17);
-            this.Prefix.TabIndex = 6;
-            this.Prefix.Text = "/";
             // 
             // NetchPictureBox
             // 
@@ -120,10 +88,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(338, 474);
-            this.Controls.Add(this.Prefix);
             this.Controls.Add(this.ChannelLabel);
-            this.Controls.Add(this.GroupLinkLabel);
-            this.Controls.Add(this.TelegramLabel);
             this.Controls.Add(this.SponsorGroupBox);
             this.Controls.Add(this.NetchPictureBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
@@ -149,9 +114,6 @@
         private System.Windows.Forms.PictureBox NetchPictureBox;
         private System.Windows.Forms.PictureBox SponsorPictureBox;
         private System.Windows.Forms.GroupBox SponsorGroupBox;
-        private System.Windows.Forms.Label TelegramLabel;
-        private System.Windows.Forms.LinkLabel GroupLinkLabel;
         private System.Windows.Forms.LinkLabel ChannelLabel;
-        private System.Windows.Forms.Label Prefix;
     }
 }
