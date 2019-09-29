@@ -67,6 +67,7 @@
             this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
             this.SettingsButton = new System.Windows.Forms.Button();
+            this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
@@ -186,7 +187,8 @@
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ReloadModesToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
-            this.UninstallServiceToolStripMenuItem});
+            this.UninstallServiceToolStripMenuItem,
+            this.CleanDNSCacheToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
@@ -195,21 +197,21 @@
             // ReloadModesToolStripMenuItem
             // 
             this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
             this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // RestartServiceToolStripMenuItem
             // 
             this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.RestartServiceToolStripMenuItem.Text = "Restart Service";
             this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
@@ -421,6 +423,13 @@
             this.SettingsButton.UseVisualStyleBackColor = true;
             this.SettingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
             // 
+            // CleanDNSCacheToolStripMenuItem
+            // 
+            this.CleanDNSCacheToolStripMenuItem.Name = "CleanDNSCacheToolStripMenuItem";
+            this.CleanDNSCacheToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.CleanDNSCacheToolStripMenuItem.Text = "Clean DNS Cache";
+            this.CleanDNSCacheToolStripMenuItem.Click += new System.EventHandler(this.CleanDNSCacheToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -495,5 +504,6 @@
         private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
+        private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
     }
 }

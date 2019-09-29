@@ -257,6 +257,7 @@ namespace Netch.Forms
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
             ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
+            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate("Clean DNS Cache");
             AboutToolStripButton.Text = Utils.i18N.Translate("About");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             ServerLabel.Text = Utils.i18N.Translate("Server");
@@ -444,7 +445,7 @@ namespace Netch.Forms
 
                     InitServer();
                     DeletePictureBox.Enabled = true;
-                    MessageBox.Show(Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 });
 
                 MessageBox.Show(Utils.i18N.Translate("Updating in the background"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -481,7 +482,7 @@ namespace Netch.Forms
                     nfapinet.NFAPI.nf_registerDriver("netfilter2");
                 }
 
-                MessageBox.Show(Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
             });
         }
@@ -514,16 +515,16 @@ namespace Netch.Forms
 
                         File.Delete(driver);
 
-                        MessageBox.Show(Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex.ToString(), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex.ToString(), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 Enabled = true;
@@ -537,7 +538,20 @@ namespace Netch.Forms
             {
                 InitMode();
 
-                MessageBox.Show(Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Enabled = true;
+            });
+        }
+
+        private void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            Task.Run(() =>
+            {
+                Utils.DNS.Cache.Clear();
+
+                MessageBox.Show(this, Utils.i18N.Translate("DNS cache cleanup succeeded"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("DNS cache cleanup succeeded")}";
                 Enabled = true;
             });
         }

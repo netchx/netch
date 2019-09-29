@@ -63,6 +63,8 @@
     "Service has been uninstalled": "服务已卸载",
     "Reload Modes": "重载模式",
     "Modes have been reload": "模式已重载",
+    "Clean DNS Cache": "清理 DNS 缓存",
+    "DNS cache cleanup succeeded": "DNS 缓存清理成功",
 
     "About": "关于",
     "Telegram Channel": "Telegram 频道",
