@@ -21,8 +21,14 @@ namespace Netch
                 // 设置当前目录
                 Directory.SetCurrentDirectory(Application.StartupPath);
 
+                // 清理上一次的日志文件，防止淤积占用磁盘空间
+                if (Directory.Exists("logging"))
+                {
+                    Directory.Delete("logging", true);
+                }
+
                 // 预创建目录
-                var directories = new String[] { "mode", "data", "i18n" };
+                var directories = new String[] { "mode", "data", "i18n", "logging" };
                 foreach (var item in directories)
                 {
                     // 检查是否已经存在
@@ -31,12 +37,6 @@ namespace Netch
                         // 创建目录
                         Directory.CreateDirectory(item);
                     }
-                }
-
-                // 清理上一次的日志文件，防止淤积占用磁盘空间
-                if (Directory.Exists("logging"))
-                {
-                    Directory.Delete("logging", true);
                 }
 
                 // 得到当前线程语言代码
