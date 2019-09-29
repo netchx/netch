@@ -31,11 +31,6 @@ namespace Netch.Controllers
                 return false;
             }
 
-            if (!Directory.Exists("data"))
-            {
-                Directory.CreateDirectory("data");
-            }
-
             File.WriteAllText("data\\last.json", Newtonsoft.Json.JsonConvert.SerializeObject(new Models.Information.VMess.Config()
             {
                 inbounds = new List<Models.Information.VMess.Inbounds>()

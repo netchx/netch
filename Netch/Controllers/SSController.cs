@@ -30,12 +30,6 @@ namespace Netch.Controllers
                 return false;
             }
 
-            // 清理上一次的日志文件，防止淤积占用磁盘空间
-            if (File.Exists("logging\\shadowsocks.log"))
-            {
-                File.Delete("logging\\shadowsocks.log");
-            }
-
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
 

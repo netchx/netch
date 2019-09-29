@@ -44,11 +44,6 @@ namespace Netch.Controllers
                 return false;
             }
 
-            if (File.Exists("logging\\redirector.log"))
-            {
-                File.Delete("logging\\redirector.log");
-            }
-
             // 生成驱动文件路径
             var driver = String.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
 

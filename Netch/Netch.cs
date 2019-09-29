@@ -22,7 +22,7 @@ namespace Netch
                 Directory.SetCurrentDirectory(Application.StartupPath);
 
                 // 预创建目录
-                var directories = new String[] { "mode", "i18n", "logging" };
+                var directories = new String[] { "mode", "data", "i18n" };
                 foreach (var item in directories)
                 {
                     // 检查是否已经存在
@@ -34,9 +34,9 @@ namespace Netch
                 }
 
                 // 清理上一次的日志文件，防止淤积占用磁盘空间
-                if (File.Exists("logging\\application.log"))
+                if (Directory.Exists("logging"))
                 {
-                    File.Delete("logging\\application.log");
+                    Directory.Delete("logging", true);
                 }
 
                 // 得到当前线程语言代码
@@ -93,15 +93,15 @@ namespace Netch
                     Environment.Exit(1);
                 }
 
-                var OSArch = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-                var ProcessArch = Environment.Is64BitProcess ? "x64" : "x86";
+                var OS = Environment.Is64BitOperatingSystem ? "x64" : "x86";
+                var PROC = Environment.Is64BitProcess ? "x64" : "x86";
 
                 // 如果系统位数与程序位数不一致
-                if (OSArch != ProcessArch)
+                if (OS != PROC)
                 {
 
                     // 弹出提示
-                    MessageBox.Show($"{Utils.i18N.Translate("Netch is not compatible with your system.")}\n{Utils.i18N.Translate("Current arch of Netch:")} {ProcessArch}\n{Utils.i18N.Translate("Current arch of system:")} {OSArch}", Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"{Utils.i18N.Translate("Netch is not compatible with your system.")}\n{Utils.i18N.Translate("Current arch of Netch:")} {PROC}\n{Utils.i18N.Translate("Current arch of system:")} {OS}", Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // 退出进程
                     Environment.Exit(1);
