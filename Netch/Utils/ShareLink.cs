@@ -163,6 +163,7 @@ namespace Netch.Utils
                         }
                     }
                     */
+                    text = text.Replace("/?", "?");
                     try
                     {
                         if (text.Contains("#"))
@@ -170,19 +171,31 @@ namespace Netch.Utils
                             data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
                             text = text.Split('#')[0];
                         }
-                        if (text.Contains("/?"))
+                        if (text.Contains("?"))
                         {
-                            var finder = new Regex(@"^(?<data>.+?)/\?plugin=(?<plugin>.+)$");
+                            var finder = new Regex(@"^(?<data>.+?)\?plugin=(?<plugin>.+)$");
                             var match = finder.Match(text);
 
                             if (match.Success)
                             {
-                                var plugins = HttpUtility.UrlDecode(match.Groups["plugin"].Value).Split(';');
-                                if (plugins[0] == "obfs-local")
-                                    plugins[0] = "simple-obfs";
+                                var plugins = HttpUtility.UrlDecode(match.Groups["plugin"].Value);
+                                var plugin = plugins.Substring(0, plugins.IndexOf(";"));
+                                var pluginopts = plugins.Substring(plugins.IndexOf(";") + 1);
+                                if (plugin == "obfs-local" || plugin == "simple-obfs")
+                                {
+                                    plugin = "simple-obfs";
+                                    if (!pluginopts.Contains("obfs="))
+                                        pluginopts = "obfs=http;obfs-host=" + pluginopts;
+                                }
+                                else if(plugin == "simple-obfs-tls")
+                                {
+                                    plugin = "simple-obfs";
+                                    if (!pluginopts.Contains("obfs="))
+                                        pluginopts = "obfs=tls;obfs-host=" + pluginopts;
+                                }
 
-                                data.OBFS = plugins[0];
-                                data.OBFSParam = plugins[1];
+                                data.OBFS = plugin;
+                                data.OBFSParam = pluginopts;
                                 text = match.Groups["data"].Value;
                             }
                             else
@@ -192,7 +205,7 @@ namespace Netch.Utils
                         }
                         if (text.Contains("@"))
                         {
-                            var finder = new Regex(@"^ss://(?<base64>.+?)@(?<server>.+):(?<port>\d+?)$");
+                            var finder = new Regex(@"^ss://(?<base64>.+?)@(?<server>.+):(?<port>\d+)");
                             var parser = new Regex(@"^(?<method>.+?):(?<password>.+)$");
                             var match = finder.Match(text);
                             if (!match.Success)
@@ -215,7 +228,7 @@ namespace Netch.Utils
                         }
                         else
                         {
-                            var parser = new Regex(@"^((?<method>.+?):(?<password>.+)@(?<server>.+):(?<port>\d+))$");
+                            var parser = new Regex(@"^((?<method>.+?):(?<password>.+)@(?<server>.+):(?<port>\d+))");
                             var match = parser.Match(URLSafeBase64Decode(text.Replace("ss://", "")));
                             if (!match.Success)
                             {
