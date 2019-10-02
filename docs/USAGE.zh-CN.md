@@ -42,15 +42,15 @@
 - 后续内容的格式同 [SSTap-rules](https://github.com/FQrabbit/SSTap-Rule)，任何规则问题建议到那边去提
 - 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS
 - 该模式下直连 IP 段无效，暂时没有代码实现
-- 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
-- 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2SSTap-beta-setup) 的方式获得该适配器
+- 底层依赖于 [Tap-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
+- 如果 Netch 提示没有该适配器，可以直接安装 [Tap-Windows](https://build.openvpn.net/downloads/releases/latest/tap-windows-latest-stable.exe) 或者通过安装 [OpenVPN](https://openvpn.net/community-downloads/)，[SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
 
 ### 模式 3 TUN/TAP （IP 白名单）全局代理模式
 
 - 白名单代理指的是，除了名单内的 IP 不走代理，其他连接都走代理
 - 可以通过左下角的`设置`来配置 IP 地址，子网掩码，网关，DNS，直连 IP 段
-- 底层依赖于 [TAP-Windows](https://github.com/OpenVPN/tap-windows) 适配器等
-- 如果 Netch 提示没有该适配器，可以通过安装 [OpenVPN](https://openvpn.net/community-downloads/) 或者 [SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
+- 底层依赖于 [Tap-Windows](https://github.com/OpenVPN/tap-windows) 适配器，tun2socks 等
+- 如果 Netch 提示没有该适配器，可以直接安装 [Tap-Windows](https://build.openvpn.net/downloads/releases/latest/tap-windows-latest-stable.exe) 或者通过安装 [OpenVPN](https://openvpn.net/community-downloads/)，[SSTap](https://github.com/mayunbaba2/SSTap-beta-setup) 的方式获得该适配器
 
 ### 模式 4 HTTP 系统代理
 

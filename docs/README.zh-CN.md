@@ -14,9 +14,10 @@
      - 4.1.2 [订阅无法导入](#订阅无法导入)
      - 4.1.3 [进程模式下无法进入游戏 / 无法成功代理](#进程模式下无法进入游戏--无法成功代理)
        - 4.1.3.1 [进程模式规则问题](#进程模式规则问题)
-       - 4.1.3.2 [shadowsocks 参数问题](#shadowsocks-参数问题)
-       - 4.1.3.3 [bin/Redirector.exe 问题](#binredirectorexe-问题)
-       - 4.1.3.4 [进程模式以外的方法](#进程模式以外的方法)
+       - 4.1.3.2 [进程名重复问题](#进程名重复问题)
+       - 4.1.3.3 [shadowsocks 参数问题](#shadowsocks-参数问题)
+       - 4.1.3.4 [bin/Redirector.exe 问题](#binredirectorexe-问题)
+       - 4.1.3.5 [进程模式以外的方法](#进程模式以外的方法)
      - 4.1.4 [NAT 类型限制](#NAT-类型限制)
      - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam--浏览器无法正常打开页面)
    - 4.2 [功能建议类问题](#功能建议类问题)
@@ -103,15 +104,17 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 
 譬如守望先锋必须只代理 Overwatch Launcher.exe 而不是其他 exe 才能进游戏
 
+##### 进程名重复问题
+
+你代理的进程名需要和 Netch 使用到的 exe 名称不一样，否则可能会发生代理回环。譬如 `bin` 文件夹下的 `Shadowsocks.exe`，如果你使用 `Shadowsocks` 代理，模式中就不应该出现 `Shadowsocks.exe` 这样的进程名。你可以通过修改你要代理的 exe 的名称，或者替换为进程名的全路径名（譬如 `C:\xxx\xxx.exe`）来避免这个问题
+
 ##### shadowsocks 参数问题
 
 譬如 shadowsocks 参数中就不建议 timeout 参数设置过短，否则会影响战网客户端的正常连接，建议删掉该参数保持默认值即可
 
 ##### bin/Redirector.exe 问题
 
-**暂时不要提关于 bin/Redirector.exe 的新 issue，请等待开发者重构相关代码**
-
-- 因为新版本出来以后老问题可能都会消失所以不需要提新 issue
+**关于 `bin/Redirector.exe` 的新 issue 请统一到 [issue #152](https://github.com/NetchX/Netch/issues/152) 按照格式来回复**
 
 该文件是闭源的，主要是负责和底层 Netfilter SDK 的控制，其各个版本之间还有细微差距，经反馈，较为稳定的为 1.0.9-STABLE - 1.2.4-STABLE（无流量统计）和 1.2.9 的版本，以下为推荐的旧版本下载链接，请大家自行尝试。下载后，只需将 `bin/Redirector.exe` 覆盖即可
 
@@ -135,6 +138,7 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 
 ```bash
 $ git log --pretty=oneline --decorate --source --tags binaries/x64/Redirector.exe
+fc94119e7a68e9da16d5ee857c798ce908e1e54f 190929 1.3.2 Update x64 Redirector
 e3a9a75343bd808593a5e93781e42e414e9c8e1c 190927 1.3.1 Return short path when fetching long path fails
 4860e038c7d667026b48e7ea7e42a777646c6782 190917 1.3.0 Fix path contains chinese
 349c44f8947e5f6aae8677b2ea93ea7eb441a537 190906 1.2.9 Update redirector, now support custom tcp port with -t arg
