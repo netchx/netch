@@ -32,6 +32,8 @@ Netch is an open source game accelerator. Unlike [SSTap](https://www.sockscap64.
 
 As well, Netch avoid the restricted NAT problem caused by SSTap<escape><a name = "ref_1_s"><a href="#ref_1_d"><sup>[1]</sup></a></a></escape>. You can use an NATTypeTester<escape><a name = "ref_2_s"><a href="#ref_2_d"><sup>[2]</sup></a></a></escape> to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
 
+[Changelog](CHANGELOG.md)
+
 ## Usage
 
 [USAGE.md](docs/USAGE.md)

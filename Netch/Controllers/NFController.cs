@@ -27,7 +27,7 @@ namespace Netch.Controllers
         public Process Instance;
 
         /// <summary>
-        ///     当前装填
+        ///     当前状态
         /// </summary>
         public Models.State State = Models.State.Waiting;
 
@@ -123,9 +123,15 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Redirector.exe";
-            Instance.StartInfo.Arguments = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
 
-            if (server.Type == "Socks5")
+            var FallBackArg = "";
+
+            if (server.Type != "Socks5")
+            {
+                FallBackArg = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
+            }
+
+            else
             {
                 var result = Utils.DNS.Lookup(server.Address);
                 if (result == null)
@@ -134,14 +140,15 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                Instance.StartInfo.Arguments = String.Format("-r {0}:{1} -p \"{2}\"", result.ToString(), server.Port, processes);
+                FallBackArg = $"-r {result.ToString()}:{server.Port} -p \"{processes}\"";
 
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
-                    Instance.StartInfo.Arguments += String.Format(" -username \"{0}\" -password \"{1}\"", server.Username, server.Password);
-                }
+                    FallBackArg += $" -username \"{server.Username}\" -password \"{server.Password}\"";
+                } 
             }
 
+            Instance.StartInfo.Arguments = FallBackArg + $" -t {Global.Settings.RedirectorTCPPort}";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             State = Models.State.Starting;
@@ -159,11 +166,27 @@ namespace Netch.Controllers
 
                 if (State == Models.State.Stopped)
                 {
-                    Utils.Logging.Info("NF 进程启动失败");
-
+                    Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数启动");
                     Stop();
+                    Instance.StartInfo.Arguments = FallBackArg;
+                    Global.Settings.RedirectorTCPPort = 2800;
+                    Instance.CancelOutputRead();
+                    Instance.CancelErrorRead();
+                    Instance.Start();
+                    Instance.BeginOutputReadLine();
+                    Instance.BeginErrorReadLine();
 
-                    return false;
+                    if (State == Models.State.Stopped)
+                    {
+                        Utils.Logging.Info("NF 进程启动失败");
+                        Stop();
+                        return false;
+                    }
+
+                    else
+                    {
+                        return true;
+                    }
                 }
             }
 

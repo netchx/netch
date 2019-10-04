@@ -69,6 +69,14 @@ namespace Netch.Models
         /// </summary>
         public string LocalAddress = "127.0.0.1";
 
+        /// <summary>
+        ///		Redirector TCP 占用端口
+        /// </summary>
+        public int RedirectorTCPPort = 2800;
+
+        /// <summary>
+        ///		TUNTAP 适配器配置
+        /// </summary>
         public TUNTAPConfig TUNTAP = new TUNTAPConfig();
 
         /// <summary>
