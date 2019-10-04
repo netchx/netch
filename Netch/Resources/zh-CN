@@ -106,6 +106,7 @@
     "Netmask": "子网掩码",
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
+    "Use Fake DNS": "使用 Fake DNS",
     "Global Bypass IPs": "全局直连 IP",
     "Port value illegal. Try again.": "端口值非法。请重试。",
     

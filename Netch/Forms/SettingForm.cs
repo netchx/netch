@@ -50,6 +50,7 @@ namespace Netch.Forms
             TUNTAPNetmaskLabel.Text = Utils.i18N.Translate("Netmask");
             TUNTAPGatewayLabel.Text = Utils.i18N.Translate("Gateway");
             TUNTAPUseCustomDNSCheckBox.Text = Utils.i18N.Translate("Use Custom DNS");
+            TUNTAPUseFakeDNSCheckBox.Text = Utils.i18N.Translate("Use Fake DNS");
             GlobalBypassIPsButton.Text = Utils.i18N.Translate("Global Bypass IPs");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
@@ -62,6 +63,7 @@ namespace Netch.Forms
             TUNTAPGatewayTextBox.Text = Global.Settings.TUNTAP.Gateway;
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
+            TUNTAPUseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -187,8 +189,6 @@ namespace Netch.Forms
                 Global.Settings.LocalAddress = "127.0.0.1";
             }
 
-            Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;
-
             try
             {
                 var Address = IPAddress.Parse(TUNTAPAddressTextBox.Text);
@@ -218,6 +218,7 @@ namespace Netch.Forms
                 DNS = DNS.Trim();
                 TUNTAPDNSTextBox.Text = DNS.Substring(0, DNS.Length - 1);
                 TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
+                TUNTAPUseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
                 return;
             }
@@ -233,6 +234,7 @@ namespace Netch.Forms
             }
 
             Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;
+            Global.Settings.TUNTAP.UseFakeDNS = TUNTAPUseFakeDNSCheckBox.Checked;
 
             Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

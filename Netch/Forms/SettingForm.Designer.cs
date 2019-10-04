@@ -30,6 +30,8 @@
 		{
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
+            this.RedirectorLabel = new System.Windows.Forms.Label();
+            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.HTTPPortLabel = new System.Windows.Forms.Label();
             this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
@@ -47,8 +49,7 @@
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
-            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
-            this.RedirectorLabel = new System.Windows.Forms.Label();
+            this.TUNTAPUseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -68,6 +69,23 @@
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
+            // 
+            // RedirectorLabel
+            // 
+            this.RedirectorLabel.AutoSize = true;
+            this.RedirectorLabel.Location = new System.Drawing.Point(9, 110);
+            this.RedirectorLabel.Name = "RedirectorLabel";
+            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
+            this.RedirectorLabel.TabIndex = 6;
+            this.RedirectorLabel.Text = "Redirector TCP";
+            // 
+            // RedirectorTextBox
+            // 
+            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 107);
+            this.RedirectorTextBox.Name = "RedirectorTextBox";
+            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RedirectorTextBox.TabIndex = 7;
+            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AllowDevicesCheckBox
             // 
@@ -116,6 +134,7 @@
             // 
             // TUNTAPGroupBox
             // 
+            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPUseFakeDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPUseCustomDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSLabel);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSTextBox);
@@ -127,7 +146,7 @@
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
             this.TUNTAPGroupBox.Location = new System.Drawing.Point(12, 158);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
-            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 165);
+            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 192);
             this.TUNTAPGroupBox.TabIndex = 3;
             this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
@@ -213,7 +232,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 329);
+            this.ControlButton.Location = new System.Drawing.Point(357, 356);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -223,7 +242,7 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 329);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 356);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -231,28 +250,21 @@
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
             this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
             // 
-            // RedirectorTextBox
+            // TUNTAPUseFakeDNSCheckBox
             // 
-            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 107);
-            this.RedirectorTextBox.Name = "RedirectorTextBox";
-            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
-            this.RedirectorTextBox.TabIndex = 7;
-            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // RedirectorLabel
-            // 
-            this.RedirectorLabel.AutoSize = true;
-            this.RedirectorLabel.Location = new System.Drawing.Point(9, 110);
-            this.RedirectorLabel.Name = "RedirectorLabel";
-            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
-            this.RedirectorLabel.TabIndex = 6;
-            this.RedirectorLabel.Text = "Redirector TCP";
+            this.TUNTAPUseFakeDNSCheckBox.AutoSize = true;
+            this.TUNTAPUseFakeDNSCheckBox.Location = new System.Drawing.Point(120, 165);
+            this.TUNTAPUseFakeDNSCheckBox.Name = "TUNTAPUseFakeDNSCheckBox";
+            this.TUNTAPUseFakeDNSCheckBox.Size = new System.Drawing.Size(110, 21);
+            this.TUNTAPUseFakeDNSCheckBox.TabIndex = 10;
+            this.TUNTAPUseFakeDNSCheckBox.Text = "Use Fake DNS";
+            this.TUNTAPUseFakeDNSCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 364);
+            this.ClientSize = new System.Drawing.Size(444, 391);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
@@ -297,5 +309,6 @@
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
         private System.Windows.Forms.TextBox RedirectorTextBox;
         private System.Windows.Forms.Label RedirectorLabel;
+        private System.Windows.Forms.CheckBox TUNTAPUseFakeDNSCheckBox;
     }
 }
