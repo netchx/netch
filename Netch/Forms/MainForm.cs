@@ -387,6 +387,7 @@ namespace Netch.Forms
                         {
                             try
                             {
+                                client.Headers.Add("User-Agent", "curl/7.66.0");
                                 var response = client.DownloadString(item.Link);
 
                                 try
