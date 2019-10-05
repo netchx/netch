@@ -3,46 +3,9 @@
 namespace Netch.Models
 {
     /// <summary>
-    ///		TUN/TAP 适配器配置类
-    /// </summary>
-    public class TUNTAPConfig
-    {
-        /// <summary>
-        ///		地址
-        /// </summary>
-        public string Address = "10.0.236.10";
-
-        /// <summary>
-        ///		掩码
-        /// </summary>
-        public string Netmask = "255.255.255.0";
-
-        /// <summary>
-        ///		网关
-        /// </summary>
-        public string Gateway = "10.0.236.1";
-
-        /// <summary>
-        ///		DNS
-        /// </summary>
-        public List<string> DNS = new List<string>()
-        {
-        };
-        /// <summary>
-        ///		使用伪装 DNS
-        /// </summary>
-        public bool UseFakeDNS = false;
-
-        /// <summary>
-        ///		使用自定义 DNS 设置
-        /// </summary>
-        public bool UseCustomDNS = false;
-    }
-
-    /// <summary>
     ///     用于读取和写入的配置的类
     /// </summary>
-    public class Setting
+    public class LegacySetting
     {
         /// <summary>
         ///		服务器选择位置
@@ -82,7 +45,7 @@ namespace Netch.Models
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Models.Server> Server = new List<Models.Server>();
+        public List<Models.LegacyServer> Server = new List<Models.LegacyServer>();
 
         /// <summary>
         ///     订阅链接列表

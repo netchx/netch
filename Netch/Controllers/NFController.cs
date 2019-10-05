@@ -133,7 +133,7 @@ namespace Netch.Controllers
 
             else
             {
-                var result = Utils.DNS.Lookup(server.Address);
+                var result = Utils.DNS.Lookup(server.Hostname);
                 if (result == null)
                 {
                     Utils.Logging.Info("无法解析服务器 IP 地址");

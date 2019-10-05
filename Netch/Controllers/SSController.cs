@@ -33,13 +33,13 @@ namespace Netch.Controllers
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
 
-            if (!String.IsNullOrWhiteSpace(server.OBFS) && !String.IsNullOrWhiteSpace(server.OBFSParam))
+            if (!String.IsNullOrWhiteSpace(server.Plugin) && !String.IsNullOrWhiteSpace(server.PluginOption))
             {
-                Instance.StartInfo.Arguments = $"-s {server.Address} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u --plugin {server.OBFS} --plugin-opts \"{server.OBFSParam}\"";
+                Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"";
             }
             else
             {
-                Instance.StartInfo.Arguments = $"-s {server.Address} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
+                Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
             }
             
             if (mode.BypassChina)

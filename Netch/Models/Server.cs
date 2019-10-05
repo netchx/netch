@@ -19,14 +19,19 @@ namespace Netch.Models
         public string Group = "None";
 
         /// <summary>
-        ///     类型（Socks5、Shadowsocks、ShadowsocksR、VMess）
+        ///     代理类型（HTTP、HTTPS、Socks5、SS、SSR、VMess）
         /// </summary>
         public string Type;
 
         /// <summary>
+        ///     倍率
+        /// </summary>
+        public double Rate = 1.0;
+
+        /// <summary>
         ///     地址
         /// </summary>
-        public string Address;
+        public string Hostname;
 
         /// <summary>
         ///     端口
@@ -34,82 +39,92 @@ namespace Netch.Models
         public int Port;
 
         /// <summary>
-        ///     用户名
+        ///     账号（HTTP、HTTPS、Socks5）
         /// </summary>
         public string Username;
 
         /// <summary>
-        ///     密码
+        ///     密码（HTTP、HTTPS、Socks5、SS、SSR）
         /// </summary>
         public string Password;
 
         /// <summary>
-        ///		用户 ID（V2）
+        ///		用户 ID（VMess）
         /// </summary>
         public string UserID = String.Empty;
 
         /// <summary>
-        ///		额外 ID（V2）
+        ///		额外 ID（VMess）
         /// </summary>
         public int AlterID = 0;
 
         /// <summary>
-        ///     加密方式
+        ///     加密方式（SS、SSR、VMess）
         /// </summary>
         public string EncryptMethod;
 
         /// <summary>
-        ///     协议
+        ///     插件（SS）
+        /// </summary>
+        public string Plugin;
+
+        /// <summary>
+        ///     插件参数（SS）
+        /// </summary>
+        public string PluginOption;
+
+        /// <summary>
+        ///     协议（SSR）
         /// </summary>
         public string Protocol;
 
         /// <summary>
-        ///     协议参数
+        ///     协议参数（SSR）
         /// </summary>
         public string ProtocolParam;
 
         /// <summary>
-        ///     混淆（SSR）/ 插件（SS）
+        ///     混淆（SSR）
         /// </summary>
         public string OBFS;
 
         /// <summary>
-        ///     混淆参数（SSR）/ 插件参数（SS）
+        ///     混淆参数（SSR）
         /// </summary>
         public string OBFSParam;
 
         /// <summary>
-        ///		传输协议（V2）
+        ///		传输协议（VMess）
         /// </summary>
         public string TransferProtocol = "tcp";
 
         /// <summary>
-        ///		伪装类型（V2）
+        ///		伪装类型（VMess）
         /// </summary>
         public string FakeType = String.Empty;
 
         /// <summary>
-        ///		伪装域名（V2：HTTP、WebSocket、HTTP/2）
+        ///		伪装域名（VMess：HTTP、WebSocket、HTTP/2）
         /// </summary>
         public string Host = String.Empty;
 
         /// <summary>
-        ///		传输路径（V2：WebSocket、HTTP/2）
+        ///		传输路径（VMess：WebSocket、HTTP/2）
         /// </summary>
         public string Path = String.Empty;
 
         /// <summary>
-        ///		QUIC 加密方式（V2）
+        ///		QUIC 加密方式（VMess）
         /// </summary>
-        public string QUICSecurity = "none";
+        public string QUICSecure = "none";
 
         /// <summary>
-        ///		QUIC 加密密钥（V2）
+        ///		QUIC 加密密钥（VMess）
         /// </summary>
         public string QUICSecret = String.Empty;
 
         /// <summary>
-        ///		TLS 底层传输安全（V2）
+        ///		TLS 底层传输安全（VMess）
         /// </summary>
         public bool TLSSecure = false;
 
@@ -126,16 +141,16 @@ namespace Netch.Models
         {
             if (String.IsNullOrWhiteSpace(Remark))
             {
-                Remark = $"{Address}:{Port}";
+                Remark = $"{Hostname}:{Port}";
             }
 
             switch (Type)
             {
                 case "Socks5":
                     return $"[S5] {Remark}";
-                case "Shadowsocks":
+                case "SS":
                     return $"[SS] {Remark}";
-                case "ShadowsocksR":
+                case "SSR":
                     return $"[SR] {Remark}";
                 case "VMess":
                     return $"[V2] {Remark}";
@@ -152,7 +167,7 @@ namespace Netch.Models
         {
             try
             {
-                var destination = Utils.DNS.Lookup(Address);
+                var destination = Utils.DNS.Lookup(Hostname);
                 if (destination == null)
                 {
                     return Delay = -2;

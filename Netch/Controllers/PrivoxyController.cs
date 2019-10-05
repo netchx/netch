@@ -42,7 +42,7 @@ namespace Netch.Controllers
             }
             else
             {
-                File.WriteAllText("data\\privoxy.conf", File.ReadAllText("bin\\default.conf").Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString()).Replace("_DEST_PORT_", server.Port.ToString()).Replace("s 0.0.0.0", $"s {Global.Settings.LocalAddress}").Replace("/ 127.0.0.1", $"/ {server.Address}"));
+                File.WriteAllText("data\\privoxy.conf", File.ReadAllText("bin\\default.conf").Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString()).Replace("_DEST_PORT_", server.Port.ToString()).Replace("s 0.0.0.0", $"s {Global.Settings.LocalAddress}").Replace("/ 127.0.0.1", $"/ {server.Hostname}"));
             }
 
 

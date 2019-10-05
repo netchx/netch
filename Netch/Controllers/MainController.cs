@@ -72,7 +72,7 @@ namespace Netch.Controllers
                         result = true;
                     }
                     break;
-                case "Shadowsocks":
+                case "SS":
                     KillProcess("Shadowsocks");
                     if (pSSController == null)
                     {
@@ -80,7 +80,7 @@ namespace Netch.Controllers
                     }
                     result = pSSController.Start(server, mode);
                     break;
-                case "ShadowsocksR":
+                case "SSR":
                     KillProcess("ShadowsocksR");
                     if (pSSRController == null)
                     {

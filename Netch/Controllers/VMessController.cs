@@ -52,7 +52,7 @@ namespace Netch.Controllers
                             {
                                 new Models.Information.VMess.VNext()
                                 {
-                                    address = server.Address,
+                                    address = server.Hostname,
                                     port = server.Port,
                                     users = new List<Models.Information.VMess.User>
                                     {
@@ -75,7 +75,7 @@ namespace Netch.Controllers
                                 path = server.Path == "" ? "/" : server.Path,
                                 headers = new Models.Information.VMess.WSHeaders()
                                 {
-                                    Host = server.Host == "" ? server.Address : server.Host
+                                    Host = server.Host == "" ? server.Hostname : server.Host
                                 }
                             } : null,
                             tcpSettings = server.FakeType == "http" ? new Models.Information.VMess.TCPSettings()
@@ -88,7 +88,7 @@ namespace Netch.Controllers
                                         path = server.Path == "" ? "/" : server.Path,
                                         headers = new Models.Information.VMess.TCPRequestHeaders()
                                         {
-                                            Host = server.Host == "" ? server.Address : server.Host
+                                            Host = server.Host == "" ? server.Hostname : server.Host
                                         }
                                     }
                                 }
@@ -102,7 +102,7 @@ namespace Netch.Controllers
                             } : null,
                             quicSettings = server.TransferProtocol == "quic" ? new Models.Information.VMess.QUICSettings()
                             {
-                                security = server.QUICSecurity,
+                                security = server.QUICSecure,
                                 key = server.QUICSecret,
                                 header = new Models.Information.VMess.TCPHeaders()
                                 {
@@ -111,7 +111,7 @@ namespace Netch.Controllers
                             } : null,
                             httpSettings = server.TransferProtocol == "h2" ? new Models.Information.VMess.HTTPSettings()
                             {
-                                host = server.Host == "" ? server.Address : server.Host,
+                                host = server.Host == "" ? server.Hostname : server.Host,
                                 path = server.Path == "" ? "/" : server.Path
                             } : null,
                             tlsSettings = new Models.Information.VMess.TLSSettings()

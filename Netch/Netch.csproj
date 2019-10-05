@@ -285,6 +285,8 @@
       <DependentUpon>SubscribeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Models\LegacyServer.cs" />
+    <Compile Include="Models\LegacySetting.cs" />
     <Compile Include="NativeMethods.cs" />
     <Compile Include="Netch.cs" />
     <Compile Include="Models\Information\VMess.cs" />

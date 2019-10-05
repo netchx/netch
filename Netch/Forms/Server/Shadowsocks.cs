@@ -38,12 +38,12 @@ namespace Netch.Forms.Server
             if (Index != -1)
             {
                 RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
-                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                AddressTextBox.Text = Global.Settings.Server[Index].Hostname;
                 PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
                 PasswordTextBox.Text = Global.Settings.Server[Index].Password;
                 EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SS.IndexOf(Global.Settings.Server[Index].EncryptMethod);
-                PluginTextBox.Text = Global.Settings.Server[Index].OBFS;
-                PluginOptionsTextBox.Text = Global.Settings.Server[Index].OBFSParam;
+                PluginTextBox.Text = Global.Settings.Server[Index].Plugin;
+                PluginOptionsTextBox.Text = Global.Settings.Server[Index].PluginOption;
             }
             else
             {
@@ -88,13 +88,13 @@ namespace Netch.Forms.Server
                 Global.Settings.Server.Add(new Models.Server()
                 {
                     Remark = RemarkTextBox.Text,
-                    Type = "Shadowsocks",
-                    Address = AddressTextBox.Text,
+                    Type = "SS",
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
-                    OBFS = PluginTextBox.Text,
-                    OBFSParam = PluginOptionsTextBox.Text                 
+                    Plugin = PluginTextBox.Text,
+                    PluginOption = PluginOptionsTextBox.Text
                 });
             }
             else
@@ -103,13 +103,13 @@ namespace Netch.Forms.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Group = Global.Settings.Server[Index].Group,
-                    Type = "Shadowsocks",
-                    Address = AddressTextBox.Text,
+                    Type = "SS",
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
-                    OBFS = PluginTextBox.Text,
-                    OBFSParam = PluginOptionsTextBox.Text
+                    Plugin = PluginTextBox.Text,
+                    PluginOption = PluginOptionsTextBox.Text
                 };
             }
 

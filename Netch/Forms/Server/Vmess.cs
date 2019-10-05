@@ -80,7 +80,7 @@ namespace Netch.Forms.Server
             if (Index != -1)
             {
                 RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
-                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                AddressTextBox.Text = Global.Settings.Server[Index].Hostname;
                 PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
                 UserIDTextBox.Text = Global.Settings.Server[Index].UserID;
                 AlterIDTextBox.Text = Global.Settings.Server[Index].AlterID.ToString();
@@ -89,7 +89,7 @@ namespace Netch.Forms.Server
                 FakeTypeComboBox.SelectedIndex = Global.FakeTypes.IndexOf(Global.Settings.Server[Index].FakeType);
                 HostTextBox.Text = Global.Settings.Server[Index].Host;
                 PathTextBox.Text = Global.Settings.Server[Index].Path;
-                QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(Global.Settings.Server[Index].QUICSecurity);
+                QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(Global.Settings.Server[Index].QUICSecure);
                 QUICSecretTextBox.Text = Global.Settings.Server[Index].QUICSecret;
                 TLSSecureCheckBox.Checked = Global.Settings.Server[Index].TLSSecure;
             }
@@ -115,7 +115,7 @@ namespace Netch.Forms.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "VMess",
-                    Address = AddressTextBox.Text,
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     UserID = UserIDTextBox.Text,
                     AlterID = int.Parse(AlterIDTextBox.Text),
@@ -124,7 +124,7 @@ namespace Netch.Forms.Server
                     FakeType = FakeTypeComboBox.Text,
                     Host = HostTextBox.Text,
                     Path = PathTextBox.Text,
-                    QUICSecurity = QUICSecurityComboBox.Text,
+                    QUICSecure = QUICSecurityComboBox.Text,
                     QUICSecret = QUICSecretTextBox.Text,
                     TLSSecure = TLSSecureCheckBox.Checked
                 });
@@ -135,7 +135,7 @@ namespace Netch.Forms.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Type = "VMess",
-                    Address = AddressTextBox.Text,
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     UserID = UserIDTextBox.Text,
                     AlterID = int.Parse(AlterIDTextBox.Text),
@@ -144,7 +144,7 @@ namespace Netch.Forms.Server
                     FakeType = FakeTypeComboBox.Text,
                     Host = HostTextBox.Text,
                     Path = PathTextBox.Text,
-                    QUICSecurity = QUICSecurityComboBox.Text,
+                    QUICSecure = QUICSecurityComboBox.Text,
                     QUICSecret = QUICSecretTextBox.Text,
                     TLSSecure = TLSSecureCheckBox.Checked
                 };

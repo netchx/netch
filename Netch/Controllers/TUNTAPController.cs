@@ -42,7 +42,7 @@ namespace Netch.Controllers
         public bool Configure()
         {
             // 查询服务器 IP 地址
-            var destination = Dns.GetHostAddressesAsync(SavedServer.Address);
+            var destination = Dns.GetHostAddressesAsync(SavedServer.Hostname);
             if (destination.Wait(1000))
             {
                 if (destination.Result.Length == 0)
@@ -286,7 +286,7 @@ namespace Netch.Controllers
 
             if (server.Type == "Socks5")
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Address, server.Port, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns);
+                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5}", server.Hostname, server.Port, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns);
             }
             else
             {

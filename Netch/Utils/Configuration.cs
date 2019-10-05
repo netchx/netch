@@ -16,25 +16,9 @@ namespace Netch.Utils
         public static readonly string DATA_DIR = "data";
 
         /// <summary>
-        ///     服务器
-        /// </summary>
-        public static readonly string SERVER_DAT = $"{DATA_DIR}\\server.dat";
-
-        /// <summary>
-        ///     订阅链接
-        /// </summary>
-        public static readonly string LINK_DAT = $"{DATA_DIR}\\link.dat";
-
-        /// <summary>
         ///     设置
         /// </summary>
         public static readonly string SETTINGS_JSON = $"{DATA_DIR}\\settings.json";
-
-        public static readonly string BYPASS_DAT = $"{DATA_DIR}\\bypass.dat";
-
-        public static readonly string SETTINGS_DAT = $"{DATA_DIR}\\settings.dat";
-
-        public static readonly string TUNTAP_INI = $"{DATA_DIR}\\tuntap.ini";
 
         /// <summary>
         ///     加载配置
@@ -48,139 +32,37 @@ namespace Netch.Utils
                     try
                     {
                         Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Setting>(File.ReadAllText(SETTINGS_JSON));
-                    }
-
-                    catch (Newtonsoft.Json.JsonException)
-                    {
-
-                    }
-                }
-
-                // 旧版本配置文件支持
-                if (File.Exists(TUNTAP_INI))
-                {
-                    try
-                    {
-                        var parser = new IniParser.FileIniDataParser();
-                        var data = parser.ReadFile(TUNTAP_INI);
-
-                        if (IPAddress.TryParse(data["Generic"]["Address"], out var address))
+                        if (Global.Settings.Server != null && Global.Settings.Server.Count > 0)
                         {
-                            Global.Settings.TUNTAP.Address = data["Generic"]["Address"];
-                        }
-
-                        if (IPAddress.TryParse(data["Generic"]["Netmask"], out var netmask))
-                        {
-                            Global.Settings.TUNTAP.Netmask = data["Generic"]["Netmask"];
-                        }
-
-                        if (IPAddress.TryParse(data["Generic"]["Gateway"], out var gateway))
-                        {
-                            Global.Settings.TUNTAP.Gateway = data["Generic"]["Gateway"];
-                        }
-
-                        var dns = new List<string>();
-                        foreach (var ip in data["Generic"]["DNS"].Split(','))
-                        {
-                            if (IPAddress.TryParse(ip, out var value))
+                            // 如果是旧版 Server 类，使用旧版 Server 类进行读取
+                            if (Global.Settings.Server[0].Hostname == null)
                             {
-                                dns.Add(ip);
+                                var LegacySettingConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_JSON));
+                                for (int i = 0; i < LegacySettingConfig.Server.Count; i++)
+                                {
+                                    Global.Settings.Server[i].Hostname = LegacySettingConfig.Server[i].Address;
+                                    if (Global.Settings.Server[i].Type == "Shadowsocks")
+                                    {
+                                        Global.Settings.Server[i].Type = "SS";
+                                        Global.Settings.Server[i].Plugin = LegacySettingConfig.Server[i].OBFS;
+                                        Global.Settings.Server[i].PluginOption = LegacySettingConfig.Server[i].OBFSParam;
+                                    }
+                                    else if (Global.Settings.Server[i].Type == "ShadowsocksR")
+                                    {
+                                        Global.Settings.Server[i].Type = "SSR";
+                                    }
+                                    else if (Global.Settings.Server[i].Type == "VMess")
+                                    {
+                                        Global.Settings.Server[i].QUICSecure = LegacySettingConfig.Server[i].QUICSecurity;
+                                    }
+                                }
                             }
                         }
-
-                        if (Boolean.TryParse(data["Generic"]["UseCustomDNS"], out var useCustomDNS))
-                        {
-                            Global.Settings.TUNTAP.UseCustomDNS = useCustomDNS;
-                        }
-
-                        if (dns.Count > 0)
-                        {
-                            Global.Settings.TUNTAP.DNS = dns;
-                        }
-
-                        // 如果成功读取就删除旧版本配置文件
-                        File.Delete(TUNTAP_INI);
-                    }
-
-                    catch (IniParser.Exceptions.ParsingException)
-                    {
-
-                    }
-                }
-
-                if (File.Exists(SETTINGS_DAT))
-                {
-                    try
-                    {
-                        var LegacySettingTemp = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_DAT));
-                        Global.Settings.ServerComboBoxSelectedIndex = LegacySettingTemp.ServerComboBoxSelectedIndex;
-                        Global.Settings.ModeComboBoxSelectedIndex = LegacySettingTemp.ModeComboBoxSelectedIndex;
-                        // 如果成功读取就删除旧版本配置文件
-                        File.Delete(SETTINGS_DAT);
                     }
 
                     catch (Newtonsoft.Json.JsonException)
                     {
 
-                    }
-
-                }
-
-                // 旧版本配置文件支持
-                if (Global.Settings.Server.Count == 0)
-                {
-                    if (File.Exists(SERVER_DAT))
-                    {
-                        try
-                        {
-                            Global.Settings.Server = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.Server>>(File.ReadAllText(SERVER_DAT));
-                            // 如果成功读取就删除旧版本配置文件
-                            File.Delete(SERVER_DAT);
-                        }
-
-                        catch (Newtonsoft.Json.JsonException)
-                        {
-
-                        }
-
-                    }
-                }
-
-                // 旧版本配置文件支持
-                if (Global.Settings.SubscribeLink.Count == 0)
-                {
-                    if (File.Exists(LINK_DAT))
-                    {
-                        try
-                        {
-                            Global.Settings.SubscribeLink = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Models.SubscribeLink>>(File.ReadAllText(LINK_DAT));
-                            // 如果成功读取就删除旧版本配置文件
-                            File.Delete(LINK_DAT);
-                        }
-
-                        catch (Newtonsoft.Json.JsonException)
-                        {
-
-                        }
-                    }
-                }
-
-                // 旧版本配置文件支持
-                if (Global.Settings.BypassIPs.Count == 0)
-                {
-                    if (File.Exists(BYPASS_DAT))
-                    {
-                        try
-                        {
-                            Global.Settings.BypassIPs = Newtonsoft.Json.JsonConvert.DeserializeObject<List<String>>(File.ReadAllText(BYPASS_DAT));
-                            // 如果成功读取就删除旧版本配置文件
-                            File.Delete(BYPASS_DAT);
-                        }
-
-                        catch (Newtonsoft.Json.JsonException)
-                        {
-
-                        }
                     }
                 }
             }

@@ -44,26 +44,26 @@ namespace Netch.Forms.Server
 
             foreach (var obfs in Global.OBFSs)
             {
-                OBFSComboBox.Items.Add(obfs);
+                PluginComboBox.Items.Add(obfs);
             }
 
             if (Index != -1)
             {
                 RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
-                AddressTextBox.Text = Global.Settings.Server[Index].Address;
+                AddressTextBox.Text = Global.Settings.Server[Index].Hostname;
                 PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
                 PasswordTextBox.Text = Global.Settings.Server[Index].Password;
                 EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(Global.Settings.Server[Index].EncryptMethod);
                 ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(Global.Settings.Server[Index].Protocol);
                 ProtocolParamTextBox.Text = Global.Settings.Server[Index].ProtocolParam;
-                OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Settings.Server[Index].OBFS);
-                OBFSParamTextBox.Text = Global.Settings.Server[Index].OBFSParam;
+                PluginComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Settings.Server[Index].Plugin);
+                PluginOptionParamTextBox.Text = Global.Settings.Server[Index].PluginOption;
             }
             else
             {
                 EncryptMethodComboBox.SelectedIndex = 0;
                 ProtocolComboBox.SelectedIndex = 0;
-                OBFSComboBox.SelectedIndex = 0;
+                PluginComboBox.SelectedIndex = 0;
             }
         }
 
@@ -104,15 +104,15 @@ namespace Netch.Forms.Server
                 Global.Settings.Server.Add(new Models.Server()
                 {
                     Remark = RemarkTextBox.Text,
-                    Type = "ShadowsocksR",
-                    Address = AddressTextBox.Text,
+                    Type = "SSR",
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
                     Protocol = ProtocolComboBox.Text,
                     ProtocolParam = ProtocolParamTextBox.Text,
-                    OBFS = OBFSComboBox.Text,
-                    OBFSParam = OBFSParamTextBox.Text
+                    Plugin = PluginComboBox.Text,
+                    PluginOption = PluginOptionParamTextBox.Text
                 });
             }
             else
@@ -121,15 +121,15 @@ namespace Netch.Forms.Server
                 {
                     Remark = RemarkTextBox.Text,
                     Group = Global.Settings.Server[Index].Group,
-                    Type = "ShadowsocksR",
-                    Address = AddressTextBox.Text,
+                    Type = "SSR",
+                    Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
                     Protocol = ProtocolComboBox.Text,
                     ProtocolParam = ProtocolParamTextBox.Text,
-                    OBFS = OBFSComboBox.Text,
-                    OBFSParam = OBFSParamTextBox.Text
+                    Plugin = PluginComboBox.Text,
+                    PluginOption = PluginOptionParamTextBox.Text
                 };
             }
 

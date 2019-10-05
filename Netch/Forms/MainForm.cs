@@ -579,10 +579,10 @@ namespace Netch.Forms
                     case "Socks5":
                         (new Server.Socks5(ServerComboBox.SelectedIndex)).Show();
                         break;
-                    case "Shadowsocks":
+                    case "SS":
                         (new Server.Shadowsocks(ServerComboBox.SelectedIndex)).Show();
                         break;
-                    case "ShadowsocksR":
+                    case "SSR":
                         (new Server.ShadowsocksR(ServerComboBox.SelectedIndex)).Show();
                         break;
                     case "VMess":
