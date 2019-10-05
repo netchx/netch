@@ -30,7 +30,7 @@ namespace Netch.Forms
         /// <summary>
         ///     上一次下载的流量
         /// </summary>
-        public long LastDownlaodBandwidth = 0;
+        public long LastDownloadBandwidth = 0;
 
         /// <summary>
         ///     是否第一次打开
@@ -387,7 +387,14 @@ namespace Netch.Forms
                         {
                             try
                             {
-                                client.Headers.Add("User-Agent", "curl/7.66.0");
+                                if (!String.IsNullOrEmpty(item.UserAgent))
+                                {
+                                    client.Headers.Add("User-Agent", item.UserAgent);
+                                }
+                                else
+                                {
+                                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+                                }
                                 var response = client.DownloadString(item.Link);
 
                                 try
@@ -739,7 +746,7 @@ namespace Netch.Forms
                     if (mode.Type == 0)
                     {
                         LastUploadBandwidth = 0;
-                        LastDownlaodBandwidth = 0;
+                        LastDownloadBandwidth = 0;
                         UploadSpeedLabel.Text = "↑: 0 KB/s";
                         DownloadSpeedLabel.Text = "↓: 0 KB/s";
                         UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
@@ -822,10 +829,10 @@ namespace Netch.Forms
         {
             UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
             UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
-            DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownlaodBandwidth)}/s";
+            DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
 
             LastUploadBandwidth = upload;
-            LastDownlaodBandwidth = download;
+            LastDownloadBandwidth = download;
             Refresh();
         }
     }

@@ -11,5 +11,10 @@
         ///     链接
         /// </summary>
         public string Link;
+
+        /// <summary>
+        ///     User Agent
+        /// </summary>
+        public string UserAgent;
     }
 }
