@@ -27,7 +27,7 @@
 ```
 
 | 字段 | 说明 |
-| :- | :- | :- |
+| :- | :- |
 | Type | 代理类型（HTTP、HTTPS、Socks5、SS、SSR、VMess） |
 | Rate | 倍率 |
 | Remark | 备注 |
