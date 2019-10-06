@@ -519,6 +519,8 @@ namespace Netch.Forms
         private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
+            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Restarting service")}";
+
             Task.Run(() =>
             {
                 try
@@ -550,6 +552,8 @@ namespace Netch.Forms
         private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
+            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Uninstalling Service")}";
+
             Task.Run(() =>
             {
                 var driver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
