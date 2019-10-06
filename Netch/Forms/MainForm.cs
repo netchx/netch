@@ -498,6 +498,7 @@ namespace Netch.Forms
                         MainController.Stop();
                     }
                     MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Utils.Configuration.Save();
                 });
 
                 MessageBox.Show(Utils.i18N.Translate("Updating in the background"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
