@@ -376,6 +376,16 @@ namespace Netch.Forms
 
         private void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (Global.Settings.UseProxyToUpdateSubscription)
+            {
+                // 当前ServerComboBox中至少有一项
+                if (ServerComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+            }
+
             if (Global.Settings.SubscribeLink.Count > 0)
             {
                 DeletePictureBox.Enabled = false;
