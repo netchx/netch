@@ -472,14 +472,6 @@ namespace Netch.Forms
 
                                         if (result != null)
                                         {
-                                            if (item.Link.Contains("n3ro"))
-                                            {
-                                                foreach (var x in result)
-                                                {
-                                                    x.Remark = x.Remark.Split('#')[0].Trim();
-                                                }
-                                            }
-
                                             foreach (var x in result)
                                             {
                                                 x.Group = item.Remark;
