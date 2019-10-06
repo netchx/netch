@@ -379,8 +379,19 @@ namespace Netch.Forms
             if (Global.Settings.SubscribeLink.Count > 0)
             {
                 DeletePictureBox.Enabled = false;
+
                 Task.Run(() =>
                 {
+                    if (Global.Settings.UseProxyToUpdateSubscription)
+                    {
+                        var mode = new Models.Mode()
+                        {
+                            Remark = "ProxyUpdate",
+                            Type = 5
+                        };
+                        MainController = new Controllers.MainController();
+                        MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                    }
                     foreach (var item in Global.Settings.SubscribeLink)
                     {
                         using (var client = new Override.WebClient())
@@ -395,6 +406,12 @@ namespace Netch.Forms
                                 {
                                     client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
                                 }
+
+                                if (Global.Settings.UseProxyToUpdateSubscription)
+                                {
+                                    client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                                }
+
                                 var response = client.DownloadString(item.Link);
 
                                 try
@@ -453,6 +470,10 @@ namespace Netch.Forms
 
                     InitServer();
                     DeletePictureBox.Enabled = true;
+                    if (Global.Settings.UseProxyToUpdateSubscription)
+                    {
+                        MainController.Stop();
+                    }
                     MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 });
 

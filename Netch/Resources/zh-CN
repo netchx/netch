@@ -93,6 +93,7 @@
     "Please enter a mode remark": "请输入模式的备注",
 
     "Link": "链接",
+    "Use Selected Server To Update Subscription": "使用选中的服务器更新订阅",
     "Delete": "删除",
     "Delete or not ? Will clean up the corresponding group of items in the server list": "是否删除？将会清理服务器列表中对应组的项目",
     "Remark can not be empty": "备注不可为空",

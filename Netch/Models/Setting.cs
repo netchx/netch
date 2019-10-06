@@ -65,14 +65,14 @@ namespace Netch.Models
         public int Socks5LocalPort = 2801;
 
         /// <summary>
-        ///		HTTP 和 Socks5 本地代理地址
-        /// </summary>
-        public string LocalAddress = "127.0.0.1";
-
-        /// <summary>
         ///		Redirector TCP 占用端口
         /// </summary>
         public int RedirectorTCPPort = 2800;
+
+        /// <summary>
+        ///		HTTP 和 Socks5 本地代理地址
+        /// </summary>
+        public string LocalAddress = "127.0.0.1";
 
         /// <summary>
         ///		TUNTAP 适配器配置
@@ -80,14 +80,19 @@ namespace Netch.Models
         public TUNTAPConfig TUNTAP = new TUNTAPConfig();
 
         /// <summary>
-        ///     服务器列表
+        ///		使用代理更新订阅
         /// </summary>
-        public List<Models.Server> Server = new List<Models.Server>();
+        public bool UseProxyToUpdateSubscription = false;
 
         /// <summary>
         ///     订阅链接列表
         /// </summary>
         public List<Models.SubscribeLink> SubscribeLink = new List<Models.SubscribeLink>();
+
+        /// <summary>
+        ///     服务器列表
+        /// </summary>
+        public List<Models.Server> Server = new List<Models.Server>();
 
         /// <summary>
         ///		全局绕过 IP 列表

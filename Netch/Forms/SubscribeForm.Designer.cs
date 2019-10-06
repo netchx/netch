@@ -42,9 +42,10 @@
             this.SubscribeLinkListView = new System.Windows.Forms.ListView();
             this.RemarkColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.LinkColumnHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UserAgentHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UserAgentHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.UseSelectedServerCheckBox = new System.Windows.Forms.CheckBox();
             this.AddSubscriptionBox.SuspendLayout();
             this.pContextMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -124,7 +125,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(597, 359);
+            this.ControlButton.Location = new System.Drawing.Point(597, 396);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 8;
@@ -158,6 +159,11 @@
             this.LinkColumnHeader.Text = "Link";
             this.LinkColumnHeader.Width = 400;
             // 
+            // UserAgentHeader
+            // 
+            this.UserAgentHeader.Text = "UserAgent";
+            this.UserAgentHeader.Width = 120;
+            // 
             // pContextMenuStrip
             // 
             this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -172,16 +178,22 @@
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
             // 
-            // UserAgentHeader
+            // UseSelectedServerCheckBox
             // 
-            this.UserAgentHeader.Text = "UserAgent";
-            this.UserAgentHeader.Width = 120;
+            this.UseSelectedServerCheckBox.AutoSize = true;
+            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(12, 364);
+            this.UseSelectedServerCheckBox.Name = "UseSelectedServerCheckBox";
+            this.UseSelectedServerCheckBox.Size = new System.Drawing.Size(285, 21);
+            this.UseSelectedServerCheckBox.TabIndex = 9;
+            this.UseSelectedServerCheckBox.Text = "Use Selected Server To Update Subscription";
+            this.UseSelectedServerCheckBox.UseVisualStyleBackColor = true;
             // 
             // SubscribeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(684, 394);
+            this.ClientSize = new System.Drawing.Size(684, 431);
+            this.Controls.Add(this.UseSelectedServerCheckBox);
             this.Controls.Add(this.SubscribeLinkListView);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.AddSubscriptionBox);
@@ -199,6 +211,7 @@
             this.AddSubscriptionBox.PerformLayout();
             this.pContextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -218,5 +231,6 @@
         private System.Windows.Forms.Label UserAgentLabel;
         private System.Windows.Forms.TextBox UserAgentTextBox;
         private System.Windows.Forms.ColumnHeader UserAgentHeader;
+        private System.Windows.Forms.CheckBox UseSelectedServerCheckBox;
     }
 }
