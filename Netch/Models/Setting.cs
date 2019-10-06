@@ -55,6 +55,21 @@ namespace Netch.Models
         public int ModeComboBoxSelectedIndex = 0;
 
         /// <summary>
+        ///		是否关闭窗口时退出
+        /// </summary>
+        public bool ExitWhenClosed = false;
+
+        /// <summary>
+        ///		是否退出时停止
+        /// </summary>
+        public bool StopWhenExited = false;
+
+        /// <summary>
+        ///		是否打开软件时启动加速
+        /// </summary>
+        public bool StartWhenOpened = false;
+
+        /// <summary>
         ///		HTTP 本地端口
         /// </summary>
         public int HTTPLocalPort = 2802;

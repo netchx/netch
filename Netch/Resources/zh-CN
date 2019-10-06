@@ -102,12 +102,16 @@
     "Successfully saved": "保存成功",
 
     "Settings": "设置",
+    "Start when opened": "打开软件时启动加速",
     "Local Port": "本地端口",
     "Allow other Devices to connect": "允许其他设备连入",
     "Netmask": "子网掩码",
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
     "Use Fake DNS": "使用 Fake DNS",
+    "Behavior": "行为",
+    "Exit when closed": "关闭时退出",
+    "Stop when exited": "退出时停止",
     "Global Bypass IPs": "全局直连 IP",
     "Port value illegal. Try again.": "端口值非法。请重试。",
     

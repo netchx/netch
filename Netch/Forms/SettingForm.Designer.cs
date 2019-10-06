@@ -38,6 +38,7 @@
             this.Socks5PortLabel = new System.Windows.Forms.Label();
             this.Socks5PortTextBox = new System.Windows.Forms.TextBox();
             this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
+            this.TUNTAPUseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.TUNTAPUseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.TUNTAPDNSLabel = new System.Windows.Forms.Label();
             this.TUNTAPDNSTextBox = new System.Windows.Forms.TextBox();
@@ -49,9 +50,13 @@
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
-            this.TUNTAPUseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
+            this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
+            this.BehaviorGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // PortGroupBox
@@ -151,6 +156,16 @@
             this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
             // 
+            // TUNTAPUseFakeDNSCheckBox
+            // 
+            this.TUNTAPUseFakeDNSCheckBox.AutoSize = true;
+            this.TUNTAPUseFakeDNSCheckBox.Location = new System.Drawing.Point(120, 165);
+            this.TUNTAPUseFakeDNSCheckBox.Name = "TUNTAPUseFakeDNSCheckBox";
+            this.TUNTAPUseFakeDNSCheckBox.Size = new System.Drawing.Size(110, 21);
+            this.TUNTAPUseFakeDNSCheckBox.TabIndex = 10;
+            this.TUNTAPUseFakeDNSCheckBox.Text = "Use Fake DNS";
+            this.TUNTAPUseFakeDNSCheckBox.UseVisualStyleBackColor = true;
+            // 
             // TUNTAPUseCustomDNSCheckBox
             // 
             this.TUNTAPUseCustomDNSCheckBox.AutoSize = true;
@@ -232,7 +247,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 356);
+            this.ControlButton.Location = new System.Drawing.Point(357, 465);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -242,7 +257,7 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 356);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 465);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -250,21 +265,57 @@
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
             this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
             // 
-            // TUNTAPUseFakeDNSCheckBox
+            // BehaviorGroupBox
             // 
-            this.TUNTAPUseFakeDNSCheckBox.AutoSize = true;
-            this.TUNTAPUseFakeDNSCheckBox.Location = new System.Drawing.Point(120, 165);
-            this.TUNTAPUseFakeDNSCheckBox.Name = "TUNTAPUseFakeDNSCheckBox";
-            this.TUNTAPUseFakeDNSCheckBox.Size = new System.Drawing.Size(110, 21);
-            this.TUNTAPUseFakeDNSCheckBox.TabIndex = 10;
-            this.TUNTAPUseFakeDNSCheckBox.Text = "Use Fake DNS";
-            this.TUNTAPUseFakeDNSCheckBox.UseVisualStyleBackColor = true;
+            this.BehaviorGroupBox.Controls.Add(this.StartWhenOpenedCheckBox);
+            this.BehaviorGroupBox.Controls.Add(this.StopWhenExitedCheckBox);
+            this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
+            this.BehaviorGroupBox.Location = new System.Drawing.Point(12, 356);
+            this.BehaviorGroupBox.Name = "BehaviorGroupBox";
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 103);
+            this.BehaviorGroupBox.TabIndex = 8;
+            this.BehaviorGroupBox.TabStop = false;
+            this.BehaviorGroupBox.Text = "Behavior";
+            // 
+            // StartWhenOpenedCheckBox
+            // 
+            this.StartWhenOpenedCheckBox.AutoSize = true;
+            this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 76);
+            this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
+            this.StartWhenOpenedCheckBox.Size = new System.Drawing.Size(137, 21);
+            this.StartWhenOpenedCheckBox.TabIndex = 7;
+            this.StartWhenOpenedCheckBox.Text = "Start when opened";
+            this.StartWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.StartWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // StopWhenExitedCheckBox
+            // 
+            this.StopWhenExitedCheckBox.AutoSize = true;
+            this.StopWhenExitedCheckBox.Location = new System.Drawing.Point(120, 49);
+            this.StopWhenExitedCheckBox.Name = "StopWhenExitedCheckBox";
+            this.StopWhenExitedCheckBox.Size = new System.Drawing.Size(127, 21);
+            this.StopWhenExitedCheckBox.TabIndex = 6;
+            this.StopWhenExitedCheckBox.Text = "Stop when exited";
+            this.StopWhenExitedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.StopWhenExitedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // ExitWhenClosedCheckBox
+            // 
+            this.ExitWhenClosedCheckBox.AutoSize = true;
+            this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(120, 22);
+            this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
+            this.ExitWhenClosedCheckBox.Size = new System.Drawing.Size(123, 21);
+            this.ExitWhenClosedCheckBox.TabIndex = 5;
+            this.ExitWhenClosedCheckBox.Text = "Exit when closed";
+            this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 391);
+            this.ClientSize = new System.Drawing.Size(444, 500);
+            this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
@@ -283,6 +334,8 @@
             this.PortGroupBox.PerformLayout();
             this.TUNTAPGroupBox.ResumeLayout(false);
             this.TUNTAPGroupBox.PerformLayout();
+            this.BehaviorGroupBox.ResumeLayout(false);
+            this.BehaviorGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
 		}
@@ -310,5 +363,9 @@
         private System.Windows.Forms.TextBox RedirectorTextBox;
         private System.Windows.Forms.Label RedirectorLabel;
         private System.Windows.Forms.CheckBox TUNTAPUseFakeDNSCheckBox;
+        private System.Windows.Forms.GroupBox BehaviorGroupBox;
+        private System.Windows.Forms.CheckBox ExitWhenClosedCheckBox;
+        private System.Windows.Forms.CheckBox StopWhenExitedCheckBox;
+        private System.Windows.Forms.CheckBox StartWhenOpenedCheckBox;
     }
 }

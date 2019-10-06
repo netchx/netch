@@ -54,6 +54,10 @@ namespace Netch.Forms
             GlobalBypassIPsButton.Text = Utils.i18N.Translate("Global Bypass IPs");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
+            ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
+            StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
+            StartWhenOpenedCheckBox.Checked = Global.Settings.StartWhenOpened;
+
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
             RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
@@ -64,6 +68,11 @@ namespace Netch.Forms
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
             TUNTAPUseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
+
+            BehaviorGroupBox.Text = Utils.i18N.Translate("Behavior");
+            ExitWhenClosedCheckBox.Text = Utils.i18N.Translate("Exit when closed");
+            StopWhenExitedCheckBox.Text = Utils.i18N.Translate("Stop when exited");
+            StartWhenOpenedCheckBox.Text = Utils.i18N.Translate("Start when opened");
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -117,6 +126,10 @@ namespace Netch.Forms
         
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            Global.Settings.ExitWhenClosed = ExitWhenClosedCheckBox.Checked;
+            Global.Settings.StopWhenExited = StopWhenExitedCheckBox.Checked;
+            Global.Settings.StartWhenOpened = StartWhenOpenedCheckBox.Checked;
+
             try
             {
                 var Socks5Port = Int32.Parse(Socks5PortTextBox.Text);

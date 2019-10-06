@@ -287,6 +287,13 @@ namespace Netch.Forms
                     }
                 }
             });
+
+            // 打开软件时启动加速，产生开始按钮点击事件
+            if (Global.Settings.StartWhenOpened)
+            {
+                ControlButton.PerformClick();
+            }
+
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -296,21 +303,30 @@ namespace Netch.Forms
                 // 取消"关闭窗口"事件
                 e.Cancel = true; // 取消关闭窗体 
 
-                // 使关闭时窗口向右下角缩小的效果
-                this.WindowState = FormWindowState.Minimized;
-                this.NotifyIcon.Visible = true;
-
-                if (IsFirstOpened)
+                // 如果未勾选关闭窗口时退出，隐藏至右下角托盘图标
+                if (!Global.Settings.ExitWhenClosed)
                 {
-                    // 显示提示语
-                    this.NotifyIcon.BalloonTipTitle = "Netch";
-                    this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-                    this.NotifyIcon.ShowBalloonTip(5);
+                    // 使关闭时窗口向右下角缩小的效果
+                    this.WindowState = FormWindowState.Minimized;
+                    this.NotifyIcon.Visible = true;
 
-                    IsFirstOpened = false;
+                    if (IsFirstOpened)
+                    {
+                        // 显示提示语
+                        this.NotifyIcon.BalloonTipTitle = "Netch";
+                        this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                        this.NotifyIcon.ShowBalloonTip(5);
+
+                        IsFirstOpened = false;
+                    }
+
+                    Hide();
                 }
-
-                Hide();
+                // 如果勾选了关闭时退出，自动点击退出按钮
+                else
+                {
+                    ExitToolStripButton.PerformClick();
+                }
             }
         }
 
@@ -384,6 +400,9 @@ namespace Netch.Forms
                     MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+                ControlButton.Text = "...";
+                
             }
 
             if (Global.Settings.SubscribeLink.Count > 0)
@@ -482,6 +501,8 @@ namespace Netch.Forms
                     DeletePictureBox.Enabled = true;
                     if (Global.Settings.UseProxyToUpdateSubscription)
                     {
+                        MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                        ControlButton.Text = Utils.i18N.Translate("Start");
                         MainController.Stop();
                     }
                     MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -809,21 +830,31 @@ namespace Netch.Forms
 
         private void ExitToolStripButton_Click(object sender, EventArgs e)
         {
+            // 当前状态如果不是已停止状态
+            if (State != Models.State.Waiting && State != Models.State.Stopped)
+            {
+                // 如果未勾选退出时停止，要求先点击停止按钮
+                if (!Global.Settings.StopWhenExited)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    this.Visible = true;
+                    this.ShowInTaskbar = true;  // 显示在系统任务栏 
+                    this.WindowState = FormWindowState.Normal;  // 还原窗体 
+                    this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
+
+                    return;
+                }
+                // 否则自动点击停止按钮
+                else
+                {
+                    ControlButton.PerformClick();
+                }
+            }
+
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
             Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
             Utils.Configuration.Save();
-
-            if (State != Models.State.Waiting && State != Models.State.Stopped)
-            {
-                MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                this.Visible = true;
-                this.ShowInTaskbar = true;  // 显示在系统任务栏 
-                this.WindowState = FormWindowState.Normal;  // 还原窗体 
-                this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
-
-                return;
-            }
 
             State = Models.State.Terminating;
             this.NotifyIcon.Visible = false;
