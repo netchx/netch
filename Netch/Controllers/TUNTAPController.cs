@@ -30,7 +30,6 @@ namespace Netch.Controllers
         public Models.Server SavedServer = new Models.Server();
         public Models.Mode SavedMode = new Models.Mode();
 
-
         /// <summary>
         ///     本地 DNS 服务控制器
         /// </summary>

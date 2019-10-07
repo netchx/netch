@@ -194,5 +194,10 @@ namespace Netch
         ///     用于读取和写入的配置
         /// </summary>
         public static Models.Setting Settings = new Models.Setting();
+
+        /// <summary>
+        ///     用于存储模式文件内容
+        /// </summary>
+        public static List<Models.Mode> ModeFiles = new List<Models.Mode>();
     }
 }

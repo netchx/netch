@@ -84,6 +84,10 @@
     "Test done": "测试完成",
 
     "Remark": "备注",
+    "Filename": "文件名",
+    "Use Custom Filename": "使用自定义文件名",
+    "Stay the same": "保持一致",
+    "Time data": "时间数据",
     "Add": "添加",
     "Scan": "扫描",
     "Save": "保存",

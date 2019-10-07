@@ -72,15 +72,29 @@ namespace Netch.Forms
             // 如果当前 ServerComboBox 中没元素，不做处理
         }
 
+        public void SelectLastMode()
+        {
+            // 如果值合法，选中该位置
+            if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
+            {
+                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
+            }
+            // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
+            else if (ModeComboBox.Items.Count > 0)
+            {
+                ModeComboBox.SelectedIndex = 0;
+            }
+
+            // 如果当前 ModeComboBox 中没元素，不做处理
+        }
 
         public void InitMode()
         {
             ModeComboBox.Items.Clear();
+            Global.ModeFiles.Clear();
 
             if (Directory.Exists("mode"))
             {
-                var list = new List<Models.Mode>();
-
                 foreach (var name in Directory.GetFiles("mode", "*.txt"))
                 {
                     var ok = true;
@@ -148,28 +162,29 @@ namespace Netch.Forms
 
                     if (ok)
                     {
-                        list.Add(mode);
+                        mode.FileName = Path.GetFileNameWithoutExtension(name);
+                        Global.ModeFiles.Add(mode);
                     }
                 }
 
-                var array = list.ToArray();
+                var array = Global.ModeFiles.ToArray();
                 Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
 
                 ModeComboBox.Items.AddRange(array);
-            }
 
-            // 如果值合法，选中该位置
-            if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
-            {
-                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
+                SelectLastMode();
             }
-            // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
-            else if (ModeComboBox.Items.Count > 0)
-            {
-                ModeComboBox.SelectedIndex = 0;
-            }
+        }
 
-            // 如果当前 ModeComboBox 中没元素，不做处理
+        public void AddMode(Models.Mode mode)
+        {
+            ModeComboBox.Items.Clear();
+            Global.ModeFiles.Add(mode);
+            var array = Global.ModeFiles.ToArray();
+            Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            ModeComboBox.Items.AddRange(array);
+
+            SelectLastMode();
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -351,6 +366,7 @@ namespace Netch.Forms
                 }
 
                 InitServer();
+                Utils.Configuration.Save();
             }
         }
 
@@ -394,7 +410,7 @@ namespace Netch.Forms
         {
             if (Global.Settings.UseProxyToUpdateSubscription)
             {
-                // 当前ServerComboBox中至少有一项
+                // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -651,7 +667,7 @@ namespace Netch.Forms
 
         private void DeletePictureBox_Click(object sender, EventArgs e)
         {
-            // 当前ServerComboBox中至少有一项
+            // 当前 ServerComboBox 中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
                 var index = ServerComboBox.SelectedIndex;
@@ -683,6 +699,7 @@ namespace Netch.Forms
                 Enabled = true;
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Test done")}";
                 Refresh();
+                Utils.Configuration.Save();
             });
         }
 
@@ -690,14 +707,14 @@ namespace Netch.Forms
         {
             if (State == Models.State.Waiting || State == Models.State.Stopped)
             {
-                // 当前ServerComboBox中至少有一项
+                // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
-                // 当前ModeComboBox中至少有一项
+                // 当前 ModeComboBox 中至少有一项
                 if (ModeComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -25,9 +25,8 @@ namespace Netch.Models
         /// <summary>
         ///		DNS
         /// </summary>
-        public List<string> DNS = new List<string>()
-        {
-        };
+        public List<string> DNS = new List<string>();
+
         /// <summary>
         ///		使用伪装 DNS
         /// </summary>
@@ -68,6 +67,12 @@ namespace Netch.Models
         ///		是否打开软件时启动加速
         /// </summary>
         public bool StartWhenOpened = false;
+
+        /// <summary>
+        ///		使用何种模式文件名
+        ///		0 为自定义文件名，1 为使用和备注一致的文件名，2 为使用时间数据作为文件名
+        /// </summary>
+        public int ModeFileNameType = 1;
 
         /// <summary>
         ///		HTTP 本地端口

@@ -57,9 +57,32 @@ namespace Netch.Forms.Mode
             Text = Utils.i18N.Translate("Create Process Mode");
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             RemarkLabel.Text = Utils.i18N.Translate("Remark");
+            FilenameLabel.Text = Utils.i18N.Translate("Filename");
+            UseCustomFilenameBox.Text = Utils.i18N.Translate("Use Custom Filename");
+            StaySameButton.Text = Utils.i18N.Translate("Stay the same");
+            TimeDataButton.Text = Utils.i18N.Translate("Time data");
             AddButton.Text = Utils.i18N.Translate("Add");
             ScanButton.Text = Utils.i18N.Translate("Scan");
             ControlButton.Text = Utils.i18N.Translate("Save");
+
+            if (Global.Settings.ModeFileNameType == 0)
+            {
+                UseCustomFilenameBox.Checked = true;
+                StaySameButton.Enabled = false;
+                TimeDataButton.Enabled = false;
+            }
+            else if (Global.Settings.ModeFileNameType == 1)
+            {
+                FilenameTextBox.Enabled = false;
+                FilenameLabel.Enabled = false;
+                StaySameButton.Checked = true;
+            }
+            else
+            {
+                FilenameTextBox.Enabled = false;
+                FilenameLabel.Enabled = false;
+                TimeDataButton.Checked = true;
+            }
         }
 
         private void ModeForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -103,15 +126,52 @@ namespace Netch.Forms.Mode
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            // 自定义文件名
+            if (UseCustomFilenameBox.Checked)
+            {
+                Global.Settings.ModeFileNameType = 0;
+            }
+            // 使用和备注一致的文件名
+            else if (StaySameButton.Checked)
+            {
+                Global.Settings.ModeFileNameType = 1;
+                FilenameTextBox.Text = RemarkTextBox.Text;
+            }
+            // 使用时间数据作为文件名
+            else
+            {
+                Global.Settings.ModeFileNameType = 2;
+                FilenameTextBox.Text = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+            }
+
+            Utils.Configuration.Save();
+
             if (!String.IsNullOrWhiteSpace(RemarkTextBox.Text))
             {
+                var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
+
+                // 如果文件已存在，返回
+                if (File.Exists(ModeFilename + ".txt"))
+                {
+                    MessageBox.Show(Utils.i18N.Translate("File already exists.\n Please Change the filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
                 if (RuleListBox.Items.Count != 0)
                 {
-                    var text = String.Format("# {0}, 0\r\n", RemarkTextBox.Text);
+                    var mode = new Models.Mode()
+                    {
+                        BypassChina = false,
+                        FileName = ModeFilename,
+                        Type = 0,
+                        Remark = RemarkTextBox.Text
+                    };
+
+                    var text = $"# {RemarkTextBox.Text}, 0\r\n";
                     foreach (var item in RuleListBox.Items)
                     {
                         var process = item as String;
-
+                        mode.Rule.Add(process);
                         text += process + "\r\n";
                     }
 
@@ -122,11 +182,11 @@ namespace Netch.Forms.Mode
                         Directory.CreateDirectory("mode");
                     }
 
-                    File.WriteAllText("mode\\" + (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds + ".txt", text);
+                    File.WriteAllText(ModeFilename + ".txt", text);
 
                     MessageBox.Show(Utils.i18N.Translate("Mode added successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    Global.MainForm.InitMode();
+                    Global.MainForm.AddMode(mode);
                     Close();
                 }
                 else
@@ -137,6 +197,25 @@ namespace Netch.Forms.Mode
             else
             {
                 MessageBox.Show(Utils.i18N.Translate("Please enter a mode remark"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+        }
+
+        private void UseCustomFileNameBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (UseCustomFilenameBox.Checked)
+            {
+                StaySameButton.Enabled = false;
+                TimeDataButton.Enabled = false;
+                FilenameTextBox.Enabled = true;
+                FilenameLabel.Enabled = true;
+            }
+            else
+            {
+                StaySameButton.Enabled = true;
+                TimeDataButton.Enabled = true;
+                FilenameTextBox.Enabled = false;
+                FilenameLabel.Enabled = false;
             }
         }
     }
