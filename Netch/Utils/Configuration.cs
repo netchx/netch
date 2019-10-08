@@ -112,25 +112,32 @@ namespace Netch.Utils
                 // 通过索引查找对应适配器的 IPv4 地址
                 if (p.Index == Global.Adapter.Index)
                 {
-                    var ok = false;
+                    var AddressGot = false;
+                    String AdapterIPs = "";
 
                     foreach (UnicastIPAddressInformation ip in adapterProperties.UnicastAddresses)
                     {
                         if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                         {
-                            ok = true;
-
+                            AddressGot = true;
                             Global.Adapter.Address = ip.Address;
-                            Logging.Info($"当前 IP 地址：{Global.Adapter.Address}");
+                            Logging.Info($"当前出口 IPv4 地址：{Global.Adapter.Address}");
                             break;
                         }
+                        AdapterIPs = $"{ip.Address.ToString()} | ";
                     }
 
-                    if (!ok)
+                    if (!AddressGot)
                     {
-                        Logging.Info($"检测到出口无 IPv4 地址，当前只支持 IPv4 地址");
+                        if (AdapterIPs.Length > 3)
+                        {
+                            AdapterIPs = AdapterIPs.Substring(0, AdapterIPs.Length - 3);
+                            Logging.Info($"所有出口地址：{AdapterIPs}");
+                        }
+                        Logging.Info($"出口无 IPv4 地址，当前只支持 IPv4 地址");
                         return false;
                     }
+                    break;
                 }
             }
 
