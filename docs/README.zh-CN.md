@@ -20,6 +20,7 @@
        - 4.1.3.5 [进程模式以外的方法](#进程模式以外的方法)
      - 4.1.4 [NAT 类型限制](#NAT-类型限制)
      - 4.1.5 [Steam / 浏览器无法正常打开页面](#Steam--浏览器无法正常打开页面)
+     - 4.1.6 [UWP 应用无法代理](#UWP-应用无法代理)
    - 4.2 [功能建议类问题](#功能建议类问题)
      - 4.2.1 [加入本地代理功能](#加入本地代理功能)
      - 4.2.2 [加入更多的 SSR 参数支持](#加入更多的-SSR-参数支持)
@@ -56,8 +57,6 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 包括模式说明，驱动更新，进程模式创建的方法等
 
 [USAGE.zh-CN.md](USAGE.zh-CN.md)
-
-Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
 
 ## 常见问题 （Frequently Asked Questions）
 
@@ -140,7 +139,8 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 
 ```bash
 $ git log --pretty=oneline --decorate --source --tags binaries/x64/Redirector.exe
-fc94119e7a68e9da16d5ee857c798ce908e1e54f 190929 1.3.2 Update x64 Redirector
+6a6a1db17092c668546eb073ac5b79bb717b0b7a 190929 1.3.3 [Redirector] Bypass IPv6 loopback
+fc94119e7a68e9da16d5ee857c798ce908e1e54f 190928 1.3.2 Update x64 Redirector
 e3a9a75343bd808593a5e93781e42e414e9c8e1c 190927 1.3.1 Return short path when fetching long path fails
 4860e038c7d667026b48e7ea7e42a777646c6782 190917 1.3.0 Fix path contains chinese
 349c44f8947e5f6aae8677b2ea93ea7eb441a537 190906 1.2.9 Update redirector, now support custom tcp port with -t arg
@@ -175,6 +175,11 @@ acb4bc24651509c21558420d97865262e959bc0c 190629 1.0.9-STABLE Rollback
 >- Q：用来加速 Steam / 浏览器，结果无法正常打开页面
 >- A：有人测试可行有人测试不可行。首先声明一下，本软件的功能主要不是用来代理 Steam / 浏览器打开页面的，建议使用专门的工具，如 [SteamCommunity 302](https://www.dogfight360.com/blog/686/)，浏览器则建议用 shadowsocks-windows， clash for windows 等等，你甚至可以尝试 ~~shadowsocks-windows over Netch~~，这可能会是一个功能改进，但是目前没有时间表
 
+#### UWP 应用无法代理
+
+>- Q：UWP 应用 xxx 无法代理
+>- A：请按照[此方法](https://nekosc.com/technology/uwp_fiddler.html)设置即可
+
 ### 功能建议类问题
 
 #### 加入本地代理功能
@@ -186,7 +191,7 @@ acb4bc24651509c21558420d97865262e959bc0c 190629 1.0.9-STABLE Rollback
 #### 加入更多的 SSR 参数支持
 
 >- Q：希望能加入更多的 SSR 参数支持，我那个机场的订阅好多节点无法导入 [issue #11](https://github.com/netchx/Netch/issues/11)
->- A：根据最新的 [项目计划表](https://github.com/NetchX/Netch/projects/1#card-24809942)，shadowsocksr的支持将在未来的版本由于各种原因而被放弃。在未来的版本中，可以[通过 Socks5 代理进行中转](USAGE.zh-CN.md#新建代理配置)
+>- A：根据最新的 [项目计划表](https://github.com/NetchX/Netch/projects/1#card-24809942)，shadowsocksr的支持将在未来的版本由于各种原因而被放弃。在未来的版本中，可以[通过 Socks5 代理进行中转](USAGE.zh-CN.md#socks-5-代理中转)
 
 #### 加入 MacOS 支持
 

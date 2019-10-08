@@ -8,6 +8,30 @@
 
 ### [未发布]
 
+### [1.3.3] - 2019-10-08
+
+#### 添加(1.3.3)
+
+- 添加清理程序内部 DNS 缓存功能
+- 添加自定义 Redirector 处理 TCP 时的端口的选项
+- 添加 TUN/TAP Fake DNS 支持
+- 添加自定义订阅时使用的 User-Agent 的功能
+- 添加 Netch 通用订阅 URL 导入支持（Generic Subscription Format）
+- 添加使用代理更新订阅的功能
+- 在 Redirector 中设置绕过 IPv6 环路流量
+
+#### 修改(1.3.3)
+
+- 优化界面交互
+- 修复 SIP002 链接解析问题
+- 更新预编译文件（已使用 UPX 压缩）
+- 修复在模式 4、6 中使用 Socks5 服务器时配置错误的问题
+- 将 cloak 插件同步上游更新至 2.1.1（已使用 UPX 压缩）
+- 移除以前对 N3RO 节点名过长的优化代码
+- 优化进程代理模式创建界面
+- 优化 TUN/TAP 的默认出口搜索代码（现在使用 Windows API 搜索）
+- 同步上游更新自带模式文件
+
 ### [1.3.2] - 2019-09-29
 
 #### 修改(1.3.2)
@@ -231,7 +255,8 @@
 - 添加自带模式
 - 添加自带语言
 
-[未发布]: https://github.com/NetchX/Netch/compare/1.3.2...HEAD
+[未发布]: https://github.com/NetchX/Netch/compare/1.3.3...HEAD
+[1.3.3]: https://github.com/NetchX/Netch/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/NetchX/Netch/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/NetchX/Netch/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/NetchX/Netch/compare/1.2.9...1.3.0

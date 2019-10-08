@@ -14,12 +14,14 @@
    - 1.4 [模式 4 HTTP 系统代理](#模式-4-HTTP-系统代理)
    - 1.5 [模式 5 本地 Socks5 代理](#模式-5-本地-Socks5-代理)
    - 1.6 [模式 6 本地 Socks5 和 HTTP 代理](#模式-6-本地-Socks5-和-HTTP-代理)
-2. [新建进程代理模式](#新建进程代理模式)
-   - 2.1 [模式](#模式)
-   - 2.2 [扫描](#扫描)
-   - 2.3 [启动](#启动)
-3. [线路选择](#线路选择)
-4. [配合 udp2raw 使用](#配合-udp2raw-使用)
+2. [Socks 5 代理中转](#Socks-5-代理中转)
+3. [新建进程代理模式](#新建进程代理模式)
+   - 3.1 [模式](#模式)
+   - 3.2 [扫描](#扫描)
+   - 3.3 [启动](#启动)
+4. [线路选择](#线路选择)
+5. [配合 udp2raw 使用](#配合-udp2raw-使用)
+6. [语言支持](#语言支持)
 
 ## 模式介绍
 
@@ -75,13 +77,29 @@
 
 以及是否 Bypass China，如果模式名中有 Bypass China 的部分，即该模式会跳过国内 IP 段
 
+## Socks 5 代理中转
+
+说明一下，Netch 并非是以网页代理为目的开发的程序，如果需要网络代理为目的的程序，需要 PAC，规则分流，订阅管理等功能的，请参考使用以下软件而非 Netch（均为 Windows 平台）
+
+ShadowsocksR
+
+- [HMBSbige/ShadowsocksR-Windows](https://github.com/HMBSbige/ShadowsocksR-Windows/releases)
+
+Shadowsocks
+
+- [Clash for Windows](https://github.com/Fndroid/clash_for_windows_pkg/releases)
+
+V2Ray
+
+- [V2RayN](https://github.com/2dust/v2rayN/releases)
+
+如果你想使用的代理工具目前 Netch 还不支持，或者需要一些 Netch 目前没有的功能，如 V2Ray 自定义配置，Socks5 本地代理规则分流的，可以在 Netch 里添加对应工具的本地 Socks5 代理端口后使用，注意如果你用的是模式 3 TUN/TAP （IP 白名单）全局代理模式，记得在`设置 - 全局直连 IP`中添加你的服务器 IP 地址，否则会产生代理回环
+
 ## 新建进程代理模式
 
 - 现在软件还处在早期开发阶段，可能后续版本会发生很大变化，操作仅供参考
 
 当前版本已添加配置编辑功能，根据自己的情况，使用订阅或者别的方法添加代理配置，我这里使用的是剪贴板导入
-
-如果你想使用的代理工具目前 Netch 还不支持，可以通过 Socks5 代理进行中转，也就是让 Netch 访问你的代理工具提供的 Socks5 代理
 
 ![剪贴板导入](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24_210438.png)
 
@@ -140,7 +158,7 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 ## 线路选择
 
-普通人可以入手 [N3RO](https://n3ro.io/register?ref=530) 的线路（不负责推荐），根据 [Saber 大佬的科普](https://t.me/sabershome/197)， IPLC 的线路较为稳定
+普通人可以入手 [N3RO](https://n3ro.host/register?ref=530) 的线路（不负责推荐），根据 [Saber 大佬的科普](https://t.me/sabershome/197)， IPLC 的线路较为稳定
 
 ## 配合 udp2raw 使用
 
@@ -149,3 +167,7 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 [udpspeeder + udp2raw 使用教程](https://www.moerats.com/archives/662/)
 
 [udpspeeder + udp2raw + tinyportmapper/udpspeeder + udp2raw + kcptun batch 脚本](https://github.com/BingLingGroup/run-udp2raw-batch)
+
+## 语言支持
+
+Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译

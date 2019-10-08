@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [Unreleased]
 
+### [1.3.3] - 2019-10-08
+
+#### Added(1.3.3)
+
+- Add the feature to clean internal DNS cache.
+- Add the feature to modify `bin/Redirector` port when it processes TCP.
+- Add TUN/TAP Fake DNS support.
+- Add custom User-Agent header support to subscription download.
+- Add support for Netch generic subscription format URL import.
+- Add proxy support for subscription update.
+- Add feature to bypass IPv6 loop traffic in the `bin/Redirector`.
+
+#### Changed(1.3.3)
+
+- Optimize user interface.
+- Fix support for parsing plugins in SIP002 links.
+- Update ShadowsocksR pre-compiled files with UPX compressed.
+- Fix the issue that Socks5 server config starts local http proxy server with wrong IP address in mode 4/6.
+- Update cloak plugin from upstream to 2.1.1 with UPX compressed.
+- Remove the optimization of N3RO in the subscription.
+- Optimize ProcessForm.
+- Optimize Configuration.SearchOutbounds() by using iphlpapi.
+- Update the built-in mode files with the upstream.
+
 ### [1.3.2] - 2019-09-29
 
 #### Changed(1.3.2)
@@ -232,7 +256,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add built-in modes.
 - Add built-in language support.
 
-[Unreleased]: https://github.com/NetchX/Netch/compare/1.3.2...HEAD
+[Unreleased]: https://github.com/NetchX/Netch/compare/1.3.3...HEAD
+[1.3.3]: https://github.com/NetchX/Netch/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/NetchX/Netch/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/NetchX/Netch/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/NetchX/Netch/compare/1.2.9...1.3.0
