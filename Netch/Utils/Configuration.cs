@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -89,48 +88,46 @@ namespace Netch.Utils
         /// <summary>
         ///		搜索出口
         /// </summary>
-        public static void SearchOutbounds()
+        public static bool SearchOutbounds()
         {
             Logging.Info("正在搜索出口中");
 
-            using (var client = new UdpClient("114.114.114.114", 53))
+            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var pRoute) == 0)
             {
-                var address = ((IPEndPoint)client.Client.LocalEndPoint).Address;
-                Global.Adapter.Address = address;
+                Global.Adapter.Index = pRoute.dwForwardIfIndex;
+                Global.Adapter.Gateway = new IPAddress(pRoute.dwForwardNextHop);
+                Logging.Info($"当前 网关 地址：{Global.Adapter.Gateway}");
+            }
+            else
+            {
+                Logging.Info($"GetBestRoute 搜索失败");
+                return false;
+            }
 
-                Logging.Info($"当前 IP 地址：{Global.Adapter.Address}");
+            foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                IPInterfaceProperties adapterProperties = adapter.GetIPProperties();
+                IPv4InterfaceProperties p = adapterProperties.GetIPv4Properties();
 
-                var addressGeted = false;
-
-                var adapters = NetworkInterface.GetAllNetworkInterfaces();
-                foreach (var adapter in adapters)
+                // 通过索引查找对应适配器的 IPv4 地址
+                if (p.Index == Global.Adapter.Index)
                 {
-                    var properties = adapter.GetIPProperties();
-
-                    foreach (var information in properties.UnicastAddresses)
+                    foreach (UnicastIPAddressInformation ip in adapterProperties.UnicastAddresses)
                     {
-                        if (information.Address.AddressFamily == AddressFamily.InterNetwork && Equals(information.Address, address))
+                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
                         {
-                            addressGeted = true;
-                        }
-                    }
-
-                    foreach (var information in properties.GatewayAddresses)
-                    {
-                        if (information.Address.AddressFamily == AddressFamily.InterNetwork && addressGeted)
-                        {
-                            Global.Adapter.Index = properties.GetIPv4Properties().Index;
-                            Global.Adapter.Gateway = information.Address;
-
-                            Logging.Info($"当前 网关 地址：{Global.Adapter.Gateway}");
+                            Global.Adapter.Address = ip.Address;
+                            Logging.Info($"当前 IP 地址：{Global.Adapter.Address}");
                             break;
                         }
+                        else
+                        {
+                            Logging.Info($"出口地址：{ip.Address}");
+                            Logging.Info($"出口无 IPv4 地址，当前只支持 IPv4 地址");
+                            return false;
+                        }
                     }
-
-                    if (addressGeted)
-                    {
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -138,8 +135,8 @@ namespace Netch.Utils
             Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
             if (String.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
-                MessageBox.Show(Utils.i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                Environment.Exit(1);
+                MessageBox.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return false;
             }
 
             var name = TUNTAP.GetName(Global.TUNTAP.ComponentID);
@@ -153,6 +150,7 @@ namespace Netch.Utils
                     break;
                 }
             }
+            return true;
         }
     }
 }

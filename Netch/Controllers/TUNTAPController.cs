@@ -53,8 +53,7 @@ namespace Netch.Controllers
             }
 
             // 搜索出口
-            Utils.Configuration.SearchOutbounds();
-            return true;
+            return Utils.Configuration.SearchOutbounds();
         }
 
         /// <summary>
@@ -252,7 +251,11 @@ namespace Netch.Controllers
             SavedMode = mode;
             SavedServer = server;
 
-            Configure();
+            if (!Configure())
+            {
+                return false;
+            }
+            
             SetupBypass();
 
             Instance = new Process();
