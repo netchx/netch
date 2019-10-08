@@ -89,7 +89,7 @@
             this.UserAgentLabel.Name = "UserAgentLabel";
             this.UserAgentLabel.Size = new System.Drawing.Size(73, 17);
             this.UserAgentLabel.TabIndex = 5;
-            this.UserAgentLabel.Text = "User Agent";
+            this.UserAgentLabel.Text = "User-Agent";
             // 
             // LinkTextBox
             // 
@@ -161,7 +161,7 @@
             // 
             // UserAgentHeader
             // 
-            this.UserAgentHeader.Text = "UserAgent";
+            this.UserAgentHeader.Text = "User-Agent";
             this.UserAgentHeader.Width = 120;
             // 
             // pContextMenuStrip
