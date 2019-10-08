@@ -859,10 +859,10 @@ namespace Netch.Forms
 
                     return;
                 }
-                // 否则自动点击停止按钮
+                // 否则直接调用停止按钮的方法
                 else
                 {
-                    ControlButton.PerformClick();
+                    ControlButton_Click(sender, e);
                 }
             }
 
