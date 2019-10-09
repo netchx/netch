@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimize ProcessForm.
 - Optimize Configuration.SearchOutbounds() by using iphlpapi.
 - Update the built-in mode files with the upstream.
+- Remove the compatible codes to read the config files from the version before 1.2.9.
 
 ### [1.3.2] - 2019-09-29
 

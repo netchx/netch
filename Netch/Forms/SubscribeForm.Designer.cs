@@ -141,6 +141,7 @@
             this.LinkColumnHeader,
             this.UserAgentHeader});
             this.SubscribeLinkListView.ContextMenuStrip = this.pContextMenuStrip;
+            this.SubscribeLinkListView.FullRowSelect = true;
             this.SubscribeLinkListView.HideSelection = false;
             this.SubscribeLinkListView.Location = new System.Drawing.Point(12, 12);
             this.SubscribeLinkListView.Name = "SubscribeLinkListView";
