@@ -155,6 +155,8 @@ namespace Netch.Controllers
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
+
+            var IsFallback = false;
             for (int i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
@@ -166,26 +168,28 @@ namespace Netch.Controllers
 
                 if (State == Models.State.Stopped)
                 {
-                    Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数启动");
-                    Stop();
-                    Instance.StartInfo.Arguments = FallBackArg;
-                    Global.Settings.RedirectorTCPPort = 2800;
-                    Instance.CancelOutputRead();
-                    Instance.CancelErrorRead();
-                    Instance.Start();
-                    Instance.BeginOutputReadLine();
-                    Instance.BeginErrorReadLine();
-
-                    if (State == Models.State.Stopped)
+                    if (!IsFallback)
+                    {
+                        IsFallback = true;
+                        Stop();
+                        Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数后启动 \"bin\\Redirector.exe\"");
+                        Instance.StartInfo.Arguments = FallBackArg;
+                        Utils.Logging.Info($"当前 \"bin\\Redirector.exe\" 启动参数为 \"{Instance.StartInfo.Arguments}\"");
+                        Global.Settings.RedirectorTCPPort = 2800;
+                        Instance.CancelOutputRead();
+                        Instance.CancelErrorRead();
+                        Instance.OutputDataReceived += OnOutputDataReceived;
+                        Instance.ErrorDataReceived += OnOutputDataReceived;
+                        State = Models.State.Starting;
+                        Instance.Start();
+                        Instance.BeginOutputReadLine();
+                        Instance.BeginErrorReadLine();
+                    }
+                    else
                     {
                         Utils.Logging.Info("NF 进程启动失败");
                         Stop();
                         return false;
-                    }
-
-                    else
-                    {
-                        return true;
                     }
                 }
             }
