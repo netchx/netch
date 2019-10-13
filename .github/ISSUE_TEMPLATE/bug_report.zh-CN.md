@@ -9,7 +9,7 @@ assignees: ''
 
 **确保你已经看过 readme，也搜索并阅读过和你遇到的情况相关的问题。否则会被认为是重复的并被立刻关闭。**
 
-**暂时不允许新建关于 `bin/Redirector.exe` 的新 issue，详见 [readme](../../docs/README.zh-CN.md#binRedirector.exe-问题)**
+**所有关于 `bin/Redirector.exe` 的问题，请在 [issue #152](https://github.com/NetchX/Netch/issues/152) 中讨论**
 
 **错误描述**
 对错误的清晰简洁描述

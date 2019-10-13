@@ -36,7 +36,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap<escape><a name =
 
 ## Usage
 
-[USAGE.md](docs/USAGE.md)
+[NetchMode/docs/README.md](https://github.com/NetchX/NetchMode/blob/master/README.md)
 
 ## Screenshots
 
