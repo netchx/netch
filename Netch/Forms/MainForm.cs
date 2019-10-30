@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -20,7 +21,7 @@ namespace Netch.Forms
         /// <summary>
         ///     主控制器
         /// </summary>
-        public Controllers.MainController MainController;
+        public MainController MainController;
 
         /// <summary>
         ///     上一次上传的流量
@@ -40,9 +41,23 @@ namespace Netch.Forms
         public MainForm()
         {
             InitializeComponent();
+            VersionLabel.Text = UpdateChecker.Version;
 
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
+        }
+
+        private void CheckUpdate()
+        {
+            var updater = new UpdateChecker();
+            updater.NewVersionFound += (o, args) =>
+            {
+                NotifyIcon.ShowBalloonTip(5,
+                UpdateChecker.Name,
+                $"{Utils.i18N.Translate(@"New version available")}{Utils.i18N.Translate(@": ")}{updater.LatestVersionNumber}",
+                ToolTipIcon.Info);
+            };
+            updater.Check(false, false);
         }
 
         public void TestServer()
@@ -64,7 +79,7 @@ namespace Netch.Forms
                 ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
             }
             // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
-            else if (ServerComboBox.Items.Count > 0) 
+            else if (ServerComboBox.Items.Count > 0)
             {
                 ServerComboBox.SelectedIndex = 0;
             }
@@ -279,9 +294,8 @@ namespace Netch.Forms
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
-            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-            NotifyIcon.BalloonTipText = Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore.");
+            UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+            StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
             ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
 
@@ -309,6 +323,11 @@ namespace Netch.Forms
                 ControlButton.PerformClick();
             }
 
+            // 检查更新
+            if (Global.Settings.CheckUpdateWhenOpened)
+            {
+                CheckUpdate();
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -322,15 +341,16 @@ namespace Netch.Forms
                 if (!Global.Settings.ExitWhenClosed)
                 {
                     // 使关闭时窗口向右下角缩小的效果
-                    this.WindowState = FormWindowState.Minimized;
-                    this.NotifyIcon.Visible = true;
+                    WindowState = FormWindowState.Minimized;
+                    NotifyIcon.Visible = true;
 
                     if (IsFirstOpened)
                     {
                         // 显示提示语
-                        this.NotifyIcon.BalloonTipTitle = "Netch";
-                        this.NotifyIcon.BalloonTipIcon = ToolTipIcon.Info;
-                        this.NotifyIcon.ShowBalloonTip(5);
+                        NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name,
+                        Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
+                        ToolTipIcon.Info);
 
                         IsFirstOpened = false;
                     }
@@ -418,7 +438,6 @@ namespace Netch.Forms
                 }
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
                 ControlButton.Text = "...";
-                
             }
 
             if (Global.Settings.SubscribeLink.Count > 0)
@@ -434,7 +453,7 @@ namespace Netch.Forms
                             Remark = "ProxyUpdate",
                             Type = 5
                         };
-                        MainController = new Controllers.MainController();
+                        MainController = new MainController();
                         MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
                     }
                     foreach (var item in Global.Settings.SubscribeLink)
@@ -731,7 +750,7 @@ namespace Netch.Forms
                     var server = ServerComboBox.SelectedItem as Models.Server;
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
-                    MainController = new Controllers.MainController();
+                    MainController = new MainController();
                     if (MainController.Start(server, mode))
                     {
                         if (mode.Type == 0)
@@ -831,15 +850,15 @@ namespace Netch.Forms
 
         private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
-                this.Visible = true;
-                this.ShowInTaskbar = true;  // 显示在系统任务栏 
-                this.WindowState = FormWindowState.Normal;  // 还原窗体 
-                this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
+                Visible = true;
+                ShowInTaskbar = true;  // 显示在系统任务栏 
+                WindowState = FormWindowState.Normal;  // 还原窗体 
+                NotifyIcon.Visible = true;  // 托盘图标隐藏 
             }
 
-            this.Activate();
+            Activate();
         }
 
         private void ExitToolStripButton_Click(object sender, EventArgs e)
@@ -852,10 +871,10 @@ namespace Netch.Forms
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    this.Visible = true;
-                    this.ShowInTaskbar = true;  // 显示在系统任务栏 
-                    this.WindowState = FormWindowState.Normal;  // 还原窗体 
-                    this.NotifyIcon.Visible = true;  // 托盘图标隐藏 
+                    Visible = true;
+                    ShowInTaskbar = true;  // 显示在系统任务栏 
+                    WindowState = FormWindowState.Normal;  // 还原窗体 
+                    NotifyIcon.Visible = true;  // 托盘图标隐藏 
 
                     return;
                 }
@@ -871,22 +890,22 @@ namespace Netch.Forms
             Utils.Configuration.Save();
 
             State = Models.State.Terminating;
-            this.NotifyIcon.Visible = false;
-            this.Close();
-            this.Dispose();
-            System.Environment.Exit(System.Environment.ExitCode);
+            NotifyIcon.Visible = false;
+            Close();
+            Dispose();
+            Environment.Exit(Environment.ExitCode);
         }
 
         private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
-                this.Visible = true;
-                this.ShowInTaskbar = true;  //显示在系统任务栏 
-                this.WindowState = FormWindowState.Normal;  //还原窗体 
-                this.NotifyIcon.Visible = true;  //托盘图标隐藏 
+                Visible = true;
+                ShowInTaskbar = true;  //显示在系统任务栏 
+                WindowState = FormWindowState.Normal;  //还原窗体 
+                NotifyIcon.Visible = true;  //托盘图标隐藏 
             }
-            this.Activate();
+            Activate();
         }
 
         private void SettingsButton_Click(object sender, EventArgs e)

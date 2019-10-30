@@ -25,6 +25,7 @@
     "Add [VMess] Server": "添加 [VMess] 服务器",
     "VMess is currently not supported. For more information, please see our Github releases\n\nPress OK will redirect": "当前不支持 VMess 服务器。需要更多信息请查看我们的 Github 发布页\n\n点击 OK 将会跳转",
     "Netch is now minimized to the notification bar, double click this icon to restore.": "Netch 已最小化至通知栏，双击此图标恢复窗口。",
+    "New version available": "发现新版本",
     "Mode": "模式",
     "Create Process Mode": "创建进程模式",
 
@@ -120,6 +121,7 @@
     "Stop when exited": "退出时停止",
     "Global Bypass IPs": "全局直连 IP",
     "Port value illegal. Try again.": "端口值非法。请重试。",
+    "Check update when opened": "打开软件时检查更新",
     
     "Show": "显示",
     "Exit": "退出"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -223,6 +223,7 @@
     <Compile Include="Controllers\SSRController.cs" />
     <Compile Include="Controllers\SSController.cs" />
     <Compile Include="Controllers\TUNTAPController.cs" />
+    <Compile Include="Controllers\UpdateChecker.cs" />
     <Compile Include="Controllers\VMessController.cs" />
     <Compile Include="Forms\AboutForm.cs">
       <SubType>Form</SubType>
@@ -285,6 +286,12 @@
       <DependentUpon>SubscribeForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Global.cs" />
+    <Compile Include="Models\GitHubRelease\Asset.cs" />
+    <Compile Include="Models\GitHubRelease\GitHubRelease.cs" />
+    <Compile Include="Models\GitHubRelease\GitHubUser.cs" />
+    <Compile Include="Models\GitHubRelease\Release.cs" />
+    <Compile Include="Models\GitHubRelease\VersionComparer.cs" />
+    <Compile Include="Models\GitHubRelease\VersionUtil.cs" />
     <Compile Include="Models\LegacyServer.cs" />
     <Compile Include="Models\LegacySetting.cs" />
     <Compile Include="NativeMethods.cs" />

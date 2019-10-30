@@ -1,33 +1,33 @@
 ﻿namespace Netch.Forms
 {
-	partial class SettingForm
-	{
-		/// <summary>
-		/// Required designer variable.
-		/// </summary>
-		private System.ComponentModel.IContainer components = null;
+    partial class SettingForm
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
 
-		/// <summary>
-		/// Clean up any resources being used.
-		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing && (components != null))
-			{
-				components.Dispose();
-			}
-			base.Dispose(disposing);
-		}
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
-		#region Windows Form Designer generated code
+        #region Windows Form Designer generated code
 
-		/// <summary>
-		/// Required method for Designer support - do not modify
-		/// the contents of this method with the code editor.
-		/// </summary>
-		private void InitializeComponent()
-		{
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.RedirectorLabel = new System.Windows.Forms.Label();
@@ -54,6 +54,7 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
+            this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -247,7 +248,8 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 465);
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Location = new System.Drawing.Point(357, 496);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -257,7 +259,8 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 465);
+            this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 496);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -267,12 +270,13 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.StartWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.StopWhenExitedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
             this.BehaviorGroupBox.Location = new System.Drawing.Point(12, 356);
             this.BehaviorGroupBox.Name = "BehaviorGroupBox";
-            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 103);
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 132);
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
@@ -310,11 +314,22 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
+            // CheckUpdateWhenOpenedCheckBox
+            // 
+            this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
+            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 103);
+            this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
+            this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(190, 21);
+            this.CheckUpdateWhenOpenedCheckBox.TabIndex = 8;
+            this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
+            this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 500);
+            this.ClientSize = new System.Drawing.Size(444, 531);
             this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
@@ -338,7 +353,7 @@
             this.BehaviorGroupBox.PerformLayout();
             this.ResumeLayout(false);
 
-		}
+        }
 
         #endregion
 
@@ -348,17 +363,17 @@
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
         private System.Windows.Forms.GroupBox TUNTAPGroupBox;
-		private System.Windows.Forms.TextBox TUNTAPAddressTextBox;
-		private System.Windows.Forms.Label TUNTAPAddressLabel;
-		private System.Windows.Forms.TextBox TUNTAPNetmaskTextBox;
-		private System.Windows.Forms.Label TUNTAPNetmaskLabel;
-		private System.Windows.Forms.TextBox TUNTAPGatewayTextBox;
-		private System.Windows.Forms.Label TUNTAPGatewayLabel;
-		private System.Windows.Forms.Label TUNTAPDNSLabel;
-		private System.Windows.Forms.TextBox TUNTAPDNSTextBox;
-		private System.Windows.Forms.Button ControlButton;
-		private System.Windows.Forms.Button GlobalBypassIPsButton;
-		private System.Windows.Forms.CheckBox TUNTAPUseCustomDNSCheckBox;
+        private System.Windows.Forms.TextBox TUNTAPAddressTextBox;
+        private System.Windows.Forms.Label TUNTAPAddressLabel;
+        private System.Windows.Forms.TextBox TUNTAPNetmaskTextBox;
+        private System.Windows.Forms.Label TUNTAPNetmaskLabel;
+        private System.Windows.Forms.TextBox TUNTAPGatewayTextBox;
+        private System.Windows.Forms.Label TUNTAPGatewayLabel;
+        private System.Windows.Forms.Label TUNTAPDNSLabel;
+        private System.Windows.Forms.TextBox TUNTAPDNSTextBox;
+        private System.Windows.Forms.Button ControlButton;
+        private System.Windows.Forms.Button GlobalBypassIPsButton;
+        private System.Windows.Forms.CheckBox TUNTAPUseCustomDNSCheckBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
         private System.Windows.Forms.TextBox RedirectorTextBox;
         private System.Windows.Forms.Label RedirectorLabel;
@@ -367,5 +382,6 @@
         private System.Windows.Forms.CheckBox ExitWhenClosedCheckBox;
         private System.Windows.Forms.CheckBox StopWhenExitedCheckBox;
         private System.Windows.Forms.CheckBox StartWhenOpenedCheckBox;
+        private System.Windows.Forms.CheckBox CheckUpdateWhenOpenedCheckBox;
     }
 }

@@ -57,6 +57,7 @@ namespace Netch.Forms
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
             StartWhenOpenedCheckBox.Checked = Global.Settings.StartWhenOpened;
+            CheckUpdateWhenOpenedCheckBox.Checked = Global.Settings.CheckUpdateWhenOpened;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -73,6 +74,7 @@ namespace Netch.Forms
             ExitWhenClosedCheckBox.Text = Utils.i18N.Translate("Exit when closed");
             StopWhenExitedCheckBox.Text = Utils.i18N.Translate("Stop when exited");
             StartWhenOpenedCheckBox.Text = Utils.i18N.Translate("Start when opened");
+            CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate("Check update when opened");
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -123,12 +125,13 @@ namespace Netch.Forms
             new GlobalBypassIPForm().Show();
             Hide();
         }
-        
+
         private void ControlButton_Click(object sender, EventArgs e)
         {
             Global.Settings.ExitWhenClosed = ExitWhenClosedCheckBox.Checked;
             Global.Settings.StopWhenExited = StopWhenExitedCheckBox.Checked;
             Global.Settings.StartWhenOpened = StartWhenOpenedCheckBox.Checked;
+            Global.Settings.CheckUpdateWhenOpened = CheckUpdateWhenOpenedCheckBox.Checked;
 
             try
             {
