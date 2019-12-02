@@ -1,9 +1,0 @@
-[submodule "binaries"]
-	path = binaries
-	url = https://github.com/NetchX/NetchBinaries
-[submodule "modes"]
-	path = modes
-	url = https://github.com/NetchX/NetchMode
-[submodule "translations"]
-	path = translations
-	url = https://github.com/NetchX/NetchTranslation
