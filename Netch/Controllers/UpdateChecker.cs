@@ -26,7 +26,7 @@ namespace Netch.Controllers
 
         public const string Name = @"Netch";
         public const string Copyright = @"Copyright © 2019";
-        public const string Version = @"1.3.4";
+        public const string Version = @"1.3.5";
 
         public async void Check(bool notifyNoFound, bool isPreRelease)
         {
