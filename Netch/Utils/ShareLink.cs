@@ -358,13 +358,17 @@ namespace Netch.Utils
                         data.Type = "SS";
                     }
                     */
-                    var parser = new Regex(@"^(?<server>.+):(?<port>\d+?):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/\?(?<info>.*)$");
+                    var parser = new Regex(@"^(?<server>.+):(?<port>(-?\d+?)):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/\?(?<info>.*)$");
                     var match = parser.Match(URLSafeBase64Decode(text));
 
                     if(match.Success)
                     {
                         data.Hostname = match.Groups["server"].Value;
                         data.Port = int.Parse(match.Groups["port"].Value);
+                        if (data.Port < 0)
+                        {
+                            data.Port += 65536;
+                        }
                         data.Password = URLSafeBase64Decode(match.Groups["password"].Value);
 
                         data.EncryptMethod = match.Groups["method"].Value;
