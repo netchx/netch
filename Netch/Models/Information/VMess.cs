@@ -128,6 +128,8 @@ namespace Netch.Models.Information
         public class TLSSettings
         {
             public bool allowInsecure = true;
+
+            public string serverName;
         }
 
         public class OutboundSettings
