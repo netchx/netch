@@ -55,6 +55,7 @@ namespace Netch.Forms.Server
             QUICSecurityLabel.Text = Utils.i18N.Translate("QUIC Security");
             QUICSecretLabel.Text = Utils.i18N.Translate("QUIC Secret");
             TLSSecureCheckBox.Text = Utils.i18N.Translate("TLS Secure");
+            UseMuxCheckBox.Text = Utils.i18N.Translate("Use Mux");
             ControlButton.Text = Utils.i18N.Translate("Save");
 
             foreach (var encrypt in Global.EncryptMethods.VMess)
@@ -92,6 +93,7 @@ namespace Netch.Forms.Server
                 QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(Global.Settings.Server[Index].QUICSecure);
                 QUICSecretTextBox.Text = Global.Settings.Server[Index].QUICSecret;
                 TLSSecureCheckBox.Checked = Global.Settings.Server[Index].TLSSecure;
+                UseMuxCheckBox.Checked = Global.Settings.Server[Index].UseMux;
             }
             else
             {
@@ -126,7 +128,8 @@ namespace Netch.Forms.Server
                     Path = PathTextBox.Text,
                     QUICSecure = QUICSecurityComboBox.Text,
                     QUICSecret = QUICSecretTextBox.Text,
-                    TLSSecure = TLSSecureCheckBox.Checked
+                    TLSSecure = TLSSecureCheckBox.Checked,
+                    UseMux = UseMuxCheckBox.Checked
                 });
             }
             else
@@ -146,7 +149,8 @@ namespace Netch.Forms.Server
                     Path = PathTextBox.Text,
                     QUICSecure = QUICSecurityComboBox.Text,
                     QUICSecret = QUICSecretTextBox.Text,
-                    TLSSecure = TLSSecureCheckBox.Checked
+                    TLSSecure = TLSSecureCheckBox.Checked,
+                    UseMux = UseMuxCheckBox.Checked
                 };
             }
 

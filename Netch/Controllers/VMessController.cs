@@ -121,6 +121,9 @@ namespace Netch.Controllers
                             }
                         },
                         mux = new Models.Information.VMess.OutboundMux()
+                        {
+                            enabled = server.UseMux
+                        }
                     },
                     new Models.Information.VMess.Outbounds()
                     {

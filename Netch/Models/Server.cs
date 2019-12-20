@@ -129,6 +129,11 @@ namespace Netch.Models
         public bool TLSSecure = false;
 
         /// <summary>
+        ///		Mux 多路复用（VMess）
+        /// </summary>
+        public bool UseMux = false;
+
+        /// <summary>
         ///     延迟
         /// </summary>
         public int Delay = -1;

@@ -6,6 +6,14 @@
     public class VMess
     {
         /// <summary>
+        ///     Mux Class
+        /// </summary>
+        public class Mux
+        {
+            public object enabled;
+        }
+
+        /// <summary>
         ///     链接版本
         /// </summary>
         public string v;
@@ -59,5 +67,10 @@
         ///     是否使用 TLS
         /// </summary>
         public string tls;
+
+        /// <summary>
+        ///     Mux 多路复用
+        /// </summary>
+        public Mux mux;
     }
 }
