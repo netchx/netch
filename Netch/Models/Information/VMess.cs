@@ -139,7 +139,7 @@ namespace Netch.Models.Information
 
         public class OutboundMux
         {
-            public bool enabled = true;
+            public bool enabled = false;
         }
 
         public class StreamSettings

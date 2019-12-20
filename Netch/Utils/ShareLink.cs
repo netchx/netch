@@ -482,6 +482,26 @@ namespace Netch.Utils
                     }
                     data.TLSSecure = vmess.tls == "tls";
 
+                    if (vmess.mux == null)
+                    {
+                        data.UseMux = false;
+                    }
+                    else
+                    {
+                        if (vmess.mux.enabled is Boolean)
+                        {
+                            data.UseMux = (bool)vmess.mux.enabled;
+                        }
+                        else if (vmess.mux.enabled is String)
+                        {
+                            data.UseMux = (string)vmess.mux.enabled == "true";  // 针对使用字符串当作布尔值的情况
+                        }
+                        else
+                        {
+                            data.UseMux = false;
+                        }
+                    }
+
                     data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
 
                     list.Add(data);
