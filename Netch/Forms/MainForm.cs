@@ -38,6 +38,8 @@ namespace Netch.Forms
         /// </summary>
         public bool IsFirstOpened = true;
 
+        public List<Button> ProfileButtons = new List<Button>();
+
         public MainForm()
         {
             InitializeComponent();
@@ -298,6 +300,8 @@ namespace Netch.Forms
             StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
             ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
+
+            InitProfile();
 
             // 自动检测延迟
             Task.Run(() =>
@@ -821,6 +825,10 @@ namespace Netch.Forms
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopping")}";
                 State = Models.State.Stopping;
 
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = SettingsButton.Enabled = true;
+
+                ProfileGroupBox.Enabled = false;
+
                 Task.Run(() =>
                 {
                     var server = ServerComboBox.SelectedItem as Models.Server;
@@ -838,7 +846,9 @@ namespace Netch.Forms
                         UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
                     }
 
-                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                    ControlButton.Enabled = true;
+                    ProfileGroupBox.Enabled = true;
+
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
                     State = Models.State.Stopped;
@@ -929,6 +939,148 @@ namespace Netch.Forms
             LastUploadBandwidth = upload;
             LastDownloadBandwidth = download;
             Refresh();
+        }
+
+
+        private void ProfileButton_Click(object sender, EventArgs e)
+        {
+            int index = ProfileButtons.IndexOf((Button)sender);
+
+            //Utils.Logging.Info(String.Format("Button no.{0} clicked", index));
+
+            if (Control.ModifierKeys == Keys.Control)
+            {
+                SaveProfile(index);
+                ProfileButtons[index].Text = ProfileNameText.Text;
+            }
+            else
+            {
+                try
+                {
+                    ProfileNameText.Text = LoadProfile(index);
+
+                    // start the profile
+                    bool need2ndStart = true;
+                    if (State == Models.State.Waiting || State == Models.State.Stopped)
+                    {
+                        need2ndStart = false;
+                    }
+
+                    ControlButton.PerformClick();
+
+                    if (need2ndStart)
+                    {
+                        Task.Run(() =>
+                        {
+                            while (State != Models.State.Stopped)
+                            {
+                                Thread.Sleep(200);
+                            }
+
+                            ControlButton.PerformClick();
+                        });
+                    }
+                }
+                catch (Exception ee)
+                {
+                    Utils.Logging.Info(ee.Message);
+                    ProfileButtons[index].Text = "Error";
+                }
+
+            }
+
+            
+        }
+
+        public void InitProfile()
+        {
+            int num_profile = 4;
+            ProfileTable.ColumnCount = num_profile;
+
+            while (Global.Settings.profiles.Count < num_profile)
+            {
+                Global.Settings.profiles.Add(new Models.Profile());
+            }
+
+            // buttons
+            for (int i = 0; i < num_profile; ++i)
+            {
+                var b = new Button();
+                ProfileTable.Controls.Add(b,i,0);
+                b.Location = new Point(i * 100, 0);
+                b.Click += new EventHandler(ProfileButton_Click);
+                b.Dock = DockStyle.Fill;
+                ProfileButtons.Add(b);
+
+                if (!Global.Settings.profiles[i].IsDummy)
+                {
+                    b.Text = Global.Settings.profiles[i].ProfileName;
+                }
+                else
+                {
+                    b.Text = "None";
+                }
+            }
+
+            // equal column
+            this.ProfileTable.ColumnStyles.Clear();
+            for (int i = 1; i <= this.ProfileTable.RowCount; i++)
+            {
+                ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
+            }
+            for (int i = 1; i <= this.ProfileTable.ColumnCount; i++)
+            {
+                ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
+            }
+        }
+
+        private String LoadProfile(int index)
+        {
+            Models.Profile p = Global.Settings.profiles[index];
+
+            if (p.IsDummy)
+                throw new Exception("Profile not found.");
+
+            bool result = false;
+
+            foreach(Models.Server server in ServerComboBox.Items)
+            {
+                if (server.Remark.Equals(p.ServerRemark))
+                {
+                    ServerComboBox.SelectedItem = server;
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result)
+                throw new Exception("Server not found.");
+
+            result = false;
+            foreach (Models.Mode mode in ModeComboBox.Items)
+            {
+                if (mode.Remark.Equals(p.ModeRemark))
+                {
+                    ModeComboBox.SelectedItem = mode;
+                    result = true;
+                    break;
+                }
+            }
+
+            if (!result)
+                throw new Exception("Mode not found.");
+
+            return p.ProfileName;
+        }
+
+        private void SaveProfile(int index)
+        {
+            var selectedServer = (Models.Server)ServerComboBox.SelectedItem;
+            var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+            String name = ProfileNameText.Text;
+
+            Global.Settings.profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
+
         }
     }
 }
