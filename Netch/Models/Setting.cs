@@ -118,5 +118,11 @@ namespace Netch.Models
         ///		全局绕过 IP 列表
         /// </summary>
         public List<string> BypassIPs = new List<string>();
+
+
+        /// <summary>
+        /// Saved profiles
+        /// </summary>
+        public List<Profile> profiles = new List<Profile>();
     }
 }
