@@ -100,6 +100,19 @@ namespace Netch.Controllers
 
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
+                // 将TAP网卡权重放到最高
+                Instance = new Process()
+                {
+                    StartInfo =
+                    {
+                        FileName = String.Format("netsh"),
+                        Arguments = String.Format("interface ip set interface {0} metric=0",Global.TUNTAP.Index),
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        UseShellExecute = true,
+                        CreateNoWindow = true
+                    }
+                };
+                Instance.Start();
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
@@ -336,7 +349,8 @@ namespace Netch.Controllers
                     Instance.Kill();
                 }
 
-                pDNSController.Stop();
+                //pDNSController.Stop();
+                //修复点击停止按钮后再启动，DNS服务没监听的BUG
                 ClearBypass();
             }
             catch (Exception e)
