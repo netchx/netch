@@ -16,7 +16,7 @@
     "Started": "已启动",
     "Stopping": "正在停止中",
     "Stopped": "已停止",
-    
+
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
     "Add [Socks5] Server": "添加 [Socks5] 服务器",
@@ -50,14 +50,14 @@
     "Saved": "保存成功",
     "Plugin": "插件",
     "Plugin Options": "插件参数",
-    
+
     "Subscribe": "订阅",
     "Manage Subscribe Links": "管理订阅链接",
     "Update Servers From Subscribe Links": "从订阅链接更新服务器",
     "No subscription link": "没有任何一条订阅链接",
     "Updating in the background": "正在后台更新中",
     "Update completed": "更新完成",
-    
+
     "Options": "选项",
     "Restart Service": "重启服务",
     "Restarting service": "正在重启服务中",
@@ -122,7 +122,11 @@
     "Global Bypass IPs": "全局直连 IP",
     "Port value illegal. Try again.": "端口值非法。请重试。",
     "Check update when opened": "打开软件时检查更新",
-    
+
+    "Profile Name": "Profile Name",
+    "Profiles": "Profiles",
+    "None": "无",
+
     "Show": "显示",
     "Exit": "退出"
 }

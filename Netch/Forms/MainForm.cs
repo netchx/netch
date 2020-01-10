@@ -204,6 +204,13 @@ namespace Netch.Forms
             SelectLastMode();
         }
 
+        private void SaveConfigs()
+        {
+            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
+            Utils.Configuration.Save();
+        }
+
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             var cbx = sender as ComboBox;
@@ -294,6 +301,8 @@ namespace Netch.Forms
             ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
             ServerLabel.Text = Utils.i18N.Translate("Server");
             ModeLabel.Text = Utils.i18N.Translate("Mode");
+            ProfileLabel.Text = Utils.i18N.Translate("Profile Name");
+            ProfileGroupBox.Text = Utils.i18N.Translate("Profiles");
             SettingsButton.Text = Utils.i18N.Translate("Settings");
             ControlButton.Text = Utils.i18N.Translate("Start");
             UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
@@ -630,6 +639,7 @@ namespace Netch.Forms
         private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
+            SaveConfigs();
             Task.Run(() =>
             {
                 InitMode();
@@ -659,6 +669,7 @@ namespace Netch.Forms
 
         private void EditPictureBox_Click(object sender, EventArgs e)
         {
+            SaveConfigs();
             // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
@@ -757,7 +768,8 @@ namespace Netch.Forms
                     MainController = new MainController();
                     if (MainController.Start(server, mode))
                     {
-                        if (mode.Type == 0)
+                        //if (mode.Type == 0)
+                        if (false)
                         {
                             UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                             MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
@@ -836,7 +848,8 @@ namespace Netch.Forms
 
                     MainController.Stop();
 
-                    if (mode.Type == 0)
+                    //if (mode.Type == 0)
+                    if (false)
                     {
                         LastUploadBandwidth = 0;
                         LastDownloadBandwidth = 0;
@@ -895,9 +908,7 @@ namespace Netch.Forms
                 }
             }
 
-            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
-            Utils.Configuration.Save();
+            SaveConfigs();
 
             State = Models.State.Terminating;
             NotifyIcon.Visible = false;
@@ -983,13 +994,18 @@ namespace Netch.Forms
                 }
                 catch (Exception ee)
                 {
-                    Utils.Logging.Info(ee.Message);
-                    ProfileButtons[index].Text = "Error";
+                    Task.Run(() =>
+                    {
+                        Utils.Logging.Info(ee.Message);
+                        ProfileButtons[index].Text = Utils.i18N.Translate("Error");
+                        Thread.Sleep(1200);
+                        ProfileButtons[index].Text = Utils.i18N.Translate("None");
+                    });
                 }
 
             }
 
-            
+
         }
 
         public void InitProfile()
@@ -1006,7 +1022,7 @@ namespace Netch.Forms
             for (int i = 0; i < num_profile; ++i)
             {
                 var b = new Button();
-                ProfileTable.Controls.Add(b,i,0);
+                ProfileTable.Controls.Add(b, i, 0);
                 b.Location = new Point(i * 100, 0);
                 b.Click += new EventHandler(ProfileButton_Click);
                 b.Dock = DockStyle.Fill;
@@ -1018,7 +1034,7 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    b.Text = "None";
+                    b.Text = Utils.i18N.Translate("None");
                 }
             }
 
