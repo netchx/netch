@@ -100,19 +100,20 @@ namespace Netch.Controllers
 
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
-                // 将TAP网卡权重放到最高
-                Instance = new Process()
+                // 将 TUN/TAP 网卡权重放到最高
+                var instance = new Process()
                 {
                     StartInfo =
                     {
                         FileName = String.Format("netsh"),
-                        Arguments = String.Format("interface ip set interface {0} metric=0",Global.TUNTAP.Index),
+                        Arguments = String.Format("interface ip set interface {0} metric=0", Global.TUNTAP.Index),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = true,
                         CreateNoWindow = true
                     }
                 };
-                Instance.Start();
+                instance.Start();
+
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
