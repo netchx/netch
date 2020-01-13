@@ -206,6 +206,12 @@ acb4bc24651509c21558420d97865262e959bc0c 190629 1.0.9-STABLE Rollback
 
 ManSora 可提供深港，沪日等地区的专线服务器。有共享IP的NAT VPS适合个人使用，也可以为企业/销售某种工具的商家提供独立IP的定制服务器。
 
+[![51across](sponsor/51across.jpg)](https://51across.org/register?aff=4739)
+
+开发不易，以下为恰饭时间。
+这是我所选择的服务器提供商，IPLC专线翻墙、稳定、速度快、价格便宜。欢迎大家使用我的推广链接前去注册。https://51across.org/register?aff=4739
+
+
 ## 截图
 
 ![主界面](screenshots/main.png)
