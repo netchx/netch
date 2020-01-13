@@ -42,10 +42,10 @@ As well, Netch avoid the restricted NAT problem caused by SSTap<escape><a name =
 ## Sponsor
 
 [![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
-[![51across](docs/sponsor/51across.jpg)](https://51across.org/register?aff=4739)
+[![51across](docs/sponsor/51across.jpg)](https://across-gfw.com/register?aff=4739)
 
 开发不易，以下为恰饭时间。
-这是我所选择的服务器提供商，IPLC专线翻墙、稳定、速度快、价格便宜。欢迎大家使用我的推广链接前去注册。https://51across.org/register?aff=4739
+这是我所选择的服务器提供商，IPLC专线翻墙、稳定、速度快、价格便宜。欢迎大家使用我的推广链接前去注册。https://across-gfw.com/register?aff=4739
 
 ## Screenshots
 
