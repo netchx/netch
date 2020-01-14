@@ -269,9 +269,9 @@
             // 
             // ProfileNameText
             // 
-            this.ProfileNameText.Location = new System.Drawing.Point(97, 83);
+            this.ProfileNameText.Location = new System.Drawing.Point(57, 83);
             this.ProfileNameText.Name = "ProfileNameText";
-            this.ProfileNameText.Size = new System.Drawing.Size(415, 23);
+            this.ProfileNameText.Size = new System.Drawing.Size(455, 23);
             this.ProfileNameText.TabIndex = 11;
             // 
             // ProfileLabel
@@ -281,7 +281,7 @@
             this.ProfileLabel.Name = "ProfileLabel";
             this.ProfileLabel.Size = new System.Drawing.Size(84, 17);
             this.ProfileLabel.TabIndex = 10;
-            this.ProfileLabel.Text = "Profile Name";
+            this.ProfileLabel.Text = "Profile";
             // 
             // SpeedPictureBox
             // 

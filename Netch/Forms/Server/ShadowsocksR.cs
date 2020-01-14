@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Netch.Forms.Server
@@ -21,16 +22,16 @@ namespace Netch.Forms.Server
 
         private void ShadowsocksR_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            AddressLabel.Text = Utils.i18N.Translate("Address");
-            PasswordLabel.Text = Utils.i18N.Translate("Password");
-            EncryptMethodLabel.Text = Utils.i18N.Translate("Encrypt Method");
-            ProtocolLabel.Text = Utils.i18N.Translate("Protocol");
-            ProtocolParamLabel.Text = Utils.i18N.Translate("Protocol Param");
-            OBFSLabel.Text = Utils.i18N.Translate("OBFS");
-            OBFSParamLabel.Text = Utils.i18N.Translate("OBFS Param");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
+            PasswordLabel.Text = Utils.i18N.Translate(PasswordLabel.Text);
+            EncryptMethodLabel.Text = Utils.i18N.Translate(EncryptMethodLabel.Text);
+            ProtocolLabel.Text = Utils.i18N.Translate(ProtocolLabel.Text);
+            ProtocolParamLabel.Text = Utils.i18N.Translate(ProtocolParamLabel.Text);
+            OBFSLabel.Text = Utils.i18N.Translate(OBFSLabel.Text);
+            OBFSParamLabel.Text = Utils.i18N.Translate(OBFSParamLabel.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             foreach (var encrypt in Global.EncryptMethods.SSR)
             {
@@ -99,6 +100,10 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            {
+                return;
+            }
             if (Index == -1)
             {
                 Global.Settings.Server.Add(new Models.Server()

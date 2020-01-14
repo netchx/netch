@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Netch.Forms.Server
@@ -21,14 +22,14 @@ namespace Netch.Forms.Server
 
         private void Shadowsocks_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            AddressLabel.Text = Utils.i18N.Translate("Address");
-            PasswordLabel.Text = Utils.i18N.Translate("Password");
-            EncryptMethodLabel.Text = Utils.i18N.Translate("Encrypt Method");
-            PluginLabel.Text = Utils.i18N.Translate("Plugin");
-            PluginOptionsLabel.Text = Utils.i18N.Translate("Plugin Options");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
+            PasswordLabel.Text = Utils.i18N.Translate(PasswordLabel.Text);
+            EncryptMethodLabel.Text = Utils.i18N.Translate(EncryptMethodLabel.Text);
+            PluginLabel.Text = Utils.i18N.Translate(PluginLabel.Text);
+            PluginOptionsLabel.Text = Utils.i18N.Translate(PluginOptionsLabel.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             foreach (var encrypt in Global.EncryptMethods.SS)
             {
@@ -83,6 +84,10 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            {
+                return;
+            }
             if (Index == -1)
             {
                 Global.Settings.Server.Add(new Models.Server()

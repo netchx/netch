@@ -36,15 +36,15 @@ namespace Netch.Forms
 
         private void SubscribeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Subscribe");
-            RemarkColumnHeader.Text = Utils.i18N.Translate("Remark");
-            LinkColumnHeader.Text = Utils.i18N.Translate("Link");
-            UseSelectedServerCheckBox.Text = Utils.i18N.Translate("Use Selected Server To Update Subscription");
-            DeleteToolStripMenuItem.Text = Utils.i18N.Translate("Delete");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            LinkLabel.Text = Utils.i18N.Translate("Link");
-            AddButton.Text = Utils.i18N.Translate("Add");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            Text = Utils.i18N.Translate(Text);
+            RemarkColumnHeader.Text = Utils.i18N.Translate(RemarkColumnHeader.Text);
+            LinkColumnHeader.Text = Utils.i18N.Translate(LinkColumnHeader.Text);
+            UseSelectedServerCheckBox.Text = Utils.i18N.Translate(UseSelectedServerCheckBox.Text);
+            DeleteToolStripMenuItem.Text = Utils.i18N.Translate(DeleteToolStripMenuItem.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            LinkLabel.Text = Utils.i18N.Translate(LinkLabel.Text);
+            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
             UseSelectedServerCheckBox.Checked = Global.Settings.UseProxyToUpdateSubscription;
