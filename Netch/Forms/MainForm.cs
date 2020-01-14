@@ -281,34 +281,34 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
-            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
-            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
-            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
-            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
-            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
-            ModeToolStripMenuItem.Text = Utils.i18N.Translate("Mode");
-            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
-            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate("Subscribe");
-            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
-            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
-            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
-            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
-            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
-            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate("Clean DNS Cache");
-            AboutToolStripButton.Text = Utils.i18N.Translate("About");
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            ServerLabel.Text = Utils.i18N.Translate("Server");
-            ModeLabel.Text = Utils.i18N.Translate("Mode");
-            ProfileLabel.Text = Utils.i18N.Translate("Profile Name");
-            ProfileGroupBox.Text = Utils.i18N.Translate("Profiles");
-            SettingsButton.Text = Utils.i18N.Translate("Settings");
-            ControlButton.Text = Utils.i18N.Translate("Start");
+            ServerToolStripMenuItem.Text = Utils.i18N.Translate(ServerToolStripMenuItem.Text);
+            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate(ImportServersFromClipboardToolStripMenuItem.Text);
+            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate(AddSocks5ServerToolStripMenuItem.Text);
+            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksServerToolStripMenuItem.Text);
+            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksRServerToolStripMenuItem.Text);
+            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate(AddVMessServerToolStripMenuItem.Text);
+            ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
+            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
+            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate(SubscribeToolStripMenuItem.Text);
+            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
+            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
+            OptionsToolStripMenuItem.Text = Utils.i18N.Translate(OptionsToolStripMenuItem.Text);
+            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate(RestartServiceToolStripMenuItem.Text);
+            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate(UninstallServiceToolStripMenuItem.Text);
+            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate(ReloadModesToolStripMenuItem.Text);
+            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
+            AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
+            ModeLabel.Text = Utils.i18N.Translate(ModeLabel.Text);
+            ProfileLabel.Text = Utils.i18N.Translate(ProfileLabel.Text);
+            ProfileGroupBox.Text = Utils.i18N.Translate(ProfileGroupBox.Text);
+            SettingsButton.Text = Utils.i18N.Translate(SettingsButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
             UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
             StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-            ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
-            ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
+            ShowMainFormToolStripButton.Text = Utils.i18N.Translate(ShowMainFormToolStripButton.Text);
+            ExitToolStripButton.Text = Utils.i18N.Translate(ExitToolStripButton.Text);
 
             InitProfile();
 
@@ -961,8 +961,21 @@ namespace Netch.Forms
 
             if (Control.ModifierKeys == Keys.Control)
             {
-                SaveProfile(index);
-                ProfileButtons[index].Text = ProfileNameText.Text;
+                if (ServerComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                else if (ModeComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                else
+                {
+                    SaveProfile(index);
+                    ProfileButtons[index].Text = ProfileNameText.Text;
+                }
             }
             else
             {
@@ -1026,6 +1039,7 @@ namespace Netch.Forms
                 b.Location = new Point(i * 100, 0);
                 b.Click += new EventHandler(ProfileButton_Click);
                 b.Dock = DockStyle.Fill;
+                b.Text = "None";
                 ProfileButtons.Add(b);
 
                 if (!Global.Settings.profiles[i].IsDummy)
@@ -1034,7 +1048,7 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    b.Text = Utils.i18N.Translate("None");
+                    b.Text = Utils.i18N.Translate(b.Text);
                 }
             }
 
@@ -1059,7 +1073,7 @@ namespace Netch.Forms
 
             bool result = false;
 
-            foreach(Models.Server server in ServerComboBox.Items)
+            foreach (Models.Server server in ServerComboBox.Items)
             {
                 if (server.Remark.Equals(p.ServerRemark))
                 {

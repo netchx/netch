@@ -54,16 +54,16 @@ namespace Netch.Forms.Mode
 
         private void ModeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Create Process Mode");
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            FilenameLabel.Text = Utils.i18N.Translate("Filename");
-            UseCustomFilenameBox.Text = Utils.i18N.Translate("Use Custom Filename");
-            StaySameButton.Text = Utils.i18N.Translate("Stay the same");
-            TimeDataButton.Text = Utils.i18N.Translate("Time data");
-            AddButton.Text = Utils.i18N.Translate("Add");
-            ScanButton.Text = Utils.i18N.Translate("Scan");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            Text = Utils.i18N.Translate(Text);
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            FilenameLabel.Text = Utils.i18N.Translate(FilenameLabel.Text);
+            UseCustomFilenameBox.Text = Utils.i18N.Translate(UseCustomFilenameBox.Text);
+            StaySameButton.Text = Utils.i18N.Translate(StaySameButton.Text);
+            TimeDataButton.Text = Utils.i18N.Translate(TimeDataButton.Text);
+            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
+            ScanButton.Text = Utils.i18N.Translate(ScanButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             if (Global.Settings.ModeFileNameType == 0)
             {

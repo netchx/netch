@@ -123,8 +123,8 @@
     "Port value illegal. Try again.": "端口值非法。请重试。",
     "Check update when opened": "打开软件时检查更新",
 
-    "Profile Name": "Profile Name",
-    "Profiles": "Profiles",
+    "Profile": "配置名",
+    "Profiles": "配置",
     "None": "无",
 
     "Show": "显示",

@@ -43,15 +43,15 @@ namespace Netch.Forms
 
         private void SettingForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate("Settings");
-            PortGroupBox.Text = Utils.i18N.Translate("Local Port");
-            AllowDevicesCheckBox.Text = Utils.i18N.Translate("Allow other Devices to connect");
-            TUNTAPAddressLabel.Text = Utils.i18N.Translate("Address");
-            TUNTAPNetmaskLabel.Text = Utils.i18N.Translate("Netmask");
-            TUNTAPGatewayLabel.Text = Utils.i18N.Translate("Gateway");
-            TUNTAPUseCustomDNSCheckBox.Text = Utils.i18N.Translate("Use Custom DNS");
-            GlobalBypassIPsButton.Text = Utils.i18N.Translate("Global Bypass IPs");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            Text = Utils.i18N.Translate(Text);
+            PortGroupBox.Text = Utils.i18N.Translate(PortGroupBox.Text);
+            AllowDevicesCheckBox.Text = Utils.i18N.Translate(AllowDevicesCheckBox.Text);
+            TUNTAPAddressLabel.Text = Utils.i18N.Translate(TUNTAPAddressLabel.Text);
+            TUNTAPNetmaskLabel.Text = Utils.i18N.Translate(TUNTAPNetmaskLabel.Text);
+            TUNTAPGatewayLabel.Text = Utils.i18N.Translate(TUNTAPGatewayLabel.Text);
+            TUNTAPUseCustomDNSCheckBox.Text = Utils.i18N.Translate(TUNTAPUseCustomDNSCheckBox.Text);
+            GlobalBypassIPsButton.Text = Utils.i18N.Translate(GlobalBypassIPsButton.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
@@ -68,11 +68,11 @@ namespace Netch.Forms
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
 
-            BehaviorGroupBox.Text = Utils.i18N.Translate("Behavior");
-            ExitWhenClosedCheckBox.Text = Utils.i18N.Translate("Exit when closed");
-            StopWhenExitedCheckBox.Text = Utils.i18N.Translate("Stop when exited");
-            StartWhenOpenedCheckBox.Text = Utils.i18N.Translate("Start when opened");
-            CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate("Check update when opened");
+            BehaviorGroupBox.Text = Utils.i18N.Translate(BehaviorGroupBox.Text);
+            ExitWhenClosedCheckBox.Text = Utils.i18N.Translate(ExitWhenClosedCheckBox.Text);
+            StopWhenExitedCheckBox.Text = Utils.i18N.Translate(StopWhenExitedCheckBox.Text);
+            StartWhenOpenedCheckBox.Text = Utils.i18N.Translate(StartWhenOpenedCheckBox.Text);
+            CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {

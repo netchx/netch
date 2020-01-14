@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Netch.Forms.Server
@@ -42,21 +43,21 @@ namespace Netch.Forms.Server
 
         private void VMess_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            RemarkLabel.Text = Utils.i18N.Translate("Remark");
-            AddressLabel.Text = Utils.i18N.Translate("Address");
-            UserIDLabel.Text = Utils.i18N.Translate("User ID");
-            AlterIDLabel.Text = Utils.i18N.Translate("Alter ID");
-            EncryptMethodLabel.Text = Utils.i18N.Translate("Encrypt Method");
-            TransferProtocolLabel.Text = Utils.i18N.Translate("Transfer Protocol");
-            FakeTypeLabel.Text = Utils.i18N.Translate("Fake Type");
-            HostLabel.Text = Utils.i18N.Translate("Host");
-            PathLabel.Text = Utils.i18N.Translate("Path");
-            QUICSecurityLabel.Text = Utils.i18N.Translate("QUIC Security");
-            QUICSecretLabel.Text = Utils.i18N.Translate("QUIC Secret");
-            TLSSecureCheckBox.Text = Utils.i18N.Translate("TLS Secure");
-            UseMuxCheckBox.Text = Utils.i18N.Translate("Use Mux");
-            ControlButton.Text = Utils.i18N.Translate("Save");
+            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
+            UserIDLabel.Text = Utils.i18N.Translate(UserIDLabel.Text);
+            AlterIDLabel.Text = Utils.i18N.Translate(AlterIDLabel.Text);
+            EncryptMethodLabel.Text = Utils.i18N.Translate(EncryptMethodLabel.Text);
+            TransferProtocolLabel.Text = Utils.i18N.Translate(TransferProtocolLabel.Text);
+            FakeTypeLabel.Text = Utils.i18N.Translate(FakeTypeLabel.Text);
+            HostLabel.Text = Utils.i18N.Translate(HostLabel.Text);
+            PathLabel.Text = Utils.i18N.Translate(PathLabel.Text);
+            QUICSecurityLabel.Text = Utils.i18N.Translate(QUICSecurityLabel.Text);
+            QUICSecretLabel.Text = Utils.i18N.Translate(QUICSecretLabel.Text);
+            TLSSecureCheckBox.Text = Utils.i18N.Translate(TLSSecureCheckBox.Text);
+            UseMuxCheckBox.Text = Utils.i18N.Translate(UseMuxCheckBox.Text);
+            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             foreach (var encrypt in Global.EncryptMethods.VMess)
             {
@@ -111,6 +112,10 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            {
+                return;
+            }
             if (Index == -1)
             {
                 Global.Settings.Server.Add(new Models.Server()
