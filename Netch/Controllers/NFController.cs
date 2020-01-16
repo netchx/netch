@@ -124,13 +124,12 @@ namespace Netch.Controllers
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Redirector.exe";
 
-            var FallBackArg = "";
+            var fallback = "";
 
             if (server.Type != "Socks5")
             {
-                FallBackArg = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
+                fallback = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
             }
-
             else
             {
                 var result = Utils.DNS.Lookup(server.Hostname);
@@ -140,15 +139,15 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                FallBackArg = $"-r {result.ToString()}:{server.Port} -p \"{processes}\"";
+                fallback = $"-r {result.ToString()}:{server.Port} -p \"{processes}\"";
 
                 if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
                 {
-                    FallBackArg += $" -username \"{server.Username}\" -password \"{server.Password}\"";
-                } 
+                    fallback += $" -username \"{server.Username}\" -password \"{server.Password}\"";
+                }
             }
 
-            Instance.StartInfo.Arguments = FallBackArg + $" -t {Global.Settings.RedirectorTCPPort}";
+            Instance.StartInfo.Arguments = fallback + $" -t {Global.Settings.RedirectorTCPPort}";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             State = Models.State.Starting;
