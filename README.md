@@ -1,5 +1,5 @@
 # Netch
-[![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/NetchX)
+[![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/Netch)
 
 Game accelerator
 
@@ -7,13 +7,15 @@ Game accelerator
 
 ## TOC
 
-1. [Download and Installation](#download-and-installation)
-2. [Description](#description)
-3. [Usage](#usage)
-4. [Sponsor](#sponsor)
-5. [Screenshots](#screenshots)
-6. [Requirements](#requirements)
-7. [Explanatory note](#Explanatory-note)
+- [Netch](#netch)
+	- [TOC](#toc)
+	- [Download and Installation](#download-and-installation)
+	- [Description](#description)
+	- [Usage](#usage)
+	- [Sponsor](#sponsor)
+	- [Screenshots](#screenshots)
+	- [Requirements](#requirements)
+	- [Explanatory note](#explanatory-note)
 
 ## Download and Installation
 
