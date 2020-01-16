@@ -28,7 +28,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 
 ## Screenshots
 
-![](docs/screenshots/main_en.png)
+![](docs/screenshots/main.png)
 
 ## Requirements
 

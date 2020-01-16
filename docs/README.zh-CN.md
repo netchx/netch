@@ -26,7 +26,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 
 ## 截图
 
-![主界面](screenshots/main.png)
+![主界面](screenshots/main.zh-CN.png)
 
 ## 依赖
 
