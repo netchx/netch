@@ -30,4 +30,5 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 
 ## 依赖
 
+- Microsoft Visual C++ 运行库合集
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
