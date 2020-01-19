@@ -30,12 +30,12 @@ namespace Netch.Forms
 
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://t.me/NetchX");
+            Process.Start("https://t.me/Netch");
         }
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
         {
-            Process.Start("https://n3ro.host/register?ref=530");
+            Process.Start("https://to.kache.moe");
         }
     }
 }
