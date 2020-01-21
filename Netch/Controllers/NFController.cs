@@ -172,7 +172,7 @@ namespace Netch.Controllers
                         IsFallback = true;
                         Stop();
                         Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数后启动 \"bin\\Redirector.exe\"");
-                        Instance.StartInfo.Arguments = FallBackArg;
+                        Instance.StartInfo.Arguments = fallback;
                         Utils.Logging.Info($"当前 \"bin\\Redirector.exe\" 启动参数为 \"{Instance.StartInfo.Arguments}\"");
                         Global.Settings.RedirectorTCPPort = 2800;
                         Instance.CancelOutputRead();
