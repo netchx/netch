@@ -768,12 +768,8 @@ namespace Netch.Forms
                     MainController = new MainController();
                     if (MainController.Start(server, mode))
                     {
-                        //if (mode.Type == 0)
-                        if (false)
-                        {
-                            UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
-                            MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
-                        }
+                        // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
+                        // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
 
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
@@ -848,16 +844,12 @@ namespace Netch.Forms
 
                     MainController.Stop();
 
-                    //if (mode.Type == 0)
-                    if (false)
-                    {
-                        LastUploadBandwidth = 0;
-                        LastDownloadBandwidth = 0;
-                        UploadSpeedLabel.Text = "↑: 0 KB/s";
-                        DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                        UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                        UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
-                    }
+                    // LastUploadBandwidth = 0;
+                    // LastDownloadBandwidth = 0;
+                    // UploadSpeedLabel.Text = "↑: 0 KB/s";
+                    // DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                    // UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                    // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
 
                     ControlButton.Enabled = true;
                     ProfileGroupBox.Enabled = true;

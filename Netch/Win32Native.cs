@@ -369,8 +369,9 @@ namespace Netch
                         ptr = new IntPtr(ptr.ToInt32() + Marshal.SizeOf(typeof(MIB_IFROW)));
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
+                    // 跳过
                 }
                 finally
                 {
