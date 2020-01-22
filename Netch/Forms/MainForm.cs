@@ -391,19 +391,11 @@ namespace Netch.Forms
             var texts = Clipboard.GetText();
             if (!String.IsNullOrWhiteSpace(texts))
             {
-                using (var sr = new StringReader(texts))
+                var result = Utils.ShareLink.Parse(texts);
+
+                if (result != null)
                 {
-                    string text;
-
-                    while ((text = sr.ReadLine()) != null)
-                    {
-                        var result = Utils.ShareLink.Parse(text);
-
-                        if (result != null)
-                        {
-                            Global.Settings.Server.AddRange(result);
-                        }
-                    }
+                    Global.Settings.Server.AddRange(result);
                 }
 
                 InitServer();
@@ -508,34 +500,16 @@ namespace Netch.Forms
                                     // 跳过
                                 }
 
-                                var list = new List<Models.Server>();
-                                foreach (var server in Global.Settings.Server)
+                                Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                                var result = Utils.ShareLink.Parse(response);
+
+                                if (result != null)
                                 {
-                                    if (server.Group != item.Remark)
+                                    foreach (var x in result)
                                     {
-                                        list.Add(server);
+                                        x.Group = item.Remark;
                                     }
-                                }
-                                Global.Settings.Server = list;
-
-                                using (var sr = new StringReader(response))
-                                {
-                                    string text;
-
-                                    while ((text = sr.ReadLine()) != null)
-                                    {
-                                        var result = Utils.ShareLink.Parse(text);
-
-                                        if (result != null)
-                                        {
-                                            foreach (var x in result)
-                                            {
-                                                x.Group = item.Remark;
-                                            }
-
-                                            Global.Settings.Server.AddRange(result);
-                                        }
-                                    }
+                                    Global.Settings.Server.AddRange(result);
                                 }
                             }
                             catch (Exception)
