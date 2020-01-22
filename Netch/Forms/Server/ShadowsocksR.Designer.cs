@@ -31,9 +31,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ShadowsocksR));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.OBFSParamLabel = new System.Windows.Forms.Label();
-            this.PluginOptionParamTextBox = new System.Windows.Forms.TextBox();
+            this.OBFSOptionParamTextBox = new System.Windows.Forms.TextBox();
             this.OBFSLabel = new System.Windows.Forms.Label();
-            this.PluginComboBox = new System.Windows.Forms.ComboBox();
+            this.OBFSComboBox = new System.Windows.Forms.ComboBox();
             this.ProtocolParamLabel = new System.Windows.Forms.Label();
             this.ProtocolParamTextBox = new System.Windows.Forms.TextBox();
             this.ProtocolLabel = new System.Windows.Forms.Label();
@@ -55,9 +55,9 @@
             // ConfigurationGroupBox
             // 
             this.ConfigurationGroupBox.Controls.Add(this.OBFSParamLabel);
-            this.ConfigurationGroupBox.Controls.Add(this.PluginOptionParamTextBox);
+            this.ConfigurationGroupBox.Controls.Add(this.OBFSOptionParamTextBox);
             this.ConfigurationGroupBox.Controls.Add(this.OBFSLabel);
-            this.ConfigurationGroupBox.Controls.Add(this.PluginComboBox);
+            this.ConfigurationGroupBox.Controls.Add(this.OBFSComboBox);
             this.ConfigurationGroupBox.Controls.Add(this.ProtocolParamLabel);
             this.ConfigurationGroupBox.Controls.Add(this.ProtocolParamTextBox);
             this.ConfigurationGroupBox.Controls.Add(this.ProtocolLabel);
@@ -90,11 +90,11 @@
             // 
             // OBFSParamTextBox
             // 
-            this.PluginOptionParamTextBox.Location = new System.Drawing.Point(120, 227);
-            this.PluginOptionParamTextBox.Name = "OBFSParamTextBox";
-            this.PluginOptionParamTextBox.Size = new System.Drawing.Size(294, 23);
-            this.PluginOptionParamTextBox.TabIndex = 17;
-            this.PluginOptionParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.OBFSOptionParamTextBox.Location = new System.Drawing.Point(120, 227);
+            this.OBFSOptionParamTextBox.Name = "OBFSParamTextBox";
+            this.OBFSOptionParamTextBox.Size = new System.Drawing.Size(294, 23);
+            this.OBFSOptionParamTextBox.TabIndex = 17;
+            this.OBFSOptionParamTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // OBFSLabel
             // 
@@ -107,14 +107,14 @@
             // 
             // OBFSComboBox
             // 
-            this.PluginComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.PluginComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.PluginComboBox.FormattingEnabled = true;
-            this.PluginComboBox.Location = new System.Drawing.Point(120, 196);
-            this.PluginComboBox.Name = "OBFSComboBox";
-            this.PluginComboBox.Size = new System.Drawing.Size(294, 24);
-            this.PluginComboBox.TabIndex = 15;
-            this.PluginComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.OBFSComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.OBFSComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.OBFSComboBox.FormattingEnabled = true;
+            this.OBFSComboBox.Location = new System.Drawing.Point(120, 196);
+            this.OBFSComboBox.Name = "OBFSComboBox";
+            this.OBFSComboBox.Size = new System.Drawing.Size(294, 24);
+            this.OBFSComboBox.TabIndex = 15;
+            this.OBFSComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             // 
             // ProtocolParamLabel
             // 
@@ -293,8 +293,8 @@
         private System.Windows.Forms.TextBox ProtocolParamTextBox;
         private System.Windows.Forms.Label ProtocolParamLabel;
         private System.Windows.Forms.Label OBFSLabel;
-        private System.Windows.Forms.ComboBox PluginComboBox;
-        private System.Windows.Forms.TextBox PluginOptionParamTextBox;
+        private System.Windows.Forms.ComboBox OBFSComboBox;
+        private System.Windows.Forms.TextBox OBFSOptionParamTextBox;
         private System.Windows.Forms.Label OBFSParamLabel;
     }
 }
