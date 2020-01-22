@@ -175,7 +175,7 @@ namespace Netch.Utils
                         {
                             var finder = new Regex(@"^(?<data>.+?)\?(.+)$");
                             var match = finder.Match(text);
-                            
+
                             if (match.Success)
                             {
                                 var plugins = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin"));
@@ -187,7 +187,7 @@ namespace Netch.Utils
                                     if (!pluginopts.Contains("obfs="))
                                         pluginopts = "obfs=http;obfs-host=" + pluginopts;
                                 }
-                                else if(plugin == "simple-obfs-tls")
+                                else if (plugin == "simple-obfs-tls")
                                 {
                                     plugin = "simple-obfs";
                                     if (!pluginopts.Contains("obfs="))
@@ -361,7 +361,7 @@ namespace Netch.Utils
                     var parser = new Regex(@"^(?<server>.+):(?<port>(-?\d+?)):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/\?(?<info>.*)$");
                     var match = parser.Match(URLSafeBase64Decode(text));
 
-                    if(match.Success)
+                    if (match.Success)
                     {
                         data.Hostname = match.Groups["server"].Value;
                         data.Port = int.Parse(match.Groups["port"].Value);
@@ -386,6 +386,10 @@ namespace Netch.Utils
                         }
 
                         data.OBFS = match.Groups["obfs"].Value;
+                        if (data.OBFS == @"tls1.2_ticket_fastauth")
+                        {
+                            data.OBFS = @"tls1.2_ticket_auth";
+                        }
                         if (!Global.OBFSs.Contains(data.OBFS))
                         {
                             Logging.Info(String.Format("不支持的 SSR 混淆：{0}", data.OBFS));
@@ -452,10 +456,10 @@ namespace Netch.Utils
                         return null;
                     }
 
-                    if(vmess.v == null || vmess.v == "1")
+                    if (vmess.v == null || vmess.v == "1")
                     {
                         var info = vmess.host.Split(';');
-                        if(info.Length == 2)
+                        if (info.Length == 2)
                         {
                             vmess.host = info[0];
                             vmess.path = info[1];

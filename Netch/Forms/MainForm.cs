@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
@@ -207,7 +208,14 @@ namespace Netch.Forms
         private void SaveConfigs()
         {
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
+            if (ModeComboBox.Tag is object[] list)
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = list.ToList().IndexOf(ModeComboBox.SelectedItem);
+            }
+            else
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf(ModeComboBox.SelectedItem);
+            }
             Utils.Configuration.Save();
         }
 
