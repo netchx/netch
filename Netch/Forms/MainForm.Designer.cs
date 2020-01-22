@@ -1,4 +1,6 @@
-﻿namespace Netch.Forms
+﻿using Netch.Override;
+
+namespace Netch.Forms
 {
     partial class MainForm
     {
@@ -56,7 +58,7 @@
             this.DeletePictureBox = new System.Windows.Forms.PictureBox();
             this.EditPictureBox = new System.Windows.Forms.PictureBox();
             this.ModeLabel = new System.Windows.Forms.Label();
-            this.ModeComboBox = new System.Windows.Forms.ComboBox();
+            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
@@ -328,7 +330,7 @@
             // ModeComboBox
             // 
             this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.ModeComboBox.FormattingEnabled = true;
             this.ModeComboBox.IntegralHeight = false;
             this.ModeComboBox.Location = new System.Drawing.Point(57, 53);
@@ -526,7 +528,7 @@
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label ServerLabel;
         private System.Windows.Forms.Label ModeLabel;
-        private System.Windows.Forms.ComboBox ModeComboBox;
+        private System.Windows.Forms.SearchComboBox ModeComboBox;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.StatusStrip StatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
