@@ -1,9 +1,13 @@
 ﻿using Netch.Models;
+using Netch.Models.SS;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using VMess = Netch.Models.VMess;
 
 namespace Netch.Utils
 {
@@ -24,14 +28,33 @@ namespace Netch.Utils
             var list = new List<Server>();
             try
             {
-                foreach (var line in text.GetLines())
+                try
                 {
-                    var servers = ParseLine(line);
-                    if (line != null)
+                    var ssServers = JsonConvert.DeserializeObject<List<ShadowsocksServer>>(text);
+                    list.AddRange(ssServers.Select(shadowsocksServer => new Server
                     {
-                        list.AddRange(servers);
+                        Type = "SS",
+                        Hostname = shadowsocksServer.server,
+                        Port = shadowsocksServer.server_port,
+                        EncryptMethod = shadowsocksServer.method,
+                        Password = shadowsocksServer.password,
+                        Remark = shadowsocksServer.remarks,
+                        Plugin = shadowsocksServer.plugin,
+                        PluginOption = shadowsocksServer.plugin_opts
+                    }));
+                }
+                catch (JsonReaderException)
+                {
+                    foreach (var line in text.GetLines())
+                    {
+                        var servers = ParseLine(line);
+                        if (line != null)
+                        {
+                            list.AddRange(servers);
+                        }
                     }
                 }
+
                 if (list.Count == 0)
                 {
                     System.Windows.Forms.MessageBox.Show(@"未找到可导入的链接！", @"错误", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
