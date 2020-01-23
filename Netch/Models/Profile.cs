@@ -1,16 +1,14 @@
-﻿using System;
-
-namespace Netch.Models
+﻿namespace Netch.Models
 {
     public class Profile
 	{
-        public String ServerRemark;
-        public String ModeRemark;
-        public String ProfileName;
+        public string ServerRemark;
+        public string ModeRemark;
+        public string ProfileName;
 
         public bool IsDummy = true;
 
-        public Profile(Server server, Mode mode, String name)
+        public Profile(Server server, Mode mode, string name)
         {
             ServerRemark = server.Remark;
             ModeRemark = mode.Remark;

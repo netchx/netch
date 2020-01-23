@@ -1,5 +1,5 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
+using Microsoft.Win32;
 
 namespace Netch.Controllers
 {
@@ -22,14 +22,12 @@ namespace Netch.Controllers
             {
                 if (server.Type == "Socks5")
                 {
-                    if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
+                    if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
                     {
                         return false;
                     }
-                    else
-                    {
-                        pPrivoxyController.Start(server, mode);
-                    }
+
+                    pPrivoxyController.Start(server, mode);
                 }
                 else
                 {

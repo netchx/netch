@@ -1,13 +1,12 @@
-﻿using Netch.Models;
-using Netch.Models.SS;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using VMess = Netch.Models.VMess;
+using Netch.Models;
+using Netch.Models.SS;
+using Newtonsoft.Json;
 
 namespace Netch.Utils
 {
@@ -311,7 +310,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssd://"))
                 {
-                    var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
+                    var json = JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
 
                     foreach (var server in json.servers)
                     {
@@ -320,11 +319,11 @@ namespace Netch.Utils
 
                         data.Remark = server.remarks;
                         data.Hostname = server.server;
-                        data.Port = (server.port != 0) ? server.port : json.port;
-                        data.Password = (server.password != null) ? server.password : json.password;
-                        data.EncryptMethod = (server.encryption != null) ? server.encryption : json.encryption;
-                        data.Plugin = (string.IsNullOrEmpty(json.plugin)) ? (string.IsNullOrEmpty(server.plugin) ? null : server.plugin) : json.plugin;
-                        data.PluginOption = (string.IsNullOrEmpty(json.plugin_options)) ? (string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options) : json.plugin_options;
+                        data.Port = server.port != 0 ? server.port : json.port;
+                        data.Password = server.password != null ? server.password : json.password;
+                        data.EncryptMethod = server.encryption != null ? server.encryption : json.encryption;
+                        data.Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin;
+                        data.PluginOption = string.IsNullOrEmpty(json.plugin_options) ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options : json.plugin_options;
 
                         if (Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {
@@ -489,7 +488,7 @@ namespace Netch.Utils
                     data.Type = "VMess";
 
                     text = text.Substring(8);
-                    var vmess = Newtonsoft.Json.JsonConvert.DeserializeObject<VMess>(URLSafeBase64Decode(text));
+                    var vmess = JsonConvert.DeserializeObject<VMess>(URLSafeBase64Decode(text));
 
                     data.Remark = vmess.ps;
                     data.Hostname = vmess.add;
@@ -527,11 +526,9 @@ namespace Netch.Utils
                             Logging.Info(string.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
                             return null;
                         }
-                        else
-                        {
-                            data.QUICSecure = vmess.host;
-                            data.QUICSecret = vmess.path;
-                        }
+
+                        data.QUICSecure = vmess.host;
+                        data.QUICSecret = vmess.path;
 
                     }
                     else
@@ -568,7 +565,7 @@ namespace Netch.Utils
                 else if (text.StartsWith("Netch://"))
                 {
                     text = text.Substring(8);
-                    var NetchLink = Newtonsoft.Json.JsonConvert.DeserializeObject<Server>(URLSafeBase64Decode(text));
+                    var NetchLink = JsonConvert.DeserializeObject<Server>(URLSafeBase64Decode(text));
                     if (!string.IsNullOrEmpty(NetchLink.Hostname) || NetchLink.Port > 65536 || NetchLink.Port > 0)
                     {
                         return null;

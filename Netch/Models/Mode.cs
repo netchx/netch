@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Netch.Models
 {
@@ -42,7 +41,7 @@ namespace Netch.Models
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return String.Format("[{0}] {1}", Type + 1, Remark);
+            return string.Format("[{0}] {1}", Type + 1, Remark);
         }
 
         /// <summary>
@@ -74,7 +73,7 @@ namespace Netch.Models
                 FileString = $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}\r\n";
             }
 
-            foreach (String item in Rule)
+            foreach (var item in Rule)
             {
                 FileString = $"{FileString}{item}\r\n";
             }

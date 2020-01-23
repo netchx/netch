@@ -51,10 +51,6 @@ namespace Netch
                         // 跳过
                     }
                 }
-                else
-                {
-                    // 跳过
-                }
             }
 
             return Task.FromResult(response);

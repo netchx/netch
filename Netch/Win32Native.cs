@@ -15,7 +15,7 @@ namespace Netch
             Other = 1,
             Invalid = 2,
             Direct = 3,
-            Indirect = 4,
+            Indirect = 4
         }
 
         public enum ForwardProtocol
@@ -36,7 +36,7 @@ namespace Netch
             BGP = 14, // 0x0000000E
             NT_AUTOSTATIC = 10002, // 0x00002712
             NT_STATIC = 10006, // 0x00002716
-            NT_STATIC_NON_DOD = 10007, // 0x00002717
+            NT_STATIC_NON_DOD = 10007 // 0x00002717
         }
 
         public class RouteEntry
@@ -60,188 +60,98 @@ namespace Netch
 
             public int Index
             {
-                get
-                {
-                    return this._index;
-                }
-                set
-                {
-                    this._index = value;
-                }
+                get => _index;
+                set => _index = value;
             }
 
             public IPAddress Destination
             {
-                get
-                {
-                    return this._destination;
-                }
-                set
-                {
-                    this._destination = value;
-                }
+                get => _destination;
+                set => _destination = value;
             }
 
             public IPAddress Mask
             {
-                get
-                {
-                    return this._mask;
-                }
-                set
-                {
-                    this._mask = value;
-                }
+                get => _mask;
+                set => _mask = value;
             }
 
             public int Policy
             {
-                get
-                {
-                    return this._policy;
-                }
-                set
-                {
-                    this._policy = value;
-                }
+                get => _policy;
+                set => _policy = value;
             }
 
             public IPAddress NextHop
             {
-                get
-                {
-                    return this._nextHop;
-                }
-                set
-                {
-                    this._nextHop = value;
-                }
+                get => _nextHop;
+                set => _nextHop = value;
             }
 
-            public NetworkInterface RelatedInterface
-            {
-                get
-                {
-                    return this._interface;
-                }
-            }
+            public NetworkInterface RelatedInterface => _interface;
 
             public string InterfaceName
             {
                 get
                 {
-                    if (this.RelatedInterface == null)
+                    if (RelatedInterface == null)
                         return string.Empty;
-                    return this.RelatedInterface.Name;
+                    return RelatedInterface.Name;
                 }
             }
 
             public ForwardType ForwardType
             {
-                get
-                {
-                    return this._type;
-                }
-                set
-                {
-                    this._type = value;
-                }
+                get => _type;
+                set => _type = value;
             }
 
             public ForwardProtocol Protocol
             {
-                get
-                {
-                    return this._protocol;
-                }
-                set
-                {
-                    this._protocol = value;
-                }
+                get => _protocol;
+                set => _protocol = value;
             }
 
             public int Age
             {
-                get
-                {
-                    return this._age;
-                }
-                set
-                {
-                    this._age = value;
-                }
+                get => _age;
+                set => _age = value;
             }
 
             public int NextHopAS
             {
-                get
-                {
-                    return this._nextHopAS;
-                }
-                set
-                {
-                    this._nextHopAS = value;
-                }
+                get => _nextHopAS;
+                set => _nextHopAS = value;
             }
 
             public int Metric1
             {
-                get
-                {
-                    return this._metric1;
-                }
-                set
-                {
-                    this._metric1 = value;
-                }
+                get => _metric1;
+                set => _metric1 = value;
             }
 
             public int Metric2
             {
-                get
-                {
-                    return this._metric2;
-                }
-                set
-                {
-                    this._metric2 = value;
-                }
+                get => _metric2;
+                set => _metric2 = value;
             }
 
             public int Metric3
             {
-                get
-                {
-                    return this._metric3;
-                }
-                set
-                {
-                    this._metric3 = value;
-                }
+                get => _metric3;
+                set => _metric3 = value;
             }
 
             public int Metric4
             {
-                get
-                {
-                    return this._metric4;
-                }
-                set
-                {
-                    this._metric4 = value;
-                }
+                get => _metric4;
+                set => _metric4 = value;
             }
 
             public int Metric5
             {
-                get
-                {
-                    return this._metric5;
-                }
-                set
-                {
-                    this._metric5 = value;
-                }
+                get => _metric5;
+                set => _metric5 = value;
             }
 
             public RouteEntry(
@@ -261,21 +171,21 @@ namespace Netch
               int metric5,
               int idx)
             {
-                this._age = age;
-                this._policy = policy;
-                this._protocol = proto;
-                this._type = type;
-                this._destination = new IPAddress((long)destination);
-                this._mask = new IPAddress((long)mask);
-                this._nextHop = new IPAddress((long)nextHop);
-                this._nextHopAS = nextHopAS;
-                this._interface = intf;
-                this._metric1 = metric1;
-                this._metric2 = metric2;
-                this._metric3 = metric3;
-                this._metric4 = metric4;
-                this._metric5 = metric5;
-                this._index = idx;
+                _age = age;
+                _policy = policy;
+                _protocol = proto;
+                _type = type;
+                _destination = new IPAddress(destination);
+                _mask = new IPAddress(mask);
+                _nextHop = new IPAddress(nextHop);
+                _nextHopAS = nextHopAS;
+                _interface = intf;
+                _metric1 = metric1;
+                _metric2 = metric2;
+                _metric3 = metric3;
+                _metric4 = metric4;
+                _metric5 = metric5;
+                _index = idx;
             }
         }
 
@@ -320,48 +230,48 @@ namespace Netch
 
             public IDictionary<int, NetworkInterface> GetAdapters()
             {
-                return (IDictionary<int, NetworkInterface>)this._adapters;
+                return _adapters;
             }
 
             public NetworkInterface GetAdapter(int interfaceIndex)
             {
-                NetworkInterface networkInterface = (NetworkInterface)null;
-                this._adapters.TryGetValue(interfaceIndex, out networkInterface);
+                NetworkInterface networkInterface = null;
+                _adapters.TryGetValue(interfaceIndex, out networkInterface);
                 return networkInterface;
             }
 
             public int GetAdapterIndex(NetworkInterface networkInterface)
             {
-                return this._adapters.First<KeyValuePair<int, NetworkInterface>>((Func<KeyValuePair<int, NetworkInterface>, bool>)(a => a.Value == networkInterface)).Key;
+                return _adapters.First(a => a.Value == networkInterface).Key;
             }
 
             public AdaptersTable()
             {
-                IntPtr num1 = IntPtr.Zero;
-                int pdwSize = 0;
-                int num2 = 0;
-                num2 = Win32Native.GetIfTable(IntPtr.Zero, ref pdwSize, true);
-                NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                var num1 = IntPtr.Zero;
+                var pdwSize = 0;
+                var num2 = 0;
+                num2 = GetIfTable(IntPtr.Zero, ref pdwSize, true);
+                var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
                 try
                 {
                     num1 = Marshal.AllocHGlobal(pdwSize);
-                    if (Win32Native.GetIfTable(num1, ref pdwSize, true) != 0)
+                    if (GetIfTable(num1, ref pdwSize, true) != 0)
                         return;
-                    int num3 = Marshal.ReadInt32(num1);
-                    IntPtr ptr = new IntPtr(num1.ToInt32() + 4);
-                    for (int index = 0; index < num3; ++index)
+                    var num3 = Marshal.ReadInt32(num1);
+                    var ptr = new IntPtr(num1.ToInt32() + 4);
+                    for (var index = 0; index < num3; ++index)
                     {
-                        MIB_IFROW structure = (MIB_IFROW)Marshal.PtrToStructure(ptr, typeof(MIB_IFROW));
-                        MIB_IFROW pIfRow = new MIB_IFROW();
+                        var structure = (MIB_IFROW)Marshal.PtrToStructure(ptr, typeof(MIB_IFROW));
+                        var pIfRow = new MIB_IFROW();
                         pIfRow.dwIndex = structure.dwIndex;
-                        if (Win32Native.GetIfEntry(ref pIfRow) == 0)
+                        if (GetIfEntry(ref pIfRow) == 0)
                         {
-                            string str = Encoding.ASCII.GetString(structure.bDescr, 0, pIfRow.dwDescrLen - 1);
-                            foreach (NetworkInterface networkInterface in networkInterfaces)
+                            var str = Encoding.ASCII.GetString(structure.bDescr, 0, pIfRow.dwDescrLen - 1);
+                            foreach (var networkInterface in networkInterfaces)
                             {
                                 if (networkInterface.Description == str)
                                 {
-                                    this._adapters.Add(structure.dwIndex, networkInterface);
+                                    _adapters.Add(structure.dwIndex, networkInterface);
                                     break;
                                 }
                             }
@@ -399,7 +309,7 @@ namespace Netch
 
             public static implicit operator MIB_IPFORWARDROW(RouteEntry value)
             {
-                MIB_IPFORWARDROW mibIpforwardrow = new MIB_IPFORWARDROW();
+                var mibIpforwardrow = new MIB_IPFORWARDROW();
                 mibIpforwardrow.dwForwardAge = value.Age;
                 mibIpforwardrow.dwForwardDest = BitConverter.ToUInt32(value.Destination.GetAddressBytes(), 0);
                 mibIpforwardrow.dwForwardMask = BitConverter.ToUInt32(value.Mask.GetAddressBytes(), 0);
@@ -413,7 +323,7 @@ namespace Netch
                 mibIpforwardrow.dwForwardPolicy = value.Policy;
                 mibIpforwardrow.dwForwardProto = value.Protocol;
                 mibIpforwardrow.dwForwardType = value.ForwardType;
-                AdaptersTable adaptersTable = new AdaptersTable();
+                var adaptersTable = new AdaptersTable();
                 mibIpforwardrow.dwForwardIfIndex = adaptersTable.GetAdapterIndex(value.RelatedInterface);
                 return mibIpforwardrow;
             }

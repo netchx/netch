@@ -9,7 +9,7 @@ namespace Netch.Controllers
         public static Process GetProcess()
         {
             var process = new Process();
-            process.StartInfo.WorkingDirectory = String.Format("{0}\\bin", Directory.GetCurrentDirectory());
+            process.StartInfo.WorkingDirectory = string.Format("{0}\\bin", Directory.GetCurrentDirectory());
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.RedirectStandardError = true;
             process.StartInfo.RedirectStandardInput = true;
@@ -23,33 +23,33 @@ namespace Netch.Controllers
         /// <summary>
         ///		SS 控制器
         /// </summary>
-        public SSController pSSController = null;
+        public SSController pSSController;
 
         /// <summary>
         ///     SSR 控制器
         /// </summary>
-        public SSRController pSSRController = null;
+        public SSRController pSSRController;
 
         /// <summary>
         ///     V2Ray 控制器
         /// </summary>
-        public VMessController pVMessController = null;
+        public VMessController pVMessController;
 
         /// <summary>
         ///		NF 控制器
         /// </summary>
-        public NFController pNFController = null;
+        public NFController pNFController;
 
         /// <summary>
         ///     HTTP 控制器
         /// </summary>
-        public HTTPController pHTTPController = null;
+        public HTTPController pHTTPController;
 
 
         /// <summary>
         ///     TUN/TAP 控制器
         /// </summary>
-        public TUNTAPController pTUNTAPController = null;
+        public TUNTAPController pTUNTAPController;
 
         /// <summary>
         ///		启动
@@ -95,8 +95,6 @@ namespace Netch.Controllers
                         pVMessController = new VMessController();
                     }
                     result = pVMessController.Start(server, mode);
-                    break;
-                default:
                     break;
             }
 
@@ -189,9 +187,9 @@ namespace Netch.Controllers
             
         }
 
-        public void KillProcess(String name) {
-            Process[] processes = Process.GetProcessesByName(name);
-            foreach (Process p in processes)
+        public void KillProcess(string name) {
+            var processes = Process.GetProcessesByName(name);
+            foreach (var p in processes)
             {
                 if (IsChildProcess(p, name))
                 {
@@ -205,8 +203,8 @@ namespace Netch.Controllers
             bool result;
             try
             {
-                string FileName = (Directory.GetCurrentDirectory() + "\\bin\\" + name + ".exe").ToLower();
-                string procFileName = process.MainModule.FileName.ToLower();
+                var FileName = (Directory.GetCurrentDirectory() + "\\bin\\" + name + ".exe").ToLower();
+                var procFileName = process.MainModule.FileName.ToLower();
                 result = FileName.Equals(procFileName, StringComparison.Ordinal);
             }
             catch (Exception e)

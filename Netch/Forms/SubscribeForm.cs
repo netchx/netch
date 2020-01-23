@@ -17,16 +17,16 @@ namespace Netch.Forms
 
             foreach (var item in Global.Settings.SubscribeLink)
             {
-                if (!String.IsNullOrEmpty(item.UserAgent))
+                if (!string.IsNullOrEmpty(item.UserAgent))
                 {
-                    SubscribeLinkListView.Items.Add(new ListViewItem(new String[] {
+                    SubscribeLinkListView.Items.Add(new ListViewItem(new[] {
                     item.Remark,
                     item.Link,
                     item.UserAgent}));
                 }
                 else
                 {
-                    SubscribeLinkListView.Items.Add(new ListViewItem(new String[] {
+                    SubscribeLinkListView.Items.Add(new ListViewItem(new[] {
                     item.Remark,
                     item.Link,
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36"}));
@@ -63,7 +63,7 @@ namespace Netch.Forms
             {
                 if (SubscribeLinkListView.SelectedItems.Count > 0)
                 {
-                    for (int i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
+                    for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
                     {
                         var item = SubscribeLinkListView.SelectedItems[i];
                         var link = Global.Settings.SubscribeLink[item.Index];
@@ -89,21 +89,21 @@ namespace Netch.Forms
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(RemarkTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
             {
-                if (!String.IsNullOrWhiteSpace(LinkTextBox.Text))
+                if (!string.IsNullOrWhiteSpace(LinkTextBox.Text))
                 {
                     if (LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) || LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
                     {
-                        Global.Settings.SubscribeLink.Add(new Models.SubscribeLink()
+                        Global.Settings.SubscribeLink.Add(new Models.SubscribeLink
                         {
                             Remark = RemarkTextBox.Text,
                             Link = LinkTextBox.Text,
                             UserAgent = UserAgentTextBox.Text
                         });
 
-                        RemarkTextBox.Text = String.Empty;
-                        LinkTextBox.Text = String.Empty;
+                        RemarkTextBox.Text = string.Empty;
+                        LinkTextBox.Text = string.Empty;
                         UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 
                         InitSubscribeLink();

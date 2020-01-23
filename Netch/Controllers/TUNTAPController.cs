@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -101,12 +101,12 @@ namespace Netch.Controllers
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
                 // 将 TUN/TAP 网卡权重放到最高
-                var instance = new Process()
+                var instance = new Process
                 {
                     StartInfo =
                     {
-                        FileName = String.Format("netsh"),
-                        Arguments = String.Format("interface ip set interface {0} metric=0", Global.TUNTAP.Index),
+                        FileName = "netsh",
+                        Arguments = string.Format("interface ip set interface {0} metric=0", Global.TUNTAP.Index),
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = true,
                         CreateNoWindow = true
@@ -166,7 +166,7 @@ namespace Netch.Controllers
         {
             if (SavedMode.Type == 2)
             {
-                NativeMethods.DeleteRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway.ToString(), Global.TUNTAP.Index, 10);
+                NativeMethods.DeleteRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10);
 
                 foreach (var ip in SavedMode.Rule)
                 {
@@ -273,8 +273,8 @@ namespace Netch.Controllers
             SetupBypass();
 
             Instance = new Process();
-            Instance.StartInfo.WorkingDirectory = String.Format("{0}\\bin", Directory.GetCurrentDirectory());
-            Instance.StartInfo.FileName = String.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
+            Instance.StartInfo.WorkingDirectory = string.Format("{0}\\bin", Directory.GetCurrentDirectory());
+            Instance.StartInfo.FileName = string.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
 
             string dns;
             if (Global.Settings.TUNTAP.UseCustomDNS)
@@ -297,11 +297,11 @@ namespace Netch.Controllers
 
             if (server.Type == "Socks5")
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5} -tunName \"{6}\"", server.Hostname, server.Port, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, Global.TUNTAP.Adapter.Name);
+                Instance.StartInfo.Arguments = string.Format("-proxyServer {0}:{1} -tunAddr {2} -tunMask {3} -tunGw {4} -tunDns {5} -tunName \"{6}\"", server.Hostname, server.Port, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, Global.TUNTAP.Adapter.Name);
             }
             else
             {
-                Instance.StartInfo.Arguments = String.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4} -tunName \"{5}\"", Global.Settings.Socks5LocalPort, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, Global.TUNTAP.Adapter.Name);
+                Instance.StartInfo.Arguments = string.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4} -tunName \"{5}\"", Global.Settings.Socks5LocalPort, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, Global.TUNTAP.Adapter.Name);
             }
 
             Instance.StartInfo.CreateNoWindow = true;
@@ -319,7 +319,7 @@ namespace Netch.Controllers
             Instance.BeginOutputReadLine();
             Instance.PriorityClass = ProcessPriorityClass.RealTime;
 
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
 
@@ -362,9 +362,9 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!String.IsNullOrEmpty(e.Data))
+            if (!string.IsNullOrEmpty(e.Data))
             {
-                File.AppendAllText("logging\\tun2socks.log", String.Format("{0}\r\n", e.Data.Trim()));
+                File.AppendAllText("logging\\tun2socks.log", string.Format("{0}\r\n", e.Data.Trim()));
 
                 if (State == Models.State.Starting)
                 {

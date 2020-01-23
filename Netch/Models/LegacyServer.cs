@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Netch.Models
+﻿namespace Netch.Models
 {
     public class LegacyServer
     {
@@ -42,7 +40,7 @@ namespace Netch.Models
         /// <summary>
         ///		用户 ID（V2）
         /// </summary>
-        public string UserID = String.Empty;
+        public string UserID = string.Empty;
 
         /// <summary>
         ///		额外 ID（V2）
@@ -82,17 +80,17 @@ namespace Netch.Models
         /// <summary>
         ///		伪装类型（V2）
         /// </summary>
-        public string FakeType = String.Empty;
+        public string FakeType = string.Empty;
 
         /// <summary>
         ///		伪装域名（V2：HTTP、WebSocket、HTTP/2）
         /// </summary>
-        public string Host = String.Empty;
+        public string Host = string.Empty;
 
         /// <summary>
         ///		传输路径（V2：WebSocket、HTTP/2）
         /// </summary>
-        public string Path = String.Empty;
+        public string Path = string.Empty;
 
         /// <summary>
         ///		QUIC 加密方式（V2）
@@ -102,7 +100,7 @@ namespace Netch.Models
         /// <summary>
         ///		QUIC 加密密钥（V2）
         /// </summary>
-        public string QUICSecret = String.Empty;
+        public string QUICSecret = string.Empty;
 
         /// <summary>
         ///		TLS 底层传输安全（V2）

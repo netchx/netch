@@ -28,7 +28,7 @@ namespace Netch
                 }
 
                 // 预创建目录
-                var directories = new String[] { "mode", "data", "i18n", "logging" };
+                var directories = new[] { "mode", "data", "i18n", "logging" };
                 foreach (var item in directories)
                 {
                     // 检查是否已经存在
