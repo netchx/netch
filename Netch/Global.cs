@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -25,7 +24,7 @@ namespace Netch
             /// <summary>
             ///		SS 加密列表
             /// </summary>
-            public static List<string> SS = new List<string>()
+            public static List<string> SS = new List<string>
             {
                 "rc4-md5",
                 "aes-128-gcm",
@@ -51,7 +50,7 @@ namespace Netch
             /// <summary>
             ///		SSR 加密列表
             /// </summary>
-            public static List<string> SSR = new List<string>()
+            public static List<string> SSR = new List<string>
             {
                 "none",
                 "table",
@@ -79,7 +78,7 @@ namespace Netch
             /// <summary>
             ///		VMess 解密列表
             /// </summary>
-            public static List<string> VMess = new List<string>()
+            public static List<string> VMess = new List<string>
             {
                 "auto",
                 "none",
@@ -90,7 +89,7 @@ namespace Netch
             /// <summary>
             ///		VMess QUIC 加密列表
             /// </summary>
-            public static List<string> VMessQUIC = new List<string>()
+            public static List<string> VMessQUIC = new List<string>
             {
                 "none",
                 "aes-128-gcm",
@@ -101,7 +100,7 @@ namespace Netch
         /// <summary>
 		///		SSR 协议列表
 		/// </summary>
-		public static List<string> Protocols = new List<string>()
+		public static List<string> Protocols = new List<string>
         {
             "origin",
             "verify_deflate",
@@ -114,7 +113,7 @@ namespace Netch
         /// <summary>
         ///		SSR 混淆列表
         /// </summary>
-        public static List<string> OBFSs = new List<string>()
+        public static List<string> OBFSs = new List<string>
         {
             "plain",
             "http_simple",
@@ -125,7 +124,7 @@ namespace Netch
         /// <summary>
         ///		V2Ray 传输协议
         /// </summary>
-        public static List<string> TransferProtocols = new List<string>()
+        public static List<string> TransferProtocols = new List<string>
         {
             "tcp",
             "kcp",
@@ -137,7 +136,7 @@ namespace Netch
         /// <summary>
         ///		V2Ray 伪装类型
         /// </summary>
-        public static List<string> FakeTypes = new List<string>()
+        public static List<string> FakeTypes = new List<string>
         {
             "none",
             "http",
@@ -187,7 +186,7 @@ namespace Netch
             /// <summary>
             ///		组件 ID
             /// </summary>
-            public static string ComponentID = String.Empty;
+            public static string ComponentID = string.Empty;
         }
 
         /// <summary>

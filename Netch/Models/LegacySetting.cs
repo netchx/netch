@@ -45,12 +45,12 @@ namespace Netch.Models
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Models.LegacyServer> Server = new List<Models.LegacyServer>();
+        public List<LegacyServer> Server = new List<LegacyServer>();
 
         /// <summary>
         ///     订阅链接列表
         /// </summary>
-        public List<Models.SubscribeLink> SubscribeLink = new List<Models.SubscribeLink>();
+        public List<SubscribeLink> SubscribeLink = new List<SubscribeLink>();
 
         /// <summary>
         ///		全局绕过 IP 列表

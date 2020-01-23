@@ -18,7 +18,7 @@
                 i++;
             } while ((result /= 1024) > 1024);
 
-            return System.String.Format("{0} {1}", System.Math.Round(result, 2), units[i]);
+            return string.Format("{0} {1}", System.Math.Round(result, 2), units[i]);
         }
     }
 }

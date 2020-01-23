@@ -19,7 +19,7 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="upload">上传</param>
         /// <param name="download">下载</param>
-        public delegate void BandwidthUpdateHandler(long upload, Int64 download);
+        public delegate void BandwidthUpdateHandler(long upload, long download);
 
         /// <summary>
         ///     进程实例
@@ -45,7 +45,7 @@ namespace Netch.Controllers
             }
 
             // 生成驱动文件路径
-            var driver = String.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
+            var driver = string.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
 
             // 检查驱动是否存在
             if (!File.Exists(driver))
@@ -139,9 +139,9 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                fallback = $"-r {result.ToString()}:{server.Port} -p \"{processes}\"";
+                fallback = $"-r {result}:{server.Port} -p \"{processes}\"";
 
-                if (!String.IsNullOrWhiteSpace(server.Username) && !String.IsNullOrWhiteSpace(server.Password))
+                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
                 {
                     fallback += $" -username \"{server.Username}\" -password \"{server.Password}\"";
                 }
@@ -156,7 +156,7 @@ namespace Netch.Controllers
             Instance.BeginErrorReadLine();
 
             var IsFallback = false;
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
 
@@ -219,9 +219,9 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(e.Data))
+            if (!string.IsNullOrWhiteSpace(e.Data))
             {
-                File.AppendAllText("logging\\redirector.log", String.Format("{0}\r\n", e.Data));
+                File.AppendAllText("logging\\redirector.log", string.Format("{0}\r\n", e.Data));
 
                 if (State == Models.State.Starting)
                 {
@@ -250,7 +250,7 @@ namespace Netch.Controllers
 
                             if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
                             {
-                                if (long.TryParse(uploadSplited[1], out long upload) && long.TryParse(downloadSplited[1], out long download))
+                                if (long.TryParse(uploadSplited[1], out var upload) && long.TryParse(downloadSplited[1], out var download))
                                 {
                                     Task.Run(() => OnBandwidthUpdated(upload, download));
                                 }

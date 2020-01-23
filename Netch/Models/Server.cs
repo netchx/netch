@@ -51,7 +51,7 @@ namespace Netch.Models
         /// <summary>
         ///		用户 ID（VMess）
         /// </summary>
-        public string UserID = String.Empty;
+        public string UserID = string.Empty;
 
         /// <summary>
         ///		额外 ID（VMess）
@@ -101,17 +101,17 @@ namespace Netch.Models
         /// <summary>
         ///		伪装类型（VMess）
         /// </summary>
-        public string FakeType = String.Empty;
+        public string FakeType = string.Empty;
 
         /// <summary>
         ///		伪装域名（VMess：HTTP、WebSocket、HTTP/2）
         /// </summary>
-        public string Host = String.Empty;
+        public string Host = string.Empty;
 
         /// <summary>
         ///		传输路径（VMess：WebSocket、HTTP/2）
         /// </summary>
-        public string Path = String.Empty;
+        public string Path = string.Empty;
 
         /// <summary>
         ///		QUIC 加密方式（VMess）
@@ -121,7 +121,7 @@ namespace Netch.Models
         /// <summary>
         ///		QUIC 加密密钥（VMess）
         /// </summary>
-        public string QUICSecret = String.Empty;
+        public string QUICSecret = string.Empty;
 
         /// <summary>
         ///		TLS 底层传输安全（VMess）
@@ -144,7 +144,7 @@ namespace Netch.Models
 		/// <returns>备注</returns>
 		public override string ToString()
         {
-            if (String.IsNullOrWhiteSpace(Remark))
+            if (string.IsNullOrWhiteSpace(Remark))
             {
                 Remark = $"{Hostname}:{Port}";
             }
@@ -179,9 +179,9 @@ namespace Netch.Models
                 }
 
                 var list = new Task<int>[3];
-                for (int i = 0; i < 3; i++)
+                for (var i = 0; i < 3; i++)
                 {
-                    list[i] = Task.Run<int>(() =>
+                    list[i] = Task.Run(() =>
                     {
                         try
                         {
@@ -190,7 +190,7 @@ namespace Netch.Models
                                 var watch = new Stopwatch();
                                 watch.Start();
 
-                                var task = client.BeginConnect(new IPEndPoint(destination, Port), (result) =>
+                                var task = client.BeginConnect(new IPEndPoint(destination, Port), result =>
                                 {
                                     watch.Stop();
                                 }, 0);

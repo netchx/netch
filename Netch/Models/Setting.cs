@@ -107,12 +107,12 @@ namespace Netch.Models
         /// <summary>
         ///     订阅链接列表
         /// </summary>
-        public List<Models.SubscribeLink> SubscribeLink = new List<Models.SubscribeLink>();
+        public List<SubscribeLink> SubscribeLink = new List<SubscribeLink>();
 
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Models.Server> Server = new List<Models.Server>();
+        public List<Server> Server = new List<Server>();
 
         /// <summary>
         ///		全局绕过 IP 列表

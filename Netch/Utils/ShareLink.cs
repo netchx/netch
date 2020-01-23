@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Netch.Models;
+using Netch.Models.SS;
+using Newtonsoft.Json;
 
 namespace Netch.Utils
 {
@@ -18,15 +22,61 @@ namespace Netch.Utils
             return Encoding.UTF8.GetString(Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
         }
 
-        public static List<Models.Server> Parse(string text)
+        public static List<Server> Parse(string text)
         {
-            var list = new List<Models.Server>();
+            var list = new List<Server>();
+            try
+            {
+                try
+                {
+                    var ssServers = JsonConvert.DeserializeObject<List<ShadowsocksServer>>(text);
+                    list.AddRange(ssServers.Select(shadowsocksServer => new Server
+                    {
+                        Type = "SS",
+                        Hostname = shadowsocksServer.server,
+                        Port = shadowsocksServer.server_port,
+                        EncryptMethod = shadowsocksServer.method,
+                        Password = shadowsocksServer.password,
+                        Remark = shadowsocksServer.remarks,
+                        Plugin = shadowsocksServer.plugin,
+                        PluginOption = shadowsocksServer.plugin_opts
+                    }));
+                }
+                catch (JsonReaderException)
+                {
+                    foreach (var line in text.GetLines())
+                    {
+                        var servers = ParseLine(line);
+                        if (line != null)
+                        {
+                            list.AddRange(servers);
+                        }
+                    }
+                }
+
+                if (list.Count == 0)
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.Info(e.ToString());
+                return null;
+            }
+
+            return list;
+        }
+
+        private static IEnumerable<Server> ParseLine(string text)
+        {
+            var list = new List<Server>();
 
             try
             {
                 if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
                 {
-                    var data = new Models.Server();
+                    var data = new Server();
                     data.Type = "Socks5";
 
                     var dict = new Dictionary<string, string>();
@@ -44,11 +94,11 @@ namespace Netch.Utils
 
                     data.Hostname = dict["server"];
                     data.Port = int.Parse(dict["port"]);
-                    if (dict.ContainsKey("user") && !String.IsNullOrWhiteSpace(dict["user"]))
+                    if (dict.ContainsKey("user") && !string.IsNullOrWhiteSpace(dict["user"]))
                     {
                         data.Username = dict["user"];
                     }
-                    if (dict.ContainsKey("pass") && !String.IsNullOrWhiteSpace(dict["pass"]))
+                    if (dict.ContainsKey("pass") && !string.IsNullOrWhiteSpace(dict["pass"]))
                     {
                         data.Password = dict["pass"];
                     }
@@ -57,7 +107,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ss://"))
                 {
-                    var data = new Models.Server();
+                    var data = new Server();
                     data.Type = "SS";
                     /*
                     try
@@ -179,23 +229,27 @@ namespace Netch.Utils
                             if (match.Success)
                             {
                                 var plugins = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin"));
-                                var plugin = plugins.Substring(0, plugins.IndexOf(";"));
-                                var pluginopts = plugins.Substring(plugins.IndexOf(";") + 1);
-                                if (plugin == "obfs-local" || plugin == "simple-obfs")
+                                if (plugins != null)
                                 {
-                                    plugin = "simple-obfs";
-                                    if (!pluginopts.Contains("obfs="))
-                                        pluginopts = "obfs=http;obfs-host=" + pluginopts;
-                                }
-                                else if (plugin == "simple-obfs-tls")
-                                {
-                                    plugin = "simple-obfs";
-                                    if (!pluginopts.Contains("obfs="))
-                                        pluginopts = "obfs=tls;obfs-host=" + pluginopts;
+                                    var plugin = plugins.Substring(0, plugins.IndexOf(";", StringComparison.Ordinal));
+                                    var pluginopts = plugins.Substring(plugins.IndexOf(";", StringComparison.Ordinal) + 1);
+                                    if (plugin == "obfs-local" || plugin == "simple-obfs")
+                                    {
+                                        plugin = "simple-obfs";
+                                        if (!pluginopts.Contains("obfs="))
+                                            pluginopts = "obfs=http;obfs-host=" + pluginopts;
+                                    }
+                                    else if (plugin == "simple-obfs-tls")
+                                    {
+                                        plugin = "simple-obfs";
+                                        if (!pluginopts.Contains("obfs="))
+                                            pluginopts = "obfs=tls;obfs-host=" + pluginopts;
+                                    }
+
+                                    data.Plugin = plugin;
+                                    data.PluginOption = pluginopts;
                                 }
 
-                                data.Plugin = plugin;
-                                data.PluginOption = pluginopts;
                                 text = match.Groups["data"].Value;
                             }
                             else
@@ -243,7 +297,7 @@ namespace Netch.Utils
 
                         if (!Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {
-                            Logging.Info(String.Format("不支持的 SS 加密方式：{0}", data.EncryptMethod));
+                            Logging.Info(string.Format("不支持的 SS 加密方式：{0}", data.EncryptMethod));
                             return null;
                         }
 
@@ -256,20 +310,20 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssd://"))
                 {
-                    var json = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
+                    var json = JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
 
                     foreach (var server in json.servers)
                     {
-                        var data = new Models.Server();
+                        var data = new Server();
                         data.Type = "SS";
 
                         data.Remark = server.remarks;
                         data.Hostname = server.server;
-                        data.Port = (server.port != 0) ? server.port : json.port;
-                        data.Password = (server.password != null) ? server.password : json.password;
-                        data.EncryptMethod = (server.encryption != null) ? server.encryption : json.encryption;
-                        data.Plugin = (String.IsNullOrEmpty(json.plugin)) ? (String.IsNullOrEmpty(server.plugin) ? null : server.plugin) : json.plugin;
-                        data.PluginOption = (String.IsNullOrEmpty(json.plugin_options)) ? (String.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options) : json.plugin_options;
+                        data.Port = server.port != 0 ? server.port : json.port;
+                        data.Password = server.password != null ? server.password : json.password;
+                        data.EncryptMethod = server.encryption != null ? server.encryption : json.encryption;
+                        data.Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin;
+                        data.PluginOption = string.IsNullOrEmpty(json.plugin_options) ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options : json.plugin_options;
 
                         if (Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {
@@ -279,7 +333,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssr://"))
                 {
-                    var data = new Models.Server();
+                    var data = new Server();
                     data.Type = "SSR";
 
                     text = text.Substring(6);
@@ -374,14 +428,14 @@ namespace Netch.Utils
                         data.EncryptMethod = match.Groups["method"].Value;
                         if (!Global.EncryptMethods.SSR.Contains(data.EncryptMethod))
                         {
-                            Logging.Info(String.Format("不支持的 SSR 加密方式：{0}", data.EncryptMethod));
+                            Logging.Info(string.Format("不支持的 SSR 加密方式：{0}", data.EncryptMethod));
                             return null;
                         }
 
                         data.Protocol = match.Groups["protocol"].Value;
                         if (!Global.Protocols.Contains(data.Protocol))
                         {
-                            Logging.Info(String.Format("不支持的 SSR 协议：{0}", data.Protocol));
+                            Logging.Info(string.Format("不支持的 SSR 协议：{0}", data.Protocol));
                             return null;
                         }
 
@@ -392,7 +446,7 @@ namespace Netch.Utils
                         }
                         if (!Global.OBFSs.Contains(data.OBFS))
                         {
-                            Logging.Info(String.Format("不支持的 SSR 混淆：{0}", data.OBFS));
+                            Logging.Info(string.Format("不支持的 SSR 混淆：{0}", data.OBFS));
                             return null;
                         }
 
@@ -430,11 +484,11 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("vmess://"))
                 {
-                    var data = new Models.Server();
+                    var data = new Server();
                     data.Type = "VMess";
 
                     text = text.Substring(8);
-                    var vmess = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.VMess>(URLSafeBase64Decode(text));
+                    var vmess = JsonConvert.DeserializeObject<VMess>(URLSafeBase64Decode(text));
 
                     data.Remark = vmess.ps;
                     data.Hostname = vmess.add;
@@ -445,14 +499,14 @@ namespace Netch.Utils
                     data.TransferProtocol = vmess.net;
                     if (!Global.TransferProtocols.Contains(data.TransferProtocol))
                     {
-                        Logging.Info(String.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
+                        Logging.Info(string.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
                         return null;
                     }
 
                     data.FakeType = vmess.type;
                     if (!Global.FakeTypes.Contains(data.FakeType))
                     {
-                        Logging.Info(String.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
+                        Logging.Info(string.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
                         return null;
                     }
 
@@ -469,14 +523,12 @@ namespace Netch.Utils
                     {
                         if (!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
                         {
-                            Logging.Info(String.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
+                            Logging.Info(string.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
                             return null;
                         }
-                        else
-                        {
-                            data.QUICSecure = vmess.host;
-                            data.QUICSecret = vmess.path;
-                        }
+
+                        data.QUICSecure = vmess.host;
+                        data.QUICSecret = vmess.path;
 
                     }
                     else
@@ -492,13 +544,13 @@ namespace Netch.Utils
                     }
                     else
                     {
-                        if (vmess.mux.enabled is Boolean)
+                        if (vmess.mux.enabled is bool enabled)
                         {
-                            data.UseMux = (bool)vmess.mux.enabled;
+                            data.UseMux = enabled;
                         }
-                        else if (vmess.mux.enabled is String)
+                        else if (vmess.mux.enabled is string muxEnabled)
                         {
-                            data.UseMux = (string)vmess.mux.enabled == "true";  // 针对使用字符串当作布尔值的情况
+                            data.UseMux = muxEnabled == "true";  // 针对使用字符串当作布尔值的情况
                         }
                         else
                         {
@@ -513,8 +565,8 @@ namespace Netch.Utils
                 else if (text.StartsWith("Netch://"))
                 {
                     text = text.Substring(8);
-                    var NetchLink = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Server>(URLSafeBase64Decode(text));
-                    if (!String.IsNullOrEmpty(NetchLink.Hostname) || NetchLink.Port > 65536 || NetchLink.Port > 0)
+                    var NetchLink = JsonConvert.DeserializeObject<Server>(URLSafeBase64Decode(text));
+                    if (!string.IsNullOrEmpty(NetchLink.Hostname) || NetchLink.Port > 65536 || NetchLink.Port > 0)
                     {
                         return null;
                     }
@@ -572,12 +624,6 @@ namespace Netch.Utils
                             return null;
                     }
                     list.Add(NetchLink);
-                }
-
-                else
-                {
-                    System.Windows.Forms.MessageBox.Show("未找到可导入的链接！", "错误", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Exclamation);
-                    return null;
                 }
             }
             catch (Exception e)

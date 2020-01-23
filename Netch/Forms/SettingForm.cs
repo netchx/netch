@@ -133,7 +133,7 @@ namespace Netch.Forms
 
             try
             {
-                var Socks5Port = Int32.Parse(Socks5PortTextBox.Text);
+                var Socks5Port = int.Parse(Socks5PortTextBox.Text);
 
                 if (Socks5Port > 0 && Socks5Port < 65536)
                 {
@@ -154,7 +154,7 @@ namespace Netch.Forms
 
             try
             {
-                var HTTPPort = Int32.Parse(HTTPPortTextBox.Text);
+                var HTTPPort = int.Parse(HTTPPortTextBox.Text);
 
                 if (HTTPPort > 0 && HTTPPort < 65536)
                 {
@@ -175,7 +175,7 @@ namespace Netch.Forms
 
             try
             {
-                var RedirectorPort = Int32.Parse(RedirectorTextBox.Text);
+                var RedirectorPort = int.Parse(RedirectorTextBox.Text);
 
                 if (RedirectorPort > 0 && RedirectorPort < 65536)
                 {
@@ -226,7 +226,7 @@ namespace Netch.Forms
                 var DNS = "";
                 foreach (var ip in Global.Settings.TUNTAP.DNS)
                 {
-                    DNS += ip.ToString();
+                    DNS += ip;
                     DNS += ',';
                 }
                 DNS = DNS.Trim();

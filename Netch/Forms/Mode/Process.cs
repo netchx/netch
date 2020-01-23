@@ -17,11 +17,11 @@ namespace Netch.Forms.Mode
 		///		扫描目录
 		/// </summary>
 		/// <param name="DirName">路径</param>
-		public void ScanDirectory(String DirName)
+		public void ScanDirectory(string DirName)
         {
             try
             {
-                DirectoryInfo RDirInfo = new DirectoryInfo(DirName);
+                var RDirInfo = new DirectoryInfo(DirName);
                 if (!RDirInfo.Exists)
                 {
                     return;
@@ -32,17 +32,17 @@ namespace Netch.Forms.Mode
                 return;
             }
 
-            System.Collections.Generic.Stack<string> DirStack = new System.Collections.Generic.Stack<string>();
+            var DirStack = new System.Collections.Generic.Stack<string>();
             DirStack.Push(DirName);
 
             while (DirStack.Count > 0)
             {
-                DirectoryInfo DirInfo = new DirectoryInfo(DirStack.Pop());
-                foreach (DirectoryInfo DirChildInfo in DirInfo.GetDirectories())
+                var DirInfo = new DirectoryInfo(DirStack.Pop());
+                foreach (var DirChildInfo in DirInfo.GetDirectories())
                 {
                     DirStack.Push(DirChildInfo.FullName);
                 }
-                foreach (FileInfo FileChildInfo in DirInfo.GetFiles())
+                foreach (var FileChildInfo in DirInfo.GetFiles())
                 {
                     if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
                     {
@@ -92,7 +92,7 @@ namespace Netch.Forms.Mode
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
             {
                 var process = ProcessNameTextBox.Text;
                 if (!process.EndsWith(".exe"))
@@ -105,7 +105,7 @@ namespace Netch.Forms.Mode
                     RuleListBox.Items.Add(process);
                 }
 
-                ProcessNameTextBox.Text = String.Empty;
+                ProcessNameTextBox.Text = string.Empty;
             }
             else
             {
@@ -146,7 +146,7 @@ namespace Netch.Forms.Mode
 
             Utils.Configuration.Save();
 
-            if (!String.IsNullOrWhiteSpace(RemarkTextBox.Text))
+            if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
             {
                 var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
 
@@ -159,7 +159,7 @@ namespace Netch.Forms.Mode
 
                 if (RuleListBox.Items.Count != 0)
                 {
-                    var mode = new Models.Mode()
+                    var mode = new Models.Mode
                     {
                         BypassChina = false,
                         FileName = ModeFilename,
@@ -170,7 +170,7 @@ namespace Netch.Forms.Mode
                     var text = $"# {RemarkTextBox.Text}, 0\r\n";
                     foreach (var item in RuleListBox.Items)
                     {
-                        var process = item as String;
+                        var process = item as string;
                         mode.Rule.Add(process);
                         text += process + "\r\n";
                     }

@@ -1,5 +1,4 @@
-﻿using Netch.Controllers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -9,6 +8,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
 
 namespace Netch.Forms
 {
@@ -27,12 +27,12 @@ namespace Netch.Forms
         /// <summary>
         ///     上一次上传的流量
         /// </summary>
-        public long LastUploadBandwidth = 0;
+        public long LastUploadBandwidth;
 
         /// <summary>
         ///     上一次下载的流量
         /// </summary>
-        public long LastDownloadBandwidth = 0;
+        public long LastDownloadBandwidth;
 
         /// <summary>
         ///     是否第一次打开
@@ -142,7 +142,7 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 2)
                                 {
-                                    if (int.TryParse(splited[1], out int result))
+                                    if (int.TryParse(splited[1], out var result))
                                     {
                                         mode.Type = result;
                                     }
@@ -155,9 +155,9 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 3)
                                 {
-                                    if (int.TryParse(splited[2], out int result))
+                                    if (int.TryParse(splited[2], out var result))
                                     {
-                                        mode.BypassChina = (result == 1);
+                                        mode.BypassChina = result == 1;
                                     }
                                     else
                                     {
@@ -168,7 +168,7 @@ namespace Netch.Forms
                             }
                             else
                             {
-                                if (!text.StartsWith("#") && !String.IsNullOrWhiteSpace(text))
+                                if (!text.StartsWith("#") && !string.IsNullOrWhiteSpace(text))
                                 {
                                     mode.Rule.Add(text.Trim());
                                 }
@@ -186,7 +186,7 @@ namespace Netch.Forms
                 }
 
                 var array = Global.ModeFiles.ToArray();
-                Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+                Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
 
                 ModeComboBox.Items.AddRange(array);
 
@@ -199,7 +199,7 @@ namespace Netch.Forms
             ModeComboBox.Items.Clear();
             Global.ModeFiles.Add(mode);
             var array = Global.ModeFiles.ToArray();
-            Array.Sort(array, (a, b) => String.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
             ModeComboBox.Items.AddRange(array);
 
             SelectLastMode();
@@ -389,21 +389,17 @@ namespace Netch.Forms
         private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var texts = Clipboard.GetText();
-            if (!String.IsNullOrWhiteSpace(texts))
+            if (!string.IsNullOrWhiteSpace(texts))
             {
-                using (var sr = new StringReader(texts))
+                var result = Utils.ShareLink.Parse(texts);
+
+                if (result != null)
                 {
-                    string text;
-
-                    while ((text = sr.ReadLine()) != null)
-                    {
-                        var result = Utils.ShareLink.Parse(text);
-
-                        if (result != null)
-                        {
-                            Global.Settings.Server.AddRange(result);
-                        }
-                    }
+                    Global.Settings.Server.AddRange(result);
+                }
+                else
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Import servers error!"), Utils.i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
 
                 InitServer();
@@ -413,37 +409,37 @@ namespace Netch.Forms
 
         private void AddSocks5ServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.Socks5()).Show();
+            new Server.Socks5().Show();
             Hide();
         }
 
         private void AddShadowsocksServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.Shadowsocks()).Show();
+            new Server.Shadowsocks().Show();
             Hide();
         }
 
         private void AddShadowsocksRServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.ShadowsocksR()).Show();
+            new Server.ShadowsocksR().Show();
             Hide();
         }
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new Server.VMess()).Show();
+            new Server.VMess().Show();
             Hide();
         }
 
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
-            (new Mode.Process()).Show();
+            new Mode.Process().Show();
             Hide();
         }
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            (new SubscribeForm()).Show();
+            new SubscribeForm().Show();
             Hide();
         }
 
@@ -465,11 +461,12 @@ namespace Netch.Forms
             {
                 DeletePictureBox.Enabled = false;
 
+                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
                 Task.Run(() =>
                 {
                     if (Global.Settings.UseProxyToUpdateSubscription)
                     {
-                        var mode = new Models.Mode()
+                        var mode = new Models.Mode
                         {
                             Remark = "ProxyUpdate",
                             Type = 5
@@ -479,69 +476,59 @@ namespace Netch.Forms
                     }
                     foreach (var item in Global.Settings.SubscribeLink)
                     {
-                        using (var client = new Override.WebClient())
+                        using var client = new Override.WebClient();
+                        try
                         {
+                            if (!string.IsNullOrEmpty(item.UserAgent))
+                            {
+                                client.Headers.Add("User-Agent", item.UserAgent);
+                            }
+                            else
+                            {
+                                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+                            }
+
+                            if (Global.Settings.UseProxyToUpdateSubscription)
+                            {
+                                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                            }
+
+                            var response = client.DownloadString(item.Link);
+
                             try
                             {
-                                if (!String.IsNullOrEmpty(item.UserAgent))
-                                {
-                                    client.Headers.Add("User-Agent", item.UserAgent);
-                                }
-                                else
-                                {
-                                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
-                                }
-
-                                if (Global.Settings.UseProxyToUpdateSubscription)
-                                {
-                                    client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-                                }
-
-                                var response = client.DownloadString(item.Link);
-
-                                try
-                                {
-                                    response = Utils.ShareLink.URLSafeBase64Decode(response);
-                                }
-                                catch (Exception)
-                                {
-                                    // 跳过
-                                }
-
-                                var list = new List<Models.Server>();
-                                foreach (var server in Global.Settings.Server)
-                                {
-                                    if (server.Group != item.Remark)
-                                    {
-                                        list.Add(server);
-                                    }
-                                }
-                                Global.Settings.Server = list;
-
-                                using (var sr = new StringReader(response))
-                                {
-                                    string text;
-
-                                    while ((text = sr.ReadLine()) != null)
-                                    {
-                                        var result = Utils.ShareLink.Parse(text);
-
-                                        if (result != null)
-                                        {
-                                            foreach (var x in result)
-                                            {
-                                                x.Group = item.Remark;
-                                            }
-
-                                            Global.Settings.Server.AddRange(result);
-                                        }
-                                    }
-                                }
+                                response = Utils.ShareLink.URLSafeBase64Decode(response);
                             }
                             catch (Exception)
                             {
-                                continue;
+                                // 跳过
                             }
+
+                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                            var result = Utils.ShareLink.Parse(response);
+
+                            if (result != null)
+                            {
+                                foreach (var x in result)
+                                {
+                                    x.Group = item.Remark;
+                                }
+                                Global.Settings.Server.AddRange(result);
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update {1} server(s) from {0}"), item.Remark, result.Count),
+                                        ToolTipIcon.Info);
+                            }
+                            else
+                            {
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update servers error from {0}"), item.Remark),
+                                        ToolTipIcon.Error);
+                            }
+                        }
+                        catch (Exception)
+                        {
                         }
                     }
 
@@ -553,11 +540,19 @@ namespace Netch.Forms
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         MainController.Stop();
                     }
-                    MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Utils.Configuration.Save();
+                }).ContinueWith(task =>
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
+                    }));
                 });
 
-                MessageBox.Show(Utils.i18N.Translate("Updating in the background"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name,
+                        Utils.i18N.Translate("Updating in the background"),
+                        ToolTipIcon.Info);
             }
             else
             {
@@ -632,7 +627,7 @@ namespace Netch.Forms
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex.ToString(), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex, Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
@@ -684,16 +679,16 @@ namespace Netch.Forms
                 switch (Global.Settings.Server[ServerComboBox.SelectedIndex].Type)
                 {
                     case "Socks5":
-                        (new Server.Socks5(ServerComboBox.SelectedIndex)).Show();
+                        new Server.Socks5(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SS":
-                        (new Server.Shadowsocks(ServerComboBox.SelectedIndex)).Show();
+                        new Server.Shadowsocks(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SSR":
-                        (new Server.ShadowsocksR(ServerComboBox.SelectedIndex)).Show();
+                        new Server.ShadowsocksR(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "VMess":
-                        (new Server.VMess(ServerComboBox.SelectedIndex)).Show();
+                        new Server.VMess(ServerComboBox.SelectedIndex).Show();
                         break;
                     default:
                         return;
@@ -719,7 +714,7 @@ namespace Netch.Forms
 
                 if (ServerComboBox.Items.Count > 0)
                 {
-                    ServerComboBox.SelectedIndex = (index != 0) ? index - 1 : index;
+                    ServerComboBox.SelectedIndex = index != 0 ? index - 1 : index;
                 }
                 Utils.Configuration.Save();
             }
@@ -902,10 +897,8 @@ namespace Netch.Forms
                     return;
                 }
                 // 否则直接调用停止按钮的方法
-                else
-                {
-                    ControlButton_Click(sender, e);
-                }
+
+                ControlButton_Click(sender, e);
             }
 
             SaveConfigs();
@@ -937,7 +930,7 @@ namespace Netch.Forms
 
         private void AboutToolStripButton_Click(object sender, EventArgs e)
         {
-            (new AboutForm()).Show();
+            new AboutForm().Show();
             Hide();
         }
 
@@ -955,21 +948,19 @@ namespace Netch.Forms
 
         private void ProfileButton_Click(object sender, EventArgs e)
         {
-            int index = ProfileButtons.IndexOf((Button)sender);
+            var index = ProfileButtons.IndexOf((Button)sender);
 
             //Utils.Logging.Info(String.Format("Button no.{0} clicked", index));
 
-            if (Control.ModifierKeys == Keys.Control)
+            if (ModifierKeys == Keys.Control)
             {
                 if (ServerComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
                 }
                 else if (ModeComboBox.SelectedIndex == -1)
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
                 }
                 else
                 {
@@ -984,7 +975,7 @@ namespace Netch.Forms
                     ProfileNameText.Text = LoadProfile(index);
 
                     // start the profile
-                    bool need2ndStart = true;
+                    var need2ndStart = true;
                     if (State == Models.State.Waiting || State == Models.State.Stopped)
                     {
                         need2ndStart = false;
@@ -1023,7 +1014,7 @@ namespace Netch.Forms
 
         public void InitProfile()
         {
-            int num_profile = 4;
+            var num_profile = 4;
             ProfileTable.ColumnCount = num_profile;
 
             while (Global.Settings.profiles.Count < num_profile)
@@ -1032,12 +1023,12 @@ namespace Netch.Forms
             }
 
             // buttons
-            for (int i = 0; i < num_profile; ++i)
+            for (var i = 0; i < num_profile; ++i)
             {
                 var b = new Button();
                 ProfileTable.Controls.Add(b, i, 0);
                 b.Location = new Point(i * 100, 0);
-                b.Click += new EventHandler(ProfileButton_Click);
+                b.Click += ProfileButton_Click;
                 b.Dock = DockStyle.Fill;
                 b.Text = "None";
                 ProfileButtons.Add(b);
@@ -1053,25 +1044,25 @@ namespace Netch.Forms
             }
 
             // equal column
-            this.ProfileTable.ColumnStyles.Clear();
-            for (int i = 1; i <= this.ProfileTable.RowCount; i++)
+            ProfileTable.ColumnStyles.Clear();
+            for (var i = 1; i <= ProfileTable.RowCount; i++)
             {
                 ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
             }
-            for (int i = 1; i <= this.ProfileTable.ColumnCount; i++)
+            for (var i = 1; i <= ProfileTable.ColumnCount; i++)
             {
                 ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
             }
         }
 
-        private String LoadProfile(int index)
+        private string LoadProfile(int index)
         {
-            Models.Profile p = Global.Settings.profiles[index];
+            var p = Global.Settings.profiles[index];
 
             if (p.IsDummy)
                 throw new Exception("Profile not found.");
 
-            bool result = false;
+            var result = false;
 
             foreach (Models.Server server in ServerComboBox.Items)
             {
@@ -1107,7 +1098,7 @@ namespace Netch.Forms
         {
             var selectedServer = (Models.Server)ServerComboBox.SelectedItem;
             var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
-            String name = ProfileNameText.Text;
+            var name = ProfileNameText.Text;
 
             Global.Settings.profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
 

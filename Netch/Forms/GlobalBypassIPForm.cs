@@ -34,11 +34,11 @@ namespace Netch.Forms
 
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (!String.IsNullOrEmpty(IPTextBox.Text))
+            if (!string.IsNullOrEmpty(IPTextBox.Text))
             {
                 if (IPAddress.TryParse(IPTextBox.Text, out var address))
                 {
-                    IPListBox.Items.Add(String.Format("{0}/{1}", address, PrefixComboBox.SelectedItem));
+                    IPListBox.Items.Add(string.Format("{0}/{1}", address, PrefixComboBox.SelectedItem));
                 }
                 else
                 {
@@ -68,7 +68,7 @@ namespace Netch.Forms
             Global.Settings.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
             {
-                Global.Settings.BypassIPs.Add(ip as String);
+                Global.Settings.BypassIPs.Add(ip as string);
             }
 
             Utils.Configuration.Save();

@@ -33,7 +33,7 @@ namespace Netch.Controllers
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
 
-            if (!String.IsNullOrWhiteSpace(server.Plugin) && !String.IsNullOrWhiteSpace(server.PluginOption))
+            if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
             {
                 Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"";
             }
@@ -54,7 +54,7 @@ namespace Netch.Controllers
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
 
@@ -97,7 +97,7 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!String.IsNullOrWhiteSpace(e.Data))
+            if (!string.IsNullOrWhiteSpace(e.Data))
             {
                 // File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
 
