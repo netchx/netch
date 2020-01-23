@@ -19,6 +19,7 @@
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
+    "Import servers error!": "未找到可导入的链接！",
     "Add [Socks5] Server": "添加 [Socks5] 服务器",
     "Add [Shadowsocks] Server": "添加 [Shadowsocks] 服务器",
     "Add [ShadowsocksR] Server": "添加 [ShadowsocksR] 服务器",
@@ -56,7 +57,8 @@
     "Update Servers From Subscribe Links": "从订阅链接更新服务器",
     "No subscription link": "没有任何一条订阅链接",
     "Updating in the background": "正在后台更新中",
-    "Update completed": "更新完成",
+    "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
+    "Update servers error from {0}": "从 {0} 更新服务器失败",
 
     "Options": "选项",
     "Restart Service": "重启服务",

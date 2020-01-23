@@ -397,6 +397,10 @@ namespace Netch.Forms
                 {
                     Global.Settings.Server.AddRange(result);
                 }
+                else
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Import servers error!"), Utils.i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
 
                 InitServer();
                 Utils.Configuration.Save();
@@ -457,6 +461,7 @@ namespace Netch.Forms
             {
                 DeletePictureBox.Enabled = false;
 
+                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
                 Task.Run(() =>
                 {
                     if (Global.Settings.UseProxyToUpdateSubscription)
@@ -471,51 +476,60 @@ namespace Netch.Forms
                     }
                     foreach (var item in Global.Settings.SubscribeLink)
                     {
-                        using (var client = new Override.WebClient())
+                        using var client = new Override.WebClient();
+                        try
                         {
+                            if (!String.IsNullOrEmpty(item.UserAgent))
+                            {
+                                client.Headers.Add("User-Agent", item.UserAgent);
+                            }
+                            else
+                            {
+                                client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+                            }
+
+                            if (Global.Settings.UseProxyToUpdateSubscription)
+                            {
+                                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                            }
+
+                            var response = client.DownloadString(item.Link);
+
                             try
                             {
-                                if (!String.IsNullOrEmpty(item.UserAgent))
-                                {
-                                    client.Headers.Add("User-Agent", item.UserAgent);
-                                }
-                                else
-                                {
-                                    client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
-                                }
-
-                                if (Global.Settings.UseProxyToUpdateSubscription)
-                                {
-                                    client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-                                }
-
-                                var response = client.DownloadString(item.Link);
-
-                                try
-                                {
-                                    response = Utils.ShareLink.URLSafeBase64Decode(response);
-                                }
-                                catch (Exception)
-                                {
-                                    // 跳过
-                                }
-
-                                Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                                var result = Utils.ShareLink.Parse(response);
-
-                                if (result != null)
-                                {
-                                    foreach (var x in result)
-                                    {
-                                        x.Group = item.Remark;
-                                    }
-                                    Global.Settings.Server.AddRange(result);
-                                }
+                                response = Utils.ShareLink.URLSafeBase64Decode(response);
                             }
                             catch (Exception)
                             {
-                                continue;
+                                // 跳过
                             }
+
+                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                            var result = Utils.ShareLink.Parse(response);
+
+                            if (result != null)
+                            {
+                                foreach (var x in result)
+                                {
+                                    x.Group = item.Remark;
+                                }
+                                Global.Settings.Server.AddRange(result);
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update {1} server(s) from {0}"), item.Remark, result.Count),
+                                        ToolTipIcon.Info);
+                            }
+                            else
+                            {
+                                NotifyIcon.ShowBalloonTip(5,
+                                        UpdateChecker.Name,
+                                        string.Format(Utils.i18N.Translate("Update servers error from {0}"), item.Remark),
+                                        ToolTipIcon.Error);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            continue;
                         }
                     }
 
@@ -527,11 +541,19 @@ namespace Netch.Forms
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         MainController.Stop();
                     }
-                    MessageBox.Show(this, Utils.i18N.Translate("Update completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     Utils.Configuration.Save();
+                }).ContinueWith(task =>
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
+                    }));
                 });
 
-                MessageBox.Show(Utils.i18N.Translate("Updating in the background"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name,
+                        Utils.i18N.Translate("Updating in the background"),
+                        ToolTipIcon.Info);
             }
             else
             {
