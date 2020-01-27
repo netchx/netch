@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Controllers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -8,7 +9,6 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Controllers;
 
 namespace Netch.Forms
 {
@@ -297,6 +297,7 @@ namespace Netch.Forms
             AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate(AddVMessServerToolStripMenuItem.Text);
             ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
             CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
+            ManageProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(ManageProcessModeToolStripMenuItem.Text);
             SubscribeToolStripMenuItem.Text = Utils.i18N.Translate(SubscribeToolStripMenuItem.Text);
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
@@ -435,6 +436,11 @@ namespace Netch.Forms
         {
             new Mode.Process().Show();
             Hide();
+        }
+
+        private void ManageProcessModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.Utils.OpenDir(@"mode");
         }
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -944,7 +950,6 @@ namespace Netch.Forms
             LastDownloadBandwidth = download;
             Refresh();
         }
-
 
         private void ProfileButton_Click(object sender, EventArgs e)
         {
