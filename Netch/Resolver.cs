@@ -1,19 +1,19 @@
-﻿using System;
+﻿using DNS.Protocol;
+using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Netch
 {
     public class Resolver : DNS.Client.RequestResolver.IRequestResolver
     {
-        public Task<DNS.Protocol.IResponse> Resolve(DNS.Protocol.IRequest request, CancellationToken cancellationToken = default)
+        public Task<IResponse> Resolve(IRequest request)
         {
-            DNS.Protocol.IResponse response = DNS.Protocol.Response.FromRequest(request);
+            IResponse response = Response.FromRequest(request);
 
             foreach (var question in response.Questions)
             {
-                if (question.Type == DNS.Protocol.RecordType.A)
+                if (question.Type == RecordType.A)
                 {
                     var client = new DnsClient.LookupClient(DnsClient.NameServer.GooglePublicDns);
                     client.UseTcpOnly = true;
@@ -32,7 +32,7 @@ namespace Netch
                         // 跳过
                     }
                 }
-                else if (question.Type == DNS.Protocol.RecordType.AAAA)
+                else if (question.Type == RecordType.AAAA)
                 {
                     var client = new DnsClient.LookupClient(DnsClient.NameServer.GooglePublicDns);
                     client.UseTcpOnly = true;
