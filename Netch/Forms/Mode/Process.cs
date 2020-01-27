@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.IO;
 using System.Windows.Forms;
 
@@ -115,9 +116,16 @@ namespace Netch.Forms.Mode
 
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            var dialog = new FolderSelect.FolderSelectDialog();
-            dialog.Title = Utils.i18N.Translate("Select a folder");
-            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()))
+            var dialog = new CommonOpenFileDialog
+            {
+                IsFolderPicker = true,
+                Multiselect = false,
+                Title = Utils.i18N.Translate("Select a folder"),
+                AddToMostRecentlyUsedList = false,
+                EnsurePathExists = true,
+                NavigateToShortcut = true
+            };
+            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
                 MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

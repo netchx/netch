@@ -4,6 +4,7 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net48</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <StartupObject>Netch.Netch</StartupObject>
     <ApplicationManifest>App.manifest</ApplicationManifest>
@@ -52,9 +53,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="DNS" Version="5.0.0" />
+    <PackageReference Include="DnsClient" Version="1.2.0" />
     <PackageReference Include="ini-parser" Version="2.5.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Buffers" Version="4.5.0" />
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
