@@ -36,7 +36,10 @@ namespace Netch.Controllers
 
                 if (mode.Type != 5)
                 {
+                    NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
+
                     // HTTP 系统代理模式，启动系统代理
+                    /*
                     using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
                     {
                         registry.SetValue("ProxyEnable", 1);
@@ -45,6 +48,7 @@ namespace Netch.Controllers
                         Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
                         Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
                     }
+                    */
                 }
             }
             catch (Exception e)
@@ -72,6 +76,9 @@ namespace Netch.Controllers
                     Utils.Logging.Info(e.ToString());
                 }
 
+                NativeMethods.SetDIRECT();
+
+                /*
                 using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
                 {
                     registry.SetValue("ProxyEnable", 0);
@@ -80,6 +87,7 @@ namespace Netch.Controllers
                     Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
                     Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
                 }
+                */
             }
             catch (Exception e)
             {
