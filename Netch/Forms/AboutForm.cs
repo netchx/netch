@@ -35,7 +35,7 @@ namespace Netch.Forms
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
         {
-            Process.Start("https://to.kache.moe");
+            Process.Start("https://www.mansora.co");
         }
     }
 }
