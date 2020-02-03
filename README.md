@@ -23,7 +23,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 开发不易，以下为恰饭时间
 
 [![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
-[![Across-GFW](docs/sponsor/across-gfw.jpg)](https://across-gfw.com/register?aff=4739)
+[![Across-GFW](docs/sponsor/across-gfw.jpg)](https://geckoiplc.com/register?aff=4739)
 
 这是我所选择的服务器提供商，IPLC 专线翻墙、稳定、速度快、价格便宜。欢迎大家使用我的推广链接前去注册：[这里](https://across-gfw.com/register?aff=4739)
 
