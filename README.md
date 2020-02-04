@@ -20,13 +20,12 @@ Netch is an open source game accelerator. Unlike SSTap, which needs to add rules
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
 
 ## Sponsor
+开发不易，以下为恰饭时间
 
 [![NyanCAT](docs/sponsor/nyancat.jpg)](https://nyancat.info)
 
-NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付19元起。
+NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起
 [Telegram 群组](https://t.me/NyanCaaaat) 
-
-开发不易，以下为恰饭时间
 
 [![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
 [![Across-GFW](docs/sponsor/across-gfw.jpg)](https://geckoiplc.com/register?aff=4739)
