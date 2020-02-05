@@ -8,7 +8,7 @@
 	- [TOC](#toc)
 	- [简介](#%e7%ae%80%e4%bb%8b)
 	- [赞助商](#%e8%b5%9e%e5%8a%a9%e5%95%86)
-    - [新手入门](#新手入门)
+    - [新手入门](docs/Basic-usage.md)
     - [进阶用法](#进阶用法)
 	- [依赖](#%e4%be%9d%e8%b5%96)
     - [语言支持](#语言支持)
@@ -34,11 +34,15 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 
 ## 新手入门
 
+[新手入门教程](docs/Basic-usage.md)
+
 ## 进阶用法
 
 ## 依赖
-
-- Microsoft Visual C++ 运行库合集
-- [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
+- [Visual C++ 运行库合集](https://www.google.com/search?q=Visual+C%2B%2B+%E8%BF%90%E8%A1%8C%E5%BA%93%E5%90%88%E9%9B%86)
+- [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
+- [TAP-Windows](https://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe)
 
 ## 语言支持
+
+Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
