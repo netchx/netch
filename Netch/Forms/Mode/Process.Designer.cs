@@ -160,6 +160,7 @@
             this.RuleListBox.Name = "RuleListBox";
             this.RuleListBox.Size = new System.Drawing.Size(328, 123);
             this.RuleListBox.TabIndex = 2;
+            this.RuleListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RuleListBox_MouseUp);
             // 
             // RemarkTextBox
             // 

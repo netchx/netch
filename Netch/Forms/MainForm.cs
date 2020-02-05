@@ -204,6 +204,17 @@ namespace Netch.Forms
 
             SelectLastMode();
         }
+        public void UpdateMode(Models.Mode NewMode,int OldModeIndex)
+        {
+            ModeComboBox.Items.Clear();
+            Global.ModeFiles.RemoveAt(OldModeIndex);
+            Global.ModeFiles.Add(NewMode);
+            var array = Global.ModeFiles.ToArray();
+            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            ModeComboBox.Items.AddRange(array);
+
+            SelectLastMode();
+        }
 
         private void SaveConfigs()
         {
@@ -1107,6 +1118,25 @@ namespace Netch.Forms
 
             Global.Settings.profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
 
+        }
+
+        private void EditModePictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ModeComboBox中至少有一项
+            if (ModeComboBox.Items.Count>0 && ModeComboBox.SelectedIndex != -1)
+            {
+                SaveConfigs();
+                var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+                //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
+                Mode.Process process = new Mode.Process(selectedMode, ModeComboBox.SelectedIndex);
+                process.Text = "Edit Process Mode";
+                process.Show();
+                Hide();
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }

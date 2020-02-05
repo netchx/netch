@@ -45,6 +45,7 @@
             this.UserAgentHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.pContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UseSelectedServerCheckBox = new System.Windows.Forms.CheckBox();
             this.AddSubscriptionBox.SuspendLayout();
             this.pContextMenuStrip.SuspendLayout();
@@ -169,6 +170,8 @@
             // 
             this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.DeleteToolStripMenuItem});
+            this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CopyLinkToolStripMenuItem});
             this.pContextMenuStrip.Name = "pContextMenuStrip";
             this.pContextMenuStrip.Size = new System.Drawing.Size(114, 26);
             // 
@@ -178,6 +181,13 @@
             this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
+            // 
+            // CopyLinkToolStripMenuItem
+            // 
+            this.CopyLinkToolStripMenuItem.Name = "CopyLinkToolStripMenuItem";
+            this.CopyLinkToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.CopyLinkToolStripMenuItem.Text = "CopyLink";
+            this.CopyLinkToolStripMenuItem.Click += new System.EventHandler(this.CopyLinkToolStripMenuItem_Click);
             // 
             // UseSelectedServerCheckBox
             // 
@@ -229,6 +239,7 @@
         private System.Windows.Forms.ColumnHeader LinkColumnHeader;
         private System.Windows.Forms.ContextMenuStrip pContextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CopyLinkToolStripMenuItem;
         private System.Windows.Forms.Label UserAgentLabel;
         private System.Windows.Forms.TextBox UserAgentTextBox;
         private System.Windows.Forms.ColumnHeader UserAgentHeader;

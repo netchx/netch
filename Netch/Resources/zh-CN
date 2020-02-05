@@ -30,6 +30,7 @@
     "Mode": "模式",
     "Create Process Mode": "创建进程模式",
     "Manage Process Mode": "管理进程模式",
+    "Edit Process Mode": "修改进程模式",
 
     "Address": "地址",
     "Username": "用户名",
@@ -100,12 +101,14 @@
     "Please enter an process name (xxx.exe)": "请输入一个进程名（xxx.exe）",
     "Scan completed": "扫描完成",
     "Mode added successfully": "模式添加成功",
+    "Mode updated successfully": "模式修改成功",
     "Unable to add empty rule": "无法添加空规则",
     "Please enter a mode remark": "请输入模式的备注",
 
     "Link": "链接",
     "Use Selected Server To Update Subscription": "使用选中的服务器更新订阅",
     "Delete": "删除",
+    "CopyLink": "复制链接",
     "Delete or not ? Will clean up the corresponding group of items in the server list": "是否删除？将会清理服务器列表中对应组的项目",
     "Remark can not be empty": "备注不可为空",
     "Link can not be empty": "链接不可为空",

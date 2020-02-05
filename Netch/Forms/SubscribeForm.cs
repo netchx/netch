@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Models;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -41,6 +42,7 @@ namespace Netch.Forms
             LinkColumnHeader.Text = Utils.i18N.Translate(LinkColumnHeader.Text);
             UseSelectedServerCheckBox.Text = Utils.i18N.Translate(UseSelectedServerCheckBox.Text);
             DeleteToolStripMenuItem.Text = Utils.i18N.Translate(DeleteToolStripMenuItem.Text);
+            CopyLinkToolStripMenuItem.Text = Utils.i18N.Translate(CopyLinkToolStripMenuItem.Text);
             RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
             LinkLabel.Text = Utils.i18N.Translate(LinkLabel.Text);
             AddButton.Text = Utils.i18N.Translate(AddButton.Text);
@@ -56,7 +58,18 @@ namespace Netch.Forms
         {
             Global.MainForm.Show();
         }
-
+        private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (SubscribeLinkListView.SelectedItems.Count > 0)
+            {
+                for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
+                {
+                    var item = SubscribeLinkListView.SelectedItems[i];
+                    var link = Global.Settings.SubscribeLink[item.Index];
+                    Clipboard.SetText(link.Link);
+                }
+            }
+        }
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(Utils.i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), Utils.i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
