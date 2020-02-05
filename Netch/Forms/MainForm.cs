@@ -204,10 +204,10 @@ namespace Netch.Forms
 
             SelectLastMode();
         }
-        public void UpdateMode(Models.Mode NewMode,int OldModeIndex)
+        public void UpdateMode(Models.Mode NewMode, Models.Mode OldMode)
         {
             ModeComboBox.Items.Clear();
-            Global.ModeFiles.RemoveAt(OldModeIndex);
+            Global.ModeFiles.Remove(OldMode);
             Global.ModeFiles.Add(NewMode);
             var array = Global.ModeFiles.ToArray();
             Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
@@ -1128,7 +1128,7 @@ namespace Netch.Forms
                 SaveConfigs();
                 var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
                 //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
-                Mode.Process process = new Mode.Process(selectedMode, ModeComboBox.SelectedIndex);
+                Mode.Process process = new Mode.Process(selectedMode);
                 process.Text = "Edit Process Mode";
                 process.Show();
                 Hide();

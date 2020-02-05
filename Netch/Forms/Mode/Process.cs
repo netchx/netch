@@ -10,19 +10,19 @@ namespace Netch.Forms.Mode
         //用于判断当前窗口是否为编辑模式
         private Boolean EditMode = false;
         //被编辑模式坐标
-        private int EditMode_Index = -1;
+        private Models.Mode EditMode_Old = null;
         /// <summary>
 		///		编辑模式
 		/// </summary>
 		/// <param name="mode">模式</param>
-        public Process(Models.Mode mode, int ModeIndex)
+        public Process(Models.Mode mode)
         {
 
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
 
-            EditMode_Index = ModeIndex;
+            EditMode_Old = mode;
             this.Text = "Edit Process Mode";
             //循环填充已有规则
             mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
@@ -45,7 +45,7 @@ namespace Netch.Forms.Mode
             CheckForIllegalCrossThreadCalls = false;
 
             EditMode = false;
-            EditMode_Index = -1;
+            EditMode_Old = null;
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace Netch.Forms.Mode
 
                     MessageBox.Show(Utils.i18N.Translate("Mode updated successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    Global.MainForm.UpdateMode(mode, EditMode_Index);
+                    Global.MainForm.UpdateMode(mode, EditMode_Old);
                     Close();
                 }
                 else
