@@ -8,7 +8,6 @@
 	- [TOC](#toc)
 	- [简介](#%e7%ae%80%e4%bb%8b)
 	- [赞助商](#%e8%b5%9e%e5%8a%a9%e5%95%86)
-	- [截图](#%e6%88%aa%e5%9b%be)
     - [新手入门](#新手入门)
     - [进阶用法](#进阶用法)
 	- [依赖](#%e4%be%9d%e8%b5%96)
@@ -32,10 +31,6 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 [![Across-GFW](sponsor/across-gfw.jpg)](https://geckoiplc.com/register?aff=4739)
 
 这是我所选择的服务器提供商，IPLC 专线翻墙、稳定、速度快、价格便宜。欢迎大家使用我的推广链接前去注册：[这里](https://across-gfw.com/register?aff=4739)
-
-## 截图
-
-![主界面](screenshots/main.zh-CN.png)
 
 ## 新手入门
 
