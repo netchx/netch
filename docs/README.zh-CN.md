@@ -9,8 +9,11 @@
 	- [简介](#%e7%ae%80%e4%bb%8b)
 	- [赞助商](#%e8%b5%9e%e5%8a%a9%e5%95%86)
 	- [截图](#%e6%88%aa%e5%9b%be)
+    - [新手入门](#新手入门)
+    - [进阶用法](#进阶用法)
 	- [依赖](#%e4%be%9d%e8%b5%96)
-
+    - [语言支持](#语言支持)
+    
 ## 简介
 
 Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现类似 SocksCap64 那样的进程代理，也可以实现 SSTap 那样的全局 TUN/TAP 代理，和 Shadowsocks-Windows 那样的本地 Socks5，HTTP 和系统代理。至于连接至远程服务器的代理协议，目前 Netch 支持以下代理协议：Shadowsocks，VMess，Socks5，ShadowsocksR
@@ -34,7 +37,13 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 
 ![主界面](screenshots/main.zh-CN.png)
 
+## 新手入门
+
+## 进阶用法
+
 ## 依赖
 
 - Microsoft Visual C++ 运行库合集
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
+
+## 语言支持
