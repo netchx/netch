@@ -31,7 +31,7 @@
 
 若没有所需的模式，请选择`[3] Bypass LAN and China (TUN/TAP)`的模式。此模式需要安装 [Tap-Windows](https://github.com/OpenVPN/tap-windows) 适配器，如果 Netch 提示没有该适配器，可以直接安装 [Tap-Windows](https://build.openvpn.net/downloads/releases/latest/tap-windows-latest-stable.exe) 来获得该适配器
 
-关于更多的模式说明，详见。
+关于更多的模式说明，详见[进阶用法](https://github.com/NormanBB/NetchMode/blob/master/docs/README.zh-CN.md)。
 
 选择完模式后，点击启用，游戏已被代理。这一步需在开启游戏前完成。
 
