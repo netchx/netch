@@ -34,7 +34,7 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 
 ## 新手入门
 
-[新手入门教程](docs/Basic-usage.md)
+[新手入门教程](Basic-usage.md)
 
 ## 进阶用法
 
@@ -46,3 +46,5 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 ## 语言支持
 
 Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
+
+~~issue已关，有问题可进tele群问，不保证回答，不保证解决，咕~~
