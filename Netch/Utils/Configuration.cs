@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -145,8 +146,20 @@ namespace Netch.Utils
             Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
-                MessageBox.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return false;
+                if (MessageBox.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                {
+                    //安装Tap Driver
+                    Process installProcess = new Process();
+                    installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "install.bat");
+                    installProcess.Start();
+                    installProcess.WaitForExit();
+                    installProcess.Close();
+
+                    Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
+                }
+                //MessageBox.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // return false;
             }
 
             var name = TUNTAP.GetName(Global.TUNTAP.ComponentID);
