@@ -104,6 +104,8 @@
     "Mode updated successfully": "模式修改成功",
     "Unable to add empty rule": "无法添加空规则",
     "Please enter a mode remark": "请输入模式的备注",
+    "File already exists.\n Please Change the filename": "文件名已存在，请修改文件名",
+    "Please enter a mode filename": "请输入模式的文件名",
 
     "Link": "链接",
     "Use Selected Server To Update Subscription": "使用选中的服务器更新订阅",

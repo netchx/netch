@@ -1123,15 +1123,19 @@ namespace Netch.Forms
         private void EditModePictureBox_Click(object sender, EventArgs e)
         {
             // 当前ModeComboBox中至少有一项
-            if (ModeComboBox.Items.Count>0 && ModeComboBox.SelectedIndex != -1)
+            if (ModeComboBox.Items.Count > 0 && ModeComboBox.SelectedIndex != -1)
             {
                 SaveConfigs();
                 var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
-                //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
-                Mode.Process process = new Mode.Process(selectedMode);
-                process.Text = "Edit Process Mode";
-                process.Show();
-                Hide();
+                // 只允许修改进程加速的模式
+                if (selectedMode.Type == 0)
+                {
+                    //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
+                    Mode.Process process = new Mode.Process(selectedMode);
+                    process.Text = "Edit Process Mode";
+                    process.Show();
+                    Hide();
+                }
             }
             else
             {

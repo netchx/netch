@@ -254,6 +254,11 @@ namespace Netch.Forms.Mode
 
                 if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
                 {
+                    if (Global.Settings.ModeFileNameType == 0 && string.IsNullOrWhiteSpace(FilenameTextBox.Text))
+                    {
+                        MessageBox.Show(Utils.i18N.Translate("Please enter a mode filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
                     var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
 
                     // 如果文件已存在，返回
