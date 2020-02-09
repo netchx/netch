@@ -38,7 +38,6 @@ namespace Netch.Forms
             this.AddSocks5ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddShadowsocksRServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -110,8 +109,7 @@ namespace Netch.Forms
             this.ImportServersFromClipboardToolStripMenuItem,
             this.AddSocks5ServerToolStripMenuItem,
             this.AddShadowsocksServerToolStripMenuItem,
-            this.AddShadowsocksRServerToolStripMenuItem,
-            this.AddVMessServerToolStripMenuItem});
+            this.AddShadowsocksRServerToolStripMenuItem});
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
             this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
@@ -144,13 +142,6 @@ namespace Netch.Forms
             this.AddShadowsocksRServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
             this.AddShadowsocksRServerToolStripMenuItem.Text = "Add [ShadowsocksR] Server";
             this.AddShadowsocksRServerToolStripMenuItem.Click += new System.EventHandler(this.AddShadowsocksRServerToolStripMenuItem_Click);
-            // 
-            // AddVMessServerToolStripMenuItem
-            // 
-            this.AddVMessServerToolStripMenuItem.Name = "AddVMessServerToolStripMenuItem";
-            this.AddVMessServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
-            this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddVMessServerToolStripMenuItem_Click);
             // 
             // ModeToolStripMenuItem
             // 
@@ -562,7 +553,6 @@ namespace Netch.Forms
         private System.Windows.Forms.ToolStripMenuItem AddSocks5ServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddShadowsocksServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddShadowsocksRServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddVMessServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;

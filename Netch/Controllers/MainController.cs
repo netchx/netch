@@ -31,11 +31,6 @@ namespace Netch.Controllers
         public SSRController pSSRController;
 
         /// <summary>
-        ///     V2Ray 控制器
-        /// </summary>
-        public VMessController pVMessController;
-
-        /// <summary>
         ///		NF 控制器
         /// </summary>
         public NFController pNFController;
@@ -87,14 +82,6 @@ namespace Netch.Controllers
                         pSSRController = new SSRController();
                     }
                     result = pSSRController.Start(server, mode);
-                    break;
-                case "VMess":
-                    KillProcess("v2ray");
-                    if (pVMessController == null)
-                    {
-                        pVMessController = new VMessController();
-                    }
-                    result = pVMessController.Start(server, mode);
                     break;
             }
 
@@ -166,10 +153,6 @@ namespace Netch.Controllers
             else if (pSSRController != null)
             {
                 pSSRController.Stop();
-            }
-            else if (pVMessController != null)
-            {
-                pVMessController.Stop();
             }
             
             if (pNFController != null)

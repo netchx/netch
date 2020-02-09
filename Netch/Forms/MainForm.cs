@@ -305,7 +305,6 @@ namespace Netch.Forms
             AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate(AddSocks5ServerToolStripMenuItem.Text);
             AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksServerToolStripMenuItem.Text);
             AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksRServerToolStripMenuItem.Text);
-            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate(AddVMessServerToolStripMenuItem.Text);
             ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
             CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
             ManageProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(ManageProcessModeToolStripMenuItem.Text);
@@ -439,7 +438,6 @@ namespace Netch.Forms
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.VMess().Show();
             Hide();
         }
 
@@ -703,9 +701,6 @@ namespace Netch.Forms
                         break;
                     case "SSR":
                         new Server.ShadowsocksR(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    case "VMess":
-                        new Server.VMess(ServerComboBox.SelectedIndex).Show();
                         break;
                     default:
                         return;

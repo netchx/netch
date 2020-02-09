@@ -305,86 +305,6 @@ namespace Netch.Utils
 
                     list.Add(data);
                 }
-                else if (text.StartsWith("vmess://"))
-                {
-                    var data = new Server();
-                    data.Type = "VMess";
-
-                    text = text.Substring(8);
-                    var vmess = JsonConvert.DeserializeObject<VMess>(URLSafeBase64Decode(text));
-
-                    data.Remark = vmess.ps;
-                    data.Hostname = vmess.add;
-                    data.Port = vmess.port;
-                    data.UserID = vmess.id;
-                    data.AlterID = vmess.aid;
-
-                    data.TransferProtocol = vmess.net;
-                    if (!Global.TransferProtocols.Contains(data.TransferProtocol))
-                    {
-                        Logging.Info(string.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
-                        return null;
-                    }
-
-                    data.FakeType = vmess.type;
-                    if (!Global.FakeTypes.Contains(data.FakeType))
-                    {
-                        Logging.Info(string.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
-                        return null;
-                    }
-
-                    if (vmess.v == null || vmess.v == "1")
-                    {
-                        var info = vmess.host.Split(';');
-                        if (info.Length == 2)
-                        {
-                            vmess.host = info[0];
-                            vmess.path = info[1];
-                        }
-                    }
-                    if (data.TransferProtocol == "quic")
-                    {
-                        if (!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
-                        {
-                            Logging.Info(string.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
-                            return null;
-                        }
-
-                        data.QUICSecure = vmess.host;
-                        data.QUICSecret = vmess.path;
-
-                    }
-                    else
-                    {
-                        data.Host = vmess.host;
-                        data.Path = vmess.path;
-                    }
-                    data.TLSSecure = vmess.tls == "tls";
-
-                    if (vmess.mux == null)
-                    {
-                        data.UseMux = false;
-                    }
-                    else
-                    {
-                        if (vmess.mux.enabled is bool enabled)
-                        {
-                            data.UseMux = enabled;
-                        }
-                        else if (vmess.mux.enabled is string muxEnabled)
-                        {
-                            data.UseMux = muxEnabled == "true";  // 针对使用字符串当作布尔值的情况
-                        }
-                        else
-                        {
-                            data.UseMux = false;
-                        }
-                    }
-
-                    data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
-
-                    list.Add(data);
-                }
                 else if (text.StartsWith("Netch://"))
                 {
                     text = text.Substring(8);
@@ -421,26 +341,6 @@ namespace Netch.Utils
                             {
                                 Logging.Info($"不支持的 SSR 混淆：{NetchLink.OBFS}");
                                 return null;
-                            }
-                            break;
-                        case "VMess":
-                            if (!Global.TransferProtocols.Contains(NetchLink.TransferProtocol))
-                            {
-                                Logging.Info($"不支持的 VMess 传输协议：{NetchLink.TransferProtocol}");
-                                return null;
-                            }
-                            if (!Global.FakeTypes.Contains(NetchLink.FakeType))
-                            {
-                                Logging.Info($"不支持的 VMess 伪装类型：{NetchLink.FakeType}");
-                                return null;
-                            }
-                            if (NetchLink.TransferProtocol == "quic")
-                            {
-                                if (!Global.EncryptMethods.VMessQUIC.Contains(NetchLink.QUICSecure))
-                                {
-                                    Logging.Info($"不支持的 VMess QUIC 加密方式：{NetchLink.QUICSecure}");
-                                    return null;
-                                }
                             }
                             break;
                         default:

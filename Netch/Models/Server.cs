@@ -19,7 +19,7 @@ namespace Netch.Models
         public string Group = "None";
 
         /// <summary>
-        ///     代理类型（HTTP、HTTPS、Socks5、SS、SSR、VMess）
+        ///     代理类型（HTTP、HTTPS、Socks5、SS、SSR）
         /// </summary>
         public string Type;
 
@@ -49,17 +49,7 @@ namespace Netch.Models
         public string Password;
 
         /// <summary>
-        ///		用户 ID（VMess）
-        /// </summary>
-        public string UserID = string.Empty;
-
-        /// <summary>
-        ///		额外 ID（VMess）
-        /// </summary>
-        public int AlterID = 0;
-
-        /// <summary>
-        ///     加密方式（SS、SSR、VMess）
+        ///     加密方式（SS、SSR）
         /// </summary>
         public string EncryptMethod;
 
@@ -94,46 +84,6 @@ namespace Netch.Models
         public string OBFSParam;
 
         /// <summary>
-        ///		传输协议（VMess）
-        /// </summary>
-        public string TransferProtocol = "tcp";
-
-        /// <summary>
-        ///		伪装类型（VMess）
-        /// </summary>
-        public string FakeType = string.Empty;
-
-        /// <summary>
-        ///		伪装域名（VMess：HTTP、WebSocket、HTTP/2）
-        /// </summary>
-        public string Host = string.Empty;
-
-        /// <summary>
-        ///		传输路径（VMess：WebSocket、HTTP/2）
-        /// </summary>
-        public string Path = string.Empty;
-
-        /// <summary>
-        ///		QUIC 加密方式（VMess）
-        /// </summary>
-        public string QUICSecure = "none";
-
-        /// <summary>
-        ///		QUIC 加密密钥（VMess）
-        /// </summary>
-        public string QUICSecret = string.Empty;
-
-        /// <summary>
-        ///		TLS 底层传输安全（VMess）
-        /// </summary>
-        public bool TLSSecure = false;
-
-        /// <summary>
-        ///		Mux 多路复用（VMess）
-        /// </summary>
-        public bool UseMux = false;
-
-        /// <summary>
         ///     延迟
         /// </summary>
         public int Delay = -1;
@@ -157,8 +107,6 @@ namespace Netch.Models
                     return $"[SS] {Remark}";
                 case "SSR":
                     return $"[SR] {Remark}";
-                case "VMess":
-                    return $"[V2] {Remark}";
                 default:
                     return "WTF";
             }

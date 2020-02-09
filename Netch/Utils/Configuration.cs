@@ -51,10 +51,6 @@ namespace Netch.Utils
                                     {
                                         Global.Settings.Server[i].Type = "SSR";
                                     }
-                                    else if (Global.Settings.Server[i].Type == "VMess")
-                                    {
-                                        Global.Settings.Server[i].QUICSecure = LegacySettingConfig.Server[i].QUICSecurity;
-                                    }
                                 }
                             }
                         }
