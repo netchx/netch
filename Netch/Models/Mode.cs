@@ -115,5 +115,20 @@ namespace Netch.Models
             // 写入到模式文件里
             System.IO.File.WriteAllText(NewPath, ToFileString());
         }
+
+        /// <summary>
+        ///		删除模式文件
+        /// </summary>
+        public void DeleteFile(string Dir)
+        {
+            if (System.IO.Directory.Exists(Dir))
+            {
+                var NewPath = System.IO.Path.Combine(Dir, FileName);
+                if (System.IO.File.Exists(NewPath + ".txt"))
+                {
+                    System.IO.File.Delete(NewPath + ".txt");
+                }
+            }
+        }
     }
 }

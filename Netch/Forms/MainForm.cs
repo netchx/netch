@@ -1142,5 +1142,35 @@ namespace Netch.Forms
                 MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
+        private void CopyServerLinkPictureBox_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DeleteModePictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ModeComboBox中至少有一项
+            if (ModeComboBox.Items.Count > 0 && ModeComboBox.SelectedIndex != -1)
+            {
+                var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
+
+                //删除模式文件
+                selectedMode.DeleteFile("mode");
+
+                ModeComboBox.Items.Clear();
+                Global.ModeFiles.Remove(selectedMode);
+                var array = Global.ModeFiles.ToArray();
+                Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+                ModeComboBox.Items.AddRange(array);
+
+                SelectLastMode();
+                Utils.Configuration.Save();
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
     }
 }
