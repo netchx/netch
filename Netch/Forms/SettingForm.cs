@@ -73,6 +73,9 @@ namespace Netch.Forms
             StopWhenExitedCheckBox.Text = Utils.i18N.Translate(StopWhenExitedCheckBox.Text);
             StartWhenOpenedCheckBox.Text = Utils.i18N.Translate(StartWhenOpenedCheckBox.Text);
             CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
+            ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
+
+            ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -232,6 +235,26 @@ namespace Netch.Forms
                 DNS = DNS.Trim();
                 TUNTAPDNSTextBox.Text = DNS.Substring(0, DNS.Length - 1);
                 TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
+
+                return;
+            }
+            try
+            {
+                var ProfileCount = int.Parse(ProfileCount_TextBox.Text);
+
+                if (ProfileCount>0)
+                {
+                    Global.Settings.ProfileCount = ProfileCount;
+                }
+                else
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException)
+            {
+                ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
+                MessageBox.Show(Utils.i18N.Translate("ProfileCount value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }

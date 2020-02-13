@@ -119,10 +119,14 @@ namespace Netch.Models
         /// </summary>
         public List<string> BypassIPs = new List<string>();
 
-
         /// <summary>
-        /// Saved profiles
+        ///		已保存的快捷配置
         /// </summary>
         public List<Profile> profiles = new List<Profile>();
+
+        /// <summary>
+        ///		快捷配置数量
+        /// </summary>
+        public int ProfileCount = 4;
     }
 }

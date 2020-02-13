@@ -1030,7 +1030,7 @@ namespace Netch.Forms
 
         public void InitProfile()
         {
-            var num_profile = 4;
+            var num_profile = Global.Settings.ProfileCount;
             ProfileTable.ColumnCount = num_profile;
 
             while (Global.Settings.profiles.Count < num_profile)
@@ -1143,11 +1143,6 @@ namespace Netch.Forms
             }
         }
 
-        private void CopyServerLinkPictureBox_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void DeleteModePictureBox_Click(object sender, EventArgs e)
         {
             // 当前ModeComboBox中至少有一项
@@ -1170,6 +1165,20 @@ namespace Netch.Forms
             else
             {
                 MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private void CopyLinkPictureBox_Click(object sender, EventArgs e)
+        {
+            // 当前ServerComboBox中至少有一项
+            if (ServerComboBox.SelectedIndex != -1)
+            {
+                var selectedMode = (Models.Server)ServerComboBox.SelectedItem;
+                Clipboard.SetText(Utils.ShareLink.GetShareLink(selectedMode));
+            }
+            else
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

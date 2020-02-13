@@ -21,6 +21,66 @@ namespace Netch.Utils
         {
             return Encoding.UTF8.GetString(Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
         }
+        /// <summary>
+        /// URL 传输安全的 Base64 加密
+        /// </summary>
+        /// <param name="text">需要加密的字符串</param>
+        /// <returns>加密后的字符串</returns>
+        public static string URLSafeBase64Encode(string text)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(text)).Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=');
+        }
+
+        /// <summary>
+        ///		根据服务器生成分享链接
+        /// </summary>
+        /// <param name="server">需要获取分享链接的服务器</param>
+        /// <returns>解码后的字符串</returns>
+        public static string GetShareLink(Models.Server server)
+        {
+            string retLinkStr = "";
+            switch (server.Type)
+            {
+                case "Socks5":
+                    // https://t.me/socks?server=1.1.1.1&port=443
+                    retLinkStr = string.Format("https://t.me/socks?server={0}&port={1}", server.Hostname, server.Port);
+
+                    break;
+                case "SS":
+                    // ss://method:password@server:port#Remark
+                    retLinkStr = "ss://" + URLSafeBase64Encode(string.Format("{0}:{1}@{2}:{3}", server.EncryptMethod, server.Password, server.Hostname, server.Port)) + "#" + HttpUtility.UrlEncode(server.Remark);
+
+                    break;
+                case "SSR":
+                    // https://github.com/shadowsocksr-backup/shadowsocks-rss/wiki/SSR-QRcode-scheme
+                    // ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
+                    string paraStr = string.Format("/?obfsparam={0}&protoparam={1}&remarks={2}", URLSafeBase64Encode(server.OBFSParam), URLSafeBase64Encode(server.ProtocolParam), URLSafeBase64Encode(server.Remark));
+                    retLinkStr = "ssr://" + URLSafeBase64Encode(string.Format("{0}:{1}:{2}:{3}:{4}:{5}{6}", server.Hostname, server.Port, server.Protocol, server.EncryptMethod, server.OBFS, URLSafeBase64Encode(server.Password), paraStr));
+
+                    break;
+                case "VMess":
+                    string vmessJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    {
+                        v = "2",
+                        ps = server.Remark,
+                        add = server.Hostname,
+                        port = server.Port,
+                        id = server.UserID,
+                        aid = server.AlterID,
+                        net = server.TransferProtocol,
+                        type = server.FakeType,
+                        host = server.Host,
+                        path = server.Path,
+                        tls = server.TLSSecure ? "tls" : ""
+                    });
+                    retLinkStr = "vmess://" + URLSafeBase64Encode(vmessJson);
+
+                    break;
+                default:
+                    return null;
+            }
+            return retLinkStr;
+        }
 
         public static List<Server> Parse(string text)
         {
@@ -109,7 +169,7 @@ namespace Netch.Utils
                 {
                     var data = new Server();
                     data.Type = "SS";
-					
+
                     text = text.Replace("/?", "?");
                     try
                     {
