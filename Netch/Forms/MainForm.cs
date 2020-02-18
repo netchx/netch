@@ -1,4 +1,4 @@
-﻿using Netch.Controllers;
+using Netch.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -791,6 +791,26 @@ namespace Netch.Forms
                         // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                         // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
 
+                        // 如果勾选启动后最小化
+                        if (Global.Settings.MinimizeWhenStarted)
+                        {
+                            WindowState = FormWindowState.Minimized;
+                            NotifyIcon.Visible = true;
+
+                            if (IsFirstOpened)
+                            {
+                                // 显示提示语
+                                NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name,
+                                Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
+                                ToolTipIcon.Info);
+
+                                IsFirstOpened = false;
+                            }
+
+                            Hide();
+                        }
+
                         ControlButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Stop");
 
@@ -836,26 +856,6 @@ namespace Netch.Forms
                         }
 
                         State = Models.State.Started;
-
-                        // 如果勾选启动后最小化
-                        if (Global.Settings.MinimizeWhenStarted)
-                        {
-                            WindowState = FormWindowState.Minimized;
-                            NotifyIcon.Visible = true;
-
-                            if (IsFirstOpened)
-                            {
-                                // 显示提示语
-                                NotifyIcon.ShowBalloonTip(5,
-                                UpdateChecker.Name,
-                                Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
-                                ToolTipIcon.Info);
-
-                                IsFirstOpened = false;
-                            }
-
-                            Hide();
-                        }
                     }
                     else
                     {
