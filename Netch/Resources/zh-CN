@@ -119,6 +119,7 @@
 
     "Settings": "设置",
     "Start when opened": "打开软件时启动加速",
+    "Minimize when started": "启动加速后隐藏",
     "Local Port": "本地端口",
     "Allow other Devices to connect": "允许其他设备连入",
     "Netmask": "子网掩码",

@@ -64,6 +64,11 @@ namespace Netch.Models
         public bool StartWhenOpened = false;
 
         /// <summary>
+        ///     是否启动后自动最小化
+        /// </summary>
+        public bool MinimizeWhenStarted = false;
+
+        /// <summary>
         ///		是否打开软件时检查更新
         /// </summary>
         public bool CheckUpdateWhenOpened = true;
