@@ -53,6 +53,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <COMReference Include="TaskScheduler.dll">
+      <Guid>e34cb9f1-c7f7-424c-be29-027dcc09363a</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Lcid>0</Lcid>
+      <Isolated>false</Isolated>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DNS" Version="5.0.0" />
     <PackageReference Include="DnsClient" Version="1.2.0" />
     <PackageReference Include="ini-parser" Version="2.5.2" />

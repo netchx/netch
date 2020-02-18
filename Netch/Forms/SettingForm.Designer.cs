@@ -50,6 +50,7 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.RunAtStartup = new System.Windows.Forms.CheckBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCount_Label = new System.Windows.Forms.Label();
             this.ProfileCount_TextBox = new System.Windows.Forms.TextBox();
@@ -261,6 +262,7 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.RunAtStartup);
             this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_Label);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_TextBox);
@@ -274,6 +276,16 @@
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
+            // 
+            // RunAtStartup
+            // 
+            this.RunAtStartup.AutoSize = true;
+            this.RunAtStartup.Location = new System.Drawing.Point(120, 130);
+            this.RunAtStartup.Name = "RunAtStartup";
+            this.RunAtStartup.Size = new System.Drawing.Size(109, 21);
+            this.RunAtStartup.TabIndex = 11;
+            this.RunAtStartup.Text = "Run at startup";
+            this.RunAtStartup.UseVisualStyleBackColor = true;
             // 
             // MinimizeWhenStartedCheckBox
             // 
@@ -305,7 +317,7 @@
             // CheckUpdateWhenOpenedCheckBox
             // 
             this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
-            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 130);
+            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 157);
             this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
             this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(190, 21);
             this.CheckUpdateWhenOpenedCheckBox.TabIndex = 8;
@@ -406,5 +418,6 @@
         private System.Windows.Forms.Label ProfileCount_Label;
         private System.Windows.Forms.TextBox ProfileCount_TextBox;
         private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
+        private System.Windows.Forms.CheckBox RunAtStartup;
     }
 }

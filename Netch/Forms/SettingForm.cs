@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Net;
 using System.Windows.Forms;
+using TaskScheduler;
 
 namespace Netch.Forms
 {
@@ -58,6 +60,7 @@ namespace Netch.Forms
             StartWhenOpenedCheckBox.Checked = Global.Settings.StartWhenOpened;
             CheckUpdateWhenOpenedCheckBox.Checked = Global.Settings.CheckUpdateWhenOpened;
             MinimizeWhenStartedCheckBox.Checked = Global.Settings.MinimizeWhenStarted;
+            RunAtStartup.Checked = Global.Settings.RunAtStartup;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -74,6 +77,7 @@ namespace Netch.Forms
             StopWhenExitedCheckBox.Text = Utils.i18N.Translate(StopWhenExitedCheckBox.Text);
             StartWhenOpenedCheckBox.Text = Utils.i18N.Translate(StartWhenOpenedCheckBox.Text);
             MinimizeWhenStartedCheckBox.Text = Utils.i18N.Translate(MinimizeWhenStartedCheckBox.Text);
+            RunAtStartup.Text = Utils.i18N.Translate(RunAtStartup.Text);
             CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
             ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
 
@@ -136,6 +140,40 @@ namespace Netch.Forms
             Global.Settings.StartWhenOpened = StartWhenOpenedCheckBox.Checked;
             Global.Settings.CheckUpdateWhenOpened = CheckUpdateWhenOpenedCheckBox.Checked;
             Global.Settings.MinimizeWhenStarted = MinimizeWhenStartedCheckBox.Checked;
+            Global.Settings.RunAtStartup = RunAtStartup.Checked;
+
+            // 开机自启判断
+            TaskSchedulerClass scheduler = new TaskSchedulerClass();
+            scheduler.Connect(null, null, null, null);
+            ITaskFolder folder = scheduler.GetFolder("\\");
+            IRegisteredTaskCollection tasks_exists = folder.GetTasks(1);
+
+            if (RunAtStartup.Checked)
+            {
+                if (((IList)tasks_exists).Contains("Netch Startup"))
+                    folder.DeleteTask("Netch Startup", 0);
+
+                ITaskDefinition task = scheduler.NewTask(0);
+                task.RegistrationInfo.Author = "Netch";
+                task.RegistrationInfo.Description = "Netch run at startup.";
+                task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
+
+                task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+                IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+                action.Path = System.Windows.Forms.Application.ExecutablePath;
+
+
+                task.Settings.ExecutionTimeLimit = "PT0S";
+                task.Settings.DisallowStartIfOnBatteries = false;
+                task.Settings.RunOnlyIfIdle = false;
+
+                folder.RegisterTaskDefinition("Netch Startup", task, (int)_TASK_CREATION.TASK_CREATE, null, null, _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "");
+            }
+            else
+            {
+                if (((IList)tasks_exists).Contains("Netch Startup"))
+                    folder.DeleteTask("Netch Startup", 0);
+            }
 
             try
             {
