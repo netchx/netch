@@ -50,6 +50,7 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCount_Label = new System.Windows.Forms.Label();
             this.ProfileCount_TextBox = new System.Windows.Forms.TextBox();
             this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
@@ -239,7 +240,7 @@
             // ControlButton
             // 
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(357, 514);
+            this.ControlButton.Location = new System.Drawing.Point(357, 549);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -250,7 +251,7 @@
             // GlobalBypassIPsButton
             // 
             this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 514);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 549);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -260,6 +261,7 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_Label);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_TextBox);
             this.BehaviorGroupBox.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
@@ -268,15 +270,25 @@
             this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
             this.BehaviorGroupBox.Location = new System.Drawing.Point(12, 330);
             this.BehaviorGroupBox.Name = "BehaviorGroupBox";
-            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 178);
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 213);
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
             // 
+            // MinimizeWhenStartedCheckBox
+            // 
+            this.MinimizeWhenStartedCheckBox.AutoSize = true;
+            this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(120, 103);
+            this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
+            this.MinimizeWhenStartedCheckBox.Size = new System.Drawing.Size(158, 21);
+            this.MinimizeWhenStartedCheckBox.TabIndex = 10;
+            this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
+            this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
+            // 
             // ProfileCount_Label
             // 
             this.ProfileCount_Label.AutoSize = true;
-            this.ProfileCount_Label.Location = new System.Drawing.Point(9, 133);
+            this.ProfileCount_Label.Location = new System.Drawing.Point(9, 185);
             this.ProfileCount_Label.Name = "ProfileCount_Label";
             this.ProfileCount_Label.Size = new System.Drawing.Size(79, 17);
             this.ProfileCount_Label.TabIndex = 8;
@@ -284,7 +296,7 @@
             // 
             // ProfileCount_TextBox
             // 
-            this.ProfileCount_TextBox.Location = new System.Drawing.Point(222, 130);
+            this.ProfileCount_TextBox.Location = new System.Drawing.Point(222, 182);
             this.ProfileCount_TextBox.Name = "ProfileCount_TextBox";
             this.ProfileCount_TextBox.Size = new System.Drawing.Size(192, 23);
             this.ProfileCount_TextBox.TabIndex = 9;
@@ -293,7 +305,7 @@
             // CheckUpdateWhenOpenedCheckBox
             // 
             this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
-            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 103);
+            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 130);
             this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
             this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(190, 21);
             this.CheckUpdateWhenOpenedCheckBox.TabIndex = 8;
@@ -338,7 +350,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 548);
+            this.ClientSize = new System.Drawing.Size(444, 583);
             this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
@@ -393,5 +405,6 @@
         private System.Windows.Forms.CheckBox CheckUpdateWhenOpenedCheckBox;
         private System.Windows.Forms.Label ProfileCount_Label;
         private System.Windows.Forms.TextBox ProfileCount_TextBox;
+        private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
     }
 }

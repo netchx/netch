@@ -57,6 +57,7 @@ namespace Netch.Forms
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
             StartWhenOpenedCheckBox.Checked = Global.Settings.StartWhenOpened;
             CheckUpdateWhenOpenedCheckBox.Checked = Global.Settings.CheckUpdateWhenOpened;
+            MinimizeWhenStartedCheckBox.Checked = Global.Settings.MinimizeWhenStarted;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -72,6 +73,7 @@ namespace Netch.Forms
             ExitWhenClosedCheckBox.Text = Utils.i18N.Translate(ExitWhenClosedCheckBox.Text);
             StopWhenExitedCheckBox.Text = Utils.i18N.Translate(StopWhenExitedCheckBox.Text);
             StartWhenOpenedCheckBox.Text = Utils.i18N.Translate(StartWhenOpenedCheckBox.Text);
+            MinimizeWhenStartedCheckBox.Text = Utils.i18N.Translate(MinimizeWhenStartedCheckBox.Text);
             CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
             ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
 
@@ -133,6 +135,7 @@ namespace Netch.Forms
             Global.Settings.StopWhenExited = StopWhenExitedCheckBox.Checked;
             Global.Settings.StartWhenOpened = StartWhenOpenedCheckBox.Checked;
             Global.Settings.CheckUpdateWhenOpened = CheckUpdateWhenOpenedCheckBox.Checked;
+            Global.Settings.MinimizeWhenStarted = MinimizeWhenStartedCheckBox.Checked;
 
             try
             {
