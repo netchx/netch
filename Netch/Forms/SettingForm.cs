@@ -146,11 +146,17 @@ namespace Netch.Forms
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
             scheduler.Connect(null, null, null, null);
             ITaskFolder folder = scheduler.GetFolder("\\");
-            IRegisteredTaskCollection tasks_exists = folder.GetTasks(1);
+            bool taskIsExists = false;
+            try
+            {
+                folder.GetTask("Netch Startup");
+                taskIsExists = true;
+            }
+            catch (Exception) { }
 
             if (RunAtStartup.Checked)
             {
-                if (((IList)tasks_exists).Contains("Netch Startup"))
+                if (taskIsExists)
                     folder.DeleteTask("Netch Startup", 0);
 
                 ITaskDefinition task = scheduler.NewTask(0);
@@ -171,7 +177,7 @@ namespace Netch.Forms
             }
             else
             {
-                if (((IList)tasks_exists).Contains("Netch Startup"))
+                if (taskIsExists)
                     folder.DeleteTask("Netch Startup", 0);
             }
 
