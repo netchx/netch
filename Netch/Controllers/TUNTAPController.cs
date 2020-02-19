@@ -31,11 +31,6 @@ namespace Netch.Controllers
         public Models.Mode SavedMode = new Models.Mode();
 
         /// <summary>
-        ///     本地 DNS 服务控制器
-        /// </summary>
-        public DNSController pDNSController = new DNSController();
-
-        /// <summary>
         ///     配置 TUNTAP 适配器
         /// </summary>
         public bool Configure()
@@ -291,8 +286,7 @@ namespace Netch.Controllers
             }
             else
             {
-                pDNSController.Start();
-                dns = "127.0.0.1";
+                dns = "1.1.1.1,1.0.0.1";
             }
 
             if (server.Type == "Socks5")
