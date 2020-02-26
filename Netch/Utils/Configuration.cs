@@ -165,18 +165,19 @@ namespace Netch.Utils
                 // return false;
             }
 
-            var name = TUNTAP.GetName(Global.TUNTAP.ComponentID);
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (adapter.Name == name)
+                if (adapter.Id == Global.TUNTAP.ComponentID)
                 {
                     Global.TUNTAP.Adapter = adapter;
                     Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
 
-                    break;
+                    return true;
                 }
             }
-            return true;
+
+            Logging.Info("无法找到出口");
+            return false;
         }
     }
 }
