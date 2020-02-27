@@ -105,6 +105,7 @@ namespace Netch.Utils
                 return false;
             }
 
+            var AddressGot = false;
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
                 var adapterProperties = adapter.GetIPProperties();
@@ -113,7 +114,6 @@ namespace Netch.Utils
                 // 通过索引查找对应适配器的 IPv4 地址
                 if (p.Index == Global.Adapter.Index)
                 {
-                    var AddressGot = false;
                     var AdapterIPs = "";
 
                     foreach (var ip in adapterProperties.UnicastAddresses)
@@ -140,6 +140,12 @@ namespace Netch.Utils
                     }
                     break;
                 }
+            }
+
+            if (!AddressGot)
+            {
+                Logging.Info("无法找到ipv4地址");
+                return false;
             }
 
             // 搜索 TUN/TAP 适配器的索引
@@ -171,6 +177,8 @@ namespace Netch.Utils
                 {
                     Global.TUNTAP.Adapter = adapter;
                     Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
+
+                    Logging.Info($"找到适配器：{adapter.Id}");
 
                     return true;
                 }

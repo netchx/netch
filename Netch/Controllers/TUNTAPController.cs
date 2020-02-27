@@ -266,13 +266,16 @@ namespace Netch.Controllers
             {
                 return false;
             }
-            
+
+            Logging.Info("设置绕行规则");
             SetupBypass();
+            Logging.Info("设置绕行规则完毕");
 
             Instance = new Process();
             Instance.StartInfo.WorkingDirectory = string.Format("{0}\\bin", Directory.GetCurrentDirectory());
             Instance.StartInfo.FileName = string.Format("{0}\\bin\\tun2socks.exe", Directory.GetCurrentDirectory());
             var adapterName = TUNTAP.GetName(Global.TUNTAP.ComponentID);
+            Logging.Info($"tun2sock使用适配器：{adapterName}");
 
             string dns;
             if (Global.Settings.TUNTAP.UseCustomDNS)
@@ -299,7 +302,7 @@ namespace Netch.Controllers
             else
             {
                 Instance.StartInfo.Arguments = string.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4} -tunName \"{5}\"", Global.Settings.Socks5LocalPort, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, adapterName);
-            }
+            } 
 
             Instance.StartInfo.CreateNoWindow = true;
             Instance.StartInfo.RedirectStandardError = true;
