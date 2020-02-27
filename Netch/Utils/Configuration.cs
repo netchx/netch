@@ -105,11 +105,13 @@ namespace Netch.Utils
                 return false;
             }
 
+            Logging.Info($"搜索适配器index：{Global.Adapter.Index}");
             var AddressGot = false;
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
                 var adapterProperties = adapter.GetIPProperties();
                 var p = adapterProperties.GetIPv4Properties();
+                Logging.Info($"检测适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {p.Index}");
 
                 // 通过索引查找对应适配器的 IPv4 地址
                 if (p.Index == Global.Adapter.Index)
@@ -144,7 +146,7 @@ namespace Netch.Utils
 
             if (!AddressGot)
             {
-                Logging.Info("无法找到ipv4地址");
+                Logging.Info("无法找到当前使用适配器");
                 return false;
             }
 
