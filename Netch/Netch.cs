@@ -24,7 +24,17 @@ namespace Netch
                 // 清理上一次的日志文件，防止淤积占用磁盘空间
                 if (Directory.Exists("logging"))
                 {
-                    Directory.Delete("logging", true);
+                    DirectoryInfo directory = new DirectoryInfo("logging");
+
+                    foreach (FileInfo file in directory.GetFiles())
+                    {
+                        file.Delete();
+                    }
+
+                    foreach (DirectoryInfo dir in directory.GetDirectories())
+                    {
+                        dir.Delete(true);
+                    }
                 }
 
                 // 预创建目录
