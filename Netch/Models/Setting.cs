@@ -138,5 +138,15 @@ namespace Netch.Models
         ///		快捷配置数量
         /// </summary>
         public int ProfileCount = 4;
+
+        /// <summary>
+        ///     STUN测试服务器
+        /// </summary>
+        public string STUN_Server = "stun.stunprotocol.org";
+
+        /// <summary>
+        ///     STUN测试服务器
+        /// </summary>
+        public int STUN_Server_Port = 3478;
     }
 }

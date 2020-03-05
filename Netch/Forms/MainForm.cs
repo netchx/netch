@@ -556,6 +556,7 @@ namespace Netch.Forms
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         MainController.Stop();
+                        NatTypeStatusLabel.Text = "";
                     }
                     Utils.Configuration.Save();
                 }).ContinueWith(task =>
@@ -786,7 +787,18 @@ namespace Netch.Forms
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController = new MainController();
-                    if (MainController.Start(server, mode))
+
+                    var startResult = MainController.Start(server, mode);//item1是否启动成功，item2nat类型
+                    if (startResult.Item2 != null)
+                    {
+                        NatTypeStatusLabel.Text = "NatType:" + startResult.Item2;
+                    }
+                    else
+                    {
+                        NatTypeStatusLabel.Text = "";
+                    }
+
+                    if (startResult.Item1)
                     {
                         // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                         // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
@@ -883,6 +895,7 @@ namespace Netch.Forms
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
                     MainController.Stop();
+                    NatTypeStatusLabel.Text = "";
 
                     // LastUploadBandwidth = 0;
                     // LastDownloadBandwidth = 0;

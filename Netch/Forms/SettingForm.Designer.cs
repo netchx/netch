@@ -58,6 +58,10 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.STUN_ServerTextBox = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -241,7 +245,7 @@
             // ControlButton
             // 
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(357, 549);
+            this.ControlButton.Location = new System.Drawing.Point(357, 648);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -252,7 +256,7 @@
             // GlobalBypassIPsButton
             // 
             this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 549);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 648);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -262,7 +266,11 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.STUN_ServerPortTextBox);
+            this.BehaviorGroupBox.Controls.Add(this.label2);
+            this.BehaviorGroupBox.Controls.Add(this.label1);
             this.BehaviorGroupBox.Controls.Add(this.RunAtStartup);
+            this.BehaviorGroupBox.Controls.Add(this.STUN_ServerTextBox);
             this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_Label);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCount_TextBox);
@@ -272,7 +280,7 @@
             this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
             this.BehaviorGroupBox.Location = new System.Drawing.Point(12, 330);
             this.BehaviorGroupBox.Name = "BehaviorGroupBox";
-            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 213);
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 312);
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
@@ -358,11 +366,45 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 214);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(82, 17);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "STUN Server";
+            // 
+            // STUN_ServerTextBox
+            // 
+            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 211);
+            this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
+            this.STUN_ServerTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerTextBox.TabIndex = 11;
+            this.STUN_ServerTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 243);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(110, 17);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "STUN Server Port";
+            // 
+            // STUN_ServerPortTextBox
+            // 
+            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 237);
+            this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
+            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerPortTextBox.TabIndex = 8;
+            this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 583);
+            this.ClientSize = new System.Drawing.Size(444, 682);
             this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
@@ -419,5 +461,9 @@
         private System.Windows.Forms.TextBox ProfileCount_TextBox;
         private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
         private System.Windows.Forms.CheckBox RunAtStartup;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox STUN_ServerTextBox;
+        private System.Windows.Forms.TextBox STUN_ServerPortTextBox;
     }
 }

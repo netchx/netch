@@ -114,6 +114,8 @@ namespace Netch.Controllers
             }
 
             var processes = "";
+
+            mode.Rule.Add("NTT.exe");
             foreach (var proc in mode.Rule)
             {
                 processes += proc;

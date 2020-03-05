@@ -82,6 +82,8 @@ namespace Netch.Forms
             ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
 
             ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
+            STUN_ServerTextBox.Text = Global.Settings.STUN_Server.ToString();
+            STUN_ServerPortTextBox.Text = Global.Settings.STUN_Server_Port.ToString();
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -289,7 +291,7 @@ namespace Netch.Forms
             {
                 var ProfileCount = int.Parse(ProfileCount_TextBox.Text);
 
-                if (ProfileCount>0)
+                if (ProfileCount > 0)
                 {
                     Global.Settings.ProfileCount = ProfileCount;
                 }
@@ -302,6 +304,29 @@ namespace Netch.Forms
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
                 MessageBox.Show(Utils.i18N.Translate("ProfileCount value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return;
+            }
+            try
+            {
+                var STUN_Server = STUN_ServerTextBox.Text;
+                Global.Settings.STUN_Server = STUN_Server;
+
+                var STUN_ServerPort = int.Parse(STUN_ServerPortTextBox.Text);
+
+                if (STUN_ServerPort > 0)
+                {
+                    Global.Settings.STUN_Server_Port = STUN_ServerPort;
+                }
+                else
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException)
+            {
+                ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
+                MessageBox.Show(Utils.i18N.Translate("STUN_ServerPort value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }

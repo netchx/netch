@@ -78,6 +78,7 @@ namespace Netch.Forms
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
+            this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
@@ -421,7 +422,8 @@ namespace Netch.Forms
             this.StatusLabel,
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
-            this.UploadSpeedLabel});
+            this.UploadSpeedLabel,
+            this.NatTypeStatusLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 254);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(629, 22);
@@ -534,6 +536,12 @@ namespace Netch.Forms
             this.ProfileTable.Size = new System.Drawing.Size(599, 43);
             this.ProfileTable.TabIndex = 0;
             // 
+            // NatTypeStatusLabel
+            // 
+            this.NatTypeStatusLabel.Name = "NatTypeStatusLabel";
+            this.NatTypeStatusLabel.Size = new System.Drawing.Size(109, 17);
+            this.NatTypeStatusLabel.Text = "";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -623,5 +631,6 @@ namespace Netch.Forms
         private System.Windows.Forms.PictureBox EditModePictureBox;
         private System.Windows.Forms.PictureBox DeleteModePictureBox;
         private System.Windows.Forms.PictureBox CopyLinkPictureBox;
+        private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLabel;
     }
 }

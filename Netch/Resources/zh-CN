@@ -134,6 +134,7 @@
     "Check update when opened": "打开软件时检查更新",
     "ProfileCount": "快捷配置数量（重启软件生效）",
     "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试。",
+    "STUN_ServerPort value illegal. Try again.": "STUN端口数值非法。请重试。",
     "TUN/TAP driver is not detected. Is it installed now?": "未检测到TUN/TAP驱动，是否现在安装？",
 
     "Profile": "配置名",
