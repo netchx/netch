@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
@@ -39,6 +40,7 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Redirector")}");
             if (!File.Exists("bin\\Redirector.exe"))
             {
                 return false;
@@ -98,6 +100,7 @@ namespace Netch.Controllers
                 var service = new ServiceController("netfilter2");
                 if (service.Status == ServiceControllerStatus.Stopped)
                 {
+                    MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
                     service.Start();
                 }
             }

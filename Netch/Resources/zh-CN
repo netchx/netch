@@ -22,6 +22,8 @@
     "Starting Tap": "正在启动Tap",
     "Starting NatTester": "正在启动Nat测试",
     "Starting LocalDns service": "正在启动本地DNS服务",
+    "Starting Redirector": "正在启动Redirector",
+    "Starting netfilter2 Service": "正在启动netfilter2服务",
     "SetupBypass": "设置绕行规则",
 
     "Server": "服务器",
