@@ -24,7 +24,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting NatTester")}");
+            MainForm.Instance.NatTypeStatusText($"{Utils.i18N.Translate("Starting NatTester")}");
             try
             {
                 if (!File.Exists("bin\\NTT.exe"))
@@ -50,6 +50,7 @@ namespace Netch.Controllers
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
+                MainForm.Instance.NatTypeStatusText(natType);
 
                 return (true, natType, localEnd, publicEnd);
             }

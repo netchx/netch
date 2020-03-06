@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Netch.Controllers
 {
@@ -62,19 +63,19 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public (bool, string) Start(Models.Server server, Models.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode)
         {
-            var result = (false, "");
+            var result = false;
             switch (server.Type)
             {
                 case "Socks5":
                     if (mode.Type == 4)
                     {
-                        result = (false, null);
+                        result = false;
                     }
                     else
                     {
-                        result = (true, null);
+                        result = true;
                     }
                     break;
                 case "SS":
@@ -83,7 +84,7 @@ namespace Netch.Controllers
                     {
                         pSSController = new SSController();
                     }
-                    result = (pSSController.Start(server, mode), null);
+                    result = pSSController.Start(server, mode);
                     break;
                 case "SSR":
                     KillProcess("ShadowsocksR");
@@ -91,7 +92,7 @@ namespace Netch.Controllers
                     {
                         pSSRController = new SSRController();
                     }
-                    result = (pSSRController.Start(server, mode), null);
+                    result = pSSRController.Start(server, mode);
                     break;
                 case "VMess":
                     KillProcess("v2ray");
@@ -99,11 +100,11 @@ namespace Netch.Controllers
                     {
                         pVMessController = new VMessController();
                     }
-                    result = (pVMessController.Start(server, mode), null);
+                    result = pVMessController.Start(server, mode);
                     break;
             }
 
-            if (result.Item1)
+            if (result)
             {
                 if (mode.Type == 0)
                 {
@@ -116,7 +117,13 @@ namespace Netch.Controllers
                         pNTTController = new NTTController();
                     }
                     // 进程代理模式，启动 NF 控制器
-                    result = (pNFController.Start(server, mode), pNTTController.Start().Item2);
+                    result = pNFController.Start(server, mode);
+
+                    Task.Run(() =>
+                    {
+                        pNTTController.Start();
+                    });
+
                 }
                 else if (mode.Type == 1)
                 {
@@ -129,7 +136,12 @@ namespace Netch.Controllers
                         pNTTController = new NTTController();
                     }
                     // TUN/TAP 黑名单代理模式，启动 TUN/TAP 控制器
-                    result = (pTUNTAPController.Start(server, mode), pNTTController.Start().Item2);
+                    result = pTUNTAPController.Start(server, mode);
+
+                    Task.Run(() =>
+                    {
+                        pNTTController.Start();
+                    });
                 }
                 else if (mode.Type == 2)
                 {
@@ -142,7 +154,12 @@ namespace Netch.Controllers
                         pNTTController = new NTTController();
                     }
                     // TUN/TAP 白名单代理模式，启动 TUN/TAP 控制器
-                    result = (pTUNTAPController.Start(server, mode), pNTTController.Start().Item2);
+                    result = pTUNTAPController.Start(server, mode);
+
+                    Task.Run(() =>
+                    {
+                        pNTTController.Start();
+                    });
                 }
                 else if (mode.Type == 3 || mode.Type == 5)
                 {
@@ -151,7 +168,7 @@ namespace Netch.Controllers
                         pHTTPController = new HTTPController();
                     }
                     // HTTP 系统代理和 Socks5 和 HTTP 代理模式，启动 HTTP 控制器
-                    result = (pHTTPController.Start(server, mode), null);
+                    result = pHTTPController.Start(server, mode);
                 }
                 else if (mode.Type == 4)
                 {
@@ -159,11 +176,11 @@ namespace Netch.Controllers
                 }
                 else
                 {
-                    result = (false, null);
+                    result = false;
                 }
             }
 
-            if (!result.Item1)
+            if (!result)
             {
                 Stop();
             }

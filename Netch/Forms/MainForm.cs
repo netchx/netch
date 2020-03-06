@@ -794,17 +794,9 @@ namespace Netch.Forms
 
                     MainController = new MainController();
 
-                    var startResult = MainController.Start(server, mode);//item1是否启动成功，item2nat类型
-                    if (startResult.Item2 != null)
-                    {
-                        NatTypeStatusLabel.Text = "NatType:" + startResult.Item2;
-                    }
-                    else
-                    {
-                        NatTypeStatusLabel.Text = "";
-                    }
+                    var startResult = MainController.Start(server, mode);
 
-                    if (startResult.Item1)
+                    if (startResult)
                     {
                         // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
                         // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
@@ -1220,8 +1212,13 @@ namespace Netch.Forms
                 MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        public void StatusText(string text) {
+        public void StatusText(string text)
+        {
             StatusLabel.Text = text;
+        }
+        public void NatTypeStatusText(string text)
+        {
+            NatTypeStatusLabel.Text = "NatType:" + text;
         }
     }
 }
