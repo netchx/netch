@@ -41,6 +41,11 @@ namespace Netch.Forms
 
         public List<Button> ProfileButtons = new List<Button>();
 
+        /// <summary>
+        /// 主窗体的静态实例
+        /// </summary>
+        public static MainForm Instance = null;
+
         public MainForm()
         {
             InitializeComponent();
@@ -48,6 +53,7 @@ namespace Netch.Forms
 
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
+            Instance = this;
         }
 
         private void CheckUpdate()
@@ -1213,6 +1219,9 @@ namespace Netch.Forms
             {
                 MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+        public void StatusText(string text) {
+            StatusLabel.Text = text;
         }
     }
 }

@@ -16,6 +16,13 @@
     "Started": "已启动",
     "Stopping": "正在停止中",
     "Stopped": "已停止",
+    "Starting Shadowsocks": "正在启动Shadowsocks",
+    "Starting ShadowsocksR": "正在启动ShadowsocksR",
+    "Starting V2ray": "正在启动V2ray",
+    "Starting Tap": "正在启动Tap",
+    "Starting NatTester": "正在启动Nat测试",
+    "Starting LocalDns service": "正在启动本地DNS服务",
+    "SetupBypass": "设置绕行规则",
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",

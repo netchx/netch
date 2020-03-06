@@ -4,7 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-
+using Netch.Forms;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -63,6 +63,7 @@ namespace Netch.Controllers
         /// </summary>
         public bool SetupBypass()
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("SetupBypass")}");
             // 让服务器 IP 走直连
             foreach (var address in ServerAddresses)
             {
@@ -242,6 +243,7 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Tap")}");
             foreach (var proc in Process.GetProcessesByName("tun2socks"))
             {
                 try

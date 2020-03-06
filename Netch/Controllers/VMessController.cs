@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -26,6 +27,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting V2ray")}");
             if (!File.Exists("bin\\v2ray.exe") || !File.Exists("bin\\v2ctl.exe"))
             {
                 return false;

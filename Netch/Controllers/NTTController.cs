@@ -24,6 +24,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting NatTester")}");
             try
             {
                 if (!File.Exists("bin\\NTT.exe"))

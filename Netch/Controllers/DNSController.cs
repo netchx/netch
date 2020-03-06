@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Net;
 
 namespace Netch.Controllers
@@ -9,6 +10,7 @@ namespace Netch.Controllers
 
         public bool Start()
         {
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting LocalDns service")}");
             try
             {
                 _ = Server.Listen(new IPEndPoint(IPAddress.IPv6Any, 53));
