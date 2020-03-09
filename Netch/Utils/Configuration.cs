@@ -109,39 +109,45 @@ namespace Netch.Utils
             var AddressGot = false;
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
-                var adapterProperties = adapter.GetIPProperties();
-                var p = adapterProperties.GetIPv4Properties();
-                Logging.Info($"检测适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {p.Index}");
-
-                // 通过索引查找对应适配器的 IPv4 地址
-                if (p.Index == Global.Adapter.Index)
+                try
                 {
-                    var AdapterIPs = "";
+                    var adapterProperties = adapter.GetIPProperties();
+                    var p = adapterProperties.GetIPv4Properties();
+                    Logging.Info($"检测适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {p.Index}");
 
-                    foreach (var ip in adapterProperties.UnicastAddresses)
+                    // 通过索引查找对应适配器的 IPv4 地址
+                    if (p.Index == Global.Adapter.Index)
                     {
-                        if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                        var AdapterIPs = "";
+
+                        foreach (var ip in adapterProperties.UnicastAddresses)
                         {
-                            AddressGot = true;
-                            Global.Adapter.Address = ip.Address;
-                            Logging.Info($"当前出口 IPv4 地址：{Global.Adapter.Address}");
-                            break;
+                            if (ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                            {
+                                AddressGot = true;
+                                Global.Adapter.Address = ip.Address;
+                                Logging.Info($"当前出口 IPv4 地址：{Global.Adapter.Address}");
+                                break;
+                            }
+                            AdapterIPs = $"{ip.Address} | ";
                         }
-                        AdapterIPs = $"{ip.Address} | ";
+
+                        if (!AddressGot)
+                        {
+                            if (AdapterIPs.Length > 3)
+                            {
+                                AdapterIPs = AdapterIPs.Substring(0, AdapterIPs.Length - 3);
+                                Logging.Info($"所有出口地址：{AdapterIPs}");
+                            }
+                            Logging.Info("出口无 IPv4 地址，当前只支持 IPv4 地址");
+                            return false;
+                        }
+                        break;
                     }
 
-                    if (!AddressGot)
-                    {
-                        if (AdapterIPs.Length > 3)
-                        {
-                            AdapterIPs = AdapterIPs.Substring(0, AdapterIPs.Length - 3);
-                            Logging.Info($"所有出口地址：{AdapterIPs}");
-                        }
-                        Logging.Info("出口无 IPv4 地址，当前只支持 IPv4 地址");
-                        return false;
-                    }
-                    break;
                 }
+                catch (Exception)
+                { }
             }
 
             if (!AddressGot)
