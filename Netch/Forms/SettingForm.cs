@@ -64,7 +64,6 @@ namespace Netch.Forms
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
-            RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
 
             TUNTAPAddressTextBox.Text = Global.Settings.TUNTAP.Address;
             TUNTAPNetmaskTextBox.Text = Global.Settings.TUNTAP.Netmask;
@@ -220,27 +219,6 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
-                MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                return;
-            }
-
-            try
-            {
-                var RedirectorPort = int.Parse(RedirectorTextBox.Text);
-
-                if (RedirectorPort > 0 && RedirectorPort < 65536)
-                {
-                    Global.Settings.RedirectorTCPPort = RedirectorPort;
-                }
-                else
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException)
-            {
-                RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
                 MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;

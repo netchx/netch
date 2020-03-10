@@ -152,7 +152,7 @@ namespace Netch.Controllers
                 }
             }
 
-            Instance.StartInfo.Arguments = fallback + $" -t {Global.Settings.RedirectorTCPPort}";
+            Instance.StartInfo.Arguments = fallback;
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             State = Models.State.Starting;
@@ -160,7 +160,6 @@ namespace Netch.Controllers
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
 
-            var IsFallback = false;
             for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
@@ -168,33 +167,6 @@ namespace Netch.Controllers
                 if (State == Models.State.Started)
                 {
                     return true;
-                }
-
-                if (State == Models.State.Stopped)
-                {
-                    if (!IsFallback)
-                    {
-                        IsFallback = true;
-                        Stop();
-                        Utils.Logging.Info($"尝试去除 \"-t {Global.Settings.RedirectorTCPPort}\" 参数后启动 \"bin\\Redirector.exe\"");
-                        Instance.StartInfo.Arguments = fallback;
-                        Utils.Logging.Info($"当前 \"bin\\Redirector.exe\" 启动参数为 \"{Instance.StartInfo.Arguments}\"");
-                        Global.Settings.RedirectorTCPPort = 2800;
-                        Instance.CancelOutputRead();
-                        Instance.CancelErrorRead();
-                        Instance.OutputDataReceived += OnOutputDataReceived;
-                        Instance.ErrorDataReceived += OnOutputDataReceived;
-                        State = Models.State.Starting;
-                        Instance.Start();
-                        Instance.BeginOutputReadLine();
-                        Instance.BeginErrorReadLine();
-                    }
-                    else
-                    {
-                        Utils.Logging.Info("NF 进程启动失败");
-                        Stop();
-                        return false;
-                    }
                 }
             }
 
@@ -234,7 +206,7 @@ namespace Netch.Controllers
                     {
                         State = Models.State.Stopped;
                     }
-                    else if (e.Data.Contains("Started"))
+                    else if (e.Data.Contains("Redirect to"))
                     {
                         State = Models.State.Started;
                     }

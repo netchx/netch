@@ -97,7 +97,7 @@ namespace Netch.Models
         /// <summary>
         ///		Redirector TCP 占用端口
         /// </summary>
-        public int RedirectorTCPPort = 2800;
+        //public int RedirectorTCPPort = 2800;
 
         /// <summary>
         ///		HTTP 和 Socks5 本地代理地址

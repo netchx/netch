@@ -300,7 +300,7 @@ namespace Netch.Controllers
             else
             {
                 pDNSController.Start();
-                dns = "127.0.0.1,127.0.0.1";
+                dns = "127.0.0.1";
                 //dns = "1.1.1.1,1.0.0.1";
             }
 

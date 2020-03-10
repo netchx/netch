@@ -30,8 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
-            this.RedirectorLabel = new System.Windows.Forms.Label();
-            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.HTTPPortLabel = new System.Windows.Forms.Label();
             this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
@@ -50,7 +48,11 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.RunAtStartup = new System.Windows.Forms.CheckBox();
+            this.STUN_ServerTextBox = new System.Windows.Forms.TextBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCount_Label = new System.Windows.Forms.Label();
             this.ProfileCount_TextBox = new System.Windows.Forms.TextBox();
@@ -58,10 +60,6 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.STUN_ServerTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -69,8 +67,6 @@
             // 
             // PortGroupBox
             // 
-            this.PortGroupBox.Controls.Add(this.RedirectorLabel);
-            this.PortGroupBox.Controls.Add(this.RedirectorTextBox);
             this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Controls.Add(this.HTTPPortLabel);
             this.PortGroupBox.Controls.Add(this.HTTPPortTextBox);
@@ -82,23 +78,6 @@
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
-            // 
-            // RedirectorLabel
-            // 
-            this.RedirectorLabel.AutoSize = true;
-            this.RedirectorLabel.Location = new System.Drawing.Point(9, 110);
-            this.RedirectorLabel.Name = "RedirectorLabel";
-            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
-            this.RedirectorLabel.TabIndex = 6;
-            this.RedirectorLabel.Text = "Redirector TCP";
-            // 
-            // RedirectorTextBox
-            // 
-            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 107);
-            this.RedirectorTextBox.Name = "RedirectorTextBox";
-            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
-            this.RedirectorTextBox.TabIndex = 7;
-            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AllowDevicesCheckBox
             // 
@@ -285,6 +264,32 @@
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
             // 
+            // STUN_ServerPortTextBox
+            // 
+            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 237);
+            this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
+            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerPortTextBox.TabIndex = 8;
+            this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(9, 243);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(110, 17);
+            this.label2.TabIndex = 12;
+            this.label2.Text = "STUN Server Port";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(9, 214);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(82, 17);
+            this.label1.TabIndex = 10;
+            this.label1.Text = "STUN Server";
+            // 
             // RunAtStartup
             // 
             this.RunAtStartup.AutoSize = true;
@@ -294,6 +299,14 @@
             this.RunAtStartup.TabIndex = 11;
             this.RunAtStartup.Text = "Run at startup";
             this.RunAtStartup.UseVisualStyleBackColor = true;
+            // 
+            // STUN_ServerTextBox
+            // 
+            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 211);
+            this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
+            this.STUN_ServerTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerTextBox.TabIndex = 11;
+            this.STUN_ServerTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // MinimizeWhenStartedCheckBox
             // 
@@ -366,40 +379,6 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 214);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(82, 17);
-            this.label1.TabIndex = 10;
-            this.label1.Text = "STUN Server";
-            // 
-            // STUN_ServerTextBox
-            // 
-            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 211);
-            this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
-            this.STUN_ServerTextBox.Size = new System.Drawing.Size(294, 23);
-            this.STUN_ServerTextBox.TabIndex = 11;
-            this.STUN_ServerTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 243);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(110, 17);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "STUN Server Port";
-            // 
-            // STUN_ServerPortTextBox
-            // 
-            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 237);
-            this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
-            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
-            this.STUN_ServerPortTextBox.TabIndex = 8;
-            this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -450,8 +429,6 @@
         private System.Windows.Forms.Button GlobalBypassIPsButton;
         private System.Windows.Forms.CheckBox TUNTAPUseCustomDNSCheckBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
-        private System.Windows.Forms.TextBox RedirectorTextBox;
-        private System.Windows.Forms.Label RedirectorLabel;
         private System.Windows.Forms.GroupBox BehaviorGroupBox;
         private System.Windows.Forms.CheckBox ExitWhenClosedCheckBox;
         private System.Windows.Forms.CheckBox StopWhenExitedCheckBox;
