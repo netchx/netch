@@ -89,6 +89,11 @@ namespace Netch.Controllers
                 }
             }
 
+            //LAN IP
+            Global.Settings.BypassIPs.Add("10.0.0.0/8");
+            Global.Settings.BypassIPs.Add("172.16.0.0/16");
+            Global.Settings.BypassIPs.Add("192.168.0.0/24");
+
             // 处理全局绕过 IP
             foreach (var ip in Global.Settings.BypassIPs)
             {
