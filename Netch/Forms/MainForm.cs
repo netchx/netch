@@ -238,60 +238,66 @@ namespace Netch.Forms
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var cbx = sender as ComboBox;
-
-            // 绘制背景颜色
-            e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
-
-            if (e.Index >= 0)
+            try
             {
-                // 绘制 备注/名称 字符串
-                e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, new SolidBrush(Color.Black), e.Bounds);
 
-                if (cbx.Items[e.Index] is Models.Server)
+                var cbx = sender as ComboBox;
+
+                // 绘制背景颜色
+                e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
+
+                if (e.Index >= 0)
                 {
-                    var item = cbx.Items[e.Index] as Models.Server;
+                    // 绘制 备注/名称 字符串
+                    e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, new SolidBrush(Color.Black), e.Bounds);
 
-                    // 计算延迟底色
-                    SolidBrush brush;
-                    if (item.Delay > 200)
+                    if (cbx.Items[e.Index] is Models.Server)
                     {
-                        // 红色
-                        brush = new SolidBrush(Color.Red);
+                        var item = cbx.Items[e.Index] as Models.Server;
+
+                        // 计算延迟底色
+                        SolidBrush brush;
+                        if (item.Delay > 200)
+                        {
+                            // 红色
+                            brush = new SolidBrush(Color.Red);
+                        }
+                        else if (item.Delay > 80)
+                        {
+                            // 黄色
+                            brush = new SolidBrush(Color.Yellow);
+                        }
+                        else if (item.Delay >= 0)
+                        {
+                            // 绿色
+                            brush = new SolidBrush(Color.FromArgb(50, 255, 56));
+                        }
+                        else
+                        {
+                            // 灰色
+                            brush = new SolidBrush(Color.Gray);
+                        }
+
+                        // 绘制延迟底色
+                        e.Graphics.FillRectangle(brush, ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
+
+                        // 绘制延迟字符串
+                        e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
                     }
-                    else if (item.Delay > 80)
+                    else if (cbx.Items[e.Index] is Models.Mode)
                     {
-                        // 黄色
-                        brush = new SolidBrush(Color.Yellow);
+                        var item = cbx.Items[e.Index] as Models.Mode;
+
+                        // 绘制延迟底色
+                        e.Graphics.FillRectangle(new SolidBrush(Color.Gray), ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
+
+                        // 绘制延迟字符串
+                        e.Graphics.DrawString(item.Rule.Count.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
                     }
-                    else if (item.Delay >= 0)
-                    {
-                        // 绿色
-                        brush = new SolidBrush(Color.FromArgb(50, 255, 56));
-                    }
-                    else
-                    {
-                        // 灰色
-                        brush = new SolidBrush(Color.Gray);
-                    }
-
-                    // 绘制延迟底色
-                    e.Graphics.FillRectangle(brush, ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
-
-                    // 绘制延迟字符串
-                    e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
-                }
-                else if (cbx.Items[e.Index] is Models.Mode)
-                {
-                    var item = cbx.Items[e.Index] as Models.Mode;
-
-                    // 绘制延迟底色
-                    e.Graphics.FillRectangle(new SolidBrush(Color.Gray), ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
-
-                    // 绘制延迟字符串
-                    e.Graphics.DrawString(item.Rule.Count.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
                 }
             }
+            catch (Exception)
+            { }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -766,6 +772,7 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            SaveConfigs();
             if (State == Models.State.Waiting || State == Models.State.Stopped)
             {
                 // 当前 ServerComboBox 中至少有一项
