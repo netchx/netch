@@ -136,6 +136,7 @@
     "Netmask": "子网掩码",
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
+    "Proxy DNS in Mode 2": "在模式2下代理DNS",
     "Behavior": "行为",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",

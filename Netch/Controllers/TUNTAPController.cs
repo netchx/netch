@@ -157,6 +157,54 @@ namespace Netch.Controllers
                         }
                     }
                 }
+                //处理NAT类型检测，由于协议的原因，无法仅通过域名确定需要代理的IP，自己记录解析了返回的IP，仅支持默认检测服务器
+                if(Global.Settings.STUN_Server == "stun.stunprotocol.org")
+                {
+                    try
+                    {
+                        var nttAddress = Dns.GetHostAddresses(Global.Settings.STUN_Server)[0];
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.CreateRoute(nttAddress.ToString(), prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                        var nttrAddress= Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0];
+                        if (int.TryParse("32", out var prefixr))
+                        {
+                            NativeMethods.CreateRoute(nttrAddress.ToString(), prefixr, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                    catch
+                    {
+                        Logging.Info("NAT类型测试域名解析失败，将不会被添加到代理列表。");
+                    }
+                }
+                //处理DNS代理
+                if (Global.Settings.TUNTAP.ProxyDNS)
+                {
+                    if (Global.Settings.TUNTAP.UseCustomDNS)
+                    {
+                        string dns = "";
+                        foreach (var value in Global.Settings.TUNTAP.DNS)
+                        {
+                            dns += value;
+                            dns += ',';
+                        }
+
+                        dns = dns.Trim();
+                        dns = dns.Substring(0, dns.Length - 1);
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.CreateRoute(dns, prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.CreateRoute("1.1.1.1", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                }
             }
             return true;
         }
@@ -195,6 +243,49 @@ namespace Netch.Controllers
                         if (int.TryParse(info[1], out var prefix))
                         {
                             NativeMethods.DeleteRoute(info[0], prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                }
+                if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
+                {
+                    try
+                    {
+                        var nttAddress = Dns.GetHostAddresses(Global.Settings.STUN_Server)[0];
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.DeleteRoute(nttAddress.ToString(), prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                        var nttrAddress = Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0];
+                        if (int.TryParse("32", out var prefixr))
+                        {
+                            NativeMethods.DeleteRoute(nttrAddress.ToString(), prefixr, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                    catch { }
+                }
+                if (Global.Settings.TUNTAP.ProxyDNS)
+                {
+                    if (Global.Settings.TUNTAP.UseCustomDNS)
+                    {
+                        string dns = "";
+                        foreach (var value in Global.Settings.TUNTAP.DNS)
+                        {
+                            dns += value;
+                            dns += ',';
+                        }
+
+                        dns = dns.Trim();
+                        dns = dns.Substring(0, dns.Length - 1);
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.DeleteRoute(dns, prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                        }
+                    }
+                    else
+                    {
+                        if (int.TryParse("32", out var prefix))
+                        {
+                            NativeMethods.DeleteRoute("1.1.1.1", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
                         }
                     }
                 }

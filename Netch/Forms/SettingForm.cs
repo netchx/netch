@@ -52,6 +52,7 @@ namespace Netch.Forms
             TUNTAPNetmaskLabel.Text = Utils.i18N.Translate(TUNTAPNetmaskLabel.Text);
             TUNTAPGatewayLabel.Text = Utils.i18N.Translate(TUNTAPGatewayLabel.Text);
             TUNTAPUseCustomDNSCheckBox.Text = Utils.i18N.Translate(TUNTAPUseCustomDNSCheckBox.Text);
+            TUNTAPProxyDNSCheckBox.Text = Utils.i18N.Translate(TUNTAPProxyDNSCheckBox.Text);
             GlobalBypassIPsButton.Text = Utils.i18N.Translate(GlobalBypassIPsButton.Text);
             ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
@@ -70,6 +71,7 @@ namespace Netch.Forms
             TUNTAPGatewayTextBox.Text = Global.Settings.TUNTAP.Gateway;
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
+            TUNTAPProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
 
             BehaviorGroupBox.Text = Utils.i18N.Translate(BehaviorGroupBox.Text);
             ExitWhenClosedCheckBox.Text = Utils.i18N.Translate(ExitWhenClosedCheckBox.Text);
@@ -320,10 +322,12 @@ namespace Netch.Forms
             }
 
             Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;
+            Global.Settings.TUNTAP.ProxyDNS = TUNTAPProxyDNSCheckBox.Checked;
 
             Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
+
     }
 }
