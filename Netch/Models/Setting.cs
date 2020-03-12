@@ -31,6 +31,11 @@ namespace Netch.Models
         ///		使用自定义 DNS 设置
         /// </summary>
         public bool UseCustomDNS = false;
+
+        /// <summary>
+        ///		模式2下是否代理DNS
+        /// </summary>
+        public bool ProxyDNS = false;
     }
 
     /// <summary>
