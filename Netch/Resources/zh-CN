@@ -26,6 +26,7 @@
     "Starting netfilter2 Service": "正在启动netfilter2服务",
     "Starting dns2tcp Service": "正在启动dns2tcp服务",
     "SetupBypass": "设置绕行规则",
+    "Test failed": "测试失败",
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",

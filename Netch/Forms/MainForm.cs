@@ -1225,7 +1225,14 @@ namespace Netch.Forms
         }
         public void NatTypeStatusText(string text)
         {
-            NatTypeStatusLabel.Text = "NatType:" + text;
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + text;
+            }
+            else
+            {
+                NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + Utils.i18N.Translate("Test failed");
+            }
         }
     }
 }
