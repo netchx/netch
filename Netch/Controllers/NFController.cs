@@ -205,7 +205,7 @@ namespace Netch.Controllers
                     {
                         State = Models.State.Stopped;
                     }
-                    else if (e.Data.Contains("Redirect to"))
+                    else if (e.Data.Contains("Started") || e.Data.Contains("Redirect to"))
                     {
                         State = Models.State.Started;
                     }
