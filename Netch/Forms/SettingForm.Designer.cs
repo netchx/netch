@@ -174,6 +174,7 @@
             this.TUNTAPUseCustomDNSCheckBox.TabIndex = 9;
             this.TUNTAPUseCustomDNSCheckBox.Text = "Use Custom DNS";
             this.TUNTAPUseCustomDNSCheckBox.UseVisualStyleBackColor = true;
+            this.TUNTAPUseCustomDNSCheckBox.CheckedChanged += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
             // 
             // TUNTAPDNSLabel
             // 

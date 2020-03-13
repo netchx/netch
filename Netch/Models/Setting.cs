@@ -132,7 +132,7 @@ namespace Netch.Models
         /// <summary>
         ///		全局绕过 IP 列表
         /// </summary>
-        public List<string> BypassIPs = new List<string>() { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/24" };
+        public List<string> BypassIPs = new List<string>();
 
         /// <summary>
         ///		已保存的快捷配置

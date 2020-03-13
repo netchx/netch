@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -36,6 +37,9 @@ namespace Netch.Controllers
         ///		本地 DNS 服务控制器
         /// </summary>
         public DNSController pDNSController = new DNSController();
+
+        // ByPassLan IP
+        List<string> BypassLanIPs = new List<string>() { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/24" };
 
         /// <summary>
         ///     配置 TUNTAP 适配器
@@ -91,6 +95,17 @@ namespace Netch.Controllers
 
             // 处理全局绕过 IP
             foreach (var ip in Global.Settings.BypassIPs)
+            {
+                var info = ip.Split('/');
+                var address = IPAddress.Parse(info[0]);
+
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.CreateRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
+
+            foreach (var ip in BypassLanIPs)
             {
                 var info = ip.Split('/');
                 var address = IPAddress.Parse(info[0]);
@@ -158,7 +173,7 @@ namespace Netch.Controllers
                     }
                 }
                 //处理NAT类型检测，由于协议的原因，无法仅通过域名确定需要代理的IP，自己记录解析了返回的IP，仅支持默认检测服务器
-                if(Global.Settings.STUN_Server == "stun.stunprotocol.org")
+                if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
                 {
                     try
                     {
@@ -167,7 +182,7 @@ namespace Netch.Controllers
                         {
                             NativeMethods.CreateRoute(nttAddress.ToString(), prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
                         }
-                        var nttrAddress= Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0];
+                        var nttrAddress = Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0];
                         if (int.TryParse("32", out var prefixr))
                         {
                             NativeMethods.CreateRoute(nttrAddress.ToString(), prefixr, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
@@ -301,6 +316,16 @@ namespace Netch.Controllers
                     NativeMethods.DeleteRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
                 }
             }
+            foreach (var ip in BypassLanIPs)
+            {
+                var info = ip.Split('/');
+                var address = IPAddress.Parse(info[0]);
+
+                if (!IPAddress.IsLoopback(address))
+                {
+                    NativeMethods.DeleteRoute(address.ToString(), int.Parse(info[1]), Global.Adapter.Gateway.ToString(), Global.Adapter.Index);
+                }
+            }
 
             if (SavedMode.BypassChina)
             {
@@ -402,7 +427,7 @@ namespace Netch.Controllers
             else
             {
                 Instance.StartInfo.Arguments = string.Format("-proxyServer 127.0.0.1:{0} -tunAddr {1} -tunMask {2} -tunGw {3} -tunDns {4} -tunName \"{5}\"", Global.Settings.Socks5LocalPort, Global.Settings.TUNTAP.Address, Global.Settings.TUNTAP.Netmask, Global.Settings.TUNTAP.Gateway, dns, adapterName);
-            } 
+            }
 
             Instance.StartInfo.CreateNoWindow = true;
             Instance.StartInfo.RedirectStandardError = true;
