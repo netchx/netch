@@ -24,8 +24,8 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 
 [![NyanCAT](docs/sponsor/nyancat.jpg)](https://nyancat.info)
 
-NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起
-[Telegram 群组](https://t.me/NyanCaaaat) 
+NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起。测速图：[这里](https://t.me/BGP2020/935)
+[Telegram 群组](https://t.me/NyanCaaaat)
 
 [![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
 
