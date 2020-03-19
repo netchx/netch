@@ -1,4 +1,5 @@
-name: GitHub CI .Net 4.8
+name: GitHub Actions & Netch CI
+
 on: [push]
 
 jobs:
@@ -8,6 +9,9 @@ jobs:
        
     steps:   
     - uses: actions/checkout@v2
+      
+    - name: Get tag name
+      uses: olegtarasov/get-tag@v1
 
     - name: submodules-init
       uses: snickerbockers/submodules-init@v4
@@ -22,15 +26,46 @@ jobs:
       shell: pwsh
       run: |
         .\build.ps1
-        
+        New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
+        Compress-Archive -Path Netch\bin\x64\Release\win-x64\* -DestinationPath C:\builtfiles\Netch.x64-${{ env.GITHUB_TAG_NAME }}.zip
+        echo "::set-env name=Netch64_SHA256::$(.\getSHA256.ps1 C:\builtfiles\Netch.x64-${{ env.GITHUB_TAG_NAME }}.zip)"
+        Compress-Archive -Path Netch\bin\x86\Release\win-x86\* -DestinationPath C:\builtfiles\Netch.x86-${{ env.GITHUB_TAG_NAME }}.zip
+        echo "::set-env name=Netch86_SHA256::$(.\getSHA256.ps1 C:\builtfiles\Netch.x86-${{ env.GITHUB_TAG_NAME }}.zip)"
+
     - name: Upload Netch.x64
       uses: actions/upload-artifact@v1
       with:
-        name: Netch.X64
+        name: Netch.x64
         path: Netch\bin\x64\Release\win-x64
         
     - name: Upload Netch.x86
       uses: actions/upload-artifact@v1
       with:
-        name: Netch.X86
+        name: Netch.x86
         path: Netch\bin\x86\Release\win-x86
+
+     # Create a new release: create a tag, then 'git push origin <tagname>', wait for it to build      
+    - name: Create a new GitHub release if a new tag is pushed
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ env.GITHUB_TAG_NAME }}
+        prerelease: true
+        draft: false
+        files: |
+          C:\builtfiles\Netch.x64-${{ env.GITHUB_TAG_NAME }}.zip
+          C:\builtfiles\Netch.x86-${{ env.GITHUB_TAG_NAME }}.zip
+        body: |
+          
+          [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
+          
+          ## 更新日志：
+          * 这是 GitHub Action 自动化部署，更新日志应该很快会手动更新:D
+          
+          ## 文件校验
+          | 文件名 | SHA256 |
+          | :- | :- |
+          | <sub>Netch.x64-${{ env.GITHUB_TAG_NAME }}.zip</sub> | <sub>${{ env.Netch64_SHA256 }}</sub> |
+          | <sub>Netch.x86-${{ env.GITHUB_TAG_NAME }}.zip</sub> | <sub>${{ env.Netch86_SHA256 }}</sub> |
+      if: startsWith(github.ref, 'refs/tags/')
+      env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
