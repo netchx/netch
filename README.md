@@ -1,5 +1,3 @@
-CLTEST
-
 # Netch
 [![](https://img.shields.io/badge/Telegram-Channel-blue.svg)](https://t.me/Netch)
 
