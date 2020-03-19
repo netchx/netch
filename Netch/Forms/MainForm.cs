@@ -488,6 +488,7 @@ namespace Netch.Forms
 
             if (Global.Settings.SubscribeLink.Count > 0)
             {
+                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting update subscription")}";
                 DeletePictureBox.Enabled = false;
 
                 UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
@@ -571,6 +572,7 @@ namespace Netch.Forms
                         NatTypeStatusLabel.Text = "";
                     }
                     Utils.Configuration.Save();
+                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Subscription updated")}";
                 }).ContinueWith(task =>
                 {
                     BeginInvoke(new Action(() =>

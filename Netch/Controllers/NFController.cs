@@ -49,9 +49,26 @@ namespace Netch.Controllers
             // 生成驱动文件路径
             var driver = string.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
 
-            // 检查驱动是否存在
-            if (!File.Exists(driver))
+            if (File.Exists(driver))
             {
+                //为了防止小白一直问如何卸载老驱动核心，每次启动时卸载删除一次驱动，保证系统使用最新驱动核心(简单粗暴 但有效:D。增加启动成功率，驱动在被其他加速器占用的情况下可能会导致启动失败
+                try
+                {
+                    var service = new ServiceController("netfilter2");
+                    if (service.Status == ServiceControllerStatus.Running)
+                    {
+                        service.Stop();
+                        service.WaitForStatus(ServiceControllerStatus.Stopped);
+                    }
+                    nfapinet.NFAPI.nf_unRegisterDriver("netfilter2");
+
+                    File.Delete(driver);
+                }
+                catch (Exception)
+                {
+                    // 跳过
+                }
+
                 // 生成系统版本
                 var version = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
 
@@ -94,6 +111,10 @@ namespace Netch.Controllers
                     return false;
                 }
             }
+            // 检查驱动是否存在
+            /*if (!File.Exists(driver))
+            {
+            }*/
 
             try
             {

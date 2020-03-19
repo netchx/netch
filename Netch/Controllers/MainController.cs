@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Netch.Controllers
 {
     public class MainController
     {
+        [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+        public static extern UInt32 FlushDNSResolverCache();
         public static Process GetProcess()
         {
             var process = new Process();
@@ -65,6 +68,8 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Models.Server server, Models.Mode mode)
         {
+            FlushDNSResolverCache();
+
             var result = false;
             switch (server.Type)
             {
