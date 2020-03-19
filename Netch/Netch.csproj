@@ -1,101 +1,111 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net48</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>true</UseWPF>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <StartupObject>Netch.Netch</StartupObject>
-    <ApplicationManifest>App.manifest</ApplicationManifest>
-    <ApplicationIcon>Netch.ico</ApplicationIcon>
-    <Platforms>x86;x64</Platforms>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <UseWPF>true</UseWPF>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <StartupObject>Netch.Netch</StartupObject>
+        <ApplicationManifest>App.manifest</ApplicationManifest>
+        <ApplicationIcon>Netch.ico</ApplicationIcon>
+        <Platforms>x86;x64</Platforms>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <NoWarn />
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <NoWarn />
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn />
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <OutputPath>bin\x86\Debug\</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <NoWarn />
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <OutputPath>bin\x86\Debug\</OutputPath>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn />
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <OutputPath>bin\x86\Release\</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <NoWarn />
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <OutputPath>bin\x86\Release\</OutputPath>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <NoWarn />
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
-    <OutputPath>bin\x64\Release\</OutputPath>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <NoWarn />
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <WarningsAsErrors />
+        <OutputPath>bin\x64\Release\</OutputPath>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove=".gitignore" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove=".gitignore" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <COMReference Include="TaskScheduler.dll">
-      <Guid>e34cb9f1-c7f7-424c-be29-027dcc09363a</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>false</EmbedInteropTypes>
-    </COMReference>
-  </ItemGroup>
+    <ItemGroup>
+        <COMReference Include="TaskScheduler.dll">
+            <Guid>e34cb9f1-c7f7-424c-be29-027dcc09363a</Guid>
+            <VersionMajor>1</VersionMajor>
+            <VersionMinor>0</VersionMinor>
+            <WrapperTool>tlbimp</WrapperTool>
+            <Lcid>0</Lcid>
+            <Isolated>false</Isolated>
+            <EmbedInteropTypes>false</EmbedInteropTypes>
+        </COMReference>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="DNS" Version="5.0.0" />
-    <PackageReference Include="DnsClient" Version="1.2.0" />
-    <PackageReference Include="ini-parser" Version="2.5.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="System.Buffers" Version="4.5.0" />
-    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="DNS" Version="5.0.0" />
+        <PackageReference Include="DnsClient" Version="1.2.0" />
+        <PackageReference Include="ini-parser" Version="2.5.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="System.Buffers" Version="4.5.0" />
+        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
+    <ItemGroup>
+        <Reference Include="System.Net.Http" />
+        <Reference Include="System.ServiceProcess" />
+        <Reference Include="System.Web" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Properties\Resources.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+        <Compile Update="Properties\Settings.Designer.cs">
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+        </Compile>
+    </ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="@ECHO OFF&#xD;&#xA;RD /S /Q $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;MKDIR $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;COPY /Y $(SolutionDir)binaries\$(PlatformName)\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)binaries\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;MOVE /Y $(TargetDir)bin\nfapinet.dll $(TargetDir)nfapinet.dll &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)translations\i18n\* $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)modes\mode\*.txt $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)bin\tap-driver &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)binaries\$(PlatformName)\tap-driver\* $(TargetDir)bin\tap-driver &gt; NUL 2&gt;&amp;1" />
-  </Target>
-
+    <ItemGroup>
+        <None Update="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+    </ItemGroup>
+    <Target Condition="'$(VisualStudioDir)' != ''" Name="PostBuild" AfterTargets="PostBuildEvent">
+        <Exec Command="@ECHO OFF&#xD;&#xA;RD /S /Q $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;MKDIR $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;COPY /Y $(SolutionDir)binaries\$(PlatformName)\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)binaries\* $(TargetDir)bin &gt; NUL 2&gt;&amp;1&#xD;&#xA;MOVE /Y $(TargetDir)bin\nfapinet.dll $(TargetDir)nfapinet.dll &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)translations\i18n\* $(TargetDir)i18n &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)modes\mode\*.txt $(TargetDir)mode &gt; NUL 2&gt;&amp;1&#xD;&#xA;MKDIR $(TargetDir)bin\tap-driver &gt; NUL 2&gt;&amp;1&#xD;&#xA;COPY /Y $(SolutionDir)binaries\$(PlatformName)\tap-driver\* $(TargetDir)bin\tap-driver &gt; NUL 2&gt;&amp;1" />
+    </Target>
 </Project>

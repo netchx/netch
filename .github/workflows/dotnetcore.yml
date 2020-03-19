@@ -1,0 +1,36 @@
+name: GitHub CI .Net 4.8
+on: [push]
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+       
+    steps:   
+    - uses: actions/checkout@v2
+
+    - name: submodules-init
+      uses: snickerbockers/submodules-init@v4
+  
+    - uses: nuget/setup-nuget@v1
+    - run: nuget restore Netch.sln
+     
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.0.0
+
+    - name: Build .NET 4.8 Netch
+      shell: pwsh
+      run: |
+        .\build.ps1
+        
+    - name: Upload Netch.x64
+      uses: actions/upload-artifact@v1
+      with:
+        name: Netch.X64
+        path: Netch\bin\x64\Release\win-x64
+        
+    - name: Upload Netch.x86
+      uses: actions/upload-artifact@v1
+      with:
+        name: Netch.X86
+        path: Netch\bin\x86\Release\win-x86
