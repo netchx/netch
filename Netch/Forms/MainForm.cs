@@ -875,6 +875,25 @@ namespace Netch.Forms
                         }
 
                         State = Models.State.Started;
+                        // 自动检测延迟
+                        Task.Run(() =>
+                        {
+                            while (true)
+                            {
+                                if (State == Models.State.Started)
+                                {
+                                    server.Test();
+                                    // 重载服务器列表
+                                    InitServer();
+
+                                    Thread.Sleep(1000);
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        });
                     }
                     else
                     {
