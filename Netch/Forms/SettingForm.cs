@@ -62,6 +62,7 @@ namespace Netch.Forms
             CheckUpdateWhenOpenedCheckBox.Checked = Global.Settings.CheckUpdateWhenOpened;
             MinimizeWhenStartedCheckBox.Checked = Global.Settings.MinimizeWhenStarted;
             RunAtStartup.Checked = Global.Settings.RunAtStartup;
+            Redirector2checkBox.Checked = Global.Settings.UseRedirector2;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -144,6 +145,7 @@ namespace Netch.Forms
             Global.Settings.CheckUpdateWhenOpened = CheckUpdateWhenOpenedCheckBox.Checked;
             Global.Settings.MinimizeWhenStarted = MinimizeWhenStartedCheckBox.Checked;
             Global.Settings.RunAtStartup = RunAtStartup.Checked;
+            Global.Settings.UseRedirector2 = Redirector2checkBox.Checked;
 
             // 开机自启判断
             TaskSchedulerClass scheduler = new TaskSchedulerClass();

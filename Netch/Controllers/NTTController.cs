@@ -24,6 +24,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
+            Thread.Sleep(1000);
             MainForm.Instance.NatTypeStatusText($"{Utils.i18N.Translate("Starting NatTester")}");
             try
             {

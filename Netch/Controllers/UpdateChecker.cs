@@ -27,6 +27,7 @@ namespace Netch.Controllers
         public const string Name = @"Netch";
         public const string Copyright = @"Copyright © 2019 - 2020";
         public const string Version = @"1.4.0";
+        public const string NFDriverVersion = @"1.5.9.0";
 
         public async void Check(bool notifyNoFound, bool isPreRelease)
         {

@@ -29,6 +29,7 @@
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",
     "Subscription updated": "订阅更新完毕",
+    "Register driver": "正在注册驱动",
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",

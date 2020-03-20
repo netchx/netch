@@ -153,5 +153,10 @@ namespace Netch.Models
         ///     STUN测试服务器
         /// </summary>
         public int STUN_Server_Port = 3478;
+
+        /// <summary>
+        ///     是否切换为2号核心
+        /// </summary>
+        public bool UseRedirector2 = false;
     }
 }
