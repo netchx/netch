@@ -96,6 +96,8 @@
     "Please press Stop button first": "请先点击停止按钮",
     "Please select a server first": "请先选择一个服务器",
     "Please select an mode first": "请先选择一个模式",
+    "Please enter a profile name first": "请先为该配置设置一个名称",
+    "No saved profile here. Save a profile first by Ctrl+Click on the button": "当前按钮下没有保存配置，请先使用ctrl+左键点击该按钮保存一个配置",
 
     "Used": "已使用",
     "Status": "状态",
