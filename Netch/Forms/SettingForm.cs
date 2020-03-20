@@ -273,7 +273,7 @@ namespace Netch.Forms
             {
                 var ProfileCount = int.Parse(ProfileCount_TextBox.Text);
 
-                if (ProfileCount > 0)
+                if (ProfileCount > -1)
                 {
                     Global.Settings.ProfileCount = ProfileCount;
                 }
