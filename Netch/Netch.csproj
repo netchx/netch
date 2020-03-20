@@ -74,6 +74,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\NetchLib\NetchLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Reference Include="System.Net.Http" />
         <Reference Include="System.ServiceProcess" />
         <Reference Include="System.Web" />
