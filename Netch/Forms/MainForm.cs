@@ -1037,6 +1037,10 @@ namespace Netch.Forms
                 {
                     MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
+                else if (ProfileNameText.Text == "")
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please enter a profile name first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
                 else
                 {
                     SaveProfile(index);
@@ -1045,6 +1049,11 @@ namespace Netch.Forms
             }
             else
             {
+                if (ProfileButtons[index].Text == Utils.i18N.Translate("Error") || ProfileButtons[index].Text == Utils.i18N.Translate("None"))
+                {
+                    MessageBox.Show(Utils.i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
                 try
                 {
                     ProfileNameText.Text = LoadProfile(index);
