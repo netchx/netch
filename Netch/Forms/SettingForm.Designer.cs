@@ -63,6 +63,7 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
+            this.BypassModeCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -259,6 +260,7 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.BypassModeCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.Redirector2checkBox);
             this.BehaviorGroupBox.Controls.Add(this.label3);
             this.BehaviorGroupBox.Controls.Add(this.STUN_ServerPortTextBox);
@@ -414,6 +416,17 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
+            // BypassModeCheckBox
+            // 
+            this.BypassModeCheckBox.AutoSize = true;
+            this.BypassModeCheckBox.Location = new System.Drawing.Point(237, 266);
+            this.BypassModeCheckBox.Name = "BypassModeCheckBox";
+            this.BypassModeCheckBox.Size = new System.Drawing.Size(135, 21);
+            this.BypassModeCheckBox.TabIndex = 14;
+            this.BypassModeCheckBox.Text = "进程代理白名单模式";
+            this.BypassModeCheckBox.UseVisualStyleBackColor = true;
+            this.BypassModeCheckBox.CheckedChanged += new System.EventHandler(this.BypassModeCheckBox_CheckedChanged);
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -480,5 +493,6 @@
         private System.Windows.Forms.CheckBox TUNTAPProxyDNSCheckBox;
         private System.Windows.Forms.CheckBox Redirector2checkBox;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.CheckBox BypassModeCheckBox;
     }
 }

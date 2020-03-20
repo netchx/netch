@@ -111,7 +111,13 @@ namespace Netch.Controllers
                 }
             }
 
-            var processes = "NTT.exe,";
+            var processes = "";
+
+            //开启进程白名单模式
+            if (!Global.Settings.ProcessBypassMode)
+            {
+                processes += "NTT.exe,";
+            }
 
             foreach (var proc in mode.Rule)
             {
@@ -164,10 +170,24 @@ namespace Netch.Controllers
                 }
                 Instance.StartInfo.FileName = "bin\\Redirector.exe";
 
+                //开启进程白名单模式
+                if (Global.Settings.ProcessBypassMode)
+                {
+                    processes += ",Shadowsocks.exe";
+                    processes += ",ShadowsocksR.exe";
+                    processes += ",Privoxy.exe";
+                    processes += ",simple-obfs.exe";
+                    processes += ",v2ray.exe,v2ctl.exe,v2ray-plugin.exe";
+                    fallback += " -bypass true ";
+                }
+                else
+                {
+                    fallback += " -bypass false";
+                }
 
                 if (server.Type != "Socks5")
                 {
-                    fallback = $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
+                    fallback += $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
                 }
                 else
                 {
@@ -178,7 +198,7 @@ namespace Netch.Controllers
                         return false;
                     }
 
-                    fallback = $"-r {result}:{server.Port} -p \"{processes}\"";
+                    fallback += $"-r {result}:{server.Port} -p \"{processes}\"";
 
                     if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
                     {
@@ -186,6 +206,11 @@ namespace Netch.Controllers
                     }
                 }
             }
+
+            Utils.Logging.Info($"{fallback}");
+
+            if (File.Exists("logging\\redirector.log"))
+                File.Delete("logging\\redirector.log");
 
             Instance.StartInfo.Arguments = fallback;
             Instance.OutputDataReceived += OnOutputDataReceived;

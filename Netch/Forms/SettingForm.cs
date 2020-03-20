@@ -63,6 +63,7 @@ namespace Netch.Forms
             MinimizeWhenStartedCheckBox.Checked = Global.Settings.MinimizeWhenStarted;
             RunAtStartup.Checked = Global.Settings.RunAtStartup;
             Redirector2checkBox.Checked = Global.Settings.UseRedirector2;
+            BypassModeCheckBox.Checked = Global.Settings.ProcessBypassMode;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -146,6 +147,7 @@ namespace Netch.Forms
             Global.Settings.MinimizeWhenStarted = MinimizeWhenStartedCheckBox.Checked;
             Global.Settings.RunAtStartup = RunAtStartup.Checked;
             Global.Settings.UseRedirector2 = Redirector2checkBox.Checked;
+            Global.Settings.ProcessBypassMode = BypassModeCheckBox.Checked;
 
             // 开机自启判断
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
@@ -331,5 +333,18 @@ namespace Netch.Forms
             Close();
         }
 
+        private void BypassModeCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (BypassModeCheckBox.Checked)
+            {
+                Redirector2checkBox.Checked = false;
+                Redirector2checkBox.Enabled = false;
+            }
+            else
+            {
+                Redirector2checkBox.Enabled = true;
+            }
+
+        }
     }
 }
