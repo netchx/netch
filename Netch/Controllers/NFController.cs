@@ -88,10 +88,10 @@ namespace Netch.Controllers
                 var service = new ServiceController("netfilter2");
                 if (service.Status == ServiceControllerStatus.Running)
                 {
-                    //防止其他程序占用
-                    service.Stop();
+                    //防止其他程序占用 重置NF百万ID限制 待定
+                    /*service.Stop();
                     MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
-                    service.Start();
+                    service.Start();*/
                 }
                 else if (service.Status == ServiceControllerStatus.Stopped)
                 {
@@ -182,7 +182,7 @@ namespace Netch.Controllers
                 }
                 else
                 {
-                    fallback += " -bypass false";
+                    fallback += " -bypass false ";
                 }
 
                 if (server.Type != "Socks5")
