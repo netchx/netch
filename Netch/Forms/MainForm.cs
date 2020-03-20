@@ -1099,6 +1099,14 @@ namespace Netch.Forms
         public void InitProfile()
         {
             var num_profile = Global.Settings.ProfileCount;
+            if (num_profile == 0)
+            {
+                ProfileGroupBox.Size = new Size(0,0);
+                ConfigurationGroupBox.Size -= new Size(0, 30);
+                this.Size -= new Size(0, 70 + 30);
+                return;
+            }
+
             ProfileTable.ColumnCount = num_profile;
 
             while (Global.Settings.profiles.Count < num_profile)
