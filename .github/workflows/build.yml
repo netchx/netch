@@ -35,13 +35,13 @@ jobs:
     - name: Upload Netch.x64
       uses: actions/upload-artifact@v1
       with:
-        name: Netch.x64-${{ env.GITHUB_TAG_NAME }}
+        name: Netch.x64
         path: Netch\bin\x64\Release\win-x64
         
     - name: Upload Netch.x86
       uses: actions/upload-artifact@v1
       with:
-        name: Netch.x86-${{ env.GITHUB_TAG_NAME }}
+        name: Netch.x86
         path: Netch\bin\x86\Release\win-x86
 
      # Create a new release: create a tag, then 'git push origin <tagname>', wait for it to build      
