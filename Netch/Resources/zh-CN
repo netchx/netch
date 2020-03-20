@@ -12,7 +12,7 @@
     "Stop": "停止",
     "Waiting for command": "等待命令中",
     "Starting": "正在启动中",
-    "Start failed": "启动失败",
+    "Start failed": "启动失败，请打开软件目录logging文件夹查看日志",
     "Started": "已启动",
     "Stopping": "正在停止中",
     "Stopped": "已停止",
