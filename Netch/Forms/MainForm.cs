@@ -1102,8 +1102,9 @@ namespace Netch.Forms
             if (num_profile == 0)
             {
                 ProfileGroupBox.Size = new Size(0,0);
-                ConfigurationGroupBox.Size -= new Size(0, 30);
-                this.Size -= new Size(0, 70 + 30);
+                ConfigurationGroupBox.Size -= new Size(0, 25);
+                this.Size -= new Size(0, 70 + 25);
+                configLayoutPanel.RowStyles[2].Height = 0;
                 return;
             }
 
