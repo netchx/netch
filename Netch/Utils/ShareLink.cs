@@ -290,80 +290,88 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssr://"))
                 {
-                    var data = new Server();
-                    data.Type = "SSR";
 
-                    text = text.Substring(6);
+                    list.Add(SsrServerFromLink(text));
 
-                    var parser = new Regex(@"^(?<server>.+):(?<port>(-?\d+?)):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/\?(?<info>.*)$");
-                    var match = parser.Match(URLSafeBase64Decode(text));
+                    /* var data = new Server();
+                     data.Type = "SSR";
 
-                    if (match.Success)
-                    {
-                        data.Hostname = match.Groups["server"].Value;
-                        data.Port = int.Parse(match.Groups["port"].Value);
-                        if (data.Port < 0)
-                        {
-                            data.Port += 65536;
-                        }
-                        data.Password = URLSafeBase64Decode(match.Groups["password"].Value);
+                     text = text.Substring(6);
 
-                        data.EncryptMethod = match.Groups["method"].Value;
-                        if (!Global.EncryptMethods.SSR.Contains(data.EncryptMethod))
-                        {
-                            Logging.Info(string.Format("不支持的 SSR 加密方式：{0}", data.EncryptMethod));
-                            return null;
-                        }
+                     var parser = new Regex(@"^(?<server>.+):(?<port>(-?\d+?)):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/\?(?<info>.*)$");
+                     var parser2 = new Regex(@"^(?<server>.+):(?<port>(-?\d+?)):(?<protocol>.+?):(?<method>.+?):(?<obfs>.+?):(?<password>.+?)/$");
+                     var match = parser2.Match(URLSafeBase64Decode(text));
+                     if (!match.Success)
+                     {
+                         match = parser2.Match(UnBase64String(text));
+                     }
 
-                        data.Protocol = match.Groups["protocol"].Value;
-                        if (!Global.Protocols.Contains(data.Protocol))
-                        {
-                            Logging.Info(string.Format("不支持的 SSR 协议：{0}", data.Protocol));
-                            return null;
-                        }
+                     if (match.Success)
+                     {
+                         data.Hostname = match.Groups["server"].Value;
+                         data.Port = int.Parse(match.Groups["port"].Value);
+                         if (data.Port < 0)
+                         {
+                             data.Port += 65536;
+                         }
+                         data.Password = URLSafeBase64Decode(match.Groups["password"].Value);
 
-                        data.OBFS = match.Groups["obfs"].Value;
-                        if (data.OBFS == @"tls1.2_ticket_fastauth")
-                        {
-                            data.OBFS = @"tls1.2_ticket_auth";
-                        }
-                        if (!Global.OBFSs.Contains(data.OBFS))
-                        {
-                            Logging.Info(string.Format("不支持的 SSR 混淆：{0}", data.OBFS));
-                            return null;
-                        }
+                         data.EncryptMethod = match.Groups["method"].Value;
+                         if (!Global.EncryptMethods.SSR.Contains(data.EncryptMethod))
+                         {
+                             Logging.Info(string.Format("不支持的 SSR 加密方式：{0}", data.EncryptMethod));
+                             return null;
+                         }
 
-                        var info = match.Groups["info"].Value;
-                        var dict = new Dictionary<string, string>();
-                        foreach (var str in info.Split('&'))
-                        {
-                            var splited = str.Split('=');
-                            dict.Add(splited[0], splited[1]);
-                        }
+                         data.Protocol = match.Groups["protocol"].Value;
+                         if (!Global.Protocols.Contains(data.Protocol))
+                         {
+                             Logging.Info(string.Format("不支持的 SSR 协议：{0}", data.Protocol));
+                             return null;
+                         }
 
-                        if (dict.ContainsKey("remarks"))
-                        {
-                            data.Remark = URLSafeBase64Decode(dict["remarks"]);
-                        }
+                         data.OBFS = match.Groups["obfs"].Value;
+                         if (data.OBFS == @"tls1.2_ticket_fastauth")
+                         {
+                             data.OBFS = @"tls1.2_ticket_auth";
+                         }
+                         if (!Global.OBFSs.Contains(data.OBFS))
+                         {
+                             Logging.Info(string.Format("不支持的 SSR 混淆：{0}", data.OBFS));
+                             return null;
+                         }
 
-                        if (dict.ContainsKey("protoparam"))
-                        {
-                            data.ProtocolParam = URLSafeBase64Decode(dict["protoparam"]);
-                        }
+                         var info = match.Groups["info"].Value;
+                         var dict = new Dictionary<string, string>();
+                         foreach (var str in info.Split('&'))
+                         {
+                             var splited = str.Split('=');
+                             dict.Add(splited[0], splited[1]);
+                         }
 
-                        if (dict.ContainsKey("obfsparam"))
-                        {
-                            data.OBFSParam = URLSafeBase64Decode(dict["obfsparam"]);
-                        }
+                         if (dict.ContainsKey("remarks"))
+                         {
+                             data.Remark = URLSafeBase64Decode(dict["remarks"]);
+                         }
 
-                        if (Global.EncryptMethods.SS.Contains(data.EncryptMethod) && data.Protocol == "origin" && data.OBFS == "plain")
-                        {
-                            data.OBFS = "";
-                            data.Type = "SS";
-                        }
-                    }
+                         if (dict.ContainsKey("protoparam"))
+                         {
+                             data.ProtocolParam = URLSafeBase64Decode(dict["protoparam"]);
+                         }
 
-                    list.Add(data);
+                         if (dict.ContainsKey("obfsparam"))
+                         {
+                             data.OBFSParam = URLSafeBase64Decode(dict["obfsparam"]);
+                         }
+
+                         if (Global.EncryptMethods.SS.Contains(data.EncryptMethod) && data.Protocol == "origin" && data.OBFS == "plain")
+                         {
+                             data.OBFS = "";
+                             data.Type = "SS";
+                         }
+                         list.Add(data);
+                     }*/
+
                 }
                 else if (text.StartsWith("vmess://"))
                 {
@@ -516,6 +524,124 @@ namespace Netch.Utils
             }
 
             return list;
+        }
+        public static string UnBase64String(string value)
+        {
+            if (value == null || value == "")
+            {
+                return "";
+            }
+            byte[] bytes = Convert.FromBase64String(value);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        public static string ToBase64String(string value)
+        {
+            if (value == null || value == "")
+            {
+                return "";
+            }
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            return Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// SSR链接解析器
+        /// Copy From https://github.com/HMBSbige/ShadowsocksR-Windows/blob/d9dc8d032a6e04c14b9dc6c8f673c9cc5aa9f607/shadowsocks-csharp/Model/Server.cs#L428
+        /// Thx :D
+        /// </summary>
+        /// <param name="ssrUrl"></param>
+        /// <returns></returns>
+        public static Server SsrServerFromLink(string ssrUrl)
+        {
+            // ssr://host:port:protocol:method:obfs:base64pass/?obfsparam=base64&remarks=base64&group=base64&udpport=0&uot=1
+            var ssr = Regex.Match(ssrUrl, "ssr://([A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+            if (!ssr.Success)
+                throw new FormatException();
+
+            var data = URLSafeBase64Decode(ssr.Groups[1].Value);
+            var params_dict = new Dictionary<string, string>();
+
+            var param_start_pos = data.IndexOf("?", StringComparison.Ordinal);
+            if (param_start_pos > 0)
+            {
+                params_dict = ParseParam(data.Substring(param_start_pos + 1));
+                data = data.Substring(0, param_start_pos);
+            }
+            if (data.IndexOf("/", StringComparison.Ordinal) >= 0)
+            {
+                data = data.Substring(0, data.LastIndexOf("/", StringComparison.Ordinal));
+            }
+
+            var UrlFinder = new Regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
+            var match = UrlFinder.Match(data);
+
+            if (match == null || !match.Success)
+                throw new FormatException();
+
+            var serverAddr = match.Groups[1].Value;
+            var Server_Port = ushort.Parse(match.Groups[2].Value);
+            var Protocol = match.Groups[3].Value.Length == 0 ? "origin" : match.Groups[3].Value;
+            Protocol = Protocol.Replace("_compatible", "");
+            var Method = match.Groups[4].Value;
+            var obfs = match.Groups[5].Value.Length == 0 ? "plain" : match.Groups[5].Value;
+            obfs = obfs.Replace("_compatible", "");
+            var Password = URLSafeBase64Decode(match.Groups[6].Value);
+            var ProtocolParam = "";
+            var ObfsParam = "";
+            var Remarks = "";
+            var Group = "";
+
+            if (params_dict.ContainsKey("protoparam"))
+            {
+                ProtocolParam = URLSafeBase64Decode(params_dict["protoparam"]);
+            }
+            if (params_dict.ContainsKey("obfsparam"))
+            {
+                ObfsParam = URLSafeBase64Decode(params_dict["obfsparam"]);
+            }
+            if (params_dict.ContainsKey("remarks"))
+            {
+                Remarks = URLSafeBase64Decode(params_dict["remarks"]);
+            }
+            Group = params_dict.ContainsKey("group") ? URLSafeBase64Decode(params_dict["group"]) : string.Empty;
+
+            /*if (params_dict.ContainsKey("uot"))
+            {
+                UdpOverTcp = int.Parse(params_dict["uot"]) != 0;
+            }
+            if (params_dict.ContainsKey("udpport"))
+            {
+                Server_Udp_Port = ushort.Parse(params_dict["udpport"]);
+            }*/
+            Server server = new Server();
+            server.Type = "SSR";
+            server.Hostname = serverAddr;
+            server.Port = Server_Port;
+            server.Protocol = Protocol;
+            server.EncryptMethod = Method;
+            server.OBFS = obfs;
+            server.Password = Password;
+            server.ProtocolParam = ProtocolParam;
+            server.OBFSParam = ObfsParam;
+            server.Remark = Remarks;
+            server.Group = Group;
+            return server;
+        }
+        private static Dictionary<string, string> ParseParam(string paramStr)
+        {
+            var paramsDict = new Dictionary<string, string>();
+            var obfsParams = paramStr.Split('&');
+            foreach (var p in obfsParams)
+            {
+                if (p.IndexOf('=') > 0)
+                {
+                    var index = p.IndexOf('=');
+                    var key = p.Substring(0, index);
+                    var val = p.Substring(index + 1);
+                    paramsDict[key] = val;
+                }
+            }
+            return paramsDict;
         }
     }
 }
