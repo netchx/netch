@@ -124,11 +124,11 @@ namespace Netch.Controllers
                     }
                     // 进程代理模式，启动 NF 控制器
                     result = pNFController.Start(server, mode);
-
-                    Task.Run(() =>
-                    {
-                        pNTTController.Start();
-                    });
+                    if (result)
+                        Task.Run(() =>
+                        {
+                            pNTTController.Start();
+                        });
 
                 }
                 else if (mode.Type == 1)
@@ -143,11 +143,11 @@ namespace Netch.Controllers
                     }
                     // TUN/TAP 黑名单代理模式，启动 TUN/TAP 控制器
                     result = pTUNTAPController.Start(server, mode);
-
-                    Task.Run(() =>
-                    {
-                        pNTTController.Start();
-                    });
+                    if (result)
+                        Task.Run(() =>
+                        {
+                            pNTTController.Start();
+                        });
                 }
                 else if (mode.Type == 2)
                 {
@@ -161,11 +161,11 @@ namespace Netch.Controllers
                     }
                     // TUN/TAP 白名单代理模式，启动 TUN/TAP 控制器
                     result = pTUNTAPController.Start(server, mode);
-
-                    Task.Run(() =>
-                    {
-                        pNTTController.Start();
-                    });
+                    if (result)
+                        Task.Run(() =>
+                        {
+                            pNTTController.Start();
+                        });
                 }
                 else if (mode.Type == 3 || mode.Type == 5)
                 {

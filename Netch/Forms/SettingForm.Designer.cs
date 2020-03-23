@@ -49,8 +49,13 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.DetectionInterval_Label = new System.Windows.Forms.Label();
+            this.DetectionInterval_TextBox = new System.Windows.Forms.TextBox();
+            this.EnableStartedTcping_CheckBox = new System.Windows.Forms.CheckBox();
+            this.DelayTestAfterStartup_Label = new System.Windows.Forms.Label();
+            this.BypassModeCheckBox = new System.Windows.Forms.CheckBox();
             this.Redirector2checkBox = new System.Windows.Forms.CheckBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.ExperimentalFunction_Label = new System.Windows.Forms.Label();
             this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
@@ -63,7 +68,6 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.BypassModeCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -239,7 +243,7 @@
             // ControlButton
             // 
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(357, 679);
+            this.ControlButton.Location = new System.Drawing.Point(781, 356);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -250,7 +254,7 @@
             // GlobalBypassIPsButton
             // 
             this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 679);
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 356);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
             this.GlobalBypassIPsButton.TabIndex = 10;
@@ -260,9 +264,13 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.DetectionInterval_Label);
+            this.BehaviorGroupBox.Controls.Add(this.DetectionInterval_TextBox);
+            this.BehaviorGroupBox.Controls.Add(this.EnableStartedTcping_CheckBox);
+            this.BehaviorGroupBox.Controls.Add(this.DelayTestAfterStartup_Label);
             this.BehaviorGroupBox.Controls.Add(this.BypassModeCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.Redirector2checkBox);
-            this.BehaviorGroupBox.Controls.Add(this.label3);
+            this.BehaviorGroupBox.Controls.Add(this.ExperimentalFunction_Label);
             this.BehaviorGroupBox.Controls.Add(this.STUN_ServerPortTextBox);
             this.BehaviorGroupBox.Controls.Add(this.label2);
             this.BehaviorGroupBox.Controls.Add(this.label1);
@@ -275,35 +283,82 @@
             this.BehaviorGroupBox.Controls.Add(this.StartWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.StopWhenExitedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
-            this.BehaviorGroupBox.Location = new System.Drawing.Point(12, 351);
+            this.BehaviorGroupBox.Location = new System.Drawing.Point(438, 12);
             this.BehaviorGroupBox.Name = "BehaviorGroupBox";
-            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 312);
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 333);
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
             // 
+            // DetectionInterval_Label
+            // 
+            this.DetectionInterval_Label.AutoSize = true;
+            this.DetectionInterval_Label.Location = new System.Drawing.Point(230, 151);
+            this.DetectionInterval_Label.Name = "DetectionInterval_Label";
+            this.DetectionInterval_Label.Size = new System.Drawing.Size(128, 17);
+            this.DetectionInterval_Label.TabIndex = 18;
+            this.DetectionInterval_Label.Text = "Detection interval(/s)";
+            // 
+            // DetectionInterval_TextBox
+            // 
+            this.DetectionInterval_TextBox.Location = new System.Drawing.Point(364, 148);
+            this.DetectionInterval_TextBox.Name = "DetectionInterval_TextBox";
+            this.DetectionInterval_TextBox.Size = new System.Drawing.Size(47, 23);
+            this.DetectionInterval_TextBox.TabIndex = 17;
+            this.DetectionInterval_TextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // EnableStartedTcping_CheckBox
+            // 
+            this.EnableStartedTcping_CheckBox.AutoSize = true;
+            this.EnableStartedTcping_CheckBox.Location = new System.Drawing.Point(152, 150);
+            this.EnableStartedTcping_CheckBox.Name = "EnableStartedTcping_CheckBox";
+            this.EnableStartedTcping_CheckBox.Size = new System.Drawing.Size(66, 21);
+            this.EnableStartedTcping_CheckBox.TabIndex = 15;
+            this.EnableStartedTcping_CheckBox.Text = "Enable";
+            this.EnableStartedTcping_CheckBox.UseVisualStyleBackColor = true;
+            // 
+            // DelayTestAfterStartup_Label
+            // 
+            this.DelayTestAfterStartup_Label.AutoSize = true;
+            this.DelayTestAfterStartup_Label.Location = new System.Drawing.Point(6, 151);
+            this.DelayTestAfterStartup_Label.Name = "DelayTestAfterStartup_Label";
+            this.DelayTestAfterStartup_Label.Size = new System.Drawing.Size(141, 17);
+            this.DelayTestAfterStartup_Label.TabIndex = 16;
+            this.DelayTestAfterStartup_Label.Text = "Delay test after startup";
+            // 
+            // BypassModeCheckBox
+            // 
+            this.BypassModeCheckBox.AutoSize = true;
+            this.BypassModeCheckBox.Location = new System.Drawing.Point(276, 232);
+            this.BypassModeCheckBox.Name = "BypassModeCheckBox";
+            this.BypassModeCheckBox.Size = new System.Drawing.Size(135, 21);
+            this.BypassModeCheckBox.TabIndex = 14;
+            this.BypassModeCheckBox.Text = "进程代理白名单模式";
+            this.BypassModeCheckBox.UseVisualStyleBackColor = true;
+            this.BypassModeCheckBox.CheckedChanged += new System.EventHandler(this.BypassModeCheckBox_CheckedChanged);
+            // 
             // Redirector2checkBox
             // 
             this.Redirector2checkBox.AutoSize = true;
-            this.Redirector2checkBox.Location = new System.Drawing.Point(120, 266);
+            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 232);
             this.Redirector2checkBox.Name = "Redirector2checkBox";
             this.Redirector2checkBox.Size = new System.Drawing.Size(118, 21);
             this.Redirector2checkBox.TabIndex = 11;
             this.Redirector2checkBox.Text = "是否启用2号核心";
             this.Redirector2checkBox.UseVisualStyleBackColor = true;
             // 
-            // label3
+            // ExperimentalFunction_Label
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(9, 267);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(68, 17);
-            this.label3.TabIndex = 13;
-            this.label3.Text = "实验性功能";
+            this.ExperimentalFunction_Label.AutoSize = true;
+            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 233);
+            this.ExperimentalFunction_Label.Name = "ExperimentalFunction_Label";
+            this.ExperimentalFunction_Label.Size = new System.Drawing.Size(133, 17);
+            this.ExperimentalFunction_Label.TabIndex = 13;
+            this.ExperimentalFunction_Label.Text = "Experimental function";
             // 
             // STUN_ServerPortTextBox
             // 
-            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 237);
+            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(117, 203);
             this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
             this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
             this.STUN_ServerPortTextBox.TabIndex = 8;
@@ -312,7 +367,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 243);
+            this.label2.Location = new System.Drawing.Point(6, 209);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(110, 17);
             this.label2.TabIndex = 12;
@@ -321,7 +376,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(9, 214);
+            this.label1.Location = new System.Drawing.Point(6, 180);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 17);
             this.label1.TabIndex = 10;
@@ -330,7 +385,7 @@
             // RunAtStartup
             // 
             this.RunAtStartup.AutoSize = true;
-            this.RunAtStartup.Location = new System.Drawing.Point(120, 130);
+            this.RunAtStartup.Location = new System.Drawing.Point(12, 75);
             this.RunAtStartup.Name = "RunAtStartup";
             this.RunAtStartup.Size = new System.Drawing.Size(109, 21);
             this.RunAtStartup.TabIndex = 11;
@@ -339,7 +394,7 @@
             // 
             // STUN_ServerTextBox
             // 
-            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 211);
+            this.STUN_ServerTextBox.Location = new System.Drawing.Point(117, 177);
             this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
             this.STUN_ServerTextBox.Size = new System.Drawing.Size(294, 23);
             this.STUN_ServerTextBox.TabIndex = 11;
@@ -348,7 +403,7 @@
             // MinimizeWhenStartedCheckBox
             // 
             this.MinimizeWhenStartedCheckBox.AutoSize = true;
-            this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(120, 103);
+            this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(206, 48);
             this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
             this.MinimizeWhenStartedCheckBox.Size = new System.Drawing.Size(158, 21);
             this.MinimizeWhenStartedCheckBox.TabIndex = 10;
@@ -358,7 +413,7 @@
             // ProfileCount_Label
             // 
             this.ProfileCount_Label.AutoSize = true;
-            this.ProfileCount_Label.Location = new System.Drawing.Point(9, 185);
+            this.ProfileCount_Label.Location = new System.Drawing.Point(6, 123);
             this.ProfileCount_Label.Name = "ProfileCount_Label";
             this.ProfileCount_Label.Size = new System.Drawing.Size(79, 17);
             this.ProfileCount_Label.TabIndex = 8;
@@ -366,16 +421,16 @@
             // 
             // ProfileCount_TextBox
             // 
-            this.ProfileCount_TextBox.Location = new System.Drawing.Point(222, 182);
+            this.ProfileCount_TextBox.Location = new System.Drawing.Point(203, 120);
             this.ProfileCount_TextBox.Name = "ProfileCount_TextBox";
-            this.ProfileCount_TextBox.Size = new System.Drawing.Size(192, 23);
+            this.ProfileCount_TextBox.Size = new System.Drawing.Size(208, 23);
             this.ProfileCount_TextBox.TabIndex = 9;
             this.ProfileCount_TextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // CheckUpdateWhenOpenedCheckBox
             // 
             this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
-            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 157);
+            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(206, 75);
             this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
             this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(190, 21);
             this.CheckUpdateWhenOpenedCheckBox.TabIndex = 8;
@@ -386,7 +441,7 @@
             // StartWhenOpenedCheckBox
             // 
             this.StartWhenOpenedCheckBox.AutoSize = true;
-            this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(120, 76);
+            this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(12, 48);
             this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
             this.StartWhenOpenedCheckBox.Size = new System.Drawing.Size(137, 21);
             this.StartWhenOpenedCheckBox.TabIndex = 7;
@@ -397,7 +452,7 @@
             // StopWhenExitedCheckBox
             // 
             this.StopWhenExitedCheckBox.AutoSize = true;
-            this.StopWhenExitedCheckBox.Location = new System.Drawing.Point(120, 49);
+            this.StopWhenExitedCheckBox.Location = new System.Drawing.Point(206, 22);
             this.StopWhenExitedCheckBox.Name = "StopWhenExitedCheckBox";
             this.StopWhenExitedCheckBox.Size = new System.Drawing.Size(127, 21);
             this.StopWhenExitedCheckBox.TabIndex = 6;
@@ -408,7 +463,7 @@
             // ExitWhenClosedCheckBox
             // 
             this.ExitWhenClosedCheckBox.AutoSize = true;
-            this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(120, 22);
+            this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(12, 21);
             this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
             this.ExitWhenClosedCheckBox.Size = new System.Drawing.Size(123, 21);
             this.ExitWhenClosedCheckBox.TabIndex = 5;
@@ -416,22 +471,11 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // BypassModeCheckBox
-            // 
-            this.BypassModeCheckBox.AutoSize = true;
-            this.BypassModeCheckBox.Location = new System.Drawing.Point(237, 266);
-            this.BypassModeCheckBox.Name = "BypassModeCheckBox";
-            this.BypassModeCheckBox.Size = new System.Drawing.Size(135, 21);
-            this.BypassModeCheckBox.TabIndex = 14;
-            this.BypassModeCheckBox.Text = "进程代理白名单模式";
-            this.BypassModeCheckBox.UseVisualStyleBackColor = true;
-            this.BypassModeCheckBox.CheckedChanged += new System.EventHandler(this.BypassModeCheckBox_CheckedChanged);
-            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(444, 713);
+            this.ClientSize = new System.Drawing.Size(868, 390);
             this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
@@ -492,7 +536,11 @@
         private System.Windows.Forms.TextBox STUN_ServerPortTextBox;
         private System.Windows.Forms.CheckBox TUNTAPProxyDNSCheckBox;
         private System.Windows.Forms.CheckBox Redirector2checkBox;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label ExperimentalFunction_Label;
         private System.Windows.Forms.CheckBox BypassModeCheckBox;
+        private System.Windows.Forms.TextBox DetectionInterval_TextBox;
+        private System.Windows.Forms.CheckBox EnableStartedTcping_CheckBox;
+        private System.Windows.Forms.Label DelayTestAfterStartup_Label;
+        private System.Windows.Forms.Label DetectionInterval_Label;
     }
 }

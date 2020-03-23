@@ -158,9 +158,20 @@ namespace Netch.Models
         ///     是否切换为2号核心
         /// </summary>
         public bool UseRedirector2 = false;
+
         /// <summary>
         ///     是否启用进程代理白名单模式
         /// </summary>
         public bool ProcessBypassMode = false;
+
+        /// <summary>
+        ///     是否启用启动后延迟测试
+        /// </summary>
+        public bool StartedTcping = false;
+
+        /// <summary>
+        ///     启动后延迟测试间隔/秒
+        /// </summary>
+        public int StartedTcping_Interval = 3;
     }
 }

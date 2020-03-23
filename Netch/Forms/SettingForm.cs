@@ -64,6 +64,8 @@ namespace Netch.Forms
             RunAtStartup.Checked = Global.Settings.RunAtStartup;
             Redirector2checkBox.Checked = Global.Settings.UseRedirector2;
             BypassModeCheckBox.Checked = Global.Settings.ProcessBypassMode;
+            EnableStartedTcping_CheckBox.Checked = Global.Settings.StartedTcping;
+            DetectionInterval_TextBox.Text = Global.Settings.StartedTcping_Interval.ToString();
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -83,6 +85,11 @@ namespace Netch.Forms
             RunAtStartup.Text = Utils.i18N.Translate(RunAtStartup.Text);
             CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
             ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
+            ExperimentalFunction_Label.Text = Utils.i18N.Translate(ExperimentalFunction_Label.Text);
+            DelayTestAfterStartup_Label.Text = Utils.i18N.Translate(DelayTestAfterStartup_Label.Text);
+            EnableStartedTcping_CheckBox.Text = Utils.i18N.Translate(EnableStartedTcping_CheckBox.Text);
+            DetectionInterval_Label.Text = Utils.i18N.Translate(DetectionInterval_Label.Text);
+            DelayTestAfterStartup_Label.Text = Utils.i18N.Translate(DelayTestAfterStartup_Label.Text);
 
             ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
             STUN_ServerTextBox.Text = Global.Settings.STUN_Server.ToString();
@@ -148,6 +155,7 @@ namespace Netch.Forms
             Global.Settings.RunAtStartup = RunAtStartup.Checked;
             Global.Settings.UseRedirector2 = Redirector2checkBox.Checked;
             Global.Settings.ProcessBypassMode = BypassModeCheckBox.Checked;
+            Global.Settings.StartedTcping = EnableStartedTcping_CheckBox.Checked;
 
             // 开机自启判断
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
@@ -301,6 +309,28 @@ namespace Netch.Forms
                 if (STUN_ServerPort > 0)
                 {
                     Global.Settings.STUN_Server_Port = STUN_ServerPort;
+                }
+                else
+                {
+                    throw new FormatException();
+                }
+            }
+            catch (FormatException)
+            {
+                ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
+                MessageBox.Show(Utils.i18N.Translate("STUN_ServerPort value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                return;
+            }
+            try
+            {
+                Global.Settings.StartedTcping = EnableStartedTcping_CheckBox.Checked;
+
+                var DetectionInterval = int.Parse(DetectionInterval_TextBox.Text);
+
+                if (DetectionInterval > 0)
+                {
+                    Global.Settings.StartedTcping_Interval = DetectionInterval;
                 }
                 else
                 {

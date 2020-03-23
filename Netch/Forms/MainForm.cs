@@ -875,25 +875,28 @@ namespace Netch.Forms
                         }
 
                         State = Models.State.Started;
-                        // 自动检测延迟
-                        Task.Run(() =>
+                        if (Global.Settings.StartedTcping)
                         {
-                            while (true)
+                            // 自动检测延迟
+                            Task.Run(() =>
                             {
-                                if (State == Models.State.Started)
+                                while (true)
                                 {
-                                    server.Test();
+                                    if (State == Models.State.Started)
+                                    {
+                                        server.Test();
                                     // 重载服务器列表
                                     InitServer();
 
-                                    Thread.Sleep(1000);
+                                        Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
                                 }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        });
+                            });
+                        }
                     }
                     else
                     {
@@ -1101,7 +1104,7 @@ namespace Netch.Forms
             var num_profile = Global.Settings.ProfileCount;
             if (num_profile == 0)
             {
-                ProfileGroupBox.Size = new Size(0,0);
+                ProfileGroupBox.Size = new Size(0, 0);
                 ConfigurationGroupBox.Size -= new Size(0, 25);
                 this.Size -= new Size(0, 70 + 25);
                 configLayoutPanel.RowStyles[2].Height = 0;
