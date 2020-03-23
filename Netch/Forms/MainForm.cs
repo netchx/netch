@@ -1254,7 +1254,15 @@ namespace Netch.Forms
             if (ServerComboBox.SelectedIndex != -1)
             {
                 var selectedMode = (Models.Server)ServerComboBox.SelectedItem;
-                Clipboard.SetText(Utils.ShareLink.GetShareLink(selectedMode));
+                try
+                {
+                    //听说巨硬BUG经常会炸，所以Catch一下 :D
+                    Clipboard.SetText(Utils.ShareLink.GetShareLink(selectedMode));
+                }
+                catch (Exception)
+                {
+
+                }
             }
             else
             {
