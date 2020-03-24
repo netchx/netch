@@ -329,7 +329,7 @@
             // BypassModeCheckBox
             // 
             this.BypassModeCheckBox.AutoSize = true;
-            this.BypassModeCheckBox.Location = new System.Drawing.Point(276, 232);
+            this.BypassModeCheckBox.Location = new System.Drawing.Point(276, 236);
             this.BypassModeCheckBox.Name = "BypassModeCheckBox";
             this.BypassModeCheckBox.Size = new System.Drawing.Size(135, 21);
             this.BypassModeCheckBox.TabIndex = 14;
@@ -340,7 +340,7 @@
             // Redirector2checkBox
             // 
             this.Redirector2checkBox.AutoSize = true;
-            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 232);
+            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 235);
             this.Redirector2checkBox.Name = "Redirector2checkBox";
             this.Redirector2checkBox.Size = new System.Drawing.Size(118, 21);
             this.Redirector2checkBox.TabIndex = 11;
@@ -350,7 +350,7 @@
             // ExperimentalFunction_Label
             // 
             this.ExperimentalFunction_Label.AutoSize = true;
-            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 233);
+            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 236);
             this.ExperimentalFunction_Label.Name = "ExperimentalFunction_Label";
             this.ExperimentalFunction_Label.Size = new System.Drawing.Size(133, 17);
             this.ExperimentalFunction_Label.TabIndex = 13;
@@ -358,7 +358,7 @@
             // 
             // STUN_ServerPortTextBox
             // 
-            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(117, 203);
+            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(117, 206);
             this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
             this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
             this.STUN_ServerPortTextBox.TabIndex = 8;
