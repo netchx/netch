@@ -147,12 +147,12 @@ namespace Netch.Models
         /// <summary>
         ///     STUN测试服务器
         /// </summary>
-        public string STUN_Server = "stun.stunprotocol.org";
+        public string STUN_Server = "stun.l.google.com";
 
         /// <summary>
         ///     STUN测试服务器
         /// </summary>
-        public int STUN_Server_Port = 3478;
+        public int STUN_Server_Port = 19302;
 
         /// <summary>
         ///     是否切换为2号核心
