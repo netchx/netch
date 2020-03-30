@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Netch.Utils
@@ -169,6 +170,8 @@ namespace Netch.Utils
                     installProcess.Start();
                     installProcess.WaitForExit();
                     installProcess.Close();
+                    //给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
+                    Thread.Sleep(1000);
 
                     Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
                 }
