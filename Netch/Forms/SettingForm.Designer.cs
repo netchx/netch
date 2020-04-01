@@ -68,6 +68,8 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
+            this.RedirectorLabel = new System.Windows.Forms.Label();
+            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -75,6 +77,8 @@
             // 
             // PortGroupBox
             // 
+            this.PortGroupBox.Controls.Add(this.RedirectorLabel);
+            this.PortGroupBox.Controls.Add(this.RedirectorTextBox);
             this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Controls.Add(this.HTTPPortLabel);
             this.PortGroupBox.Controls.Add(this.HTTPPortTextBox);
@@ -90,7 +94,7 @@
             // AllowDevicesCheckBox
             // 
             this.AllowDevicesCheckBox.AutoSize = true;
-            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(120, 80);
+            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(120, 109);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
             this.AllowDevicesCheckBox.Size = new System.Drawing.Size(206, 21);
             this.AllowDevicesCheckBox.TabIndex = 5;
@@ -471,6 +475,23 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
+            // RedirectorLabel
+            // 
+            this.RedirectorLabel.AutoSize = true;
+            this.RedirectorLabel.Location = new System.Drawing.Point(9, 83);
+            this.RedirectorLabel.Name = "RedirectorLabel";
+            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
+            this.RedirectorLabel.TabIndex = 6;
+            this.RedirectorLabel.Text = "Redirector TCP";
+            // 
+            // RedirectorTextBox
+            // 
+            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 80);
+            this.RedirectorTextBox.Name = "RedirectorTextBox";
+            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RedirectorTextBox.TabIndex = 7;
+            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -542,5 +563,7 @@
         private System.Windows.Forms.CheckBox EnableStartedTcping_CheckBox;
         private System.Windows.Forms.Label DelayTestAfterStartup_Label;
         private System.Windows.Forms.Label DetectionInterval_Label;
+        private System.Windows.Forms.Label RedirectorLabel;
+        private System.Windows.Forms.TextBox RedirectorTextBox;
     }
 }

@@ -207,12 +207,11 @@ namespace Netch.Controllers
                 }
             }
 
-            Utils.Logging.Info($"{fallback}");
-
             if (File.Exists("logging\\redirector.log"))
                 File.Delete("logging\\redirector.log");
 
-            Instance.StartInfo.Arguments = fallback;
+            Instance.StartInfo.Arguments = fallback + $" -tcport {Global.Settings.RedirectorTCPPort}";
+            Utils.Logging.Info(Instance.StartInfo.Arguments);
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             State = Models.State.Starting;
