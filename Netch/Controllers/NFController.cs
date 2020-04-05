@@ -89,9 +89,10 @@ namespace Netch.Controllers
                 if (service.Status == ServiceControllerStatus.Running)
                 {
                     //防止其他程序占用 重置NF百万ID限制 待定
-                    /*service.Stop();
+                    service.Stop();
+                    service.WaitForStatus(ServiceControllerStatus.Stopped)
                     MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
-                    service.Start();*/
+                    service.Start();
                 }
                 else if (service.Status == ServiceControllerStatus.Stopped)
                 {
