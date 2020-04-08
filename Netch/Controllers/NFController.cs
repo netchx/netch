@@ -40,18 +40,43 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
+        /// <param name="StopServiceAndRestart">先停止驱动服务再重新启动</param>
         /// <returns>是否成功</returns>
-        public bool Start(Models.Server server, Models.Mode mode)
+        public bool Start(Models.Server server, Models.Mode mode, bool StopServiceAndRestart)
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Redirector")}");
+            if (!StopServiceAndRestart)
+                MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Redirector")}");
 
             // 检查驱动是否存在
             if (File.Exists(driverPath))
             {
-                //检查驱动版本号
-                FileVersionInfo fileVerInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(driverPath);
-                if (new Version(fileVerInfo.FileVersion) < new Version(UpdateChecker.NFDriverVersion))
+                // 生成系统版本
+                var version = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
+                var driverName = "";
+
+                switch (version)
                 {
+                    case "10.0":
+                        driverName = "Win-10.sys";
+                        break;
+                    case "6.2":
+                        driverName = "Win-8.sys";
+                        break;
+                    case "6.0":
+                        driverName = "Win-7.sys";
+                        break;
+                    default:
+                        Utils.Logging.Info($"不支持的系统版本：{version}");
+                        return false;
+                }
+
+                //检查驱动版本号
+                FileVersionInfo SystemfileVerInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(driverPath);
+                FileVersionInfo BinFileVerInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(string.Format("bin\\{0}", driverName));
+
+                if (!SystemfileVerInfo.FileVersion.Equals(BinFileVerInfo.FileVersion))
+                {
+                    Utils.Logging.Info("开始更新驱动");
                     //需要更新驱动
                     try
                     {
@@ -67,6 +92,8 @@ namespace Netch.Controllers
                         File.Delete(driverPath);
                         if (!InstallDriver())
                             return false;
+
+                        Utils.Logging.Info($"驱动更新完毕，当前驱动版本:{BinFileVerInfo.FileVersion}");
                     }
                     catch (Exception)
                     {
@@ -86,9 +113,9 @@ namespace Netch.Controllers
             {
                 //启动驱动服务
                 var service = new ServiceController("netfilter2");
-                if (service.Status == ServiceControllerStatus.Running)
+                if (service.Status == ServiceControllerStatus.Running && StopServiceAndRestart)
                 {
-                    //防止其他程序占用 重置NF百万ID限制 待定
+                    //防止其他程序占用 重置NF百万ID限制
                     service.Stop();
                     service.WaitForStatus(ServiceControllerStatus.Stopped);
                     MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
@@ -220,13 +247,18 @@ namespace Netch.Controllers
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
 
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 10; i++)
             {
-                Thread.Sleep(10);
+                Thread.Sleep(1000);
 
                 if (State == Models.State.Started)
                 {
+                    Utils.Logging.Info($"成功启动Redirector耗时:{i + 1}秒");
                     return true;
+                }
+                else
+                {
+                    Utils.Logging.Info($"Redirector启动中，已耗时:{i + 1}秒");
                 }
             }
 
@@ -256,6 +288,7 @@ namespace Netch.Controllers
         public bool InstallDriver()
         {
 
+            Utils.Logging.Info("安装驱动中");
             // 生成系统版本
             var version = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Netch.Forms;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -123,7 +124,14 @@ namespace Netch.Controllers
                         pNTTController = new NTTController();
                     }
                     // 进程代理模式，启动 NF 控制器
-                    result = pNFController.Start(server, mode);
+                    result = pNFController.Start(server, mode, false);
+                    if (!result)
+                    {
+                        MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("ReStarting Redirector")}");
+                        Utils.Logging.Info("正常启动失败后尝试停止驱动服务再重新启动");
+                        //正常启动失败后尝试停止驱动服务再重新启动
+                        result = pNFController.Start(server, mode, true);
+                    }
                     if (result)
                         Task.Run(() =>
                         {
