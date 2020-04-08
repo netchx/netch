@@ -59,9 +59,11 @@ namespace Netch.Controllers
                     case "10.0":
                         driverName = "Win-10.sys";
                         break;
+                    case "6.3":
                     case "6.2":
                         driverName = "Win-8.sys";
                         break;
+                    case "6.1":
                     case "6.0":
                         driverName = "Win-7.sys";
                         break;
