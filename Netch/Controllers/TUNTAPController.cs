@@ -39,7 +39,7 @@ namespace Netch.Controllers
         public DNSController pDNSController = new DNSController();
 
         // ByPassLan IP
-        List<string> BypassLanIPs = new List<string>() { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/24" };
+        List<string> BypassLanIPs = new List<string>() { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/16" };
 
         /// <summary>
         ///     配置 TUNTAP 适配器
