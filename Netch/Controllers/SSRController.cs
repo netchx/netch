@@ -34,7 +34,7 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\ShadowsocksR.exe";
-            Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -t 600 -k \"{server.Password}\" -m {server.EncryptMethod}";
+            Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod}";
 
             if (!string.IsNullOrEmpty(server.Protocol))
             {
