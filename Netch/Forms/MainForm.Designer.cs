@@ -50,8 +50,10 @@ namespace Netch.Forms
             this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UpdateACLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.configLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.ProfileLabel = new System.Windows.Forms.Label();
@@ -108,7 +110,8 @@ namespace Netch.Forms
             this.SubscribeToolStripMenuItem,
             this.OptionsToolStripMenuItem,
             this.AboutToolStripButton,
-            this.VersionLabel});
+            this.VersionLabel,
+            this.exitToolStripMenuItem});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -217,7 +220,8 @@ namespace Netch.Forms
             this.ReloadModesToolStripMenuItem,
             this.RestartServiceToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem,
-            this.CleanDNSCacheToolStripMenuItem});
+            this.CleanDNSCacheToolStripMenuItem,
+            this.UpdateACLToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
@@ -226,30 +230,37 @@ namespace Netch.Forms
             // ReloadModesToolStripMenuItem
             // 
             this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
             this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // RestartServiceToolStripMenuItem
             // 
             this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.RestartServiceToolStripMenuItem.Text = "Restart Service";
             this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
             // CleanDNSCacheToolStripMenuItem
             // 
             this.CleanDNSCacheToolStripMenuItem.Name = "CleanDNSCacheToolStripMenuItem";
-            this.CleanDNSCacheToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.CleanDNSCacheToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.CleanDNSCacheToolStripMenuItem.Text = "Clean DNS Cache";
             this.CleanDNSCacheToolStripMenuItem.Click += new System.EventHandler(this.CleanDNSCacheToolStripMenuItem_Click);
+            // 
+            // UpdateACLToolStripMenuItem
+            // 
+            this.UpdateACLToolStripMenuItem.Name = "UpdateACLToolStripMenuItem";
+            this.UpdateACLToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.UpdateACLToolStripMenuItem.Text = "Update ACL";
+            this.UpdateACLToolStripMenuItem.Click += new System.EventHandler(this.updateACLToolStripMenuItem_Click);
             // 
             // AboutToolStripButton
             // 
@@ -272,6 +283,13 @@ namespace Netch.Forms
             this.VersionLabel.Size = new System.Drawing.Size(32, 19);
             this.VersionLabel.Text = "x.x.x";
             this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // ConfigurationGroupBox
             // 
@@ -698,5 +716,7 @@ namespace Netch.Forms
         private System.Windows.Forms.TableLayoutPanel configLayoutPanel;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.ToolStripMenuItem UpdateACLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }

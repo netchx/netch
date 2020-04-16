@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -325,10 +326,12 @@ namespace Netch.Forms
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
             OptionsToolStripMenuItem.Text = Utils.i18N.Translate(OptionsToolStripMenuItem.Text);
+            exitToolStripMenuItem.Text = Utils.i18N.Translate(exitToolStripMenuItem.Text);
             RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate(RestartServiceToolStripMenuItem.Text);
             UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate(UninstallServiceToolStripMenuItem.Text);
             ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate(ReloadModesToolStripMenuItem.Text);
             CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
+            UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate(UpdateACLToolStripMenuItem.Text);
             AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
             ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
             ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
@@ -885,8 +888,8 @@ namespace Netch.Forms
                                     if (State == Models.State.Started)
                                     {
                                         server.Test();
-                                    // 重载服务器列表
-                                    InitServer();
+                                        // 重载服务器列表
+                                        InitServer();
 
                                         Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                                     }
@@ -1283,6 +1286,56 @@ namespace Netch.Forms
             {
                 NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + Utils.i18N.Translate("Test failed");
             }
+        }
+
+        private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using var client = new Override.WebClient();
+
+            client.DownloadFileTaskAsync(Global.Settings.ACL, "bin\\default.acl");
+            client.DownloadFileCompleted += ((sender, args) =>
+            {
+                if (args.Error == null)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
+                }
+                else
+                {
+                    Utils.Logging.Info("ACL更新失败！" + args.Error);
+                    MessageBox.Show(Utils.i18N.Translate("ACL update failed"));
+                }
+            });
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 当前状态如果不是已停止状态
+            if (State != Models.State.Waiting && State != Models.State.Stopped)
+            {
+                // 如果未勾选退出时停止，要求先点击停止按钮
+                if (!Global.Settings.StopWhenExited)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    Visible = true;
+                    ShowInTaskbar = true;  // 显示在系统任务栏 
+                    WindowState = FormWindowState.Normal;  // 还原窗体 
+                    NotifyIcon.Visible = true;  // 托盘图标隐藏 
+
+                    return;
+                }
+                // 否则直接调用停止按钮的方法
+
+                ControlButton_Click(sender, e);
+            }
+
+            SaveConfigs();
+
+            State = Models.State.Terminating;
+            NotifyIcon.Visible = false;
+            Close();
+            Dispose();
+            Environment.Exit(Environment.ExitCode);
         }
     }
 }

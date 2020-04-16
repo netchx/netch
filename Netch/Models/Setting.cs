@@ -173,5 +173,11 @@ namespace Netch.Models
         ///     启动后延迟测试间隔/秒
         /// </summary>
         public int StartedTcping_Interval = 3;
+
+        /// <summary>
+        ///     ACL规则
+        /// </summary>
+        public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
+        
     }
 }

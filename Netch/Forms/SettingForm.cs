@@ -96,6 +96,9 @@ namespace Netch.Forms
             STUN_ServerTextBox.Text = Global.Settings.STUN_Server.ToString();
             STUN_ServerPortTextBox.Text = Global.Settings.STUN_Server_Port.ToString();
 
+            AclLabel.Text = Utils.i18N.Translate(AclLabel.Text);
+            AclAddr.Text = Global.Settings.ACL.ToString();
+
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
                 var dns = "";
@@ -366,6 +369,8 @@ namespace Netch.Forms
 
                 return;
             }
+
+            Global.Settings.ACL = AclAddr.Text;
 
             Global.Settings.TUNTAP.Address = TUNTAPAddressTextBox.Text;
             Global.Settings.TUNTAP.Netmask = TUNTAPNetmaskTextBox.Text;

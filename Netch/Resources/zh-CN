@@ -88,6 +88,9 @@
     "Modes have been reload": "模式已重载",
     "Clean DNS Cache": "清理 DNS 缓存",
     "DNS cache cleanup succeeded": "DNS 缓存清理成功",
+    "Update ACL": "更新ACL规则",
+    "ACL updated successfully": "ACL更新成功",
+    "ACL update failed": "ACL更新失败",
 
     "About": "关于",
     "Telegram Channel": "Telegram 频道",
@@ -158,6 +161,7 @@
     "Delay test after startup": "启动后延迟测试",
     "Enable": "启用",
     "Detection interval(/s)": "检测间隔（/秒）",
+    "Custom ACL": "自定义ACL规则",
 
     "Profile": "配置名",
     "Profiles": "配置",

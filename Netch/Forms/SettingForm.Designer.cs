@@ -30,6 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
+            this.RedirectorLabel = new System.Windows.Forms.Label();
+            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.HTTPPortLabel = new System.Windows.Forms.Label();
             this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
@@ -68,8 +70,8 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.RedirectorLabel = new System.Windows.Forms.Label();
-            this.RedirectorTextBox = new System.Windows.Forms.TextBox();
+            this.AclAddr = new System.Windows.Forms.TextBox();
+            this.AclLabel = new System.Windows.Forms.Label();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -90,6 +92,23 @@
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
+            // 
+            // RedirectorLabel
+            // 
+            this.RedirectorLabel.AutoSize = true;
+            this.RedirectorLabel.Location = new System.Drawing.Point(9, 83);
+            this.RedirectorLabel.Name = "RedirectorLabel";
+            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
+            this.RedirectorLabel.TabIndex = 6;
+            this.RedirectorLabel.Text = "Redirector TCP";
+            // 
+            // RedirectorTextBox
+            // 
+            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 80);
+            this.RedirectorTextBox.Name = "RedirectorTextBox";
+            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
+            this.RedirectorTextBox.TabIndex = 7;
+            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AllowDevicesCheckBox
             // 
@@ -268,6 +287,8 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.AclAddr);
+            this.BehaviorGroupBox.Controls.Add(this.AclLabel);
             this.BehaviorGroupBox.Controls.Add(this.DetectionInterval_Label);
             this.BehaviorGroupBox.Controls.Add(this.DetectionInterval_TextBox);
             this.BehaviorGroupBox.Controls.Add(this.EnableStartedTcping_CheckBox);
@@ -333,7 +354,7 @@
             // BypassModeCheckBox
             // 
             this.BypassModeCheckBox.AutoSize = true;
-            this.BypassModeCheckBox.Location = new System.Drawing.Point(276, 236);
+            this.BypassModeCheckBox.Location = new System.Drawing.Point(276, 307);
             this.BypassModeCheckBox.Name = "BypassModeCheckBox";
             this.BypassModeCheckBox.Size = new System.Drawing.Size(135, 21);
             this.BypassModeCheckBox.TabIndex = 14;
@@ -344,7 +365,7 @@
             // Redirector2checkBox
             // 
             this.Redirector2checkBox.AutoSize = true;
-            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 235);
+            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 306);
             this.Redirector2checkBox.Name = "Redirector2checkBox";
             this.Redirector2checkBox.Size = new System.Drawing.Size(118, 21);
             this.Redirector2checkBox.TabIndex = 11;
@@ -354,7 +375,7 @@
             // ExperimentalFunction_Label
             // 
             this.ExperimentalFunction_Label.AutoSize = true;
-            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 236);
+            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 307);
             this.ExperimentalFunction_Label.Name = "ExperimentalFunction_Label";
             this.ExperimentalFunction_Label.Size = new System.Drawing.Size(133, 17);
             this.ExperimentalFunction_Label.TabIndex = 13;
@@ -475,22 +496,22 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // RedirectorLabel
+            // AclAddr
             // 
-            this.RedirectorLabel.AutoSize = true;
-            this.RedirectorLabel.Location = new System.Drawing.Point(9, 83);
-            this.RedirectorLabel.Name = "RedirectorLabel";
-            this.RedirectorLabel.Size = new System.Drawing.Size(95, 17);
-            this.RedirectorLabel.TabIndex = 6;
-            this.RedirectorLabel.Text = "Redirector TCP";
+            this.AclAddr.Location = new System.Drawing.Point(117, 235);
+            this.AclAddr.Name = "AclAddr";
+            this.AclAddr.Size = new System.Drawing.Size(294, 23);
+            this.AclAddr.TabIndex = 19;
+            this.AclAddr.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // RedirectorTextBox
+            // AclLabel
             // 
-            this.RedirectorTextBox.Location = new System.Drawing.Point(120, 80);
-            this.RedirectorTextBox.Name = "RedirectorTextBox";
-            this.RedirectorTextBox.Size = new System.Drawing.Size(294, 23);
-            this.RedirectorTextBox.TabIndex = 7;
-            this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.AclLabel.AutoSize = true;
+            this.AclLabel.Location = new System.Drawing.Point(6, 238);
+            this.AclLabel.Name = "AclLabel";
+            this.AclLabel.Size = new System.Drawing.Size(78, 17);
+            this.AclLabel.TabIndex = 20;
+            this.AclLabel.Text = "Custom ACL";
             // 
             // SettingForm
             // 
@@ -565,5 +586,7 @@
         private System.Windows.Forms.Label DetectionInterval_Label;
         private System.Windows.Forms.Label RedirectorLabel;
         private System.Windows.Forms.TextBox RedirectorTextBox;
+        private System.Windows.Forms.TextBox AclAddr;
+        private System.Windows.Forms.Label AclLabel;
     }
 }
