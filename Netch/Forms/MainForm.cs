@@ -794,7 +794,14 @@ namespace Netch.Forms
                     return;
                 }
 
-                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+                //MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+
+                //关闭启动按钮
+                ControlButton.Enabled = false;
+                //关闭使用代理更新ACL
+                updateACLWithProxyToolStripMenuItem.Enabled = false;
+                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
+
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
                 State = Models.State.Starting;
@@ -1295,14 +1302,29 @@ namespace Netch.Forms
             client.DownloadFileTaskAsync(Global.Settings.ACL, "bin\\default.acl");
             client.DownloadFileCompleted += ((sender, args) =>
             {
-                if (args.Error == null)
+                try
                 {
-                    MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
+
+                    if (args.Error == null)
+                    {
+                        NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
+                                ToolTipIcon.Info);
+                        //MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
+                    }
+                    else
+                    {
+                        Utils.Logging.Info("ACL更新失败！" + args.Error);
+                        NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name,
+                                Utils.i18N.Translate("ACL update failed"),
+                                ToolTipIcon.Error);
+                        //MessageBox.Show(Utils.i18N.Translate("ACL update failed"));
+                    }
                 }
-                else
+                finally
                 {
-                    Utils.Logging.Info("ACL更新失败！" + args.Error);
-                    MessageBox.Show(Utils.i18N.Translate("ACL update failed"));
+                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
                 }
             });
         }
@@ -1336,6 +1358,62 @@ namespace Netch.Forms
             Close();
             Dispose();
             Environment.Exit(Environment.ExitCode);
+        }
+
+        private void updateACLWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            updateACLWithProxyToolStripMenuItem.Enabled = false;
+            if (Global.Settings.UseProxyToUpdateSubscription)
+            {
+                // 当前 ServerComboBox 中至少有一项
+                if (ServerComboBox.SelectedIndex == -1)
+                {
+                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
+                ControlButton.Text = "...";
+            }
+
+            Task.Run(() =>
+            {
+                var mode = new Models.Mode
+                {
+                    Remark = "ProxyUpdate",
+                    Type = 5
+                };
+                MainController = new MainController();
+                MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+
+                using var client = new Override.WebClient();
+
+                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+
+                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Updating in the background")}");
+                try
+                {
+                    client.DownloadFile(Global.Settings.ACL, "bin\\default.acl");
+                    NotifyIcon.ShowBalloonTip(5,
+                            UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
+                            ToolTipIcon.Info);
+                }
+                catch (Exception e)
+                {
+
+                    Utils.Logging.Info("ACL更新失败！" + e.Message);
+                    NotifyIcon.ShowBalloonTip(5,
+                            UpdateChecker.Name,
+                            Utils.i18N.Translate("ACL update failed"),
+                            ToolTipIcon.Error);
+                }
+                finally
+                {
+                    updateACLWithProxyToolStripMenuItem.Enabled = true;
+
+                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                    MainController.Stop();
+                }
+            });
         }
     }
 }

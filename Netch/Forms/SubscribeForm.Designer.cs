@@ -88,7 +88,7 @@
             this.UserAgentLabel.AutoSize = true;
             this.UserAgentLabel.Location = new System.Drawing.Point(11, 77);
             this.UserAgentLabel.Name = "UserAgentLabel";
-            this.UserAgentLabel.Size = new System.Drawing.Size(73, 17);
+            this.UserAgentLabel.Size = new System.Drawing.Size(74, 17);
             this.UserAgentLabel.TabIndex = 5;
             this.UserAgentLabel.Text = "User-Agent";
             // 
@@ -150,6 +150,7 @@
             this.SubscribeLinkListView.TabIndex = 0;
             this.SubscribeLinkListView.UseCompatibleStateImageBehavior = false;
             this.SubscribeLinkListView.View = System.Windows.Forms.View.Details;
+            this.SubscribeLinkListView.SelectedIndexChanged += new System.EventHandler(this.SubscribeLinkListView_SelectedIndexChanged);
             // 
             // RemarkColumnHeader
             // 
@@ -169,23 +170,22 @@
             // pContextMenuStrip
             // 
             this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.DeleteToolStripMenuItem});
-            this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DeleteToolStripMenuItem,
             this.CopyLinkToolStripMenuItem});
             this.pContextMenuStrip.Name = "pContextMenuStrip";
-            this.pContextMenuStrip.Size = new System.Drawing.Size(114, 26);
+            this.pContextMenuStrip.Size = new System.Drawing.Size(130, 48);
             // 
             // DeleteToolStripMenuItem
             // 
             this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
-            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
             // 
             // CopyLinkToolStripMenuItem
             // 
             this.CopyLinkToolStripMenuItem.Name = "CopyLinkToolStripMenuItem";
-            this.CopyLinkToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
+            this.CopyLinkToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
             this.CopyLinkToolStripMenuItem.Text = "CopyLink";
             this.CopyLinkToolStripMenuItem.Click += new System.EventHandler(this.CopyLinkToolStripMenuItem_Click);
             // 

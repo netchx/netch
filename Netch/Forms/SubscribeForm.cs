@@ -144,5 +144,15 @@ namespace Netch.Forms
             MessageBox.Show(Utils.i18N.Translate("Successfully saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
+        /// <summary>
+        /// 订阅列表选中节点
+        /// TODO 选中节点编辑
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //MessageBox.Show(SubscribeLinkListView.SelectedItems + "", Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
     }
 }
