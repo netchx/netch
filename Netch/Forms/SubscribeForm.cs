@@ -48,7 +48,16 @@ namespace Netch.Forms
             ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
 
             UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
-            UseSelectedServerCheckBox.Checked = Global.Settings.UseProxyToUpdateSubscription;
+
+            if (Global.Settings.Server.Count > 0)
+            {
+                UseSelectedServerCheckBox.Enabled = true;
+                UseSelectedServerCheckBox.Checked = Global.Settings.UseProxyToUpdateSubscription;
+            }
+            else {
+                UseSelectedServerCheckBox.Checked = false;
+                UseSelectedServerCheckBox.Enabled = false;
+            }
 
             InitSubscribeLink();
         }
