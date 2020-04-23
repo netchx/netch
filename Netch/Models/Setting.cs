@@ -178,6 +178,6 @@ namespace Netch.Models
         ///     ACL规则
         /// </summary>
         public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
-        
+
     }
 }

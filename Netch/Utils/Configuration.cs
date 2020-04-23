@@ -175,7 +175,8 @@ namespace Netch.Utils
 
                     Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
                 }
-                else {
+                else
+                {
                     return false;
                 }
                 //MessageBox.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

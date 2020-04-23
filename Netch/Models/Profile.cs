@@ -1,7 +1,7 @@
 ﻿namespace Netch.Models
 {
     public class Profile
-	{
+    {
         public string ServerRemark;
         public string ModeRemark;
         public string ProfileName;
@@ -24,5 +24,5 @@
         }
 
 
-	}
+    }
 }

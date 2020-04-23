@@ -43,7 +43,7 @@ namespace Netch.Controllers
             {
                 Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
             }
-            
+
             if (mode.BypassChina)
             {
                 Instance.StartInfo.Arguments += " --acl default.acl";
