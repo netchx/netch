@@ -15,23 +15,23 @@ namespace Netch.Controllers
         public Process Instance;
 
         /// <summary>
-        /// 启动NatTypeTester
+        /// 启动DNS服务
         /// </summary>
         /// <returns></returns>
         public bool Start()
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Starting dns2tcp Service")}");
+            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Starting dns Service")}");
             try
             {
-                if (!File.Exists("bin\\dns2tcp.exe"))
+                if (!File.Exists("bin\\unbound.exe") && !File.Exists("bin\\unbound-service.conf") && !File.Exists("bin\\forward-zone.conf"))
                 {
                     return false;
                 }
 
                 Instance = MainController.GetProcess();
-                Instance.StartInfo.FileName = "bin\\dns2tcp.exe";
+                Instance.StartInfo.FileName = "bin\\unbound.exe";
 
-                Instance.StartInfo.Arguments = " -L 127.0.0.1:53 -R 1.1.1.1:53";
+                Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
 
                 Instance.OutputDataReceived += OnOutputDataReceived;
                 Instance.ErrorDataReceived += OnOutputDataReceived;
@@ -43,7 +43,7 @@ namespace Netch.Controllers
             }
             catch (Exception)
             {
-                Utils.Logging.Info("dns2tcp 进程出错");
+                Utils.Logging.Info("dns-unbound 进程出错");
                 Stop();
                 return false;
             }
@@ -71,42 +71,12 @@ namespace Netch.Controllers
         {
             if (!string.IsNullOrWhiteSpace(e.Data))
             {
-                if (File.Exists("logging\\dns2tcp.log"))
+                if (File.Exists("logging\\dns-unbound.log"))
                 {
-                    File.Delete("logging\\dns2tcp.log");
+                    File.Delete("logging\\dns-unbound.log");
                 }
-                File.AppendAllText("logging\\dns2tcp.log", $"{e.Data}\r\n");
+                File.AppendAllText("logging\\dns-unbound.log", $"{e.Data}\r\n");
             }
         }
-
-       /* public static DNS.Server.DnsServer Server = new DNS.Server.DnsServer(new Resolver());
-
-        public bool Start()
-        {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting LocalDns service")}");
-            try
-            {
-                _ = Server.Listen(new IPEndPoint(IPAddress.IPv6Any, 53));
-            }
-            catch (Exception e)
-            {
-                Utils.Logging.Info(e.ToString());
-                return false;
-            }
-
-            return true;
-        }
-
-        public void Stop()
-        {
-            try
-            {
-                Server.Dispose();
-            }
-            catch (Exception e)
-            {
-                Utils.Logging.Info(e.ToString());
-            }
-        }*/
     }
 }

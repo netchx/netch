@@ -25,7 +25,7 @@
     "Starting Redirector": "正在启动Redirector",
     "ReStarting Redirector": "正常启动失败，正在尝试重新启动Redirector",
     "Starting netfilter2 Service": "正在启动netfilter2服务",
-    "Starting dns2tcp Service": "正在启动dns2tcp服务",
+    "Starting dns Service": "正在启动dns服务",
     "SetupBypass": "设置绕行规则",
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",
