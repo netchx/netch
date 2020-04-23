@@ -89,6 +89,7 @@
     "Clean DNS Cache": "清理 DNS 缓存",
     "DNS cache cleanup succeeded": "DNS 缓存清理成功",
     "Update ACL": "更新ACL规则",
+    "Update ACL with proxy": "使用代理更新ACL规则",
     "ACL updated successfully": "ACL更新成功",
     "ACL update failed": "ACL更新失败",
 

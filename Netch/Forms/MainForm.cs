@@ -331,6 +331,7 @@ namespace Netch.Forms
             ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate(ReloadModesToolStripMenuItem.Text);
             CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
             UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate(UpdateACLToolStripMenuItem.Text);
+            updateACLWithProxyToolStripMenuItem.Text = Utils.i18N.Translate(updateACLWithProxyToolStripMenuItem.Text);
             AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
             ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
             ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
