@@ -919,6 +919,7 @@ namespace Netch.Forms
             }
             else
             {
+
                 ControlButton.Enabled = false;
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopping")}";
@@ -945,6 +946,9 @@ namespace Netch.Forms
 
                     ControlButton.Enabled = true;
                     ProfileGroupBox.Enabled = true;
+
+                    updateACLWithProxyToolStripMenuItem.Enabled = true;
+                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
 
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
