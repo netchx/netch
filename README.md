@@ -37,3 +37,22 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 
 - Microsoft Visual C++ Runtime
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
+
+## Quote
+https://github.com/eycorsican/go-tun2socks
+
+https://github.com/shadowsocks/shadowsocks-libev
+
+https://github.com/shadowsocksrr/shadowsocksr-libev
+
+https://github.com/v2ray/v2ray-core
+
+https://github.com/ACL4SSR/ACL4SSR
+
+https://github.com/felixonmars/dnsmasq-china-list
+
+https://github.com/NLnetLabs/unbound
+
+https://github.com/OpenVPN/tap-windows6
+
+https://sourceforge.net/projects/ijbswa/
