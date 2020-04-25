@@ -21,9 +21,11 @@ function Build-NetFrameworkx64
 	if ($LASTEXITCODE) { cd $mainDir ; exit $LASTEXITCODE } 
 
     Write-Host 'Build x64 Complete ,Started Copy bin,mode,i18n file'
-
-Copy-Item "$mainDir\binaries\x64\*" "$net_baseoutput\x64\Release\win-x64\bin"
-Copy-Item "$mainDir\binaries\tap-driver" "$net_baseoutput\x64\Release\win-x64\bin\tap-driver" -recurse
+    
+mkdir "$net_baseoutput\x64\Release\win-x64\bin"
+Copy-Item "$mainDir\binaries\x64\*" -destination "$net_baseoutput\x64\Release\win-x64\bin" -recurse
+mkdir "$net_baseoutput\x64\Release\win-x64\bin\tap-driver"
+Copy-Item "$mainDir\binaries\tap-driver\*" -destination "$net_baseoutput\x64\Release\win-x64\bin\tap-driver" -recurse
 Copy-Item "$mainDir\binaries\*.acl" "$net_baseoutput\x64\Release\win-x64\bin"
 Copy-Item "$mainDir\binaries\*.conf" "$net_baseoutput\x64\Release\win-x64\bin"
 Copy-Item "$mainDir\binaries\*.dat" "$net_baseoutput\x64\Release\win-x64\bin"
@@ -46,9 +48,11 @@ function Build-NetFrameworkx86
 	if ($LASTEXITCODE) { cd $mainDir ; exit $LASTEXITCODE } 
 
     Write-Host 'Build x86 Complete ,Started Copy bin,mode,i18n file'
-
+    
+mkdir "$net_baseoutput\x86\Release\win-x86\bin"
 Copy-Item "$mainDir\binaries\x86\*" "$net_baseoutput\x86\Release\win-x86\bin"
-Copy-Item "$mainDir\binaries\tap-driver" "$net_baseoutput\x86\Release\win-x86\bin\tap-driver" -recurse
+mkdir "$net_baseoutput\x86\Release\win-x86\bin\tap-driver"
+Copy-Item "$mainDir\binaries\tap-driver\*" "$net_baseoutput\x86\Release\win-x86\bin\tap-driver" -recurse
 Copy-Item "$mainDir\binaries\*.acl" "$net_baseoutput\x86\Release\win-x86\bin"
 Copy-Item "$mainDir\binaries\*.conf" "$net_baseoutput\x86\Release\win-x86\bin"
 Copy-Item "$mainDir\binaries\*.dat" "$net_baseoutput\x86\Release\win-x86\bin"
