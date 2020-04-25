@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Netch.Utils;
+using System;
+using System.Windows;
+using System.Windows.Forms;
 
 namespace Netch.Controllers
 {
@@ -52,7 +55,11 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.ToString());
+                if (System.Windows.Forms.MessageBox.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                {
+                    System.Diagnostics.Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
+                }
+                Utils.Logging.Info("设置系统代理失败"+e.ToString());
                 return false;
             }
 

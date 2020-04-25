@@ -1,3 +1,4 @@
+using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Utils;
 using System;
@@ -50,13 +51,35 @@ namespace Netch.Forms
         public MainForm()
         {
             InitializeComponent();
+
+            // 监听电源事件
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
+
             VersionLabel.Text = UpdateChecker.Version;
 
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
             Instance = this;
         }
-
+        /// <summary>
+        /// 监听电源事件，自动重启Netch服务
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        {
+            switch (e.Mode)
+            {
+                case PowerModes.Suspend://操作系统即将挂起
+                    Logging.Info("操作系统即将挂起，自动停止===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                    ControlFun();
+                    break;
+                case PowerModes.Resume://操作系统即将从挂起状态继续
+                    Logging.Info("操作系统即将从挂起状态继续，自动重启===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                    ControlFun();
+                    break;
+            }
+        }
         private void CheckUpdate()
         {
             var updater = new UpdateChecker();
@@ -779,6 +802,12 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            ControlFun();
+        }
+        public void ControlFun()
+        {
+            //聚焦到启动按钮，防止模式选择框变成蓝色:D
+            ControlButton.Focus();
             SaveConfigs();
             if (State == Models.State.Waiting || State == Models.State.Stopped)
             {
@@ -807,6 +836,8 @@ namespace Netch.Forms
                 updateACLWithProxyToolStripMenuItem.Enabled = false;
                 UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
                 reinstallTapDriverToolStripMenuItem.Enabled = false;
+                ServerComboBox.Enabled = false;
+                ModeComboBox.Enabled = false;
 
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
@@ -923,6 +954,8 @@ namespace Netch.Forms
                         updateACLWithProxyToolStripMenuItem.Enabled = true;
                         UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
                         reinstallTapDriverToolStripMenuItem.Enabled = true;
+                        ServerComboBox.Enabled = true;
+                        ModeComboBox.Enabled = true;
 
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
@@ -965,6 +998,8 @@ namespace Netch.Forms
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
                     UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
                     reinstallTapDriverToolStripMenuItem.Enabled = true;
+                    ServerComboBox.Enabled = true;
+                    ModeComboBox.Enabled = true;
 
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
@@ -973,8 +1008,8 @@ namespace Netch.Forms
                     TestServer();
                 });
             }
-        }
 
+        }
         private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)

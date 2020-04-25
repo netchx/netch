@@ -164,6 +164,7 @@
     "STUN_ServerPort value illegal. Try again.": "STUN 端口数值非法。请重试。",
     "Detection interval value illegal. Try again.": "检测间隔值非法。请重试。",
     "TUN/TAP driver is not detected. Is it installed now?": "未检测到 TUN/TAP 驱动，是否现在安装？",
+    "Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?": "设置系统代理失败，可能是缺少依赖导致，是否跳转Netch官网下载依赖程序？",
     "Experimental function": "实验性功能",
     "Delay test after startup": "启动后延迟测试",
     "Enable": "启用",
