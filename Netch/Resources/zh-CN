@@ -160,6 +160,7 @@
     "ProfileCount": "快捷配置数量（重启软件生效）",
     "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试。",
     "STUN_ServerPort value illegal. Try again.": "STUN 端口数值非法。请重试。",
+    "Detection interval value illegal. Try again.": "检测间隔值非法。请重试。",
     "TUN/TAP driver is not detected. Is it installed now?": "未检测到 TUN/TAP 驱动，是否现在安装？",
     "Experimental function": "实验性功能",
     "Delay test after startup": "启动后延迟测试",
