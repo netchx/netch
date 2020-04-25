@@ -68,6 +68,7 @@ namespace Netch.Controllers
         public bool SetupBypass()
         {
             MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("SetupBypass")}");
+            Logging.Info("设置绕行规则->设置让服务器 IP 走直连");
             // 让服务器 IP 走直连
             foreach (var address in ServerAddresses)
             {
@@ -80,6 +81,7 @@ namespace Netch.Controllers
             // 处理模式的绕过中国
             if (SavedMode.BypassChina)
             {
+                Logging.Info("设置绕行规则->处理模式的绕过中国");
                 using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
                 {
                     string text;
@@ -93,6 +95,7 @@ namespace Netch.Controllers
                 }
             }
 
+            Logging.Info("设置绕行规则->处理全局绕过 IP");
             // 处理全局绕过 IP
             foreach (var ip in Global.Settings.BypassIPs)
             {
@@ -105,6 +108,8 @@ namespace Netch.Controllers
                 }
             }
 
+            Logging.Info("设置绕行规则->处理绕过局域网 IP");
+            // 处理绕过局域网 IP
             foreach (var ip in BypassLanIPs)
             {
                 var info = ip.Split('/');
@@ -118,6 +123,7 @@ namespace Netch.Controllers
 
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
+                Logging.Info("设置绕行规则->处理仅规则内走直连");
                 // 将 TUN/TAP 网卡权重放到最高
                 var instance = new Process
                 {
@@ -132,6 +138,7 @@ namespace Netch.Controllers
                 };
                 instance.Start();
 
+                Logging.Info("设置绕行规则->创建默认路由");
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
@@ -145,6 +152,8 @@ namespace Netch.Controllers
                     return false;
                 }
 
+                Logging.Info("设置绕行规则->创建规则路由");
+                // 创建规则路由
                 foreach (var ip in SavedMode.Rule)
                 {
                     var info = ip.Split('/');
@@ -160,6 +169,7 @@ namespace Netch.Controllers
             }
             else if (SavedMode.Type == 1) // 处理仅规则内走代理
             {
+                Logging.Info("设置绕行规则->处理仅规则内走代理");
                 foreach (var ip in SavedMode.Rule)
                 {
                     var info = ip.Split('/');
@@ -196,6 +206,7 @@ namespace Netch.Controllers
                 //处理DNS代理
                 if (Global.Settings.TUNTAP.ProxyDNS)
                 {
+                    Logging.Info("设置绕行规则->处理自定义DNS代理");
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
                         string dns = "";

@@ -800,7 +800,10 @@ namespace Netch.Forms
 
                 //关闭启动按钮
                 ControlButton.Enabled = false;
-                //关闭使用代理更新ACL
+
+                //关闭部分选项功能
+                RestartServiceToolStripMenuItem.Enabled = false;
+                UninstallServiceToolStripMenuItem.Enabled = false;
                 updateACLWithProxyToolStripMenuItem.Enabled = false;
                 UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
                 reinstallTapDriverToolStripMenuItem.Enabled = false;
@@ -914,6 +917,13 @@ namespace Netch.Forms
                     else
                     {
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+
+                        RestartServiceToolStripMenuItem.Enabled = true;
+                        UninstallServiceToolStripMenuItem.Enabled = true;
+                        updateACLWithProxyToolStripMenuItem.Enabled = true;
+                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
+                        reinstallTapDriverToolStripMenuItem.Enabled = true;
+
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
                         State = Models.State.Stopped;
@@ -950,6 +960,8 @@ namespace Netch.Forms
                     ControlButton.Enabled = true;
                     ProfileGroupBox.Enabled = true;
 
+                    RestartServiceToolStripMenuItem.Enabled = true;
+                    UninstallServiceToolStripMenuItem.Enabled = true;
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
                     UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
                     reinstallTapDriverToolStripMenuItem.Enabled = true;
@@ -1303,40 +1315,6 @@ namespace Netch.Forms
             }
         }
 
-        private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            using var client = new Override.WebClient();
-
-            client.DownloadFileTaskAsync(Global.Settings.ACL, "bin\\default.acl");
-            client.DownloadFileCompleted += ((sender, args) =>
-            {
-                try
-                {
-
-                    if (args.Error == null)
-                    {
-                        NotifyIcon.ShowBalloonTip(5,
-                                UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
-                                ToolTipIcon.Info);
-                        //MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
-                    }
-                    else
-                    {
-                        Utils.Logging.Info("ACL更新失败！" + args.Error);
-                        NotifyIcon.ShowBalloonTip(5,
-                                UpdateChecker.Name,
-                                Utils.i18N.Translate("ACL update failed"),
-                                ToolTipIcon.Error);
-                        //MessageBox.Show(Utils.i18N.Translate("ACL update failed"));
-                    }
-                }
-                finally
-                {
-                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
-                }
-            });
-        }
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 当前状态如果不是已停止状态
@@ -1366,6 +1344,41 @@ namespace Netch.Forms
             Close();
             Dispose();
             Environment.Exit(Environment.ExitCode);
+        }
+
+        private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting update ACL")}");
+            using var client = new Override.WebClient();
+
+            client.DownloadFileTaskAsync(Global.Settings.ACL, "bin\\default.acl");
+            client.DownloadFileCompleted += ((sender, args) =>
+            {
+                try
+                {
+
+                    if (args.Error == null)
+                    {
+                        NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
+                                ToolTipIcon.Info);
+                        //MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
+                    }
+                    else
+                    {
+                        Utils.Logging.Info("ACL更新失败！" + args.Error);
+                        /*NotifyIcon.ShowBalloonTip(5,
+                                UpdateChecker.Name,
+                                Utils.i18N.Translate("ACL update failed") + args.Error,
+                                ToolTipIcon.Error);*/
+                        MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + args.Error);
+                    }
+                }
+                finally
+                {
+                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                }
+            });
         }
 
         private void updateACLWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1407,17 +1420,19 @@ namespace Netch.Forms
                 }
                 catch (Exception e)
                 {
-
-                    Utils.Logging.Info("ACL更新失败！" + e.Message);
-                    NotifyIcon.ShowBalloonTip(5,
+                    Utils.Logging.Info("使用代理更新ACL失败！" + e.Message);
+                    /*NotifyIcon.ShowBalloonTip(5,
                             UpdateChecker.Name,
-                            Utils.i18N.Translate("ACL update failed"),
-                            ToolTipIcon.Error);
+                            Utils.i18N.Translate("ACL update failed") + args.Error,
+                            ToolTipIcon.Error);*/
+                    MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + e.Message);
                 }
                 finally
                 {
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
+                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
 
+                    ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
                     MainController.Stop();
                 }
@@ -1426,20 +1441,31 @@ namespace Netch.Forms
 
         private void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try
+            Task.Run(() =>
             {
-                Configuration.deltapall();
-                Configuration.addtap();
-                NotifyIcon.ShowBalloonTip(5,
-                        UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver successfully"),
-                        ToolTipIcon.Info);
-            }
-            catch
-            {
-                NotifyIcon.ShowBalloonTip(5,
-                        UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver failed"),
-                        ToolTipIcon.Error);
-            }
+                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Reinstalling Tap driver")}");
+                Enabled = false;
+                try
+                {
+                    Configuration.deltapall();
+                    Configuration.addtap();
+                    NotifyIcon.ShowBalloonTip(5,
+                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver successfully"),
+                            ToolTipIcon.Info);
+                }
+                catch
+                {
+                    NotifyIcon.ShowBalloonTip(5,
+                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver failed"),
+                            ToolTipIcon.Error);
+                }
+                finally
+                {
+                    ControlButton.Text = Utils.i18N.Translate("Start");
+                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                    Enabled = true;
+                }
+            });
         }
     }
 }

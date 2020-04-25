@@ -29,6 +29,7 @@
     "SetupBypass": "设置绕行规则",
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",
+    "Starting update ACL": "正在更新ACL",
     "Subscription updated": "订阅更新完毕",
     "Register driver": "正在注册驱动",
 
@@ -95,6 +96,7 @@
     "Reinstall Tap driver": "重新安装Tap驱动",
     "Reinstall Tap driver successfully": "重装Tap驱动成功",
     "Reinstall Tap driver failed": "重装Tap驱动失败",
+    "Reinstalling Tap driver": "正在重装Tap驱动",
 
     "About": "关于",
     "Telegram Channel": "Telegram 频道",

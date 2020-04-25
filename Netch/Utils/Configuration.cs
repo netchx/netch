@@ -161,6 +161,7 @@ namespace Netch.Utils
             Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
+                Logging.Info("未找到可用 TUN/TAP 适配器");
                 if (MessageBox.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
                     addtap();
@@ -197,6 +198,7 @@ namespace Netch.Utils
         /// </summary>
         public static void addtap()
         {
+            Logging.Info("正在安装 TUN/TAP 适配器");
             //安装Tap Driver
             Process installProcess = new Process();
             installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -210,6 +212,7 @@ namespace Netch.Utils
         /// </summary>
         public static void deltapall()
         {
+            Logging.Info("正在卸载 TUN/TAP 适配器");
             Process installProcess = new Process();
             installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "deltapall.bat");

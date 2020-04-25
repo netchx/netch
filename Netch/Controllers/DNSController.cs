@@ -1,4 +1,5 @@
 ﻿using Netch.Forms;
+using Netch.Utils;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -37,6 +38,7 @@ namespace Netch.Controllers
                 Instance.Start();
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
+                Logging.Info("dns-unbound 启动完毕");
                 return true;
             }
             catch (Exception)

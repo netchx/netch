@@ -52,6 +52,7 @@ namespace Netch.Forms
             this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateACLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateACLWithProxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.reinstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -64,7 +65,13 @@ namespace Netch.Forms
             this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.EditPictureBox = new System.Windows.Forms.PictureBox();
+            this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
+            this.DeletePictureBox = new System.Windows.Forms.PictureBox();
+            this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.EditModePictureBox = new System.Windows.Forms.PictureBox();
+            this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -79,27 +86,20 @@ namespace Netch.Forms
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
-            this.reinstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.EditPictureBox = new System.Windows.Forms.PictureBox();
-            this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
-            this.DeletePictureBox = new System.Windows.Forms.PictureBox();
-            this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
-            this.EditModePictureBox = new System.Windows.Forms.PictureBox();
-            this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
-            this.StatusStrip.SuspendLayout();
-            this.NotifyMenu.SuspendLayout();
-            this.ProfileGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
+            this.tableLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).BeginInit();
+            this.StatusStrip.SuspendLayout();
+            this.NotifyMenu.SuspendLayout();
+            this.ProfileGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // MenuStrip
@@ -273,6 +273,13 @@ namespace Netch.Forms
             this.updateACLWithProxyToolStripMenuItem.Text = "Update ACL with proxy";
             this.updateACLWithProxyToolStripMenuItem.Click += new System.EventHandler(this.updateACLWithProxyToolStripMenuItem_Click);
             // 
+            // reinstallTapDriverToolStripMenuItem
+            // 
+            this.reinstallTapDriverToolStripMenuItem.Name = "reinstallTapDriverToolStripMenuItem";
+            this.reinstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
+            this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall Tap driver";
+            this.reinstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
+            // 
             // AboutToolStripButton
             // 
             this.AboutToolStripButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -419,6 +426,50 @@ namespace Netch.Forms
             this.tableLayoutPanel2.Size = new System.Drawing.Size(94, 24);
             this.tableLayoutPanel2.TabIndex = 12;
             // 
+            // EditPictureBox
+            // 
+            this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.EditPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("EditPictureBox.Image")));
+            this.EditPictureBox.Location = new System.Drawing.Point(3, 3);
+            this.EditPictureBox.Name = "EditPictureBox";
+            this.EditPictureBox.Size = new System.Drawing.Size(16, 16);
+            this.EditPictureBox.TabIndex = 7;
+            this.EditPictureBox.TabStop = false;
+            this.EditPictureBox.Click += new System.EventHandler(this.EditPictureBox_Click);
+            // 
+            // CopyLinkPictureBox
+            // 
+            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.CopyLinkPictureBox.Image = global::Netch.Properties.Resources.CopyLink;
+            this.CopyLinkPictureBox.Location = new System.Drawing.Point(72, 3);
+            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
+            this.CopyLinkPictureBox.Size = new System.Drawing.Size(18, 18);
+            this.CopyLinkPictureBox.TabIndex = 14;
+            this.CopyLinkPictureBox.TabStop = false;
+            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
+            // 
+            // DeletePictureBox
+            // 
+            this.DeletePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.DeletePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("DeletePictureBox.Image")));
+            this.DeletePictureBox.Location = new System.Drawing.Point(26, 3);
+            this.DeletePictureBox.Name = "DeletePictureBox";
+            this.DeletePictureBox.Size = new System.Drawing.Size(16, 16);
+            this.DeletePictureBox.TabIndex = 8;
+            this.DeletePictureBox.TabStop = false;
+            this.DeletePictureBox.Click += new System.EventHandler(this.DeletePictureBox_Click);
+            // 
+            // SpeedPictureBox
+            // 
+            this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.SpeedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("SpeedPictureBox.Image")));
+            this.SpeedPictureBox.Location = new System.Drawing.Point(49, 3);
+            this.SpeedPictureBox.Name = "SpeedPictureBox";
+            this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
+            this.SpeedPictureBox.TabIndex = 9;
+            this.SpeedPictureBox.TabStop = false;
+            this.SpeedPictureBox.Click += new System.EventHandler(this.SpeedPictureBox_Click);
+            // 
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.ColumnCount = 4;
@@ -434,6 +485,30 @@ namespace Netch.Forms
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(94, 24);
             this.tableLayoutPanel3.TabIndex = 13;
+            // 
+            // EditModePictureBox
+            // 
+            this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.EditModePictureBox.ErrorImage = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.InitialImage = global::Netch.Properties.Resources.edit;
+            this.EditModePictureBox.Location = new System.Drawing.Point(3, 3);
+            this.EditModePictureBox.Name = "EditModePictureBox";
+            this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
+            this.EditModePictureBox.TabIndex = 12;
+            this.EditModePictureBox.TabStop = false;
+            this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
+            // 
+            // DeleteModePictureBox
+            // 
+            this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.DeleteModePictureBox.Image = global::Netch.Properties.Resources.delete;
+            this.DeleteModePictureBox.Location = new System.Drawing.Point(26, 3);
+            this.DeleteModePictureBox.Name = "DeleteModePictureBox";
+            this.DeleteModePictureBox.Size = new System.Drawing.Size(16, 16);
+            this.DeleteModePictureBox.TabIndex = 13;
+            this.DeleteModePictureBox.TabStop = false;
+            this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
             // 
             // StatusStrip
             // 
@@ -563,81 +638,6 @@ namespace Netch.Forms
             this.ProfileTable.Size = new System.Drawing.Size(599, 43);
             this.ProfileTable.TabIndex = 0;
             // 
-            // reinstallTapDriverToolStripMenuItem
-            // 
-            this.reinstallTapDriverToolStripMenuItem.Name = "reinstallTapDriverToolStripMenuItem";
-            this.reinstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall Tap driver";
-            this.reinstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
-            // 
-            // EditPictureBox
-            // 
-            this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("EditPictureBox.Image")));
-            this.EditPictureBox.Location = new System.Drawing.Point(3, 3);
-            this.EditPictureBox.Name = "EditPictureBox";
-            this.EditPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditPictureBox.TabIndex = 7;
-            this.EditPictureBox.TabStop = false;
-            this.EditPictureBox.Click += new System.EventHandler(this.EditPictureBox_Click);
-            // 
-            // CopyLinkPictureBox
-            // 
-            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.CopyLinkPictureBox.Image = global::Netch.Properties.Resources.CopyLink;
-            this.CopyLinkPictureBox.Location = new System.Drawing.Point(72, 3);
-            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
-            this.CopyLinkPictureBox.Size = new System.Drawing.Size(18, 18);
-            this.CopyLinkPictureBox.TabIndex = 14;
-            this.CopyLinkPictureBox.TabStop = false;
-            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
-            // 
-            // DeletePictureBox
-            // 
-            this.DeletePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeletePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("DeletePictureBox.Image")));
-            this.DeletePictureBox.Location = new System.Drawing.Point(26, 3);
-            this.DeletePictureBox.Name = "DeletePictureBox";
-            this.DeletePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeletePictureBox.TabIndex = 8;
-            this.DeletePictureBox.TabStop = false;
-            this.DeletePictureBox.Click += new System.EventHandler(this.DeletePictureBox_Click);
-            // 
-            // SpeedPictureBox
-            // 
-            this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("SpeedPictureBox.Image")));
-            this.SpeedPictureBox.Location = new System.Drawing.Point(49, 3);
-            this.SpeedPictureBox.Name = "SpeedPictureBox";
-            this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.SpeedPictureBox.TabIndex = 9;
-            this.SpeedPictureBox.TabStop = false;
-            this.SpeedPictureBox.Click += new System.EventHandler(this.SpeedPictureBox_Click);
-            // 
-            // EditModePictureBox
-            // 
-            this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditModePictureBox.ErrorImage = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.InitialImage = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.Location = new System.Drawing.Point(3, 3);
-            this.EditModePictureBox.Name = "EditModePictureBox";
-            this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditModePictureBox.TabIndex = 12;
-            this.EditModePictureBox.TabStop = false;
-            this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
-            // 
-            // DeleteModePictureBox
-            // 
-            this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteModePictureBox.Image = global::Netch.Properties.Resources.delete;
-            this.DeleteModePictureBox.Location = new System.Drawing.Point(26, 3);
-            this.DeleteModePictureBox.Name = "DeleteModePictureBox";
-            this.DeleteModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeleteModePictureBox.TabIndex = 13;
-            this.DeleteModePictureBox.TabStop = false;
-            this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -665,18 +665,18 @@ namespace Netch.Forms
             this.configLayoutPanel.ResumeLayout(false);
             this.configLayoutPanel.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).EndInit();
             this.StatusStrip.ResumeLayout(false);
             this.StatusStrip.PerformLayout();
             this.NotifyMenu.ResumeLayout(false);
             this.ProfileGroupBox.ResumeLayout(false);
             this.ProfileGroupBox.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

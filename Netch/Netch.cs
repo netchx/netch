@@ -73,24 +73,16 @@ namespace Netch
                 {
                     // 加载语言
                     Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-
-                    // 记录当前程序语言
-                    Utils.Logging.Info($"当前程序语言：{culture}");
                 }
+
+                // 记录当前程序语言
+                Utils.Logging.Info($"当前程序语言：{culture}");
 
                 // 从外置文件中加载语言
                 if (File.Exists($"i18n\\{culture}"))
                 {
                     // 加载语言
                     Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
-
-                    // 记录当前程序语言
-                    Utils.Logging.Info($"当前程序语言：{culture}");
-                }
-                else
-                {
-                    // 记录日志
-                    Utils.Logging.Info("当前程序语言：en_US");
                 }
 
                 // 检查是否已经运行
