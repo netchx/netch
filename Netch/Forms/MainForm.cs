@@ -1,4 +1,5 @@
 using Netch.Controllers;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -332,6 +333,7 @@ namespace Netch.Forms
             CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
             UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate(UpdateACLToolStripMenuItem.Text);
             updateACLWithProxyToolStripMenuItem.Text = Utils.i18N.Translate(updateACLWithProxyToolStripMenuItem.Text);
+            reinstallTapDriverToolStripMenuItem.Text = Utils.i18N.Translate(reinstallTapDriverToolStripMenuItem.Text);
             AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
             ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
             ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
@@ -801,6 +803,7 @@ namespace Netch.Forms
                 //关闭使用代理更新ACL
                 updateACLWithProxyToolStripMenuItem.Enabled = false;
                 UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
+                reinstallTapDriverToolStripMenuItem.Enabled = false;
 
                 ControlButton.Text = "...";
                 StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
@@ -949,6 +952,7 @@ namespace Netch.Forms
 
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
                     UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
+                    reinstallTapDriverToolStripMenuItem.Enabled = true;
 
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
@@ -1418,6 +1422,24 @@ namespace Netch.Forms
                     MainController.Stop();
                 }
             });
+        }
+
+        private void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Configuration.deltapall();
+                Configuration.addtap();
+                NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver successfully"),
+                        ToolTipIcon.Info);
+            }
+            catch
+            {
+                NotifyIcon.ShowBalloonTip(5,
+                        UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver failed"),
+                        ToolTipIcon.Error);
+            }
         }
     }
 }

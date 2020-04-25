@@ -163,16 +163,9 @@ namespace Netch.Utils
             {
                 if (MessageBox.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
-                    //安装Tap Driver
-                    Process installProcess = new Process();
-                    installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "install.bat");
-                    installProcess.Start();
-                    installProcess.WaitForExit();
-                    installProcess.Close();
+                    addtap();
                     //给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
                     Thread.Sleep(1000);
-
                     Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
                 }
                 else
@@ -198,6 +191,31 @@ namespace Netch.Utils
 
             Logging.Info("无法找到出口");
             return false;
+        }
+        /// <summary>
+        /// 安装tap网卡
+        /// </summary>
+        public static void addtap()
+        {
+            //安装Tap Driver
+            Process installProcess = new Process();
+            installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "addtap.bat");
+            installProcess.Start();
+            installProcess.WaitForExit();
+            installProcess.Close();
+        }
+        /// <summary>
+        /// 卸载tap网卡
+        /// </summary>
+        public static void deltapall()
+        {
+            Process installProcess = new Process();
+            installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "deltapall.bat");
+            installProcess.Start();
+            installProcess.WaitForExit();
+            installProcess.Close();
         }
     }
 }

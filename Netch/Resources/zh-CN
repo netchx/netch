@@ -92,6 +92,9 @@
     "Update ACL with proxy": "使用代理更新 ACL 规则",
     "ACL updated successfully": "ACL 更新成功",
     "ACL update failed": "ACL更新失败",
+    "Reinstall Tap driver": "重新安装Tap驱动",
+    "Reinstall Tap driver successfully": "重装Tap驱动成功",
+    "Reinstall Tap driver failed": "重装Tap驱动失败",
 
     "About": "关于",
     "Telegram Channel": "Telegram 频道",
