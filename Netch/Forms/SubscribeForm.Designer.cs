@@ -62,7 +62,7 @@
             this.AddSubscriptionBox.Controls.Add(this.RemarkLabel);
             this.AddSubscriptionBox.Location = new System.Drawing.Point(12, 226);
             this.AddSubscriptionBox.Name = "AddSubscriptionBox";
-            this.AddSubscriptionBox.Size = new System.Drawing.Size(660, 132);
+            this.AddSubscriptionBox.Size = new System.Drawing.Size(660, 135);
             this.AddSubscriptionBox.TabIndex = 1;
             this.AddSubscriptionBox.TabStop = false;
             // 
@@ -75,11 +75,11 @@
             // 
             // AddButton
             // 
-            this.AddButton.Location = new System.Drawing.Point(579, 103);
+            this.AddButton.Location = new System.Drawing.Point(541, 103);
             this.AddButton.Name = "AddButton";
-            this.AddButton.Size = new System.Drawing.Size(75, 23);
+            this.AddButton.Size = new System.Drawing.Size(113, 26);
             this.AddButton.TabIndex = 7;
-            this.AddButton.Text = "Add";
+            this.AddButton.Text = "Add / Modify";
             this.AddButton.UseVisualStyleBackColor = true;
             this.AddButton.Click += new System.EventHandler(this.AddButton_Click);
             // 
@@ -192,7 +192,7 @@
             // UseSelectedServerCheckBox
             // 
             this.UseSelectedServerCheckBox.AutoSize = true;
-            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(12, 364);
+            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(12, 396);
             this.UseSelectedServerCheckBox.Name = "UseSelectedServerCheckBox";
             this.UseSelectedServerCheckBox.Size = new System.Drawing.Size(285, 21);
             this.UseSelectedServerCheckBox.TabIndex = 9;

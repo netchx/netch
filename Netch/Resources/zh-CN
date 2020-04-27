@@ -123,6 +123,7 @@
     "Add": "添加",
     "Scan": "扫描",
     "Save": "保存",
+    "Add / Modify": "保存/修改",
     "Select a folder": "选择一个目录",
     "Please enter an process name (xxx.exe)": "请输入一个进程名（xxx.exe）",
     "Scan completed": "扫描完成",

@@ -95,10 +95,16 @@ namespace Netch.Forms
 
         public void TestServer()
         {
-            Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server =>
+            try
             {
-                server.Test();
-            });
+                Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server =>
+                {
+                    server.Test();
+                });
+            }
+            catch (Exception)
+            {
+            }
         }
 
         public void InitServer()
@@ -502,6 +508,9 @@ namespace Netch.Forms
 
         private void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (Global.Settings.UseProxyToUpdateSubscription && ServerComboBox.SelectedIndex == -1)
+                Global.Settings.UseProxyToUpdateSubscription = false;
+
             if (Global.Settings.UseProxyToUpdateSubscription)
             {
                 // 当前 ServerComboBox 中至少有一项
@@ -570,6 +579,7 @@ namespace Netch.Forms
                                 foreach (var x in result)
                                 {
                                     x.Group = item.Remark;
+                                    x.Remark = "[" + item.Remark + "] " + x.Remark;
                                 }
                                 Global.Settings.Server.AddRange(result);
                                 NotifyIcon.ShowBalloonTip(5,
@@ -956,6 +966,8 @@ namespace Netch.Forms
                         reinstallTapDriverToolStripMenuItem.Enabled = true;
                         ServerComboBox.Enabled = true;
                         ModeComboBox.Enabled = true;
+                        //隐藏NTT测试
+                        NatTypeStatusLabel.Visible = false;
 
                         ControlButton.Text = Utils.i18N.Translate("Start");
                         StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
@@ -1000,6 +1012,8 @@ namespace Netch.Forms
                     reinstallTapDriverToolStripMenuItem.Enabled = true;
                     ServerComboBox.Enabled = true;
                     ModeComboBox.Enabled = true;
+                    //隐藏NTT测试
+                    NatTypeStatusLabel.Visible = false;
 
                     ControlButton.Text = Utils.i18N.Translate("Start");
                     StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
@@ -1340,6 +1354,7 @@ namespace Netch.Forms
         }
         public void NatTypeStatusText(string text)
         {
+            NatTypeStatusLabel.Visible = true;
             if (!string.IsNullOrWhiteSpace(text))
             {
                 NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + text;
