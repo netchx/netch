@@ -150,7 +150,6 @@ namespace Netch.Forms
                                         }
                                         catch (Exception)
                                         {
-                                            throw;
                                         }
                                     });
 
