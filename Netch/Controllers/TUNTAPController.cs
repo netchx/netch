@@ -430,6 +430,10 @@ namespace Netch.Controllers
                 dns = "127.0.0.1";
                 //dns = "1.1.1.1,1.0.0.1";
             }
+            if (Global.Settings.TUNTAP.UseFakeDNS)
+            {
+                dns += " -fakeDns";
+            }
 
             if (server.Type == "Socks5")
             {
@@ -448,6 +452,8 @@ namespace Netch.Controllers
             Instance.EnableRaisingEvents = true;
             Instance.ErrorDataReceived += OnOutputDataReceived;
             Instance.OutputDataReceived += OnOutputDataReceived;
+
+            Logging.Info(Instance.StartInfo.Arguments);
 
             State = Models.State.Starting;
             Instance.Start();

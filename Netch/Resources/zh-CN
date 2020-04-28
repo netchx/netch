@@ -154,6 +154,7 @@
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
     "Proxy DNS in Mode 2": "在模式 2 下代理 DNS",
+    "Use Fake DNS (Suggest open if NTT is Udpblock)": "使用Fake DNS (建议节点NTT测试为Udpblock时开启)",
     "Behavior": "行为",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",
@@ -171,6 +172,7 @@
     "Enable": "启用",
     "Detection interval(/s)": "检测间隔（/秒）",
     "Custom ACL": "自定义 ACL 规则",
+    "Process whitelist mode": "进程白名单模式",
 
     "Profile": "配置名",
     "Profiles": "配置",

@@ -52,8 +52,10 @@ namespace Netch.Forms
             TUNTAPGatewayLabel.Text = Utils.i18N.Translate(TUNTAPGatewayLabel.Text);
             TUNTAPUseCustomDNSCheckBox.Text = Utils.i18N.Translate(TUNTAPUseCustomDNSCheckBox.Text);
             TUNTAPProxyDNSCheckBox.Text = Utils.i18N.Translate(TUNTAPProxyDNSCheckBox.Text);
+            UseFakeDNSCheckBox.Text = Utils.i18N.Translate(UseFakeDNSCheckBox.Text);
             GlobalBypassIPsButton.Text = Utils.i18N.Translate(GlobalBypassIPsButton.Text);
             ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            BypassModeCheckBox.Text = Utils.i18N.Translate(BypassModeCheckBox.Text);
 
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
@@ -76,6 +78,7 @@ namespace Netch.Forms
 
             TUNTAPUseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
             TUNTAPProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
+            UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
             BehaviorGroupBox.Text = Utils.i18N.Translate(BehaviorGroupBox.Text);
             ExitWhenClosedCheckBox.Text = Utils.i18N.Translate(ExitWhenClosedCheckBox.Text);
@@ -383,6 +386,7 @@ namespace Netch.Forms
 
             Global.Settings.TUNTAP.UseCustomDNS = TUNTAPUseCustomDNSCheckBox.Checked;
             Global.Settings.TUNTAP.ProxyDNS = TUNTAPProxyDNSCheckBox.Checked;
+            Global.Settings.TUNTAP.UseFakeDNS = UseFakeDNSCheckBox.Checked;
 
             Utils.Configuration.Save();
             MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);

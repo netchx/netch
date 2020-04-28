@@ -36,6 +36,11 @@ namespace Netch.Models
         ///		模式2下是否代理DNS
         /// </summary>
         public bool ProxyDNS = false;
+
+        /// <summary>
+        ///		使用Fake DNS
+        /// </summary>
+        public bool UseFakeDNS = false;
     }
 
     /// <summary>
@@ -167,7 +172,7 @@ namespace Netch.Models
         /// <summary>
         ///     是否启用启动后延迟测试
         /// </summary>
-        public bool StartedTcping = false;
+        public bool StartedTcping = true;
 
         /// <summary>
         ///     启动后延迟测试间隔/秒
