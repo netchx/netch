@@ -9,6 +9,7 @@ Game accelerator
 - [Netch](#netch)
 	- [TOC](#toc)
 	- [Description](#description)
+	- [Donate](#donate)
 	- [Sponsor](#sponsor)
 	- [Screenshots](#screenshots)
 	- [Requirements](#requirements)
@@ -19,42 +20,34 @@ Netch is an open source game accelerator. Unlike SSTap, which needs to add rules
 
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
 
+## Donate
+- XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
+
 ## Sponsor
 开发不易，以下为恰饭时间
 
 [![NyanCAT](docs/sponsor/nyancat.jpg)](https://nyancat.info)
 
-NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起。[测速图](https://t.me/BGP2020/935)
-[加入 Telegram 群组](https://t.me/NyanCaaaat)
+NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起。
 
 [![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
 
 ## Screenshots
-
 ![](docs/screenshots/main.png)
 
 ## Requirements
-
 - Microsoft Visual C++ Runtime
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
 ## Quote
-https://github.com/eycorsican/go-tun2socks
-
-https://github.com/shadowsocks/shadowsocks-libev
-
-https://github.com/shadowsocksrr/shadowsocksr-libev
-
-https://github.com/v2ray/v2ray-core
-
-https://github.com/ACL4SSR/ACL4SSR
-
-https://github.com/felixonmars/dnsmasq-china-list
-
-https://github.com/NLnetLabs/unbound
-
-https://github.com/OpenVPN/tap-windows6
-
-https://sourceforge.net/projects/ijbswa/
-
-https://github.com/HMBSbige/NatTypeTester
+- [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
+- [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
+- [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
+- [v2ray-core](https://github.com/v2ray/v2ray-core)
+- [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
+- [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
+- [unbound](https://github.com/NLnetLabs/unbound)
+- [tap-windows6](https://github.com/OpenVPN/tap-windows6)
+- [Privoxy](https://www.privoxy.org/)
+- [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
+- [NetFilter SDK](https://netfiltersdk.com/)
