@@ -1,6 +1,5 @@
 # Netch
 [![](https://img.shields.io/badge/Telegram-频道-blue.svg)](https://t.me/Netch)
-> ~~issue已关，有问题可进tele群问，不保证回答，不保证解决，咕~~
 
 游戏加速工具
 
@@ -25,15 +24,13 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 
 ## 赞助商
 开发不易，以下为恰饭时间
-
 [![NyanCAT](sponsor/nyancat.jpg)](https://nyancat.info)
 
-NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起。
+NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起
 
 [![ManSora](sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
 
 ## 新手入门
-
 [新手入门教程](Basic-usage.md)
 
 ## 进阶用法
@@ -44,26 +41,17 @@ NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量�
 - [TAP-Windows](https://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe)
 
 ## 语言支持
-
 Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
 
 ## 引用
-https://github.com/eycorsican/go-tun2socks
-
-https://github.com/shadowsocks/shadowsocks-libev
-
-https://github.com/shadowsocksrr/shadowsocksr-libev
-
-https://github.com/v2ray/v2ray-core
-
-https://github.com/ACL4SSR/ACL4SSR
-
-https://github.com/felixonmars/dnsmasq-china-list
-
-https://github.com/NLnetLabs/unbound
-
-https://github.com/OpenVPN/tap-windows6
-
-https://sourceforge.net/projects/ijbswa/
-
-https://github.com/HMBSbige/NatTypeTester
+- [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
+- [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
+- [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
+- [v2ray-core](https://github.com/v2ray/v2ray-core)
+- [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
+- [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
+- [unbound](https://github.com/NLnetLabs/unbound)
+- [tap-windows6](https://github.com/OpenVPN/tap-windows6)
+- [Privoxy](https://www.privoxy.org/)
+- [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
+- [NetFilter SDK](https://netfiltersdk.com/)
