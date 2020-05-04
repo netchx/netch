@@ -154,7 +154,7 @@
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
     "Proxy DNS in Mode 2": "在模式 2 下代理 DNS",
-    "Use Fake DNS (Suggest open if NTT is Udpblock)": "使用 Fake DNS (建议节点 NTT 测试为 UdpBlocked 时开启)",
+    "Use Fake DNS (Suggest open if NTT is Udpblock)": "使用 Fake DNS (建议节点 NAT 测试为 UdpBlocked 时开启)",
     "Behavior": "行为",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",
