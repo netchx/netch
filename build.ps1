@@ -22,11 +22,13 @@ function Build-NetFrameworkx64
 
     Write-Host 'Build x64 Complete ,Started Copy bin,mode,i18n file'
     
-Copy-Item "$mainDir\binaries" -destination "$net_baseoutput\x64\Release\win-x64\bin" -recurse
+Copy-Item "$mainDir\translations\i18n\*" "$net_baseoutput\x64\Release\win-x64\i18n" -recurse
 
-Copy-Item "$mainDir\translations\i18n" "$net_baseoutput\x64\Release\win-x64\i18n" -recurse
+Copy-Item "$mainDir\modes\mode\*" "$net_baseoutput\x64\Release\win-x64\mode" -recurse
 
-Copy-Item "$mainDir\modes\mode" "$net_baseoutput\x64\Release\win-x64\mode" -recurse
+Remove-Item -path "$net_baseoutput\x64\Release\win-x64\bin\tap-driver"
+
+Copy-Item "$mainDir\binaries\*" -destination "$net_baseoutput\x64\Release\win-x64\bin" -recurse
 
     Write-Host 'Netch Build ALL DONE'
 
