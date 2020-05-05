@@ -27,6 +27,9 @@ namespace Netch.Controllers
         public bool Start(Models.Server server, Models.Mode mode)
         {
             MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting ShadowsocksR")}");
+
+            File.Delete("logging\\shadowsocksr.log");
+
             if (!File.Exists("bin\\ShadowsocksR.exe"))
             {
                 return false;

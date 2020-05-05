@@ -52,6 +52,7 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.BootShadowsocksFromDLLCheckBox = new System.Windows.Forms.CheckBox();
             this.AclAddr = new System.Windows.Forms.TextBox();
             this.AclLabel = new System.Windows.Forms.Label();
             this.DetectionInterval_Label = new System.Windows.Forms.Label();
@@ -278,7 +279,7 @@
             // ControlButton
             // 
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(781, 356);
+            this.ControlButton.Location = new System.Drawing.Point(804, 356);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
             this.ControlButton.TabIndex = 11;
@@ -299,6 +300,7 @@
             // 
             // BehaviorGroupBox
             // 
+            this.BehaviorGroupBox.Controls.Add(this.BootShadowsocksFromDLLCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.AclAddr);
             this.BehaviorGroupBox.Controls.Add(this.AclLabel);
             this.BehaviorGroupBox.Controls.Add(this.DetectionInterval_Label);
@@ -322,16 +324,26 @@
             this.BehaviorGroupBox.Controls.Add(this.ExitWhenClosedCheckBox);
             this.BehaviorGroupBox.Location = new System.Drawing.Point(438, 12);
             this.BehaviorGroupBox.Name = "BehaviorGroupBox";
-            this.BehaviorGroupBox.Size = new System.Drawing.Size(420, 333);
+            this.BehaviorGroupBox.Size = new System.Drawing.Size(441, 333);
             this.BehaviorGroupBox.TabIndex = 8;
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
+            // 
+            // BootShadowsocksFromDLLCheckBox
+            // 
+            this.BootShadowsocksFromDLLCheckBox.AutoSize = true;
+            this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(206, 102);
+            this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
+            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(195, 21);
+            this.BootShadowsocksFromDLLCheckBox.TabIndex = 21;
+            this.BootShadowsocksFromDLLCheckBox.Text = "Boot Shadowsocks from DLL";
+            this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
             // 
             // AclAddr
             // 
             this.AclAddr.Location = new System.Drawing.Point(120, 258);
             this.AclAddr.Name = "AclAddr";
-            this.AclAddr.Size = new System.Drawing.Size(294, 23);
+            this.AclAddr.Size = new System.Drawing.Size(315, 23);
             this.AclAddr.TabIndex = 19;
             this.AclAddr.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -357,7 +369,7 @@
             // 
             this.DetectionInterval_TextBox.Location = new System.Drawing.Point(367, 174);
             this.DetectionInterval_TextBox.Name = "DetectionInterval_TextBox";
-            this.DetectionInterval_TextBox.Size = new System.Drawing.Size(47, 23);
+            this.DetectionInterval_TextBox.Size = new System.Drawing.Size(68, 23);
             this.DetectionInterval_TextBox.TabIndex = 17;
             this.DetectionInterval_TextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -414,7 +426,7 @@
             // 
             this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 229);
             this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
-            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(315, 23);
             this.STUN_ServerPortTextBox.TabIndex = 8;
             this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -450,7 +462,7 @@
             // 
             this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 200);
             this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
-            this.STUN_ServerTextBox.Size = new System.Drawing.Size(294, 23);
+            this.STUN_ServerTextBox.Size = new System.Drawing.Size(315, 23);
             this.STUN_ServerTextBox.TabIndex = 11;
             this.STUN_ServerTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -477,7 +489,7 @@
             // 
             this.ProfileCount_TextBox.Location = new System.Drawing.Point(209, 149);
             this.ProfileCount_TextBox.Name = "ProfileCount_TextBox";
-            this.ProfileCount_TextBox.Size = new System.Drawing.Size(208, 23);
+            this.ProfileCount_TextBox.Size = new System.Drawing.Size(226, 23);
             this.ProfileCount_TextBox.TabIndex = 9;
             this.ProfileCount_TextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -529,7 +541,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(868, 390);
+            this.ClientSize = new System.Drawing.Size(891, 390);
             this.Controls.Add(this.BehaviorGroupBox);
             this.Controls.Add(this.PortGroupBox);
             this.Controls.Add(this.GlobalBypassIPsButton);
@@ -601,5 +613,6 @@
         private System.Windows.Forms.TextBox AclAddr;
         private System.Windows.Forms.Label AclLabel;
         private System.Windows.Forms.CheckBox UseFakeDNSCheckBox;
+        private System.Windows.Forms.CheckBox BootShadowsocksFromDLLCheckBox;
     }
 }

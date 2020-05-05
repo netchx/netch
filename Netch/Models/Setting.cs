@@ -184,5 +184,9 @@ namespace Netch.Models
         /// </summary>
         public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
 
+        /// <summary>
+        ///     是否使用DLL启动Shadowsocks
+        /// </summary>
+        public bool BootShadowsocksFromDLL = true;
     }
 }

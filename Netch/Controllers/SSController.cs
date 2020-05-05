@@ -1,7 +1,10 @@
 ﻿using Netch.Forms;
+using Netch.Utils;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 
 namespace Netch.Controllers
@@ -27,11 +30,41 @@ namespace Netch.Controllers
         public bool Start(Models.Server server, Models.Mode mode)
         {
             MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Shadowsocks")}");
+
+            File.Delete("logging\\shadowsocks.log");
+            //从DLL启动Shaowsocks
+            if (Global.Settings.BootShadowsocksFromDLL)
+            {
+                State = Models.State.Starting;
+                var client = Encoding.UTF8.GetBytes($"0.0.0.0:{Global.Settings.Socks5LocalPort}");
+                var remote = Encoding.UTF8.GetBytes($"{server.Hostname}:{server.Port}");
+                var passwd = Encoding.UTF8.GetBytes($"{server.Password}");
+                var method = Encoding.UTF8.GetBytes($"{server.EncryptMethod}");
+                if (!NativeMethods.Shadowsocks.Info(client, remote, passwd, method))
+                {
+                    State = Models.State.Stopped;
+                    Logging.Info("DllSS_Info设置失败！");
+                    return false;
+                }
+
+                Logging.Info("DllSS_Info设置成功！");
+
+                if (!NativeMethods.Shadowsocks.Start())
+                {
+                    State = Models.State.Stopped;
+                    Logging.Info("DllSS_Start 启动失败！");
+                    return false;
+                }
+
+                Logging.Info("DllSS_Start 启动成功！");
+                State = Models.State.Started;
+                return true;
+            }
+
             if (!File.Exists("bin\\Shadowsocks.exe"))
             {
                 return false;
             }
-
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
 
@@ -90,6 +123,8 @@ namespace Netch.Controllers
                 {
                     Instance.Kill();
                 }
+                if (Global.Settings.BootShadowsocksFromDLL)
+                    NativeMethods.Shadowsocks.Stop();
             }
             catch (Exception e)
             {
@@ -101,7 +136,7 @@ namespace Netch.Controllers
         {
             if (!string.IsNullOrWhiteSpace(e.Data))
             {
-                // File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
+                File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
 
                 if (State == Models.State.Starting)
                 {

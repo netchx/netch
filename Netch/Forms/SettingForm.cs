@@ -56,6 +56,7 @@ namespace Netch.Forms
             GlobalBypassIPsButton.Text = Utils.i18N.Translate(GlobalBypassIPsButton.Text);
             ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
             BypassModeCheckBox.Text = Utils.i18N.Translate(BypassModeCheckBox.Text);
+            BootShadowsocksFromDLLCheckBox.Text = Utils.i18N.Translate(BootShadowsocksFromDLLCheckBox.Text);
 
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
@@ -67,6 +68,7 @@ namespace Netch.Forms
             BypassModeCheckBox.Checked = Global.Settings.ProcessBypassMode;
             EnableStartedTcping_CheckBox.Checked = Global.Settings.StartedTcping;
             DetectionInterval_TextBox.Text = Global.Settings.StartedTcping_Interval.ToString();
+            BootShadowsocksFromDLLCheckBox.Checked = Global.Settings.BootShadowsocksFromDLL;
 
             Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
             HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
@@ -161,7 +163,8 @@ namespace Netch.Forms
             Global.Settings.RunAtStartup = RunAtStartup.Checked;
             Global.Settings.UseRedirector2 = Redirector2checkBox.Checked;
             Global.Settings.ProcessBypassMode = BypassModeCheckBox.Checked;
-            Global.Settings.StartedTcping = EnableStartedTcping_CheckBox.Checked;
+            Global.Settings.BootShadowsocksFromDLL = BootShadowsocksFromDLLCheckBox.Checked;
+
 
             // 开机自启判断
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
