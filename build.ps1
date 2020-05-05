@@ -22,52 +22,18 @@ function Build-NetFrameworkx64
 
     Write-Host 'Build x64 Complete ,Started Copy bin,mode,i18n file'
     
-mkdir "$net_baseoutput\x64\Release\win-x64\bin"
-Copy-Item "$mainDir\binaries\x64\*" -destination "$net_baseoutput\x64\Release\win-x64\bin" -recurse
-mkdir "$net_baseoutput\x64\Release\win-x64\bin\tap-driver"
-Copy-Item "$mainDir\binaries\tap-driver\*" -destination "$net_baseoutput\x64\Release\win-x64\bin\tap-driver" -recurse
-Copy-Item "$mainDir\binaries\*.acl" "$net_baseoutput\x64\Release\win-x64\bin"
-Copy-Item "$mainDir\binaries\*.conf" "$net_baseoutput\x64\Release\win-x64\bin"
-Copy-Item "$mainDir\binaries\*.dat" "$net_baseoutput\x64\Release\win-x64\bin"
-Copy-Item "$mainDir\binaries\*.exe" "$net_baseoutput\x64\Release\win-x64\bin"
-Move-Item "$net_baseoutput\x64\Release\win-x64\bin\nfapinet.dll" "$net_baseoutput\x64\Release\win-x64\nfapinet.dll"
+Copy-Item "$mainDir\binaries" -destination "$net_baseoutput\x64\Release\win-x64\bin" -recurse
+
 Copy-Item "$mainDir\translations\i18n" "$net_baseoutput\x64\Release\win-x64\i18n" -recurse
-mkdir "$net_baseoutput\x64\Release\win-x64\mode"
-Copy-Item "$mainDir\modes\mode\*.txt" "$net_baseoutput\x64\Release\win-x64\mode"
 
-    Write-Host 'x64 ALL DONE'
+Copy-Item "$mainDir\modes\mode" "$net_baseoutput\x64\Release\win-x64\mode" -recurse
 
-}
-function Build-NetFrameworkx86
-{
-	Write-Host 'Building .NET Framework x86'
-	
-	$outdir = "$net_baseoutput\x86"
-	
-	msbuild -v:m -m -t:Build /p:Configuration="Release" /p:Platform="x86" /p:TargetFramework=net48 /p:Runtimeidentifier=win-x86 /restore
-	if ($LASTEXITCODE) { cd $mainDir ; exit $LASTEXITCODE } 
+    Write-Host 'Netch Build ALL DONE'
 
-    Write-Host 'Build x86 Complete ,Started Copy bin,mode,i18n file'
-    
-mkdir "$net_baseoutput\x86\Release\win-x86\bin"
-Copy-Item "$mainDir\binaries\x86\*" "$net_baseoutput\x86\Release\win-x86\bin"
-mkdir "$net_baseoutput\x86\Release\win-x86\bin\tap-driver"
-Copy-Item "$mainDir\binaries\tap-driver\*" "$net_baseoutput\x86\Release\win-x86\bin\tap-driver" -recurse
-Copy-Item "$mainDir\binaries\*.acl" "$net_baseoutput\x86\Release\win-x86\bin"
-Copy-Item "$mainDir\binaries\*.conf" "$net_baseoutput\x86\Release\win-x86\bin"
-Copy-Item "$mainDir\binaries\*.dat" "$net_baseoutput\x86\Release\win-x86\bin"
-Copy-Item "$mainDir\binaries\*.exe" "$net_baseoutput\x86\Release\win-x86\bin"
-Move-Item "$net_baseoutput\x86\Release\win-x86\bin\nfapinet.dll" "$net_baseoutput\x86\Release\win-x86\nfapinet.dll"
-Copy-Item "$mainDir\translations\i18n" "$net_baseoutput\x86\Release\win-x86\i18n" -recurse
-mkdir "$net_baseoutput\x86\Release\win-x86\mode"
-Copy-Item "$mainDir\modes\mode\*.txt" "$net_baseoutput\x86\Release\win-x86\mode"
-
-    Write-Host 'x86 ALL DONE'
 }
 
 cd $mainDir\Netch
 
 Build-NetFrameworkx64
-Build-NetFrameworkx86
 
 cd $mainDir
