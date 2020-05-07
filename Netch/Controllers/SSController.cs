@@ -33,7 +33,7 @@ namespace Netch.Controllers
 
             File.Delete("logging\\shadowsocks.log");
             //从DLL启动Shaowsocks
-            if (Global.Settings.BootShadowsocksFromDLL)
+            if (Global.Settings.BootShadowsocksFromDLL && (mode.Type == 0 || mode.Type == 1 || mode.Type == 2 || mode.Type == 3))
             {
                 State = Models.State.Starting;
                 var client = Encoding.UTF8.GetBytes($"0.0.0.0:{Global.Settings.Socks5LocalPort}");
@@ -43,20 +43,18 @@ namespace Netch.Controllers
                 if (!NativeMethods.Shadowsocks.Info(client, remote, passwd, method))
                 {
                     State = Models.State.Stopped;
-                    Logging.Info("DllSS_Info设置失败！");
+                    Logging.Info("DLL SS INFO 设置失败！");
                     return false;
                 }
-
-                Logging.Info("DllSS_Info设置成功！");
+                Logging.Info("DLL SS INFO 设置成功！");
 
                 if (!NativeMethods.Shadowsocks.Start())
                 {
                     State = Models.State.Stopped;
-                    Logging.Info("DllSS_Start 启动失败！");
+                    Logging.Info("DLL SS 启动失败！");
                     return false;
                 }
-
-                Logging.Info("DllSS_Start 启动成功！");
+                Logging.Info("DLL SS 启动成功！");
                 State = Models.State.Started;
                 return true;
             }
