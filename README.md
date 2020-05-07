@@ -10,7 +10,6 @@ Game accelerator
 	- [TOC](#toc)
 	- [Description](#description)
 	- [Donate](#donate)
-	- [Sponsor](#sponsor)
 	- [Screenshots](#screenshots)
 	- [Requirements](#requirements)
 
@@ -22,15 +21,6 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 
 ## Donate
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
-
-## Sponsor
-开发不易，以下为恰饭时间
-
-[![NyanCAT](docs/sponsor/nyancat.jpg)](https://nyancat.info)
-
-NyanCAT Network，全中转高质量节点，多条低倍率节点保证流量无忧，节点极低延迟涵盖五大洲。Netflix 视频党，游戏党，海外回国党必备，无需年付，月付 19 元起
-
-[![ManSora](docs/sponsor/mansora.jpg)](https://www.mansora.net/cart.php)
 
 ## Screenshots
 ![](docs/screenshots/main.png)
