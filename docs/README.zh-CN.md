@@ -1,5 +1,5 @@
 # Netch
-[![](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-讨论组-green)](https://t.me/Netch_Discuss_Group) ![GitHub Actions & Netch CI](https://github.com/NetchX/Netch/workflows/GitHub%20Actions%20&%20Netch%20CI/badge.svg)
+[![](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-讨论组-green)](https://t.me/Netch_Discuss_Group) ![Netch CI](https://github.com/NetchX/Netch/workflows/GitHub%20Actions%20&%20Netch%20CI/badge.svg)
 
 游戏加速工具
 
@@ -8,7 +8,7 @@
 	- [TOC](#TOC)
 	- [简介](#简介)
 	- [捐赠](#捐赠)
-    - [新手入门](Basic-usage.md)
+    - [新手入门](Quickstart.zh-CN.md)
     - [进阶用法](https://github.com/NormanBB/NetchMode/blob/master/docs/README.zh-CN.md)
 	- [依赖](#依赖)
     - [语言支持](#语言支持)

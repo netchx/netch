@@ -1,5 +1,5 @@
 # Netch
-[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group) ![GitHub Actions & Netch CI](https://github.com/NetchX/Netch/workflows/GitHub%20Actions%20&%20Netch%20CI/badge.svg)
+[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group) ![Netch CI](https://github.com/NetchX/Netch/workflows/GitHub%20Actions%20&%20Netch%20CI/badge.svg)
           
 Game accelerator
 
