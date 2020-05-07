@@ -20,10 +20,10 @@ function Build-NetFrameworkx64
 	if ($LASTEXITCODE) { cd $mainDir ; exit $LASTEXITCODE } 
 
     Write-Host 'Build x64 Completed, start copy bin, mode, i18n file'
+	Remove-Item -Recurse -Force "$net_baseoutput\x64\Release\win-x64\bin\tap-driver"
 	Copy-Item -Recurse "$mainDir\binaries\*" "$net_baseoutput\x64\Release\win-x64\bin"
 	Copy-Item -Recurse "$mainDir\modes\mode\*" "$net_baseoutput\x64\Release\win-x64\mode"
 	Copy-Item -Recurse "$mainDir\translations\i18n\*" "$net_baseoutput\x64\Release\win-x64\i18n"
-	Remove-Item -Path "$net_baseoutput\x64\Release\win-x64\bin\tap-driver"
 
     Write-Host 'Build done'
 }
