@@ -51,16 +51,17 @@ namespace Netch.Models
                 }
                 else if (Type == 1)
                 {
-                    Stype = "[TAP黑名单模式] ";
+                    Stype = "[TUN/TAP 黑] ";
                 }
                 else if (Type == 2)
                 {
-                    Stype = "[TAP白名单模式] ";
+                    Stype = "[TUN/TAP 白] ";
                 }
                 else
                 {
                     Stype = "";
                 }
+
                 return string.Format("{0}{1}", Stype, Remark);
             }
             else

@@ -173,7 +173,7 @@
     "Detection interval(/s)": "检测间隔（/秒）",
     "Custom ACL": "自定义 ACL 规则",
     "Process whitelist mode": "进程白名单模式",
-    "Boot Shadowsocks from DLL(No support ACL)": "从DLL启动SS（推荐使用，不支持ACL）",
+    "Boot Shadowsocks from DLL(No support ACL)": "SS DLL（推荐使用，不支持 ACL）",
 
     "Profile": "配置名",
     "Profiles": "配置",
@@ -182,10 +182,10 @@
     "Show": "显示",
     "Exit": "退出",
 
-    "Bypass LAN": "网页代理-绕过局域网",
-    "Bypass LAN (Non System Proxy)": "网页代理-绕过局域网（不设置系统代理）",
-    "Bypass LAN (TUN/TAP)": "全局模式-绕过局域网（TUN-TAP）",
-    "Bypass LAN and China": "网页代理-绕过局域网和中国大陆",
-    "Bypass LAN and China (Non System Proxy)": "网页代理-绕过局域网和中国大陆 （不设置系统代理）",
-    "Bypass LAN and China (TUN/TAP)": "全局模式-绕过局域网和中国大陆（TUN-TAP）"
+    "Bypass LAN": "[网页代理] 绕过局域网",
+    "Bypass LAN (Non System Proxy)": "[网页代理] 绕过局域网（不设置系统代理）",
+    "Bypass LAN (TUN/TAP)": "[TAP/TAP] 绕过局域网",
+    "Bypass LAN and China": "[网页代理] 绕过局域网和中国大陆",
+    "Bypass LAN and China (Non System Proxy)": "[网页代理] 绕过局域网和中国大陆 （不设置系统代理）",
+    "Bypass LAN and China (TUN/TAP)": "[TUN/TAP] 绕过局域网和中国大陆"
 }
