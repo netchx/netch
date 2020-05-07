@@ -173,7 +173,7 @@
     "Detection interval(/s)": "检测间隔（/秒）",
     "Custom ACL": "自定义 ACL 规则",
     "Process whitelist mode": "进程白名单模式",
-    "Boot Shadowsocks from DLL": "从DLL启动SS（快速启动,推荐使用）",
+    "Boot Shadowsocks from DLL(No support ACL)": "从DLL启动SS（推荐使用，不支持ACL）",
 
     "Profile": "配置名",
     "Profiles": "配置",

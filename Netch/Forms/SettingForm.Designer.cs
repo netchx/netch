@@ -332,16 +332,16 @@
             // BootShadowsocksFromDLLCheckBox
             // 
             this.BootShadowsocksFromDLLCheckBox.AutoSize = true;
-            this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(206, 102);
+            this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(12, 128);
             this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
-            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(195, 21);
+            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(297, 21);
             this.BootShadowsocksFromDLLCheckBox.TabIndex = 21;
-            this.BootShadowsocksFromDLLCheckBox.Text = "Boot Shadowsocks from DLL";
+            this.BootShadowsocksFromDLLCheckBox.Text = "Boot Shadowsocks from DLL(No support ACL)";
             this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
             // 
             // AclAddr
             // 
-            this.AclAddr.Location = new System.Drawing.Point(120, 258);
+            this.AclAddr.Location = new System.Drawing.Point(117, 274);
             this.AclAddr.Name = "AclAddr";
             this.AclAddr.Size = new System.Drawing.Size(315, 23);
             this.AclAddr.TabIndex = 19;
@@ -350,7 +350,7 @@
             // AclLabel
             // 
             this.AclLabel.AutoSize = true;
-            this.AclLabel.Location = new System.Drawing.Point(12, 261);
+            this.AclLabel.Location = new System.Drawing.Point(9, 277);
             this.AclLabel.Name = "AclLabel";
             this.AclLabel.Size = new System.Drawing.Size(78, 17);
             this.AclLabel.TabIndex = 20;
@@ -359,7 +359,7 @@
             // DetectionInterval_Label
             // 
             this.DetectionInterval_Label.AutoSize = true;
-            this.DetectionInterval_Label.Location = new System.Drawing.Point(233, 177);
+            this.DetectionInterval_Label.Location = new System.Drawing.Point(230, 193);
             this.DetectionInterval_Label.Name = "DetectionInterval_Label";
             this.DetectionInterval_Label.Size = new System.Drawing.Size(128, 17);
             this.DetectionInterval_Label.TabIndex = 18;
@@ -367,7 +367,7 @@
             // 
             // DetectionInterval_TextBox
             // 
-            this.DetectionInterval_TextBox.Location = new System.Drawing.Point(367, 174);
+            this.DetectionInterval_TextBox.Location = new System.Drawing.Point(364, 190);
             this.DetectionInterval_TextBox.Name = "DetectionInterval_TextBox";
             this.DetectionInterval_TextBox.Size = new System.Drawing.Size(68, 23);
             this.DetectionInterval_TextBox.TabIndex = 17;
@@ -376,7 +376,7 @@
             // EnableStartedTcping_CheckBox
             // 
             this.EnableStartedTcping_CheckBox.AutoSize = true;
-            this.EnableStartedTcping_CheckBox.Location = new System.Drawing.Point(155, 176);
+            this.EnableStartedTcping_CheckBox.Location = new System.Drawing.Point(152, 192);
             this.EnableStartedTcping_CheckBox.Name = "EnableStartedTcping_CheckBox";
             this.EnableStartedTcping_CheckBox.Size = new System.Drawing.Size(66, 21);
             this.EnableStartedTcping_CheckBox.TabIndex = 15;
@@ -386,7 +386,7 @@
             // DelayTestAfterStartup_Label
             // 
             this.DelayTestAfterStartup_Label.AutoSize = true;
-            this.DelayTestAfterStartup_Label.Location = new System.Drawing.Point(12, 177);
+            this.DelayTestAfterStartup_Label.Location = new System.Drawing.Point(9, 193);
             this.DelayTestAfterStartup_Label.Name = "DelayTestAfterStartup_Label";
             this.DelayTestAfterStartup_Label.Size = new System.Drawing.Size(141, 17);
             this.DelayTestAfterStartup_Label.TabIndex = 16;
@@ -406,7 +406,7 @@
             // Redirector2checkBox
             // 
             this.Redirector2checkBox.AutoSize = true;
-            this.Redirector2checkBox.Location = new System.Drawing.Point(152, 306);
+            this.Redirector2checkBox.Location = new System.Drawing.Point(148, 310);
             this.Redirector2checkBox.Name = "Redirector2checkBox";
             this.Redirector2checkBox.Size = new System.Drawing.Size(118, 21);
             this.Redirector2checkBox.TabIndex = 11;
@@ -416,7 +416,7 @@
             // ExperimentalFunction_Label
             // 
             this.ExperimentalFunction_Label.AutoSize = true;
-            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(6, 307);
+            this.ExperimentalFunction_Label.Location = new System.Drawing.Point(9, 310);
             this.ExperimentalFunction_Label.Name = "ExperimentalFunction_Label";
             this.ExperimentalFunction_Label.Size = new System.Drawing.Size(133, 17);
             this.ExperimentalFunction_Label.TabIndex = 13;
@@ -424,7 +424,7 @@
             // 
             // STUN_ServerPortTextBox
             // 
-            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(120, 229);
+            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(117, 245);
             this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
             this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(315, 23);
             this.STUN_ServerPortTextBox.TabIndex = 8;
@@ -433,7 +433,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 232);
+            this.label2.Location = new System.Drawing.Point(9, 248);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(110, 17);
             this.label2.TabIndex = 12;
@@ -442,7 +442,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 206);
+            this.label1.Location = new System.Drawing.Point(9, 222);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(82, 17);
             this.label1.TabIndex = 10;
@@ -460,7 +460,7 @@
             // 
             // STUN_ServerTextBox
             // 
-            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 200);
+            this.STUN_ServerTextBox.Location = new System.Drawing.Point(117, 216);
             this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
             this.STUN_ServerTextBox.Size = new System.Drawing.Size(315, 23);
             this.STUN_ServerTextBox.TabIndex = 11;
@@ -479,7 +479,7 @@
             // ProfileCount_Label
             // 
             this.ProfileCount_Label.AutoSize = true;
-            this.ProfileCount_Label.Location = new System.Drawing.Point(12, 152);
+            this.ProfileCount_Label.Location = new System.Drawing.Point(9, 168);
             this.ProfileCount_Label.Name = "ProfileCount_Label";
             this.ProfileCount_Label.Size = new System.Drawing.Size(79, 17);
             this.ProfileCount_Label.TabIndex = 8;
@@ -487,7 +487,7 @@
             // 
             // ProfileCount_TextBox
             // 
-            this.ProfileCount_TextBox.Location = new System.Drawing.Point(209, 149);
+            this.ProfileCount_TextBox.Location = new System.Drawing.Point(206, 165);
             this.ProfileCount_TextBox.Name = "ProfileCount_TextBox";
             this.ProfileCount_TextBox.Size = new System.Drawing.Size(226, 23);
             this.ProfileCount_TextBox.TabIndex = 9;

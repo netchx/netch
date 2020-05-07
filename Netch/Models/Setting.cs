@@ -187,6 +187,6 @@ namespace Netch.Models
         /// <summary>
         ///     是否使用DLL启动Shadowsocks
         /// </summary>
-        public bool BootShadowsocksFromDLL = true;
+        public bool BootShadowsocksFromDLL = false;
     }
 }
