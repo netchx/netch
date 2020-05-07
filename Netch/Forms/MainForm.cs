@@ -173,7 +173,7 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 1)
                                 {
-                                    mode.Remark = splited[0].Trim();
+                                    mode.Remark = Utils.i18N.Translate(splited[0].Trim());
                                 }
 
                                 if (splited.Length >= 2)

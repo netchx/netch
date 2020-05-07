@@ -180,5 +180,12 @@
     "None": "无",
 
     "Show": "显示",
-    "Exit": "退出"
+    "Exit": "退出",
+
+    "Bypass LAN": "网页代理-绕过局域网",
+    "Bypass LAN (Non System Proxy)": "网页代理-绕过局域网（不设置系统代理）",
+    "Bypass LAN (TUN/TAP)": "全局模式-绕过局域网（TUN-TAP）",
+    "Bypass LAN and China": "网页代理-绕过局域网和中国大陆",
+    "Bypass LAN and China (Non System Proxy)": "网页代理-绕过局域网和中国大陆 （不设置系统代理）",
+    "Bypass LAN and China (TUN/TAP)": "全局模式-绕过局域网和中国大陆（TUN-TAP）"
 }
