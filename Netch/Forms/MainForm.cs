@@ -770,6 +770,9 @@ namespace Netch.Forms
                     case "VMess":
                         new Server.VMess(ServerComboBox.SelectedIndex).Show();
                         break;
+                    case "Trojan":
+                        new Server.Trojan(ServerComboBox.SelectedIndex).Show();
+                        break;
                     default:
                         return;
                 }
