@@ -117,12 +117,17 @@ namespace Netch.Controllers
         {
             try
             {
+                if (Global.Settings.BootShadowsocksFromDLL)
+                {
+                    NativeMethods.Shadowsocks.Stop();
+                    return;
+                }
+
                 if (Instance != null && !Instance.HasExited)
                 {
                     Instance.Kill();
+                    Instance.WaitForExit();
                 }
-                if (Global.Settings.BootShadowsocksFromDLL)
-                    NativeMethods.Shadowsocks.Stop();
             }
             catch (Exception e)
             {

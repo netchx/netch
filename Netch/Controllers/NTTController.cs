@@ -73,6 +73,7 @@ namespace Netch.Controllers
                 if (Instance != null && !Instance.HasExited)
                 {
                     Instance.Kill();
+                    Instance.WaitForExit();
                 }
             }
             catch (Exception e)
