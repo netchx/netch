@@ -19,6 +19,7 @@
     "Starting Shadowsocks": "正在启动 Shadowsocks",
     "Starting ShadowsocksR": "正在启动 ShadowsocksR",
     "Starting V2ray": "正在启动 V2Ray",
+    "Starting Trojan": "正在启动 Trojan",
     "Starting Tap": "正在启动 TUN/TAP",
     "Starting NatTester": "正在启动 NAT 测试",
     "Starting LocalDns service": "正在启动本地 DNS 服务",
