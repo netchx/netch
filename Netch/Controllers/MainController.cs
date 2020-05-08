@@ -231,6 +231,10 @@ namespace Netch.Controllers
             {
                 pVMessController.Stop();
             }
+            else if (pTrojanController != null)
+            {
+                pTrojanController.Stop();
+            }
 
             if (pNFController != null)
             {
