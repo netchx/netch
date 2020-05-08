@@ -92,7 +92,10 @@ namespace Netch.Controllers
                 if (Instance != null && !Instance.HasExited)
                 {
                     Instance.Kill();
+                    Instance.WaitForExit();
                 }
+
+                Process.Start("cmd.exe", "/c taskkill /f /t /im Trojan.exe").WaitForExit();
             }
             catch (Exception e)
             {
