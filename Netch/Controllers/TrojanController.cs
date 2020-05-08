@@ -51,7 +51,7 @@ namespace Netch.Controllers
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Trojan.exe";
-            Instance.StartInfo.Arguments = "-c data\\last.json";
+            Instance.StartInfo.Arguments = "-c ..\\data\\last.json";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
