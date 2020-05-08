@@ -41,6 +41,11 @@ namespace Netch.Controllers
         public VMessController pVMessController;
 
         /// <summary>
+        ///     Trojan 控制器
+        /// </summary>
+        public TrojanController pTrojanController;
+
+        /// <summary>
         ///		NF 控制器
         /// </summary>
         public NFController pNFController;
@@ -107,6 +112,14 @@ namespace Netch.Controllers
                         pVMessController = new VMessController();
                     }
                     result = pVMessController.Start(server, mode);
+                    break;
+                case "Trojan":
+                    KillProcess("Trojan");
+                    if (pTrojanController == null)
+                    {
+                        pTrojanController = new TrojanController();
+                    }
+                    result = pTrojanController.Start(server, mode);
                     break;
             }
 

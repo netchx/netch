@@ -493,6 +493,12 @@ namespace Netch.Forms
             Hide();
         }
 
+        private void AddTrojanServerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new Server.Trojan().Show();
+            Hide();
+        }
+
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
             new Mode.Process().Show();

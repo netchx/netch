@@ -86,6 +86,7 @@ namespace Netch.Forms
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
+            this.AddTrojanServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
@@ -127,7 +128,8 @@ namespace Netch.Forms
             this.AddSocks5ServerToolStripMenuItem,
             this.AddShadowsocksServerToolStripMenuItem,
             this.AddShadowsocksRServerToolStripMenuItem,
-            this.AddVMessServerToolStripMenuItem});
+            this.AddVMessServerToolStripMenuItem,
+            this.AddTrojanServerToolStripMenuItem});
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
             this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
@@ -638,6 +640,13 @@ namespace Netch.Forms
             this.ProfileTable.Size = new System.Drawing.Size(599, 43);
             this.ProfileTable.TabIndex = 0;
             // 
+            // AddTrojanServerToolStripMenuItem
+            // 
+            this.AddTrojanServerToolStripMenuItem.Name = "AddTrojanServerToolStripMenuItem";
+            this.AddTrojanServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
+            this.AddTrojanServerToolStripMenuItem.Text = "Add [Trojan] Server";
+            this.AddTrojanServerToolStripMenuItem.Click += new System.EventHandler(this.AddTrojanServerToolStripMenuItem_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -738,5 +747,6 @@ namespace Netch.Forms
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem updateACLWithProxyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reinstallTapDriverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AddTrojanServerToolStripMenuItem;
     }
 }
