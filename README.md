@@ -34,6 +34,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
 - [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
 - [v2ray-core](https://github.com/v2ray/v2ray-core)
+- [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
 - [unbound](https://github.com/NLnetLabs/unbound)
