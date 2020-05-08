@@ -25,8 +25,8 @@ jobs:
       run: |
         .\BUILD.ps1
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
-        Compress-Archive -Path Netch\bin\x64\Release\win-x64\* -DestinationPath C:\builtfiles\Netch-${{ env.GITHUB_TAG_NAME }}.zip
-        echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch-${{ env.GITHUB_TAG_NAME }}.zip)"
+        Compress-Archive -Path Netch\bin\x64\Release\win-x64\* -DestinationPath C:\builtfiles\Netch.zip
+        echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.zip)"
 
     - name: Upload
       uses: actions/upload-artifact@v1
@@ -44,9 +44,8 @@ jobs:
         prerelease: true
         draft: false
         files: |
-          C:\builtfiles\Netch-${{ env.GITHUB_TAG_NAME }}.zip
+          C:\builtfiles\Netch.zip
         body: |
-          
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
           
           ## 更新日志：
@@ -55,4 +54,4 @@ jobs:
           ## 校验和
           | 文件名 | SHA256 |
           | :- | :- |
-          | Netch-${{ env.GITHUB_TAG_NAME }}.zip | ${{ env.Netch_SHA256 }} |
+          | Netch.zip | ${{ env.Netch_SHA256 }} |
