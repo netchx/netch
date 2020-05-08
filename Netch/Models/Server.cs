@@ -156,6 +156,8 @@ namespace Netch.Models
                     return $"[SR] {Remark}";
                 case "VMess":
                     return $"[V2] {Remark}";
+                case "Trojan":
+                    return $"[TR] {Remark}";
                 default:
                     return "WTF";
             }
