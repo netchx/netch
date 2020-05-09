@@ -3,6 +3,8 @@
 
 游戏加速工具
 
+[网站](https://netch.org/)
+
 ## TOC
 - [Netch](#Netch)
 	- [TOC](#TOC)
