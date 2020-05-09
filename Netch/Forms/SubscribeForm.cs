@@ -134,17 +134,16 @@ namespace Netch.Forms
                             {
                                 if (!subitem.Remark.Equals(RemarkTextBox.Text))
                                 {
-                                    //修改了订阅备注，删除旧订阅服务器
+                                    //修改了订阅备注，修改旧订阅服务器
                                     Global.Settings.Server.ForEach((serverItem) =>
                                     {
                                         try
                                         {
                                             //当前服务器组群组为订阅群组时批量修改备注
-                                            if (serverItem.Group == subitem.Remark)
-                                            {
-                                                string OldServerRemark = "[" + serverItem.Group + "] ";
-                                                Logging.Info(serverItem.Remark.Split(OldServerRemark.ToCharArray())[1]);
-                                                serverItem.Remark = "[" + RemarkTextBox.Text + "] " + serverItem.Remark.Split(new string[] { OldServerRemark }, StringSplitOptions.None)[1];
+                                            if (serverItem.Group == subitem.Remark) {
+
+                                                //serverItem.Group OldGroupRemark
+                                                //RemarkTextBox.Text NewGroupRemark
                                                 serverItem.Group = RemarkTextBox.Text;
                                             }
                                         }

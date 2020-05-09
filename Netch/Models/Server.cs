@@ -177,18 +177,20 @@ namespace Netch.Models
                 }
             }
 
+            Group = Group.Equals("None") ? Group.ToUpper() : Group;
+
             switch (Type)
             {
                 case "Socks5":
-                    return $"[S5][{Country}][{Group.ToUpper()}] {Remark}";
+                    return $"[S5][{Country}][{Group}] {Remark}";
                 case "SS":
-                    return $"[SS][{Country}][{Group.ToUpper()}] {Remark}";
+                    return $"[SS][{Country}][{Group}] {Remark}";
                 case "SSR":
-                    return $"[SR][{Country}][{Group.ToUpper()}] {Remark}";
+                    return $"[SR][{Country}][{Group}] {Remark}";
                 case "VMess":
-                    return $"[V2][{Country}][{Group.ToUpper()}] {Remark}";
+                    return $"[V2][{Country}][{Group}] {Remark}";
                 case "Trojan":
-                    return $"[TR][{Country}][{Group.ToUpper()}] {Remark}";
+                    return $"[TR][{Country}][{Group}] {Remark}";
                 default:
                     return "WTF";
             }
