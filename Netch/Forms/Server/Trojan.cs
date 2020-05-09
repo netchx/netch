@@ -93,7 +93,8 @@ namespace Netch.Forms.Server
                     Type = "Trojan",
                     Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
-                    Password = PasswordTextBox.Text
+                    Password = PasswordTextBox.Text,
+                    Country = null
                 };
             }
 

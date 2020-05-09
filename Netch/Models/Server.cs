@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MaxMind.GeoIP2;
+using Netch.Utils;
+using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Netch.Models
@@ -136,6 +139,11 @@ namespace Netch.Models
         public int Delay = -1;
 
         /// <summary>
+        ///     地区
+        /// </summary>
+        public string Country;
+
+        /// <summary>
 		///		获取备注
 		/// </summary>
 		/// <returns>备注</returns>
@@ -146,18 +154,41 @@ namespace Netch.Models
                 Remark = $"{Hostname}:{Port}";
             }
 
+            if (Country == null)
+            {
+                var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
+
+                if (IPAddress.TryParse(Hostname, out _) == true)
+                {
+                    Country = databaseReader.Country(Hostname).Country.IsoCode;
+                }
+                else
+                {
+                    var DnsResult = DNS.Lookup(Hostname);
+
+                    if (DnsResult != null)
+                    {
+                        Country = databaseReader.Country(DnsResult).Country.IsoCode;
+                    }
+                    else
+                    {
+                        Country = "UN";
+                    }
+                }
+            }
+
             switch (Type)
             {
                 case "Socks5":
-                    return $"[S5] {Remark}";
+                    return $"[S5][{Country}][{Group.ToUpper()}] {Remark}";
                 case "SS":
-                    return $"[SS] {Remark}";
+                    return $"[SS][{Country}][{Group.ToUpper()}] {Remark}";
                 case "SSR":
-                    return $"[SR] {Remark}";
+                    return $"[SR][{Country}][{Group.ToUpper()}] {Remark}";
                 case "VMess":
-                    return $"[V2] {Remark}";
+                    return $"[V2][{Country}][{Group.ToUpper()}] {Remark}";
                 case "Trojan":
-                    return $"[TR] {Remark}";
+                    return $"[TR][{Country}][{Group.ToUpper()}] {Remark}";
                 default:
                     return "WTF";
             }

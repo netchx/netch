@@ -49,14 +49,14 @@ namespace Netch.Models
                 {
                     Stype = "[进程模式] ";
                 }
-                else if (Type == 1)
+                /*else if (Type == 1)
                 {
                     Stype = "[TUN/TAP 黑] ";
                 }
                 else if (Type == 2)
                 {
                     Stype = "[TUN/TAP 白] ";
-                }
+                */
                 else
                 {
                     Stype = "";

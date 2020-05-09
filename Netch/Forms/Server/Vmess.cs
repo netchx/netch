@@ -155,7 +155,8 @@ namespace Netch.Forms.Server
                     QUICSecure = QUICSecurityComboBox.Text,
                     QUICSecret = QUICSecretTextBox.Text,
                     TLSSecure = TLSSecureCheckBox.Checked,
-                    UseMux = UseMuxCheckBox.Checked
+                    UseMux = UseMuxCheckBox.Checked,
+                    Country = null
                 };
             }
 

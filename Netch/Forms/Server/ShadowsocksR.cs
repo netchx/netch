@@ -134,7 +134,8 @@ namespace Netch.Forms.Server
                     Protocol = ProtocolComboBox.Text,
                     ProtocolParam = ProtocolParamTextBox.Text,
                     OBFS = OBFSComboBox.Text,
-                    OBFSParam = OBFSOptionParamTextBox.Text
+                    OBFSParam = OBFSOptionParamTextBox.Text,
+                    Country = null
                 };
             }
 

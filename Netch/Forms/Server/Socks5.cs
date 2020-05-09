@@ -97,7 +97,8 @@ namespace Netch.Forms.Server
                     Hostname = AddressTextBox.Text,
                     Port = int.Parse(PortTextBox.Text),
                     Username = UsernameTextBox.Text,
-                    Password = PasswordTextBox.Text
+                    Password = PasswordTextBox.Text,
+                    Country = null
                 };
             }
 

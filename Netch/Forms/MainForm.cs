@@ -590,7 +590,6 @@ namespace Netch.Forms
                                 foreach (var x in result)
                                 {
                                     x.Group = item.Remark;
-                                    x.Remark = "[" + item.Remark + "] " + x.Remark;
                                 }
                                 Global.Settings.Server.AddRange(result);
                                 NotifyIcon.ShowBalloonTip(5,

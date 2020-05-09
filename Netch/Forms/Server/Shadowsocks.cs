@@ -114,7 +114,8 @@ namespace Netch.Forms.Server
                     Password = PasswordTextBox.Text,
                     EncryptMethod = EncryptMethodComboBox.Text,
                     Plugin = PluginTextBox.Text,
-                    PluginOption = PluginOptionsTextBox.Text
+                    PluginOption = PluginOptionsTextBox.Text,
+                    Country = null
                 };
             }
 
