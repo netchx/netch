@@ -154,7 +154,7 @@ namespace Netch.Controllers
                 processes += proc;
                 processes += ",";
             }
-            processes = processes.Substring(0, processes.Length - 1);
+            processes += "NTT.exe";
 
             Instance = MainController.GetProcess();
             Instance.StartInfo.FileName = "bin\\Redirector.exe";
