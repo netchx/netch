@@ -42,32 +42,7 @@ namespace Netch.Models
         /// <returns>备注</returns>
         public override string ToString()
         {
-            if (CultureInfo.CurrentCulture.Name == "zh-CN")
-            {
-                string Stype;
-                if (Type == 0)
-                {
-                    Stype = "[进程模式] ";
-                }
-                /*else if (Type == 1)
-                {
-                    Stype = "[TUN/TAP 黑] ";
-                }
-                else if (Type == 2)
-                {
-                    Stype = "[TUN/TAP 白] ";
-                */
-                else
-                {
-                    Stype = "";
-                }
-
-                return string.Format("{0}{1}", Stype, Remark);
-            }
-            else
-            {
-                return string.Format("[{0}] {1}", Type + 1, Remark);
-            }
+            return string.Format("[{0}] {1}", Type + 1, Remark);
         }
 
         /// <summary>
