@@ -60,8 +60,8 @@
             this.EnableStartedTcping_CheckBox = new System.Windows.Forms.CheckBox();
             this.DelayTestAfterStartup_Label = new System.Windows.Forms.Label();
             this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.STUNServerPortLabel = new System.Windows.Forms.Label();
+            this.STUNServerLabel = new System.Windows.Forms.Label();
             this.RunAtStartup = new System.Windows.Forms.CheckBox();
             this.STUN_ServerTextBox = new System.Windows.Forms.TextBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
@@ -305,8 +305,8 @@
             this.BehaviorGroupBox.Controls.Add(this.EnableStartedTcping_CheckBox);
             this.BehaviorGroupBox.Controls.Add(this.DelayTestAfterStartup_Label);
             this.BehaviorGroupBox.Controls.Add(this.STUN_ServerPortTextBox);
-            this.BehaviorGroupBox.Controls.Add(this.label2);
-            this.BehaviorGroupBox.Controls.Add(this.label1);
+            this.BehaviorGroupBox.Controls.Add(this.STUNServerPortLabel);
+            this.BehaviorGroupBox.Controls.Add(this.STUNServerLabel);
             this.BehaviorGroupBox.Controls.Add(this.RunAtStartup);
             this.BehaviorGroupBox.Controls.Add(this.STUN_ServerTextBox);
             this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
@@ -394,23 +394,23 @@
             this.STUN_ServerPortTextBox.TabIndex = 8;
             this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // label2
+            // STUNServerPortLabel
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 276);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(110, 17);
-            this.label2.TabIndex = 12;
-            this.label2.Text = "STUN Server Port";
+            this.STUNServerPortLabel.AutoSize = true;
+            this.STUNServerPortLabel.Location = new System.Drawing.Point(12, 276);
+            this.STUNServerPortLabel.Name = "STUNServerPortLabel";
+            this.STUNServerPortLabel.Size = new System.Drawing.Size(110, 17);
+            this.STUNServerPortLabel.TabIndex = 12;
+            this.STUNServerPortLabel.Text = "STUN Server Port";
             // 
-            // label1
+            // STUNServerLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 250);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(82, 17);
-            this.label1.TabIndex = 10;
-            this.label1.Text = "STUN Server";
+            this.STUNServerLabel.AutoSize = true;
+            this.STUNServerLabel.Location = new System.Drawing.Point(12, 250);
+            this.STUNServerLabel.Name = "STUNServerLabel";
+            this.STUNServerLabel.Size = new System.Drawing.Size(82, 17);
+            this.STUNServerLabel.TabIndex = 10;
+            this.STUNServerLabel.Text = "STUN Server";
             // 
             // RunAtStartup
             // 
@@ -560,8 +560,8 @@
         private System.Windows.Forms.TextBox ProfileCount_TextBox;
         private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
         private System.Windows.Forms.CheckBox RunAtStartup;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label STUNServerPortLabel;
+        private System.Windows.Forms.Label STUNServerLabel;
         private System.Windows.Forms.TextBox STUN_ServerTextBox;
         private System.Windows.Forms.TextBox STUN_ServerPortTextBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
