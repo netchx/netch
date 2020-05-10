@@ -47,6 +47,11 @@ namespace Netch.Controllers
             if (!StopServiceAndRestart)
                 MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Redirector")}");
 
+            if (!File.Exists("bin\\Redirector.exe"))
+            {
+                return false;
+            }
+
             // 检查驱动是否存在
             if (File.Exists(driverPath))
             {
@@ -72,14 +77,14 @@ namespace Netch.Controllers
                         return false;
                 }
 
-                //检查驱动版本号
+                // 检查驱动版本号
                 FileVersionInfo SystemfileVerInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(driverPath);
                 FileVersionInfo BinFileVerInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(string.Format("bin\\{0}", driverName));
 
                 if (!SystemfileVerInfo.FileVersion.Equals(BinFileVerInfo.FileVersion))
                 {
                     Utils.Logging.Info("开始更新驱动");
-                    //需要更新驱动
+                    // 需要更新驱动
                     try
                     {
                         var service = new ServiceController("netfilter2");
@@ -108,16 +113,18 @@ namespace Netch.Controllers
             else
             {
                 if (!InstallDriver())
+                {
                     return false;
+                }
             }
 
             try
             {
-                //启动驱动服务
+                // 启动驱动服务
                 var service = new ServiceController("netfilter2");
                 if (service.Status == ServiceControllerStatus.Running && StopServiceAndRestart)
                 {
-                    //防止其他程序占用 重置NF百万ID限制
+                    // 防止其他程序占用 重置 NF 百万连接数限制
                     service.Stop();
                     service.WaitForStatus(ServiceControllerStatus.Stopped);
                     MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting netfilter2 Service")}");
@@ -142,13 +149,6 @@ namespace Netch.Controllers
             }
 
             var processes = "";
-
-            //开启进程白名单模式
-            if (!Global.Settings.ProcessBypassMode)
-            {
-                processes += "NTT.exe,";
-            }
-
             foreach (var proc in mode.Rule)
             {
                 processes += proc;
@@ -157,90 +157,35 @@ namespace Netch.Controllers
             processes = processes.Substring(0, processes.Length - 1);
 
             Instance = MainController.GetProcess();
-            var fallback = "";
+            Instance.StartInfo.FileName = "bin\\Redirector.exe";
+            Instance.StartInfo.Arguments = "";
 
-            if (Global.Settings.UseRedirector2)
+            if (server.Type != "Socks5")
             {
-                if (!File.Exists("bin\\Redirector2.exe"))
-                {
-                    return false;
-                }
-                Instance.StartInfo.FileName = "bin\\Redirector2.exe";
-
-
-                if (server.Type != "Socks5")
-                {
-                    fallback += $" 127.0.0.1:{Global.Settings.Socks5LocalPort}";
-                    fallback += $" \"{processes}\"";
-                }
-                else
-                {
-                    var result = Utils.DNS.Lookup(server.Hostname);
-                    if (result == null)
-                    {
-                        Utils.Logging.Info("无法解析服务器 IP 地址");
-                        return false;
-                    }
-
-                    fallback += $" {result}:{server.Port}";
-                    fallback += $" \"{processes}\"";
-
-                    if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
-                    {
-                        fallback += $" \"{server.Username}\"";
-                        fallback += $" \"{server.Password}\"";
-                    }
-                }
+                Instance.StartInfo.Arguments += $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
             }
             else
             {
-                if (!File.Exists("bin\\Redirector.exe"))
+                var result = Utils.DNS.Lookup(server.Hostname);
+                if (result == null)
                 {
+                    Utils.Logging.Info("无法解析服务器 IP 地址");
                     return false;
                 }
-                Instance.StartInfo.FileName = "bin\\Redirector.exe";
 
-                //开启进程白名单模式
-                if (Global.Settings.ProcessBypassMode)
+                Instance.StartInfo.Arguments += $"-r {result}:{server.Port} -p \"{processes}\"";
+                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
                 {
-                    processes += ",Shadowsocks.exe";
-                    processes += ",ShadowsocksR.exe";
-                    processes += ",Privoxy.exe";
-                    processes += ",simple-obfs.exe";
-                    processes += ",v2ray.exe,v2ctl.exe,v2ray-plugin.exe";
-                    fallback += " -bypass true ";
-                }
-                else
-                {
-                    fallback += " -bypass false ";
-                }
-
-                if (server.Type != "Socks5")
-                {
-                    fallback += $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processes}\"";
-                }
-                else
-                {
-                    var result = Utils.DNS.Lookup(server.Hostname);
-                    if (result == null)
-                    {
-                        Utils.Logging.Info("无法解析服务器 IP 地址");
-                        return false;
-                    }
-
-                    fallback += $"-r {result}:{server.Port} -p \"{processes}\"";
-
-                    if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
-                    {
-                        fallback += $" -username \"{server.Username}\" -password \"{server.Password}\"";
-                    }
+                    Instance.StartInfo.Arguments += $" -username \"{server.Username}\" -password \"{server.Password}\"";
                 }
             }
 
             if (File.Exists("logging\\redirector.log"))
-                File.Delete("logging\\redirector.log");
+            {
+                File.Delete("logging\\redirector.log"); 
+            }
 
-            Instance.StartInfo.Arguments = fallback + $" -tcport {Global.Settings.RedirectorTCPPort}";
+            Instance.StartInfo.Arguments += + $" -t {Global.Settings.RedirectorTCPPort}";
             Utils.Logging.Info(Instance.StartInfo.Arguments);
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
@@ -255,12 +200,7 @@ namespace Netch.Controllers
 
                 if (State == Models.State.Started)
                 {
-                    Utils.Logging.Info($"成功启动Redirector耗时:{i + 1}秒");
                     return true;
-                }
-                else
-                {
-                    Utils.Logging.Info($"Redirector启动中，已耗时:{i + 1}秒");
                 }
             }
 
@@ -347,7 +287,7 @@ namespace Netch.Controllers
                     {
                         State = Models.State.Stopped;
                     }
-                    else if (e.Data.Contains("Start") || e.Data.Contains("Redirect to"))
+                    else if (e.Data.Contains("Started"))
                     {
                         State = Models.State.Started;
                     }
@@ -358,9 +298,9 @@ namespace Netch.Controllers
                 }
                 else if (State == Models.State.Started)
                 {
-                    if (e.Data.StartsWith("[Application][Bandwidth]"))
+                    if (e.Data.StartsWith("[APP][Bandwidth]"))
                     {
-                        var splited = e.Data.Replace("[Application][Bandwidth]", "").Trim().Split(',');
+                        var splited = e.Data.Replace("[APP][Bandwidth]", "").Trim().Split(',');
                         if (splited.Length == 2)
                         {
                             var uploadSplited = splited[0].Split(':');
