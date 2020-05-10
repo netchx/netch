@@ -51,7 +51,7 @@
             // SponsorPictureBox
             // 
             this.SponsorPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SponsorPictureBox.Image = global::Netch.Properties.Resources.N3RO;
+            this.SponsorPictureBox.Image = global::Netch.Properties.Resources.Sponsor;
             this.SponsorPictureBox.Location = new System.Drawing.Point(6, 22);
             this.SponsorPictureBox.Name = "SponsorPictureBox";
             this.SponsorPictureBox.Size = new System.Drawing.Size(300, 200);

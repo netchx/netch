@@ -90,6 +90,7 @@ namespace Netch.Controllers
                 {
                     File.Delete("logging\\NTT.log");
                 }
+
                 File.AppendAllText("logging\\NTT.log", $"{e.Data}\r\n");
             }
         }
