@@ -68,7 +68,7 @@ namespace Netch.Controllers
         public bool SetupBypass()
         {
             MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("SetupBypass")}");
-            Logging.Info("设置绕行规则->设置让服务器 IP 走直连");
+            Logging.Info("设置绕行规则 → 设置让服务器 IP 走直连");
             // 让服务器 IP 走直连
             foreach (var address in ServerAddresses)
             {
@@ -81,7 +81,7 @@ namespace Netch.Controllers
             // 处理模式的绕过中国
             if (SavedMode.BypassChina)
             {
-                Logging.Info("设置绕行规则->处理模式的绕过中国");
+                Logging.Info("设置绕行规则 → 处理模式的绕过中国");
                 using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
                 {
                     string text;
@@ -95,7 +95,7 @@ namespace Netch.Controllers
                 }
             }
 
-            Logging.Info("设置绕行规则->处理全局绕过 IP");
+            Logging.Info("设置绕行规则 → 处理全局绕过 IP");
             // 处理全局绕过 IP
             foreach (var ip in Global.Settings.BypassIPs)
             {
@@ -108,7 +108,7 @@ namespace Netch.Controllers
                 }
             }
 
-            Logging.Info("设置绕行规则->处理绕过局域网 IP");
+            Logging.Info("设置绕行规则 → 处理绕过局域网 IP");
             // 处理绕过局域网 IP
             foreach (var ip in BypassLanIPs)
             {
@@ -123,7 +123,7 @@ namespace Netch.Controllers
 
             if (SavedMode.Type == 2) // 处理仅规则内走直连
             {
-                Logging.Info("设置绕行规则->处理仅规则内走直连");
+                Logging.Info("设置绕行规则 → 处理仅规则内走直连");
                 // 将 TUN/TAP 网卡权重放到最高
                 var instance = new Process
                 {
@@ -138,7 +138,7 @@ namespace Netch.Controllers
                 };
                 instance.Start();
 
-                Logging.Info("设置绕行规则->创建默认路由");
+                Logging.Info("设置绕行规则 → 创建默认路由");
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
@@ -152,7 +152,7 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                Logging.Info("设置绕行规则->创建规则路由");
+                Logging.Info("设置绕行规则 → 创建规则路由");
                 // 创建规则路由
                 foreach (var ip in SavedMode.Rule)
                 {
@@ -182,7 +182,7 @@ namespace Netch.Controllers
                         }
                     }
                 }
-                //处理NAT类型检测，由于协议的原因，无法仅通过域名确定需要代理的IP，自己记录解析了返回的IP，仅支持默认检测服务器
+                //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
                 if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
                 {
                     try
@@ -200,13 +200,13 @@ namespace Netch.Controllers
                     }
                     catch
                     {
-                        Logging.Info("NAT类型测试域名解析失败，将不会被添加到代理列表。");
+                        Logging.Info("NAT 类型测试域名解析失败，将不会被添加到代理列表");
                     }
                 }
                 //处理DNS代理
                 if (Global.Settings.TUNTAP.ProxyDNS)
                 {
-                    Logging.Info("设置绕行规则->处理自定义DNS代理");
+                    Logging.Info("设置绕行规则 → 处理自定义 DNS 代理");
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
                         string dns = "";

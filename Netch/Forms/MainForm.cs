@@ -1425,15 +1425,10 @@ namespace Netch.Forms
                         NotifyIcon.ShowBalloonTip(5,
                                 UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
                                 ToolTipIcon.Info);
-                        //MessageBox.Show(Utils.i18N.Translate("ACL updated successfully"));
                     }
                     else
                     {
-                        Utils.Logging.Info("ACL更新失败！" + args.Error);
-                        /*NotifyIcon.ShowBalloonTip(5,
-                                UpdateChecker.Name,
-                                Utils.i18N.Translate("ACL update failed") + args.Error,
-                                ToolTipIcon.Error);*/
+                        Utils.Logging.Info("ACL 更新失败！" + args.Error);
                         MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + args.Error);
                     }
                 }
@@ -1483,11 +1478,7 @@ namespace Netch.Forms
                 }
                 catch (Exception e)
                 {
-                    Utils.Logging.Info("使用代理更新ACL失败！" + e.Message);
-                    /*NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name,
-                            Utils.i18N.Translate("ACL update failed") + args.Error,
-                            ToolTipIcon.Error);*/
+                    Utils.Logging.Info("使用代理更新 ACL 失败！" + e.Message);
                     MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + e.Message);
                 }
                 finally
@@ -1506,20 +1497,20 @@ namespace Netch.Forms
         {
             Task.Run(() =>
             {
-                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Reinstalling Tap driver")}");
+                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Reinstalling TUN/TAP driver")}");
                 Enabled = false;
                 try
                 {
                     Configuration.deltapall();
                     Configuration.addtap();
                     NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver successfully"),
+                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall TUN/TAP driver successfully"),
                             ToolTipIcon.Info);
                 }
                 catch
                 {
                     NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall Tap driver failed"),
+                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall TUN/TAP driver failed"),
                             ToolTipIcon.Error);
                 }
                 finally
