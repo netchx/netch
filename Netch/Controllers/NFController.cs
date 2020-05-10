@@ -185,7 +185,7 @@ namespace Netch.Controllers
                 File.Delete("logging\\redirector.log"); 
             }
 
-            Instance.StartInfo.Arguments += + $" -t {Global.Settings.RedirectorTCPPort}";
+            Instance.StartInfo.Arguments += $" -t {Global.Settings.RedirectorTCPPort}";
             Utils.Logging.Info(Instance.StartInfo.Arguments);
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
