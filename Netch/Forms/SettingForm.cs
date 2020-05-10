@@ -91,6 +91,8 @@ namespace Netch.Forms
             EnableStartedTcping_CheckBox.Text = Utils.i18N.Translate(EnableStartedTcping_CheckBox.Text);
             DetectionInterval_Label.Text = Utils.i18N.Translate(DetectionInterval_Label.Text);
             DelayTestAfterStartup_Label.Text = Utils.i18N.Translate(DelayTestAfterStartup_Label.Text);
+            STUN_ServerTextBox.Text = Utils.i18N.Translate(STUN_ServerTextBox.Text);
+            STUN_ServerPortTextBox.Text = Utils.i18N.Translate(STUN_ServerPortTextBox.Text);
 
             ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
             STUN_ServerTextBox.Text = Global.Settings.STUN_Server.ToString();
