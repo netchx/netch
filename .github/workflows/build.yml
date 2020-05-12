@@ -47,10 +47,10 @@ jobs:
           C:\builtfiles\Netch.zip
         body: |
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
-          
-          ## 更新日志：
+
+          ## 更新日志
           * 这是 GitHub Action 自动化部署，更新日志应该很快会手动更新
-          
+
           ## 校验和
           | 文件名 | SHA256 |
           | :- | :- |
