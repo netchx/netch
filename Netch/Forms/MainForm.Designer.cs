@@ -279,7 +279,7 @@ namespace Netch.Forms
             // 
             this.reinstallTapDriverToolStripMenuItem.Name = "reinstallTapDriverToolStripMenuItem";
             this.reinstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
-            this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall Tap driver";
+            this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall TUN/TAP driver";
             this.reinstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
             // 
             // AboutToolStripButton
