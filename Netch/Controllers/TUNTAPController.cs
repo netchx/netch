@@ -412,6 +412,8 @@ namespace Netch.Controllers
             Logging.Info($"tun2sock使用适配器：{adapterName}");
 
             string dns;
+            //V2ray使用Unbound本地DNS会导致查询异常缓慢故此V2ray不启动unbound而是使用自定义DNS
+            //if (Global.Settings.TUNTAP.UseCustomDNS || server.Type.Equals("VMess"))
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {
                 dns = "";
@@ -428,7 +430,6 @@ namespace Netch.Controllers
             {
                 pDNSController.Start();
                 dns = "127.0.0.1";
-                //dns = "1.1.1.1,1.0.0.1";
             }
             if (Global.Settings.TUNTAP.UseFakeDNS)
             {

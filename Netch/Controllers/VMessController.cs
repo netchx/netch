@@ -126,6 +126,15 @@ namespace Netch.Controllers
                         {
                             enabled = server.UseMux
                         }
+                    },
+                    (mode.Type==1||mode.Type==2) ? new Models.Information.VMess.Outbounds
+                    {
+                        tag = "TUNTAP",
+                        protocol = "freedom"
+                    }: new Models.Information.VMess.Outbounds
+                    {
+                        tag = "direct",
+                        protocol = "freedom"
                     }
                 },
                 routing = new Models.Information.VMess.Routing
