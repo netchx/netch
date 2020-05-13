@@ -395,7 +395,7 @@ namespace Netch.Utils
                     }
 
                     data.FakeType = vmess.type;
-                    if (!Global.FakeTypes.Contains(data.FakeType))
+                    if (data.FakeType.Length != 0 && !Global.FakeTypes.Contains(data.FakeType))
                     {
                         Logging.Info(string.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
                         return null;
@@ -516,7 +516,7 @@ namespace Netch.Utils
                     }
                     list.Add(NetchLink);
                 }
-                else if(text.StartsWith("trojan://"))
+                else if (text.StartsWith("trojan://"))
                 {
                     var data = new Server();
                     data.Type = "Trojan";
@@ -552,7 +552,7 @@ namespace Netch.Utils
                         var match = finder.Match(text);
                         if (!match.Success)
                         {
-                             throw new FormatException();
+                            throw new FormatException();
                         }
 
                         data.Password = match.Groups["psk"].Value;
@@ -571,6 +571,16 @@ namespace Netch.Utils
             {
                 Logging.Info(e.ToString());
                 return null;
+            }
+
+            byte[] emoji_bytes = { 240, 159 };
+            foreach (Server node in list)
+            {
+                var remark = Encoding.UTF8.GetBytes(node.Remark);
+                int start_index = 0;
+                while (remark.Length > start_index + 1 && remark[start_index] == emoji_bytes[0] && remark[start_index + 1] == emoji_bytes[1])
+                    start_index += 4;
+                node.Remark = Encoding.UTF8.GetString(remark.Skip(start_index).ToArray()).Trim();
             }
 
             return list;
