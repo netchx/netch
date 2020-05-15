@@ -59,7 +59,7 @@ namespace Netch.Controllers
                 {
                     System.Diagnostics.Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
                 }
-                Utils.Logging.Info("设置系统代理失败"+e.ToString());
+                Utils.Logging.Info("设置系统代理失败" + e.ToString());
                 return false;
             }
 

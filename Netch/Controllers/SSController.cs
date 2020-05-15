@@ -137,25 +137,32 @@ namespace Netch.Controllers
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Data))
+            try
             {
-                File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
-
-                if (State == Models.State.Starting)
+                if (!string.IsNullOrWhiteSpace(e.Data))
                 {
-                    if (Instance.HasExited)
+                    File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
+
+                    if (State == Models.State.Starting)
                     {
-                        State = Models.State.Stopped;
-                    }
-                    else if (e.Data.Contains("listening at"))
-                    {
-                        State = Models.State.Started;
-                    }
-                    else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly"))
-                    {
-                        State = Models.State.Stopped;
+                        if (Instance.HasExited)
+                        {
+                            State = Models.State.Stopped;
+                        }
+                        else if (e.Data.Contains("listening at"))
+                        {
+                            State = Models.State.Started;
+                        }
+                        else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly"))
+                        {
+                            State = Models.State.Stopped;
+                        }
                     }
                 }
+            }
+            catch (Exception ec)
+            {
+                Logging.Info("写入Shadowsocks日志失败" + ec.ToString());
             }
         }
     }
