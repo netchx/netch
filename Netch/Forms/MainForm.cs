@@ -255,7 +255,7 @@ namespace Netch.Forms
         private void SaveConfigs()
         {
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-            if (ModeComboBox.SelectedItem != null)
+            if (ModeComboBox.Items.Count!=0 && ModeComboBox.SelectedItem != null)
             {
 
                 if (ModeComboBox.Tag is object[] list)

@@ -1,5 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
+﻿using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -122,8 +121,11 @@ namespace Netch
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
         {
-            MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            Application.Exit();
+            if (!e.Exception.ToString().Contains("ComboBox"))
+            {
+                MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            //Application.Exit();
         }
     }
 }

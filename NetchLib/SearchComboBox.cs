@@ -82,69 +82,76 @@ namespace System.Windows.Forms
         private object[] newList;
         private void ReevaluateCompletionList()
         {
-            var currentSearchTerm = Text.ToLowerInvariant();
-            if (currentSearchTerm == _previousSearchTerm) return;
-
-            _previousSearchTerm = currentSearchTerm;
             try
             {
-                SuspendLayout();
+                var currentSearchTerm = Text.ToLowerInvariant();
+                if (currentSearchTerm == _previousSearchTerm) return;
 
-                var originalList = (object[])Tag;
-                if (originalList == null)
-                {
-                    Tag = originalList = Items.Cast<object>().ToArray();
-                }
-
-                if (string.IsNullOrEmpty(currentSearchTerm))
-                {
-                    if (Items.Count == originalList.Length) return;
-
-                    newList = originalList;
-                }
-                else
-                {
-                    newList = originalList.Where(x => x.ToString().ToLowerInvariant().Contains(currentSearchTerm)).ToArray();
-                }
-
+                _previousSearchTerm = currentSearchTerm;
                 try
                 {
-                    while (Items.Count > 0)
+                    SuspendLayout();
+
+                    var originalList = (object[])Tag;
+                    if (originalList == null)
                     {
-                        Items.RemoveAt(0);
+                        Tag = originalList = Items.Cast<object>().ToArray();
                     }
-                }
-                catch
-                {
+
+                    if (string.IsNullOrEmpty(currentSearchTerm))
+                    {
+                        if (Items.Count == originalList.Length) return;
+
+                        newList = originalList;
+                    }
+                    else
+                    {
+                        newList = originalList.Where(x => x.ToString().ToLowerInvariant().Contains(currentSearchTerm)).ToArray();
+                    }
+
                     try
                     {
-                        Items.Clear();
+                        while (Items.Count > 0)
+                        {
+                            Items.RemoveAt(0);
+                        }
                     }
                     catch
                     {
-                        // ignored
+                        try
+                        {
+                            Items.Clear();
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
                     }
-                }
 
-                Items.AddRange(newList.ToArray());
+                    Items.AddRange(newList.ToArray());
+                }
+                finally
+                {
+                    if (currentSearchTerm.Length >= 2 && !DroppedDown)
+                    {
+                        DroppedDown = true;
+                        Cursor.Current = Cursors.Default;
+                        Text = currentSearchTerm;
+                        Select(currentSearchTerm.Length, 0);
+                    }
+
+                    if (Items.Count > 0)
+                    {
+                        DroppedDown = false;
+                        DroppedDown = true;
+                    }
+
+                    ResumeLayout(true);
+                }
             }
-            finally
+            catch
             {
-                if (currentSearchTerm.Length >= 2 && !DroppedDown)
-                {
-                    DroppedDown = true;
-                    Cursor.Current = Cursors.Default;
-                    Text = currentSearchTerm;
-                    Select(currentSearchTerm.Length, 0);
-                }
-
-                if (Items.Count > 0)
-                {
-                    DroppedDown = false;
-                    DroppedDown = true;
-                }
-
-                ResumeLayout(true);
+                // ignored
             }
         }
     }
