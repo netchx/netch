@@ -13,13 +13,13 @@
 
 首先，点击`服务器`增加所需服务器
 
-<img width="50%" height="50%" src="screenshots/Add-server.png">
+<img width="50%" height="50%" src="screenshots/addServer.zh-CN.png">
 
 可手动添加单个服务器，或者通过剪切板链接添加单个服务器。也可通过订阅链接批量添加。
 
 点击 `订阅` ` 管理订阅链接` 进入以下界面。
 
-<img width="50%" height="50%" src="screenshots/Add-link.jpg">
+<img width="50%" height="50%" src="screenshots/addLink.zh-CN.png">
 
 填写备注与链接，点击添加，然后保存。保存后点击 `订阅` ` 从订阅链接更新服务器`。完成服务器添加。添加完服务器后可对服务器进行修改，删除和测速。
 
