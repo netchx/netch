@@ -24,7 +24,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
 ## 新手入门
-[新手入门教程](Basic-usage.md)
+[新手入门教程](Quickstart.zh-CN.md)
 
 ## 进阶用法
 [进阶教程](https://github.com/NormanBB/NetchMode/blob/master/docs/README.zh-CN.md)
