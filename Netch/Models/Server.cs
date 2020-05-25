@@ -184,7 +184,7 @@ namespace Netch.Models
                 }
             }
 
-            Group = Group.Equals("None") ? Group.ToUpper() : Group;
+            Group = Group.Equals("None") || Group.Equals("") ? "NONE" : Group;
 
             switch (Type)
             {
