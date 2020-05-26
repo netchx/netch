@@ -140,7 +140,7 @@ namespace Netch.Controllers
 
                 Logging.Info("设置绕行规则 → 创建默认路由");
                 // 创建默认路由
-                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
+                if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 5))
                 {
                     State = Models.State.Stopped;
 
