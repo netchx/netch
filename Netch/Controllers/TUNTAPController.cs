@@ -228,6 +228,9 @@ namespace Netch.Controllers
                         if (int.TryParse("32", out var prefix))
                         {
                             NativeMethods.CreateRoute("1.1.1.1", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                            NativeMethods.CreateRoute("8.8.8.8", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                            NativeMethods.CreateRoute("9.9.9.9", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
+                            NativeMethods.CreateRoute("185.222.222.222", prefix, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index);
                         }
                     }
                 }
