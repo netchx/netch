@@ -127,7 +127,7 @@ namespace Netch.Controllers
                             enabled = server.UseMux
                         }
                     },
-                    (mode.Type==1||mode.Type==2) ? new Models.Information.VMess.Outbounds
+                    (mode.Type==0||mode.Type==1||mode.Type==2) ? new Models.Information.VMess.Outbounds
                     {
                         tag = "TUNTAP",
                         protocol = "freedom"
