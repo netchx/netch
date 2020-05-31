@@ -11,7 +11,7 @@
 	- [简介](#简介)
 	- [捐赠](#捐赠)
     - [新手入门](Quickstart.zh-CN.md)
-    - [进阶用法](https://github.com/NormanBB/NetchMode/blob/master/docs/README.zh-CN.md)
+    - [进阶用法](Advanced_Usage.zh-CN.md)
 	- [依赖](#依赖)
     - [语言支持](#语言支持)
     
@@ -27,7 +27,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 [新手入门教程](Quickstart.zh-CN.md)
 
 ## 进阶用法
-[进阶教程](https://github.com/NormanBB/NetchMode/blob/master/docs/README.zh-CN.md)
+[进阶教程](Advanced_Usage.zh-CN.md)
 ## 依赖
 - [Visual C++ 运行库合集](https://www.google.com/search?q=Visual+C%2B%2B+%E8%BF%90%E8%A1%8C%E5%BA%93%E5%90%88%E9%9B%86)
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
