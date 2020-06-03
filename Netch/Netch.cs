@@ -49,41 +49,48 @@ namespace Netch
                     }
                 }
 
-                // 得到当前线程语言代码
-                var culture = CultureInfo.CurrentCulture.Name;
+                // 加载配置
+                Utils.Configuration.Load();
 
-                // 如果命令行参数只有一个，且传入有效语言代码，那么覆盖掉已得到的语言代码
-                if (args.Length == 1)
+                // 加载系统语言
+                if (Global.Settings.Language.Equals("System"))
                 {
-                    try
+                    // 得到当前线程语言代码
+                    var culture = CultureInfo.CurrentCulture.Name;
+
+                    // 尝试加载内置中文语言
+                    if (culture == "zh-CN")
                     {
-                        culture = CultureInfo.GetCultureInfo(args[0]).Name;
+                        // 加载语言
+                        Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
                     }
-                    catch (CultureNotFoundException)
+
+                    // 从外置文件中加载语言
+                    if (File.Exists($"i18n\\{culture}"))
                     {
-                        // 跳过
+                        // 加载语言
+                        Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
                     }
+                }
+
+                if (Global.Settings.Language.Equals("zh-CN"))
+                {
+                    // 加载内置中文
+                    Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
+                }
+                else if (Global.Settings.Language.Equals("en-US"))
+                {
+                    // 加载内置英文
+                    Utils.i18N.Load(Global.Settings.Language);
+                }
+                else if (File.Exists($"i18n\\{Global.Settings.Language}"))
+                {
+                    // 从外置文件中加载语言
+                    Utils.i18N.Load(File.ReadAllText($"i18n\\{Global.Settings.Language}"));
                 }
 
                 // 记录当前系统语言
-                Utils.Logging.Info($"当前系统语言：{culture}");
-
-                // 尝试加载内置中文语言
-                if (culture == "zh-CN")
-                {
-                    // 加载语言
-                    Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-                }
-
-                // 记录当前程序语言
-                Utils.Logging.Info($"当前程序语言：{culture}");
-
-                // 从外置文件中加载语言
-                if (File.Exists($"i18n\\{culture}"))
-                {
-                    // 加载语言
-                    Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
-                }
+                Utils.Logging.Info($"当前语言：{Global.Settings.Language}");
 
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))

@@ -68,16 +68,21 @@ namespace Netch.Forms
         /// <param name="e"></param>
         void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
-            switch (e.Mode)
+            //不对Netch命令等待状态的电源事件做任何处理
+            if (!State.Equals(Models.State.Waiting))
             {
-                case PowerModes.Suspend://操作系统即将挂起
-                    Logging.Info("操作系统即将挂起，自动停止===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                    ControlFun();
-                    break;
-                case PowerModes.Resume://操作系统即将从挂起状态继续
-                    Logging.Info("操作系统即将从挂起状态继续，自动重启===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
-                    ControlFun();
-                    break;
+                switch (e.Mode)
+                {
+                    case PowerModes.Suspend://操作系统即将挂起
+                        Logging.Info("操作系统即将挂起，自动停止===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                        ControlFun();
+                        break;
+                    case PowerModes.Resume://操作系统即将从挂起状态继续
+                        Logging.Info("操作系统即将从挂起状态继续，自动重启===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                        ControlFun();
+                        break;
+                }
+
             }
         }
         private void CheckUpdate()
@@ -336,9 +341,6 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // 加载配置
-            Utils.Configuration.Load();
-
             // 加载服务器
             InitServer();
 
@@ -829,7 +831,7 @@ namespace Netch.Forms
         }
         public void ControlFun()
         {
-            //聚焦到启动按钮，防止模式选择框变成蓝色:D
+            //聚焦到启动按钮，防止模式选择框变成蓝色:D，不过好像没啥用
             ControlButton.Focus();
             SaveConfigs();
             if (State == Models.State.Waiting || State == Models.State.Stopped)

@@ -177,6 +177,8 @@
     "STUN Server": "STUN 服务器",
     "STUN Server Port": "STUN 服务器端口",
     "Custom ACL": "自定义 ACL 规则",
+    "Language": "语言",
+    "Saved. Modify some settings need to restart the software": "保存成功，修改部分设置需重启软件",
 
     "Profile": "配置名",
     "Profiles": "配置",

@@ -178,5 +178,10 @@ namespace Netch.Models
         ///     是否使用DLL启动Shadowsocks
         /// </summary>
         public bool BootShadowsocksFromDLL = false;
+
+        /// <summary>
+        ///     语言设置
+        /// </summary>
+        public string Language = "System";
     }
 }

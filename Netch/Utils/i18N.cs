@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 
 namespace Netch.Utils
 {
@@ -16,6 +18,11 @@ namespace Netch.Utils
         /// <param name="text">语言文件</param>
         public static void Load(string text)
         {
+            if (text.Equals("en-US"))
+            {
+                Data.Clear();
+                return;
+            }
             var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
 
             if (data != null)
@@ -41,6 +48,27 @@ namespace Netch.Utils
             }
 
             return text;
+        }
+
+        /// <summary>
+        ///     获取可使用的语言
+        /// </summary>
+        /// <returns></returns>
+        public static List<string> GetTranslateList()
+        {
+            List<string> TranslateFile = new List<string>();
+            TranslateFile.Add("System");
+            TranslateFile.Add("zh-CN");
+            TranslateFile.Add("en-US");
+
+            if (Directory.Exists("i18n"))
+            {
+                foreach (var fileName in Directory.GetFiles("i18n", "*"))
+                {
+                    TranslateFile.Add(fileName.Substring(5));
+                }
+            }
+            return TranslateFile;
         }
     }
 }
