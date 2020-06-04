@@ -5,12 +5,11 @@
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group) 
-          
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fnetch.org)](https://netch.org/)
+
+:earth_asia: [简体中文](docs/README.zh-CN.md) (此版本内容更丰富)
+
 Game accelerator
-
-[简体中文](docs/README.zh-CN.md) (此版本内容更丰富)
-
-[Website](https://netch.org/)
 
 ## TOC
 - [Netch](#netch)
