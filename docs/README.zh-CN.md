@@ -20,6 +20,9 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 
 与此同时 Netch 避免了 SSTap 的 NAT 问题 ，检查 NAT 类型即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况
 
+
+需要更多特性请移步魔改仓库 [Netch-ForOwnUse](https://github.com/AmazingDM/Netch-ForOwnUse)，
+
 ## 捐赠
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
