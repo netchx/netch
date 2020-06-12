@@ -7,6 +7,8 @@
 [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fnetch.org)](https://netch.org/)
 
+[中文说明](/docs/README.zh-CN.md)
+
 Game accelerator
 
 ## TOC
