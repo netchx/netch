@@ -145,6 +145,7 @@
     "Link can not be empty": "链接不可为空",
     "Link must start with http:// or https://": "链接必须以 http:// 或 https:// 开头",
     "Successfully saved": "保存成功",
+    "Please fill in alterID": "请填写额外ID",
 
     "Settings": "设置",
     "Start when opened": "打开软件时启动加速",

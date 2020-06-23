@@ -116,6 +116,11 @@ namespace Netch.Forms.Server
             {
                 return;
             }
+            if (AlterIDTextBox.Text == "")
+            {
+                MessageBox.Show(Utils.i18N.Translate("Please fill in alterID"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
             if (Index == -1)
             {
                 Global.Settings.Server.Add(new Models.Server
