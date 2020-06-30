@@ -9,6 +9,8 @@
 
 [中文说明](/docs/README.zh-CN.md)
 
+[FAQ/常见问题](https://netch.org/#/docs/zh-CN/faq)
+
 Game accelerator
 
 ## TOC
