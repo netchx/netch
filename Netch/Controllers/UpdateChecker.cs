@@ -14,8 +14,8 @@ namespace Netch.Controllers
 
         private const int DefaultGetTimeout = 30000;
 
-        private const string Owner = @"NetchX";
-        private const string Repo = @"Netch";
+        public const string Owner = @"NetchX";
+        public const string Repo = @"Netch";
 
         public string LatestVersionNumber;
         public string LatestVersionUrl;
@@ -26,7 +26,7 @@ namespace Netch.Controllers
 
         public const string Name = @"Netch";
         public const string Copyright = @"Copyright © 2019 - 2020";
-        public const string Version = @"1.4.10";
+        public const string Version = @"1.4.11";
 
         public async void Check(bool notifyNoFound, bool isPreRelease)
         {

@@ -26,49 +26,49 @@ namespace Netch.Utils
         /// </summary>
         public static void Load()
         {
-            if (Directory.Exists(DATA_DIR))
+            if (Directory.Exists(DATA_DIR) && File.Exists(SETTINGS_JSON))
             {
-                if (File.Exists(SETTINGS_JSON))
+                try
                 {
-                    try
+                    Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Setting>(File.ReadAllText(SETTINGS_JSON));
+                    if (Global.Settings.Server != null && Global.Settings.Server.Count > 0)
                     {
-                        Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Setting>(File.ReadAllText(SETTINGS_JSON));
-                        if (Global.Settings.Server != null && Global.Settings.Server.Count > 0)
+                        // 如果是旧版 Server 类，使用旧版 Server 类进行读取
+                        if (Global.Settings.Server[0].Hostname == null)
                         {
-                            // 如果是旧版 Server 类，使用旧版 Server 类进行读取
-                            if (Global.Settings.Server[0].Hostname == null)
+                            var LegacySettingConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_JSON));
+                            for (var i = 0; i < LegacySettingConfig.Server.Count; i++)
                             {
-                                var LegacySettingConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_JSON));
-                                for (var i = 0; i < LegacySettingConfig.Server.Count; i++)
+                                Global.Settings.Server[i].Hostname = LegacySettingConfig.Server[i].Address;
+                                if (Global.Settings.Server[i].Type == "Shadowsocks")
                                 {
-                                    Global.Settings.Server[i].Hostname = LegacySettingConfig.Server[i].Address;
-                                    if (Global.Settings.Server[i].Type == "Shadowsocks")
-                                    {
-                                        Global.Settings.Server[i].Type = "SS";
-                                        Global.Settings.Server[i].Plugin = LegacySettingConfig.Server[i].OBFS;
-                                        Global.Settings.Server[i].PluginOption = LegacySettingConfig.Server[i].OBFSParam;
-                                    }
-                                    else if (Global.Settings.Server[i].Type == "ShadowsocksR")
-                                    {
-                                        Global.Settings.Server[i].Type = "SSR";
-                                    }
-                                    else if (Global.Settings.Server[i].Type == "VMess")
-                                    {
-                                        Global.Settings.Server[i].QUICSecure = LegacySettingConfig.Server[i].QUICSecurity;
-                                    }
+                                    Global.Settings.Server[i].Type = "SS";
+                                    Global.Settings.Server[i].Plugin = LegacySettingConfig.Server[i].OBFS;
+                                    Global.Settings.Server[i].PluginOption = LegacySettingConfig.Server[i].OBFSParam;
+                                }
+                                else if (Global.Settings.Server[i].Type == "ShadowsocksR")
+                                {
+                                    Global.Settings.Server[i].Type = "SSR";
+                                }
+                                else if (Global.Settings.Server[i].Type == "VMess")
+                                {
+                                    Global.Settings.Server[i].QUICSecure = LegacySettingConfig.Server[i].QUICSecurity;
                                 }
                             }
                         }
                     }
+                }
 
-                    catch (Newtonsoft.Json.JsonException)
-                    {
+                catch (Newtonsoft.Json.JsonException)
+                {
 
-                    }
                 }
             }
             else
             {
+                // 弹出提示
+                MessageBox.Show("如果你是第一次使用本软件\n请务必前往http://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！", i18N.Translate("注意！"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+
                 // 创建 data 文件夹并保存默认设置
                 Save();
             }

@@ -260,7 +260,7 @@ namespace Netch.Forms
         private void SaveConfigs()
         {
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-            if (ModeComboBox.Items.Count!=0 && ModeComboBox.SelectedItem != null)
+            if (ModeComboBox.Items.Count != 0 && ModeComboBox.SelectedItem != null)
             {
 
                 if (ModeComboBox.Tag is object[] list)
@@ -382,6 +382,7 @@ namespace Netch.Forms
             StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate(ShowMainFormToolStripButton.Text);
             ExitToolStripButton.Text = Utils.i18N.Translate(ExitToolStripButton.Text);
+            RelyToolStripMenuItem.Text = Utils.i18N.Translate(RelyToolStripMenuItem.Text);
 
             InitProfile();
 
@@ -749,7 +750,7 @@ namespace Netch.Forms
 
         private void VersionLabel_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/NetchX/Netch/releases");
+            Process.Start($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
         }
 
         private void EditPictureBox_Click(object sender, EventArgs e)
@@ -879,8 +880,20 @@ namespace Netch.Forms
 
                     if (startResult)
                     {
-                        // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
-                        // MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
+                        Task.Run(() =>
+                        {
+                            LastUploadBandwidth = 0;
+                            //LastDownloadBandwidth = 0;
+                            //UploadSpeedLabel.Text = "↑: 0 KB/s";
+                            DownloadSpeedLabel.Text = "↑↓: 0 KB/s";
+                            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                            UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
+
+
+                            UploadSpeedLabel.Visible = false;
+                            Bandwidth.NetTraffic(server, mode, MainController);
+                        });
+                        //MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
 
                         // 如果勾选启动后最小化
                         if (Global.Settings.MinimizeWhenStarted)
@@ -1010,12 +1023,12 @@ namespace Netch.Forms
                     MainController.Stop();
                     NatTypeStatusLabel.Text = "";
 
-                    // LastUploadBandwidth = 0;
-                    // LastDownloadBandwidth = 0;
-                    // UploadSpeedLabel.Text = "↑: 0 KB/s";
-                    // DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                    // UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                    // UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
+                    LastUploadBandwidth = 0;
+                    LastDownloadBandwidth = 0;
+                    UploadSpeedLabel.Text = "↑: 0 KB/s";
+                    DownloadSpeedLabel.Text = "↓: 0 KB/s";
+                    UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                    UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
 
                     ControlButton.Enabled = true;
                     ProfileGroupBox.Enabled = true;
@@ -1106,16 +1119,42 @@ namespace Netch.Forms
             new AboutForm().Show();
             Hide();
         }
+        public void OnBandwidthUpdated(long download)
+        {
+            try
+            {
+                UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(download)}";
+                //UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
+                DownloadSpeedLabel.Text = $"↑↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
+
+                //LastUploadBandwidth = upload;
+                LastDownloadBandwidth = download;
+                Refresh();
+            }
+            catch (Exception)
+            {
+            }
+        }
 
         public void OnBandwidthUpdated(long upload, long download)
         {
-            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
-            UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
-            DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
+            try
+            {
+                if (upload < 1 || download < 1)
+                {
+                    return;
+                }
+                UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
+                UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
+                DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
 
-            LastUploadBandwidth = upload;
-            LastDownloadBandwidth = download;
-            Refresh();
+                LastUploadBandwidth = upload;
+                LastDownloadBandwidth = download;
+                Refresh();
+            }
+            catch (Exception)
+            {
+            }
         }
 
         private void ProfileButton_Click(object sender, EventArgs e)
@@ -1372,6 +1411,7 @@ namespace Netch.Forms
             NatTypeStatusLabel.Visible = true;
             if (!string.IsNullOrWhiteSpace(text))
             {
+                text = text.Trim();
                 NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + text;
             }
             else
@@ -1522,6 +1562,11 @@ namespace Netch.Forms
                     Enabled = true;
                 }
             });
+        }
+
+        private void RelyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Process.Start($"https://mega.nz/file/9OQ1EazJ#0pjJ3xt57AVLr29vYEEv15GSACtXVQOGlEOPpi_2Ico");
         }
     }
 }

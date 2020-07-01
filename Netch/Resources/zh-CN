@@ -187,6 +187,7 @@
 
     "Show": "显示",
     "Exit": "退出",
+    "Unable to start? Click me to download": "无法启动？点我下载依赖",
 
     "Bypass LAN": "[网页代理] 绕过局域网",
     "Bypass LAN (Non System Proxy)": "[网页代理] 绕过局域网（不设置系统代理）",
