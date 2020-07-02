@@ -142,7 +142,7 @@ namespace Netch.Models
         /// <summary>
         ///		已保存的快捷配置
         /// </summary>
-        public List<Profile> profiles = new List<Profile>();
+        public List<Profile> Profiles = new List<Profile>();
 
         /// <summary>
         ///		快捷配置数量

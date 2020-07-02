@@ -473,9 +473,9 @@
             // 
             // ProfileCount_TextBox
             // 
-            this.ProfileCount_TextBox.Location = new System.Drawing.Point(209, 164);
+            this.ProfileCount_TextBox.Location = new System.Drawing.Point(120, 164);
             this.ProfileCount_TextBox.Name = "ProfileCount_TextBox";
-            this.ProfileCount_TextBox.Size = new System.Drawing.Size(226, 23);
+            this.ProfileCount_TextBox.Size = new System.Drawing.Size(90, 23);
             this.ProfileCount_TextBox.TabIndex = 9;
             this.ProfileCount_TextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
