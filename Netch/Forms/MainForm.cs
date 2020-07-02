@@ -357,7 +357,7 @@ namespace Netch.Forms
             AddTrojanServerToolStripMenuItem.Text = Utils.i18N.Translate(AddTrojanServerToolStripMenuItem.Text);
             ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
             CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
-            ManageProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(ManageProcessModeToolStripMenuItem.Text);
+            OpenDirectoryToolStripMenuItem.Text = Utils.i18N.Translate(OpenDirectoryToolStripMenuItem.Text);
             SubscribeToolStripMenuItem.Text = Utils.i18N.Translate(SubscribeToolStripMenuItem.Text);
             ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
@@ -509,9 +509,9 @@ namespace Netch.Forms
             Hide();
         }
 
-        private void ManageProcessModeToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Utils.Utils.OpenDir(@"mode");
+            Utils.Utils.OpenDir(@".\");
         }
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
