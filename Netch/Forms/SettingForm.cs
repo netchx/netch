@@ -433,7 +433,7 @@ namespace Netch.Forms
             Global.Settings.TUNTAP.UseFakeDNS = UseFakeDNSCheckBox.Checked;
 
             Utils.Configuration.Save();
-            MessageBox.Show(Utils.i18N.Translate("Saved. Modify some settings need to restart the software"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
     }

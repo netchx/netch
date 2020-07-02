@@ -48,6 +48,7 @@ namespace Netch.Forms
         /// </summary>
         public static MainForm Instance = null;
 
+
         public MainForm()
         {
             InitializeComponent();
@@ -384,6 +385,10 @@ namespace Netch.Forms
             ExitToolStripButton.Text = Utils.i18N.Translate(ExitToolStripButton.Text);
             RelyToolStripMenuItem.Text = Utils.i18N.Translate(RelyToolStripMenuItem.Text);
 
+            SizeHeight = Size.Height;
+            ControllHeight = ConfigurationGroupBox.Controls[0].Height/3;
+            ProfileBoxHeight = ProfileGroupBox.Height;
+            CFGBoxHeight = ConfigurationGroupBox.Height;
             InitProfile();
 
             // 自动检测延迟
@@ -1232,48 +1237,64 @@ namespace Netch.Forms
 
         }
 
+        // init at MainFrom_Load()
+        private int SizeHeight;
+        private int ControllHeight;
+        private int ProfileBoxHeight;
+        private int CFGBoxHeight;
+
+
         public void InitProfile()
         {
-            var num_profile = Global.Settings.ProfileCount;
-            if (num_profile == 0)
+
+            foreach (var button in ProfileButtons)
             {
-                ProfileGroupBox.Size = new Size(0, 0);
-                ConfigurationGroupBox.Size -= new Size(0, 25);
-                this.Size -= new Size(0, 70 + 25);
+                button.Dispose();
+            }
+            ProfileButtons.Clear();
+            ProfileTable.ColumnStyles.Clear();
+            ProfileTable.RowStyles.Clear();
+
+            var numProfile = Global.Settings.ProfileCount;
+            if (numProfile == 0)
+            {
+                configLayoutPanel.RowStyles[2].SizeType = SizeType.Percent;
                 configLayoutPanel.RowStyles[2].Height = 0;
+                ProfileGroupBox.Visible = false;
+
+                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, CFGBoxHeight-ControllHeight);
+                Size = new Size(Size.Width,SizeHeight-(ControllHeight+ProfileBoxHeight));
+                
                 return;
             }
 
-            ProfileTable.ColumnCount = num_profile;
+            configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
+            ProfileGroupBox.Visible = true;
+            ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width,CFGBoxHeight);
+            Size = new Size(Size.Width,SizeHeight);
 
-            while (Global.Settings.profiles.Count < num_profile)
+
+            ProfileTable.ColumnCount = numProfile;
+
+            while (Global.Settings.Profiles.Count < numProfile)
             {
-                Global.Settings.profiles.Add(new Models.Profile());
+                Global.Settings.Profiles.Add(new Models.Profile());
             }
 
             // buttons
-            for (var i = 0; i < num_profile; ++i)
+            for (var i = 0; i < numProfile; ++i)
             {
                 var b = new Button();
                 ProfileTable.Controls.Add(b, i, 0);
                 b.Location = new Point(i * 100, 0);
                 b.Click += ProfileButton_Click;
                 b.Dock = DockStyle.Fill;
-                b.Text = "None";
-                ProfileButtons.Add(b);
+                b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : Utils.i18N.Translate("None");
 
-                if (!Global.Settings.profiles[i].IsDummy)
-                {
-                    b.Text = Global.Settings.profiles[i].ProfileName;
-                }
-                else
-                {
-                    b.Text = Utils.i18N.Translate(b.Text);
-                }
+                ProfileButtons.Add(b);
             }
 
             // equal column
-            ProfileTable.ColumnStyles.Clear();
             for (var i = 1; i <= ProfileTable.RowCount; i++)
             {
                 ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
@@ -1286,7 +1307,7 @@ namespace Netch.Forms
 
         private string LoadProfile(int index)
         {
-            var p = Global.Settings.profiles[index];
+            var p = Global.Settings.Profiles[index];
 
             if (p.IsDummy)
                 throw new Exception("Profile not found.");
@@ -1329,7 +1350,7 @@ namespace Netch.Forms
             var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 
-            Global.Settings.profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
+            Global.Settings.Profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
 
         }
 
@@ -1567,6 +1588,15 @@ namespace Netch.Forms
         private void RelyToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Process.Start($"https://mega.nz/file/9OQ1EazJ#0pjJ3xt57AVLr29vYEEv15GSACtXVQOGlEOPpi_2Ico");
+        }
+
+        private void MainForm_VisibleChanged(object sender, EventArgs e)
+        {
+            if (!Visible)
+                return;
+
+            InitProfile();
+
         }
     }
 }

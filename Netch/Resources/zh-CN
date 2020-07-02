@@ -165,7 +165,7 @@
     "Port value illegal. Try again.": "端口值非法。请重试。",
     "Check update when opened": "打开软件时检查更新",
     "Start Shadowsocks from DLL (No support for ACL)": "SS DLL（推荐使用，不支持 ACL）",
-    "ProfileCount": "快捷配置数量（重启软件生效）",
+    "ProfileCount": "快捷配置数量",
     "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试。",
     "STUN_ServerPort value illegal. Try again.": "STUN 端口数值非法。请重试。",
     "Detection interval value illegal. Try again.": "检测间隔值非法。请重试。",
@@ -179,7 +179,7 @@
     "STUN Server Port": "STUN 服务器端口",
     "Custom ACL": "自定义 ACL 规则",
     "Language": "语言",
-    "Saved. Modify some settings need to restart the software": "保存成功，修改部分设置需重启软件",
+    "Saved.": "保存成功",
 
     "Profile": "配置名",
     "Profiles": "配置",

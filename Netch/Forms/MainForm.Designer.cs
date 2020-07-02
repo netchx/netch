@@ -81,13 +81,13 @@ namespace Netch.Forms
             this.SettingsButton = new System.Windows.Forms.Button();
             this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
+            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.EditPictureBox = new System.Windows.Forms.PictureBox();
             this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
             this.DeletePictureBox = new System.Windows.Forms.PictureBox();
             this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
             this.EditModePictureBox = new System.Windows.Forms.PictureBox();
             this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
-            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
@@ -343,7 +343,7 @@ namespace Netch.Forms
             // 
             this.configLayoutPanel.ColumnCount = 3;
             this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.configLayoutPanel.Controls.Add(this.ProfileLabel, 0, 2);
             this.configLayoutPanel.Controls.Add(this.ModeLabel, 0, 1);
@@ -577,6 +577,19 @@ namespace Netch.Forms
             this.ProfileTable.Size = new System.Drawing.Size(703, 43);
             this.ProfileTable.TabIndex = 0;
             // 
+            // ModeComboBox
+            // 
+            this.ModeComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.ModeComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.ModeComboBox.FormattingEnabled = true;
+            this.ModeComboBox.IntegralHeight = false;
+            this.ModeComboBox.Location = new System.Drawing.Point(54, 34);
+            this.ModeComboBox.Name = "ModeComboBox";
+            this.ModeComboBox.Size = new System.Drawing.Size(546, 24);
+            this.ModeComboBox.TabIndex = 2;
+            this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            // 
             // EditPictureBox
             // 
             this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -645,19 +658,6 @@ namespace Netch.Forms
             this.DeleteModePictureBox.TabStop = false;
             this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
             // 
-            // ModeComboBox
-            // 
-            this.ModeComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.ModeComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ModeComboBox.FormattingEnabled = true;
-            this.ModeComboBox.IntegralHeight = false;
-            this.ModeComboBox.Location = new System.Drawing.Point(54, 34);
-            this.ModeComboBox.Name = "ModeComboBox";
-            this.ModeComboBox.Size = new System.Drawing.Size(546, 24);
-            this.ModeComboBox.TabIndex = 2;
-            this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -679,6 +679,7 @@ namespace Netch.Forms
             this.Text = "Netch";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.VisibleChanged += new System.EventHandler(this.MainForm_VisibleChanged);
             this.MenuStrip.ResumeLayout(false);
             this.MenuStrip.PerformLayout();
             this.ConfigurationGroupBox.ResumeLayout(false);
