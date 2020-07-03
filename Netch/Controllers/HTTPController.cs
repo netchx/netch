@@ -1,12 +1,15 @@
 ﻿using Netch.Utils;
 using System;
-using System.Windows;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace Netch.Controllers
 {
     public class HTTPController
     {
+        private bool prevEnabled;
+        private string prevBypass, prevHTTP, prevPAC="";
+
         /// <summary>
         ///     实例
         /// </summary>
@@ -38,6 +41,8 @@ namespace Netch.Controllers
 
                 if (mode.Type != 5)
                 {
+                    RecordPrevious();
+
                     NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
 
                     // HTTP 系统代理模式，启动系统代理
@@ -66,6 +71,27 @@ namespace Netch.Controllers
             return true;
         }
 
+        private void RecordPrevious()
+        {
+            var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings");
+            if (registry == null)
+            {
+                prevEnabled = false;
+                prevHTTP = prevBypass = "";
+                return;
+            }
+            if (registry.GetValue("AutoConfigURL") != null)
+            {
+                prevPAC = registry.GetValue("AutoConfigURL").ToString() ?? "";
+            }
+            if ((registry.GetValue("ProxyEnable")?.Equals(1) ?? false) || prevPAC != "")
+            {
+                prevEnabled = true;
+            }
+            prevHTTP = registry.GetValue("ProxyServer").ToString();
+            prevBypass = registry.GetValue("ProxyOverride").ToString();
+        }
+
         /// <summary>
         ///		停止
         /// </summary>
@@ -82,7 +108,13 @@ namespace Netch.Controllers
                     Utils.Logging.Info(e.ToString());
                 }
 
-                NativeMethods.SetDIRECT();
+                NativeMethods.SetGlobal(prevHTTP, prevBypass);
+                if (prevPAC != "")
+                    NativeMethods.SetURL(prevPAC);
+                if (!prevEnabled)
+                    NativeMethods.SetDIRECT();
+                prevEnabled = false;
+
 
                 /*
                 using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
