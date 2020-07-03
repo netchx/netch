@@ -52,42 +52,8 @@ namespace Netch
                 // 加载配置
                 Utils.Configuration.Load();
 
-                // 加载系统语言
-                if (Global.Settings.Language.Equals("System"))
-                {
-                    // 得到当前线程语言代码
-                    var culture = CultureInfo.CurrentCulture.Name;
-
-                    // 尝试加载内置中文语言
-                    if (culture == "zh-CN")
-                    {
-                        // 加载语言
-                        Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-                    }
-
-                    // 从外置文件中加载语言
-                    if (File.Exists($"i18n\\{culture}"))
-                    {
-                        // 加载语言
-                        Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
-                    }
-                }
-
-                if (Global.Settings.Language.Equals("zh-CN"))
-                {
-                    // 加载内置中文
-                    Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-                }
-                else if (Global.Settings.Language.Equals("en-US"))
-                {
-                    // 加载内置英文
-                    Utils.i18N.Load(Global.Settings.Language);
-                }
-                else if (File.Exists($"i18n\\{Global.Settings.Language}"))
-                {
-                    // 从外置文件中加载语言
-                    Utils.i18N.Load(File.ReadAllText($"i18n\\{Global.Settings.Language}"));
-                }
+                // 加载语言
+                Utils.i18N.Load(Global.Settings.Language);
 
                 // 记录当前系统语言
                 Utils.Logging.Info($"当前语言：{Global.Settings.Language}");
