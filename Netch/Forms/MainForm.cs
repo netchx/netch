@@ -56,8 +56,6 @@ namespace Netch.Forms
             // 监听电源事件
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
 
-            VersionLabel.Text = UpdateChecker.Version;
-
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
             Instance = this;
@@ -130,6 +128,55 @@ namespace Netch.Forms
             }
 
             // 如果当前 ServerComboBox 中没元素，不做处理
+        }
+
+        public void InitText()
+        {
+            // 
+            ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
+            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
+            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
+            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
+            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
+            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
+            AddTrojanServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Trojan] Server");
+            ModeToolStripMenuItem.Text = Utils.i18N.Translate("Mode");
+            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
+            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate("Subscribe");
+            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
+            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
+            OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
+            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
+            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
+            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
+            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate("Clean DNS Cache");
+            UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate("Update ACL");
+            updateACLWithProxyToolStripMenuItem.Text = Utils.i18N.Translate("Update ACL with proxy");
+            reinstallTapDriverToolStripMenuItem.Text = Utils.i18N.Translate("Reinstall TUN/TAP driver");
+            OpenDirectoryToolStripMenuItem.Text = Utils.i18N.Translate("Open Directory");
+            AboutToolStripButton.Text = Utils.i18N.Translate("About");
+            VersionLabel.Text = Utils.i18N.Translate("xxx");
+            exitToolStripMenuItem.Text = Utils.i18N.Translate("Exit");
+            RelyToolStripMenuItem.Text = Utils.i18N.Translate("Unable to start? Click me to download");
+            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
+            ProfileLabel.Text = Utils.i18N.Translate("Profile");
+            ModeLabel.Text = Utils.i18N.Translate("Mode");
+            ServerLabel.Text = Utils.i18N.Translate("Server");
+            StatusLabel.Text = Utils.i18N.Translate("Status: Waiting for command");
+            UsedBandwidthLabel.Text = Utils.i18N.Translate("Used: 0 KB");
+            DownloadSpeedLabel.Text = Utils.i18N.Translate("↓: 0 KB/s");
+            UploadSpeedLabel.Text = Utils.i18N.Translate("↑: 0 KB/s");
+            ControlButton.Text = Utils.i18N.Translate("Start");
+            NotifyIcon.Text = Utils.i18N.Translate("Netch");
+            ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
+            ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
+            SettingsButton.Text = Utils.i18N.Translate("Settings");
+            ProfileGroupBox.Text = Utils.i18N.Translate("Profiles");
+            // 加载翻译
+
+            VersionLabel.Text = UpdateChecker.Version;
+            UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+            StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
         }
 
         public void SelectLastMode()
@@ -353,42 +400,9 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            ServerToolStripMenuItem.Text = Utils.i18N.Translate(ServerToolStripMenuItem.Text);
-            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate(ImportServersFromClipboardToolStripMenuItem.Text);
-            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate(AddSocks5ServerToolStripMenuItem.Text);
-            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksServerToolStripMenuItem.Text);
-            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate(AddShadowsocksRServerToolStripMenuItem.Text);
-            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate(AddVMessServerToolStripMenuItem.Text);
-            AddTrojanServerToolStripMenuItem.Text = Utils.i18N.Translate(AddTrojanServerToolStripMenuItem.Text);
-            ModeToolStripMenuItem.Text = Utils.i18N.Translate(ModeToolStripMenuItem.Text);
-            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate(CreateProcessModeToolStripMenuItem.Text);
-            OpenDirectoryToolStripMenuItem.Text = Utils.i18N.Translate(OpenDirectoryToolStripMenuItem.Text);
-            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate(SubscribeToolStripMenuItem.Text);
-            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(ManageSubscribeLinksToolStripMenuItem.Text);
-            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate(UpdateServersFromSubscribeLinksToolStripMenuItem.Text);
-            OptionsToolStripMenuItem.Text = Utils.i18N.Translate(OptionsToolStripMenuItem.Text);
-            exitToolStripMenuItem.Text = Utils.i18N.Translate(exitToolStripMenuItem.Text);
-            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate(RestartServiceToolStripMenuItem.Text);
-            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate(UninstallServiceToolStripMenuItem.Text);
-            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate(ReloadModesToolStripMenuItem.Text);
-            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate(CleanDNSCacheToolStripMenuItem.Text);
-            UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate(UpdateACLToolStripMenuItem.Text);
-            updateACLWithProxyToolStripMenuItem.Text = Utils.i18N.Translate(updateACLWithProxyToolStripMenuItem.Text);
-            reinstallTapDriverToolStripMenuItem.Text = Utils.i18N.Translate(reinstallTapDriverToolStripMenuItem.Text);
-            AboutToolStripButton.Text = Utils.i18N.Translate(AboutToolStripButton.Text);
-            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
-            ServerLabel.Text = Utils.i18N.Translate(ServerLabel.Text);
-            ModeLabel.Text = Utils.i18N.Translate(ModeLabel.Text);
-            ProfileLabel.Text = Utils.i18N.Translate(ProfileLabel.Text);
-            ProfileGroupBox.Text = Utils.i18N.Translate(ProfileGroupBox.Text);
-            SettingsButton.Text = Utils.i18N.Translate(SettingsButton.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
-            UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-            StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-            ShowMainFormToolStripButton.Text = Utils.i18N.Translate(ShowMainFormToolStripButton.Text);
-            ExitToolStripButton.Text = Utils.i18N.Translate(ExitToolStripButton.Text);
-            RelyToolStripMenuItem.Text = Utils.i18N.Translate(RelyToolStripMenuItem.Text);
+            InitText();
 
+            // 加载快速配置
             SizeHeight = Size.Height;
             ControllHeight = ConfigurationGroupBox.Controls[0].Height / 3;
             ProfileBoxHeight = ProfileGroupBox.Height;
@@ -1599,8 +1613,14 @@ namespace Netch.Forms
             if (!Visible)
                 return;
 
-            InitProfile();
+            if (i18N.LangCode!=Global.Settings.Language)
+            {
+                i18N.Load(Global.Settings.Language);
+                InitText();
+            }
 
+            if (ProfileButtons.Count != Global.Settings.ProfileCount)
+                InitProfile();
         }
     }
 }

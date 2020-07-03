@@ -46,7 +46,7 @@ namespace Netch.Forms
             }
         }
 
-        private void SettingForm_Load(object sender, EventArgs e)
+        private void InitText()
         {
             Text = Utils.i18N.Translate(Text);
             PortGroupBox.Text = Utils.i18N.Translate(PortGroupBox.Text);
@@ -106,8 +106,13 @@ namespace Netch.Forms
             AclAddr.Text = Global.Settings.ACL.ToString();
 
             LanguageLabel.Text = Utils.i18N.Translate(LanguageLabel.Text);
-            LanguageComboBox.Items.AddRange(Utils.i18N.GetTranslateList().ToArray());
+            LanguageComboBox.Items.AddRange(Utils.i18N.TranslatesList.ToArray());
             LanguageComboBox.SelectedItem = Global.Settings.Language;
+        }
+
+        private void SettingForm_Load(object sender, EventArgs e)
+        {
+            InitText();
 
             if (Global.Settings.TUNTAP.DNS.Count > 0)
             {
@@ -169,43 +174,6 @@ namespace Netch.Forms
             Global.Settings.RunAtStartup = RunAtStartup.Checked;
             Global.Settings.BootShadowsocksFromDLL = BootShadowsocksFromDLLCheckBox.Checked;
             Global.Settings.Language = LanguageComboBox.SelectedItem.ToString();
-
-            // 加载系统语言
-            if (Global.Settings.Language.Equals("System"))
-            {
-                // 得到当前线程语言代码
-                var culture = CultureInfo.CurrentCulture.Name;
-
-                // 尝试加载内置中文语言
-                if (culture == "zh-CN")
-                {
-                    // 加载语言
-                    Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-                }
-
-                // 从外置文件中加载语言
-                if (File.Exists($"i18n\\{culture}"))
-                {
-                    // 加载语言
-                    Utils.i18N.Load(File.ReadAllText($"i18n\\{culture}"));
-                }
-            }
-
-            if (Global.Settings.Language.Equals("zh-CN"))
-            {
-                // 加载内置中文
-                Utils.i18N.Load(Encoding.UTF8.GetString(Properties.Resources.zh_CN));
-            }
-            else if (Global.Settings.Language.Equals("en-US"))
-            {
-                // 加载内置英文
-                Utils.i18N.Load(Global.Settings.Language);
-            }
-            else if (File.Exists($"i18n\\{Global.Settings.Language}"))
-            {
-                // 从外置文件中加载语言
-                Utils.i18N.Load(File.ReadAllText($"i18n\\{Global.Settings.Language}"));
-            }
 
             // 开机自启判断
             TaskSchedulerClass scheduler = new TaskSchedulerClass();
