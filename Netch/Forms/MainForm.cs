@@ -283,6 +283,8 @@ namespace Netch.Forms
 
                 var cbx = sender as ComboBox;
 
+                var eWidth = (int)ServerComboBox.Width / 10;
+
                 // 绘制背景颜色
                 e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
 
@@ -319,20 +321,22 @@ namespace Netch.Forms
                         }
 
                         // 绘制延迟底色
-                        e.Graphics.FillRectangle(brush, ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
+                        e.Graphics.FillRectangle(brush, eWidth * 9, e.Bounds.Y, eWidth, e.Bounds.Height);
 
                         // 绘制延迟字符串
-                        e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
+                        e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black), eWidth * 9 + eWidth / 30, e.Bounds.Y);
                     }
                     else if (cbx.Items[e.Index] is Models.Mode)
                     {
                         var item = cbx.Items[e.Index] as Models.Mode;
 
+
                         // 绘制延迟底色
-                        e.Graphics.FillRectangle(new SolidBrush(Color.Gray), ServerComboBox.Size.Width - 60, e.Bounds.Y, 60, e.Bounds.Height);
+                        e.Graphics.FillRectangle(new SolidBrush(Color.Gray), eWidth * 9, e.Bounds.Y, eWidth, e.Bounds.Height);
+
 
                         // 绘制延迟字符串
-                        e.Graphics.DrawString(item.Rule.Count.ToString(), cbx.Font, new SolidBrush(Color.Black), ServerComboBox.Size.Width - 58, e.Bounds.Y);
+                        e.Graphics.DrawString(item.Rule.Count.ToString(), cbx.Font, new SolidBrush(Color.Black), eWidth * 9 + eWidth / 30, e.Bounds.Y);
                     }
                 }
             }
@@ -386,7 +390,7 @@ namespace Netch.Forms
             RelyToolStripMenuItem.Text = Utils.i18N.Translate(RelyToolStripMenuItem.Text);
 
             SizeHeight = Size.Height;
-            ControllHeight = ConfigurationGroupBox.Controls[0].Height/3;
+            ControllHeight = ConfigurationGroupBox.Controls[0].Height / 3;
             ProfileBoxHeight = ProfileGroupBox.Height;
             CFGBoxHeight = ConfigurationGroupBox.Height;
             InitProfile();
@@ -1262,16 +1266,16 @@ namespace Netch.Forms
                 configLayoutPanel.RowStyles[2].Height = 0;
                 ProfileGroupBox.Visible = false;
 
-                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, CFGBoxHeight-ControllHeight);
-                Size = new Size(Size.Width,SizeHeight-(ControllHeight+ProfileBoxHeight));
-                
+                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, CFGBoxHeight - ControllHeight);
+                Size = new Size(Size.Width, SizeHeight - (ControllHeight + ProfileBoxHeight));
+
                 return;
             }
 
             configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
             ProfileGroupBox.Visible = true;
-            ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width,CFGBoxHeight);
-            Size = new Size(Size.Width,SizeHeight);
+            ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, CFGBoxHeight);
+            Size = new Size(Size.Width, SizeHeight);
 
 
             ProfileTable.ColumnCount = numProfile;
