@@ -854,12 +854,12 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
+            //防止模式选择框变成蓝色:D
+            ModeComboBox.Select(0, 0);
             ControlFun();
         }
         public void ControlFun()
         {
-            //聚焦到启动按钮，防止模式选择框变成蓝色:D，不过好像没啥用
-            ControlButton.Focus();
             SaveConfigs();
             if (State == Models.State.Waiting || State == Models.State.Stopped)
             {
