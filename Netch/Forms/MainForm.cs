@@ -130,9 +130,8 @@ namespace Netch.Forms
             // 如果当前 ServerComboBox 中没元素，不做处理
         }
 
-        public void InitText()
+        public void InitText(bool isStarted)
         {
-            // 
             ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
             ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
             AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
@@ -162,11 +161,17 @@ namespace Netch.Forms
             ProfileLabel.Text = Utils.i18N.Translate("Profile");
             ModeLabel.Text = Utils.i18N.Translate("Mode");
             ServerLabel.Text = Utils.i18N.Translate("Server");
-            StatusLabel.Text = Utils.i18N.Translate("Status: Waiting for command");
             UsedBandwidthLabel.Text = Utils.i18N.Translate("Used: 0 KB");
             DownloadSpeedLabel.Text = Utils.i18N.Translate("↓: 0 KB/s");
             UploadSpeedLabel.Text = Utils.i18N.Translate("↑: 0 KB/s");
-            ControlButton.Text = Utils.i18N.Translate("Start");
+
+            if (!isStarted)
+            {
+                UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
+                ControlButton.Text = Utils.i18N.Translate("Start");
+            }
+
             NotifyIcon.Text = Utils.i18N.Translate("Netch");
             ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
             ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
@@ -175,8 +180,6 @@ namespace Netch.Forms
             // 加载翻译
 
             VersionLabel.Text = UpdateChecker.Version;
-            UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-            StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
         }
 
         public void SelectLastMode()
@@ -400,7 +403,7 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            InitText();
+            InitText(false);
 
             // 加载快速配置
             SizeHeight = Size.Height;
@@ -1616,7 +1619,7 @@ namespace Netch.Forms
             if (i18N.LangCode!=Global.Settings.Language)
             {
                 i18N.Load(Global.Settings.Language);
-                InitText();
+                InitText(State == Models.State.Started);
             }
 
             if (ProfileButtons.Count != Global.Settings.ProfileCount)
