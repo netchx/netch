@@ -8,7 +8,7 @@ namespace Netch.Controllers
     public class HTTPController
     {
         private bool prevEnabled;
-        private string prevBypass, prevHTTP, prevPAC="";
+        private string prevBypass, prevHTTP, prevPAC;
 
         /// <summary>
         ///     实例
@@ -77,19 +77,17 @@ namespace Netch.Controllers
             if (registry == null)
             {
                 prevEnabled = false;
-                prevHTTP = prevBypass = "";
+                prevPAC = prevHTTP = prevBypass = "";
                 return;
             }
-            if (registry.GetValue("AutoConfigURL") != null)
-            {
-                prevPAC = registry.GetValue("AutoConfigURL").ToString() ?? "";
-            }
+            
+            prevPAC = registry.GetValue("AutoConfigURL")?.ToString() ?? "";
             if ((registry.GetValue("ProxyEnable")?.Equals(1) ?? false) || prevPAC != "")
             {
                 prevEnabled = true;
             }
-            prevHTTP = registry.GetValue("ProxyServer").ToString();
-            prevBypass = registry.GetValue("ProxyOverride").ToString();
+            prevHTTP = registry.GetValue("ProxyServer")?.ToString() ?? "";
+            prevBypass = registry.GetValue("ProxyOverride")?.ToString() ?? "";
         }
 
         /// <summary>
