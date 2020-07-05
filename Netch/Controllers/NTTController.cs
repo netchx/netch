@@ -1,8 +1,10 @@
-﻿using Netch.Forms;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Netch.Forms;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
@@ -16,7 +18,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Models.State State = Models.State.Waiting;
+        public State State = State.Waiting;
 
         /// <summary>
         /// 启动NatTypeTester
@@ -25,7 +27,7 @@ namespace Netch.Controllers
         public (bool, string, string, string) Start()
         {
             Thread.Sleep(1000);
-            MainForm.Instance.NatTypeStatusText($"{Utils.i18N.Translate("Starting NatTester")}");
+            MainForm.Instance.NatTypeStatusText($"{i18N.Translate("Starting NatTester")}");
             try
             {
                 if (!File.Exists("bin\\NTT.exe"))
@@ -41,13 +43,13 @@ namespace Netch.Controllers
                 Instance.OutputDataReceived += OnOutputDataReceived;
                 Instance.ErrorDataReceived += OnOutputDataReceived;
 
-                State = Models.State.Starting;
+                State = State.Starting;
                 Instance.Start();
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
 
-                string[] result = File.ReadAllText("logging\\NTT.log").ToString().Split('#');
+                var result = File.ReadAllText("logging\\NTT.log").Split('#');
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
@@ -57,7 +59,7 @@ namespace Netch.Controllers
             }
             catch (Exception)
             {
-                Utils.Logging.Info("NTT 进程出错");
+                Logging.Info("NTT 进程出错");
                 Stop();
                 return (false, null, null, null);
             }
@@ -78,7 +80,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.ToString());
+                Logging.Info(e.ToString());
             }
         }
 

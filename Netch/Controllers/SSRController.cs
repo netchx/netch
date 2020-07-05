@@ -1,8 +1,10 @@
-﻿using Netch.Forms;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using Netch.Forms;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
@@ -16,7 +18,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Models.State State = Models.State.Waiting;
+        public State State = State.Waiting;
 
         /// <summary>
         ///		启动
@@ -24,9 +26,9 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Models.Server server, Models.Mode mode)
+        public bool Start(Server server, Mode mode)
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting ShadowsocksR")}");
+            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting ShadowsocksR")}");
 
             File.Delete("logging\\shadowsocksr.log");
 
@@ -69,7 +71,7 @@ namespace Netch.Controllers
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
-            State = Models.State.Starting;
+            State = State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
@@ -77,21 +79,21 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Models.State.Started)
+                if (State == State.Started)
                 {
                     return true;
                 }
 
-                if (State == Models.State.Stopped)
+                if (State == State.Stopped)
                 {
-                    Utils.Logging.Info("SSR 进程启动失败");
+                    Logging.Info("SSR 进程启动失败");
 
                     Stop();
                     return false;
                 }
             }
 
-            Utils.Logging.Info("SSR 进程启动超时");
+            Logging.Info("SSR 进程启动超时");
             Stop();
             return false;
         }
@@ -111,7 +113,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.ToString());
+                Logging.Info(e.ToString());
             }
         }
 
@@ -121,19 +123,19 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\shadowsocksr.log", $"{e.Data}\r\n");
 
-                if (State == Models.State.Starting)
+                if (State == State.Starting)
                 {
                     if (Instance.HasExited)
                     {
-                        State = Models.State.Stopped;
+                        State = State.Stopped;
                     }
                     else if (e.Data.Contains("listening at"))
                     {
-                        State = Models.State.Started;
+                        State = State.Started;
                     }
                     else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage"))
                     {
-                        State = Models.State.Stopped;
+                        State = State.Stopped;
                     }
                 }
             }

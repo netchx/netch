@@ -1,16 +1,18 @@
-﻿using Netch.Forms;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Netch.Forms;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
     public class MainController
     {
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
-        public static extern UInt32 FlushDNSResolverCache();
+        public static extern uint FlushDNSResolverCache();
         public static Process GetProcess()
         {
             var process = new Process();
@@ -72,7 +74,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Models.Server server, Models.Mode mode)
+        public bool Start(Server server, Mode mode)
         {
             FlushDNSResolverCache();
 
@@ -139,8 +141,8 @@ namespace Netch.Controllers
                     result = pNFController.Start(server, mode, false);
                     if (!result)
                     {
-                        MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Restarting Redirector")}");
-                        Utils.Logging.Info("正常启动失败后尝试停止驱动服务再重新启动");
+                        MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Restarting Redirector")}");
+                        Logging.Info("正常启动失败后尝试停止驱动服务再重新启动");
                         //正常启动失败后尝试停止驱动服务再重新启动
                         result = pNFController.Start(server, mode, true);
                     }
@@ -274,7 +276,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.Message);
+                Logging.Info(e.Message);
                 result = false;
             }
             return result;

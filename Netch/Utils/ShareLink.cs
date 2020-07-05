@@ -1,12 +1,14 @@
-﻿using Netch.Models;
-using Netch.Models.SS;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using Netch.Models;
+using Netch.Models.SS;
+using Netch.Models.SSD;
+using Newtonsoft.Json;
+using Server = Netch.Models.Server;
 
 namespace Netch.Utils
 {
@@ -36,9 +38,9 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="server">需要获取分享链接的服务器</param>
         /// <returns>解码后的字符串</returns>
-        public static string GetShareLink(Models.Server server)
+        public static string GetShareLink(Server server)
         {
-            string retLinkStr = "";
+            var retLinkStr = "";
             switch (server.Type)
             {
                 case "Socks5":
@@ -54,12 +56,12 @@ namespace Netch.Utils
                 case "SSR":
                     // https://github.com/shadowsocksr-backup/shadowsocks-rss/wiki/SSR-QRcode-scheme
                     // ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
-                    string paraStr = string.Format("/?obfsparam={0}&protoparam={1}&remarks={2}", URLSafeBase64Encode(server.OBFSParam), URLSafeBase64Encode(server.ProtocolParam), URLSafeBase64Encode(server.Remark));
+                    var paraStr = string.Format("/?obfsparam={0}&protoparam={1}&remarks={2}", URLSafeBase64Encode(server.OBFSParam), URLSafeBase64Encode(server.ProtocolParam), URLSafeBase64Encode(server.Remark));
                     retLinkStr = "ssr://" + URLSafeBase64Encode(string.Format("{0}:{1}:{2}:{3}:{4}:{5}{6}", server.Hostname, server.Port, server.Protocol, server.EncryptMethod, server.OBFS, URLSafeBase64Encode(server.Password), paraStr));
 
                     break;
                 case "VMess":
-                    string vmessJson = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                    var vmessJson = JsonConvert.SerializeObject(new
                     {
                         v = "2",
                         ps = server.Remark,
@@ -267,7 +269,7 @@ namespace Netch.Utils
                 }
                 else if (text.StartsWith("ssd://"))
                 {
-                    var json = JsonConvert.DeserializeObject<Models.SSD.Main>(URLSafeBase64Decode(text.Substring(6)));
+                    var json = JsonConvert.DeserializeObject<Main>(URLSafeBase64Decode(text.Substring(6)));
 
                     foreach (var server in json.servers)
                     {
@@ -495,10 +497,10 @@ namespace Netch.Utils
             }
 
             byte[] emoji_bytes = { 240, 159 };
-            foreach (Server node in list)
+            foreach (var node in list)
             {
                 var remark = Encoding.UTF8.GetBytes(node.Remark);
-                int start_index = 0;
+                var start_index = 0;
                 while (remark.Length > start_index + 1 && remark[start_index] == emoji_bytes[0] && remark[start_index + 1] == emoji_bytes[1])
                     start_index += 4;
                 node.Remark = Encoding.UTF8.GetString(remark.Skip(start_index).ToArray()).Trim();
@@ -512,7 +514,7 @@ namespace Netch.Utils
             {
                 return "";
             }
-            byte[] bytes = Convert.FromBase64String(value);
+            var bytes = Convert.FromBase64String(value);
             return Encoding.UTF8.GetString(bytes);
         }
         public static string ToBase64String(string value)
@@ -521,7 +523,7 @@ namespace Netch.Utils
             {
                 return "";
             }
-            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            var bytes = Encoding.UTF8.GetBytes(value);
             return Convert.ToBase64String(bytes);
         }
 
@@ -594,7 +596,7 @@ namespace Netch.Utils
             {
                 Server_Udp_Port = ushort.Parse(params_dict["udpport"]);
             }*/
-            Server server = new Server();
+            var server = new Server();
             server.Type = "SSR";
             server.Hostname = serverAddr;
             server.Port = Server_Port;

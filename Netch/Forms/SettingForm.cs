@@ -1,10 +1,8 @@
-﻿using Netch.Models.SSD;
-using System;
-using System.Globalization;
-using System.IO;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
-using System.Text;
 using System.Windows.Forms;
+using Netch.Utils;
 using TaskScheduler;
 
 namespace Netch.Forms
@@ -48,18 +46,18 @@ namespace Netch.Forms
 
         private void InitText()
         {
-            Text = Utils.i18N.Translate(Text);
-            PortGroupBox.Text = Utils.i18N.Translate(PortGroupBox.Text);
-            AllowDevicesCheckBox.Text = Utils.i18N.Translate(AllowDevicesCheckBox.Text);
-            TUNTAPAddressLabel.Text = Utils.i18N.Translate(TUNTAPAddressLabel.Text);
-            TUNTAPNetmaskLabel.Text = Utils.i18N.Translate(TUNTAPNetmaskLabel.Text);
-            TUNTAPGatewayLabel.Text = Utils.i18N.Translate(TUNTAPGatewayLabel.Text);
-            UseCustomDNSCheckBox.Text = Utils.i18N.Translate(UseCustomDNSCheckBox.Text);
-            ProxyDNSCheckBox.Text = Utils.i18N.Translate(ProxyDNSCheckBox.Text);
-            UseFakeDNSCheckBox.Text = Utils.i18N.Translate(UseFakeDNSCheckBox.Text);
-            GlobalBypassIPsButton.Text = Utils.i18N.Translate(GlobalBypassIPsButton.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
-            BootShadowsocksFromDLLCheckBox.Text = Utils.i18N.Translate(BootShadowsocksFromDLLCheckBox.Text);
+            Text = i18N.Translate(Text);
+            PortGroupBox.Text = i18N.Translate(PortGroupBox.Text);
+            AllowDevicesCheckBox.Text = i18N.Translate(AllowDevicesCheckBox.Text);
+            TUNTAPAddressLabel.Text = i18N.Translate(TUNTAPAddressLabel.Text);
+            TUNTAPNetmaskLabel.Text = i18N.Translate(TUNTAPNetmaskLabel.Text);
+            TUNTAPGatewayLabel.Text = i18N.Translate(TUNTAPGatewayLabel.Text);
+            UseCustomDNSCheckBox.Text = i18N.Translate(UseCustomDNSCheckBox.Text);
+            ProxyDNSCheckBox.Text = i18N.Translate(ProxyDNSCheckBox.Text);
+            UseFakeDNSCheckBox.Text = i18N.Translate(UseFakeDNSCheckBox.Text);
+            GlobalBypassIPsButton.Text = i18N.Translate(GlobalBypassIPsButton.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            BootShadowsocksFromDLLCheckBox.Text = i18N.Translate(BootShadowsocksFromDLLCheckBox.Text);
 
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
             StopWhenExitedCheckBox.Checked = Global.Settings.StopWhenExited;
@@ -83,30 +81,30 @@ namespace Netch.Forms
             ProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
             UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
-            BehaviorGroupBox.Text = Utils.i18N.Translate(BehaviorGroupBox.Text);
-            ExitWhenClosedCheckBox.Text = Utils.i18N.Translate(ExitWhenClosedCheckBox.Text);
-            StopWhenExitedCheckBox.Text = Utils.i18N.Translate(StopWhenExitedCheckBox.Text);
-            StartWhenOpenedCheckBox.Text = Utils.i18N.Translate(StartWhenOpenedCheckBox.Text);
-            MinimizeWhenStartedCheckBox.Text = Utils.i18N.Translate(MinimizeWhenStartedCheckBox.Text);
-            RunAtStartup.Text = Utils.i18N.Translate(RunAtStartup.Text);
-            CheckUpdateWhenOpenedCheckBox.Text = Utils.i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
-            ProfileCount_Label.Text = Utils.i18N.Translate(ProfileCount_Label.Text);
-            DelayTestAfterStartup_Label.Text = Utils.i18N.Translate(DelayTestAfterStartup_Label.Text);
-            EnableStartedTcping_CheckBox.Text = Utils.i18N.Translate(EnableStartedTcping_CheckBox.Text);
-            DetectionInterval_Label.Text = Utils.i18N.Translate(DetectionInterval_Label.Text);
-            DelayTestAfterStartup_Label.Text = Utils.i18N.Translate(DelayTestAfterStartup_Label.Text);
-            STUNServerLabel.Text = Utils.i18N.Translate(STUNServerLabel.Text);
-            STUNServerPortLabel.Text = Utils.i18N.Translate(STUNServerPortLabel.Text);
+            BehaviorGroupBox.Text = i18N.Translate(BehaviorGroupBox.Text);
+            ExitWhenClosedCheckBox.Text = i18N.Translate(ExitWhenClosedCheckBox.Text);
+            StopWhenExitedCheckBox.Text = i18N.Translate(StopWhenExitedCheckBox.Text);
+            StartWhenOpenedCheckBox.Text = i18N.Translate(StartWhenOpenedCheckBox.Text);
+            MinimizeWhenStartedCheckBox.Text = i18N.Translate(MinimizeWhenStartedCheckBox.Text);
+            RunAtStartup.Text = i18N.Translate(RunAtStartup.Text);
+            CheckUpdateWhenOpenedCheckBox.Text = i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
+            ProfileCount_Label.Text = i18N.Translate(ProfileCount_Label.Text);
+            DelayTestAfterStartup_Label.Text = i18N.Translate(DelayTestAfterStartup_Label.Text);
+            EnableStartedTcping_CheckBox.Text = i18N.Translate(EnableStartedTcping_CheckBox.Text);
+            DetectionInterval_Label.Text = i18N.Translate(DetectionInterval_Label.Text);
+            DelayTestAfterStartup_Label.Text = i18N.Translate(DelayTestAfterStartup_Label.Text);
+            STUNServerLabel.Text = i18N.Translate(STUNServerLabel.Text);
+            STUNServerPortLabel.Text = i18N.Translate(STUNServerPortLabel.Text);
 
             ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-            STUN_ServerTextBox.Text = Global.Settings.STUN_Server.ToString();
+            STUN_ServerTextBox.Text = Global.Settings.STUN_Server;
             STUN_ServerPortTextBox.Text = Global.Settings.STUN_Server_Port.ToString();
 
-            AclLabel.Text = Utils.i18N.Translate(AclLabel.Text);
-            AclAddr.Text = Global.Settings.ACL.ToString();
+            AclLabel.Text = i18N.Translate(AclLabel.Text);
+            AclAddr.Text = Global.Settings.ACL;
 
-            LanguageLabel.Text = Utils.i18N.Translate(LanguageLabel.Text);
-            LanguageComboBox.Items.AddRange(Utils.i18N.TranslatesList.ToArray());
+            LanguageLabel.Text = i18N.Translate(LanguageLabel.Text);
+            LanguageComboBox.Items.AddRange(i18N.TranslatesList.ToArray());
             LanguageComboBox.SelectedItem = Global.Settings.Language;
         }
 
@@ -176,10 +174,10 @@ namespace Netch.Forms
             Global.Settings.Language = LanguageComboBox.SelectedItem.ToString();
 
             // 开机自启判断
-            TaskSchedulerClass scheduler = new TaskSchedulerClass();
-            scheduler.Connect(null, null, null, null);
-            ITaskFolder folder = scheduler.GetFolder("\\");
-            bool taskIsExists = false;
+            var scheduler = new TaskSchedulerClass();
+            scheduler.Connect();
+            var folder = scheduler.GetFolder("\\");
+            var taskIsExists = false;
             try
             {
                 folder.GetTask("Netch Startup");
@@ -192,14 +190,14 @@ namespace Netch.Forms
                 if (taskIsExists)
                     folder.DeleteTask("Netch Startup", 0);
 
-                ITaskDefinition task = scheduler.NewTask(0);
+                var task = scheduler.NewTask(0);
                 task.RegistrationInfo.Author = "Netch";
                 task.RegistrationInfo.Description = "Netch run at startup.";
                 task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
 
                 task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
-                IExecAction action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
-                action.Path = System.Windows.Forms.Application.ExecutablePath;
+                var action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+                action.Path = Application.ExecutablePath;
 
 
                 task.Settings.ExecutionTimeLimit = "PT0S";
@@ -230,7 +228,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
-                MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -251,7 +249,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
-                MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -272,7 +270,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
-                MessageBox.Show(Utils.i18N.Translate("Port value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -292,7 +290,7 @@ namespace Netch.Forms
                 var Netmask = IPAddress.Parse(TUNTAPNetmaskTextBox.Text);
                 var Gateway = IPAddress.Parse(TUNTAPGatewayTextBox.Text);
 
-                var DNS = new System.Collections.Generic.List<IPAddress>();
+                var DNS = new List<IPAddress>();
                 foreach (var ip in TUNTAPDNSTextBox.Text.Split(','))
                 {
                     DNS.Add(IPAddress.Parse(ip));
@@ -300,7 +298,7 @@ namespace Netch.Forms
             }
             catch (FormatException)
             {
-                MessageBox.Show(Utils.i18N.Translate("IP address format illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("IP address format illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 TUNTAPAddressTextBox.Text = Global.Settings.TUNTAP.Address;
                 TUNTAPNetmaskTextBox.Text = Global.Settings.TUNTAP.Netmask;
@@ -334,7 +332,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(Utils.i18N.Translate("ProfileCount value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("ProfileCount value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -357,7 +355,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(Utils.i18N.Translate("STUN_ServerPort value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("STUN_ServerPort value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -379,7 +377,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(Utils.i18N.Translate("Detection interval value illegal. Try again."), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Detection interval value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 return;
             }
@@ -400,8 +398,8 @@ namespace Netch.Forms
             Global.Settings.TUNTAP.ProxyDNS = ProxyDNSCheckBox.Checked;
             Global.Settings.TUNTAP.UseFakeDNS = UseFakeDNSCheckBox.Checked;
 
-            Utils.Configuration.Save();
-            MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Configuration.Save();
+            MessageBox.Show(i18N.Translate("Saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
     }

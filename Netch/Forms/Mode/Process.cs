@@ -1,16 +1,18 @@
-﻿using Microsoft.WindowsAPICodePack.Dialogs;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using Netch.Utils;
 
 namespace Netch.Forms.Mode
 {
     public partial class Process : Form
     {
         //用于判断当前窗口是否为编辑模式
-        private Boolean EditMode = false;
+        private bool EditMode;
         //被编辑模式坐标
-        private Models.Mode EditMode_Old = null;
+        private Models.Mode EditMode_Old;
         /// <summary>
 		///		编辑模式
 		/// </summary>
@@ -23,7 +25,7 @@ namespace Netch.Forms.Mode
             CheckForIllegalCrossThreadCalls = false;
 
             EditMode_Old = mode;
-            this.Text = "Edit Process Mode";
+            Text = "Edit Process Mode";
             //循环填充已有规则
             mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
 
@@ -67,7 +69,7 @@ namespace Netch.Forms.Mode
                 return;
             }
 
-            var DirStack = new System.Collections.Generic.Stack<string>();
+            var DirStack = new Stack<string>();
             DirStack.Push(DirName);
 
             while (DirStack.Count > 0)
@@ -89,16 +91,16 @@ namespace Netch.Forms.Mode
 
         private void ModeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate(Text);
-            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
-            FilenameLabel.Text = Utils.i18N.Translate(FilenameLabel.Text);
-            UseCustomFilenameBox.Text = Utils.i18N.Translate(UseCustomFilenameBox.Text);
-            StaySameButton.Text = Utils.i18N.Translate(StaySameButton.Text);
-            TimeDataButton.Text = Utils.i18N.Translate(TimeDataButton.Text);
-            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
-            ScanButton.Text = Utils.i18N.Translate(ScanButton.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            Text = i18N.Translate(Text);
+            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
+            FilenameLabel.Text = i18N.Translate(FilenameLabel.Text);
+            UseCustomFilenameBox.Text = i18N.Translate(UseCustomFilenameBox.Text);
+            StaySameButton.Text = i18N.Translate(StaySameButton.Text);
+            TimeDataButton.Text = i18N.Translate(TimeDataButton.Text);
+            AddButton.Text = i18N.Translate(AddButton.Text);
+            ScanButton.Text = i18N.Translate(ScanButton.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
 
             if (Global.Settings.ModeFileNameType == 0)
             {
@@ -130,12 +132,12 @@ namespace Netch.Forms.Mode
         /// </summary>
         private void RuleListBox_MouseUp(object sender, MouseEventArgs e)
         {
-            ContextMenuStrip strip = new ContextMenuStrip();
-            strip.Items.Add(Utils.i18N.Translate("Delete"));
+            var strip = new ContextMenuStrip();
+            strip.Items.Add(i18N.Translate("Delete"));
             if (e.Button == MouseButtons.Right)
             {
-                strip.Show(this.RuleListBox, e.Location);//鼠标右键按下弹出菜单
-                strip.MouseClick += new MouseEventHandler(deleteRule_Click);
+                strip.Show(RuleListBox, e.Location);//鼠标右键按下弹出菜单
+                strip.MouseClick += deleteRule_Click;
             }
         }
         void deleteRule_Click(object sender, EventArgs e)
@@ -165,7 +167,7 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please enter an process name (xxx.exe)"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please enter an process name (xxx.exe)"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -175,7 +177,7 @@ namespace Netch.Forms.Mode
             {
                 IsFolderPicker = true,
                 Multiselect = false,
-                Title = Utils.i18N.Translate("Select a folder"),
+                Title = i18N.Translate("Select a folder"),
                 AddToMostRecentlyUsedList = false,
                 EnsurePathExists = true,
                 NavigateToShortcut = true
@@ -183,7 +185,7 @@ namespace Netch.Forms.Mode
             if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
-                MessageBox.Show(Utils.i18N.Translate("Scan completed"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Scan completed"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -220,14 +222,14 @@ namespace Netch.Forms.Mode
 
                     File.WriteAllText(Path.Combine("mode", FilenameTextBox.Text) + ".txt", text);
 
-                    MessageBox.Show(Utils.i18N.Translate("Mode updated successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Mode updated successfully"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     Global.MainForm.UpdateMode(mode, EditMode_Old);
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Unable to add empty rule"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Unable to add empty rule"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else
@@ -250,13 +252,13 @@ namespace Netch.Forms.Mode
                     FilenameTextBox.Text = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
                 }
 
-                Utils.Configuration.Save();
+                Configuration.Save();
 
                 if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
                 {
                     if (Global.Settings.ModeFileNameType == 0 && string.IsNullOrWhiteSpace(FilenameTextBox.Text))
                     {
-                        MessageBox.Show(Utils.i18N.Translate("Please enter a mode filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(i18N.Translate("Please enter a mode filename"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
                     var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
@@ -264,7 +266,7 @@ namespace Netch.Forms.Mode
                     // 如果文件已存在，返回
                     if (File.Exists(ModeFilename + ".txt"))
                     {
-                        MessageBox.Show(Utils.i18N.Translate("File already exists.\n Please Change the filename"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(i18N.Translate("File already exists.\n Please Change the filename"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                         return;
                     }
 
@@ -295,19 +297,19 @@ namespace Netch.Forms.Mode
 
                         File.WriteAllText(ModeFilename + ".txt", text);
 
-                        MessageBox.Show(Utils.i18N.Translate("Mode added successfully"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(i18N.Translate("Mode added successfully"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                         Global.MainForm.AddMode(mode);
                         Close();
                     }
                     else
                     {
-                        MessageBox.Show(Utils.i18N.Translate("Unable to add empty rule"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(i18N.Translate("Unable to add empty rule"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please enter a mode remark"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please enter a mode remark"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }

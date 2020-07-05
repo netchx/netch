@@ -6,6 +6,8 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
+using Netch.Models;
+using Newtonsoft.Json;
 
 namespace Netch.Utils
 {
@@ -30,13 +32,13 @@ namespace Netch.Utils
             {
                 try
                 {
-                    Global.Settings = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Setting>(File.ReadAllText(SETTINGS_JSON));
+                    Global.Settings = JsonConvert.DeserializeObject<Setting>(File.ReadAllText(SETTINGS_JSON));
                     if (Global.Settings.Server != null && Global.Settings.Server.Count > 0)
                     {
                         // 如果是旧版 Server 类，使用旧版 Server 类进行读取
                         if (Global.Settings.Server[0].Hostname == null)
                         {
-                            var LegacySettingConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.LegacySetting>(File.ReadAllText(SETTINGS_JSON));
+                            var LegacySettingConfig = JsonConvert.DeserializeObject<LegacySetting>(File.ReadAllText(SETTINGS_JSON));
                             for (var i = 0; i < LegacySettingConfig.Server.Count; i++)
                             {
                                 Global.Settings.Server[i].Hostname = LegacySettingConfig.Server[i].Address;
@@ -59,7 +61,7 @@ namespace Netch.Utils
                     }
                 }
 
-                catch (Newtonsoft.Json.JsonException)
+                catch (JsonException)
                 {
 
                 }
@@ -84,7 +86,7 @@ namespace Netch.Utils
             {
                 Directory.CreateDirectory(DATA_DIR);
             }
-            File.WriteAllText(SETTINGS_JSON, Newtonsoft.Json.JsonConvert.SerializeObject(Global.Settings, Newtonsoft.Json.Formatting.Indented));
+            File.WriteAllText(SETTINGS_JSON, JsonConvert.SerializeObject(Global.Settings, Formatting.Indented));
         }
 
         /// <summary>
@@ -200,7 +202,7 @@ namespace Netch.Utils
         {
             Logging.Info("正在安装 TUN/TAP 适配器");
             //安装Tap Driver
-            Process installProcess = new Process();
+            var installProcess = new Process();
             installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "addtap.bat");
             installProcess.Start();
@@ -213,7 +215,7 @@ namespace Netch.Utils
         public static void deltapall()
         {
             Logging.Info("正在卸载 TUN/TAP 适配器");
-            Process installProcess = new Process();
+            var installProcess = new Process();
             installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "deltapall.bat");
             installProcess.Start();

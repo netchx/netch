@@ -1,8 +1,8 @@
-﻿using Netch.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -38,16 +38,16 @@ namespace Netch.Forms
 
         private void SubscribeForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate(Text);
-            RemarkColumnHeader.Text = Utils.i18N.Translate(RemarkColumnHeader.Text);
-            LinkColumnHeader.Text = Utils.i18N.Translate(LinkColumnHeader.Text);
-            UseSelectedServerCheckBox.Text = Utils.i18N.Translate(UseSelectedServerCheckBox.Text);
-            DeleteToolStripMenuItem.Text = Utils.i18N.Translate(DeleteToolStripMenuItem.Text);
-            CopyLinkToolStripMenuItem.Text = Utils.i18N.Translate(CopyLinkToolStripMenuItem.Text);
-            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
-            LinkLabel.Text = Utils.i18N.Translate(LinkLabel.Text);
-            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            Text = i18N.Translate(Text);
+            RemarkColumnHeader.Text = i18N.Translate(RemarkColumnHeader.Text);
+            LinkColumnHeader.Text = i18N.Translate(LinkColumnHeader.Text);
+            UseSelectedServerCheckBox.Text = i18N.Translate(UseSelectedServerCheckBox.Text);
+            DeleteToolStripMenuItem.Text = i18N.Translate(DeleteToolStripMenuItem.Text);
+            CopyLinkToolStripMenuItem.Text = i18N.Translate(CopyLinkToolStripMenuItem.Text);
+            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
+            LinkLabel.Text = i18N.Translate(LinkLabel.Text);
+            AddButton.Text = i18N.Translate(AddButton.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
 
             UserAgentTextBox.Text = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
 
@@ -83,7 +83,7 @@ namespace Netch.Forms
         }
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(Utils.i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), Utils.i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+            if (MessageBox.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
             {
                 if (SubscribeLinkListView.SelectedItems.Count > 0)
                 {
@@ -128,14 +128,14 @@ namespace Netch.Forms
                     {
                         //是否为新增订阅
                         var saveFlag = true;
-                        Global.Settings.SubscribeLink.ForEach((subitem) =>
+                        Global.Settings.SubscribeLink.ForEach(subitem =>
                         {
                             if (subitem.Link.Equals(LinkTextBox.Text))
                             {
                                 if (!subitem.Remark.Equals(RemarkTextBox.Text))
                                 {
                                     //修改了订阅备注，修改旧订阅服务器
-                                    Global.Settings.Server.ForEach((serverItem) =>
+                                    Global.Settings.Server.ForEach(serverItem =>
                                     {
                                         try
                                         {
@@ -159,16 +159,14 @@ namespace Netch.Forms
                                 subitem.UserAgent = UserAgentTextBox.Text;
                                 saveFlag = false;
 
-                                Utils.Configuration.Save();
+                                Configuration.Save();
                                 Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-                                MessageBox.Show(Utils.i18N.Translate("Successfully saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                return;
+                                MessageBox.Show(i18N.Translate("Successfully saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                             }
                         });
                         if (saveFlag)
                         {
-                            Global.Settings.SubscribeLink.Add(new Models.SubscribeLink
+                            Global.Settings.SubscribeLink.Add(new SubscribeLink
                             {
                                 Remark = RemarkTextBox.Text,
                                 Link = LinkTextBox.Text,
@@ -184,25 +182,25 @@ namespace Netch.Forms
                     }
                     else
                     {
-                        MessageBox.Show(Utils.i18N.Translate("Links must start with http:// or https://"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(i18N.Translate("Links must start with http:// or https://"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Link can not be empty"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Link can not be empty"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Remark can not be empty"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Remark can not be empty"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            Utils.Configuration.Save();
+            Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-            MessageBox.Show(Utils.i18N.Translate("Successfully saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(i18N.Translate("Successfully saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             Close();
         }
         /// <summary>
