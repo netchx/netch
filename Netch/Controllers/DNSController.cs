@@ -19,7 +19,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public bool Start()
         {
-            MainForm.Instance.StatusText($"{i18N.Translate("Starting dns Service")}");
+            MainForm.Instance.StatusText(i18N.Translate("Starting dns Service"));
             try
             {
                 if (!File.Exists("bin\\unbound.exe") && !File.Exists("bin\\unbound-service.conf") && !File.Exists("bin\\forward-zone.conf"))

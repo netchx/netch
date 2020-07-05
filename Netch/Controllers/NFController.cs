@@ -48,7 +48,7 @@ namespace Netch.Controllers
         public bool Start(Server server, Mode mode, bool StopServiceAndRestart)
         {
             if (!StopServiceAndRestart)
-                MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting Redirector")}");
+                MainForm.Instance.StatusText(i18N.Translate("Starting Redirector"));
 
             if (!File.Exists("bin\\Redirector.exe"))
             {
@@ -130,12 +130,12 @@ namespace Netch.Controllers
                     // 防止其他程序占用 重置 NF 百万连接数限制
                     service.Stop();
                     service.WaitForStatus(ServiceControllerStatus.Stopped);
-                    MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting netfilter2 Service")}");
+                    MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
                     service.Start();
                 }
                 else if (service.Status == ServiceControllerStatus.Stopped)
                 {
-                    MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting netfilter2 Service")}");
+                    MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
                     service.Start();
                 }
             }
@@ -267,7 +267,7 @@ namespace Netch.Controllers
                 Logging.Info(e.ToString());
                 return false;
             }
-            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Register driver")}");
+            MainForm.Instance.StatusText(i18N.Translate("Register driver"));
             // 注册驱动文件
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result != NF_STATUS.NF_STATUS_SUCCESS)
