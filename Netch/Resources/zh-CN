@@ -24,7 +24,7 @@
     "Starting NatTester": "正在启动 NAT 测试",
     "Starting LocalDns service": "正在启动本地 DNS 服务",
     "Starting Redirector": "正在启动 Redirector",
-    "ReStarting Redirector": "正常启动失败，正在尝试重新启动 Redirector",
+    "Restarting Redirector": "正常启动失败，正在尝试重新启动 Redirector",
     "Starting netfilter2 Service": "正在启动 netfilter2 服务",
     "Starting dns Service": "正在启动 DNS 服务",
     "SetupBypass": "设置绕行规则",

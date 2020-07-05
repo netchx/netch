@@ -42,18 +42,17 @@ namespace Netch.Forms
             this.AddTrojanServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RestartServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.OpenDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateACLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updateACLWithProxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reinstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.OpenDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -67,9 +66,9 @@ namespace Netch.Forms
             this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.EditPictureBox = new System.Windows.Forms.PictureBox();
+            this.EditServerPictureBox = new System.Windows.Forms.PictureBox();
             this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
-            this.DeletePictureBox = new System.Windows.Forms.PictureBox();
+            this.DeleteServerPictureBox = new System.Windows.Forms.PictureBox();
             this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.EditModePictureBox = new System.Windows.Forms.PictureBox();
@@ -92,9 +91,9 @@ namespace Netch.Forms
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).BeginInit();
@@ -182,7 +181,8 @@ namespace Netch.Forms
             // ModeToolStripMenuItem
             // 
             this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CreateProcessModeToolStripMenuItem});
+            this.CreateProcessModeToolStripMenuItem,
+            this.ReloadModesToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
             this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
@@ -194,6 +194,13 @@ namespace Netch.Forms
             this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
             this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
+            // 
+            // ReloadModesToolStripMenuItem
+            // 
+            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
+            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // SubscribeToolStripMenuItem
             // 
@@ -222,39 +229,23 @@ namespace Netch.Forms
             // OptionsToolStripMenuItem
             // 
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ReloadModesToolStripMenuItem,
-            this.RestartServiceToolStripMenuItem,
-            this.UninstallServiceToolStripMenuItem,
+            this.OpenDirectoryToolStripMenuItem,
             this.CleanDNSCacheToolStripMenuItem,
             this.UpdateACLToolStripMenuItem,
             this.updateACLWithProxyToolStripMenuItem,
-            this.reinstallTapDriverToolStripMenuItem,
-            this.OpenDirectoryToolStripMenuItem});
+            this.UninstallServiceToolStripMenuItem,
+            this.reinstallTapDriverToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
             this.OptionsToolStripMenuItem.Text = "Options";
             // 
-            // ReloadModesToolStripMenuItem
+            // OpenDirectoryToolStripMenuItem
             // 
-            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
-            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
-            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
-            // 
-            // RestartServiceToolStripMenuItem
-            // 
-            this.RestartServiceToolStripMenuItem.Name = "RestartServiceToolStripMenuItem";
-            this.RestartServiceToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
-            this.RestartServiceToolStripMenuItem.Text = "Restart Service";
-            this.RestartServiceToolStripMenuItem.Click += new System.EventHandler(this.RestartServiceToolStripMenuItem_Click);
-            // 
-            // UninstallServiceToolStripMenuItem
-            // 
-            this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
-            this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
-            this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
+            this.OpenDirectoryToolStripMenuItem.Name = "OpenDirectoryToolStripMenuItem";
+            this.OpenDirectoryToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
+            this.OpenDirectoryToolStripMenuItem.Text = "Open Directory";
+            this.OpenDirectoryToolStripMenuItem.Click += new System.EventHandler(this.OpenDirectoryToolStripMenuItem_Click);
             // 
             // CleanDNSCacheToolStripMenuItem
             // 
@@ -277,19 +268,19 @@ namespace Netch.Forms
             this.updateACLWithProxyToolStripMenuItem.Text = "Update ACL with proxy";
             this.updateACLWithProxyToolStripMenuItem.Click += new System.EventHandler(this.updateACLWithProxyToolStripMenuItem_Click);
             // 
+            // UninstallServiceToolStripMenuItem
+            // 
+            this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
+            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
+            this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
+            this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
+            // 
             // reinstallTapDriverToolStripMenuItem
             // 
             this.reinstallTapDriverToolStripMenuItem.Name = "reinstallTapDriverToolStripMenuItem";
             this.reinstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
             this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall TUN/TAP driver";
             this.reinstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
-            // 
-            // OpenDirectoryToolStripMenuItem
-            // 
-            this.OpenDirectoryToolStripMenuItem.Name = "OpenDirectoryToolStripMenuItem";
-            this.OpenDirectoryToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
-            this.OpenDirectoryToolStripMenuItem.Text = "Open Directory";
-            this.OpenDirectoryToolStripMenuItem.Click += new System.EventHandler(this.OpenDirectoryToolStripMenuItem_Click);
             // 
             // AboutToolStripButton
             // 
@@ -318,7 +309,7 @@ namespace Netch.Forms
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripButton_Click);
             // 
             // RelyToolStripMenuItem
             // 
@@ -435,9 +426,9 @@ namespace Netch.Forms
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.Controls.Add(this.EditPictureBox, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.EditServerPictureBox, 0, 0);
             this.tableLayoutPanel2.Controls.Add(this.CopyLinkPictureBox, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.DeletePictureBox, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.DeleteServerPictureBox, 1, 0);
             this.tableLayoutPanel2.Controls.Add(this.SpeedPictureBox, 2, 0);
             this.tableLayoutPanel2.Location = new System.Drawing.Point(606, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -446,16 +437,17 @@ namespace Netch.Forms
             this.tableLayoutPanel2.Size = new System.Drawing.Size(94, 24);
             this.tableLayoutPanel2.TabIndex = 12;
             // 
-            // EditPictureBox
+            // EditServerPictureBox
             // 
-            this.EditPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("EditPictureBox.Image")));
-            this.EditPictureBox.Location = new System.Drawing.Point(3, 3);
-            this.EditPictureBox.Name = "EditPictureBox";
-            this.EditPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditPictureBox.TabIndex = 7;
-            this.EditPictureBox.TabStop = false;
-            this.EditPictureBox.Click += new System.EventHandler(this.EditPictureBox_Click);
+            this.EditServerPictureBox.BackColor = System.Drawing.SystemColors.Control;
+            this.EditServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.EditServerPictureBox.Image = global::Netch.Properties.Resources.edit;
+            this.EditServerPictureBox.Location = new System.Drawing.Point(3, 3);
+            this.EditServerPictureBox.Name = "EditServerPictureBox";
+            this.EditServerPictureBox.Size = new System.Drawing.Size(16, 16);
+            this.EditServerPictureBox.TabIndex = 7;
+            this.EditServerPictureBox.TabStop = false;
+            this.EditServerPictureBox.Click += new System.EventHandler(this.EditServerPictureBox_Click);
             // 
             // CopyLinkPictureBox
             // 
@@ -468,21 +460,21 @@ namespace Netch.Forms
             this.CopyLinkPictureBox.TabStop = false;
             this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
             // 
-            // DeletePictureBox
+            // DeleteServerPictureBox
             // 
-            this.DeletePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeletePictureBox.Image = ((System.Drawing.Image)(resources.GetObject("DeletePictureBox.Image")));
-            this.DeletePictureBox.Location = new System.Drawing.Point(26, 3);
-            this.DeletePictureBox.Name = "DeletePictureBox";
-            this.DeletePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeletePictureBox.TabIndex = 8;
-            this.DeletePictureBox.TabStop = false;
-            this.DeletePictureBox.Click += new System.EventHandler(this.DeletePictureBox_Click);
+            this.DeleteServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.DeleteServerPictureBox.Image = global::Netch.Properties.Resources.delete;
+            this.DeleteServerPictureBox.Location = new System.Drawing.Point(26, 3);
+            this.DeleteServerPictureBox.Name = "DeleteServerPictureBox";
+            this.DeleteServerPictureBox.Size = new System.Drawing.Size(16, 16);
+            this.DeleteServerPictureBox.TabIndex = 8;
+            this.DeleteServerPictureBox.TabStop = false;
+            this.DeleteServerPictureBox.Click += new System.EventHandler(this.DeleteServerPictureBox_Click);
             // 
             // SpeedPictureBox
             // 
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Image = ((System.Drawing.Image)(resources.GetObject("SpeedPictureBox.Image")));
+            this.SpeedPictureBox.Image = global::Netch.Properties.Resources.speed;
             this.SpeedPictureBox.Location = new System.Drawing.Point(49, 3);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
             this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
@@ -509,9 +501,7 @@ namespace Netch.Forms
             // EditModePictureBox
             // 
             this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditModePictureBox.ErrorImage = global::Netch.Properties.Resources.edit;
             this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.InitialImage = global::Netch.Properties.Resources.edit;
             this.EditModePictureBox.Location = new System.Drawing.Point(3, 3);
             this.EditModePictureBox.Name = "EditModePictureBox";
             this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
@@ -576,7 +566,8 @@ namespace Netch.Forms
             // NatTypeStatusLabel
             // 
             this.NatTypeStatusLabel.Name = "NatTypeStatusLabel";
-            this.NatTypeStatusLabel.Size = new System.Drawing.Size(0, 17);
+            this.NatTypeStatusLabel.Size = new System.Drawing.Size(36, 17);
+            this.NatTypeStatusLabel.Text = "NAT:";
             // 
             // ControlButton
             // 
@@ -686,9 +677,9 @@ namespace Netch.Forms
             this.configLayoutPanel.ResumeLayout(false);
             this.configLayoutPanel.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.EditPictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeletePictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
@@ -703,63 +694,62 @@ namespace Netch.Forms
 
         }
 
-        #endregion
-
-        private System.Windows.Forms.MenuStrip MenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem SubscribeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripLabel VersionLabel;
-        private System.Windows.Forms.GroupBox ConfigurationGroupBox;
-        private System.Windows.Forms.Label ServerLabel;
-        private System.Windows.Forms.Label ModeLabel;
-        private System.Windows.Forms.SearchComboBox ModeComboBox;
-        private System.Windows.Forms.ComboBox ServerComboBox;
-        private System.Windows.Forms.StatusStrip StatusStrip;
-        private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
-        private System.Windows.Forms.Button ControlButton;
-        private System.Windows.Forms.ToolStripMenuItem AddSocks5ServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddShadowsocksServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripButton AboutToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem AddShadowsocksRServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AddShadowsocksServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AddSocks5ServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AddTrojanServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AddVMessServerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
+        private System.Windows.Forms.TableLayoutPanel configLayoutPanel;
+        private System.Windows.Forms.GroupBox ConfigurationGroupBox;
+        private System.Windows.Forms.Button ControlButton;
+        private System.Windows.Forms.PictureBox CopyLinkPictureBox;
+        private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
+        private System.Windows.Forms.PictureBox DeleteModePictureBox;
+        private System.Windows.Forms.PictureBox DeleteServerPictureBox;
+        private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
+        private System.Windows.Forms.PictureBox EditModePictureBox;
+        private System.Windows.Forms.PictureBox EditServerPictureBox;
+        private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;
-        private System.Windows.Forms.PictureBox SpeedPictureBox;
-        private System.Windows.Forms.PictureBox DeletePictureBox;
-        private System.Windows.Forms.PictureBox EditPictureBox;
-        private System.Windows.Forms.ToolStripMenuItem RestartServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem OptionsToolStripMenuItem;
+        private System.Windows.Forms.MenuStrip MenuStrip;
+        private System.Windows.Forms.SearchComboBox ModeComboBox;
+        private System.Windows.Forms.Label ModeLabel;
         private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLabel;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.ContextMenuStrip NotifyMenu;
-        private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;
-        private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
-        private System.Windows.Forms.Button SettingsButton;
-        private System.Windows.Forms.ToolStripButton AboutToolStripButton;
-        private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
-        private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
-        private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
-        private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem OpenDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem OptionsToolStripMenuItem;
+        private System.Windows.Forms.GroupBox ProfileGroupBox;
         private System.Windows.Forms.Label ProfileLabel;
         private System.Windows.Forms.TextBox ProfileNameText;
-        private System.Windows.Forms.GroupBox ProfileGroupBox;
         private System.Windows.Forms.TableLayoutPanel ProfileTable;
-        private System.Windows.Forms.PictureBox EditModePictureBox;
-        private System.Windows.Forms.PictureBox DeleteModePictureBox;
-        private System.Windows.Forms.PictureBox CopyLinkPictureBox;
-        private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLabel;
-        private System.Windows.Forms.TableLayoutPanel configLayoutPanel;
+        private System.Windows.Forms.ToolStripMenuItem reinstallTapDriverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RelyToolStripMenuItem;
+        private System.Windows.Forms.ComboBox ServerComboBox;
+        private System.Windows.Forms.Label ServerLabel;
+        private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
+        private System.Windows.Forms.Button SettingsButton;
+        private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;
+        private System.Windows.Forms.PictureBox SpeedPictureBox;
+        private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
+        private System.Windows.Forms.StatusStrip StatusStrip;
+        private System.Windows.Forms.ToolStripMenuItem SubscribeToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
+        private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UpdateACLToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem updateACLWithProxyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem reinstallTapDriverToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddTrojanServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem RelyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem OpenDirectoryToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
+        private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
+        private System.Windows.Forms.ToolStripLabel VersionLabel;
+
+        #endregion
     }
 }
