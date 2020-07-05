@@ -1,19 +1,18 @@
-﻿using Microsoft.Diagnostics.Tracing.Parsers;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
 using Netch.Forms;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+using Netch.Models;
 
 namespace Netch.Utils
 {
     public static class Bandwidth
     {
-        public static int received = 0;
+        public static int received;
 
         /// <summary>
 		///     计算流量
@@ -36,20 +35,20 @@ namespace Netch.Utils
                 result = 0;
             }
 
-            return string.Format("{0} {1}", System.Math.Round(result, 2), units[i]);
+            return string.Format("{0} {1}", Math.Round(result, 2), units[i]);
         }
 
         /// <summary>
         /// 根据程序名统计流量
         /// </summary>
         /// <param name="ProcessName"></param>
-        public static void NetTraffic(Models.Server server, Models.Mode mode, MainController mainController)
+        public static void NetTraffic(Server server, Mode mode, MainController mainController)
         {
             var counterLock = new object();
             //int sent = 0;
 
             //var processList = Process.GetProcessesByName(ProcessName).Select(p => p.Id).ToHashSet();
-            List<int> processList = new List<int>();
+            var processList = new List<int>();
 
             if (server.Type.Equals("Socks5") && mainController.pHTTPController != null)
             {
@@ -121,7 +120,7 @@ namespace Netch.Utils
                 MainForm.Instance.OnBandwidthUpdated(0);
                 received = 0;
             }
-            while (MainForm.Instance.State != Models.State.Stopped)
+            while (MainForm.Instance.State != State.Stopped)
             {
                 Task.Delay(1000).Wait();
                 lock (counterLock)

@@ -1,7 +1,9 @@
-﻿using Netch.Utils;
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
@@ -21,7 +23,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Models.Server server, Models.Mode mode)
+        public bool Start(Server server, Mode mode)
         {
             try
             {
@@ -60,11 +62,11 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                if (System.Windows.Forms.MessageBox.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                if (MessageBox.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
-                    System.Diagnostics.Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
+                    Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
                 }
-                Utils.Logging.Info("设置系统代理失败" + e.ToString());
+                Logging.Info("设置系统代理失败" + e);
                 return false;
             }
 
@@ -103,7 +105,7 @@ namespace Netch.Controllers
                 }
                 catch (Exception e)
                 {
-                    Utils.Logging.Info(e.ToString());
+                    Logging.Info(e.ToString());
                 }
 
                 NativeMethods.SetGlobal(prevHTTP, prevBypass);
@@ -127,7 +129,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.ToString());
+                Logging.Info(e.ToString());
             }
         }
     }

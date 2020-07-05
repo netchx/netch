@@ -1,16 +1,23 @@
-using Microsoft.Win32;
-using Netch.Controllers;
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
+using Netch.Controllers;
+using Netch.Forms.Mode;
+using Netch.Forms.Server;
+using Netch.Models;
+using Netch.Utils;
+using nfapinet;
+using Trojan = Netch.Forms.Server.Trojan;
+using VMess = Netch.Forms.Server.VMess;
+using WebClient = Netch.Override.WebClient;
 
 namespace Netch.Forms
 {
@@ -19,7 +26,7 @@ namespace Netch.Forms
         /// <summary>
         ///     当前状态
         /// </summary>
-        public Models.State State = Models.State.Waiting;
+        public State State = State.Waiting;
 
         /// <summary>
         ///     主控制器
@@ -46,7 +53,7 @@ namespace Netch.Forms
         /// <summary>
         /// 主窗体的静态实例
         /// </summary>
-        public static MainForm Instance = null;
+        public static MainForm Instance;
 
 
         public MainForm()
@@ -54,7 +61,7 @@ namespace Netch.Forms
             InitializeComponent();
 
             // 监听电源事件
-            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(SystemEvents_PowerModeChanged);
+            SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
             CheckForIllegalCrossThreadCalls = false;
             // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
@@ -68,7 +75,7 @@ namespace Netch.Forms
         void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             //不对Netch命令等待状态的电源事件做任何处理
-            if (!State.Equals(Models.State.Waiting))
+            if (!State.Equals(State.Waiting))
             {
                 switch (e.Mode)
                 {
@@ -91,7 +98,7 @@ namespace Netch.Forms
             {
                 NotifyIcon.ShowBalloonTip(5,
                 UpdateChecker.Name,
-                $"{Utils.i18N.Translate(@"New version available")}{Utils.i18N.Translate(@": ")}{updater.LatestVersionNumber}",
+                $"{i18N.Translate(@"New version available")}{i18N.Translate(@": ")}{updater.LatestVersionNumber}",
                 ToolTipIcon.Info);
             };
             updater.Check(false, false);
@@ -132,51 +139,51 @@ namespace Netch.Forms
 
         public void InitText(bool isStarted)
         {
-            ServerToolStripMenuItem.Text = Utils.i18N.Translate("Server");
-            ImportServersFromClipboardToolStripMenuItem.Text = Utils.i18N.Translate("Import Servers From Clipboard");
-            AddSocks5ServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Socks5] Server");
-            AddShadowsocksServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Shadowsocks] Server");
-            AddShadowsocksRServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [ShadowsocksR] Server");
-            AddVMessServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [VMess] Server");
-            AddTrojanServerToolStripMenuItem.Text = Utils.i18N.Translate("Add [Trojan] Server");
-            ModeToolStripMenuItem.Text = Utils.i18N.Translate("Mode");
-            CreateProcessModeToolStripMenuItem.Text = Utils.i18N.Translate("Create Process Mode");
-            SubscribeToolStripMenuItem.Text = Utils.i18N.Translate("Subscribe");
-            ManageSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Manage Subscribe Links");
-            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = Utils.i18N.Translate("Update Servers From Subscribe Links");
-            OptionsToolStripMenuItem.Text = Utils.i18N.Translate("Options");
-            ReloadModesToolStripMenuItem.Text = Utils.i18N.Translate("Reload Modes");
-            RestartServiceToolStripMenuItem.Text = Utils.i18N.Translate("Restart Service");
-            UninstallServiceToolStripMenuItem.Text = Utils.i18N.Translate("Uninstall Service");
-            CleanDNSCacheToolStripMenuItem.Text = Utils.i18N.Translate("Clean DNS Cache");
-            UpdateACLToolStripMenuItem.Text = Utils.i18N.Translate("Update ACL");
-            updateACLWithProxyToolStripMenuItem.Text = Utils.i18N.Translate("Update ACL with proxy");
-            reinstallTapDriverToolStripMenuItem.Text = Utils.i18N.Translate("Reinstall TUN/TAP driver");
-            OpenDirectoryToolStripMenuItem.Text = Utils.i18N.Translate("Open Directory");
-            AboutToolStripButton.Text = Utils.i18N.Translate("About");
-            VersionLabel.Text = Utils.i18N.Translate("xxx");
-            exitToolStripMenuItem.Text = Utils.i18N.Translate("Exit");
-            RelyToolStripMenuItem.Text = Utils.i18N.Translate("Unable to start? Click me to download");
-            ConfigurationGroupBox.Text = Utils.i18N.Translate("Configuration");
-            ProfileLabel.Text = Utils.i18N.Translate("Profile");
-            ModeLabel.Text = Utils.i18N.Translate("Mode");
-            ServerLabel.Text = Utils.i18N.Translate("Server");
-            UsedBandwidthLabel.Text = Utils.i18N.Translate("Used: 0 KB");
-            DownloadSpeedLabel.Text = Utils.i18N.Translate("↓: 0 KB/s");
-            UploadSpeedLabel.Text = Utils.i18N.Translate("↑: 0 KB/s");
+            ServerToolStripMenuItem.Text = i18N.Translate("Server");
+            ImportServersFromClipboardToolStripMenuItem.Text = i18N.Translate("Import Servers From Clipboard");
+            AddSocks5ServerToolStripMenuItem.Text = i18N.Translate("Add [Socks5] Server");
+            AddShadowsocksServerToolStripMenuItem.Text = i18N.Translate("Add [Shadowsocks] Server");
+            AddShadowsocksRServerToolStripMenuItem.Text = i18N.Translate("Add [ShadowsocksR] Server");
+            AddVMessServerToolStripMenuItem.Text = i18N.Translate("Add [VMess] Server");
+            AddTrojanServerToolStripMenuItem.Text = i18N.Translate("Add [Trojan] Server");
+            ModeToolStripMenuItem.Text = i18N.Translate("Mode");
+            CreateProcessModeToolStripMenuItem.Text = i18N.Translate("Create Process Mode");
+            SubscribeToolStripMenuItem.Text = i18N.Translate("Subscribe");
+            ManageSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Manage Subscribe Links");
+            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Update Servers From Subscribe Links");
+            OptionsToolStripMenuItem.Text = i18N.Translate("Options");
+            ReloadModesToolStripMenuItem.Text = i18N.Translate("Reload Modes");
+            RestartServiceToolStripMenuItem.Text = i18N.Translate("Restart Service");
+            UninstallServiceToolStripMenuItem.Text = i18N.Translate("Uninstall Service");
+            CleanDNSCacheToolStripMenuItem.Text = i18N.Translate("Clean DNS Cache");
+            UpdateACLToolStripMenuItem.Text = i18N.Translate("Update ACL");
+            updateACLWithProxyToolStripMenuItem.Text = i18N.Translate("Update ACL with proxy");
+            reinstallTapDriverToolStripMenuItem.Text = i18N.Translate("Reinstall TUN/TAP driver");
+            OpenDirectoryToolStripMenuItem.Text = i18N.Translate("Open Directory");
+            AboutToolStripButton.Text = i18N.Translate("About");
+            VersionLabel.Text = i18N.Translate("xxx");
+            exitToolStripMenuItem.Text = i18N.Translate("Exit");
+            RelyToolStripMenuItem.Text = i18N.Translate("Unable to start? Click me to download");
+            ConfigurationGroupBox.Text = i18N.Translate("Configuration");
+            ProfileLabel.Text = i18N.Translate("Profile");
+            ModeLabel.Text = i18N.Translate("Mode");
+            ServerLabel.Text = i18N.Translate("Server");
+            UsedBandwidthLabel.Text = i18N.Translate("Used: 0 KB");
+            DownloadSpeedLabel.Text = i18N.Translate("↓: 0 KB/s");
+            UploadSpeedLabel.Text = i18N.Translate("↑: 0 KB/s");
 
             if (!isStarted)
             {
-                UsedBandwidthLabel.Text = $@"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
-                StatusLabel.Text = $@"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}";
-                ControlButton.Text = Utils.i18N.Translate("Start");
+                UsedBandwidthLabel.Text = $@"{i18N.Translate("Used")}{i18N.Translate(": ")}0 KB";
+                StatusLabel.Text = $@"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Waiting for command")}";
+                ControlButton.Text = i18N.Translate("Start");
             }
 
-            NotifyIcon.Text = Utils.i18N.Translate("Netch");
-            ShowMainFormToolStripButton.Text = Utils.i18N.Translate("Show");
-            ExitToolStripButton.Text = Utils.i18N.Translate("Exit");
-            SettingsButton.Text = Utils.i18N.Translate("Settings");
-            ProfileGroupBox.Text = Utils.i18N.Translate("Profiles");
+            NotifyIcon.Text = i18N.Translate("Netch");
+            ShowMainFormToolStripButton.Text = i18N.Translate("Show");
+            ExitToolStripButton.Text = i18N.Translate("Exit");
+            SettingsButton.Text = i18N.Translate("Settings");
+            ProfileGroupBox.Text = i18N.Translate("Profiles");
             // 加载翻译
 
             VersionLabel.Text = UpdateChecker.Version;
@@ -229,7 +236,7 @@ namespace Netch.Forms
 
                                 if (splited.Length >= 1)
                                 {
-                                    mode.Remark = Utils.i18N.Translate(splited[0].Trim());
+                                    mode.Remark = i18N.Translate(splited[0].Trim());
                                 }
 
                                 if (splited.Length >= 2)
@@ -323,7 +330,7 @@ namespace Netch.Forms
                     Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf(ModeComboBox.SelectedItem);
                 }
             }
-            Utils.Configuration.Save();
+            Configuration.Save();
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -333,7 +340,7 @@ namespace Netch.Forms
 
                 var cbx = sender as ComboBox;
 
-                var eWidth = (int)ServerComboBox.Width / 10;
+                var eWidth = ServerComboBox.Width / 10;
 
                 // 绘制背景颜色
                 e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
@@ -417,7 +424,7 @@ namespace Netch.Forms
             {
                 while (true)
                 {
-                    if (State == Models.State.Waiting || State == Models.State.Stopped)
+                    if (State == State.Waiting || State == State.Stopped)
                     {
                         TestServer();
 
@@ -445,7 +452,7 @@ namespace Netch.Forms
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (e.CloseReason == CloseReason.UserClosing && State != Models.State.Terminating)
+            if (e.CloseReason == CloseReason.UserClosing && State != State.Terminating)
             {
                 // 取消"关闭窗口"事件
                 e.Cancel = true; // 取消关闭窗体 
@@ -462,7 +469,7 @@ namespace Netch.Forms
                         // 显示提示语
                         NotifyIcon.ShowBalloonTip(5,
                         UpdateChecker.Name,
-                        Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
+                        i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
                         ToolTipIcon.Info);
 
                         IsFirstOpened = false;
@@ -483,7 +490,7 @@ namespace Netch.Forms
             var texts = Clipboard.GetText();
             if (!string.IsNullOrWhiteSpace(texts))
             {
-                var result = Utils.ShareLink.Parse(texts);
+                var result = ShareLink.Parse(texts);
 
                 if (result != null)
                 {
@@ -491,47 +498,47 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Import servers error!"), Utils.i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(i18N.Translate("Import servers error!"), i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
 
                 InitServer();
-                Utils.Configuration.Save();
+                Configuration.Save();
             }
         }
 
         private void AddSocks5ServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.Socks5().Show();
+            new Socks5().Show();
             Hide();
         }
 
         private void AddShadowsocksServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.Shadowsocks().Show();
+            new Shadowsocks().Show();
             Hide();
         }
 
         private void AddShadowsocksRServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.ShadowsocksR().Show();
+            new ShadowsocksR().Show();
             Hide();
         }
 
         private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.VMess().Show();
+            new VMess().Show();
             Hide();
         }
 
         private void AddTrojanServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Server.Trojan().Show();
+            new Trojan().Show();
             Hide();
         }
 
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
-            new Mode.Process().Show();
+            new Process().Show();
             Hide();
         }
 
@@ -556,7 +563,7 @@ namespace Netch.Forms
                 // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
@@ -565,7 +572,7 @@ namespace Netch.Forms
 
             if (Global.Settings.SubscribeLink.Count > 0)
             {
-                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting update subscription")}";
+                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting update subscription")}";
                 DeletePictureBox.Enabled = false;
 
                 UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
@@ -583,7 +590,7 @@ namespace Netch.Forms
                     }
                     foreach (var item in Global.Settings.SubscribeLink)
                     {
-                        using var client = new Override.WebClient();
+                        using var client = new WebClient();
                         try
                         {
                             if (!string.IsNullOrEmpty(item.UserAgent))
@@ -597,14 +604,14 @@ namespace Netch.Forms
 
                             if (Global.Settings.UseProxyToUpdateSubscription)
                             {
-                                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                                client.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
                             }
 
                             var response = client.DownloadString(item.Link);
 
                             try
                             {
-                                response = Utils.ShareLink.URLSafeBase64Decode(response);
+                                response = ShareLink.URLSafeBase64Decode(response);
                             }
                             catch (Exception)
                             {
@@ -612,7 +619,7 @@ namespace Netch.Forms
                             }
 
                             Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                            var result = Utils.ShareLink.Parse(response);
+                            var result = ShareLink.Parse(response);
 
                             if (result != null)
                             {
@@ -623,14 +630,14 @@ namespace Netch.Forms
                                 Global.Settings.Server.AddRange(result);
                                 NotifyIcon.ShowBalloonTip(5,
                                         UpdateChecker.Name,
-                                        string.Format(Utils.i18N.Translate("Update {1} server(s) from {0}"), item.Remark, result.Count),
+                                        string.Format(i18N.Translate("Update {1} server(s) from {0}"), item.Remark, result.Count),
                                         ToolTipIcon.Info);
                             }
                             else
                             {
                                 NotifyIcon.ShowBalloonTip(5,
                                         UpdateChecker.Name,
-                                        string.Format(Utils.i18N.Translate("Update servers error from {0}"), item.Remark),
+                                        string.Format(i18N.Translate("Update servers error from {0}"), item.Remark),
                                         ToolTipIcon.Error);
                             }
                         }
@@ -644,12 +651,12 @@ namespace Netch.Forms
                     if (Global.Settings.UseProxyToUpdateSubscription)
                     {
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
-                        ControlButton.Text = Utils.i18N.Translate("Start");
+                        ControlButton.Text = i18N.Translate("Start");
                         MainController.Stop();
                         NatTypeStatusLabel.Text = "";
                     }
-                    Utils.Configuration.Save();
-                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Subscription updated")}";
+                    Configuration.Save();
+                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Subscription updated")}";
                 }).ContinueWith(task =>
                 {
                     BeginInvoke(new Action(() =>
@@ -660,19 +667,19 @@ namespace Netch.Forms
 
                 NotifyIcon.ShowBalloonTip(5,
                         UpdateChecker.Name,
-                        Utils.i18N.Translate("Updating in the background"),
+                        i18N.Translate("Updating in the background"),
                         ToolTipIcon.Info);
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("No subscription link"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("No subscription link"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
-            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Restarting service")}";
+            StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Restarting service")}";
 
             Task.Run(() =>
             {
@@ -694,10 +701,10 @@ namespace Netch.Forms
                 }
                 catch (Exception)
                 {
-                    nfapinet.NFAPI.nf_registerDriver("netfilter2");
+                    NFAPI.nf_registerDriver("netfilter2");
                 }
 
-                MessageBox.Show(this, Utils.i18N.Translate("Service has been restarted"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, i18N.Translate("Service has been restarted"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
             });
         }
@@ -705,7 +712,7 @@ namespace Netch.Forms
         private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
-            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Uninstalling Service")}";
+            StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Uninstalling Service")}";
 
             Task.Run(() =>
             {
@@ -728,20 +735,20 @@ namespace Netch.Forms
 
                     try
                     {
-                        nfapinet.NFAPI.nf_unRegisterDriver("netfilter2");
+                        NFAPI.nf_unRegisterDriver("netfilter2");
 
                         File.Delete(driver);
 
-                        MessageBox.Show(this, Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, i18N.Translate("Service has been uninstalled"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, Utils.i18N.Translate("Error") + Utils.i18N.Translate(": ") + ex, Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(this, i18N.Translate("Error") + i18N.Translate(": ") + ex, i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
                 else
                 {
-                    MessageBox.Show(this, Utils.i18N.Translate("Service has been uninstalled"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, i18N.Translate("Service has been uninstalled"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 Enabled = true;
@@ -756,7 +763,7 @@ namespace Netch.Forms
             {
                 InitMode();
 
-                MessageBox.Show(this, Utils.i18N.Translate("Modes have been reload"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, i18N.Translate("Modes have been reload"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Enabled = true;
             });
         }
@@ -766,17 +773,17 @@ namespace Netch.Forms
             Enabled = false;
             Task.Run(() =>
             {
-                Utils.DNS.Cache.Clear();
+                DNS.Cache.Clear();
 
-                MessageBox.Show(this, Utils.i18N.Translate("DNS cache cleanup succeeded"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
-                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("DNS cache cleanup succeeded")}";
+                MessageBox.Show(this, i18N.Translate("DNS cache cleanup succeeded"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("DNS cache cleanup succeeded")}";
                 Enabled = true;
             });
         }
 
         private void VersionLabel_Click(object sender, EventArgs e)
         {
-            Process.Start($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
+            System.Diagnostics.Process.Start($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
         }
 
         private void EditPictureBox_Click(object sender, EventArgs e)
@@ -788,19 +795,19 @@ namespace Netch.Forms
                 switch (Global.Settings.Server[ServerComboBox.SelectedIndex].Type)
                 {
                     case "Socks5":
-                        new Server.Socks5(ServerComboBox.SelectedIndex).Show();
+                        new Socks5(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SS":
-                        new Server.Shadowsocks(ServerComboBox.SelectedIndex).Show();
+                        new Shadowsocks(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "SSR":
-                        new Server.ShadowsocksR(ServerComboBox.SelectedIndex).Show();
+                        new ShadowsocksR(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "VMess":
-                        new Server.VMess(ServerComboBox.SelectedIndex).Show();
+                        new VMess(ServerComboBox.SelectedIndex).Show();
                         break;
                     case "Trojan":
-                        new Server.Trojan(ServerComboBox.SelectedIndex).Show();
+                        new Trojan(ServerComboBox.SelectedIndex).Show();
                         break;
                     default:
                         return;
@@ -810,7 +817,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -828,27 +835,27 @@ namespace Netch.Forms
                 {
                     ServerComboBox.SelectedIndex = index != 0 ? index - 1 : index;
                 }
-                Utils.Configuration.Save();
+                Configuration.Save();
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
         private void SpeedPictureBox_Click(object sender, EventArgs e)
         {
             Enabled = false;
-            StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Testing")}";
+            StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Testing")}";
 
             Task.Run(() =>
             {
                 TestServer();
 
                 Enabled = true;
-                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Test done")}";
+                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Test done")}";
                 Refresh();
-                Utils.Configuration.Save();
+                Configuration.Save();
             });
         }
 
@@ -861,19 +868,19 @@ namespace Netch.Forms
         public void ControlFun()
         {
             SaveConfigs();
-            if (State == Models.State.Waiting || State == Models.State.Stopped)
+            if (State == State.Waiting || State == State.Stopped)
             {
                 // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 // 当前 ModeComboBox 中至少有一项
                 if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
@@ -892,8 +899,8 @@ namespace Netch.Forms
                 ModeComboBox.Enabled = false;
 
                 ControlButton.Text = "...";
-                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting")}";
-                State = Models.State.Starting;
+                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting")}";
+                State = State.Starting;
 
                 Task.Run(() =>
                 {
@@ -912,7 +919,7 @@ namespace Netch.Forms
                             //LastDownloadBandwidth = 0;
                             //UploadSpeedLabel.Text = "↑: 0 KB/s";
                             DownloadSpeedLabel.Text = "↑↓: 0 KB/s";
-                            UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                            UsedBandwidthLabel.Text = $"{i18N.Translate("Used")}{i18N.Translate(": ")}0 KB";
                             UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
 
 
@@ -932,7 +939,7 @@ namespace Netch.Forms
                                 // 显示提示语
                                 NotifyIcon.ShowBalloonTip(5,
                                 UpdateChecker.Name,
-                                Utils.i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
+                                i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
                                 ToolTipIcon.Info);
 
                                 IsFirstOpened = false;
@@ -942,7 +949,7 @@ namespace Netch.Forms
                         }
 
                         ControlButton.Enabled = true;
-                        ControlButton.Text = Utils.i18N.Translate("Stop");
+                        ControlButton.Text = i18N.Translate("Stop");
 
                         if (mode.Type != 3 && mode.Type != 5)
                         {
@@ -951,16 +958,16 @@ namespace Netch.Forms
                                 if (Global.Settings.LocalAddress == "0.0.0.0")
                                 {
 
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort})";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} ({i18N.Translate("Allow other Devices to connect")} Socks5 {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.Socks5LocalPort})";
                                 }
                                 else
                                 {
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{")"}";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} (Socks5 {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.Socks5LocalPort}{")"}";
                                 }
                             }
                             else
                             {
-                                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")}";
+                                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")}";
                             }
                         }
                         else
@@ -968,24 +975,24 @@ namespace Netch.Forms
                             if (server.Type != "Socks5")
                             {
                                 if (Global.Settings.LocalAddress == "0.0.0.0")
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} ({i18N.Translate("Allow other Devices to connect")} Socks5 {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
                                 else
                                 {
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (Socks5 {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} (Socks5 {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.Socks5LocalPort} | HTTP {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
                                 }
                             }
                             else
                             {
                                 if (Global.Settings.LocalAddress == "0.0.0.0")
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} ({Utils.i18N.Translate("Allow other Devices to connect")} HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} ({i18N.Translate("Allow other Devices to connect")} HTTP {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.HTTPLocalPort}{")"}";
                                 else
                                 {
-                                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Started")} (HTTP {Utils.i18N.Translate("Local Port")}{Utils.i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
+                                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Started")} (HTTP {i18N.Translate("Local Port")}{i18N.Translate(": ")}{Global.Settings.HTTPLocalPort})";
                                 }
                             }
                         }
 
-                        State = Models.State.Started;
+                        State = State.Started;
                         if (Global.Settings.StartedTcping)
                         {
                             // 自动检测延迟
@@ -993,7 +1000,7 @@ namespace Netch.Forms
                             {
                                 while (true)
                                 {
-                                    if (State == Models.State.Started)
+                                    if (State == State.Started)
                                     {
                                         server.Test();
                                         // 重载服务器列表
@@ -1023,9 +1030,9 @@ namespace Netch.Forms
                         //隐藏NTT测试
                         NatTypeStatusLabel.Visible = false;
 
-                        ControlButton.Text = Utils.i18N.Translate("Start");
-                        StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Start failed")}";
-                        State = Models.State.Stopped;
+                        ControlButton.Text = i18N.Translate("Start");
+                        StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Start failed")}";
+                        State = State.Stopped;
                     }
                 });
             }
@@ -1034,8 +1041,8 @@ namespace Netch.Forms
 
                 ControlButton.Enabled = false;
                 ControlButton.Text = "...";
-                StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopping")}";
-                State = Models.State.Stopping;
+                StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Stopping")}";
+                State = State.Stopping;
 
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = SettingsButton.Enabled = true;
 
@@ -1053,7 +1060,7 @@ namespace Netch.Forms
                     LastDownloadBandwidth = 0;
                     UploadSpeedLabel.Text = "↑: 0 KB/s";
                     DownloadSpeedLabel.Text = "↓: 0 KB/s";
-                    UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}0 KB";
+                    UsedBandwidthLabel.Text = $"{i18N.Translate("Used")}{i18N.Translate(": ")}0 KB";
                     UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
 
                     ControlButton.Enabled = true;
@@ -1069,9 +1076,9 @@ namespace Netch.Forms
                     //隐藏NTT测试
                     NatTypeStatusLabel.Visible = false;
 
-                    ControlButton.Text = Utils.i18N.Translate("Start");
-                    StatusLabel.Text = $"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Stopped")}";
-                    State = Models.State.Stopped;
+                    ControlButton.Text = i18N.Translate("Start");
+                    StatusLabel.Text = $"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Stopped")}";
+                    State = State.Stopped;
 
                     TestServer();
                 });
@@ -1094,12 +1101,12 @@ namespace Netch.Forms
         private void ExitToolStripButton_Click(object sender, EventArgs e)
         {
             // 当前状态如果不是已停止状态
-            if (State != Models.State.Waiting && State != Models.State.Stopped)
+            if (State != State.Waiting && State != State.Stopped)
             {
                 // 如果未勾选退出时停止，要求先点击停止按钮
                 if (!Global.Settings.StopWhenExited)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please press Stop button first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     Visible = true;
                     ShowInTaskbar = true;  // 显示在系统任务栏 
@@ -1115,7 +1122,7 @@ namespace Netch.Forms
 
             SaveConfigs();
 
-            State = Models.State.Terminating;
+            State = State.Terminating;
             NotifyIcon.Visible = false;
             Close();
             Dispose();
@@ -1149,9 +1156,9 @@ namespace Netch.Forms
         {
             try
             {
-                UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(download)}";
+                UsedBandwidthLabel.Text = $"{i18N.Translate("Used")}{i18N.Translate(": ")}{Bandwidth.Compute(download)}";
                 //UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
-                DownloadSpeedLabel.Text = $"↑↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
+                DownloadSpeedLabel.Text = $"↑↓: {Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
 
                 //LastUploadBandwidth = upload;
                 LastDownloadBandwidth = download;
@@ -1170,9 +1177,9 @@ namespace Netch.Forms
                 {
                     return;
                 }
-                UsedBandwidthLabel.Text = $"{Utils.i18N.Translate("Used")}{Utils.i18N.Translate(": ")}{Utils.Bandwidth.Compute(upload + download)}";
-                UploadSpeedLabel.Text = $"↑: {Utils.Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
-                DownloadSpeedLabel.Text = $"↓: {Utils.Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
+                UsedBandwidthLabel.Text = $"{i18N.Translate("Used")}{i18N.Translate(": ")}{Bandwidth.Compute(upload + download)}";
+                UploadSpeedLabel.Text = $"↑: {Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
+                DownloadSpeedLabel.Text = $"↓: {Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
 
                 LastUploadBandwidth = upload;
                 LastDownloadBandwidth = download;
@@ -1193,15 +1200,15 @@ namespace Netch.Forms
             {
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else if (ProfileNameText.Text == "")
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please enter a profile name first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please enter a profile name first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -1211,9 +1218,9 @@ namespace Netch.Forms
             }
             else
             {
-                if (ProfileButtons[index].Text == Utils.i18N.Translate("Error") || ProfileButtons[index].Text == Utils.i18N.Translate("None"))
+                if (ProfileButtons[index].Text == i18N.Translate("Error") || ProfileButtons[index].Text == i18N.Translate("None"))
                 {
-                    MessageBox.Show(Utils.i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
                 try
@@ -1222,7 +1229,7 @@ namespace Netch.Forms
 
                     // start the profile
                     var need2ndStart = true;
-                    if (State == Models.State.Waiting || State == Models.State.Stopped)
+                    if (State == State.Waiting || State == State.Stopped)
                     {
                         need2ndStart = false;
                     }
@@ -1233,7 +1240,7 @@ namespace Netch.Forms
                     {
                         Task.Run(() =>
                         {
-                            while (State != Models.State.Stopped)
+                            while (State != State.Stopped)
                             {
                                 Thread.Sleep(200);
                             }
@@ -1246,10 +1253,10 @@ namespace Netch.Forms
                 {
                     Task.Run(() =>
                     {
-                        Utils.Logging.Info(ee.Message);
-                        ProfileButtons[index].Text = Utils.i18N.Translate("Error");
+                        Logging.Info(ee.Message);
+                        ProfileButtons[index].Text = i18N.Translate("Error");
                         Thread.Sleep(1200);
-                        ProfileButtons[index].Text = Utils.i18N.Translate("None");
+                        ProfileButtons[index].Text = i18N.Translate("None");
                     });
                 }
 
@@ -1299,7 +1306,7 @@ namespace Netch.Forms
 
             while (Global.Settings.Profiles.Count < numProfile)
             {
-                Global.Settings.Profiles.Add(new Models.Profile());
+                Global.Settings.Profiles.Add(new Profile());
             }
 
             // buttons
@@ -1310,7 +1317,7 @@ namespace Netch.Forms
                 b.Location = new Point(i * 100, 0);
                 b.Click += ProfileButton_Click;
                 b.Dock = DockStyle.Fill;
-                b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : Utils.i18N.Translate("None");
+                b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : i18N.Translate("None");
 
                 ProfileButtons.Add(b);
             }
@@ -1371,7 +1378,7 @@ namespace Netch.Forms
             var selectedMode = (Models.Mode)ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 
-            Global.Settings.Profiles[index] = new Models.Profile(selectedServer, selectedMode, name);
+            Global.Settings.Profiles[index] = new Profile(selectedServer, selectedMode, name);
 
         }
 
@@ -1386,7 +1393,7 @@ namespace Netch.Forms
                 if (selectedMode.Type == 0)
                 {
                     //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
-                    Mode.Process process = new Mode.Process(selectedMode);
+                    var process = new Process(selectedMode);
                     process.Text = "Edit Process Mode";
                     process.Show();
                     Hide();
@@ -1394,7 +1401,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1415,11 +1422,11 @@ namespace Netch.Forms
                 ModeComboBox.Items.AddRange(array);
 
                 SelectLastMode();
-                Utils.Configuration.Save();
+                Configuration.Save();
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select an mode first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -1432,7 +1439,7 @@ namespace Netch.Forms
                 try
                 {
                     //听说巨硬BUG经常会炸，所以Catch一下 :D
-                    Clipboard.SetText(Utils.ShareLink.GetShareLink(selectedMode));
+                    Clipboard.SetText(ShareLink.GetShareLink(selectedMode));
                 }
                 catch (Exception)
                 {
@@ -1441,7 +1448,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
         public void StatusText(string text)
@@ -1454,23 +1461,23 @@ namespace Netch.Forms
             if (!string.IsNullOrWhiteSpace(text))
             {
                 text = text.Trim();
-                NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + text;
+                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + text;
             }
             else
             {
-                NatTypeStatusLabel.Text = "NAT" + Utils.i18N.Translate(": ") + Utils.i18N.Translate("Test failed");
+                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + i18N.Translate("Test failed");
             }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 当前状态如果不是已停止状态
-            if (State != Models.State.Waiting && State != Models.State.Stopped)
+            if (State != State.Waiting && State != State.Stopped)
             {
                 // 如果未勾选退出时停止，要求先点击停止按钮
                 if (!Global.Settings.StopWhenExited)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please press Stop button first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please press Stop button first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     Visible = true;
                     ShowInTaskbar = true;  // 显示在系统任务栏 
@@ -1486,7 +1493,7 @@ namespace Netch.Forms
 
             SaveConfigs();
 
-            State = Models.State.Terminating;
+            State = State.Terminating;
             NotifyIcon.Visible = false;
             Close();
             Dispose();
@@ -1495,8 +1502,8 @@ namespace Netch.Forms
 
         private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting update ACL")}");
-            using var client = new Override.WebClient();
+            StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting update ACL")}");
+            using var client = new WebClient();
 
             client.DownloadFileTaskAsync(Global.Settings.ACL, "bin\\default.acl");
             client.DownloadFileCompleted += ((sender, args) =>
@@ -1507,18 +1514,18 @@ namespace Netch.Forms
                     if (args.Error == null)
                     {
                         NotifyIcon.ShowBalloonTip(5,
-                                UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
+                                UpdateChecker.Name, i18N.Translate("ACL updated successfully"),
                                 ToolTipIcon.Info);
                     }
                     else
                     {
-                        Utils.Logging.Info("ACL 更新失败！" + args.Error);
-                        MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + args.Error);
+                        Logging.Info("ACL 更新失败！" + args.Error);
+                        MessageBox.Show(i18N.Translate("ACL update failed") + "\n" + args.Error);
                     }
                 }
                 finally
                 {
-                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                    StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Waiting for command")}");
                 }
             });
         }
@@ -1531,7 +1538,7 @@ namespace Netch.Forms
                 // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please select a server first"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
@@ -1548,30 +1555,30 @@ namespace Netch.Forms
                 MainController = new MainController();
                 MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
 
-                using var client = new Override.WebClient();
+                using var client = new WebClient();
 
-                client.Proxy = new System.Net.WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+                client.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
 
-                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Updating in the background")}");
+                StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Updating in the background")}");
                 try
                 {
                     client.DownloadFile(Global.Settings.ACL, "bin\\default.acl");
                     NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name, Utils.i18N.Translate("ACL updated successfully"),
+                            UpdateChecker.Name, i18N.Translate("ACL updated successfully"),
                             ToolTipIcon.Info);
                 }
                 catch (Exception e)
                 {
-                    Utils.Logging.Info("使用代理更新 ACL 失败！" + e.Message);
-                    MessageBox.Show(Utils.i18N.Translate("ACL update failed") + "\n" + e.Message);
+                    Logging.Info("使用代理更新 ACL 失败！" + e.Message);
+                    MessageBox.Show(i18N.Translate("ACL update failed") + "\n" + e.Message);
                 }
                 finally
                 {
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
 
-                    ControlButton.Text = Utils.i18N.Translate("Start");
-                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                    ControlButton.Text = i18N.Translate("Start");
+                    StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Waiting for command")}");
                     MainController.Stop();
                 }
             });
@@ -1581,26 +1588,26 @@ namespace Netch.Forms
         {
             Task.Run(() =>
             {
-                StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Reinstalling TUN/TAP driver")}");
+                StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Reinstalling TUN/TAP driver")}");
                 Enabled = false;
                 try
                 {
                     Configuration.deltapall();
                     Configuration.addtap();
                     NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall TUN/TAP driver successfully"),
+                            UpdateChecker.Name, i18N.Translate("Reinstall TUN/TAP driver successfully"),
                             ToolTipIcon.Info);
                 }
                 catch
                 {
                     NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name, Utils.i18N.Translate("Reinstall TUN/TAP driver failed"),
+                            UpdateChecker.Name, i18N.Translate("Reinstall TUN/TAP driver failed"),
                             ToolTipIcon.Error);
                 }
                 finally
                 {
-                    ControlButton.Text = Utils.i18N.Translate("Start");
-                    StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Waiting for command")}");
+                    ControlButton.Text = i18N.Translate("Start");
+                    StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Waiting for command")}");
                     Enabled = true;
                 }
             });
@@ -1608,7 +1615,7 @@ namespace Netch.Forms
 
         private void RelyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Process.Start($"https://mega.nz/file/9OQ1EazJ#0pjJ3xt57AVLr29vYEEv15GSACtXVQOGlEOPpi_2Ico");
+            System.Diagnostics.Process.Start("https://mega.nz/file/9OQ1EazJ#0pjJ3xt57AVLr29vYEEv15GSACtXVQOGlEOPpi_2Ico");
         }
 
         private void MainForm_VisibleChanged(object sender, EventArgs e)
@@ -1619,7 +1626,7 @@ namespace Netch.Forms
             if (i18N.LangCode!=Global.Settings.Language)
             {
                 i18N.Load(Global.Settings.Language);
-                InitText(State == Models.State.Started);
+                InitText(State == State.Started);
             }
 
             if (ProfileButtons.Count != Global.Settings.ProfileCount)

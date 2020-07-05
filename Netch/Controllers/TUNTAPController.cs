@@ -1,12 +1,14 @@
-﻿using Netch.Forms;
-using Netch.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using Netch.Forms;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
@@ -20,7 +22,7 @@ namespace Netch.Controllers
         /// <summary>
         ///		当前状态
         /// </summary>
-        public Models.State State = Models.State.Waiting;
+        public State State = State.Waiting;
 
         /// <summary>
         ///		服务器 IP 地址
@@ -30,8 +32,8 @@ namespace Netch.Controllers
         /// <summary>
         ///     保存传入的规则
         /// </summary>
-        public Models.Server SavedServer = new Models.Server();
-        public Models.Mode SavedMode = new Models.Mode();
+        public Server SavedServer = new Server();
+        public Mode SavedMode = new Mode();
 
         /// <summary>
         ///		本地 DNS 服务控制器
@@ -39,7 +41,7 @@ namespace Netch.Controllers
         public DNSController pDNSController = new DNSController();
 
         // ByPassLan IP
-        List<string> BypassLanIPs = new List<string>() { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/16" };
+        List<string> BypassLanIPs = new List<string> { "10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/16" };
 
         /// <summary>
         ///     配置 TUNTAP 适配器
@@ -59,7 +61,7 @@ namespace Netch.Controllers
             }
 
             // 搜索出口
-            return Utils.Configuration.SearchOutbounds();
+            return Configuration.SearchOutbounds();
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace Netch.Controllers
         /// </summary>
         public bool SetupBypass()
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("SetupBypass")}");
+            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("SetupBypass")}");
             Logging.Info("设置绕行规则 → 设置让服务器 IP 走直连");
             // 让服务器 IP 走直连
             foreach (var address in ServerAddresses)
@@ -82,7 +84,7 @@ namespace Netch.Controllers
             if (SavedMode.BypassChina)
             {
                 Logging.Info("设置绕行规则 → 处理模式的绕过中国");
-                using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
+                using (var sr = new StringReader(Encoding.UTF8.GetString(Resources.CNIP)))
                 {
                     string text;
 
@@ -142,7 +144,7 @@ namespace Netch.Controllers
                 // 创建默认路由
                 if (!NativeMethods.CreateRoute("0.0.0.0", 0, Global.Settings.TUNTAP.Gateway, Global.TUNTAP.Index, 10))
                 {
-                    State = Models.State.Stopped;
+                    State = State.Stopped;
 
                     foreach (var address in ServerAddresses)
                     {
@@ -209,7 +211,7 @@ namespace Netch.Controllers
                     Logging.Info("设置绕行规则 → 处理自定义 DNS 代理");
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
-                        string dns = "";
+                        var dns = "";
                         foreach (var value in Global.Settings.TUNTAP.DNS)
                         {
                             dns += value;
@@ -296,7 +298,7 @@ namespace Netch.Controllers
                 {
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
-                        string dns = "";
+                        var dns = "";
                         foreach (var value in Global.Settings.TUNTAP.DNS)
                         {
                             dns += value;
@@ -343,7 +345,7 @@ namespace Netch.Controllers
 
             if (SavedMode.BypassChina)
             {
-                using (var sr = new StringReader(Encoding.UTF8.GetString(Properties.Resources.CNIP)))
+                using (var sr = new StringReader(Encoding.UTF8.GetString(Resources.CNIP)))
                 {
                     string text;
 
@@ -371,9 +373,9 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="server">配置</param>
         /// <returns>是否成功</returns>
-        public bool Start(Models.Server server, Models.Mode mode)
+        public bool Start(Server server, Mode mode)
         {
-            MainForm.Instance.StatusText($"{Utils.i18N.Translate("Status")}{Utils.i18N.Translate(": ")}{Utils.i18N.Translate("Starting Tap")}");
+            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting Tap")}");
             foreach (var proc in Process.GetProcessesByName("tun2socks"))
             {
                 try
@@ -459,7 +461,7 @@ namespace Netch.Controllers
 
             Logging.Info(Instance.StartInfo.Arguments);
 
-            State = Models.State.Starting;
+            State = State.Starting;
             Instance.Start();
             Instance.BeginErrorReadLine();
             Instance.BeginOutputReadLine();
@@ -469,12 +471,12 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == Models.State.Started)
+                if (State == State.Started)
                 {
                     return true;
                 }
 
-                if (State == Models.State.Stopped)
+                if (State == State.Stopped)
                 {
                     Stop();
                     return false;
@@ -503,7 +505,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Utils.Logging.Info(e.ToString());
+                Logging.Info(e.ToString());
             }
         }
 
@@ -513,15 +515,15 @@ namespace Netch.Controllers
             {
                 File.AppendAllText("logging\\tun2socks.log", string.Format("{0}\r\n", e.Data.Trim()));
 
-                if (State == Models.State.Starting)
+                if (State == State.Starting)
                 {
                     if (e.Data.Contains("Running"))
                     {
-                        State = Models.State.Started;
+                        State = State.Started;
                     }
                     else if (e.Data.Contains("failed") || e.Data.Contains("invalid vconfig file"))
                     {
-                        State = Models.State.Stopped;
+                        State = State.Stopped;
                     }
                 }
             }
