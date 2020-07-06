@@ -28,7 +28,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Server server, Mode mode)
         {
-            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting ShadowsocksR")}");
+            MainForm.Instance.StatusText(i18N.Translate("Starting ShadowsocksR"));
 
             File.Delete("logging\\shadowsocksr.log");
 

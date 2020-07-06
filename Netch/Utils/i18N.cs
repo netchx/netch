@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Netch.Properties;
 using Newtonsoft.Json;
@@ -10,21 +11,7 @@ namespace Netch.Utils
 {
     public static class i18N
     {
-        static i18N()
-        {
-            TranslatesList = new List<string> {"System", "zh-CN", "en-US"};
-            if (!Directory.Exists("i18n")) return;
-            foreach (var fileName in Directory.GetFiles("i18n", "*"))
-            {
-                TranslatesList.Add(fileName.Substring(5));
-            }
-        }
 
-        /// <summary>
-        /// 可用语言列表
-        /// </summary>
-        public static List<string> TranslatesList { get; }
-        
         /// <summary>
         ///     数据
         /// </summary>
@@ -38,14 +25,15 @@ namespace Netch.Utils
         /// <param name="langCode">语言代码</param>
         public static void Load(string langCode)
         {
+            LangCode = langCode;
+            
             var text = "";
-
             if (langCode.Equals("System"))
             {
                 // 加载系统语言
                 langCode = CultureInfo.CurrentCulture.Name;
             }
-            LangCode = langCode;
+
 
 
             if (langCode == "zh-CN")
@@ -83,12 +71,23 @@ namespace Netch.Utils
         /// <returns>翻译完毕的文本</returns>
         public static string Translate(string text)
         {
-            if (Data.Contains(text))
-            {
-                return Data[text].ToString();
-            }
+            return Data.Contains(text) ? Data[text].ToString() : text;
+        }
+        public static string Translate(params string[] text)
+        {
+            var a = new StringBuilder();
+            foreach (var t in text)
+                a.Append(Data.Contains(t) ? Data[t].ToString() : t);
+            return a.ToString();
+        }
+        
+        public static List<string> GetTranslateList()
+        {
+            var translateFile = new List<string> {"System", "zh-CN", "en-US"};
 
-            return text;
+            if (!Directory.Exists("i18n")) return translateFile;
+            translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
+            return translateFile;
         }
     }
 }

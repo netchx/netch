@@ -69,7 +69,7 @@ namespace Netch.Controllers
         /// </summary>
         public bool SetupBypass()
         {
-            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("SetupBypass")}");
+            MainForm.Instance.StatusText(i18N.Translate("SetupBypass"));
             Logging.Info("设置绕行规则 → 设置让服务器 IP 走直连");
             // 让服务器 IP 走直连
             foreach (var address in ServerAddresses)
@@ -375,7 +375,7 @@ namespace Netch.Controllers
         /// <returns>是否成功</returns>
         public bool Start(Server server, Mode mode)
         {
-            MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Starting Tap")}");
+            MainForm.Instance.StatusText(i18N.Translate("Starting Tap"));
             foreach (var proc in Process.GetProcessesByName("tun2socks"))
             {
                 try

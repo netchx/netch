@@ -25,6 +25,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Server server, Mode mode)
         {
+            RecordPrevious();
             try
             {
                 if (server.Type == "Socks5")
@@ -43,21 +44,7 @@ namespace Netch.Controllers
 
                 if (mode.Type != 5)
                 {
-                    RecordPrevious();
-
                     NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
-
-                    // HTTP 系统代理模式，启动系统代理
-                    /*
-                    using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
-                    {
-                        registry.SetValue("ProxyEnable", 1);
-                        registry.SetValue("ProxyServer", $"127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
-                        Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
-                        Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
-                    }
-                    */
                 }
             }
             catch (Exception e)
@@ -114,18 +101,6 @@ namespace Netch.Controllers
                 if (!prevEnabled)
                     NativeMethods.SetDIRECT();
                 prevEnabled = false;
-
-
-                /*
-                using (var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings", true))
-                {
-                    registry.SetValue("ProxyEnable", 0);
-                    registry.DeleteValue("ProxyServer", false);
-
-                    Win32Native.InternetSetOption(IntPtr.Zero, 39, IntPtr.Zero, 0);
-                    Win32Native.InternetSetOption(IntPtr.Zero, 37, IntPtr.Zero, 0);
-                }
-                */
             }
             catch (Exception e)
             {

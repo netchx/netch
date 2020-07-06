@@ -104,7 +104,7 @@ namespace Netch.Forms
             AclAddr.Text = Global.Settings.ACL;
 
             LanguageLabel.Text = i18N.Translate(LanguageLabel.Text);
-            LanguageComboBox.Items.AddRange(i18N.TranslatesList.ToArray());
+            LanguageComboBox.Items.AddRange(i18N.GetTranslateList().ToArray());
             LanguageComboBox.SelectedItem = Global.Settings.Language;
         }
 

@@ -141,7 +141,7 @@ namespace Netch.Controllers
                     result = pNFController.Start(server, mode, false);
                     if (!result)
                     {
-                        MainForm.Instance.StatusText($"{i18N.Translate("Status")}{i18N.Translate(": ")}{i18N.Translate("Restarting Redirector")}");
+                        MainForm.Instance.StatusText(i18N.Translate("Restarting Redirector"));
                         Logging.Info("正常启动失败后尝试停止驱动服务再重新启动");
                         //正常启动失败后尝试停止驱动服务再重新启动
                         result = pNFController.Start(server, mode, true);
