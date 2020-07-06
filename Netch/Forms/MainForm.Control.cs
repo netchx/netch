@@ -23,15 +23,13 @@ namespace Netch.Forms
                 // 服务器、模式 需选择
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"),
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please select a server first"));
                     return;
                 }
 
                 if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"),
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please select an mode first"));
                     return;
                 }
 
@@ -56,7 +54,7 @@ namespace Netch.Forms
                             //LastDownloadBandwidth = 0;
                             //UploadSpeedLabel.Text = "↑: 0 KB/s";
                             DownloadSpeedLabel.Text = "↑↓: 0 KB/s";
-                            UsedBandwidthLabel.Text = $"{i18N.Translate("Used")}{i18N.Translate(": ")}0 KB";
+                            UsedBandwidthLabel.Text = $"{i18N.Translate("Used",": ")}0 KB";
                             UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
 
 
@@ -201,7 +199,7 @@ namespace Netch.Forms
                 }
 
                 UsedBandwidthLabel.Text =
-                    $"{i18N.Translate("Used")}{i18N.Translate(": ")}{Bandwidth.Compute(upload + download)}";
+                    $"{i18N.Translate("Used",": ")}{Bandwidth.Compute(upload + download)}";
                 UploadSpeedLabel.Text = $"↑: {Bandwidth.Compute(upload - LastUploadBandwidth)}/s";
                 DownloadSpeedLabel.Text = $"↓: {Bandwidth.Compute(download - LastDownloadBandwidth)}/s";
 

@@ -38,7 +38,7 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    MessageBox.Show(i18N.Translate("Import servers error!"), i18N.Translate("Error"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBoxX.Show(i18N.Translate("Import servers error!"), info: false);
                 }
 
                 InitServer();
@@ -106,7 +106,7 @@ namespace Netch.Forms
                 // 当前 ServerComboBox 中至少有一项
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please select a server first"));
                     return;
                 }
 
@@ -213,7 +213,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("No subscription link"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("No subscription link"));
             }
         }
 
@@ -249,7 +249,7 @@ namespace Netch.Forms
                     NFAPI.nf_registerDriver("netfilter2");
                 }
 
-                MessageBox.Show(this, i18N.Translate("Service has been restarted"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Service has been restarted"), owner: this);
                 Enabled = true;
             });
         }
@@ -284,16 +284,16 @@ namespace Netch.Forms
 
                         File.Delete(driver);
 
-                        MessageBox.Show(this, i18N.Translate("Service has been uninstalled"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(this, i18N.Translate("Error") + i18N.Translate(": ") + ex, i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Error") + i18N.Translate(": ") + ex, info: false, owner: this);
                     }
                 }
                 else
                 {
-                    MessageBox.Show(this, i18N.Translate("Service has been uninstalled"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
                 }
 
                 Enabled = true;
@@ -308,7 +308,7 @@ namespace Netch.Forms
             {
                 InitMode();
 
-                MessageBox.Show(this, i18N.Translate("Modes have been reload"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Modes have been reload"), owner: this);
                 Enabled = true;
             });
         }
@@ -320,7 +320,7 @@ namespace Netch.Forms
             {
                 DNS.Cache.Clear();
 
-                MessageBox.Show(this, i18N.Translate("DNS cache cleanup succeeded"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("DNS cache cleanup succeeded"), owner: this);
                 StatusText(i18N.Translate("DNS cache cleanup succeeded"));
                 Enabled = true;
             });
@@ -366,7 +366,7 @@ namespace Netch.Forms
             // 当前 ServerComboBox 中至少有一项
             if (ServerComboBox.SelectedIndex == -1)
             {
-                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
@@ -399,7 +399,7 @@ namespace Netch.Forms
                 catch (Exception e)
                 {
                     Logging.Info("使用代理更新 ACL 失败！" + e.Message);
-                    MessageBox.Show(i18N.Translate("ACL update failed") + "\n" + e.Message);
+                    MessageBoxX.Show(i18N.Translate("ACL update failed") + "\n" + e.Message);
                 }
                 finally
                 {
@@ -421,7 +421,7 @@ namespace Netch.Forms
                 // 未开启自动停止
                 if (!Global.Settings.StopWhenExited)
                 {
-                    MessageBox.Show(i18N.Translate("Please press Stop button first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
                     Visible = true;
                     ShowInTaskbar = true; // 显示在系统任务栏 
@@ -479,7 +479,7 @@ namespace Netch.Forms
                     else
                     {
                         Logging.Info("ACL 更新失败！" + args.Error);
-                        MessageBox.Show(i18N.Translate("ACL update failed") + "\n" + args.Error);
+                        MessageBoxX.Show(i18N.Translate("ACL update failed") + "\n" + args.Error);
                     }
                 }
                 finally

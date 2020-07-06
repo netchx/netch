@@ -224,12 +224,14 @@ namespace Netch.Forms
             ProfileGroupBox.Text = i18N.Translate("Profiles");
             // 加载翻译
 
-            UsedBandwidthLabel.Text = $@"{i18N.Translate("Used")}{i18N.Translate(": ")}0 KB";
+            UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
             UpdateStatus();
 
             VersionLabel.Text = UpdateChecker.Version;
         }
-                #region MISC
+
+        #region MISC
+
         /// <summary>
         /// 监听电源事件，自动重启Netch服务
         /// </summary>
@@ -285,7 +287,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select a server first"));
             }
         }
 
@@ -324,7 +326,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select an mode first"));
             }
         }
 
@@ -349,7 +351,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select an mode first"));
             }
         }
 
@@ -370,7 +372,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select a server first"));
             }
         }
 
@@ -393,7 +395,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select a server first"));
             }
         }
 

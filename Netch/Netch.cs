@@ -62,7 +62,7 @@ namespace Netch
                 if (!mutex.WaitOne(0, false))
                 {
                     // 弹出提示
-                    MessageBox.Show(i18N.Translate("Netch is already running"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Netch is already running"));
 
                     // 退出进程
                     Environment.Exit(1);
@@ -76,7 +76,7 @@ namespace Netch
                 {
 
                     // 弹出提示
-                    MessageBox.Show($"{i18N.Translate("Netch is not compatible with your system.")}\n{i18N.Translate("Current arch of Netch:")} {PROC}\n{i18N.Translate("Current arch of system:")} {OS}", i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show($"{i18N.Translate("Netch is not compatible with your system.")}\n{i18N.Translate("Current arch of Netch:")} {PROC}\n{i18N.Translate("Current arch of system:")} {OS}");
 
                     // 退出进程
                     Environment.Exit(1);

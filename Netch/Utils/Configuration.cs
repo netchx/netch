@@ -69,7 +69,7 @@ namespace Netch.Utils
             else
             {
                 // 弹出提示
-                MessageBox.Show("如果你是第一次使用本软件\n请务必前往http://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！", i18N.Translate("注意！"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show("如果你是第一次使用本软件\n请务必前往http://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！", i18N.Translate("注意！"));
 
                 // 创建 data 文件夹并保存默认设置
                 Save();
@@ -164,7 +164,7 @@ namespace Netch.Utils
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
                 Logging.Info("未找到可用 TUN/TAP 适配器");
-                if (MessageBox.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                if (MessageBoxX.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"),confirm:true) == DialogResult.OK)
                 {
                     addtap();
                     //给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
@@ -175,7 +175,7 @@ namespace Netch.Utils
                 {
                     return false;
                 }
-                //MessageBox.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //MessageBoxX.Show(i18N.Translate("Please install TAP-Windows and create an TUN/TAP adapter manually"));
                 // return false;
             }
 

@@ -83,7 +83,7 @@ namespace Netch.Forms
         }
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+            if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), confirm: true) == DialogResult.OK)
             {
                 if (SubscribeLinkListView.SelectedItems.Count > 0)
                 {
@@ -161,7 +161,7 @@ namespace Netch.Forms
 
                                 Configuration.Save();
                                 Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-                                MessageBox.Show(i18N.Translate("Successfully saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                MessageBoxX.Show(i18N.Translate("Successfully saved"));
                             }
                         });
                         if (saveFlag)
@@ -182,17 +182,17 @@ namespace Netch.Forms
                     }
                     else
                     {
-                        MessageBox.Show(i18N.Translate("Links must start with http:// or https://"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Links must start with http:// or https://"));
                     }
                 }
                 else
                 {
-                    MessageBox.Show(i18N.Translate("Link can not be empty"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Link can not be empty"));
                 }
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Remark can not be empty"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Remark can not be empty"));
             }
         }
 
@@ -200,7 +200,7 @@ namespace Netch.Forms
         {
             Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-            MessageBox.Show(i18N.Translate("Successfully saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxX.Show(i18N.Translate("Successfully saved"));
             Close();
         }
         /// <summary>

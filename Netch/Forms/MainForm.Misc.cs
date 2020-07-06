@@ -21,7 +21,7 @@ namespace Netch.Forms
             {
                 NotifyIcon.ShowBalloonTip(5,
                     UpdateChecker.Name,
-                    $"{i18N.Translate(@"New version available")}{i18N.Translate(@": ")}{updater.LatestVersionNumber}",
+                    $"{i18N.Translate(@"New version available",": ")}{updater.LatestVersionNumber}",
                     ToolTipIcon.Info);
             };
             updater.Check(false, false);

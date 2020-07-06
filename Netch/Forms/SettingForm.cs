@@ -228,7 +228,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
-                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
 
                 return;
             }
@@ -249,7 +249,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
-                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
 
                 return;
             }
@@ -270,7 +270,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
-                MessageBox.Show(i18N.Translate("Port value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
 
                 return;
             }
@@ -298,7 +298,7 @@ namespace Netch.Forms
             }
             catch (FormatException)
             {
-                MessageBox.Show(i18N.Translate("IP address format illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("IP address format illegal. Try again."));
 
                 TUNTAPAddressTextBox.Text = Global.Settings.TUNTAP.Address;
                 TUNTAPNetmaskTextBox.Text = Global.Settings.TUNTAP.Netmask;
@@ -332,7 +332,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(i18N.Translate("ProfileCount value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("ProfileCount value illegal. Try again."));
 
                 return;
             }
@@ -355,7 +355,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(i18N.Translate("STUN_ServerPort value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("STUN_ServerPort value illegal. Try again."));
 
                 return;
             }
@@ -377,7 +377,7 @@ namespace Netch.Forms
             catch (FormatException)
             {
                 ProfileCount_TextBox.Text = Global.Settings.ProfileCount.ToString();
-                MessageBox.Show(i18N.Translate("Detection interval value illegal. Try again."), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Detection interval value illegal. Try again."));
 
                 return;
             }
@@ -399,7 +399,7 @@ namespace Netch.Forms
             Global.Settings.TUNTAP.UseFakeDNS = UseFakeDNSCheckBox.Checked;
 
             Configuration.Save();
-            MessageBox.Show(i18N.Translate("Saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
     }
