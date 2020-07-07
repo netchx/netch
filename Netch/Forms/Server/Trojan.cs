@@ -100,7 +100,7 @@ namespace Netch.Forms.Server
             }
 
             Configuration.Save();
-            MessageBox.Show(i18N.Translate("Saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Global.MainForm.InitServer();
             Close();
         }

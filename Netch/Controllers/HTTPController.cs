@@ -49,7 +49,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                if (MessageBox.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), i18N.Translate("Information"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
+                if (MessageBoxX.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), confirm:true) == DialogResult.OK)
                 {
                     Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
                 }

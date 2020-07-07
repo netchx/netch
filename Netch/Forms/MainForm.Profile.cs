@@ -141,15 +141,15 @@ namespace Netch.Forms
             {
                 if (ServerComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(i18N.Translate("Please select a server first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 }
                 else if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBox.Show(i18N.Translate("Please select an mode first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please select an mode first"));
                 }
                 else if (ProfileNameText.Text == "")
                 {
-                    MessageBox.Show(i18N.Translate("Please enter a profile name first"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please enter a profile name first"));
                 }
                 else
                 {
@@ -161,7 +161,7 @@ namespace Netch.Forms
             {
                 if (ProfileButtons[index].Text == i18N.Translate("Error") || ProfileButtons[index].Text == i18N.Translate("None"))
                 {
-                    MessageBox.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
                 }
 
                 try

@@ -43,12 +43,12 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    MessageBox.Show(i18N.Translate("Please enter a correct IP address"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please enter a correct IP address"));
                 }
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please enter an IP"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please enter an IP"));
             }
         }
 
@@ -60,7 +60,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please select an IP"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select an IP"));
             }
         }
 
@@ -73,7 +73,7 @@ namespace Netch.Forms
             }
 
             Configuration.Save();
-            MessageBox.Show(i18N.Translate("Saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
     }

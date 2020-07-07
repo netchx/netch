@@ -119,7 +119,7 @@ namespace Netch.Forms.Server
             }
             if (AlterIDTextBox.Text == "")
             {
-                MessageBox.Show(i18N.Translate("Please fill in alterID"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please fill in alterID"));
                 return;
             }
             if (Index == -1)
@@ -167,7 +167,7 @@ namespace Netch.Forms.Server
             }
 
             Configuration.Save();
-            MessageBox.Show(i18N.Translate("Saved"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Global.MainForm.InitServer();
             Close();
         }

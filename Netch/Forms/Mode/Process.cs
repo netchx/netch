@@ -167,7 +167,7 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                MessageBox.Show(i18N.Translate("Please enter an process name (xxx.exe)"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please enter an process name (xxx.exe)"));
             }
         }
 
@@ -185,7 +185,7 @@ namespace Netch.Forms.Mode
             if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
-                MessageBox.Show(i18N.Translate("Scan completed"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Scan completed"));
             }
         }
 
@@ -222,14 +222,14 @@ namespace Netch.Forms.Mode
 
                     File.WriteAllText(Path.Combine("mode", FilenameTextBox.Text) + ".txt", text);
 
-                    MessageBox.Show(i18N.Translate("Mode updated successfully"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
 
                     Global.MainForm.UpdateMode(mode, EditMode_Old);
                     Close();
                 }
                 else
                 {
-                    MessageBox.Show(i18N.Translate("Unable to add empty rule"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Unable to add empty rule"));
                 }
             }
             else
@@ -258,7 +258,7 @@ namespace Netch.Forms.Mode
                 {
                     if (Global.Settings.ModeFileNameType == 0 && string.IsNullOrWhiteSpace(FilenameTextBox.Text))
                     {
-                        MessageBox.Show(i18N.Translate("Please enter a mode filename"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Please enter a mode filename"));
                         return;
                     }
                     var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
@@ -266,7 +266,7 @@ namespace Netch.Forms.Mode
                     // 如果文件已存在，返回
                     if (File.Exists(ModeFilename + ".txt"))
                     {
-                        MessageBox.Show(i18N.Translate("File already exists.\n Please Change the filename"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
                         return;
                     }
 
@@ -297,19 +297,19 @@ namespace Netch.Forms.Mode
 
                         File.WriteAllText(ModeFilename + ".txt", text);
 
-                        MessageBox.Show(i18N.Translate("Mode added successfully"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Mode added successfully"));
 
                         Global.MainForm.AddMode(mode);
                         Close();
                     }
                     else
                     {
-                        MessageBox.Show(i18N.Translate("Unable to add empty rule"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBoxX.Show(i18N.Translate("Unable to add empty rule"));
                     }
                 }
                 else
                 {
-                    MessageBox.Show(i18N.Translate("Please enter a mode remark"), i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please enter a mode remark"));
                 }
             }
         }
