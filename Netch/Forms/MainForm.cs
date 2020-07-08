@@ -72,7 +72,7 @@ namespace Netch.Forms
 
             // 加载翻译
             InitText();
-            
+
             //
             NatTypeStatusText();
 
@@ -85,7 +85,7 @@ namespace Netch.Forms
 
             // 为 ComboBox绘制 收集宽度数据
             _eWidth = ServerComboBox.Width / 10;
-            
+
             // 自动检测延迟
             Task.Run(() =>
             {
@@ -414,6 +414,37 @@ namespace Netch.Forms
             Activate();
         }
 
+        private void ExitToolStripButton_Click(object sender, EventArgs e)
+        {
+            // 已启动
+            if (State != State.Waiting && State != State.Stopped)
+            {
+                // 未开启自动停止
+                if (!Global.Settings.StopWhenExited)
+                {
+                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
+
+                    Visible = true;
+                    ShowInTaskbar = true; // 显示在系统任务栏 
+                    WindowState = FormWindowState.Normal; // 还原窗体 
+                    NotifyIcon.Visible = true; // 托盘图标隐藏 
+
+                    return;
+                }
+                // 自动停止
+
+                ControlButton_Click(sender, e);
+            }
+
+            SaveConfigs();
+
+            UpdateStatus(State.Terminating);
+            NotifyIcon.Visible = false;
+            Close();
+            Dispose();
+            Environment.Exit(Environment.ExitCode);
+        }
+
         private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (WindowState == FormWindowState.Minimized)
@@ -428,7 +459,7 @@ namespace Netch.Forms
         }
 
         #endregion
-        
+
         #endregion
     }
 }

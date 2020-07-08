@@ -78,7 +78,9 @@ namespace Netch.Forms
             this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.blankToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.NatTypeStatusLightLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
             this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -309,7 +311,7 @@ namespace Netch.Forms
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
             this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripButton_Click);
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // RelyToolStripMenuItem
             // 
@@ -528,7 +530,9 @@ namespace Netch.Forms
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel,
-            this.NatTypeStatusLabel});
+            this.blankToolStripStatusLabel,
+            this.NatTypeStatusLabel,
+            this.NatTypeStatusLightLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 250);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(733, 22);
@@ -563,11 +567,29 @@ namespace Netch.Forms
             this.UploadSpeedLabel.Text = "↑: 0 KB/s";
             this.UploadSpeedLabel.Visible = false;
             // 
+            // blankToolStripStatusLabel
+            // 
+            this.blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
+            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(268, 17);
+            this.blankToolStripStatusLabel.Spring = true;
+            // 
             // NatTypeStatusLabel
             // 
             this.NatTypeStatusLabel.Name = "NatTypeStatusLabel";
             this.NatTypeStatusLabel.Size = new System.Drawing.Size(36, 17);
             this.NatTypeStatusLabel.Text = "NAT:";
+            this.NatTypeStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            // 
+            // NatTypeStatusLightLabel
+            // 
+            this.NatTypeStatusLightLabel.ActiveLinkColor = System.Drawing.Color.Red;
+            this.NatTypeStatusLightLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.NatTypeStatusLightLabel.ForeColor = System.Drawing.Color.Red;
+            this.NatTypeStatusLightLabel.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.NatTypeStatusLightLabel.Name = "NatTypeStatusLightLabel";
+            this.NatTypeStatusLightLabel.Size = new System.Drawing.Size(18, 21);
+            this.NatTypeStatusLightLabel.Text = "⬤";
+            this.NatTypeStatusLightLabel.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             // 
             // ControlButton
             // 
@@ -751,5 +773,8 @@ namespace Netch.Forms
         private System.Windows.Forms.ToolStripLabel VersionLabel;
 
         #endregion
+
+        private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLightLabel;
+        private System.Windows.Forms.ToolStripStatusLabel blankToolStripStatusLabel;
     }
 }
