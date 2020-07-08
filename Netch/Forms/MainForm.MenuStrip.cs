@@ -403,7 +403,6 @@ namespace Netch.Forms
                 }
                 finally
                 {
-
                     UpdateStatus(State.Waiting);
                     MainController.Stop();
                 }
@@ -413,28 +412,12 @@ namespace Netch.Forms
         #endregion
 
 
-        private void ExitToolStripButton_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // 已启动
             if (State != State.Waiting && State != State.Stopped)
             {
-                // 未开启自动停止
-                if (!Global.Settings.StopWhenExited)
-                {
-                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
-
-                    Visible = true;
-                    ShowInTaskbar = true; // 显示在系统任务栏 
-                    WindowState = FormWindowState.Normal; // 还原窗体 
-                    NotifyIcon.Visible = true; // 托盘图标隐藏 
-
-                    return;
-                }
-                // 自动停止
-
                 ControlButton_Click(sender, e);
             }
-
             SaveConfigs();
 
             UpdateStatus(State.Terminating);
@@ -490,6 +473,5 @@ namespace Netch.Forms
         }
 
         #endregion
-
     }
 }

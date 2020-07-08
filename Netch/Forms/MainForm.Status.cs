@@ -1,5 +1,8 @@
-﻿using Netch.Models;
+﻿using System;
+using System.Windows.Media;
+using Netch.Models;
 using Netch.Utils;
+using Color = System.Drawing.Color;
 
 namespace Netch.Forms
 {
@@ -19,14 +22,56 @@ namespace Netch.Forms
             if (State != State.Started)
             {
                 NatTypeStatusLabel.Text = "";
-                NatTypeStatusLabel.Visible = true;
+                NatTypeStatusLabel.Visible = false;
+                NatTypeStatusLightLabel.Visible = false;
                 return;
             }
+            if (!string.IsNullOrEmpty(text))
+            {
+                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + text.Trim();
+            }
+            else
+            {
+                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + i18N.Translate("Test failed");
+            }
 
-            NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") +
-                                      (!string.IsNullOrEmpty(text) ? text.Trim() : i18N.Translate("Test failed"));
+            if (Enum.TryParse(text,false,out STUN_Client.NatType natType))
+            {
+                UpdateNatTypeLight(natType);
+                NatTypeStatusLightLabel.Visible = true;
+            }
+            else
+            {
+                NatTypeStatusLightLabel.Visible = false;
+            }
             NatTypeStatusLabel.Visible = true;
         }
+
+        private void UpdateNatTypeLight(STUN_Client.NatType natType)
+        {
+            Color c;
+            switch (natType)
+            {
+                case STUN_Client.NatType.UdpBlocked:
+                case STUN_Client.NatType.SymmetricUdpFirewall:
+                case STUN_Client.NatType.Symmetric:
+                    c = Color.Red;
+                    break;
+                case STUN_Client.NatType.RestrictedCone:
+                case STUN_Client.NatType.PortRestrictedCone:
+                    c = Color.Yellow;
+                    break;
+                case STUN_Client.NatType.OpenInternet:
+                case STUN_Client.NatType.FullCone:
+                    c = Color.LimeGreen;
+                    break;
+                default:
+                    c=Color.Red;
+                    break;
+            }
+            NatTypeStatusLightLabel.ForeColor=c;
+        }
+        
 
         public void StatusText(string text)
         {
@@ -45,17 +90,17 @@ namespace Netch.Forms
             switch (state)
             {
                 case State.Waiting:
-                    ControlButton.Text = i18N.Translate("Start");
                     ControlButton.Enabled = true;
-                    
+                    ControlButton.Text = i18N.Translate("Start");
+
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     updateACLWithProxyToolStripMenuItem.Enabled = true;
-                    
+
                     NatTypeStatusText();
                     break;
                 case State.Starting:
-                    ControlButton.Text = "...";
                     ControlButton.Enabled = false;
+                    ControlButton.Text = "...";
 
                     ServerComboBox.Enabled = false;
                     ModeComboBox.Enabled = false;
@@ -66,22 +111,22 @@ namespace Netch.Forms
                     reinstallTapDriverToolStripMenuItem.Enabled = false;
                     break;
                 case State.Started:
-                    ControlButton.Text = i18N.Translate("Stop");
                     ControlButton.Enabled = true;
+                    ControlButton.Text = i18N.Translate("Stop");
                     break;
                 case State.Stopping:
                     ControlButton.Enabled = false;
                     ControlButton.Text = "...";
-                    
+
                     ProfileGroupBox.Enabled = false;
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = SettingsButton.Enabled = true;
                     UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
                     NatTypeStatusText();
                     break;
                 case State.Stopped:
-                    ControlButton.Text = i18N.Translate("Start");
                     ControlButton.Enabled = true;
-                    
+                    ControlButton.Text = i18N.Translate("Start");
+
                     LastUploadBandwidth = 0;
                     LastDownloadBandwidth = 0;
 

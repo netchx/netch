@@ -46,6 +46,14 @@
             <Isolated>false</Isolated>
             <EmbedInteropTypes>false</EmbedInteropTypes>
         </COMReference>
+        <COMReference Include="NetFwTypeLib.dll">
+          <Guid>58fbcf7c-e7a9-467c-80b3-fc65e8fcca08</Guid>
+          <VersionMajor>1</VersionMajor>
+          <VersionMinor>0</VersionMinor>
+          <Lcid>0</Lcid>
+          <WrapperTool>tlbimp</WrapperTool>
+          <Isolated>false</Isolated>
+        </COMReference>
     </ItemGroup>
 
     <ItemGroup>

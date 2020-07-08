@@ -36,6 +36,8 @@ namespace Netch.Forms
                 //MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
 
                 UpdateStatus(State.Starting);
+                
+                Firewall.AddNetchFwRules();
 
                 Task.Run(() =>
                 {
