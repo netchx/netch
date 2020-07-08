@@ -58,21 +58,10 @@ namespace Netch.Utils
             {
                 processList.Add(Process.GetCurrentProcess().Id);
             }
-            else if (server.Type.Equals("SS") && mainController.pSSController != null)
+            else if (mainController.pServerClientController != null)
             {
-                processList.Add(mainController.pSSController.Instance.Id);
-            }
-            else if (server.Type.Equals("SSR") && mainController.pSSRController != null)
-            {
-                processList.Add(mainController.pSSRController.Instance.Id);
-            }
-            else if (server.Type.Equals("VMess") && mainController.pVMessController != null)
-            {
-                processList.Add(mainController.pVMessController.Instance.Id);
-            }
-            else if (server.Type.Equals("TR") && mainController.pTrojanController != null)
-            {
-                processList.Add(mainController.pTrojanController.Instance.Id);
+                // mainController.pServerClientController.Instance
+                processList.Add(mainController.pServerClientController.Instance.Id);
             }
             else if (mainController.pTUNTAPController != null)
             {

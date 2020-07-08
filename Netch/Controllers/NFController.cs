@@ -11,13 +11,8 @@ using nfapinet;
 
 namespace Netch.Controllers
 {
-    public class NFController
+    public class NFController : Controller
     {
-        /// <summary>
-        ///     流量变动事件
-        /// </summary>
-        public event BandwidthUpdateHandler OnBandwidthUpdated;
-
         /// <summary>
         ///     流量变动处理器
         /// </summary>
@@ -25,21 +20,22 @@ namespace Netch.Controllers
         /// <param name="download">下载</param>
         public delegate void BandwidthUpdateHandler(long upload, long download);
 
+        /// 驱动文件路径
+        private readonly string _driverPath = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
+
+        public NFController()
+        {
+            MainName = "Redirector";
+            ready = BeforeStartProgress();
+        }
+
         /// <summary>
-        ///     进程实例
+        ///     流量变动事件
         /// </summary>
-        public Process Instance;
+        public event BandwidthUpdateHandler OnBandwidthUpdated;
 
         /// <summary>
-        ///     当前状态
-        /// </summary>
-        public State State = State.Waiting;
-
-        // 生成驱动文件路径
-        public string driverPath = string.Format("{0}\\drivers\\netfilter2.sys", Environment.SystemDirectory);
-
-        /// <summary>
-        ///		启动
+        ///     启动
         /// </summary>
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
@@ -50,13 +46,8 @@ namespace Netch.Controllers
             if (!StopServiceAndRestart)
                 MainForm.Instance.StatusText(i18N.Translate("Starting Redirector"));
 
-            if (!File.Exists("bin\\Redirector.exe"))
-            {
-                return false;
-            }
-
             // 检查驱动是否存在
-            if (File.Exists(driverPath))
+            if (File.Exists(_driverPath))
             {
                 // 生成系统版本
                 var version = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
@@ -81,7 +72,7 @@ namespace Netch.Controllers
                 }
 
                 // 检查驱动版本号
-                var SystemfileVerInfo = FileVersionInfo.GetVersionInfo(driverPath);
+                var SystemfileVerInfo = FileVersionInfo.GetVersionInfo(_driverPath);
                 var BinFileVerInfo = FileVersionInfo.GetVersionInfo(string.Format("bin\\{0}", driverName));
 
                 if (!SystemfileVerInfo.FileVersion.Equals(BinFileVerInfo.FileVersion))
@@ -96,10 +87,11 @@ namespace Netch.Controllers
                             service.Stop();
                             service.WaitForStatus(ServiceControllerStatus.Stopped);
                         }
+
                         NFAPI.nf_unRegisterDriver("netfilter2");
 
                         //删除老驱动
-                        File.Delete(driverPath);
+                        File.Delete(_driverPath);
                         if (!InstallDriver())
                             return false;
 
@@ -109,16 +101,11 @@ namespace Netch.Controllers
                     {
                         Logging.Info("更新驱动出错");
                     }
-
                 }
-
             }
             else
             {
-                if (!InstallDriver())
-                {
-                    return false;
-                }
+                if (!InstallDriver()) return false;
             }
 
             try
@@ -157,11 +144,10 @@ namespace Netch.Controllers
                 processes += proc;
                 processes += ",";
             }
+
             processes += "NTT.exe";
 
-            Instance = MainController.GetProcess();
-            Instance.StartInfo.FileName = "bin\\Redirector.exe";
-            Instance.StartInfo.Arguments = "";
+            Instance = MainController.GetProcess("bin\\Redirector.exe");
 
             if (server.Type != "Socks5")
             {
@@ -177,21 +163,14 @@ namespace Netch.Controllers
                 }
 
                 Instance.StartInfo.Arguments += $"-r {result}:{server.Port} -p \"{processes}\"";
-                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
-                {
-                    Instance.StartInfo.Arguments += $" -username \"{server.Username}\" -password \"{server.Password}\"";
-                }
-            }
-
-            if (File.Exists("logging\\redirector.log"))
-            {
-                File.Delete("logging\\redirector.log"); 
+                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password)) Instance.StartInfo.Arguments += $" -username \"{server.Username}\" -password \"{server.Password}\"";
             }
 
             Instance.StartInfo.Arguments += $" -t {Global.Settings.RedirectorTCPPort}";
             Logging.Info(Instance.StartInfo.Arguments);
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
+
             State = State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
@@ -201,10 +180,7 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(1000);
 
-                if (State == State.Started)
-                {
-                    return true;
-                }
+                if (State == State.Started) return true;
             }
 
             Logging.Info("NF 进程启动超时");
@@ -212,27 +188,8 @@ namespace Netch.Controllers
             return false;
         }
 
-        /// <summary>
-        ///		停止
-        /// </summary>
-        public void Stop()
-        {
-            try
-            {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info(e.ToString());
-            }
-        }
         public bool InstallDriver()
         {
-
             Logging.Info("安装驱动中");
             // 生成系统版本
             var version = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
@@ -243,17 +200,17 @@ namespace Netch.Controllers
                 switch (version)
                 {
                     case "10.0":
-                        File.Copy("bin\\Win-10.sys", driverPath);
+                        File.Copy("bin\\Win-10.sys", _driverPath);
                         Logging.Info("已复制 Win10 驱动");
                         break;
                     case "6.3":
                     case "6.2":
-                        File.Copy("bin\\Win-8.sys", driverPath);
+                        File.Copy("bin\\Win-8.sys", _driverPath);
                         Logging.Info("已复制 Win8 驱动");
                         break;
                     case "6.1":
                     case "6.0":
-                        File.Copy("bin\\Win-7.sys", driverPath);
+                        File.Copy("bin\\Win-7.sys", _driverPath);
                         Logging.Info("已复制 Win7 驱动");
                         break;
                     default:
@@ -267,6 +224,7 @@ namespace Netch.Controllers
                 Logging.Info(e.ToString());
                 return false;
             }
+
             MainForm.Instance.StatusText(i18N.Translate("Register driver"));
             // 注册驱动文件
             var result = NFAPI.nf_registerDriver("netfilter2");
@@ -275,48 +233,34 @@ namespace Netch.Controllers
                 Logging.Info($"注册驱动失败，返回值：{result}");
                 return false;
             }
+
             return true;
         }
 
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Data))
+            if (!WriteLog(e)) return;
+            if (State == State.Starting)
             {
-                File.AppendAllText("logging\\redirector.log", string.Format("{0}\r\n", e.Data));
-
-                if (State == State.Starting)
+                if (Instance.HasExited)
+                    State = State.Stopped;
+                else if (e.Data.Contains("Started"))
+                    State = State.Started;
+                else if (e.Data.Contains("Failed") || e.Data.Contains("Unable")) State = State.Stopped;
+            }
+            else if (State == State.Started)
+            {
+                if (e.Data.StartsWith("[APP][Bandwidth]"))
                 {
-                    if (Instance.HasExited)
+                    var splited = e.Data.Replace("[APP][Bandwidth]", "").Trim().Split(',');
+                    if (splited.Length == 2)
                     {
-                        State = State.Stopped;
-                    }
-                    else if (e.Data.Contains("Started"))
-                    {
-                        State = State.Started;
-                    }
-                    else if (e.Data.Contains("Failed") || e.Data.Contains("Unable"))
-                    {
-                        State = State.Stopped;
-                    }
-                }
-                else if (State == State.Started)
-                {
-                    if (e.Data.StartsWith("[APP][Bandwidth]"))
-                    {
-                        var splited = e.Data.Replace("[APP][Bandwidth]", "").Trim().Split(',');
-                        if (splited.Length == 2)
-                        {
-                            var uploadSplited = splited[0].Split(':');
-                            var downloadSplited = splited[1].Split(':');
+                        var uploadSplited = splited[0].Split(':');
+                        var downloadSplited = splited[1].Split(':');
 
-                            if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
-                            {
-                                if (long.TryParse(uploadSplited[1], out var upload) && long.TryParse(downloadSplited[1], out var download))
-                                {
-                                    Task.Run(() => OnBandwidthUpdated(upload, download));
-                                }
-                            }
-                        }
+                        if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
+                            if (long.TryParse(uploadSplited[1], out var upload) && long.TryParse(downloadSplited[1], out var download))
+                                Task.Run(() => OnBandwidthUpdated(upload, download));
                     }
                 }
             }

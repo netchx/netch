@@ -151,7 +151,7 @@ namespace Netch.Forms
                     else
                     {
                         UpdateStatus(State.Stopped);
-                        StatusText(i18N.Translate("Start Failed"));
+                        StatusText(i18N.Translate("Start failed"));
                     }
                 });
             }

@@ -49,7 +49,7 @@ namespace Netch.Utils
         /// </summary>
         public static void AddNetchFwRules()
         {
-            if (GetFwRulePath(_netch).StartsWith(AppDomain.CurrentDomain.BaseDirectory) && GetFwRulesNumber(_netch) >= ProgramPath.Length) return;
+            if (GetFwRulePath(_netch).StartsWith(Global.NetchDir) && GetFwRulesNumber(_netch) >= ProgramPath.Length) return;
             RemoveNetchFwRules();
             foreach (var p in ProgramPath)
             {

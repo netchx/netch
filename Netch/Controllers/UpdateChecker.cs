@@ -17,16 +17,16 @@ namespace Netch.Controllers
         public const string Owner = @"NetchX";
         public const string Repo = @"Netch";
 
+        public const string Name = @"Netch";
+        public const string Copyright = @"Copyright © 2019 - 2020";
+        public const string Version = @"1.4.11";
+
         public string LatestVersionNumber;
         public string LatestVersionUrl;
 
         public event EventHandler NewVersionFound;
         public event EventHandler NewVersionFoundFailed;
         public event EventHandler NewVersionNotFound;
-
-        public const string Name = @"Netch";
-        public const string Copyright = @"Copyright © 2019 - 2020";
-        public const string Version = @"1.4.11";
 
         public async void Check(bool notifyNoFound, bool isPreRelease)
         {
@@ -48,19 +48,13 @@ namespace Netch.Controllers
                 else
                 {
                     LatestVersionNumber = latestRelease.tag_name;
-                    if (notifyNoFound)
-                    {
-                        NewVersionNotFound?.Invoke(this, new EventArgs());
-                    }
+                    if (notifyNoFound) NewVersionNotFound?.Invoke(this, new EventArgs());
                 }
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
-                if (notifyNoFound)
-                {
-                    NewVersionFoundFailed?.Invoke(this, new EventArgs());
-                }
+                if (notifyNoFound) NewVersionFoundFailed?.Invoke(this, new EventArgs());
             }
         }
 

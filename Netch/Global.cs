@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -6,6 +7,14 @@ namespace Netch
 {
     public static class Global
     {
+        
+        /// <summary>
+        ///     换行
+        /// </summary>
+        public static string EOF = "\r\n";
+        
+        public static readonly string NetchDir = (AppDomain.CurrentDomain.BaseDirectory).TrimEnd();
+        
         /// <summary>
         ///     主窗体
         /// </summary>
