@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 using Newtonsoft.Json;
@@ -11,32 +9,16 @@ using VMess = Netch.Models.Information.VMess;
 
 namespace Netch.Controllers
 {
-    public class VMessController
+    public class VMessController : ServerClient
     {
-        /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
-
-        /// <summary>
-        ///		当前状态
-        /// </summary>
-        public State State = State.Waiting;
-
-        /// <summary>
-        ///		启动
-        /// </summary>
-        /// <param name="server">服务器</param>
-        /// <param name="mode">模式</param>
-        /// <returns>是否启动成功</returns>
-        public bool Start(Server server, Mode mode)
+        public VMessController()
         {
-            MainForm.Instance.StatusText(i18N.Translate("Starting V2ray"));
-            if (!File.Exists("bin\\v2ray.exe") || !File.Exists("bin\\v2ctl.exe"))
-            {
-                return false;
-            }
+            MainName = "v2ray";
+            ready = BeforeStartProgress();
+        }
 
+        public override bool Start(Server server, Mode mode)
+        {
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new VMess.Config
             {
                 inbounds = new List<VMess.Inbounds>
@@ -76,50 +58,60 @@ namespace Netch.Controllers
                         {
                             network = server.TransferProtocol,
                             security = server.TLSSecure ? "tls" : "",
-                            wsSettings = server.TransferProtocol == "ws" ? new VMess.WebSocketSettings
-                            {
-                                path = server.Path == "" ? "/" : server.Path,
-                                headers = new VMess.WSHeaders
+                            wsSettings = server.TransferProtocol == "ws"
+                                ? new VMess.WebSocketSettings
                                 {
-                                    Host = server.Host == "" ? server.Hostname : server.Host
-                                }
-                            } : null,
-                            tcpSettings = server.FakeType == "http" ? new VMess.TCPSettings
-                            {
-                                header = new VMess.TCPHeaders
-                                {
-                                    type = server.FakeType,
-                                    request = new VMess.TCPRequest
+                                    path = server.Path == "" ? "/" : server.Path,
+                                    headers = new VMess.WSHeaders
                                     {
-                                        path = server.Path == "" ? "/" : server.Path,
-                                        headers = new VMess.TCPRequestHeaders
+                                        Host = server.Host == "" ? server.Hostname : server.Host
+                                    }
+                                }
+                                : null,
+                            tcpSettings = server.FakeType == "http"
+                                ? new VMess.TCPSettings
+                                {
+                                    header = new VMess.TCPHeaders
+                                    {
+                                        type = server.FakeType,
+                                        request = new VMess.TCPRequest
                                         {
-                                            Host = server.Host == "" ? server.Hostname : server.Host
+                                            path = server.Path == "" ? "/" : server.Path,
+                                            headers = new VMess.TCPRequestHeaders
+                                            {
+                                                Host = server.Host == "" ? server.Hostname : server.Host
+                                            }
                                         }
                                     }
                                 }
-                            } : null,
-                            kcpSettings = server.TransferProtocol == "kcp" ? new VMess.KCPSettings
-                            {
-                                header = new VMess.TCPHeaders
+                                : null,
+                            kcpSettings = server.TransferProtocol == "kcp"
+                                ? new VMess.KCPSettings
                                 {
-                                    type = server.FakeType
+                                    header = new VMess.TCPHeaders
+                                    {
+                                        type = server.FakeType
+                                    }
                                 }
-                            } : null,
-                            quicSettings = server.TransferProtocol == "quic" ? new VMess.QUICSettings
-                            {
-                                security = server.QUICSecure,
-                                key = server.QUICSecret,
-                                header = new VMess.TCPHeaders
+                                : null,
+                            quicSettings = server.TransferProtocol == "quic"
+                                ? new VMess.QUICSettings
                                 {
-                                    type = server.FakeType
+                                    security = server.QUICSecure,
+                                    key = server.QUICSecret,
+                                    header = new VMess.TCPHeaders
+                                    {
+                                        type = server.FakeType
+                                    }
                                 }
-                            } : null,
-                            httpSettings = server.TransferProtocol == "h2" ? new VMess.HTTPSettings
-                            {
-                                host = server.Host == "" ? server.Hostname : server.Host,
-                                path = server.Path == "" ? "/" : server.Path
-                            } : null,
+                                : null,
+                            httpSettings = server.TransferProtocol == "h2"
+                                ? new VMess.HTTPSettings
+                                {
+                                    host = server.Host == "" ? server.Hostname : server.Host,
+                                    path = server.Path == "" ? "/" : server.Path
+                                }
+                                : null,
                             tlsSettings = new VMess.TLSSettings
                             {
                                 allowInsecure = true,
@@ -131,58 +123,51 @@ namespace Netch.Controllers
                             enabled = server.UseMux
                         }
                     },
-                    (mode.Type==0||mode.Type==1||mode.Type==2) ? new VMess.Outbounds
-                    {
-                        tag = "TUNTAP",
-                        protocol = "freedom"
-                    }: new VMess.Outbounds
-                    {
-                        tag = "direct",
-                        protocol = "freedom"
-                    }
+                    mode.Type == 0 || mode.Type == 1 || mode.Type == 2
+                        ? new VMess.Outbounds
+                        {
+                            tag = "TUNTAP",
+                            protocol = "freedom"
+                        }
+                        : new VMess.Outbounds
+                        {
+                            tag = "direct",
+                            protocol = "freedom"
+                        }
                 },
                 routing = new VMess.Routing
                 {
                     rules = new List<VMess.RoutingRules>
                     {
-                        mode.BypassChina ? new VMess.RoutingRules
-                        {
-                            type = "field",
-                            ip = new List<string>
+                        mode.BypassChina
+                            ? new VMess.RoutingRules
                             {
-                                "geoip:cn",
-                                "geoip:private"
-
-                            },
-                            domain = new List<string>
+                                type = "field",
+                                ip = new List<string>
+                                {
+                                    "geoip:cn",
+                                    "geoip:private"
+                                },
+                                domain = new List<string>
+                                {
+                                    "geosite:cn"
+                                },
+                                outboundTag = "direct"
+                            }
+                            : new VMess.RoutingRules
                             {
-                                "geosite:cn"
-                            },
-                            outboundTag = "direct"
-                        } : new VMess.RoutingRules
-                        {
-                            type = "field",
-                            ip = new List<string>
-                            {
-                                "geoip:private"
-                            },
-                            outboundTag = "direct"
-                        }
+                                type = "field",
+                                ip = new List<string>
+                                {
+                                    "geoip:private"
+                                },
+                                outboundTag = "direct"
+                            }
                     }
                 }
             }));
 
-            // 清理上一次的日志文件，防止淤积占用磁盘空间
-            if (Directory.Exists("logging"))
-            {
-                if (File.Exists("logging\\v2ray.log"))
-                {
-                    File.Delete("logging\\v2ray.log");
-                }
-            }
-
-            Instance = MainController.GetProcess();
-            Instance.StartInfo.FileName = "bin\\v2ray.exe";
+            Instance = MainController.GetProcess("bin\\v2ray.exe");
             Instance.StartInfo.Arguments = "-config ..\\data\\last.json";
 
             Instance.OutputDataReceived += OnOutputDataReceived;
@@ -198,10 +183,8 @@ namespace Netch.Controllers
 
                 if (State == State.Started)
                 {
-                    if (File.Exists("data\\last.json"))
-                    {
-                        File.Delete("data\\last.json");
-                    }
+                    if (File.Exists("data\\last.json")) File.Delete("data\\last.json");
+
                     return true;
                 }
 
@@ -219,46 +202,16 @@ namespace Netch.Controllers
             return false;
         }
 
-        /// <summary>
-        ///		停止
-        /// </summary>
-        public void Stop()
+        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            try
+            if (!WriteLog(e)) return;
+            if (State == State.Starting)
             {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info(e.ToString());
-            }
-        }
-
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-            {
-                File.AppendAllText("logging\\v2ray.log", $"{e.Data}\r\n");
-
-                if (State == State.Starting)
-                {
-                    if (Instance.HasExited)
-                    {
-                        State = State.Stopped;
-                    }
-                    else if (e.Data.Contains("started"))
-                    {
-                        State = State.Started;
-                    }
-                    else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to"))
-                    {
-                        State = State.Stopped;
-                    }
-                }
+                if (Instance.HasExited)
+                    State = State.Stopped;
+                else if (e.Data.Contains("started"))
+                    State = State.Started;
+                else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to")) State = State.Stopped;
             }
         }
     }

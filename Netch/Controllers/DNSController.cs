@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using Netch.Forms;
 using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class DNSController
+    public class DNSController : Controller
     {
-        /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
+        public DNSController()
+        {
+            MainName = "unbound";
+            ExtFiles = new[] {"unbound-service.conf", "forward-zone.conf"};
+            ready = BeforeStartProgress();
+        }
 
         /// <summary>
-        /// 启动DNS服务
+        ///     启动DNS服务
         /// </summary>
         /// <returns></returns>
         public bool Start()
@@ -22,13 +23,7 @@ namespace Netch.Controllers
             MainForm.Instance.StatusText(i18N.Translate("Starting dns Service"));
             try
             {
-                if (!File.Exists("bin\\unbound.exe") && !File.Exists("bin\\unbound-service.conf") && !File.Exists("bin\\forward-zone.conf"))
-                {
-                    return false;
-                }
-
-                Instance = MainController.GetProcess();
-                Instance.StartInfo.FileName = "bin\\unbound.exe";
+                Instance = MainController.GetProcess("bin\\unbound.exe");
 
                 Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
 
@@ -49,35 +44,9 @@ namespace Netch.Controllers
             }
         }
 
-        /// <summary>
-        ///		停止
-        /// </summary>
-        public void Stop()
-        {
-            try
-            {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info(e.ToString());
-            }
-        }
-
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-            {
-                if (File.Exists("logging\\dns-unbound.log"))
-                {
-                    File.Delete("logging\\dns-unbound.log");
-                }
-                File.AppendAllText("logging\\dns-unbound.log", $"{e.Data}\r\n");
-            }
+            WriteLog(e);
         }
     }
 }

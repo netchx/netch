@@ -8,20 +8,16 @@ using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class NTTController
+    public class NTTController : Controller
     {
-        /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
+        public NTTController()
+        {
+            MainName = "NTT";
+            ready = BeforeStartProgress();
+        }
 
         /// <summary>
-        ///		当前状态
-        /// </summary>
-        public State State = State.Waiting;
-
-        /// <summary>
-        /// 启动NatTypeTester
+        ///     启动NatTypeTester
         /// </summary>
         /// <returns></returns>
         public (bool, string, string, string) Start()
@@ -30,13 +26,7 @@ namespace Netch.Controllers
             MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
             try
             {
-                if (!File.Exists("bin\\NTT.exe"))
-                {
-                    return (false, null, null, null);
-                }
-
-                Instance = MainController.GetProcess();
-                Instance.StartInfo.FileName = "bin\\NTT.exe";
+                Instance = MainController.GetProcess("bin\\NTT.exe");
 
                 Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
 
@@ -49,7 +39,7 @@ namespace Netch.Controllers
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
 
-                var result = File.ReadAllText("logging\\NTT.log").Split('#');
+                var result = File.ReadAllText($"logging\\{MainName}.log").Split('#');
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
@@ -65,36 +55,9 @@ namespace Netch.Controllers
             }
         }
 
-        /// <summary>
-        ///		停止
-        /// </summary>
-        public void Stop()
-        {
-            try
-            {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info(e.ToString());
-            }
-        }
-
         public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-            {
-                if (File.Exists("logging\\NTT.log"))
-                {
-                    File.Delete("logging\\NTT.log");
-                }
-
-                File.AppendAllText("logging\\NTT.log", $"{e.Data}\r\n");
-            }
+            WriteLog(e);
         }
     }
 }

@@ -1,37 +1,21 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class SSController
+    public class SSController : ServerClient
     {
-        /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
-
-        /// <summary>
-        ///		当前状态
-        /// </summary>
-        public State State = State.Waiting;
-
-        /// <summary>
-        ///		启动
-        /// </summary>
-        /// <param name="server">服务器</param>
-        /// <param name="mode">模式</param>
-        /// <returns>是否启动成功</returns>
-        public bool Start(Server server, Mode mode)
+        public SSController()
         {
-            MainForm.Instance.StatusText(i18N.Translate("Starting Shadowsocks"));
+            MainName = "Shadowsocks";
+            ready = BeforeStartProgress();
+        }
 
-            File.Delete("logging\\shadowsocks.log");
+        public override bool Start(Server server, Mode mode)
+        {
             //从DLL启动Shaowsocks
             if (Global.Settings.BootShadowsocksFromDLL && (mode.Type == 0 || mode.Type == 1 || mode.Type == 2 || mode.Type == 3))
             {
@@ -46,6 +30,7 @@ namespace Netch.Controllers
                     Logging.Info("DLL SS INFO 设置失败！");
                     return false;
                 }
+
                 Logging.Info("DLL SS INFO 设置成功！");
 
                 if (!NativeMethods.Shadowsocks.Start())
@@ -54,31 +39,23 @@ namespace Netch.Controllers
                     Logging.Info("DLL SS 启动失败！");
                     return false;
                 }
+
                 Logging.Info("DLL SS 启动成功！");
                 State = State.Started;
                 return true;
             }
 
-            if (!File.Exists("bin\\Shadowsocks.exe"))
-            {
-                return false;
-            }
-            Instance = MainController.GetProcess();
-            Instance.StartInfo.FileName = "bin\\Shadowsocks.exe";
+            Instance = MainController.GetProcess("bin\\Shadowsocks.exe");
+
+            #region Instance.Arguments
 
             if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
-            {
                 Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"";
-            }
             else
-            {
                 Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
-            }
+            if (mode.BypassChina) Instance.StartInfo.Arguments += " --acl default.acl";
 
-            if (mode.BypassChina)
-            {
-                Instance.StartInfo.Arguments += " --acl default.acl";
-            }
+            #endregion
 
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
@@ -91,10 +68,7 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == State.Started)
-                {
-                    return true;
-                }
+                if (State == State.Started) return true;
 
                 if (State == State.Stopped)
                 {
@@ -111,58 +85,24 @@ namespace Netch.Controllers
         }
 
         /// <summary>
-        ///		停止
+        ///     SSController 停止
         /// </summary>
-        public void Stop()
+        public new void Stop()
         {
-            try
-            {
-                if (Global.Settings.BootShadowsocksFromDLL)
-                {
-                    NativeMethods.Shadowsocks.Stop();
-                    return;
-                }
-
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info(e.ToString());
-            }
+            base.Stop();
+            if (Global.Settings.BootShadowsocksFromDLL) NativeMethods.Shadowsocks.Stop();
         }
 
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            try
+            if (!WriteLog(e)) return;
+            if (State == State.Starting)
             {
-                if (!string.IsNullOrWhiteSpace(e.Data))
-                {
-                    File.AppendAllText("logging\\shadowsocks.log", $"{e.Data}\r\n");
-
-                    if (State == State.Starting)
-                    {
-                        if (Instance.HasExited)
-                        {
-                            State = State.Stopped;
-                        }
-                        else if (e.Data.Contains("listening at"))
-                        {
-                            State = State.Started;
-                        }
-                        else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly"))
-                        {
-                            State = State.Stopped;
-                        }
-                    }
-                }
-            }
-            catch (Exception ec)
-            {
-                Logging.Info("写入Shadowsocks日志失败" + ec);
+                if (Instance.HasExited)
+                    State = State.Stopped;
+                else if (e.Data.Contains("listening at"))
+                    State = State.Started;
+                else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly")) State = State.Stopped;
             }
         }
     }
