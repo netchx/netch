@@ -159,16 +159,11 @@ namespace Netch.Forms
             {
                 // 停止
                 UpdateStatus(State.Stopping);
+                MainController.Stop();
+                UpdateStatus(State.Stopped);
 
                 Task.Run(() =>
                 {
-                    var server = ServerComboBox.SelectedItem as Models.Server;
-                    var mode = ModeComboBox.SelectedItem as Models.Mode;
-
-                    MainController.Stop();
-
-                    UpdateStatus(State.Stopped);
-
                     TestServer();
                 });
             }
