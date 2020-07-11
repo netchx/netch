@@ -12,21 +12,22 @@ namespace Netch.Controllers
     {
         public NTTController()
         {
-            MainName = "NTT";
-            ready = BeforeStartProgress();
+            MainFile = "NTT";
+            InitCheck();
         }
 
         /// <summary>
-        ///     启动NatTypeTester
+        ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
+            if (!Ready) return (false, null, null, null);
             Thread.Sleep(1000);
             MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
             try
             {
-                Instance = MainController.GetProcess("bin\\NTT.exe");
+                Instance = GetProcess("bin\\NTT.exe");
 
                 Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
 
@@ -39,7 +40,7 @@ namespace Netch.Controllers
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
 
-                var result = File.ReadAllText($"logging\\{MainName}.log").Split('#');
+                var result = File.ReadAllText($"logging\\{MainFile}.log").Split('#');
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
@@ -49,15 +50,22 @@ namespace Netch.Controllers
             }
             catch (Exception)
             {
-                Logging.Info("NTT 进程出错");
+                Logging.Error("NTT 进程出错");
                 Stop();
                 return (false, null, null, null);
             }
         }
 
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             WriteLog(e);
+        }
+
+        /// <summary>
+        ///     无用
+        /// </summary>
+        public override void Stop()
+        {
         }
     }
 }

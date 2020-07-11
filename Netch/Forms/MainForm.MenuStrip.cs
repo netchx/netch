@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.ServiceProcess;
@@ -18,7 +17,9 @@ using WebClient = Netch.Override.WebClient;
 namespace Netch.Forms
 {
     partial class Dummy
-    {}
+    {
+    }
+
     partial class MainForm
     {
         #region MenuStrip
@@ -160,7 +161,7 @@ namespace Netch.Forms
                             }
                             catch (Exception)
                             {
-                                // 跳过
+                                // ignored
                             }
 
                             Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
@@ -261,39 +262,18 @@ namespace Netch.Forms
 
             Task.Run(() =>
             {
-                var driver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-                if (File.Exists(driver))
+                try
                 {
-                    try
+                    if (new NFController().UninstallDriver())
                     {
-                        var service = new ServiceController("netfilter2");
-                        if (service.Status == ServiceControllerStatus.Running)
-                        {
-                            service.Stop();
-                            service.WaitForStatus(ServiceControllerStatus.Stopped);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // 跳过
-                    }
-
-                    try
-                    {
-                        NFAPI.nf_unRegisterDriver("netfilter2");
-
-                        File.Delete(driver);
-
                         MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
                     }
-                    catch (Exception ex)
-                    {
-                        MessageBoxX.Show(i18N.Translate("Error") + i18N.Translate(": ") + ex, info: false, owner: this);
-                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
+                    MessageBox.Show(i18N.Translate("Error", e.Message));
+                    Console.WriteLine(e);
+                    throw;
                 }
 
                 Enabled = true;
@@ -398,8 +378,8 @@ namespace Netch.Forms
                 }
                 catch (Exception e)
                 {
-                    Logging.Info("使用代理更新 ACL 失败！" + e.Message);
-                    MessageBoxX.Show(i18N.Translate("ACL update failed") + "\n" + e.Message);
+                    Logging.Error("使用代理更新 ACL 失败！" + e);
+                    MessageBoxX.Show(i18N.Translate("ACL update failed") + "\n" + e);
                 }
                 finally
                 {
@@ -414,17 +394,7 @@ namespace Netch.Forms
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (State != State.Waiting && State != State.Stopped)
-            {
-                ControlButton_Click(sender, e);
-            }
-            SaveConfigs();
-
-            UpdateStatus(State.Terminating);
-            NotifyIcon.Visible = false;
-            Close();
-            Dispose();
-            Environment.Exit(Environment.ExitCode);
+            Exit(true);
         }
 
         private void RelyToolStripMenuItem_Click(object sender, EventArgs e)
@@ -461,7 +431,7 @@ namespace Netch.Forms
                     }
                     else
                     {
-                        Logging.Info("ACL 更新失败！" + args.Error);
+                        Logging.Error("ACL 更新失败！" + args.Error);
                         MessageBoxX.Show(i18N.Translate("ACL update failed") + "\n" + args.Error);
                     }
                 }

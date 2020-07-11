@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Netch.Forms;
@@ -12,28 +11,14 @@ namespace Netch.Controllers
 {
     public class MainController
     {
-        /// <summary>
-        ///     HTTP 控制器
-        /// </summary>
-        public HTTPController pHTTPController;
+        public EncryptedProxy pEncryptedProxyController;
 
-        /// <summary>
-        ///     NF 控制器
-        /// </summary>
-        public NFController pNFController;
+        public ModeController pModeController;
 
         /// <summary>
         ///     NTT 控制器
         /// </summary>
         public NTTController pNTTController;
-
-        public ServerClient pServerClientController;
-
-
-        /// <summary>
-        ///     TUN/TAP 控制器
-        /// </summary>
-        public TUNTAPController pTUNTAPController;
 
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
@@ -46,6 +31,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Server server, Mode mode)
         {
+            pNTTController ??= new NTTController();
             FlushDNSResolverCache();
 
             var result = false;
@@ -58,61 +44,60 @@ namespace Netch.Controllers
                 switch (server.Type)
                 {
                     case "SS":
-                        pServerClientController = new SSController();
+                        pEncryptedProxyController = new SSController();
                         break;
                     case "SSR":
-                        pServerClientController = new SSRController();
+                        pEncryptedProxyController = new SSRController();
                         break;
                     case "VMess":
-                        pServerClientController = new VMessController();
+                        pEncryptedProxyController = new VMessController();
                         break;
                     case "Trojan":
-                        pServerClientController = new TrojanController();
+                        pEncryptedProxyController = new TrojanController();
                         break;
                 }
 
-                MainForm.Instance.StatusText(i18N.Translate("Starting ", pServerClientController.MainName));
-                if (pServerClientController.ready) result = pServerClientController.Start(server, mode);
+                MainForm.Instance.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.AkaName));
+                if (pEncryptedProxyController.Ready) result = pEncryptedProxyController.Start(server, mode);
             }
 
-            if (result) // If server runs,then run mode
+            if (result)
+            {
+                // 加密代理已启动
                 switch (mode.Type)
                 {
                     case 0: // 进程代理模式
-                        pNFController ??= new NFController();
-                        pNTTController ??= new NTTController();
-                        if (pNFController.ready) result = pNFController.Start(server, mode, false);
-
-                        if (!result && pNFController.ready)
-                        {
-                            MainForm.Instance.StatusText(i18N.Translate("Restarting Redirector"));
-                            Logging.Info("正常启动失败后尝试停止驱动服务再重新启动");
-                            //正常启动失败后尝试停止驱动服务再重新启动
-                            result = pNFController.Start(server, mode, true);
-                        }
-
-                        if (result)
-                            Task.Run(() => pNTTController.Start());
+                        pModeController = new NFController();
                         break;
                     case 1: // TUN/TAP 黑名单代理模式
                     case 2: // TUN/TAP 白名单代理模式
-                        pTUNTAPController ??= new TUNTAPController();
-                        pNTTController ??= new NTTController();
-                        result = pTUNTAPController.Start(server, mode);
+                        pModeController = new TUNTAPController();
+                        break;
+                    case 3:
+                    case 5:
+                        pModeController = new HTTPController();
+                        break;
+                    case 4: // Socks5 代理模式，不需要启动额外的Server
+                        result = true;
+                        break;
+                }
+
+                if (pModeController != null && pModeController.Ready)
+                {
+                    MainForm.Instance.StatusText(i18N.Translate("Starting ", pModeController.AkaName));
+                    result = pModeController.Start(server, mode);
+                }
+
+                switch (mode.Type)
+                {
+                    case 0:
+                    case 1:
+                    case 2:
                         if (result)
                             Task.Run(() => pNTTController.Start());
                         break;
-                    case 3: // HTTP 系统代理和 Socks5 和 HTTP 代理模式
-                    case 5:
-                        pHTTPController ??= new HTTPController();
-                        result = pHTTPController.Start(server, mode);
-                        break;
-                    case 4: // Socks5 代理模式，不需要启动额外的Server
-                        break;
-                    default:
-                        result = false;
-                        break;
                 }
+            }
 
             if (!result) Stop();
 
@@ -124,36 +109,8 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            pServerClientController?.Stop();
-
-            if (pNFController != null)
-                pNFController.Stop();
-            else if (pTUNTAPController != null)
-                pTUNTAPController.Stop();
-            else
-                pHTTPController?.Stop();
-
-            pNTTController?.Stop();
-        }
-
-        public static Process GetProcess(string path = null)
-        {
-            var p = new Process
-            {
-                StartInfo =
-                {
-                    Arguments = "",
-                    WorkingDirectory = $"{Global.NetchDir}\\bin",
-                    CreateNoWindow = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                },
-                EnableRaisingEvents = true
-            };
-            if (path != null) p.StartInfo.FileName = Path.GetFullPath(path);
-            return p;
+            pEncryptedProxyController?.Stop();
+            pModeController?.Stop();
         }
 
         public static void KillProcessByName(string name)
@@ -166,11 +123,11 @@ namespace Netch.Controllers
             }
             catch (Win32Exception e)
             {
-                Logging.Info($"结束进程 {name} 错误: " + e.Message);
+                Logging.Error($"结束进程 {name} 错误：\n" + e);
             }
             catch (Exception)
             {
-                // ignore
+                // ignored
             }
         }
     }

@@ -9,16 +9,17 @@ using VMess = Netch.Models.Information.VMess;
 
 namespace Netch.Controllers
 {
-    public class VMessController : ServerClient
+    public class VMessController : EncryptedProxy
     {
         public VMessController()
         {
-            MainName = "v2ray";
-            ready = BeforeStartProgress();
+            MainFile = "v2ray";
+            InitCheck();
         }
 
         public override bool Start(Server server, Mode mode)
         {
+            if (!Ready) return false;
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new VMess.Config
             {
                 inbounds = new List<VMess.Inbounds>
@@ -167,7 +168,7 @@ namespace Netch.Controllers
                 }
             }));
 
-            Instance = MainController.GetProcess("bin\\v2ray.exe");
+            Instance = GetProcess("bin\\v2ray.exe");
             Instance.StartInfo.Arguments = "-config ..\\data\\last.json";
 
             Instance.OutputDataReceived += OnOutputDataReceived;
@@ -190,14 +191,14 @@ namespace Netch.Controllers
 
                 if (State == State.Stopped)
                 {
-                    Logging.Info("V2Ray 进程启动失败");
+                    Logging.Error("V2Ray 进程启动失败");
 
                     Stop();
                     return false;
                 }
             }
 
-            Logging.Info("V2Ray 进程启动超时");
+            Logging.Error("V2Ray 进程启动超时");
             Stop();
             return false;
         }
@@ -213,6 +214,11 @@ namespace Netch.Controllers
                     State = State.Started;
                 else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to")) State = State.Stopped;
             }
+        }
+
+        public override void Stop()
+        {
+            StopInstance();
         }
     }
 }

@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using NetFwTypeLib;
 
 namespace Netch.Utils
@@ -24,8 +20,8 @@ namespace Netch.Utils
             "Netch.exe"
         };
 
-        private const string _netch = "Netch";
-        private const string _netchAutoRule = "NetchAutoRule";
+        private const string Netch = "Netch";
+        private const string NetchAutoRule = "NetchAutoRule";
 
         /// <summary>
         /// 添加防火墙规则 (非 Netch 自带程序)
@@ -33,7 +29,7 @@ namespace Netch.Utils
         /// <param name="exeFullPath"></param>
         public static void AddFwRule(string exeFullPath)
         {
-            AddFwRule(_netchAutoRule, exeFullPath);
+            AddFwRule(NetchAutoRule, exeFullPath);
         }
 
         /// <summary>
@@ -41,7 +37,7 @@ namespace Netch.Utils
         /// </summary>
         public static void RemoveFwRules()
         {
-            RemoveFwRules(_netchAutoRule);
+            RemoveFwRules(NetchAutoRule);
         }
 
         /// <summary>
@@ -49,7 +45,7 @@ namespace Netch.Utils
         /// </summary>
         public static void AddNetchFwRules()
         {
-            if (GetFwRulePath(_netch).StartsWith(Global.NetchDir) && GetFwRulesNumber(_netch) >= ProgramPath.Length) return;
+            if (GetFwRulePath(Netch).StartsWith(Global.NetchDir) && GetFwRulesNumber(Netch) >= ProgramPath.Length) return;
             RemoveNetchFwRules();
             foreach (var p in ProgramPath)
             {
@@ -64,9 +60,9 @@ namespace Netch.Utils
         /// <summary>
         /// 清除防火墙规则 (Netch 自带程序)
         /// </summary>
-        public static void RemoveNetchFwRules()
+        private static void RemoveNetchFwRules()
         {
-            RemoveFwRules(_netch);
+            RemoveFwRules(Netch);
         }
 
         #region 封装
@@ -111,7 +107,7 @@ namespace Netch.Utils
                 var rule = (INetFwRule2)FwPolicy.Rules.Item(ruleName);
             return rule.ApplicationName;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return "";
             }
@@ -120,7 +116,13 @@ namespace Netch.Utils
         private static int GetFwRulesNumber(string ruleName)
         {
             // https://stackoverflow.com/a/53601691
-            return FwPolicy.Rules.Cast<INetFwRule>().Count(rule => rule.Name == ruleName);
+            var i = 0;
+            foreach (INetFwRule2 rule in FwPolicy.Rules)
+            {
+                if (rule.Name == ruleName)
+                    i++;
+            }
+            return i;
         }
 
         #endregion

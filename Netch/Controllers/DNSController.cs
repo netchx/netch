@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using Netch.Forms;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -9,9 +8,10 @@ namespace Netch.Controllers
     {
         public DNSController()
         {
-            MainName = "unbound";
+            AkaName = "dns Service";
+            MainFile = "unbound";
             ExtFiles = new[] {"unbound-service.conf", "forward-zone.conf"};
-            ready = BeforeStartProgress();
+            InitCheck();
         }
 
         /// <summary>
@@ -20,33 +20,36 @@ namespace Netch.Controllers
         /// <returns></returns>
         public bool Start()
         {
-            MainForm.Instance.StatusText(i18N.Translate("Starting dns Service"));
+            if (!Ready) return false;
+
+            Instance = GetProcess("bin\\unbound.exe");
+            Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
+
+            Instance.OutputDataReceived += OnOutputDataReceived;
+            Instance.ErrorDataReceived += OnOutputDataReceived;
+
             try
             {
-                Instance = MainController.GetProcess("bin\\unbound.exe");
-
-                Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
-
-                Instance.OutputDataReceived += OnOutputDataReceived;
-                Instance.ErrorDataReceived += OnOutputDataReceived;
-
                 Instance.Start();
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
-                Logging.Info("dns-unbound 启动完毕");
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logging.Info("dns-unbound 进程出错");
-                Stop();
+                Logging.Error("dns-unbound 进程出错：\n" + e);
                 return false;
             }
         }
 
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             WriteLog(e);
+        }
+
+        public override void Stop()
+        {
+            StopInstance();
         }
     }
 }

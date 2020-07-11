@@ -148,7 +148,7 @@ namespace Netch.Forms
                 // 如果勾选了关闭时退出，自动点击退出按钮
                 else
                 {
-                    ExitToolStripButton.PerformClick();
+                    Exit(true);
                 }
             }
         }
@@ -414,35 +414,52 @@ namespace Netch.Forms
             Activate();
         }
 
-        private void ExitToolStripButton_Click(object sender, EventArgs e)
+        private void Exit(bool forceExit = false)
         {
             // 已启动
             if (State != State.Waiting && State != State.Stopped)
             {
-                // 未开启自动停止
-                if (!Global.Settings.StopWhenExited)
+                if (forceExit)
+                    ControlFun();
+                else
                 {
-                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
+                    if (!Global.Settings.StopWhenExited)
+                    {
+                        // 未开启自动停止
+                        MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
-                    Visible = true;
-                    ShowInTaskbar = true; // 显示在系统任务栏 
-                    WindowState = FormWindowState.Normal; // 还原窗体 
-                    NotifyIcon.Visible = true; // 托盘图标隐藏 
+                        Visible = true;
+                        ShowInTaskbar = true; // 显示在系统任务栏 
+                        WindowState = FormWindowState.Normal; // 还原窗体 
+                        NotifyIcon.Visible = true; // 托盘图标隐藏 
 
-                    return;
+                        return;
+                    }
                 }
-                // 自动停止
-
-                ControlButton_Click(sender, e);
             }
 
-            SaveConfigs();
-
-            UpdateStatus(State.Terminating);
             NotifyIcon.Visible = false;
-            Close();
-            Dispose();
-            Environment.Exit(Environment.ExitCode);
+            Hide();
+
+            Task.Run(() =>
+            {
+                for (var i = 0; i < 16; i++)
+                {
+                    if (State == State.Waiting || State == State.Stopped)
+                        break;
+                    Thread.Sleep(250);
+                }
+
+                SaveConfigs();
+                UpdateStatus(State.Terminating);
+                Dispose();
+                Environment.Exit(Environment.ExitCode);
+            });
+        }
+
+        private void ExitToolStripButton_Click(object sender, EventArgs e)
+        {
+            Exit();
         }
 
         private void NotifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)

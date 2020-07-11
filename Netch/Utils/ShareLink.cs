@@ -123,7 +123,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Logging.Info(e.ToString());
+                Logging.Error(e.ToString());
                 return null;
             }
 
@@ -256,7 +256,7 @@ namespace Netch.Utils
 
                         if (!Global.EncryptMethods.SS.Contains(data.EncryptMethod))
                         {
-                            Logging.Info(string.Format("不支持的 SS 加密方式：{0}", data.EncryptMethod));
+                            Logging.Error($"不支持的 SS 加密方式：{data.EncryptMethod}");
                             return null;
                         }
 
@@ -313,14 +313,14 @@ namespace Netch.Utils
                     data.TransferProtocol = vmess.net;
                     if (!Global.TransferProtocols.Contains(data.TransferProtocol))
                     {
-                        Logging.Info(string.Format("不支持的 VMess 传输协议：{0}", data.TransferProtocol));
+                        Logging.Error($"不支持的 VMess 传输协议：{data.TransferProtocol}");
                         return null;
                     }
 
                     data.FakeType = vmess.type;
                     if (data.FakeType.Length != 0 && !Global.FakeTypes.Contains(data.FakeType))
                     {
-                        Logging.Info(string.Format("不支持的 VMess 伪装类型：{0}", data.FakeType));
+                        Logging.Error($"不支持的 VMess 伪装类型：{data.FakeType}");
                         return null;
                     }
 
@@ -337,7 +337,7 @@ namespace Netch.Utils
                     {
                         if (!Global.EncryptMethods.VMessQUIC.Contains(vmess.host))
                         {
-                            Logging.Info(string.Format("不支持的 VMess QUIC 加密方式：{0}", vmess.host));
+                            Logging.Error($"不支持的 VMess QUIC 加密方式：{vmess.host}");
                             return null;
                         }
 
@@ -393,43 +393,43 @@ namespace Netch.Utils
                         case "SS":
                             if (!Global.EncryptMethods.SS.Contains(NetchLink.EncryptMethod))
                             {
-                                Logging.Info($"不支持的 SS 加密方式：{NetchLink.EncryptMethod}");
+                                Logging.Error($"不支持的 SS 加密方式：{NetchLink.EncryptMethod}");
                                 return null;
                             }
                             break;
                         case "SSR":
                             if (!Global.EncryptMethods.SSR.Contains(NetchLink.EncryptMethod))
                             {
-                                Logging.Info($"不支持的 SSR 加密方式：{NetchLink.EncryptMethod}");
+                                Logging.Error($"不支持的 SSR 加密方式：{NetchLink.EncryptMethod}");
                                 return null;
                             }
                             if (!Global.Protocols.Contains(NetchLink.Protocol))
                             {
-                                Logging.Info($"不支持的 SSR 协议：{NetchLink.Protocol}");
+                                Logging.Error($"不支持的 SSR 协议：{NetchLink.Protocol}");
                                 return null;
                             }
                             if (!Global.OBFSs.Contains(NetchLink.OBFS))
                             {
-                                Logging.Info($"不支持的 SSR 混淆：{NetchLink.OBFS}");
+                                Logging.Error($"不支持的 SSR 混淆：{NetchLink.OBFS}");
                                 return null;
                             }
                             break;
                         case "VMess":
                             if (!Global.TransferProtocols.Contains(NetchLink.TransferProtocol))
                             {
-                                Logging.Info($"不支持的 VMess 传输协议：{NetchLink.TransferProtocol}");
+                                Logging.Error($"不支持的 VMess 传输协议：{NetchLink.TransferProtocol}");
                                 return null;
                             }
                             if (!Global.FakeTypes.Contains(NetchLink.FakeType))
                             {
-                                Logging.Info($"不支持的 VMess 伪装类型：{NetchLink.FakeType}");
+                                Logging.Error($"不支持的 VMess 伪装类型：{NetchLink.FakeType}");
                                 return null;
                             }
                             if (NetchLink.TransferProtocol == "quic")
                             {
                                 if (!Global.EncryptMethods.VMessQUIC.Contains(NetchLink.QUICSecure))
                                 {
-                                    Logging.Info($"不支持的 VMess QUIC 加密方式：{NetchLink.QUICSecure}");
+                                    Logging.Error($"不支持的 VMess QUIC 加密方式：{NetchLink.QUICSecure}");
                                     return null;
                                 }
                             }
@@ -492,7 +492,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Logging.Info(e.ToString());
+                Logging.Error(e.ToString());
                 return null;
             }
 

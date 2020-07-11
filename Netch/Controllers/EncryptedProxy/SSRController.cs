@@ -5,22 +5,22 @@ using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class SSRController : ServerClient
+    public class SSRController : EncryptedProxy
     {
         public SSRController()
         {
-            MainName = "ShadowsocksR";
-            ready = BeforeStartProgress();
+            MainFile = "ShadowsocksR";
+            InitCheck();
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            Instance = MainController.GetProcess("bin\\ShadowsocksR.exe");
+            if (!Ready) return false;
+
+            Instance = GetProcess("bin\\ShadowsocksR.exe");
             Instance.StartInfo.FileName = "bin\\ShadowsocksR.exe";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
-
-            #region Instance.Arguments
 
             Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120";
 
@@ -42,8 +42,6 @@ namespace Netch.Controllers
 
             if (mode.BypassChina) Instance.StartInfo.Arguments += " --acl default.acl";
 
-            #endregion
-
             State = State.Starting;
             Instance.Start();
             Instance.BeginOutputReadLine();
@@ -57,14 +55,14 @@ namespace Netch.Controllers
 
                 if (State == State.Stopped)
                 {
-                    Logging.Info("SSR 进程启动失败");
+                    Logging.Error("SSR 进程启动失败");
 
                     Stop();
                     return false;
                 }
             }
 
-            Logging.Info("SSR 进程启动超时");
+            Logging.Error("SSR 进程启动超时");
             Stop();
             return false;
         }
@@ -80,6 +78,11 @@ namespace Netch.Controllers
                     State = State.Started;
                 else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage")) State = State.Stopped;
             }
+        }
+
+        public override void Stop()
+        {
+            StopInstance();
         }
     }
 }
