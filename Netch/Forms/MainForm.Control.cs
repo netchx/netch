@@ -36,7 +36,7 @@ namespace Netch.Forms
                 //MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = false;
 
                 UpdateStatus(State.Starting);
-                
+
                 Firewall.AddNetchFwRules();
 
                 Task.Run(() =>
@@ -44,7 +44,7 @@ namespace Netch.Forms
                     var server = ServerComboBox.SelectedItem as Models.Server;
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
 
-                    MainController = new MainController();
+                    MainController ??= new MainController();
 
                     var startResult = MainController.Start(server, mode);
 
@@ -94,7 +94,7 @@ namespace Netch.Forms
                         if (server.Type == "Socks5")
                         {
                             // 不可控Socks5
-                            if (mode.Type == 3 && mode.Type == 5)
+                            if (mode.Type == 3 || mode.Type == 5)
                             {
                                 // 可控HTTP
                                 text.Append(

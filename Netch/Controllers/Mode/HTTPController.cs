@@ -7,7 +7,7 @@ using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class HTTPController
+    public class HTTPController : ModeController
     {
         /// <summary>
         ///     实例
@@ -17,14 +17,22 @@ namespace Netch.Controllers
         private string prevBypass, prevHTTP, prevPAC;
         private bool prevEnabled;
 
+        public HTTPController()
+        {
+            AkaName = "HTTP";
+            Ready = true;
+        }
+
         /// <summary>
         ///     启动
         /// </summary>
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Server server, Mode mode)
+        public override bool Start(Server server, Mode mode)
         {
+            if (!Ready) return false;
+
             RecordPrevious();
             try
             {
@@ -45,7 +53,7 @@ namespace Netch.Controllers
             {
                 if (MessageBoxX.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), confirm: true) == DialogResult.OK) Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
 
-                Logging.Info("设置系统代理失败" + e);
+                Logging.Error("设置系统代理失败" + e);
                 return false;
             }
 
@@ -72,18 +80,11 @@ namespace Netch.Controllers
         /// <summary>
         ///     停止
         /// </summary>
-        public void Stop()
+        public override void Stop()
         {
             try
             {
-                try
-                {
-                    pPrivoxyController.Stop();
-                }
-                catch (Exception e)
-                {
-                    Logging.Info(e.ToString());
-                }
+                pPrivoxyController.Stop();
 
                 NativeMethods.SetGlobal(prevHTTP, prevBypass);
                 if (prevPAC != "")
@@ -94,7 +95,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Logging.Info(e.ToString());
+                Logging.Error("停止HTTP控制器错误：\n" + e);
             }
         }
     }

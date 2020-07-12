@@ -13,7 +13,7 @@ namespace Netch.Forms
     partial class MainForm
     {
         
-        // init at MainFrom_Load()
+        /// init at <see cref="MainForm_Load"/> 
         private int _sizeHeight;
         private int _controlHeight;
         private int _profileBoxHeight;

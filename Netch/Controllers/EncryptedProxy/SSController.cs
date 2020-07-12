@@ -6,12 +6,12 @@ using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class SSController : ServerClient
+    public class SSController : EncryptedProxy
     {
         public SSController()
         {
-            MainName = "Shadowsocks";
-            ready = BeforeStartProgress();
+            MainFile = "Shadowsocks";
+            InitCheck();
         }
 
         public override bool Start(Server server, Mode mode)
@@ -27,7 +27,7 @@ namespace Netch.Controllers
                 if (!NativeMethods.Shadowsocks.Info(client, remote, passwd, method))
                 {
                     State = State.Stopped;
-                    Logging.Info("DLL SS INFO 设置失败！");
+                    Logging.Error("DLL SS INFO 设置失败！");
                     return false;
                 }
 
@@ -36,7 +36,7 @@ namespace Netch.Controllers
                 if (!NativeMethods.Shadowsocks.Start())
                 {
                     State = State.Stopped;
-                    Logging.Info("DLL SS 启动失败！");
+                    Logging.Error("DLL SS 启动失败！");
                     return false;
                 }
 
@@ -45,18 +45,13 @@ namespace Netch.Controllers
                 return true;
             }
 
-            Instance = MainController.GetProcess("bin\\Shadowsocks.exe");
+            if (!Ready) return false;
+            Instance = GetProcess("bin\\Shadowsocks.exe");
 
-            #region Instance.Arguments
-
+            Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
             if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
-                Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"";
-            else
-                Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
+                Instance.StartInfo.Arguments += $" --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"";
             if (mode.BypassChina) Instance.StartInfo.Arguments += " --acl default.acl";
-
-            #endregion
-
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
@@ -64,6 +59,7 @@ namespace Netch.Controllers
             Instance.Start();
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();
+
             for (var i = 0; i < 1000; i++)
             {
                 Thread.Sleep(10);
@@ -72,14 +68,14 @@ namespace Netch.Controllers
 
                 if (State == State.Stopped)
                 {
-                    Logging.Info("SS 进程启动失败");
+                    Logging.Error("SS 进程启动失败");
 
                     Stop();
                     return false;
                 }
             }
 
-            Logging.Info("SS 进程启动超时");
+            Logging.Error("SS 进程启动超时");
             Stop();
             return false;
         }
@@ -87,10 +83,11 @@ namespace Netch.Controllers
         /// <summary>
         ///     SSController 停止
         /// </summary>
-        public new void Stop()
+        public override void Stop()
         {
-            base.Stop();
             if (Global.Settings.BootShadowsocksFromDLL) NativeMethods.Shadowsocks.Stop();
+            else
+                StopInstance();
         }
 
         public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)

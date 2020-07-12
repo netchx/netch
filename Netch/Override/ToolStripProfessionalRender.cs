@@ -4,7 +4,7 @@
     {
         protected override void OnRenderToolStripBorder(System.Windows.Forms.ToolStripRenderEventArgs e)
         {
-            // 跳过   
+            // ignored   
         }
     }
 }

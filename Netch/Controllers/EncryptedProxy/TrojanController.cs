@@ -2,24 +2,23 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 using Newtonsoft.Json;
 
 namespace Netch.Controllers
 {
-    public class TrojanController : ServerClient
+    public class TrojanController : EncryptedProxy
     {
         public TrojanController()
         {
-            MainName = "Trojan";
-            ready = BeforeStartProgress();
+            MainFile = "Trojan";
+            InitCheck();
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            MainForm.Instance.StatusText(i18N.Translate("Starting Trojan"));
+            if (!Ready) return false;
 
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new Trojan
             {
@@ -33,7 +32,7 @@ namespace Netch.Controllers
                 }
             }));
 
-            Instance = MainController.GetProcess("bin\\Trojan.exe");
+            Instance = GetProcess("bin\\Trojan.exe");
             Instance.StartInfo.Arguments = "-c ..\\data\\last.json";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
@@ -50,14 +49,14 @@ namespace Netch.Controllers
 
                 if (State == State.Stopped)
                 {
-                    Logging.Info("Trojan 进程启动失败");
+                    Logging.Error("Trojan 进程启动失败");
 
                     Stop();
                     return false;
                 }
             }
 
-            Logging.Info("Trojan 进程启动超时");
+            Logging.Error("Trojan 进程启动超时");
             Stop();
             return false;
         }
@@ -73,6 +72,11 @@ namespace Netch.Controllers
                     State = State.Started;
                 else if (e.Data.Contains("exiting")) State = State.Stopped;
             }
+        }
+
+        public override void Stop()
+        {
+            StopInstance();
         }
     }
 }
