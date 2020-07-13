@@ -94,7 +94,13 @@ namespace Netch.Controllers
                     case 1:
                     case 2:
                         if (result)
-                            Task.Run(() => pNTTController.Start());
+                            Task.Run(() =>
+                            {
+                                MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
+                                // Thread.Sleep(1000);
+                                var (nttResult, natType, _, _) = pNTTController.Start();
+                                if (nttResult) MainForm.Instance.NatTypeStatusText(natType);
+                            });
                         break;
                 }
             }

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Windows.Media;
+using System.Drawing;
 using Netch.Models;
 using Netch.Utils;
-using Color = System.Drawing.Color;
 
 namespace Netch.Forms
 {
@@ -22,28 +21,24 @@ namespace Netch.Forms
             if (State != State.Started)
             {
                 NatTypeStatusLabel.Text = "";
-                NatTypeStatusLabel.Visible = false;
-                NatTypeStatusLightLabel.Visible = false;
+                NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = false;
                 return;
             }
+
             if (!string.IsNullOrEmpty(text))
             {
                 NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + text.Trim();
+                if (Enum.TryParse(text, false, out STUN_Client.NatType natType))
+                {
+                    NatTypeStatusLightLabel.Visible = true;
+                    UpdateNatTypeLight(natType);
+                }
             }
             else
             {
                 NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + i18N.Translate("Test failed");
             }
 
-            if (Enum.TryParse(text,false,out STUN_Client.NatType natType))
-            {
-                UpdateNatTypeLight(natType);
-                NatTypeStatusLightLabel.Visible = true;
-            }
-            else
-            {
-                NatTypeStatusLightLabel.Visible = false;
-            }
             NatTypeStatusLabel.Visible = true;
         }
 
@@ -66,12 +61,13 @@ namespace Netch.Forms
                     c = Color.LimeGreen;
                     break;
                 default:
-                    c=Color.Red;
+                    c = Color.Red;
                     break;
             }
-            NatTypeStatusLightLabel.ForeColor=c;
+
+            NatTypeStatusLightLabel.ForeColor = c;
         }
-        
+
 
         public void StatusText(string text)
         {
@@ -79,7 +75,7 @@ namespace Netch.Forms
         }
 
         /// <summary>
-        /// Update UI, Status, Status Label
+        ///     Update UI, Status, Status Label
         /// </summary>
         /// <param name="state"></param>
         public void UpdateStatus(State state)

@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
@@ -10,6 +7,8 @@ namespace Netch.Controllers
 {
     public class NTTController : Controller
     {
+        private string _lastResult;
+
         public NTTController()
         {
             MainFile = "NTT";
@@ -23,8 +22,6 @@ namespace Netch.Controllers
         public (bool, string, string, string) Start()
         {
             if (!Ready) return (false, null, null, null);
-            Thread.Sleep(1000);
-            MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
             try
             {
                 Instance = GetProcess("bin\\NTT.exe");
@@ -40,11 +37,10 @@ namespace Netch.Controllers
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
 
-                var result = File.ReadAllText($"logging\\{MainFile}.log").Split('#');
+                var result = _lastResult.Split('#');
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
-                MainForm.Instance.NatTypeStatusText(natType);
 
                 return (true, natType, localEnd, publicEnd);
             }
@@ -58,7 +54,8 @@ namespace Netch.Controllers
 
         private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            WriteLog(e);
+            if (!string.IsNullOrEmpty(e.Data))
+                _lastResult = e.Data;
         }
 
         /// <summary>
