@@ -275,7 +275,7 @@ namespace Netch.Forms.Mode
                         var mode = new Models.Mode
                         {
                             BypassChina = false,
-                            FileName = ModeFilename,
+                            FileName = FilenameTextBox.Text,
                             Type = 0,
                             Remark = RemarkTextBox.Text
                         };
