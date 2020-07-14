@@ -13,65 +13,58 @@ namespace Netch.Controllers
 {
     public class NFController : ModeController
     {
-        /// <summary>
-        ///     流量变动处理器
-        /// </summary>
-        /// <param name="upload">上传</param>
-        /// <param name="download">下载</param>
-        public delegate void BandwidthUpdateHandler(long upload, long download);
+        private static readonly ServiceController NFService = new ServiceController("netfilter2");
 
-        private readonly string _binDriverPath;
+        private static readonly string BinDriver = "";
+        private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
 
-        private readonly string _driverPath = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-        private readonly ServiceController _service = new ServiceController("netfilter2");
-        private string _systemDriverVersion;
+        public static string DriverVersion(string file)
+        {
+            return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : "";
+        }
+
+        static NFController()
+        {
+            // 生成系统版本
+            var winNTver = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
+            switch (winNTver)
+            {
+                case "10.0":
+                    BinDriver = "Win-10.sys";
+                    break;
+                case "6.3":
+                case "6.2":
+                    BinDriver = "Win-8.sys";
+                    break;
+                case "6.1":
+                case "6.0":
+                    BinDriver = "Win-7.sys";
+                    break;
+                default:
+                    Logging.Error($"不支持的系统版本：{winNTver}");
+                    return;
+            }
+
+            BinDriver = "bin\\" + BinDriver;
+        }
 
         public NFController()
         {
             MainFile = "Redirector";
+            ExtFiles = new[] {Path.GetFileName(BinDriver)};
             InitCheck();
-            // 生成系统版本
-            var winNTver = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
-            var driverName = "";
-            switch (winNTver)
-            {
-                case "10.0":
-                    driverName = "Win-10.sys";
-                    break;
-                case "6.3":
-                case "6.2":
-                    driverName = "Win-8.sys";
-                    break;
-                case "6.1":
-                case "6.0":
-                    driverName = "Win-7.sys";
-                    break;
-                default:
-                    Logging.Error($"不支持的系统版本：{winNTver}");
-                    Ready = false;
-                    return;
-            }
 
-            _binDriverPath = "bin\\" + driverName;
-
-            if (!File.Exists(_driverPath))
+            if (!File.Exists(SystemDriver))
             {
                 InstallDriver();
             }
-            // 驱动版本
-            _systemDriverVersion = FileVersionInfo.GetVersionInfo(_driverPath).FileVersion;
         }
-
-        /// <summary>
-        ///     流量变动事件
-        /// </summary>
-        public event BandwidthUpdateHandler OnBandwidthUpdated;
 
         public override bool Start(Server server, Mode mode)
         {
             if (!CheckDriverReady())
             {
-                if (File.Exists(_driverPath))
+                if (File.Exists(SystemDriver))
                     UninstallDriver();
                 if (!InstallDriver())
                     return false;
@@ -131,19 +124,19 @@ namespace Netch.Controllers
         {
             try
             {
-                switch (_service.Status)
+                switch (NFService.Status)
                 {
                     // 启动驱动服务
                     case ServiceControllerStatus.Running:
                         // 防止其他程序占用 重置 NF 百万连接数限制
-                        _service.Stop();
-                        _service.WaitForStatus(ServiceControllerStatus.Stopped);
+                        NFService.Stop();
+                        NFService.WaitForStatus(ServiceControllerStatus.Stopped);
                         MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
-                        _service.Start();
+                        NFService.Start();
                         break;
                     case ServiceControllerStatus.Stopped:
                         MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
-                        _service.Start();
+                        NFService.Start();
                         break;
                 }
             }
@@ -167,22 +160,20 @@ namespace Netch.Controllers
         private bool CheckDriverReady()
         {
             // 检查驱动是否存在
-            if (!File.Exists(_driverPath)) return false;
+            if (!File.Exists(SystemDriver)) return false;
 
             // 检查驱动版本号
-            var binVersion = FileVersionInfo.GetVersionInfo(_binDriverPath).FileVersion;
-            return _systemDriverVersion.Equals(binVersion);
+            return DriverVersion(SystemDriver) == DriverVersion(BinDriver);
         }
 
-        public bool UninstallDriver()
+        public static bool UninstallDriver()
         {
             try
             {
-                var service = new ServiceController("netfilter2");
-                if (service.Status == ServiceControllerStatus.Running)
+                if (NFService.Status == ServiceControllerStatus.Running)
                 {
-                    service.Stop();
-                    service.WaitForStatus(ServiceControllerStatus.Stopped);
+                    NFService.Stop();
+                    NFService.WaitForStatus(ServiceControllerStatus.Stopped);
                 }
             }
             catch (Exception)
@@ -190,13 +181,12 @@ namespace Netch.Controllers
                 // ignored
             }
 
-            if (!File.Exists(_driverPath)) return true;
+            if (!File.Exists(SystemDriver)) return true;
             try
             {
                 NFAPI.nf_unRegisterDriver("netfilter2");
 
-                File.Delete(_driverPath);
-                _systemDriverVersion = "";
+                File.Delete(SystemDriver);
                 return true;
             }
             catch (Exception ex)
@@ -205,13 +195,12 @@ namespace Netch.Controllers
             }
         }
 
-        public bool InstallDriver()
+        public static bool InstallDriver()
         {
-            if (!Ready) return false;
             Logging.Info("安装驱动中");
             try
             {
-                File.Copy(_binDriverPath, _driverPath);
+                File.Copy(BinDriver, SystemDriver);
             }
             catch (Exception e)
             {
@@ -224,8 +213,7 @@ namespace Netch.Controllers
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
             {
-                _systemDriverVersion = FileVersionInfo.GetVersionInfo(_driverPath).FileVersion;
-                Logging.Info($"驱动安装成功，当前驱动版本:{_systemDriverVersion}");
+                Logging.Info($"驱动安装成功，当前驱动版本:{DriverVersion(DriverVersion(SystemDriver))}");
             }
             else
             {
@@ -269,5 +257,17 @@ namespace Netch.Controllers
         {
             StopInstance();
         }
+
+        /// <summary>
+        ///     流量变动事件
+        /// </summary>
+        public event BandwidthUpdateHandler OnBandwidthUpdated;
+
+        /// <summary>
+        ///     流量变动处理器
+        /// </summary>
+        /// <param name="upload">上传</param>
+        /// <param name="download">下载</param>
+        public delegate void BandwidthUpdateHandler(long upload, long download);
     }
 }
