@@ -87,10 +87,17 @@ namespace Netch.Utils
 
         private static void RemoveFwRules(string ruleName)
         {
-            var c = GetFwRulesNumber(ruleName);
-            foreach (var _ in new bool[c])
+            try
             {
-                FwPolicy.Rules.Remove(ruleName);
+                var c = GetFwRulesNumber(ruleName);
+                foreach (var _ in new bool[c])
+                {
+                    FwPolicy.Rules.Remove(ruleName);
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.Info("Netch 自带程序添加防火墙出错(如已关闭防火墙则可无视此错误)\n" + e);
             }
         }
 
