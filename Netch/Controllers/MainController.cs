@@ -98,8 +98,10 @@ namespace Netch.Controllers
                             {
                                 MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
                                 // Thread.Sleep(1000);
-                                var (nttResult, natType, _, _) = pNTTController.Start();
-                                if (nttResult) MainForm.Instance.NatTypeStatusText(natType);
+                                var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
+                                var country = Utils.Utils.GetCityCode(publicEnd);
+
+                                if (nttResult) MainForm.Instance.NatTypeStatusText(natType, country);
                             });
                         break;
                 }

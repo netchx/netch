@@ -16,7 +16,7 @@ namespace Netch.Forms
         /// </summary>
         public State State { get; private set; } = State.Waiting;
 
-        public void NatTypeStatusText(string text = "")
+        public void NatTypeStatusText(string text = "",string Country = "")
         {
             if (State != State.Started)
             {
@@ -27,7 +27,14 @@ namespace Netch.Forms
 
             if (!string.IsNullOrEmpty(text))
             {
-                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + text.Trim();
+                if (Country != "")
+                {
+                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}[{2}]", i18N.Translate(": "), text, Country);
+                }
+                else
+                {
+                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}", i18N.Translate(": "), text);
+                }
                 if (Enum.TryParse(text, false, out STUN_Client.NatType natType))
                 {
                     NatTypeStatusLightLabel.Visible = true;
@@ -61,7 +68,7 @@ namespace Netch.Forms
                     c = Color.LimeGreen;
                     break;
                 default:
-                    c = Color.Red;
+                    c = Color.Black;
                     break;
             }
 

@@ -30,9 +30,6 @@ namespace Netch.Controllers
         {
             MainFile = "Redirector";
             InitCheck();
-
-            // 驱动版本
-            _systemDriverVersion = FileVersionInfo.GetVersionInfo(_driverPath).FileVersion;
             // 生成系统版本
             var winNTver = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
             var driverName = "";
@@ -56,6 +53,13 @@ namespace Netch.Controllers
             }
 
             _binDriverPath = "bin\\" + driverName;
+
+            if (!File.Exists(_driverPath))
+            {
+                InstallDriver();
+            }
+            // 驱动版本
+            _systemDriverVersion = FileVersionInfo.GetVersionInfo(_driverPath).FileVersion;
         }
 
         /// <summary>

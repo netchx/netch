@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
 using System.Net;
 using System.ServiceProcess;
@@ -99,6 +100,9 @@ namespace Netch.Forms
 
         private void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var bak_State = State;
+            var bak_StateText = StatusLabel.Text;
+
             if (Global.Settings.UseProxyToUpdateSubscription && ServerComboBox.SelectedIndex == -1)
                 Global.Settings.UseProxyToUpdateSubscription = false;
 
@@ -161,8 +165,8 @@ namespace Netch.Forms
                             }
                             catch (Exception)
                             {
-                                // ignored
-                            }
+                                    // ignored
+                                }
 
                             Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
                             var result = ShareLink.Parse(response);
@@ -205,6 +209,11 @@ namespace Netch.Forms
 
                     Configuration.Save();
                     StatusText(i18N.Translate("Subscription updated"));
+
+                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
+                    UpdateStatus(bak_State);
+                    StatusLabel.Text = bak_StateText;
+
                 }).ContinueWith(task => { BeginInvoke(new Action(() => { UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true; })); });
 
                 NotifyIcon.ShowBalloonTip(5,
@@ -215,6 +224,7 @@ namespace Netch.Forms
             else
             {
                 MessageBoxX.Show(i18N.Translate("No subscription link"));
+
             }
         }
 
@@ -295,15 +305,23 @@ namespace Netch.Forms
 
         private void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Enabled = false;
-            Task.Run(() =>
+            var bak_State = State;
+            var bak_StateText = StatusLabel.Text;
+
+            try
             {
+                Enabled = false;
                 DNS.Cache.Clear();
 
                 MessageBoxX.Show(i18N.Translate("DNS cache cleanup succeeded"), owner: this);
                 StatusText(i18N.Translate("DNS cache cleanup succeeded"));
                 Enabled = true;
-            });
+            }
+            finally
+            {
+                UpdateStatus(bak_State);
+                StatusLabel.Text = bak_StateText;
+            }
         }
 
         private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -415,6 +433,9 @@ namespace Netch.Forms
 
         private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            var bak_State = State;
+            var bak_StateText = StatusLabel.Text;
+
             StatusText(i18N.Translate("Starting update ACL"));
             using var client = new WebClient();
 
@@ -437,7 +458,8 @@ namespace Netch.Forms
                 }
                 finally
                 {
-                    UpdateStatus(State.Waiting);
+                    UpdateStatus(bak_State);
+                    StatusLabel.Text = bak_StateText;
                 }
             });
         }

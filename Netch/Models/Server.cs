@@ -156,32 +156,7 @@ namespace Netch.Models
 
             if (Country == null)
             {
-                try
-                {
-                    var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
-
-                    if (IPAddress.TryParse(Hostname, out _) == true)
-                    {
-                        Country = databaseReader.Country(Hostname).Country.IsoCode;
-                    }
-                    else
-                    {
-                        var DnsResult = DNS.Lookup(Hostname);
-
-                        if (DnsResult != null)
-                        {
-                            Country = databaseReader.Country(DnsResult).Country.IsoCode;
-                        }
-                        else
-                        {
-                            Country = "UN";
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    Country = "UN";
-                }
+                Country = Utils.Utils.GetCityCode(Hostname);
             }
 
             Group = Group.Equals("None") || Group.Equals("") ? "NONE" : Group;
