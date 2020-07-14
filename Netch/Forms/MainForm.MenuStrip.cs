@@ -274,7 +274,7 @@ namespace Netch.Forms
             {
                 try
                 {
-                    if (new NFController().UninstallDriver())
+                    if (NFController.UninstallDriver())
                     {
                         MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
                     }
@@ -286,6 +286,7 @@ namespace Netch.Forms
                     throw;
                 }
 
+                StatusText(i18N.Translate(StateExtension.GetStatusString(State.Waiting)));
                 Enabled = true;
             });
         }

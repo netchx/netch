@@ -41,16 +41,9 @@
     {
         public static string GetStatusString(State state)
         {
-            return state switch
-            {
-                State.Started => state.ToString(),
-                State.Stopping => state.ToString(),
-                State.Stopped => state.ToString(),
-                State.Terminating => state.ToString(),
-                State.Starting => state.ToString(),
-                State.Waiting => "Waiting for command",
-                _ => ""
-            };
+            if (state == State.Waiting)
+                return "Waiting for command";
+            return state.ToString();
         }
     }
 }

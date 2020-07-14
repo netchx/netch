@@ -52,18 +52,18 @@ namespace Netch.Forms
                     {
                         Task.Run(() =>
                         {
+                            UpdateStatus(State.Started);
+                            StatusText(i18N.Translate(StateExtension.GetStatusString(State)) + PortText(server.Type,mode.Type));
+                            
                             LastUploadBandwidth = 0;
                             //LastDownloadBandwidth = 0;
                             //UploadSpeedLabel.Text = "↑: 0 KB/s";
                             DownloadSpeedLabel.Text = "↑↓: 0 KB/s";
                             UsedBandwidthLabel.Text = $"{i18N.Translate("Used",": ")}0 KB";
                             UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = true;
-
-
                             UploadSpeedLabel.Visible = false;
                             Bandwidth.NetTraffic(server, mode, MainController);
                         });
-                        //MainController.pNFController.OnBandwidthUpdated += OnBandwidthUpdated;
 
                         // 如果勾选启动后最小化
                         if (Global.Settings.MinimizeWhenStarted)
@@ -85,45 +85,6 @@ namespace Netch.Forms
 
                             Hide();
                         }
-
-                        // TODO 是否需要移到一个函数中
-                        var text = new StringBuilder(" (");
-                        text.Append(Global.Settings.LocalAddress == "0.0.0.0"
-                            ? i18N.Translate("Allow other Devices to connect") + " "
-                            : "");
-                        if (server.Type == "Socks5")
-                        {
-                            // 不可控Socks5
-                            if (mode.Type == 3 || mode.Type == 5)
-                            {
-                                // 可控HTTP
-                                text.Append(
-                                    $"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
-                            }
-                            else
-                            {
-                                // 不可控HTTP
-                                text.Clear();
-                            }
-                        }
-                        else
-                        {
-                            // 可控Socks5
-                            text.Append(
-                                $"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
-                            if (mode.Type == 3 || mode.Type == 5)
-                            {
-                                //有HTTP
-                                text.Append(
-                                    $" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
-                            }
-                        }
-                        if (text.Length > 0)
-                        {
-                            text.Append(")");
-                        }
-                        UpdateStatus(State.Started);
-                        StatusText(i18N.Translate(StateExtension.GetStatusString(State)) + text);
 
                         if (Global.Settings.StartedTcping)
                         {
@@ -167,6 +128,47 @@ namespace Netch.Forms
                     TestServer();
                 });
             }
+        }
+
+        private string PortText(string serverType,int modeType)
+        {
+            var text = new StringBuilder(" (");
+            text.Append(Global.Settings.LocalAddress == "0.0.0.0"
+                ? i18N.Translate("Allow other Devices to connect") + " "
+                : "");
+            if (serverType == "Socks5")
+            {
+                // 不可控Socks5
+                if (modeType == 3 || modeType == 5)
+                {
+                    // 可控HTTP
+                    text.Append(
+                        $"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
+                }
+                else
+                {
+                    // 不可控HTTP
+                    text.Clear();
+                }
+            }
+            else
+            {
+                // 可控Socks5
+                text.Append(
+                    $"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
+                if (modeType == 3 || modeType == 5)
+                {
+                    //有HTTP
+                    text.Append(
+                        $" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
+                }
+            }
+            if (text.Length > 0)
+            {
+                text.Append(")");
+            }
+
+            return text.ToString();
         }
 
         public void OnBandwidthUpdated(long download)
