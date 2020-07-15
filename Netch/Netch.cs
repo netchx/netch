@@ -88,7 +88,14 @@ namespace Netch
 
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(Global.MainForm = new MainForm());
+                try
+                {
+                    Application.Run(Global.MainForm = new MainForm());
+                }
+                catch (ObjectDisposedException)
+                {
+                    // ignored
+                }
             }
         }
 

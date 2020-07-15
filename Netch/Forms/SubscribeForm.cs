@@ -13,7 +13,7 @@ namespace Netch.Forms
             InitializeComponent();
         }
 
-        public void InitSubscribeLink()
+        private void InitSubscribeLink()
         {
             SubscribeLinkListView.Items.Clear();
 

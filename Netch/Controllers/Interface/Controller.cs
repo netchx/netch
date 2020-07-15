@@ -10,28 +10,31 @@ namespace Netch.Controllers
     {
         /// <summary>
         ///     控制器名
-        ///     <param />
-        ///     未赋值会在 <see cref="InitCheck" /> 赋值为 <see cref="MainFile" />
+        ///     <para />
+        ///     日志名为此字段
+        ///     <para />
+        ///     未赋值会在 <see cref="InitCheck" /> 取 <see cref="MainFile" />
         /// </summary>
         public string AkaName;
 
         /// <summary>
-        ///     其他需要文件
-        /// </summary>
-        protected string[] ExtFiles;
-
-        /// <summary>
-        ///     进程实例
-        /// </summary>
-        public Process Instance;
-
-        /// <summary>
-        ///     主程序名(不含扩展名)
+        ///     主程序文件(不含扩展名)
         /// </summary>
         public string MainFile;
 
         /// <summary>
-        ///     运行检查, 由 <see cref="InitCheck()" />  赋值
+        ///     其他必要文件
+        /// </summary>
+        protected string[] ExtFiles;
+
+        /// <summary>
+        ///     主程序进程实例
+        /// </summary>
+        public Process Instance;
+
+        /// <summary>
+        ///     文件检查是否通过<para />
+        ///     由 <see cref="InitCheck()" />  赋值
         /// </summary>
         public bool Ready;
 
@@ -43,7 +46,7 @@ namespace Netch.Controllers
         public abstract void Stop();
 
         /// <summary>
-        ///     停止
+        ///     停止主程序
         /// </summary>
         protected void StopInstance()
         {
@@ -68,18 +71,8 @@ namespace Netch.Controllers
         {
             if (string.IsNullOrEmpty(AkaName)) AkaName = MainFile;
 
-            var result = false;
-            // 杀残留
-            MainController.KillProcessByName(MainFile);
-            // 清日志
-            try
-            {
-                if (File.Exists($"logging\\{AkaName}.log")) File.Delete($"logging\\{AkaName}.log");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+            // MainController.KillProcessByName(MainFile);
+            CleanLog();
 
             // 检查文件
             var mainResult = true;
@@ -90,17 +83,15 @@ namespace Netch.Controllers
                 Logging.Error($"主程序 bin\\{MainFile}.exe 不存在");
             }
 
-            if (ExtFiles == null)
-                extResult = true;
-            else
-                foreach (var f in ExtFiles)
-                    if (!File.Exists($"bin\\{f}"))
+            if (ExtFiles != null)
+                foreach (var extFile in ExtFiles)
+                    if (!File.Exists($"bin\\{extFile}"))
                     {
                         extResult = false;
-                        Logging.Error($"附加文件 bin\\{f} 不存在");
+                        Logging.Error($"附加文件 bin\\{extFile} 不存在");
                     }
 
-            result = extResult && mainResult;
+            var result = extResult && mainResult;
             if (!result)
                 Logging.Error(AkaName + " 未就绪");
             Ready = result;
@@ -125,6 +116,21 @@ namespace Netch.Controllers
             }
 
             return true;
+        }
+
+        /// <summary>
+        ///     清理日志
+        /// </summary>
+        protected void CleanLog()
+        {
+            try
+            {
+                if (File.Exists($"logging\\{AkaName}.log")) File.Delete($"logging\\{AkaName}.log");
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         public static Process GetProcess(string path = null, bool redirectStd = true)

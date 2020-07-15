@@ -11,7 +11,11 @@ namespace Netch.Forms
     /// <summary lang="zh">
     /// 此类用于禁用设计器
     /// </summary>
-    [DesignerCategory("")] public partial class Dummy { }
+    [DesignerCategory("")]
+    public partial class Dummy
+    {
+    }
+
     partial class MainForm
     {
         private void CheckUpdate()
@@ -21,12 +25,10 @@ namespace Netch.Forms
             {
                 NotifyIcon.ShowBalloonTip(5,
                     UpdateChecker.Name,
-                    $"{i18N.Translate(@"New version available",": ")}{updater.LatestVersionNumber}",
+                    $"{i18N.Translate(@"New version available", ": ")}{updater.LatestVersionNumber}",
                     ToolTipIcon.Info);
             };
             updater.Check(false, false);
         }
-
-
     }
 }

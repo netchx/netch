@@ -7,11 +7,14 @@ using System.Text;
 using Netch.Properties;
 using Newtonsoft.Json;
 
+#if DEBUG
+using Microsoft.Win32;
+#endif
+
 namespace Netch.Utils
 {
     public static class i18N
     {
-
         /// <summary>
         ///     数据
         /// </summary>
@@ -26,15 +29,11 @@ namespace Netch.Utils
         public static void Load(string langCode)
         {
             LangCode = langCode;
-            
+
             var text = "";
             if (langCode.Equals("System"))
-            {
                 // 加载系统语言
                 langCode = CultureInfo.CurrentCulture.Name;
-            }
-
-
 
             if (langCode == "zh-CN")
             {
@@ -58,10 +57,7 @@ namespace Netch.Utils
             if (data == null) return;
 
             Data = new Hashtable();
-            foreach (var v in data)
-            {
-                Data.Add(v.Key, v.Value);
-            }
+            foreach (var v in data) Data.Add(v.Key, v.Value);
         }
 
         /// <summary>
@@ -71,16 +67,26 @@ namespace Netch.Utils
         /// <returns>翻译完毕的文本</returns>
         public static string Translate(string text)
         {
+#if DEBUG
+            History.Add(text);
+#endif
             return Data.Contains(text) ? Data[text].ToString() : text;
         }
+
         public static string Translate(params string[] text)
         {
             var a = new StringBuilder();
             foreach (var t in text)
+            {
+#if DEBUG
+                History.Add(t);
+#endif
                 a.Append(Data.Contains(t) ? Data[t].ToString() : t);
+            }
+
             return a.ToString();
         }
-        
+
         public static List<string> GetTranslateList()
         {
             var translateFile = new List<string> {"System", "zh-CN", "en-US"};
@@ -89,5 +95,15 @@ namespace Netch.Utils
             translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
             return translateFile;
         }
+
+#if DEBUG
+        private static readonly List<string> History = new List<string>();
+
+        public static void SaveHistory()
+        {
+            var saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() == true) File.WriteAllText(saveFileDialog.FileName, JsonConvert.SerializeObject(History, Formatting.Indented));
+        }
+#endif
     }
 }

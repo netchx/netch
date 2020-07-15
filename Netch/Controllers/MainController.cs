@@ -57,7 +57,7 @@ namespace Netch.Controllers
                         break;
                 }
 
-                MainForm.Instance.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.AkaName));
+                Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.AkaName));
                 if (pEncryptedProxyController.Ready) result = pEncryptedProxyController.Start(server, mode);
             }
 
@@ -84,7 +84,7 @@ namespace Netch.Controllers
 
                 if (pModeController != null && pModeController.Ready)
                 {
-                    MainForm.Instance.StatusText(i18N.Translate("Starting ", pModeController.AkaName));
+                    Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.AkaName));
                     result = pModeController.Start(server, mode);
                 }
 
@@ -96,12 +96,12 @@ namespace Netch.Controllers
                         if (result)
                             Task.Run(() =>
                             {
-                                MainForm.Instance.NatTypeStatusText(i18N.Translate("Starting NatTester"));
+                                Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
                                 // Thread.Sleep(1000);
                                 var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
                                 var country = Utils.Utils.GetCityCode(publicEnd);
 
-                                if (nttResult) MainForm.Instance.NatTypeStatusText(natType, country);
+                                if (nttResult) Global.MainForm.NatTypeStatusText(natType, country);
                             });
                         break;
                 }

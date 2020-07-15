@@ -19,18 +19,7 @@ namespace Netch.Forms
         /// <summary>
         ///     主控制器
         /// </summary>
-        public MainController MainController;
-
-        /// <summary>
-        ///     是否第一次打开
-        /// </summary>
-        public bool IsFirstOpened = true;
-
-        /// <summary>
-        /// 主窗体的静态实例
-        /// </summary>
-        public static MainForm Instance;
-
+        private MainController _mainController = new MainController();
 
         public MainForm()
         {
@@ -40,8 +29,6 @@ namespace Netch.Forms
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
             CheckForIllegalCrossThreadCalls = false;
-            // MenuStrip.Renderer = new Override.ToolStripProfessionalRender();
-            Instance = this;
         }
 
         private void SaveConfigs()
@@ -64,6 +51,9 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // 计算 ComboBox绘制 目标宽度
+            _eWidth = ServerComboBox.Width / 10;
+
             // 加载服务器
             InitServer();
 
@@ -71,20 +61,18 @@ namespace Netch.Forms
             InitMode();
 
             // 加载翻译
-            InitText();
+            TranslateMainForm();
 
-            //
+            // 隐藏 NatTypeStatusLabel
             NatTypeStatusText();
 
-            // 加载快速配置
             _sizeHeight = Size.Height;
-            _controlHeight = ConfigurationGroupBox.Controls[0].Height / 3;
-            _profileBoxHeight = ProfileGroupBox.Height;
             _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
+            _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
+            _profileGroupboxHeight = ProfileGroupBox.Height;
+            // 加载快速配置
             InitProfile();
 
-            // 为 ComboBox绘制 收集宽度数据
-            _eWidth = ServerComboBox.Width / 10;
 
             // 自动检测延迟
             Task.Run(() =>
@@ -132,7 +120,7 @@ namespace Netch.Forms
                     WindowState = FormWindowState.Minimized;
                     NotifyIcon.Visible = true;
 
-                    if (IsFirstOpened)
+                    if (_isFirstCloseWindow)
                     {
                         // 显示提示语
                         NotifyIcon.ShowBalloonTip(5,
@@ -140,7 +128,7 @@ namespace Netch.Forms
                             i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
                             ToolTipIcon.Info);
 
-                        IsFirstOpened = false;
+                        _isFirstCloseWindow = false;
                     }
 
                     Hide();
@@ -176,7 +164,7 @@ namespace Netch.Forms
             if (i18N.LangCode != Global.Settings.Language)
             {
                 i18N.Load(Global.Settings.Language);
-                InitText();
+                TranslateMainForm();
                 InitProfile();
             }
 
@@ -184,7 +172,7 @@ namespace Netch.Forms
                 InitProfile();
         }
 
-        public void InitText()
+        private void TranslateMainForm()
         {
             ServerToolStripMenuItem.Text = i18N.Translate("Server");
             ImportServersFromClipboardToolStripMenuItem.Text = i18N.Translate("Import Servers From Clipboard");
@@ -207,16 +195,16 @@ namespace Netch.Forms
             reinstallTapDriverToolStripMenuItem.Text = i18N.Translate("Reinstall TUN/TAP driver");
             OpenDirectoryToolStripMenuItem.Text = i18N.Translate("Open Directory");
             AboutToolStripButton.Text = i18N.Translate("About");
-            VersionLabel.Text = i18N.Translate("xxx");
+            // VersionLabel.Text = i18N.Translate("xxx");
             exitToolStripMenuItem.Text = i18N.Translate("Exit");
             RelyToolStripMenuItem.Text = i18N.Translate("Unable to start? Click me to download");
             ConfigurationGroupBox.Text = i18N.Translate("Configuration");
             ProfileLabel.Text = i18N.Translate("Profile");
             ModeLabel.Text = i18N.Translate("Mode");
             ServerLabel.Text = i18N.Translate("Server");
-            UsedBandwidthLabel.Text = i18N.Translate("Used: 0 KB");
-            DownloadSpeedLabel.Text = i18N.Translate("↓: 0 KB/s");
-            UploadSpeedLabel.Text = i18N.Translate("↑: 0 KB/s");
+            // UsedBandwidthLabel.Text = i18N.Translate("Used: 0 KB");
+            // DownloadSpeedLabel.Text = i18N.Translate("↓: 0 KB/s");
+            // UploadSpeedLabel.Text = i18N.Translate("↑: 0 KB/s");
             NotifyIcon.Text = i18N.Translate("Netch");
             ShowMainFormToolStripButton.Text = i18N.Translate("Show");
             ExitToolStripButton.Text = i18N.Translate("Exit");
@@ -303,7 +291,6 @@ namespace Netch.Forms
                 Enabled = true;
                 StatusText(i18N.Translate("Test done"));
                 Refresh();
-                Configuration.Save();
             });
         }
 
@@ -368,6 +355,7 @@ namespace Netch.Forms
                 }
                 catch (Exception)
                 {
+                    // ignored
                 }
             }
             else
@@ -397,21 +385,6 @@ namespace Netch.Forms
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
             }
-        }
-
-        #region NotifyIcon
-
-        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
-        {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                Visible = true;
-                ShowInTaskbar = true; // 显示在系统任务栏 
-                WindowState = FormWindowState.Normal; // 还原窗体 
-                NotifyIcon.Visible = true; // 托盘图标隐藏 
-            }
-
-            Activate();
         }
 
         private void Exit(bool forceExit = false)
@@ -455,6 +428,21 @@ namespace Netch.Forms
                 Dispose();
                 Environment.Exit(Environment.ExitCode);
             });
+        }
+
+        #region NotifyIcon
+
+        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                Visible = true;
+                ShowInTaskbar = true; // 显示在系统任务栏 
+                WindowState = FormWindowState.Normal; // 还原窗体 
+                NotifyIcon.Visible = true; // 托盘图标隐藏 
+            }
+
+            Activate();
         }
 
         private void ExitToolStripButton_Click(object sender, EventArgs e)

@@ -18,16 +18,14 @@ namespace Netch.Controllers
         private static readonly string BinDriver = "";
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
 
-        public static string DriverVersion(string file)
+        private static string DriverVersion(string file)
         {
             return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : "";
         }
 
         static NFController()
         {
-            // 生成系统版本
-            var winNTver = $"{Environment.OSVersion.Version.Major.ToString()}.{Environment.OSVersion.Version.Minor.ToString()}";
-            switch (winNTver)
+            switch ($"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor}")
             {
                 case "10.0":
                     BinDriver = "Win-10.sys";
@@ -41,7 +39,7 @@ namespace Netch.Controllers
                     BinDriver = "Win-7.sys";
                     break;
                 default:
-                    Logging.Error($"不支持的系统版本：{winNTver}");
+                    Logging.Error($"不支持的系统版本：{Environment.OSVersion.Version}");
                     return;
             }
 
@@ -131,11 +129,11 @@ namespace Netch.Controllers
                         // 防止其他程序占用 重置 NF 百万连接数限制
                         NFService.Stop();
                         NFService.WaitForStatus(ServiceControllerStatus.Stopped);
-                        MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
+                        Global.MainForm.StatusText(i18N.Translate("Starting netfilter2 Service"));
                         NFService.Start();
                         break;
                     case ServiceControllerStatus.Stopped:
-                        MainForm.Instance.StatusText(i18N.Translate("Starting netfilter2 Service"));
+                        Global.MainForm.StatusText(i18N.Translate("Starting netfilter2 Service"));
                         NFService.Start();
                         break;
                 }
@@ -208,7 +206,7 @@ namespace Netch.Controllers
                 return false;
             }
 
-            MainForm.Instance.StatusText(i18N.Translate("Register driver"));
+            Global.MainForm.StatusText(i18N.Translate("Register driver"));
             // 注册驱动文件
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
