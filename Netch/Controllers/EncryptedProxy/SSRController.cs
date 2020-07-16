@@ -18,7 +18,6 @@ namespace Netch.Controllers
             if (!Ready) return false;
 
             Instance = GetProcess("bin\\ShadowsocksR.exe");
-            Instance.StartInfo.FileName = "bin\\ShadowsocksR.exe";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
@@ -69,7 +68,7 @@ namespace Netch.Controllers
 
         public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!WriteLog(e)) return;
+            if (!Write(e.Data)) return;
             if (State == State.Starting)
             {
                 if (Instance.HasExited)

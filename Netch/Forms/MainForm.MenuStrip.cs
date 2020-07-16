@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using System.Linq;
 using System.Net;
 using System.ServiceProcess;
@@ -134,8 +133,8 @@ namespace Netch.Forms
                             Remark = "ProxyUpdate",
                             Type = 5
                         };
-                        MainController = new MainController();
-                        MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                        _mainController = new MainController();
+                        _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
                     }
 
                     foreach (var item in Global.Settings.SubscribeLink)
@@ -165,8 +164,8 @@ namespace Netch.Forms
                             }
                             catch (Exception)
                             {
-                                    // ignored
-                                }
+                                // ignored
+                            }
 
                             Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
                             var result = ShareLink.Parse(response);
@@ -203,7 +202,7 @@ namespace Netch.Forms
                     {
                         MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Start");
-                        MainController.Stop();
+                        _mainController.Stop();
                         NatTypeStatusLabel.Text = "";
                     }
 
@@ -213,7 +212,6 @@ namespace Netch.Forms
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
                     UpdateStatus(bak_State);
                     StatusLabel.Text = bak_StateText;
-
                 }).ContinueWith(task => { BeginInvoke(new Action(() => { UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true; })); });
 
                 NotifyIcon.ShowBalloonTip(5,
@@ -380,8 +378,8 @@ namespace Netch.Forms
                     Remark = "ProxyUpdate",
                     Type = 5
                 };
-                MainController = new MainController();
-                MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                _mainController = new MainController();
+                _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
 
                 using var client = new WebClient();
 
@@ -403,7 +401,7 @@ namespace Netch.Forms
                 finally
                 {
                     UpdateStatus(State.Waiting);
-                    MainController.Stop();
+                    _mainController.Stop();
                 }
             });
         }

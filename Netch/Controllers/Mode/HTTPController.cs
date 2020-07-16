@@ -19,7 +19,7 @@ namespace Netch.Controllers
 
         public HTTPController()
         {
-            AkaName = "HTTP";
+            Name = "HTTP";
             Ready = true;
         }
 

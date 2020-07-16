@@ -12,19 +12,18 @@ namespace Netch.Forms
     public partial class Dummy { }
     partial class MainForm
     {
-        
         /// init at <see cref="MainForm_Load"/> 
         private int _sizeHeight;
-        private int _controlHeight;
-        private int _profileBoxHeight;
+
+        private int _profileConfigurationHeight;
+        private int _profileGroupboxHeight;
         private int _configurationGroupBoxHeight;
 
         private void InitProfile()
         {
+            // Clear
             foreach (var button in ProfileButtons)
-            {
                 button.Dispose();
-            }
 
             ProfileButtons.Clear();
             ProfileTable.ColumnStyles.Clear();
@@ -33,51 +32,51 @@ namespace Netch.Forms
             var numProfile = Global.Settings.ProfileCount;
             if (numProfile == 0)
             {
+                // Hide Profile GroupBox, Change window size
                 configLayoutPanel.RowStyles[2].SizeType = SizeType.Percent;
                 configLayoutPanel.RowStyles[2].Height = 0;
                 ProfileGroupBox.Visible = false;
 
-                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight - _controlHeight);
-                Size = new Size(Size.Width, _sizeHeight - (_controlHeight + _profileBoxHeight));
-
-                return;
+                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight - _profileConfigurationHeight);
+                Size = new Size(Size.Width, _sizeHeight - (_profileConfigurationHeight + _profileGroupboxHeight));
             }
-
-            configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
-            ProfileGroupBox.Visible = true;
-            ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight);
-            Size = new Size(Size.Width, _sizeHeight);
-
-
-            ProfileTable.ColumnCount = numProfile;
-
-            while (Global.Settings.Profiles.Count < numProfile)
+            else
             {
-                Global.Settings.Profiles.Add(new Profile());
-            }
+                // Load Profiles
+                ProfileTable.ColumnCount = numProfile;
 
-            // buttons
-            for (var i = 0; i < numProfile; ++i)
-            {
-                var b = new Button();
-                ProfileTable.Controls.Add(b, i, 0);
-                b.Location = new Point(i * 100, 0);
-                b.Click += ProfileButton_Click;
-                b.Dock = DockStyle.Fill;
-                b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : i18N.Translate("None");
+                while (Global.Settings.Profiles.Count < numProfile)
+                {
+                    Global.Settings.Profiles.Add(new Profile());
+                }
 
-                ProfileButtons.Add(b);
-            }
+                for (var i = 0; i < numProfile; ++i)
+                {
+                    var b = new Button();
+                    b.Click += ProfileButton_Click;
+                    b.Dock = DockStyle.Fill;
+                    b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : i18N.Translate("None");
 
-            // equal column
-            for (var i = 1; i <= ProfileTable.RowCount; i++)
-            {
-                ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
-            }
+                    ProfileTable.Controls.Add(b, i, 0);
+                    ProfileButtons.Add(b);
+                }
 
-            for (var i = 1; i <= ProfileTable.ColumnCount; i++)
-            {
-                ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
+                // equal column
+                for (var i = 1; i <= ProfileTable.RowCount; i++)
+                {
+                    ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 1));
+                }
+
+                for (var i = 1; i <= ProfileTable.ColumnCount; i++)
+                {
+                    ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
+                }
+
+                if (Size.Height == _sizeHeight) return;
+                configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
+                ProfileGroupBox.Visible = true;
+                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight);
+                Size = new Size(Size.Width, _sizeHeight);
             }
         }
 
@@ -129,13 +128,17 @@ namespace Netch.Forms
             Global.Settings.Profiles[index] = new Profile(selectedServer, selectedMode, name);
         }
 
-        public List<Button> ProfileButtons = new List<Button>();
+        private void RemoveProfile(int index)
+        {
+            Global.Settings.Profiles[index] = new Profile();
+        }
+
+
+        private List<Button> ProfileButtons = new List<Button>();
 
         private void ProfileButton_Click(object sender, EventArgs e)
         {
             var index = ProfileButtons.IndexOf((Button) sender);
-
-            //Utils.Logging.Info(String.Format("Button no.{0} clicked", index));
 
             if (ModifierKeys == Keys.Control)
             {
@@ -157,11 +160,21 @@ namespace Netch.Forms
                     ProfileButtons[index].Text = ProfileNameText.Text;
                 }
             }
+            else if (ModifierKeys == Keys.Shift)
+            {
+                if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) == DialogResult.OK)
+                {
+                    RemoveProfile(index);
+                    ProfileButtons[index].Text = i18N.Translate("None");
+                    MessageBoxX.Show(i18N.Translate("Profile Removed!"));
+                }
+            }
             else
             {
-                if (ProfileButtons[index].Text == i18N.Translate("Error") || ProfileButtons[index].Text == i18N.Translate("None"))
+                if (Global.Settings.Profiles[index].IsDummy)
                 {
                     MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
+                    return;
                 }
 
                 try
@@ -169,21 +182,14 @@ namespace Netch.Forms
                     ProfileNameText.Text = LoadProfile(index);
 
                     // start the profile
-                    var need2ndStart = true;
-                    if (State == State.Waiting || State == State.Stopped)
-                    {
-                        need2ndStart = false;
-                    }
-
-                    ControlButton.PerformClick();
-
-                    if (need2ndStart)
+                    ControlFun();
+                    if (State == State.Stopping || State == State.Stopped)
                     {
                         Task.Run(() =>
                         {
                             while (State != State.Stopped)
                             {
-                                Thread.Sleep(200);
+                                Thread.Sleep(250);
                             }
 
                             ControlButton.PerformClick();

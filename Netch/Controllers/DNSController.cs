@@ -8,7 +8,7 @@ namespace Netch.Controllers
     {
         public DNSController()
         {
-            AkaName = "dns Service";
+            Name = "dns Service";
             MainFile = "unbound";
             ExtFiles = new[] {"unbound-service.conf", "forward-zone.conf"};
             InitCheck();
@@ -44,7 +44,7 @@ namespace Netch.Controllers
 
         private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            WriteLog(e);
+            Write(e.Data);
         }
 
         public override void Stop()

@@ -13,7 +13,7 @@ namespace Netch.Controllers
         ///     <param />
         ///     未赋值会在 <see cref="InitCheck" /> 赋值为 <see cref="MainFile" />
         /// </summary>
-        public string AkaName;
+        public string Name;
 
         /// <summary>
         ///     其他需要文件
@@ -66,7 +66,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         protected void InitCheck()
         {
-            if (string.IsNullOrEmpty(AkaName)) AkaName = MainFile;
+            if (string.IsNullOrEmpty(Name)) Name = MainFile;
 
             var result = false;
             // 杀残留
@@ -74,7 +74,7 @@ namespace Netch.Controllers
             // 清日志
             try
             {
-                if (File.Exists($"logging\\{AkaName}.log")) File.Delete($"logging\\{AkaName}.log");
+                if (File.Exists($"logging\\{Name}.log")) File.Delete($"logging\\{Name}.log");
             }
             catch (Exception)
             {
@@ -90,38 +90,37 @@ namespace Netch.Controllers
                 Logging.Error($"主程序 bin\\{MainFile}.exe 不存在");
             }
 
-            if (ExtFiles == null)
-                extResult = true;
-            else
-                foreach (var f in ExtFiles)
-                    if (!File.Exists($"bin\\{f}"))
+            if (ExtFiles != null)
+            {
+                foreach (var file in ExtFiles)
+                    if (!File.Exists($"bin\\{file}"))
                     {
                         extResult = false;
-                        Logging.Error($"附加文件 bin\\{f} 不存在");
+                        Logging.Error($"附加文件 bin\\{file} 不存在");
                     }
+            }
 
             result = extResult && mainResult;
             if (!result)
-                Logging.Error(AkaName + " 未就绪");
+                Logging.Error(Name + " 未就绪");
             Ready = result;
         }
 
         /// <summary>
         ///     写日志
         /// </summary>
-        /// <param name="std"></param>
-        /// <returns><see cref="std" />是否为空</returns>
-        protected bool WriteLog(DataReceivedEventArgs std)
+        /// <param name="s"></param>
+        /// <returns><see cref="s" />是否为空</returns>
+        protected bool Write(string s)
         {
-            if (string.IsNullOrWhiteSpace(std.Data)) return false;
+            if (string.IsNullOrWhiteSpace(s)) return false;
             try
-
             {
-                File.AppendAllText($"logging\\{AkaName}.log", $@"{std.Data}{Global.EOF}");
+                File.AppendAllText($"logging\\{Name}.log", s + Global.EOF);
             }
             catch (Exception e)
             {
-                Logging.Error($"写入{AkaName}日志错误：\n" + e);
+                Logging.Error($"写入{Name}日志错误：\n" + e);
             }
 
             return true;

@@ -62,7 +62,7 @@ namespace Netch.Controllers
         /// </summary>
         public bool SetupBypass()
         {
-            MainForm.Instance.StatusText(i18N.Translate("SetupBypass"));
+            Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
             Logging.Info("设置绕行规则 → 设置让服务器 IP 走直连");
             // 让服务器 IP 走直连
             foreach (var address in _serverAddresses)
@@ -310,7 +310,7 @@ namespace Netch.Controllers
         {
             if (!Ready) return false;
 
-            MainForm.Instance.StatusText(i18N.Translate("Starting Tap"));
+            Global.MainForm.StatusText(i18N.Translate("Starting Tap"));
 
             _savedMode = mode;
             _savedServer = server;
@@ -391,7 +391,7 @@ namespace Netch.Controllers
 
         private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!WriteLog(e)) return;
+            if (!Write(e.Data)) return;
             if (State == State.Starting)
             {
                 if (e.Data.Contains("Running"))

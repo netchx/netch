@@ -15,7 +15,7 @@ namespace Netch.Forms
     {
         #region Server
 
-        public void TestServer()
+        private static void TestServer()
         {
             try
             {
@@ -24,6 +24,7 @@ namespace Netch.Forms
             }
             catch (Exception)
             {
+                // ignored
             }
         }
 
@@ -51,7 +52,7 @@ namespace Netch.Forms
 
         #region Mode
 
-        public void InitMode()
+        private void InitMode()
         {
             ModeComboBox.Items.Clear();
             Global.ModeFiles.Clear();
@@ -139,7 +140,7 @@ namespace Netch.Forms
             }
         }
 
-        public void SelectLastMode()
+        private void SelectLastMode()
         {
             // 如果值合法，选中该位置
             if (Global.Settings.ModeComboBoxSelectedIndex > 0 &&
@@ -182,7 +183,7 @@ namespace Netch.Forms
         #endregion
 
         /// <summary>
-        /// Init at MainForm_Load()
+        ///     Init at <see cref="MainForm_Load"/>
         /// </summary>
         private int _eWidth;
 
@@ -205,32 +206,18 @@ namespace Netch.Forms
 
                 switch (cbx.Items[e.Index])
                 {
-                    case Models.Server _:
+                    case Models.Server item:
                     {
-                        var item = cbx.Items[e.Index] as Models.Server;
-
                         // 计算延迟底色
                         SolidBrush brush;
                         if (item.Delay > 200)
-                        {
-                            // 红色
                             brush = new SolidBrush(Color.Red);
-                        }
                         else if (item.Delay > 80)
-                        {
-                            // 黄色
                             brush = new SolidBrush(Color.Yellow);
-                        }
                         else if (item.Delay >= 0)
-                        {
-                            // 绿色
                             brush = new SolidBrush(Color.FromArgb(50, 255, 56));
-                        }
                         else
-                        {
-                            // 灰色
                             brush = new SolidBrush(Color.Gray);
-                        }
 
                         // 绘制延迟底色
                         e.Graphics.FillRectangle(brush, _eWidth * 9, e.Bounds.Y, _eWidth, e.Bounds.Height);
@@ -240,10 +227,8 @@ namespace Netch.Forms
                             _eWidth * 9 + _eWidth / 30, e.Bounds.Y);
                         break;
                     }
-                    case Models.Mode _:
+                    case Models.Mode item:
                     {
-                        var item = cbx.Items[e.Index] as Models.Mode;
-
                         // 绘制 模式Box 底色
                         e.Graphics.FillRectangle(new SolidBrush(Color.Gray), _eWidth * 9, e.Bounds.Y, _eWidth,
                             e.Bounds.Height);
@@ -257,6 +242,7 @@ namespace Netch.Forms
             }
             catch (Exception)
             {
+                // ignored
             }
         }
     }

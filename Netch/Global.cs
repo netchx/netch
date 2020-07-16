@@ -16,7 +16,7 @@ namespace Netch
         public static readonly string NetchDir = (AppDomain.CurrentDomain.BaseDirectory).TrimEnd();
         
         /// <summary>
-        ///     主窗体
+        ///     主窗体的静态实例
         /// </summary>
         public static Forms.MainForm MainForm;
 
