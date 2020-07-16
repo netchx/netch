@@ -15,7 +15,7 @@ namespace Netch.Utils
         {
             return MessageBox.Show(
                 owner: owner,
-                text: i18N.Translate(text: text),
+                text: text,
                 caption: i18N.Translate(string.IsNullOrWhiteSpace(title) ? (info ? "Information" : "Error") : title),
                 buttons: confirm ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
                 icon: info ? MessageBoxIcon.Information : MessageBoxIcon.Exclamation);

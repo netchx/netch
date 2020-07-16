@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
@@ -48,27 +49,27 @@ namespace Netch.Utils
             //int sent = 0;
 
             //var processList = Process.GetProcessesByName(ProcessName).Select(p => p.Id).ToHashSet();
-            var processList = new List<int>();
-
-            if (server.Type.Equals("Socks5") && mainController.pModeController.AkaName == "HTTP")
+            var instances = new List<Process>();
+            if (server.Type.Equals("Socks5") && mainController.pModeController.Name == "HTTP")
             {
-                processList.Add(((HTTPController) mainController.pModeController).pPrivoxyController.Instance.Id);
+                instances.Add(((HTTPController) mainController.pModeController).pPrivoxyController.Instance);
             }
             else if (server.Type.Equals("SS") && Global.Settings.BootShadowsocksFromDLL)
             {
-                processList.Add(Process.GetCurrentProcess().Id);
+                instances.Add(Process.GetCurrentProcess());
             }
             else if (mainController.pEncryptedProxyController != null)
             {
-                // mainController.pServerClientController.Instance
-                processList.Add(mainController.pEncryptedProxyController.Instance.Id);
+                instances.Add(mainController.pEncryptedProxyController.Instance);
             }
             else if (mainController.pModeController != null)
             {
-                processList.Add(mainController.pModeController.Instance.Id);
+                instances.Add(mainController.pModeController.Instance);
             }
 
-            Logging.Info("启动流量统计 PID：" + string.Join(",", processList.ToArray()));
+            var processList = instances.Select(instance => instance.Id).ToList();
+
+            Logging.Info("流量统计进程:" + string.Join(",", instances.Select(instance => $"({instance.Id})"+instance.ProcessName).ToArray()));
 
             Task.Run(() =>
             {
@@ -101,18 +102,18 @@ namespace Netch.Utils
                 }
             });
 
-            if ((Convert.ToInt32(MainForm.Instance.LastDownloadBandwidth) - Convert.ToInt32(received)) == 0)
+            if ((Convert.ToInt32(Global.MainForm.LastDownloadBandwidth) - Convert.ToInt32(received)) == 0)
             {
-                MainForm.Instance.OnBandwidthUpdated(0);
+                Global.MainForm.OnBandwidthUpdated(0);
                 received = 0;
             }
 
-            while (MainForm.Instance.State != State.Stopped)
+            while (Global.MainForm.State != State.Stopped)
             {
                 Task.Delay(1000).Wait();
                 lock (counterLock)
                 {
-                    MainForm.Instance.OnBandwidthUpdated(Convert.ToInt64(received));
+                    Global.MainForm.OnBandwidthUpdated(Convert.ToInt64(received));
                 }
             }
         }

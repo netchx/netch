@@ -16,7 +16,7 @@ namespace Netch.Forms
         /// </summary>
         public State State { get; private set; } = State.Waiting;
 
-        public void NatTypeStatusText(string text = "",string Country = "")
+        public void NatTypeStatusText(string text = "", string country = "")
         {
             if (State != State.Started)
             {
@@ -27,9 +27,9 @@ namespace Netch.Forms
 
             if (!string.IsNullOrEmpty(text))
             {
-                if (Country != "")
+                if (country != "")
                 {
-                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}[{2}]", i18N.Translate(": "), text, Country);
+                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}[{2}]", i18N.Translate(": "), text, country);
                 }
                 else
                 {
@@ -43,12 +43,16 @@ namespace Netch.Forms
             }
             else
             {
-                NatTypeStatusLabel.Text = "NAT" + i18N.Translate(": ") + i18N.Translate("Test failed");
+                NatTypeStatusLabel.Text = $@"NAT{i18N.Translate(": ", "Test failed")}";
             }
 
             NatTypeStatusLabel.Visible = true;
         }
 
+        /// <summary>
+        ///     更新 NAT指示灯颜色
+        /// </summary>
+        /// <param name="natType"></param>
         private void UpdateNatTypeLight(STUN_Client.NatType natType)
         {
             Color c;
@@ -76,19 +80,34 @@ namespace Netch.Forms
         }
 
 
+        /// <summary>
+        ///     更新状态栏文本
+        /// </summary>
+        /// <param name="text"></param>
         public void StatusText(string text)
         {
             StatusLabel.Text = i18N.Translate("Status", ": ") + text;
         }
 
         /// <summary>
-        ///     Update UI, Status, Status Label
+        ///     更新 UI, 状态栏文本, 状态
         /// </summary>
         /// <param name="state"></param>
-        public void UpdateStatus(State state)
+        /// <param name="text"></param>
+        private void UpdateStatus(State state, string text = "")
         {
             State = state;
-            StatusText(i18N.Translate(StateExtension.GetStatusString(state)));
+            StatusText(text == "" ? i18N.Translate(StateExtension.GetStatusString(state)) : text);
+
+            void MenuStripsEnabled(bool enabled)
+            {
+                // 需要禁用的菜单项
+                UninstallServiceToolStripMenuItem.Enabled =
+                    updateACLWithProxyToolStripMenuItem.Enabled =
+                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                            reinstallTapDriverToolStripMenuItem.Enabled = enabled;
+            }
+
             // TODO 补充
             switch (state)
             {
@@ -96,34 +115,33 @@ namespace Netch.Forms
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Start");
 
-                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
-                    updateACLWithProxyToolStripMenuItem.Enabled = true;
-
-                    NatTypeStatusText();
                     break;
                 case State.Starting:
                     ControlButton.Enabled = false;
                     ControlButton.Text = "...";
 
-                    ServerComboBox.Enabled = false;
-                    ModeComboBox.Enabled = false;
+                    ConfigurationGroupBox.Enabled = false;
 
-                    UninstallServiceToolStripMenuItem.Enabled = false;
-                    updateACLWithProxyToolStripMenuItem.Enabled = false;
-                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
-                    reinstallTapDriverToolStripMenuItem.Enabled = false;
+                    MenuStripsEnabled(false);
                     break;
                 case State.Started:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Stop");
+
+                    LastUploadBandwidth = 0;
+                    //LastDownloadBandwidth = 0;
+                    //UploadSpeedLabel.Text = "↑: 0 KB/s";
+                    DownloadSpeedLabel.Text = @"↑↓: 0 KB/s";
+                    UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
+                    UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
                     break;
                 case State.Stopping:
                     ControlButton.Enabled = false;
                     ControlButton.Text = "...";
 
                     ProfileGroupBox.Enabled = false;
-                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = SettingsButton.Enabled = true;
-                    UsedBandwidthLabel.Visible = UploadSpeedLabel.Visible = DownloadSpeedLabel.Visible = false;
+
+                    UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = false;
                     NatTypeStatusText();
                     break;
                 case State.Stopped:
@@ -133,14 +151,10 @@ namespace Netch.Forms
                     LastUploadBandwidth = 0;
                     LastDownloadBandwidth = 0;
 
-                    ServerComboBox.Enabled = true;
-                    ModeComboBox.Enabled = true;
                     ProfileGroupBox.Enabled = true;
+                    ConfigurationGroupBox.Enabled = true;
 
-                    UninstallServiceToolStripMenuItem.Enabled = true;
-                    updateACLWithProxyToolStripMenuItem.Enabled = true;
-                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
-                    reinstallTapDriverToolStripMenuItem.Enabled = true;
+                    MenuStripsEnabled(true);
                     break;
                 case State.Terminating:
 
@@ -148,7 +162,10 @@ namespace Netch.Forms
             }
         }
 
-        public void UpdateStatus()
+        /// <summary>
+        ///     刷新 UI
+        /// </summary>
+        private void UpdateStatus()
         {
             UpdateStatus(State);
         }

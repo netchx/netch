@@ -63,7 +63,7 @@ namespace Netch.Controllers
 
         public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (!WriteLog(e)) return;
+            if (!Write(e.Data)) return;
             if (State == State.Starting)
             {
                 if (Instance.HasExited)
