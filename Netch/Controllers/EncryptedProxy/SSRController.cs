@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using Netch.Models;
 using Netch.Utils;
 
@@ -9,15 +8,15 @@ namespace Netch.Controllers
     {
         public SSRController()
         {
-            MainFile = "ShadowsocksR";
-            InitCheck();
+            Name = "ShadowsocksR";
+            MainFile = "ShadowsocksR.exe";
+            StartedKeywords("listening at");
+            StoppedKeywords("Invalid config path","usage");
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            if (!Ready) return false;
-
-            Instance = GetProcess("bin\\ShadowsocksR.exe");
+            Instance = GetProcess();
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
 
@@ -64,19 +63,6 @@ namespace Netch.Controllers
             Logging.Error("SSR 进程启动超时");
             Stop();
             return false;
-        }
-
-        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!Write(e.Data)) return;
-            if (State == State.Starting)
-            {
-                if (Instance.HasExited)
-                    State = State.Stopped;
-                else if (e.Data.Contains("listening at"))
-                    State = State.Started;
-                else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage")) State = State.Stopped;
-            }
         }
 
         public override void Stop()

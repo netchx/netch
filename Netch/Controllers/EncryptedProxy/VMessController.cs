@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Netch.Models;
@@ -13,13 +12,14 @@ namespace Netch.Controllers
     {
         public VMessController()
         {
-            MainFile = "v2ray";
-            InitCheck();
+            Name = "v2ray";
+            MainFile = "v2ray.exe";
+            StartedKeywords("started");
+            StoppedKeywords("config file not readable", "failed to");
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            if (!Ready) return false;
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new VMess.Config
             {
                 inbounds = new List<VMess.Inbounds>
@@ -58,14 +58,14 @@ namespace Netch.Controllers
                         streamSettings = new VMess.StreamSettings
                         {
                             network = server.TransferProtocol,
-                            security = server.TLSSecure ? "tls" : "",
+                            security = server.TLSSecure ? "tls" : string.Empty,
                             wsSettings = server.TransferProtocol == "ws"
                                 ? new VMess.WebSocketSettings
                                 {
-                                    path = server.Path == "" ? "/" : server.Path,
+                                    path = server.Path == string.Empty ? "/" : server.Path,
                                     headers = new VMess.WSHeaders
                                     {
-                                        Host = server.Host == "" ? server.Hostname : server.Host
+                                        Host = server.Host == string.Empty ? server.Hostname : server.Host
                                     }
                                 }
                                 : null,
@@ -77,10 +77,10 @@ namespace Netch.Controllers
                                         type = server.FakeType,
                                         request = new VMess.TCPRequest
                                         {
-                                            path = server.Path == "" ? "/" : server.Path,
+                                            path = server.Path == string.Empty ? "/" : server.Path,
                                             headers = new VMess.TCPRequestHeaders
                                             {
-                                                Host = server.Host == "" ? server.Hostname : server.Host
+                                                Host = server.Host == string.Empty ? server.Hostname : server.Host
                                             }
                                         }
                                     }
@@ -168,7 +168,7 @@ namespace Netch.Controllers
                 }
             }));
 
-            Instance = GetProcess("bin\\v2ray.exe");
+            Instance = GetProcess();
             Instance.StartInfo.Arguments = "-config ..\\data\\last.json";
 
             Instance.OutputDataReceived += OnOutputDataReceived;
@@ -201,19 +201,6 @@ namespace Netch.Controllers
             Logging.Error("V2Ray 进程启动超时");
             Stop();
             return false;
-        }
-
-        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!Write(e.Data)) return;
-            if (State == State.Starting)
-            {
-                if (Instance.HasExited)
-                    State = State.Stopped;
-                else if (e.Data.Contains("started"))
-                    State = State.Started;
-                else if (e.Data.Contains("config file not readable") || e.Data.Contains("failed to")) State = State.Stopped;
-            }
         }
 
         public override void Stop()

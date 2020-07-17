@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
@@ -56,13 +55,14 @@ namespace Netch.Controllers
                         break;
                 }
 
+                KillProcessByName(pEncryptedProxyController.MainFile);
+
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
-                if (pEncryptedProxyController.Ready) result = pEncryptedProxyController.Start(server, mode);
+                result = pEncryptedProxyController.Start(server, mode);
             }
 
             if (result)
             {
-                Logging.Info("加密代理已启动");
                 // 加密代理已启动
                 switch (mode.Type)
                 {
@@ -82,7 +82,7 @@ namespace Netch.Controllers
                         break;
                 }
 
-                if (pModeController != null && pModeController.Ready)
+                if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
                     result = pModeController.Start(server, mode);
@@ -90,7 +90,6 @@ namespace Netch.Controllers
 
                 if (result)
                 {
-                    Logging.Info("模式已启动");
                     switch (mode.Type)
                     {
                         case 0:

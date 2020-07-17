@@ -53,7 +53,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Debug.WriteLine(e.ToString());
                 if (notifyNoFound) NewVersionFoundFailed?.Invoke(this, new EventArgs());
             }
         }
