@@ -87,7 +87,7 @@ namespace Netch.Utils
 
                     if (DnsResult != null)
                     {
-                        Country = databaseReader.Country(Hostname).Country.IsoCode;
+                        Country = databaseReader.Country(DnsResult).Country.IsoCode;
                     }
                     else
                     {
