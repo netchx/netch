@@ -6,7 +6,7 @@ namespace Netch.Utils
     class PortHelper
     {
         /// <summary>
-        /// 端口是否被使用
+        ///     端口是否被使用
         /// </summary>
         /// <param name="port"></param>
         /// <returns></returns>
@@ -16,7 +16,7 @@ namespace Netch.Utils
         }
 
         /// <summary>
-        /// 指定类型的端口是否已经被使用了
+        ///     指定类型的端口是否已经被使用了
         /// </summary>
         /// <param name="port">端口号</param>
         /// <param name="type">端口类型</param>

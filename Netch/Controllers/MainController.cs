@@ -57,13 +57,32 @@ namespace Netch.Controllers
 
                 KillProcessByName(pEncryptedProxyController.MainFile);
 
+                // 检查端口是否被占用
+                if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
+                {
+                    MessageBoxX.Show("Socks5" + i18N.Translate("port is in use."));
+                    return false;
+                }
+
+                if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
+                {
+                    MessageBoxX.Show("HTTP" + i18N.Translate("port is in use."));
+                    return false;
+                }
+
+                if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
+                {
+                    MessageBoxX.Show("RedirectorTCP"+i18N.Translate("port is in use."));
+                    return false;
+                }
+
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
                 result = pEncryptedProxyController.Start(server, mode);
             }
 
             if (result)
             {
-                // 加密代理已启动
+                Logging.Info("加密代理已启动");
                 switch (mode.Type)
                 {
                     case 0: // 进程代理模式

@@ -188,12 +188,7 @@
     "Exit": "退出",
     "Unable to start? Click me to download": "无法启动？点我下载依赖",
 
-    "The Socks5 port is in use. Click OK to modify it.": "Socks5端口已被占用，点击确定前往修改",
-    "The Socks5 port is in use. Please reset.": "Socks5端口已被占用，请重新设置",
-    "The HTTP port is in use. Click OK to modify it.": "HTTP端口已被占用，点击确定前往修改",
-    "The HTTP port is in use. Please reset.": "HTTP端口已被占用，请重新设置",
-    "The RedirectorTCP port is in use. Click OK to modify it.": "RedirectorTCP端口已被占用，点击确定前往修改",
-    "The RedirectorTCP port is in use. Please reset.": "RedirectorTCP端口已被占用，请重新设置",
+    "port is in use.": "端口已被占用",
 
     "Bypass LAN": "[网页代理] 绕过局域网",
     "Bypass LAN (Non System Proxy)": "[网页代理] 绕过局域网（不设置系统代理）",
