@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using System.Threading;
 using Netch.Models;
 using Netch.Utils;
@@ -10,8 +9,10 @@ namespace Netch.Controllers
     {
         public SSController()
         {
-            MainFile = "Shadowsocks";
-            InitCheck();
+            Name = "Shadowsocks";
+            MainFile = "Shadowsocks.exe";
+            StartedKeywords("listening at");
+            StoppedKeywords("Invalid config path","usage","plugin service exit unexpectedly");
         }
 
         public override bool Start(Server server, Mode mode)
@@ -45,8 +46,7 @@ namespace Netch.Controllers
                 return true;
             }
 
-            if (!Ready) return false;
-            Instance = GetProcess("bin\\Shadowsocks.exe");
+            Instance = GetProcess();
 
             Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u";
             if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
@@ -88,19 +88,6 @@ namespace Netch.Controllers
             if (Global.Settings.BootShadowsocksFromDLL) NativeMethods.Shadowsocks.Stop();
             else
                 StopInstance();
-        }
-
-        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!Write(e.Data)) return;
-            if (State == State.Starting)
-            {
-                if (Instance.HasExited)
-                    State = State.Stopped;
-                else if (e.Data.Contains("listening at"))
-                    State = State.Started;
-                else if (e.Data.Contains("Invalid config path") || e.Data.Contains("usage") || e.Data.Contains("plugin service exit unexpectedly")) State = State.Stopped;
-            }
         }
     }
 }

@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
@@ -56,14 +55,34 @@ namespace Netch.Controllers
                         break;
                 }
 
+                KillProcessByName(pEncryptedProxyController.MainFile);
+
+                // 检查端口是否被占用
+                if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
+                {
+                    MessageBoxX.Show("Socks5" + i18N.Translate("port is in use."));
+                    return false;
+                }
+
+                if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
+                {
+                    MessageBoxX.Show("HTTP" + i18N.Translate("port is in use."));
+                    return false;
+                }
+
+                if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
+                {
+                    MessageBoxX.Show("RedirectorTCP"+i18N.Translate("port is in use."));
+                    return false;
+                }
+
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
-                if (pEncryptedProxyController.Ready) result = pEncryptedProxyController.Start(server, mode);
+                result = pEncryptedProxyController.Start(server, mode);
             }
 
             if (result)
             {
                 Logging.Info("加密代理已启动");
-                // 加密代理已启动
                 switch (mode.Type)
                 {
                     case 0: // 进程代理模式
@@ -82,7 +101,7 @@ namespace Netch.Controllers
                         break;
                 }
 
-                if (pModeController != null && pModeController.Ready)
+                if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
                     result = pModeController.Start(server, mode);
@@ -90,7 +109,6 @@ namespace Netch.Controllers
 
                 if (result)
                 {
-                    Logging.Info("模式已启动");
                     switch (mode.Type)
                     {
                         case 0:

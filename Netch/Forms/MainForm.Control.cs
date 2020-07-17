@@ -24,7 +24,7 @@ namespace Netch.Forms
 
             if (State == State.Waiting || State == State.Stopped)
             {
-                #region 服务器、模式 需选择
+                // 服务器、模式 需选择
                 if (ServerComboBox.SelectedIndex == -1)
                 {
                     MessageBoxX.Show(i18N.Translate("Please select a server first"));
@@ -36,30 +36,6 @@ namespace Netch.Forms
                     MessageBoxX.Show(i18N.Translate("Please select an mode first"));
                     return;
                 }
-                #endregion
-
-                #region 检查端口是否被占用
-                if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
-                {
-                    MessageBoxX.Show(i18N.Translate("The Socks5 port is in use. Click OK to modify it."));
-                    SettingsButton.PerformClick();
-                    return;
-                }
-
-                if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
-                {
-                    MessageBoxX.Show(i18N.Translate("The HTTP port is in use. Click OK to modify it."));
-                    SettingsButton.PerformClick();
-                    return;
-                }
-
-                if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
-                {
-                    MessageBoxX.Show(i18N.Translate("The RedirectorTCP port is in use. Click OK to modify it."));
-                    SettingsButton.PerformClick();
-                    return;
-                }
-                #endregion
 
                 UpdateStatus(State.Starting);
 

@@ -11,8 +11,8 @@ namespace Netch.Controllers
 
         public NTTController()
         {
-            MainFile = "NTT";
-            InitCheck();
+            Name = "NTT";
+            MainFile = "NTT.exe";
         }
 
         /// <summary>
@@ -21,10 +21,9 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
-            if (!Ready) return (false, null, null, null);
             try
             {
-                Instance = GetProcess("bin\\NTT.exe");
+                Instance = GetProcess();
 
                 Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
 
@@ -52,7 +51,7 @@ namespace Netch.Controllers
             }
         }
 
-        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        private new void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
                 _lastResult = e.Data;

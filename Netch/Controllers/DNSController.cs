@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -8,10 +7,8 @@ namespace Netch.Controllers
     {
         public DNSController()
         {
-            Name = "dns Service";
-            MainFile = "unbound";
-            ExtFiles = new[] {"unbound-service.conf", "forward-zone.conf"};
-            InitCheck();
+            Name = "DNS Service";
+            MainFile = "unbound.exe";
         }
 
         /// <summary>
@@ -20,9 +17,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public bool Start()
         {
-            if (!Ready) return false;
-
-            Instance = GetProcess("bin\\unbound.exe");
+            Instance = GetProcess();
             Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
 
             Instance.OutputDataReceived += OnOutputDataReceived;
@@ -40,11 +35,6 @@ namespace Netch.Controllers
                 Logging.Error("dns-unbound 进程出错：\n" + e);
                 return false;
             }
-        }
-
-        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            Write(e.Data);
         }
 
         public override void Stop()

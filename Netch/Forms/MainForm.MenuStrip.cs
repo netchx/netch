@@ -279,7 +279,7 @@ namespace Netch.Forms
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(i18N.Translate("Error", e.Message));
+                    MessageBoxX.Show(e.ToString(),info:false);
                     Console.WriteLine(e);
                     throw;
                 }

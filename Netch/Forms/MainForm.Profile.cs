@@ -200,7 +200,7 @@ namespace Netch.Forms
                 {
                     Task.Run(() =>
                     {
-                        Logging.Info(ee.Message);
+                        Logging.Info(ee.ToString());
                         ProfileButtons[index].Text = i18N.Translate("Error");
                         Thread.Sleep(1200);
                         ProfileButtons[index].Text = i18N.Translate("None");

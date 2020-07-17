@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Netch.Models;
@@ -12,13 +11,14 @@ namespace Netch.Controllers
     {
         public TrojanController()
         {
-            MainFile = "Trojan";
-            InitCheck();
+            Name = "Trojan";
+            MainFile = "Trojan.exe";
+            StartedKeywords("started");
+            StoppedKeywords("exiting");
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            if (!Ready) return false;
 
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new Trojan
             {
@@ -32,7 +32,7 @@ namespace Netch.Controllers
                 }
             }));
 
-            Instance = GetProcess("bin\\Trojan.exe");
+            Instance = GetProcess();
             Instance.StartInfo.Arguments = "-c ..\\data\\last.json";
             Instance.OutputDataReceived += OnOutputDataReceived;
             Instance.ErrorDataReceived += OnOutputDataReceived;
@@ -59,19 +59,6 @@ namespace Netch.Controllers
             Logging.Error("Trojan 进程启动超时");
             Stop();
             return false;
-        }
-
-        public override void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!Write(e.Data)) return;
-            if (State == State.Starting)
-            {
-                if (Instance.HasExited)
-                    State = State.Stopped;
-                else if (e.Data.Contains("started"))
-                    State = State.Started;
-                else if (e.Data.Contains("exiting")) State = State.Stopped;
-            }
         }
 
         public override void Stop()

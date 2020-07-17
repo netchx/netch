@@ -20,7 +20,6 @@ namespace Netch.Controllers
         public HTTPController()
         {
             Name = "HTTP";
-            Ready = true;
         }
 
         /// <summary>
@@ -31,8 +30,6 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public override bool Start(Server server, Mode mode)
         {
-            if (!Ready) return false;
-
             RecordPrevious();
             try
             {

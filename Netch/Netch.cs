@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
+using Netch.Controllers;
 using Netch.Forms;
 using Netch.Utils;
 
@@ -57,6 +58,8 @@ namespace Netch
 
                 // 记录当前系统语言
                 Logging.Info($"当前语言：{Global.Settings.Language}");
+                Logging.Info($"版本:{UpdateChecker.Owner}/{UpdateChecker.Repo} {UpdateChecker.Version}");
+                Logging.Info($"主程序创建日期:{File.GetCreationTime(Global.NetchDir + "\\Netch.exe"):yyyy-M-d HH:mm}");
 
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))

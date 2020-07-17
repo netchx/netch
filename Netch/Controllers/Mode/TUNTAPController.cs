@@ -8,7 +8,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
@@ -35,14 +34,16 @@ namespace Netch.Controllers
 
         public TUNTAPController()
         {
-            MainFile = "tun2socks";
-            InitCheck();
+            Name = "Tap";
+            MainFile = "tun2socks.exe";
+            StartedKeywords("Running");
+            StoppedKeywords("failed","invalid vconfig file");
         }
 
         /// <summary>
         ///     配置 TUNTAP 适配器
         /// </summary>
-        public bool Configure()
+        private bool Configure()
         {
             // 查询服务器 IP 地址
             var destination = Dns.GetHostAddressesAsync(_savedServer.Hostname);
@@ -60,7 +61,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     设置绕行规则
         /// </summary>
-        public bool SetupBypass()
+        private bool SetupBypass()
         {
             Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
             Logging.Info("设置绕行规则 → 设置让服务器 IP 走直连");
@@ -178,7 +179,7 @@ namespace Netch.Controllers
                     Logging.Info("设置绕行规则 → 处理自定义 DNS 代理");
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
-                        var dns = "";
+                        var dns = string.Empty;
                         foreach (var value in Global.Settings.TUNTAP.DNS)
                         {
                             dns += value;
@@ -252,7 +253,7 @@ namespace Netch.Controllers
                 {
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
-                        var dns = "";
+                        var dns = string.Empty;
                         foreach (var value in Global.Settings.TUNTAP.DNS)
                         {
                             dns += value;
@@ -308,8 +309,6 @@ namespace Netch.Controllers
 
         public override bool Start(Server server, Mode mode)
         {
-            if (!Ready) return false;
-
             Global.MainForm.StatusText(i18N.Translate("Starting Tap"));
 
             _savedMode = mode;
@@ -321,7 +320,7 @@ namespace Netch.Controllers
             SetupBypass();
             Logging.Info("设置绕行规则完毕");
 
-            Instance = GetProcess("bin\\tun2socks.exe");
+            Instance = GetProcess();
 
             var adapterName = TUNTAP.GetName(Global.TUNTAP.ComponentID);
             Logging.Info($"tun2sock使用适配器：{adapterName}");
@@ -331,7 +330,7 @@ namespace Netch.Controllers
             //if (Global.Settings.TUNTAP.UseCustomDNS || server.Type.Equals("VMess"))
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {
-                dns = "";
+                dns = string.Empty;
                 foreach (var value in Global.Settings.TUNTAP.DNS)
                 {
                     dns += value;
@@ -389,17 +388,6 @@ namespace Netch.Controllers
             pDNSController.Stop();
         }
 
-        private void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!Write(e.Data)) return;
-            if (State == State.Starting)
-            {
-                if (e.Data.Contains("Running"))
-                    State = State.Started;
-                else if (e.Data.Contains("failed") || e.Data.Contains("invalid vconfig file")) State = State.Stopped;
-            }
-        }
-
         /// <summary>
         ///     搜索出口
         /// </summary>
@@ -431,7 +419,7 @@ namespace Netch.Controllers
                     // 通过索引查找对应适配器的 IPv4 地址
                     if (p.Index == Global.Adapter.Index)
                     {
-                        var AdapterIPs = "";
+                        var AdapterIPs = string.Empty;
 
                         foreach (var ip in adapterProperties.UnicastAddresses)
                         {
