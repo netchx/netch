@@ -401,19 +401,19 @@ namespace Netch.Forms
             #region 检查端口是否被占用
             if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
             {
-                MessageBoxX.Show("The Socks5 port is in use. Please reset.");
+                MessageBoxX.Show(i18N.Translate("The Socks5 port is in use. Please reset."));
                 return;
             }
 
             if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
             {
-                MessageBoxX.Show("The HTTP port is in use. Please reset.");
+                MessageBoxX.Show(i18N.Translate("The HTTP port is in use. Please reset."));
                 return;
             }
 
             if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
             {
-                MessageBoxX.Show("The RedirectorTCP port is in use. Please reset.");
+                MessageBoxX.Show(i18N.Translate("The RedirectorTCP port is in use. Please reset."));
                 return;
             }
             #endregion

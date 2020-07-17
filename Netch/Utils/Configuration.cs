@@ -69,7 +69,8 @@ namespace Netch.Utils
             else
             {
                 // 弹出提示
-                MessageBoxX.Show("如果你是第一次使用本软件\n请务必前往http://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！", i18N.Translate("注意！"));
+                i18N.Load("System");
+                MessageBoxX.Show(i18N.Translate("If this is your first time using this software,\n please check http://netch.org to install supports first,\n or the program may report errors."));
 
                 // 创建 data 文件夹并保存默认设置
                 Save();

@@ -34,8 +34,6 @@ namespace Netch.Utils
                 langCode = CultureInfo.CurrentCulture.Name;
             }
 
-
-
             if (langCode == "zh-CN")
             {
                 // 尝试加载内置中文语言
@@ -73,6 +71,7 @@ namespace Netch.Utils
         {
             return Data.Contains(text) ? Data[text].ToString() : text;
         }
+
         public static string Translate(params string[] text)
         {
             var a = new StringBuilder();
