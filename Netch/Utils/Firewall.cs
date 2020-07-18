@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using NetFwTypeLib;
 
 namespace Netch.Utils
@@ -37,7 +38,14 @@ namespace Netch.Utils
         /// </summary>
         public static void RemoveFwRules()
         {
-            RemoveFwRules(NetchAutoRule);
+            try
+            {
+                RemoveFwRules(NetchAutoRule);
+            }
+            catch (Exception e)
+            {
+                Logging.Warning("添加防火墙规则错误\n" + e);
+            }
         }
 
         /// <summary>
@@ -45,15 +53,22 @@ namespace Netch.Utils
         /// </summary>
         public static void AddNetchFwRules()
         {
-            if (GetFwRulePath(Netch).StartsWith(Global.NetchDir) && GetFwRulesNumber(Netch) >= ProgramPath.Length) return;
-            RemoveNetchFwRules();
-            foreach (var p in ProgramPath)
+            try
             {
-                var path = Path.GetFullPath(p);
-                if (File.Exists(path))
+                if (GetFwRulePath(Netch).StartsWith(Global.NetchDir) && GetFwRulesNumber(Netch) >= ProgramPath.Length) return;
+                RemoveNetchFwRules();
+                foreach (var p in ProgramPath)
                 {
-                    AddFwRule("Netch", path);
+                    var path = Path.GetFullPath(p);
+                    if (File.Exists(path))
+                    {
+                        AddFwRule("Netch", path);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logging.Warning("添加防火墙规则错误(如已关闭防火墙则可无视此错误)\n" + e);
             }
         }
 
@@ -62,7 +77,15 @@ namespace Netch.Utils
         /// </summary>
         private static void RemoveNetchFwRules()
         {
-            RemoveFwRules(Netch);
+            try
+            {
+                RemoveFwRules(Netch);
+            }
+            catch (Exception e)
+            {
+                Logging.Warning("清除防火墙规则错误\n" + e);
+                // ignored
+            }
         }
 
         #region 封装
@@ -76,7 +99,7 @@ namespace Netch.Utils
             rule.Action = NET_FW_ACTION_.NET_FW_ACTION_ALLOW;
             // ApplicationName 大小不敏感
             rule.ApplicationName = exeFullPath;
-            // rule.Description = "Used to block all internet access.";
+            // rule.Description = "";
             rule.Direction = NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN;
             rule.Enabled = true;
             rule.InterfaceTypes = "All";
@@ -87,17 +110,10 @@ namespace Netch.Utils
 
         private static void RemoveFwRules(string ruleName)
         {
-            try
+            var c = GetFwRulesNumber(ruleName);
+            foreach (var _ in new bool[c])
             {
-                var c = GetFwRulesNumber(ruleName);
-                foreach (var _ in new bool[c])
-                {
-                    FwPolicy.Rules.Remove(ruleName);
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Info("Netch 自带程序添加防火墙出错(如已关闭防火墙则可无视此错误)\n" + e);
+                FwPolicy.Rules.Remove(ruleName);
             }
         }
 
@@ -111,8 +127,8 @@ namespace Netch.Utils
         {
             try
             {
-                var rule = (INetFwRule2)FwPolicy.Rules.Item(ruleName);
-            return rule.ApplicationName;
+                var rule = (INetFwRule2) FwPolicy.Rules.Item(ruleName);
+                return rule.ApplicationName;
             }
             catch (Exception)
             {
@@ -122,14 +138,7 @@ namespace Netch.Utils
 
         private static int GetFwRulesNumber(string ruleName)
         {
-            // https://stackoverflow.com/a/53601691
-            var i = 0;
-            foreach (INetFwRule2 rule in FwPolicy.Rules)
-            {
-                if (rule.Name == ruleName)
-                    i++;
-            }
-            return i;
+            return FwPolicy.Rules.Cast<INetFwRule2>().Count(rule => rule.Name == ruleName);
         }
 
         #endregion
