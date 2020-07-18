@@ -72,7 +72,7 @@ namespace Netch.Controllers
 
                 if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
                 {
-                    MessageBoxX.Show("RedirectorTCP"+i18N.Translate("port is in use."));
+                    MessageBoxX.Show("RedirectorTCP" + i18N.Translate("port is in use."));
                     return false;
                 }
 
@@ -138,7 +138,7 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            pEncryptedProxyController?.Stop();
+            Task.Run(() => pEncryptedProxyController?.Stop());
             pModeController?.Stop();
         }
 
