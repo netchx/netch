@@ -50,12 +50,12 @@ namespace Netch.Controllers
 
         public override bool Start(Server server, Mode mode)
         {
-            Logging.Info("内置驱动版本" + DriverVersion(BinDriver));
-            Logging.Info("系统驱动版本" + DriverVersion(SystemDriver));
+            Logging.Info("内置驱动版本: " + DriverVersion(BinDriver));
             if (DriverVersion(SystemDriver) != DriverVersion(BinDriver))
             {
                 if (File.Exists(SystemDriver))
                 {
+                    Logging.Info("系统驱动版本: " + DriverVersion(SystemDriver));
                     Logging.Info("更新驱动");
                     UninstallDriver();
                 }
@@ -108,13 +108,14 @@ namespace Netch.Controllers
 
                         //备份并替换系统DNS
                         _sysDns = DNS.getSystemDns();
-                        string[] dns = { "1.1.1.1", "8.8.8.8" };
-                        DNS.SetDNS(dns); 
-                        
-                        return true; }
+                        string[] dns = {"1.1.1.1", "8.8.8.8"};
+                        DNS.SetDNS(dns);
+
+                        return true;
+                    }
                 }
 
-                Logging.Error(Name + "启动超时");
+                Logging.Error(Name + " 启动超时");
                 Stop();
                 if (!RestartService()) return false;
             }

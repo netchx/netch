@@ -179,7 +179,7 @@
     "Exit": "退出",
     "Unable to start? Click me to download": "无法启动？点我下载依赖",
 
-    "port is in use.": "端口已被占用",
+    "The {0} port is in use.": "{0} 端口已被占用",
 
     "Bypass LAN": "[网页代理] 绕过局域网",
     "Bypass LAN (Non System Proxy)": "[网页代理] 绕过局域网（不设置系统代理）",

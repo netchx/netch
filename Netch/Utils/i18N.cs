@@ -26,7 +26,7 @@ namespace Netch.Utils
         public static void Load(string langCode)
         {
             LangCode = langCode;
-            
+
             var text = "";
             if (langCode.Equals("System"))
             {
@@ -67,19 +67,30 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="text">需要翻译的文本</param>
         /// <returns>翻译完毕的文本</returns>
-        public static string Translate(string text)
-        {
-            return Data.Contains(text) ? Data[text].ToString() : text;
-        }
-
-        public static string Translate(params string[] text)
+        public static string Translate(params object[] text)
         {
             var a = new StringBuilder();
             foreach (var t in text)
-                a.Append(Data.Contains(t) ? Data[t].ToString() : t);
+                if (t is string)
+                    a.Append(Data.Contains(t) ? Data[t].ToString() : t);
+                else
+                    a.Append(t);
             return a.ToString();
         }
-        
+
+        public static string TranslateFormat(string format, params object[] args)
+        {
+            for (var i = 0; i < args.Length; i++)
+            {
+                if (args[i] is string)
+                {
+                    args[i] = Translate((string) args[i]);
+                }
+            }
+
+            return string.Format(Translate(format), args);
+        }
+
         public static List<string> GetTranslateList()
         {
             var translateFile = new List<string> {"System", "zh-CN", "en-US"};

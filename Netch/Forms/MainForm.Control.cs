@@ -125,6 +125,7 @@ namespace Netch.Forms
                 if (modeType == 3 || modeType == 5)
                 {
                     // 可控HTTP
+                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
                     text.Append($"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
                 }
                 else
@@ -136,13 +137,18 @@ namespace Netch.Forms
             else
             {
                 // 可控Socks5
+                MainController.UsingPorts.Add(Global.Settings.Socks5LocalPort);
                 text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
                 if (modeType == 3 || modeType == 5)
                 {
                     // 有HTTP
+                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
                     text.Append($" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
                 }
             }
+
+            if (modeType == 0)
+                MainController.UsingPorts.Add(Global.Settings.RedirectorTCPPort);
 
             text.Append(")");
             return text.ToString();

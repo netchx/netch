@@ -374,7 +374,7 @@ namespace Netch.Forms
 
                 if (PortHelper.PortInUse(port, portType))
                 {
-                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", portName));
+                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", portName));
                     return false;
                 }
 
