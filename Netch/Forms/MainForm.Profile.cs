@@ -148,7 +148,7 @@ namespace Netch.Forms
                 }
                 else if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBoxX.Show(i18N.Translate("Please select an mode first"));
+                    MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                 }
                 else if (ProfileNameText.Text == "")
                 {
@@ -159,53 +159,52 @@ namespace Netch.Forms
                     SaveProfile(index);
                     ProfileButtons[index].Text = ProfileNameText.Text;
                 }
+                return;
             }
-            else if (ModifierKeys == Keys.Shift)
+
+            if (Global.Settings.Profiles[index].IsDummy)
             {
-                if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) == DialogResult.OK)
-                {
-                    RemoveProfile(index);
-                    ProfileButtons[index].Text = i18N.Translate("None");
-                    MessageBoxX.Show(i18N.Translate("Profile Removed!"));
-                }
+                MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
+                return;
             }
-            else
+
+            if (ModifierKeys == Keys.Shift)
             {
-                if (Global.Settings.Profiles[index].IsDummy)
-                {
-                    MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
-                    return;
-                }
+                if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) != DialogResult.OK) return;
+                RemoveProfile(index);
+                ProfileButtons[index].Text = i18N.Translate("None");
+                MessageBoxX.Show(i18N.Translate("Profile Removed!"));
+                return;
+            }
 
-                try
-                {
-                    ProfileNameText.Text = LoadProfile(index);
+            try
+            {
+                ProfileNameText.Text = LoadProfile(index);
 
-                    // start the profile
-                    ControlFun();
-                    if (State == State.Stopping || State == State.Stopped)
-                    {
-                        Task.Run(() =>
-                        {
-                            while (State != State.Stopped)
-                            {
-                                Thread.Sleep(250);
-                            }
-
-                            ControlButton.PerformClick();
-                        });
-                    }
-                }
-                catch (Exception ee)
+                // start the profile
+                ControlFun();
+                if (State == State.Stopping || State == State.Stopped)
                 {
                     Task.Run(() =>
                     {
-                        Logging.Info(ee.ToString());
-                        ProfileButtons[index].Text = i18N.Translate("Error");
-                        Thread.Sleep(1200);
-                        ProfileButtons[index].Text = i18N.Translate("None");
+                        while (State != State.Stopped)
+                        {
+                            Thread.Sleep(250);
+                        }
+
+                        ControlFun();
                     });
                 }
+            }
+            catch (Exception ee)
+            {
+                Task.Run(() =>
+                {
+                    Logging.Info(ee.ToString());
+                    ProfileButtons[index].Text = i18N.Translate("Error");
+                    Thread.Sleep(1200);
+                    ProfileButtons[index].Text = i18N.Translate("None");
+                });
             }
         }
     }

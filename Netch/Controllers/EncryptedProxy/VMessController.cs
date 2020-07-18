@@ -12,7 +12,7 @@ namespace Netch.Controllers
     {
         public VMessController()
         {
-            Name = "v2ray";
+            Name = "V2Ray";
             MainFile = "v2ray.exe";
             StartedKeywords("started");
             StoppedKeywords("config file not readable", "failed to");
