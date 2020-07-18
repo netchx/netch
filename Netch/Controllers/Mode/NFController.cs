@@ -15,6 +15,7 @@ namespace Netch.Controllers
 
         private static readonly string BinDriver = string.Empty;
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
+        private static string[] _sysDns = { };
 
         static NFController()
         {
@@ -102,7 +103,15 @@ namespace Netch.Controllers
                 {
                     Thread.Sleep(250);
 
-                    if (State == State.Started) return true;
+                    if (State == State.Started)
+                    {
+
+                        //备份并替换系统DNS
+                        _sysDns = DNS.getSystemDns();
+                        string[] dns = { "1.1.1.1", "8.8.8.8" };
+                        DNS.SetDNS(dns); 
+                        
+                        return true; }
                 }
 
                 Logging.Error(Name + "启动超时");
@@ -257,6 +266,8 @@ namespace Netch.Controllers
         public override void Stop()
         {
             StopInstance();
+            //恢复系统DNS
+            DNS.SetDNS(_sysDns);
         }
 
         /// <summary>
