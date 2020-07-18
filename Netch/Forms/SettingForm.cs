@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Models;
 using Netch.Utils;
 using TaskScheduler;
 
@@ -33,6 +34,7 @@ namespace Netch.Forms
                     dns += ip;
                     dns += ',';
                 }
+
                 dns = dns.Trim();
                 TUNTAPDNSTextBox.Text = dns.Substring(0, dns.Length - 1);
             }
@@ -120,6 +122,7 @@ namespace Netch.Forms
                     dns += ip;
                     dns += ',';
                 }
+
                 dns = dns.Trim();
                 TUNTAPDNSTextBox.Text = dns.Substring(0, dns.Length - 1);
             }
@@ -183,7 +186,10 @@ namespace Netch.Forms
                 folder.GetTask("Netch Startup");
                 taskIsExists = true;
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+                // ignored
+            }
 
             if (RunAtStartup.Checked)
             {
@@ -196,7 +202,7 @@ namespace Netch.Forms
                 task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
 
                 task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
-                var action = (IExecAction)task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+                var action = (IExecAction) task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
                 action.Path = Application.ExecutablePath;
 
 
@@ -204,7 +210,7 @@ namespace Netch.Forms
                 task.Settings.DisallowStartIfOnBatteries = false;
                 task.Settings.RunOnlyIfIdle = false;
 
-                folder.RegisterTaskDefinition("Netch Startup", task, (int)_TASK_CREATION.TASK_CREATE, null, null, _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "");
+                folder.RegisterTaskDefinition("Netch Startup", task, (int) _TASK_CREATION.TASK_CREATE, null, null, _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "");
             }
             else
             {
@@ -212,77 +218,15 @@ namespace Netch.Forms
                     folder.DeleteTask("Netch Startup", 0);
             }
 
-            try
-            {
-                var Socks5Port = int.Parse(Socks5PortTextBox.Text);
-
-                if (Socks5Port > 0 && Socks5Port < 65536)
-                {
-                    Global.Settings.Socks5LocalPort = Socks5Port;
-                }
-                else
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException)
-            {
-                Socks5PortTextBox.Text = Global.Settings.Socks5LocalPort.ToString();
-                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
-
+            // 端口检查
+            if (!CheckPortText("Socks5", ref Socks5PortTextBox, ref Global.Settings.Socks5LocalPort))
                 return;
-            }
-
-            try
-            {
-                var HTTPPort = int.Parse(HTTPPortTextBox.Text);
-
-                if (HTTPPort > 0 && HTTPPort < 65536)
-                {
-                    Global.Settings.HTTPLocalPort = HTTPPort;
-                }
-                else
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException)
-            {
-                HTTPPortTextBox.Text = Global.Settings.HTTPLocalPort.ToString();
-                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
-
+            if (!CheckPortText("HTTP", ref HTTPPortTextBox, ref Global.Settings.HTTPLocalPort))
                 return;
-            }
-
-            try
-            {
-                var RedirectorPort = int.Parse(RedirectorTextBox.Text);
-
-                if (RedirectorPort > 0 && RedirectorPort < 65536)
-                {
-                    Global.Settings.RedirectorTCPPort = RedirectorPort;
-                }
-                else
-                {
-                    throw new FormatException();
-                }
-            }
-            catch (FormatException)
-            {
-                RedirectorTextBox.Text = Global.Settings.RedirectorTCPPort.ToString();
-                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
-
+            if (!CheckPortText("RedirectorTCP", ref RedirectorTextBox, ref Global.Settings.RedirectorTCPPort, PortType.TCP))
                 return;
-            }
 
-            if (AllowDevicesCheckBox.Checked)
-            {
-                Global.Settings.LocalAddress = "0.0.0.0";
-            }
-            else
-            {
-                Global.Settings.LocalAddress = "127.0.0.1";
-            }
+            Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1";
 
             try
             {
@@ -310,12 +254,14 @@ namespace Netch.Forms
                     DNS += ip;
                     DNS += ',';
                 }
+
                 DNS = DNS.Trim();
                 TUNTAPDNSTextBox.Text = DNS.Substring(0, DNS.Length - 1);
                 UseCustomDNSCheckBox.Checked = Global.Settings.TUNTAP.UseCustomDNS;
 
                 return;
             }
+
             try
             {
                 var ProfileCount = int.Parse(ProfileCount_TextBox.Text);
@@ -336,6 +282,7 @@ namespace Netch.Forms
 
                 return;
             }
+
             try
             {
                 var STUN_Server = STUN_ServerTextBox.Text;
@@ -359,6 +306,7 @@ namespace Netch.Forms
 
                 return;
             }
+
             try
             {
                 Global.Settings.StartedTcping = EnableStartedTcping_CheckBox.Checked;
@@ -398,29 +346,47 @@ namespace Netch.Forms
             Global.Settings.TUNTAP.ProxyDNS = ProxyDNSCheckBox.Checked;
             Global.Settings.TUNTAP.UseFakeDNS = UseFakeDNSCheckBox.Checked;
 
-            #region 检查端口是否被占用
-            if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
-            {
-                MessageBoxX.Show(i18N.Translate("The Socks5 port is in use. Please reset."));
-                return;
-            }
-
-            if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
-            {
-                MessageBoxX.Show(i18N.Translate("The HTTP port is in use. Please reset."));
-                return;
-            }
-
-            if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
-            {
-                MessageBoxX.Show(i18N.Translate("The RedirectorTCP port is in use. Please reset."));
-                return;
-            }
-            #endregion
-
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="portName"></param>
+        /// <param name="portTextBox"></param>
+        /// <param name="originPort"></param>
+        /// <param name="portType"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        private bool CheckPortText(string portName, ref TextBox portTextBox, ref int originPort, PortType portType = PortType.Both)
+        {
+            // 端口检查
+            try
+            {
+                var port = int.Parse(portTextBox.Text);
+
+                if (port <= 0 || port >= 65536)
+                {
+                    throw new FormatException();
+                }
+
+                if (PortHelper.PortInUse(port, portType))
+                {
+                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", portName));
+                    return false;
+                }
+
+                originPort = port;
+            }
+            catch (FormatException)
+            {
+                MessageBoxX.Show(i18N.Translate("Port value illegal. Try again."));
+                return false;
+            }
+
+            return true;
         }
     }
 }
