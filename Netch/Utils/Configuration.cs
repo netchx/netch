@@ -70,7 +70,7 @@ namespace Netch.Utils
             {
                 // 弹出提示
                 i18N.Load("System");
-                MessageBoxX.Show(i18N.Translate("If this is your first time using this software,\n please check http://netch.org to install supports first,\n or the program may report errors."));
+                MessageBoxX.Show(i18N.Translate("If this is your first time using this software,\n please check https://netch.org to install supports first,\n or the program may report errors."));
 
                 // 创建 data 文件夹并保存默认设置
                 Save();
