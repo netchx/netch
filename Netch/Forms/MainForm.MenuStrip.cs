@@ -230,39 +230,6 @@ namespace Netch.Forms
 
         #region 选项
 
-        private void RestartServiceToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            StatusText(i18N.Translate("Restarting service"));
-
-            Task.Run(() =>
-            {
-                try
-                {
-                    var service = new ServiceController("netfilter2");
-                    if (service.Status == ServiceControllerStatus.Stopped)
-                    {
-                        service.Start();
-                        service.WaitForStatus(ServiceControllerStatus.Running);
-                    }
-                    else if (service.Status == ServiceControllerStatus.Running)
-                    {
-                        service.Stop();
-                        service.WaitForStatus(ServiceControllerStatus.Stopped);
-                        service.Start();
-                        service.WaitForStatus(ServiceControllerStatus.Running);
-                    }
-                }
-                catch (Exception)
-                {
-                    NFAPI.nf_registerDriver("netfilter2");
-                }
-
-                MessageBoxX.Show(i18N.Translate("Service has been restarted"), owner: this);
-                Enabled = true;
-            });
-        }
-
         private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;

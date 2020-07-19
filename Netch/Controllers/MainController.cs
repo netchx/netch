@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
@@ -10,6 +12,12 @@ namespace Netch.Controllers
 {
     public class MainController
     {
+        /// <summary>
+        ///     记录当前使用的端口
+        ///     <see cref="MainForm.LocalPortText"/>
+        /// </summary>
+        public static readonly List<int> UsingPorts = new List<int>();
+
         public EncryptedProxy pEncryptedProxyController;
 
         public ModeController pModeController;
@@ -60,19 +68,19 @@ namespace Netch.Controllers
                 // 检查端口是否被占用
                 if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
                 {
-                    MessageBoxX.Show("Socks5" + i18N.Translate("port is in use."));
+                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "Socks5"));
                     return false;
                 }
 
                 if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
                 {
-                    MessageBoxX.Show("HTTP" + i18N.Translate("port is in use."));
+                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "HTTP"));
                     return false;
                 }
 
                 if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
                 {
-                    MessageBoxX.Show("RedirectorTCP"+i18N.Translate("port is in use."));
+                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "Redirector TCP"));
                     return false;
                 }
 
@@ -138,7 +146,8 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            pEncryptedProxyController?.Stop();
+            Task.Run(() => pEncryptedProxyController?.Stop());
+            Task.Run(() => UsingPorts.Clear());
             pModeController?.Stop();
         }
 

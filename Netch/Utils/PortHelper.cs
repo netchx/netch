@@ -1,59 +1,34 @@
-﻿using System.Net;
+﻿using System.Linq;
 using System.Net.NetworkInformation;
+using Netch.Controllers;
 
 namespace Netch.Utils
 {
-    class PortHelper
+    public static class PortHelper
     {
-        /// <summary>
-        ///     端口是否被使用
-        /// </summary>
-        /// <param name="port"></param>
-        /// <returns></returns>
-        public static bool PortInUse(int port)
-        {
-            return PortInUse(port, PortType.TCP) || PortInUse(port, PortType.UDP);
-        }
-
         /// <summary>
         ///     指定类型的端口是否已经被使用了
         /// </summary>
-        /// <param name="port">端口号</param>
-        /// <param name="type">端口类型</param>
-        /// <returns></returns>
-        public static bool PortInUse(int port, PortType type)
+        /// <param name="port">端口</param>
+        /// <param name="type">检查端口类型</param>
+        /// <returns>是否被占用</returns>
+        public static bool PortInUse(int port, PortType type = PortType.Both)
         {
-            bool flag = false;
-            IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
-            IPEndPoint[] ipendpoints = null;
-            if (type == PortType.TCP)
-            {
-                ipendpoints = properties.GetActiveTcpListeners();
-            }
-            else
-            {
-                ipendpoints = properties.GetActiveUdpListeners();
-            }
-            foreach (IPEndPoint ipendpoint in ipendpoints)
-            {
-                if (ipendpoint.Port == port)
-                {
-                    flag = true;
-                    break;
-                }
-            }
-            ipendpoints = null;
-            properties = null;
-            return flag;
+            var netInfo = IPGlobalProperties.GetIPGlobalProperties();
+            var tcpResult = type != PortType.UDP && netInfo.GetActiveTcpListeners().Any(ipEndPoint => !MainController.UsingPorts.Contains(ipEndPoint.Port) && ipEndPoint.Port == port);
+            var udpResult = type != PortType.TCP && netInfo.GetActiveUdpListeners().Any(ipEndPoint => !MainController.UsingPorts.Contains(ipEndPoint.Port) && ipEndPoint.Port == port);
+
+            return tcpResult || udpResult;
         }
     }
 
     /// <summary>
-    /// 端口类型
+    ///     检查端口类型
     /// </summary>
-    enum PortType
+    public enum PortType
     {
         TCP,
-        UDP
+        UDP,
+        Both
     }
 }

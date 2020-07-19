@@ -311,7 +311,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBoxX.Show(i18N.Translate("Please select an mode first"));
+                MessageBoxX.Show(i18N.Translate("Please select a mode first"));
             }
         }
 
@@ -336,7 +336,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBoxX.Show(i18N.Translate("Please select an mode first"));
+                MessageBoxX.Show(i18N.Translate("Please select a mode first"));
             }
         }
 

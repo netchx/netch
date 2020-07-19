@@ -33,7 +33,7 @@ namespace Netch.Forms
 
                 if (ModeComboBox.SelectedIndex == -1)
                 {
-                    MessageBoxX.Show(i18N.Translate("Please select an mode first"));
+                    MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                     return;
                 }
 
@@ -51,11 +51,9 @@ namespace Netch.Forms
                         Task.Run(() =>
                         {
                             UpdateStatus(State.Started,
-                                i18N.Translate(StateExtension.GetStatusString(State.Started)) + PortText(server.Type, mode.Type));
-
+                                i18N.Translate(StateExtension.GetStatusString(State.Started)) + LocalPortText(server.Type, mode.Type));
                             Bandwidth.NetTraffic(server, mode, _mainController);
                         });
-
                         // 如果勾选启动后最小化
                         if (Global.Settings.MinimizeWhenStarted)
                         {
@@ -110,49 +108,47 @@ namespace Netch.Forms
             {
                 // 停止
                 UpdateStatus(State.Stopping);
-                Task.Run(() =>
-                {
-                    _mainController.Stop();
-                    UpdateStatus(State.Stopped);
-
-                    TestServer();
-                });
+                _mainController.Stop();
+                UpdateStatus(State.Stopped);
+                Task.Run(TestServer);
             }
         }
 
-        private string PortText(string serverType, int modeType)
+        private static string LocalPortText(string serverType, int modeType)
         {
             var text = new StringBuilder(" (");
-            text.Append(Global.Settings.LocalAddress == "0.0.0.0"
-                ? i18N.Translate("Allow other Devices to connect") + " "
-                : "");
+            if (Global.Settings.LocalAddress == "0.0.0.0")
+                text.Append(i18N.Translate("Allow other Devices to connect") + " ");
             if (serverType == "Socks5")
             {
                 // 不可控Socks5
                 if (modeType == 3 || modeType == 5)
                 {
                     // 可控HTTP
-                    text.Append(
-                        $"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
+                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
+                    text.Append($"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
                 }
                 else
                 {
                     // 不可控HTTP
-                    return "";
+                    return string.Empty;
                 }
             }
             else
             {
                 // 可控Socks5
-                text.Append(
-                    $"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
+                MainController.UsingPorts.Add(Global.Settings.Socks5LocalPort);
+                text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
                 if (modeType == 3 || modeType == 5)
                 {
-                    //有HTTP
-                    text.Append(
-                        $" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
+                    // 有HTTP
+                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
+                    text.Append($" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
                 }
             }
+
+            if (modeType == 0)
+                MainController.UsingPorts.Add(Global.Settings.RedirectorTCPPort);
 
             text.Append(")");
             return text.ToString();

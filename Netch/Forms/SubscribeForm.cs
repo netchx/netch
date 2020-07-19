@@ -161,7 +161,7 @@ namespace Netch.Forms
 
                                 Configuration.Save();
                                 Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-                                MessageBoxX.Show(i18N.Translate("Successfully saved"));
+                                MessageBoxX.Show(i18N.Translate("Saved"));
                             }
                         });
                         if (saveFlag)
@@ -200,7 +200,7 @@ namespace Netch.Forms
         {
             Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-            MessageBoxX.Show(i18N.Translate("Successfully saved"));
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
         /// <summary>
