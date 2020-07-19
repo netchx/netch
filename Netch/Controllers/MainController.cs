@@ -68,19 +68,19 @@ namespace Netch.Controllers
                 // 检查端口是否被占用
                 if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
                 {
-                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "Socks5"));
+                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "Socks5"));
                     return false;
                 }
 
                 if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
                 {
-                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "HTTP"));
+                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "HTTP"));
                     return false;
                 }
 
                 if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
                 {
-                    MessageBoxX.Show(i18N.Translate("The {0} port is in use.", "Redirector TCP"));
+                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "Redirector TCP"));
                     return false;
                 }
 

@@ -216,6 +216,51 @@ namespace Netch.Forms
             VersionLabel.Text = UpdateChecker.Version;
         }
 
+        private void Exit(bool forceExit = false)
+        {
+            if (IsDisposed) return;
+
+            // 已启动
+            if (State != State.Waiting && State != State.Stopped)
+            {
+                if (Global.Settings.StopWhenExited || forceExit)
+                {
+                    UpdateStatus(State.Stopping);
+                    ControlFun();
+                }
+                else
+                {
+                    // 未开启自动停止
+                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
+
+                    Visible = true;
+                    ShowInTaskbar = true; // 显示在系统任务栏 
+                    WindowState = FormWindowState.Normal; // 还原窗体 
+                    NotifyIcon.Visible = true; // 托盘图标隐藏 
+
+                    return;
+                }
+            }
+
+            NotifyIcon.Visible = false;
+            Hide();
+
+            Task.Run(() =>
+            {
+                for (var i = 0; i < 16; i++)
+                {
+                    if (State == State.Waiting || State == State.Stopped)
+                        break;
+                    Thread.Sleep(250);
+                }
+
+                SaveConfigs();
+                UpdateStatus(State.Terminating);
+                Dispose();
+                Environment.Exit(Environment.ExitCode);
+            });
+        }
+
         #region MISC
 
         /// <summary>
@@ -383,50 +428,6 @@ namespace Netch.Forms
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
             }
-        }
-
-        private void Exit(bool forceExit = false)
-        {
-            if(IsDisposed) return;
-            // 已启动
-            if (State != State.Waiting && State != State.Stopped)
-            {
-                if (forceExit)
-                    ControlFun();
-                else
-                {
-                    if (!Global.Settings.StopWhenExited)
-                    {
-                        // 未开启自动停止
-                        MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
-
-                        Visible = true;
-                        ShowInTaskbar = true; // 显示在系统任务栏 
-                        WindowState = FormWindowState.Normal; // 还原窗体 
-                        NotifyIcon.Visible = true; // 托盘图标隐藏 
-
-                        return;
-                    }
-                }
-            }
-
-            NotifyIcon.Visible = false;
-            Hide();
-
-            Task.Run(() =>
-            {
-                for (var i = 0; i < 16; i++)
-                {
-                    if (State == State.Waiting || State == State.Stopped)
-                        break;
-                    Thread.Sleep(250);
-                }
-
-                SaveConfigs();
-                UpdateStatus(State.Terminating);
-                Dispose();
-                Environment.Exit(Environment.ExitCode);
-            });
         }
 
         #region NotifyIcon
