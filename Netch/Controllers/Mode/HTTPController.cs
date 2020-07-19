@@ -44,7 +44,7 @@ namespace Netch.Controllers
                     pPrivoxyController.Start(server, mode);
                 }
 
-                if (mode.Type != 5) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
+                if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
             }
             catch (Exception e)
             {
