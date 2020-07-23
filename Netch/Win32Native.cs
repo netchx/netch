@@ -281,7 +281,7 @@ namespace Netch
                 }
                 catch (Exception)
                 {
-                    // 跳过
+                    // ignored
                 }
                 finally
                 {

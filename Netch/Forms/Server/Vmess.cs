@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Netch.Utils;
 
 namespace Netch.Forms.Server
 {
@@ -43,21 +44,21 @@ namespace Netch.Forms.Server
 
         private void VMess_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
-            UserIDLabel.Text = Utils.i18N.Translate(UserIDLabel.Text);
-            AlterIDLabel.Text = Utils.i18N.Translate(AlterIDLabel.Text);
-            EncryptMethodLabel.Text = Utils.i18N.Translate(EncryptMethodLabel.Text);
-            TransferProtocolLabel.Text = Utils.i18N.Translate(TransferProtocolLabel.Text);
-            FakeTypeLabel.Text = Utils.i18N.Translate(FakeTypeLabel.Text);
-            HostLabel.Text = Utils.i18N.Translate(HostLabel.Text);
-            PathLabel.Text = Utils.i18N.Translate(PathLabel.Text);
-            QUICSecurityLabel.Text = Utils.i18N.Translate(QUICSecurityLabel.Text);
-            QUICSecretLabel.Text = Utils.i18N.Translate(QUICSecretLabel.Text);
-            TLSSecureCheckBox.Text = Utils.i18N.Translate(TLSSecureCheckBox.Text);
-            UseMuxCheckBox.Text = Utils.i18N.Translate(UseMuxCheckBox.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
+            UserIDLabel.Text = i18N.Translate(UserIDLabel.Text);
+            AlterIDLabel.Text = i18N.Translate(AlterIDLabel.Text);
+            EncryptMethodLabel.Text = i18N.Translate(EncryptMethodLabel.Text);
+            TransferProtocolLabel.Text = i18N.Translate(TransferProtocolLabel.Text);
+            FakeTypeLabel.Text = i18N.Translate(FakeTypeLabel.Text);
+            HostLabel.Text = i18N.Translate(HostLabel.Text);
+            PathLabel.Text = i18N.Translate(PathLabel.Text);
+            QUICSecurityLabel.Text = i18N.Translate(QUICSecurityLabel.Text);
+            QUICSecretLabel.Text = i18N.Translate(QUICSecretLabel.Text);
+            TLSSecureCheckBox.Text = i18N.Translate(TLSSecureCheckBox.Text);
+            UseMuxCheckBox.Text = i18N.Translate(UseMuxCheckBox.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
 
             foreach (var encrypt in Global.EncryptMethods.VMess)
             {
@@ -116,6 +117,11 @@ namespace Netch.Forms.Server
             {
                 return;
             }
+            if (AlterIDTextBox.Text == "")
+            {
+                MessageBoxX.Show(i18N.Translate("Please fill in alterID"));
+                return;
+            }
             if (Index == -1)
             {
                 Global.Settings.Server.Add(new Models.Server
@@ -160,8 +166,8 @@ namespace Netch.Forms.Server
                 };
             }
 
-            Utils.Configuration.Save();
-            MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Configuration.Save();
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Global.MainForm.InitServer();
             Close();
         }

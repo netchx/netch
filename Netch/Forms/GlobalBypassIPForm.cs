@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -13,10 +14,10 @@ namespace Netch.Forms
 
         private void GlobalBypassIPForm_Load(object sender, EventArgs e)
         {
-            Text = Utils.i18N.Translate(Text);
-            AddButton.Text = Utils.i18N.Translate(AddButton.Text);
-            DeleteButton.Text = Utils.i18N.Translate(DeleteButton.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            Text = i18N.Translate(Text);
+            AddButton.Text = i18N.Translate(AddButton.Text);
+            DeleteButton.Text = i18N.Translate(DeleteButton.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
 
             IPListBox.Items.AddRange(Global.Settings.BypassIPs.ToArray());
 
@@ -42,12 +43,12 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    MessageBox.Show(Utils.i18N.Translate("Please enter a correct IP address"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBoxX.Show(i18N.Translate("Please enter a correct IP address"));
                 }
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please enter an IP"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please enter an IP"));
             }
         }
 
@@ -59,7 +60,7 @@ namespace Netch.Forms
             }
             else
             {
-                MessageBox.Show(Utils.i18N.Translate("Please select an IP"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBoxX.Show(i18N.Translate("Please select an IP"));
             }
         }
 
@@ -71,8 +72,8 @@ namespace Netch.Forms
                 Global.Settings.BypassIPs.Add(ip as string);
             }
 
-            Utils.Configuration.Save();
-            MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Configuration.Save();
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
     }

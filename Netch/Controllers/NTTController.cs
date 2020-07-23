@@ -1,98 +1,67 @@
-﻿using Netch.Forms;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class NTTController
+    public class NTTController : Controller
     {
-        /// <summary>
-        ///		进程实例
-        /// </summary>
-        public Process Instance;
+        private string _lastResult;
+
+        public NTTController()
+        {
+            Name = "NTT";
+            MainFile = "NTT.exe";
+        }
 
         /// <summary>
-        ///		当前状态
-        /// </summary>
-        public Models.State State = Models.State.Waiting;
-
-        /// <summary>
-        /// 启动NatTypeTester
+        ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
-            Thread.Sleep(1000);
-            MainForm.Instance.NatTypeStatusText($"{Utils.i18N.Translate("Starting NatTester")}");
             try
             {
-                if (!File.Exists("bin\\NTT.exe"))
-                {
-                    return (false, null, null, null);
-                }
-
-                Instance = MainController.GetProcess();
-                Instance.StartInfo.FileName = "bin\\NTT.exe";
+                Instance = GetProcess();
 
                 Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
 
                 Instance.OutputDataReceived += OnOutputDataReceived;
                 Instance.ErrorDataReceived += OnOutputDataReceived;
 
-                State = Models.State.Starting;
+                State = State.Starting;
                 Instance.Start();
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
 
-                string[] result = File.ReadAllText("logging\\NTT.log").ToString().Split('#');
+                var result = _lastResult.Split('#');
                 var natType = result[0];
                 var localEnd = result[1];
                 var publicEnd = result[2];
-                MainForm.Instance.NatTypeStatusText(natType);
 
                 return (true, natType, localEnd, publicEnd);
             }
             catch (Exception)
             {
-                Utils.Logging.Info("NTT 进程出错");
+                Logging.Error("NTT 进程出错");
                 Stop();
                 return (false, null, null, null);
             }
         }
 
-        /// <summary>
-        ///		停止
-        /// </summary>
-        public void Stop()
+        private new void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            try
-            {
-                if (Instance != null && !Instance.HasExited)
-                {
-                    Instance.Kill();
-                    Instance.WaitForExit();
-                }
-            }
-            catch (Exception e)
-            {
-                Utils.Logging.Info(e.ToString());
-            }
+            if (!string.IsNullOrEmpty(e.Data))
+                _lastResult = e.Data;
         }
 
-        public void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        /// <summary>
+        ///     无用
+        /// </summary>
+        public override void Stop()
         {
-            if (!string.IsNullOrWhiteSpace(e.Data))
-            {
-                if (File.Exists("logging\\NTT.log"))
-                {
-                    File.Delete("logging\\NTT.log");
-                }
-
-                File.AppendAllText("logging\\NTT.log", $"{e.Data}\r\n");
-            }
         }
     }
 }

@@ -1,5 +1,5 @@
 # 新手入门
-**Version : 1.3.7**
+**Version : 1.4.10**
 
 [下载地址](https://github.com/NetchX/Netch/releases)
 
@@ -9,7 +9,7 @@
 
 ## 添加服务器
 
-> Netch 目前仅支持以下代理协议：Shadowsocks，VMess，Socks5，ShadowsockR。
+> Netch 目前仅支持以下代理协议：Shadowsocks，VMess，Socks5，ShadowsockR，Trojan。
 
 首先，点击`服务器`增加所需服务器
 

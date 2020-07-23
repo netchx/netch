@@ -36,4 +36,14 @@
         /// </summary>
         Terminating
     }
+
+    public static class StateExtension
+    {
+        public static string GetStatusString(State state)
+        {
+            if (state == State.Waiting)
+                return "Waiting for command";
+            return state.ToString();
+        }
+    }
 }

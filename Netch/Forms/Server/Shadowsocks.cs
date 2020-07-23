@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Netch.Utils;
 
 namespace Netch.Forms.Server
 {
@@ -22,14 +23,14 @@ namespace Netch.Forms.Server
 
         private void Shadowsocks_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = Utils.i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = Utils.i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = Utils.i18N.Translate(AddressLabel.Text);
-            PasswordLabel.Text = Utils.i18N.Translate(PasswordLabel.Text);
-            EncryptMethodLabel.Text = Utils.i18N.Translate(EncryptMethodLabel.Text);
-            PluginLabel.Text = Utils.i18N.Translate(PluginLabel.Text);
-            PluginOptionsLabel.Text = Utils.i18N.Translate(PluginOptionsLabel.Text);
-            ControlButton.Text = Utils.i18N.Translate(ControlButton.Text);
+            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
+            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
+            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
+            PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
+            EncryptMethodLabel.Text = i18N.Translate(EncryptMethodLabel.Text);
+            PluginLabel.Text = i18N.Translate(PluginLabel.Text);
+            PluginOptionsLabel.Text = i18N.Translate(PluginOptionsLabel.Text);
+            ControlButton.Text = i18N.Translate(ControlButton.Text);
 
             foreach (var encrypt in Global.EncryptMethods.SS)
             {
@@ -119,8 +120,8 @@ namespace Netch.Forms.Server
                 };
             }
 
-            Utils.Configuration.Save();
-            MessageBox.Show(Utils.i18N.Translate("Saved"), Utils.i18N.Translate("Information"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Configuration.Save();
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Global.MainForm.InitServer();
             Close();
         }

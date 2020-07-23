@@ -1,10 +1,10 @@
-﻿using Netch.Models.GitHubRelease;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Netch.Models.GitHubRelease;
+using Newtonsoft.Json;
 
 namespace Netch.Controllers
 {
@@ -14,8 +14,12 @@ namespace Netch.Controllers
 
         private const int DefaultGetTimeout = 30000;
 
-        private const string Owner = @"NetchX";
-        private const string Repo = @"Netch";
+        public const string Owner = @"NetchX";
+        public const string Repo = @"Netch";
+
+        public const string Name = @"Netch";
+        public const string Copyright = @"Copyright © 2019 - 2020";
+        public const string Version = @"1.4.12";
 
         public string LatestVersionNumber;
         public string LatestVersionUrl;
@@ -23,10 +27,6 @@ namespace Netch.Controllers
         public event EventHandler NewVersionFound;
         public event EventHandler NewVersionFoundFailed;
         public event EventHandler NewVersionNotFound;
-
-        public const string Name = @"Netch";
-        public const string Copyright = @"Copyright © 2019 - 2020";
-        public const string Version = @"1.4.9";
 
         public async void Check(bool notifyNoFound, bool isPreRelease)
         {
@@ -48,19 +48,13 @@ namespace Netch.Controllers
                 else
                 {
                     LatestVersionNumber = latestRelease.tag_name;
-                    if (notifyNoFound)
-                    {
-                        NewVersionNotFound?.Invoke(this, new EventArgs());
-                    }
+                    if (notifyNoFound) NewVersionNotFound?.Invoke(this, new EventArgs());
                 }
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
-                if (notifyNoFound)
-                {
-                    NewVersionFoundFailed?.Invoke(this, new EventArgs());
-                }
+                Debug.WriteLine(e.ToString());
+                if (notifyNoFound) NewVersionFoundFailed?.Invoke(this, new EventArgs());
             }
         }
 

@@ -1,37 +1,64 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Text;
+using Netch.Properties;
+using Newtonsoft.Json;
 
 namespace Netch.Utils
 {
     public static class i18N
     {
+
         /// <summary>
         ///     数据
         /// </summary>
         public static Hashtable Data = new Hashtable();
 
+        public static string LangCode { get; private set; }
+
         /// <summary>
         ///     加载
         /// </summary>
-        /// <param name="text">语言文件</param>
-        public static void Load(string text)
+        /// <param name="langCode">语言代码</param>
+        public static void Load(string langCode)
         {
-            if (text.Equals("en-US"))
+            LangCode = langCode;
+
+            var text = "";
+            if (langCode.Equals("System"))
             {
+                // 加载系统语言
+                langCode = CultureInfo.CurrentCulture.Name;
+            }
+
+            if (langCode == "zh-CN")
+            {
+                // 尝试加载内置中文语言
+                text = Encoding.UTF8.GetString(Resources.zh_CN);
+            }
+            else if (langCode.Equals("en-US"))
+            {
+                // 清除得到英文
                 Data.Clear();
                 return;
             }
-            var data = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
-
-            if (data != null)
+            else if (File.Exists($"i18n\\{langCode}"))
             {
-                Data = new Hashtable();
-                foreach (var v in data)
-                {
-                    Data.Add(v.Key, v.Value);
-                }
+                // 从外置文件中加载语言
+                text = File.ReadAllText($"i18n\\{langCode}");
+            }
+
+            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+
+            if (data == null) return;
+
+            Data = new Hashtable();
+            foreach (var v in data)
+            {
+                Data.Add(v.Key, v.Value);
             }
         }
 
@@ -40,35 +67,37 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="text">需要翻译的文本</param>
         /// <returns>翻译完毕的文本</returns>
-        public static string Translate(string text)
+        public static string Translate(params object[] text)
         {
-            if (Data.Contains(text))
-            {
-                return Data[text].ToString();
-            }
-
-            return text;
+            var a = new StringBuilder();
+            foreach (var t in text)
+                if (t is string)
+                    a.Append(Data.Contains(t) ? Data[t].ToString() : t);
+                else
+                    a.Append(t);
+            return a.ToString();
         }
 
-        /// <summary>
-        ///     获取可使用的语言
-        /// </summary>
-        /// <returns></returns>
-        public static List<string> GetTranslateList()
+        public static string TranslateFormat(string format, params object[] args)
         {
-            List<string> TranslateFile = new List<string>();
-            TranslateFile.Add("System");
-            TranslateFile.Add("zh-CN");
-            TranslateFile.Add("en-US");
-
-            if (Directory.Exists("i18n"))
+            for (var i = 0; i < args.Length; i++)
             {
-                foreach (var fileName in Directory.GetFiles("i18n", "*"))
+                if (args[i] is string)
                 {
-                    TranslateFile.Add(fileName.Substring(5));
+                    args[i] = Translate((string) args[i]);
                 }
             }
-            return TranslateFile;
+
+            return string.Format(Translate(format), args);
+        }
+
+        public static List<string> GetTranslateList()
+        {
+            var translateFile = new List<string> {"System", "zh-CN", "en-US"};
+
+            if (!Directory.Exists("i18n")) return translateFile;
+            translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
+            return translateFile;
         }
     }
 }
