@@ -89,6 +89,11 @@ namespace Netch.Models
         public bool CheckUpdateWhenOpened = true;
 
         /// <summary>
+        ///     修改系统 DNS
+        /// </summary>
+        public bool ModifySystemDNS = false;
+
+        /// <summary>
         ///		使用何种模式文件名
         ///		0 为自定义文件名，1 为使用和备注一致的文件名，2 为使用时间数据作为文件名
         /// </summary>

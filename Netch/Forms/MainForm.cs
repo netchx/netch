@@ -186,7 +186,7 @@ namespace Netch.Forms
             UpdateServersFromSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Update Servers From Subscribe Links");
             OptionsToolStripMenuItem.Text = i18N.Translate("Options");
             ReloadModesToolStripMenuItem.Text = i18N.Translate("Reload Modes");
-            UninstallServiceToolStripMenuItem.Text = i18N.Translate("Uninstall Service");
+            UninstallServiceToolStripMenuItem.Text = i18N.Translate("Uninstall NF Service");
             CleanDNSCacheToolStripMenuItem.Text = i18N.Translate("Clean DNS Cache");
             UpdateACLToolStripMenuItem.Text = i18N.Translate("Update ACL");
             updateACLWithProxyToolStripMenuItem.Text = i18N.Translate("Update ACL with proxy");

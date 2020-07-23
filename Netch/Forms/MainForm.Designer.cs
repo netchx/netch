@@ -274,7 +274,7 @@ namespace Netch.Forms
             // 
             this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
             this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
-            this.UninstallServiceToolStripMenuItem.Text = "Uninstall Service";
+            this.UninstallServiceToolStripMenuItem.Text = "Uninstall NF Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
             // reinstallTapDriverToolStripMenuItem

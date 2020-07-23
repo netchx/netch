@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
 using System.Threading;
+using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
 using nfapinet;
@@ -105,11 +106,13 @@ namespace Netch.Controllers
 
                     if (State == State.Started)
                     {
-
-                        //备份并替换系统DNS
-                        _sysDns = DNS.getSystemDns();
-                        string[] dns = {"1.1.1.1", "8.8.8.8"};
-                        DNS.SetDNS(dns);
+                        if (Global.Settings.ModifySystemDNS)
+                        {
+                            //备份并替换系统DNS
+                            _sysDns = DNS.getSystemDns();
+                            string[] dns = {"1.1.1.1", "8.8.8.8"};
+                            DNS.SetDNS(dns);
+                        }
 
                         return true;
                     }
@@ -171,7 +174,7 @@ namespace Netch.Controllers
         /// <returns>是否成功卸载</returns>
         public static bool UninstallDriver()
         {
-            Global.MainForm.StatusText("Uninstall netfilter2");
+            Global.MainForm.StatusText(i18N.Translate("Uninstalling NF Service"));
             Logging.Info("卸载NF驱动");
             try
             {
@@ -266,9 +269,13 @@ namespace Netch.Controllers
 
         public override void Stop()
         {
+            Task.Run(() =>
+            {
+                if (Global.Settings.ModifySystemDNS)
+                    //恢复系统DNS
+                    DNS.SetDNS(_sysDns);
+            });
             StopInstance();
-            //恢复系统DNS
-            DNS.SetDNS(_sysDns);
         }
 
         /// <summary>

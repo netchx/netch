@@ -233,7 +233,7 @@ namespace Netch.Forms
         private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
-            StatusText(i18N.Translate("Uninstalling Service"));
+            StatusText(i18N.Translate("Uninstalling NF Service"));
 
             Task.Run(() =>
             {
@@ -241,7 +241,7 @@ namespace Netch.Forms
                 {
                     if (NFController.UninstallDriver())
                     {
-                        MessageBoxX.Show(i18N.Translate("Service has been uninstalled"), owner: this);
+                        StatusText(i18N.Translate("Service has been uninstalled"));
                     }
                 }
                 catch (Exception e)
@@ -250,8 +250,6 @@ namespace Netch.Forms
                     Console.WriteLine(e);
                     throw;
                 }
-
-                StatusText(i18N.Translate(StateExtension.GetStatusString(State.Waiting)));
                 Enabled = true;
             });
         }
