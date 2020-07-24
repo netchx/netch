@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Netch.Models;
@@ -30,7 +31,8 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public override bool Start(Server server, Mode mode)
         {
-            RecordPrevious();
+            Task.Run(RecordPrevious);
+
             try
             {
                 if (server.Type == "Socks5")
@@ -79,21 +81,20 @@ namespace Netch.Controllers
         /// </summary>
         public override void Stop()
         {
-            try
+            var tasks = new[]
             {
-                pPrivoxyController.Stop();
-
-                NativeMethods.SetGlobal(prevHTTP, prevBypass);
-                if (prevPAC != "")
-                    NativeMethods.SetURL(prevPAC);
-                if (!prevEnabled)
-                    NativeMethods.SetDIRECT();
-                prevEnabled = false;
-            }
-            catch (Exception e)
-            {
-                Logging.Error("停止HTTP控制器错误：\n" + e);
-            }
+                Task.Factory.StartNew(pPrivoxyController.Stop),
+                Task.Factory.StartNew(() =>
+                {
+                    NativeMethods.SetGlobal(prevHTTP, prevBypass);
+                    if (prevPAC != "")
+                        NativeMethods.SetURL(prevPAC);
+                    if (!prevEnabled)
+                        NativeMethods.SetDIRECT();
+                    prevEnabled = false;
+                })
+            };
+            Task.WaitAll(tasks);
         }
     }
 }

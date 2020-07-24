@@ -19,9 +19,6 @@ namespace Netch.Forms
 
         private void ControlFun()
         {
-            //防止模式选择框变成蓝色:D
-            ModeComboBox.Select(0, 0);
-
             if (State == State.Waiting || State == State.Stopped)
             {
                 // 服务器、模式 需选择
@@ -37,7 +34,10 @@ namespace Netch.Forms
                     return;
                 }
 
-                UpdateStatus(State.Starting);
+                State = State.Starting;
+
+                // 清除模式搜索框文本选择
+                ModeComboBox.Select(0, 0);
 
                 Task.Run(() =>
                 {
@@ -50,15 +50,14 @@ namespace Netch.Forms
                     {
                         Task.Run(() =>
                         {
-                            UpdateStatus(State.Started,
-                                i18N.Translate(StateExtension.GetStatusString(State.Started)) + LocalPortText(server.Type, mode.Type));
+                            State = State.Started;
+                            StatusTextAppend(LocalPortText(server.Type, mode.Type));
                             Bandwidth.NetTraffic(server, mode, _mainController);
                         });
                         // 如果勾选启动后最小化
                         if (Global.Settings.MinimizeWhenStarted)
                         {
                             WindowState = FormWindowState.Minimized;
-                            NotifyIcon.Visible = true;
 
                             if (_isFirstCloseWindow)
                             {
@@ -100,16 +99,20 @@ namespace Netch.Forms
                     }
                     else
                     {
-                        UpdateStatus(State.Stopped, i18N.Translate("Start failed"));
+                        State = State.Stopped;
+                        StatusText(i18N.Translate("Start failed"));
                     }
                 });
             }
             else
             {
-                // 停止
-                UpdateStatus(State.Stopping);
-                _mainController.Stop();
-                UpdateStatus(State.Stopped);
+                Task.Run(() =>
+                {
+                    // 停止
+                    State = State.Stopping;
+                    _mainController.Stop();
+                    State = State.Stopped;
+                });
                 Task.Run(TestServer);
             }
         }

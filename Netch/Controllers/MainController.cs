@@ -146,9 +146,14 @@ namespace Netch.Controllers
         /// </summary>
         public void Stop()
         {
-            Task.Run(() => pEncryptedProxyController?.Stop());
-            Task.Run(() => UsingPorts.Clear());
-            pModeController?.Stop();
+            var tasks = new[]
+            {
+                Task.Factory.StartNew(() => pEncryptedProxyController?.Stop()),
+                Task.Factory.StartNew(() => UsingPorts.Clear()),
+                Task.Factory.StartNew(() => pModeController?.Stop()),
+                Task.Factory.StartNew(() => pNTTController.Stop())
+            };
+            Task.WaitAll(tasks);
         }
 
         public static void KillProcessByName(string name)

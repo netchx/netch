@@ -118,7 +118,6 @@ namespace Netch.Forms
                 {
                     // 使关闭时窗口向右下角缩小的效果
                     WindowState = FormWindowState.Minimized;
-                    NotifyIcon.Visible = true;
 
                     if (_isFirstCloseWindow)
                     {
@@ -211,39 +210,31 @@ namespace Netch.Forms
             // 加载翻译
 
             UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
-            UpdateStatus();
+            State = State;
 
             VersionLabel.Text = UpdateChecker.Version;
         }
 
         private void Exit(bool forceExit = false)
         {
-            if (IsDisposed) return;
-
-            // 已启动
-            if (State != State.Waiting && State != State.Stopped)
+            if (State != State.Waiting && State != State.Stopped && !Global.Settings.StopWhenExited && !forceExit)
             {
-                if (Global.Settings.StopWhenExited || forceExit)
-                {
-                    UpdateStatus(State.Stopping);
-                    ControlFun();
-                }
-                else
-                {
-                    // 未开启自动停止
-                    MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
+                MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
-                    Visible = true;
-                    ShowInTaskbar = true; // 显示在系统任务栏 
-                    WindowState = FormWindowState.Normal; // 还原窗体 
-                    NotifyIcon.Visible = true; // 托盘图标隐藏 
-
-                    return;
-                }
+                Visible = true;
+                ShowInTaskbar = true; // 显示在系统任务栏 
+                WindowState = FormWindowState.Normal; // 还原窗体 
+                NotifyIcon.Visible = true; // 托盘图标隐藏 
+                return;
             }
 
-            NotifyIcon.Visible = false;
             Hide();
+            NotifyIcon.Visible = false;
+            if (State != State.Waiting && State != State.Stopped)
+            {
+                // 已启动
+                ControlFun();
+            }
 
             Task.Run(() =>
             {
@@ -255,9 +246,7 @@ namespace Netch.Forms
                 }
 
                 SaveConfigs();
-                UpdateStatus(State.Terminating);
-                Dispose();
-                Environment.Exit(Environment.ExitCode);
+                State = State.Terminating;
             });
         }
 
@@ -439,7 +428,6 @@ namespace Netch.Forms
                 Visible = true;
                 ShowInTaskbar = true; // 显示在系统任务栏 
                 WindowState = FormWindowState.Normal; // 还原窗体 
-                NotifyIcon.Visible = true; // 托盘图标隐藏 
             }
 
             Activate();

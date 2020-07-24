@@ -210,7 +210,7 @@ namespace Netch.Forms
                     StatusText(i18N.Translate("Subscription updated"));
 
                     MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
-                    UpdateStatus(bak_State);
+                    State = bak_State;
                     StatusLabel.Text = bak_StateText;
                 }).ContinueWith(task => { BeginInvoke(new Action(() => { UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true; })); });
 
@@ -283,7 +283,7 @@ namespace Netch.Forms
             }
             finally
             {
-                UpdateStatus(bak_State);
+                State = bak_State;
                 StatusLabel.Text = bak_StateText;
             }
         }
@@ -315,7 +315,7 @@ namespace Netch.Forms
                 }
                 finally
                 {
-                    UpdateStatus(State.Waiting);
+                    State = State.Waiting;
                     Enabled = true;
                 }
             });
@@ -365,7 +365,7 @@ namespace Netch.Forms
                 }
                 finally
                 {
-                    UpdateStatus(State.Waiting);
+                    State = State.Waiting;
                     _mainController.Stop();
                 }
             });
@@ -422,7 +422,7 @@ namespace Netch.Forms
                 }
                 finally
                 {
-                    UpdateStatus(bak_State);
+                    State = bak_State;
                     StatusLabel.Text = bak_StateText;
                 }
             });

@@ -43,9 +43,9 @@ namespace Netch.Controllers
 
                 return (true, natType, localEnd, publicEnd);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Logging.Error("NTT 进程出错");
+                Logging.Error("NTT 进程出错\n" + e);
                 Stop();
                 return (false, null, null, null);
             }
@@ -57,11 +57,9 @@ namespace Netch.Controllers
                 _lastResult = e.Data;
         }
 
-        /// <summary>
-        ///     无用
-        /// </summary>
         public override void Stop()
         {
+            StopInstance();
         }
     }
 }

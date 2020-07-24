@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -67,9 +68,13 @@ namespace Netch.Controllers
                 Instance.Kill();
                 Instance.WaitForExit();
             }
-            catch (Exception e)
+            catch (Win32Exception e)
             {
                 Logging.Error($"停止 {MainFile} 错误：\n" + e);
+            }
+            catch
+            {
+                // ignored
             }
         }
 

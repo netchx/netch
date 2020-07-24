@@ -7,6 +7,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Models;
 using Netch.Properties;
@@ -366,10 +367,11 @@ namespace Netch.Controllers
             {
                 Thread.Sleep(10);
 
-                if (State == State.Started) return true;
-
-                if (State == State.Stopped)
+                switch (State)
                 {
+                    case State.Started:
+                        return true;
+                    case State.Stopped:
                     Stop();
                     return false;
                 }
@@ -383,9 +385,13 @@ namespace Netch.Controllers
         /// </summary>
         public override void Stop()
         {
-            StopInstance();
-            ClearBypass();
-            pDNSController.Stop();
+            var tasks = new[]
+            {
+                Task.Factory.StartNew(StopInstance),
+                Task.Factory.StartNew(ClearBypass),
+                Task.Factory.StartNew(pDNSController.Stop)
+            };
+            Task.WaitAll(tasks);
         }
 
         /// <summary>

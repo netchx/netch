@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using Netch.Models;
 using Netch.Utils;
 
@@ -11,10 +12,74 @@ namespace Netch.Forms
 
     partial class MainForm
     {
+        private State _state = State.Waiting;
+
         /// <summary>
         ///     当前状态
         /// </summary>
-        public State State { get; private set; } = State.Waiting;
+        public State State
+        {
+            get => _state;
+            private set
+            {
+                _state = value;
+                if (IsDisposed)
+                    return;
+                StatusText(i18N.Translate(StateExtension.GetStatusString(value)));
+                switch (value)
+                {
+                    case State.Waiting:
+                        ControlButton.Enabled = true;
+                        ControlButton.Text = i18N.Translate("Start");
+
+                        break;
+                    case State.Starting:
+                        ControlButton.Enabled = false;
+                        ControlButton.Text = "...";
+
+                        ConfigurationGroupBox.Enabled = false;
+
+                        MenuStripsEnabled(false);
+                        break;
+                    case State.Started:
+                        ControlButton.Enabled = true;
+                        ControlButton.Text = i18N.Translate("Stop");
+
+                        LastUploadBandwidth = 0;
+                        //LastDownloadBandwidth = 0;
+                        //UploadSpeedLabel.Text = "↑: 0 KB/s";
+                        DownloadSpeedLabel.Text = @"↑↓: 0 KB/s";
+                        UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
+                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
+                        break;
+                    case State.Stopping:
+                        ControlButton.Enabled = false;
+                        ControlButton.Text = "...";
+
+                        ProfileGroupBox.Enabled = false;
+
+                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = false;
+                        NatTypeStatusText();
+                        break;
+                    case State.Stopped:
+                        ControlButton.Enabled = true;
+                        ControlButton.Text = i18N.Translate("Start");
+
+                        LastUploadBandwidth = 0;
+                        LastDownloadBandwidth = 0;
+
+                        ProfileGroupBox.Enabled = true;
+                        ConfigurationGroupBox.Enabled = true;
+
+                        MenuStripsEnabled(true);
+                        break;
+                    case State.Terminating:
+                        Dispose();
+                        Environment.Exit(Environment.ExitCode);
+                        return;
+                }
+            }
+        }
 
         public void NatTypeStatusText(string text = "", string country = "")
         {
@@ -89,85 +154,18 @@ namespace Netch.Forms
             StatusLabel.Text = i18N.Translate("Status", ": ") + text;
         }
 
-        /// <summary>
-        ///     更新 UI, 状态栏文本, 状态
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="text"></param>
-        private void UpdateStatus(State state, string text = "")
+        public void StatusTextAppend(string text)
         {
-            State = state;
-            StatusText(text == "" ? i18N.Translate(StateExtension.GetStatusString(state)) : text);
-
-            void MenuStripsEnabled(bool enabled)
-            {
-                // 需要禁用的菜单项
-                UninstallServiceToolStripMenuItem.Enabled =
-                    updateACLWithProxyToolStripMenuItem.Enabled =
-                        UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                            reinstallTapDriverToolStripMenuItem.Enabled = enabled;
-            }
-
-            // TODO 补充
-            switch (state)
-            {
-                case State.Waiting:
-                    ControlButton.Enabled = true;
-                    ControlButton.Text = i18N.Translate("Start");
-
-                    break;
-                case State.Starting:
-                    ControlButton.Enabled = false;
-                    ControlButton.Text = "...";
-
-                    ConfigurationGroupBox.Enabled = false;
-
-                    MenuStripsEnabled(false);
-                    break;
-                case State.Started:
-                    ControlButton.Enabled = true;
-                    ControlButton.Text = i18N.Translate("Stop");
-
-                    LastUploadBandwidth = 0;
-                    //LastDownloadBandwidth = 0;
-                    //UploadSpeedLabel.Text = "↑: 0 KB/s";
-                    DownloadSpeedLabel.Text = @"↑↓: 0 KB/s";
-                    UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
-                    UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
-                    break;
-                case State.Stopping:
-                    ControlButton.Enabled = false;
-                    ControlButton.Text = "...";
-
-                    ProfileGroupBox.Enabled = false;
-
-                    UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = false;
-                    NatTypeStatusText();
-                    break;
-                case State.Stopped:
-                    ControlButton.Enabled = true;
-                    ControlButton.Text = i18N.Translate("Start");
-
-                    LastUploadBandwidth = 0;
-                    LastDownloadBandwidth = 0;
-
-                    ProfileGroupBox.Enabled = true;
-                    ConfigurationGroupBox.Enabled = true;
-
-                    MenuStripsEnabled(true);
-                    break;
-                case State.Terminating:
-
-                    break;
-            }
+            StatusLabel.Text += text;
         }
 
-        /// <summary>
-        ///     刷新 UI
-        /// </summary>
-        private void UpdateStatus()
+        public void MenuStripsEnabled(bool enabled)
         {
-            UpdateStatus(State);
+            // 需要禁用的菜单项
+            UninstallServiceToolStripMenuItem.Enabled =
+                updateACLWithProxyToolStripMenuItem.Enabled =
+                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                        reinstallTapDriverToolStripMenuItem.Enabled = enabled;
         }
     }
 }
