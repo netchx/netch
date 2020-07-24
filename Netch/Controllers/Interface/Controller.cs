@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Netch.Models;
 using Netch.Utils;
 
@@ -131,8 +132,10 @@ namespace Netch.Controllers
         /// <param name="e">数据</param>
         protected void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
+            var str = Encoding.UTF8.GetString(Encoding.GetEncoding("gbk").GetBytes(e.Data??string.Empty));
+
             // 写入日志
-            if (!Write(e.Data)) return;
+            if (!Write(str)) return;
 
             // 检查启动
             if (State == State.Starting)
@@ -146,7 +149,7 @@ namespace Netch.Controllers
 
                 foreach (var s in _startedKeywords)
                 {
-                    if (e.Data.Contains(s))
+                    if (str.Contains(s))
                     {
                         State = State.Started;
 
@@ -156,7 +159,7 @@ namespace Netch.Controllers
 
                 foreach (var s in _stoppedKeywords)
                 {
-                    if (e.Data.Contains(s))
+                    if (str.Contains(s))
                     {
                         State = State.Stopped;
 
