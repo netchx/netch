@@ -10,6 +10,8 @@ namespace Netch.Controllers
 {
     public class HTTPController : ModeController
     {
+        public const string IEProxyExceptions = "localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;192.168.*";
+
         /// <summary>
         ///     实例
         /// </summary>
@@ -46,7 +48,7 @@ namespace Netch.Controllers
                     pPrivoxyController.Start(server, mode);
                 }
 
-                if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", "<local>");
+                if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
             }
             catch (Exception e)
             {
