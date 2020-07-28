@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using Netch.Models;
 
 namespace Netch.Utils
 {
-    public static class Logging
+    public static partial class Logging
     {
-        private const string LogFile = "logging\\application.log";
+        public const string LogFile = "logging\\application.log";
 
         /// <summary>
         ///     信息
@@ -13,7 +14,7 @@ namespace Netch.Utils
         /// <param name="text">内容</param>
         public static void Info(string text)
         {
-            File.AppendAllText(LogFile, $@"[{DateTime.Now}][INFO] {text}{Global.EOF}");
+            Write(text, LogLevel.INFO);
         }
 
         /// <summary>
@@ -22,7 +23,7 @@ namespace Netch.Utils
         /// <param name="text">内容</param>
         public static void Warning(string text)
         {
-            File.AppendAllText(LogFile, $@"[{DateTime.Now}][WARNING] {text}{Global.EOF}");
+            Write(text, LogLevel.WARNING);
         }
 
         /// <summary>
@@ -31,7 +32,12 @@ namespace Netch.Utils
         /// <param name="text">内容</param>
         public static void Error(string text)
         {
-            File.AppendAllText(LogFile, $@"[{DateTime.Now}][ERROR] {text}{Global.EOF}");
+            Write(text, LogLevel.ERROR);
+        }
+
+        private static void Write(string text, LogLevel logLevel)
+        {
+            File.AppendAllText(LogFile, $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}");
         }
     }
 }

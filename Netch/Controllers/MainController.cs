@@ -38,6 +38,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public bool Start(Server server, Mode mode)
         {
+            Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
             FlushDNSResolverCache();
 
             var result = false;
@@ -90,7 +91,6 @@ namespace Netch.Controllers
 
             if (result)
             {
-                Logging.Info("加密代理已启动");
                 switch (mode.Type)
                 {
                     case 0: // 进程代理模式
@@ -136,7 +136,11 @@ namespace Netch.Controllers
                 }
             }
 
-            if (!result) Stop();
+            if (!result)
+            {
+                Logging.Error("主控制器启动失败");
+                Stop();
+            } 
 
             return result;
         }

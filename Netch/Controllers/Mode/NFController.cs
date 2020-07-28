@@ -175,7 +175,7 @@ namespace Netch.Controllers
         public static bool UninstallDriver()
         {
             Global.MainForm.StatusText(i18N.Translate("Uninstalling NF Service"));
-            Logging.Info("卸载NF驱动");
+            Logging.Info("卸载 NF 驱动");
             try
             {
                 if (NFService.Status == ServiceControllerStatus.Running)
@@ -211,7 +211,7 @@ namespace Netch.Controllers
         /// <returns>驱动是否安装成功</returns>
         public static bool InstallDriver()
         {
-            Logging.Info("安装NF驱动");
+            Logging.Info("安装 NF 驱动");
             try
             {
                 File.Copy(BinDriver, SystemDriver);
@@ -227,7 +227,7 @@ namespace Netch.Controllers
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
             {
-                Logging.Info($"驱动安装成功，当前驱动版本:{DriverVersion(SystemDriver)}");
+                Logging.Info($"驱动安装成功");
             }
             else
             {

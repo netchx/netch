@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using Netch.Models;
 using Netch.Utils;
@@ -43,7 +44,7 @@ namespace Netch.Controllers
 
                 return (true, natType, localEnd, publicEnd);
             }
-            catch (Exception e)
+            catch (Win32Exception e)
             {
                 Logging.Error("NTT 进程出错\n" + e);
                 Stop();

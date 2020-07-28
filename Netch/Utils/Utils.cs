@@ -11,40 +11,22 @@ namespace Netch.Utils
 {
     public static class Utils
     {
-        public static bool OpenUrl(string path)
+        public static bool Open(string path)
         {
             try
             {
-                new Process
+                Process.Start(new ProcessStartInfo()
                 {
-                    StartInfo = new ProcessStartInfo(path)
-                    {
-                        UseShellExecute = true
-                    }
-                }.Start();
+                    FileName = "explorer.exe",
+                    Arguments = path,
+                    UseShellExecute = true
+                });
                 return true;
             }
             catch
             {
                 return false;
             }
-        }
-
-        public static bool OpenDir(string dir)
-        {
-            if (Directory.Exists(dir))
-            {
-                try
-                {
-                    return OpenUrl(dir);
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
-            return false;
         }
 
         public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)

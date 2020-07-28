@@ -58,8 +58,8 @@ namespace Netch
 
                 // 记录当前系统语言
                 Logging.Info($"当前语言：{Global.Settings.Language}");
-                Logging.Info($"版本:{UpdateChecker.Owner}/{UpdateChecker.Repo} {UpdateChecker.Version}");
-                Logging.Info($"主程序创建日期:{File.GetCreationTime(Global.NetchDir + "\\Netch.exe"):yyyy-M-d HH:mm}");
+                Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
+                Logging.Info($"主程序创建日期: {File.GetCreationTime(Global.NetchDir + "\\Netch.exe"):yyyy-M-d HH:mm}");
 
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))
@@ -85,7 +85,9 @@ namespace Netch
         {
             if (!e.Exception.ToString().Contains("ComboBox"))
             {
-                MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Logging.Error("错误\n" + e);
+                Utils.Utils.Open(Logging.LogFile);
+                // MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             //Application.Exit();
         }

@@ -11,7 +11,7 @@ namespace Netch
         /// <summary>
         ///     换行
         /// </summary>
-        public static string EOF = "\r\n";
+        public const string EOF = "\r\n";
         
         public static readonly string NetchDir = (AppDomain.CurrentDomain.BaseDirectory).TrimEnd();
         

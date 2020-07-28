@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
@@ -9,7 +8,6 @@ using Netch.Forms.Mode;
 using Netch.Forms.Server;
 using Netch.Models;
 using Netch.Utils;
-using nfapinet;
 using Trojan = Netch.Forms.Server.Trojan;
 using VMess = Netch.Forms.Server.VMess;
 using WebClient = Netch.Override.WebClient;
@@ -39,7 +37,7 @@ namespace Netch.Forms
                 }
                 else
                 {
-                    MessageBoxX.Show(i18N.Translate("Import servers error!"), info: false);
+                    MessageBoxX.Show(i18N.Translate("Import servers error!"), LogLevel.ERROR);
                 }
 
                 InitServer();
@@ -246,8 +244,7 @@ namespace Netch.Forms
                 }
                 catch (Exception e)
                 {
-                    MessageBoxX.Show(e.ToString(),info:false);
-                    Console.WriteLine(e);
+                    MessageBoxX.Show(e.ToString(),LogLevel.ERROR);
                     throw;
                 }
                 Enabled = true;
@@ -290,7 +287,7 @@ namespace Netch.Forms
 
         private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Utils.Utils.OpenDir(@".\");
+            Utils.Utils.Open(@".\");
         }
 
         private void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)

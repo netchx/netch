@@ -58,6 +58,7 @@
 
     <ItemGroup>
         <PackageReference Include="ini-parser" Version="2.5.2" />
+        <PackageReference Include="IPNetwork2" Version="2.5.211" />
         <PackageReference Include="MaxMind.GeoIP2" Version="3.2.0" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.56" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
