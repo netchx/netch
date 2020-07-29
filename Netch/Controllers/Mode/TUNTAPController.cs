@@ -64,8 +64,8 @@ namespace Netch.Controllers
 
         /// <summary>
         ///     设置绕行规则
-        /// <returns>是否设置成功</returns>
         /// </summary>
+        /// <returns>是否设置成功</returns>
         private bool SetupRouteTable()
         {
             Logging.Info("收集路由表规则");
@@ -276,63 +276,88 @@ namespace Netch.Controllers
         /// </summary>
         private static bool SearchAdapters()
         {
-            NetworkInterface adapter;
-            Logging.Info("搜索适配器");
-            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var pRoute) == 0)
-            {
-                Global.Adapter.Index = pRoute.dwForwardIfIndex;
-                Logging.Info($"出口 网关 地址：{Global.Adapter.Gateway}");
-                try
-                {
-                    adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.GetIPProperties().GetIPv4Properties().Index == Global.Adapter.Index);
-                }
-                catch (InvalidOperationException)
-                {
-                    Logging.Error("找不到出口适配器");
-                    return false;
-                }
-
-                Global.Adapter.Address = adapter.GetIPProperties().UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork).Address;
-                Global.Adapter.Gateway = new IPAddress(pRoute.dwForwardNextHop);
-                Logging.Info($"出口 IPv4 地址：{Global.Adapter.Address}");
-                Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Adapter.Index}");
-            }
-            else
+            // 寻找出口适配器
+            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var pRoute) != 0)
             {
                 Logging.Error("GetBestRoute 搜索失败(找不到出口适配器)");
                 return false;
             }
 
+            Global.Adapter.Index = pRoute.dwForwardIfIndex;
+
             // 搜索 TUN/TAP 适配器的索引
-            Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
-            if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
+            if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID = TUNTAP.GetComponentID()))
             {
-                Logging.Error("找不到 TAP 适配器");
+                Logging.Info("找不到 TAP 适配器");
                 if (MessageBoxX.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), confirm: true) == DialogResult.OK)
                 {
                     Configuration.addtap();
                     // 给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
                     Thread.Sleep(1000);
-                    Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
+                    if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID = TUNTAP.GetComponentID()))
+                    {
+                        Logging.Error("找不到 TAP 适配器，驱动可能安装失败");
+                        return false;
+                    }
                 }
                 else
                 {
-                    Logging.Info("拒绝安装 TAP 适配器 ");
+                    Logging.Info("取消安装 TAP 驱动 ");
                     return false;
                 }
             }
 
             try
             {
-                adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
-                Global.TUNTAP.Adapter = adapter;
-                Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
-                Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
+                try
+                {
+                    var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.GetIPProperties().GetIPv4Properties().Index == Global.Adapter.Index);
+                    Global.Adapter.Address = adapter.GetIPProperties().UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork).Address;
+                    Global.Adapter.Gateway = new IPAddress(pRoute.dwForwardNextHop);
+                    Logging.Info($"出口 IPv4 地址：{Global.Adapter.Address}");
+                    Logging.Info($"出口 网关 地址：{Global.Adapter.Gateway}");
+                    Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Adapter.Index}");
+                    // Ex NetworkInformationException: 此接口不支持 IPv4 协议。
+
+                    // Ex NetworkInformationException: Windows 系统函数调用失败。
+                    // Ex System.ArgumentNullException: source 或 predicate 为 null。
+                }
+                catch (Exception e)
+                {
+                    if (e is InvalidOperationException)
+                        Logging.Error($"找不到网络接口索引为 {Global.Adapter.Index} 的出口适配器");
+                    throw;
+                }
+
+                try
+                {
+                    var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
+                    Global.TUNTAP.Adapter = adapter;
+                    Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
+                    Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
+                }
+                catch (Exception e)
+                {
+                    if (e is InvalidOperationException)
+                        Logging.Error($"找不到标识符为 {Global.TUNTAP.ComponentID} 的 TAP 适配器");
+                    throw;
+                }
+
                 return true;
             }
             catch (InvalidOperationException)
             {
-                Logging.Error("没有找到 TAP 适配器");
+                // 理论上如果得到了网络接口的索引/网络适配器的标识符不会找不到网卡
+                // 只是异常处理
+                Logging.Info("所有适配器:\n" +
+                             NetworkInterface.GetAllNetworkInterfaces().Aggregate(string.Empty, (current, adapter)
+                                 => current + $"{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}{Global.EOF}"));
+                return false;
+            }
+            catch (NetworkInformationException e)
+            {
+                if (e.ErrorCode == 10043)
+                    MessageBoxX.Show("适配器未开启IPv4协议", LogLevel.ERROR, owner: Global.MainForm);
                 return false;
             }
         }

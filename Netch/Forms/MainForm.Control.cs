@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,8 +46,22 @@ namespace Netch.Forms
 
                     var server = ServerComboBox.SelectedItem as Models.Server;
                     var mode = ModeComboBox.SelectedItem as Models.Mode;
+                    var result = false;
 
-                    if (_mainController.Start(server, mode))
+                    try
+                    {
+                        // TODO 完善控制器异常处理
+                        result = _mainController.Start(server, mode);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is DllNotFoundException || e is FileNotFoundException)
+                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
+
+                        Netch.Application_OnException(this, new ThreadExceptionEventArgs(e));
+                    }
+
+                    if (result)
                     {
                         Task.Run(() =>
                         {

@@ -2,8 +2,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,6 +48,7 @@ namespace Netch.Utils
                 var t = Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
                 return t;
             }
+
             return timeout;
         }
 
@@ -54,6 +58,7 @@ namespace Netch.Utils
             {
                 Hostname = Hostname.Split(':')[0];
             }
+
             string Country;
             try
             {
@@ -81,7 +86,24 @@ namespace Netch.Utils
             {
                 Country = "Unknown";
             }
+
             return Country == null ? "Unknown" : Country;
+        }
+
+        public static string SHA256CheckSum(string filePath)
+        {
+            try
+            {
+                var SHA256 = SHA256Managed.Create();
+                var fileStream = File.OpenRead(filePath);
+                var s = string.Empty;
+                SHA256.ComputeHash(fileStream).Select(b => s+=b.ToString("x2"));
+                return s;
+            }
+            catch
+            {
+                return "";
+            }
         }
     }
 }

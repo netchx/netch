@@ -363,7 +363,6 @@ namespace Netch.Forms
         /// <param name="originPort"></param>
         /// <param name="portType"></param>
         /// <returns></returns>
-        /// <exception cref="FormatException"></exception>
         private bool CheckPortText(string portName, ref TextBox portTextBox, ref int originPort, PortType portType = PortType.Both)
         {
             // 端口检查

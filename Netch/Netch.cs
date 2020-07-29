@@ -60,6 +60,7 @@ namespace Netch
                 Logging.Info($"当前语言：{Global.Settings.Language}");
                 Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
                 Logging.Info($"主程序创建日期: {File.GetCreationTime(Global.NetchDir + "\\Netch.exe"):yyyy-M-d HH:mm}");
+                Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}");
 
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))
@@ -83,12 +84,13 @@ namespace Netch
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
         {
-            if (!e.Exception.ToString().Contains("ComboBox"))
+            Logging.Error(e.Exception.ToString());
+            Utils.Utils.Open(Logging.LogFile);
+            /*if (!e.Exception.ToString().Contains("ComboBox"))
             {
-                Logging.Error("错误\n" + e);
-                Utils.Utils.Open(Logging.LogFile);
-                // MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }*/
+
             //Application.Exit();
         }
     }
