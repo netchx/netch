@@ -87,11 +87,21 @@ namespace Netch.Models
         ///		是否打开软件时检查更新
         /// </summary>
         public bool CheckUpdateWhenOpened = true;
+        
+        /// <summary>
+        ///		是否检查 Beta 更新
+        /// </summary>
+        public bool CheckBetaUpdate = false;
 
         /// <summary>
         ///     修改系统 DNS
         /// </summary>
         public bool ModifySystemDNS = false;
+
+        /// <summary>
+        ///     网页请求超时 毫秒
+        /// </summary>
+        public int RequestTimeout = 10000;
 
         /// <summary>
         ///		使用何种模式文件名

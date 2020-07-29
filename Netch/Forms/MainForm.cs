@@ -73,6 +73,11 @@ namespace Netch.Forms
             // 加载快速配置
             InitProfile();
 
+            // 打开软件时启动加速，产生开始按钮点击事件
+            if (Global.Settings.StartWhenOpened)
+            {
+                ControlButton.PerformClick();
+            }
 
             // 自动检测延迟
             Task.Run(() =>
@@ -92,17 +97,14 @@ namespace Netch.Forms
                 }
             });
 
-            // 打开软件时启动加速，产生开始按钮点击事件
-            if (Global.Settings.StartWhenOpened)
+            Task.Run(() =>
             {
-                ControlButton.PerformClick();
-            }
-
-            // 检查更新
-            if (Global.Settings.CheckUpdateWhenOpened)
-            {
-                CheckUpdate();
-            }
+                // 检查更新
+                if (Global.Settings.CheckUpdateWhenOpened)
+                {
+                    CheckUpdate();
+                }
+            });
         }
 
 
@@ -122,11 +124,7 @@ namespace Netch.Forms
                     if (_isFirstCloseWindow)
                     {
                         // 显示提示语
-                        NotifyIcon.ShowBalloonTip(5,
-                            UpdateChecker.Name,
-                            i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."),
-                            ToolTipIcon.Info);
-
+                        NotifyTip(i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."));
                         _isFirstCloseWindow = false;
                     }
 
@@ -449,6 +447,14 @@ namespace Netch.Forms
             }
 
             Activate();
+        }
+
+        private void NotifyTip(string text, int timeout = 5, bool info = true)
+        {
+            NotifyIcon.ShowBalloonTip(timeout,
+                UpdateChecker.Name,
+                text,
+                info ? ToolTipIcon.Info : ToolTipIcon.Error);
         }
 
         #endregion

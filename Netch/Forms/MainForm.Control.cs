@@ -77,12 +77,7 @@ namespace Netch.Forms
                             if (_isFirstCloseWindow)
                             {
                                 // 显示提示语
-                                NotifyIcon.ShowBalloonTip(5,
-                                    UpdateChecker.Name,
-                                    i18N.Translate(
-                                        "Netch is now minimized to the notification bar, double click this icon to restore."),
-                                    ToolTipIcon.Info);
-
+                                NotifyTip(i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."));
                                 _isFirstCloseWindow = false;
                             }
 

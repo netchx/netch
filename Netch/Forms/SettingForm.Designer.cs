@@ -54,6 +54,7 @@
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
             this.LanguageLabel = new System.Windows.Forms.Label();
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
+            this.ModifySystemDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.BootShadowsocksFromDLLCheckBox = new System.Windows.Forms.CheckBox();
             this.AclAddrTextBox = new System.Windows.Forms.TextBox();
             this.AclLabel = new System.Windows.Forms.Label();
@@ -68,11 +69,11 @@
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCountLabel = new System.Windows.Forms.Label();
             this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
+            this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.ModifySystemDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -316,6 +317,7 @@
             this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCountLabel);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCountTextBox);
+            this.BehaviorGroupBox.Controls.Add(this.CheckBetaUpdateCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.StartWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.StopWhenExitedCheckBox);
@@ -345,17 +347,27 @@
             this.LanguageComboBox.Size = new System.Drawing.Size(121, 25);
             this.LanguageComboBox.TabIndex = 22;
             // 
+            // ModifySystemDNSCheckBox
+            // 
+            this.ModifySystemDNSCheckBox.AutoSize = true;
+            this.ModifySystemDNSCheckBox.Location = new System.Drawing.Point(12, 129);
+            this.ModifySystemDNSCheckBox.Name = "ModifySystemDNSCheckBox";
+            this.ModifySystemDNSCheckBox.Size = new System.Drawing.Size(143, 21);
+            this.ModifySystemDNSCheckBox.TabIndex = 21;
+            this.ModifySystemDNSCheckBox.Text = "Modify System DNS";
+            this.ModifySystemDNSCheckBox.UseVisualStyleBackColor = true;
+            // 
             // BootShadowsocksFromDLLCheckBox
             // 
             this.BootShadowsocksFromDLLCheckBox.AutoSize = true;
             this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(12, 102);
             this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
-            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(321, 21);
+            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(168, 21);
             this.BootShadowsocksFromDLLCheckBox.TabIndex = 21;
-            this.BootShadowsocksFromDLLCheckBox.Text = "Start Shadowsocks from DLL (No support for ACL)";
+            this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL(No ACL support)";
             this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
             // 
-            // AclAddr
+            // AclAddrTextBox
             // 
             this.AclAddrTextBox.Location = new System.Drawing.Point(120, 273);
             this.AclAddrTextBox.Name = "AclAddrTextBox";
@@ -372,7 +384,7 @@
             this.AclLabel.TabIndex = 20;
             this.AclLabel.Text = "Custom ACL";
             // 
-            // DetectionInterval_Label
+            // DetectionIntervalLabel
             // 
             this.DetectionIntervalLabel.AutoSize = true;
             this.DetectionIntervalLabel.Location = new System.Drawing.Point(228, 215);
@@ -381,7 +393,7 @@
             this.DetectionIntervalLabel.TabIndex = 18;
             this.DetectionIntervalLabel.Text = "Detection interval(sec)";
             // 
-            // DetectionInterval_TextBox
+            // DetectionIntervalTextBox
             // 
             this.DetectionIntervalTextBox.Location = new System.Drawing.Point(366, 212);
             this.DetectionIntervalTextBox.Name = "DetectionIntervalTextBox";
@@ -389,7 +401,7 @@
             this.DetectionIntervalTextBox.TabIndex = 17;
             this.DetectionIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // EnableStartedTcping_CheckBox
+            // TcpingAtStartedCheckBox
             // 
             this.TcpingAtStartedCheckBox.AutoSize = true;
             this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 214);
@@ -426,7 +438,7 @@
             this.STUNServerLabel.TabIndex = 10;
             this.STUNServerLabel.Text = "STUN Server";
             // 
-            // RunAtStartup
+            // RunAtStartupCheckBox
             // 
             this.RunAtStartupCheckBox.AutoSize = true;
             this.RunAtStartupCheckBox.Location = new System.Drawing.Point(12, 75);
@@ -454,7 +466,7 @@
             this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
             this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // ProfileCount_Label
+            // ProfileCountLabel
             // 
             this.ProfileCountLabel.AutoSize = true;
             this.ProfileCountLabel.Location = new System.Drawing.Point(12, 188);
@@ -463,13 +475,24 @@
             this.ProfileCountLabel.TabIndex = 8;
             this.ProfileCountLabel.Text = "ProfileCount";
             // 
-            // ProfileCount_TextBox
+            // ProfileCountTextBox
             // 
             this.ProfileCountTextBox.Location = new System.Drawing.Point(120, 185);
             this.ProfileCountTextBox.Name = "ProfileCountTextBox";
             this.ProfileCountTextBox.Size = new System.Drawing.Size(90, 23);
             this.ProfileCountTextBox.TabIndex = 9;
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // CheckBetaUpdateCheckBox
+            // 
+            this.CheckBetaUpdateCheckBox.AutoSize = true;
+            this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(206, 102);
+            this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
+            this.CheckBetaUpdateCheckBox.Size = new System.Drawing.Size(137, 21);
+            this.CheckBetaUpdateCheckBox.TabIndex = 8;
+            this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
+            this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
             // 
             // CheckUpdateWhenOpenedCheckBox
             // 
@@ -514,16 +537,6 @@
             this.ExitWhenClosedCheckBox.Text = "Exit when closed";
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // ModifySystemDNSCheckBox
-            // 
-            this.ModifySystemDNSCheckBox.AutoSize = true;
-            this.ModifySystemDNSCheckBox.Location = new System.Drawing.Point(12, 129);
-            this.ModifySystemDNSCheckBox.Name = "ModifySystemDNSCheckBox";
-            this.ModifySystemDNSCheckBox.Size = new System.Drawing.Size(143, 21);
-            this.ModifySystemDNSCheckBox.TabIndex = 21;
-            this.ModifySystemDNSCheckBox.Text = "Modify System DNS";
-            this.ModifySystemDNSCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingForm
             // 
@@ -601,5 +614,6 @@
         private System.Windows.Forms.Label LanguageLabel;
         private System.Windows.Forms.ComboBox LanguageComboBox;
         private System.Windows.Forms.CheckBox ModifySystemDNSCheckBox;
+        private System.Windows.Forms.CheckBox CheckBetaUpdateCheckBox;
     }
 }

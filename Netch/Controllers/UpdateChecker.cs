@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Netch.Models.GitHubRelease;
+using Netch.Utils;
 using Newtonsoft.Json;
+
 
 namespace Netch.Controllers
 {
     public class UpdateChecker
     {
-        private const string DefaultUserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36";
-
-        private const int DefaultGetTimeout = 30000;
-
         public const string Owner = @"NetchX";
         public const string Repo = @"Netch";
 
@@ -28,14 +24,14 @@ namespace Netch.Controllers
         public event EventHandler NewVersionFoundFailed;
         public event EventHandler NewVersionNotFound;
 
-        public async void Check(bool notifyNoFound, bool isPreRelease)
+        public void Check(bool notifyNoFound, bool isPreRelease)
         {
             try
             {
                 var updater = new GitHubRelease(Owner, Repo);
                 var url = updater.AllReleaseUrl;
 
-                var json = await GetAsync(url, true);
+                var json = WebUtil.DownloadString(WebUtil.CreateRequest(url));
 
                 var releases = JsonConvert.DeserializeObject<List<Release>>(json);
                 var latestRelease = VersionUtil.GetLatestRelease(releases, isPreRelease);
@@ -53,29 +49,9 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.ToString());
+                Logging.Error(e.ToString());
                 if (notifyNoFound) NewVersionFoundFailed?.Invoke(this, new EventArgs());
             }
-        }
-
-        private static async Task<string> GetAsync(string url, bool useProxy, string userAgent = @"", double timeout = DefaultGetTimeout)
-        {
-            var httpClientHandler = new HttpClientHandler
-            {
-                UseProxy = useProxy
-            };
-            var httpClient = new HttpClient(httpClientHandler)
-            {
-                Timeout = TimeSpan.FromMilliseconds(timeout)
-            };
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add(@"User-Agent", string.IsNullOrWhiteSpace(userAgent) ? DefaultUserAgent : userAgent);
-
-            var response = await httpClient.SendAsync(request);
-
-            response.EnsureSuccessStatusCode();
-            var resultStr = await response.Content.ReadAsStringAsync();
-            return resultStr;
         }
     }
 }

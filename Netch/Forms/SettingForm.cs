@@ -106,6 +106,7 @@ namespace Netch.Forms
             CheckUpdateWhenOpenedCheckBox.Checked = Global.Settings.CheckUpdateWhenOpened;
             BootShadowsocksFromDLLCheckBox.Checked = Global.Settings.BootShadowsocksFromDLL;
             ModifySystemDNSCheckBox.Checked = Global.Settings.ModifySystemDNS;
+            CheckBetaUpdateCheckBox.Checked = Global.Settings.CheckBetaUpdate;
 
             ProfileCountTextBox.Text = Global.Settings.ProfileCount.ToString();
             TcpingAtStartedCheckBox.Checked = Global.Settings.StartedTcping;
@@ -133,6 +134,7 @@ namespace Netch.Forms
             ControlButton.Text = i18N.Translate(ControlButton.Text);
             BootShadowsocksFromDLLCheckBox.Text = i18N.Translate(BootShadowsocksFromDLLCheckBox.Text);
             ModifySystemDNSCheckBox.Text = i18N.Translate(ModifySystemDNSCheckBox.Text);
+            CheckBetaUpdateCheckBox.Text = i18N.Translate(CheckBetaUpdateCheckBox.Text);
             BehaviorGroupBox.Text = i18N.Translate(BehaviorGroupBox.Text);
             ExitWhenClosedCheckBox.Text = i18N.Translate(ExitWhenClosedCheckBox.Text);
             StopWhenExitedCheckBox.Text = i18N.Translate(StopWhenExitedCheckBox.Text);
@@ -173,6 +175,7 @@ namespace Netch.Forms
             Global.Settings.StopWhenExited = StopWhenExitedCheckBox.Checked;
             Global.Settings.StartWhenOpened = StartWhenOpenedCheckBox.Checked;
             Global.Settings.CheckUpdateWhenOpened = CheckUpdateWhenOpenedCheckBox.Checked;
+            Global.Settings.CheckBetaUpdate = CheckBetaUpdateCheckBox.Checked;
             Global.Settings.MinimizeWhenStarted = MinimizeWhenStartedCheckBox.Checked;
             Global.Settings.RunAtStartup = RunAtStartupCheckBox.Checked;
             Global.Settings.BootShadowsocksFromDLL = BootShadowsocksFromDLLCheckBox.Checked;

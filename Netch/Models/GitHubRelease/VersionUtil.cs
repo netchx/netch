@@ -12,6 +12,7 @@ namespace Netch.Models.GitHubRelease
             {
                 releases = releases.Where(release => !release.prerelease);
             }
+
             releases = releases.Where(release => IsVersionString(release.tag_name));
             var ordered = releases.OrderByDescending(release => release.tag_name, new VersionComparer());
             return ordered.ElementAt(0);
@@ -19,6 +20,8 @@ namespace Netch.Models.GitHubRelease
 
         private static bool IsVersionString(string str)
         {
+            if (Global.Settings.CheckBetaUpdate)
+                str = str.Split('-')[0];
             return Version.TryParse(str, out _);
         }
 
@@ -27,10 +30,28 @@ namespace Netch.Models.GitHubRelease
         /// <returns> &lt;0:version2 is greater</returns>
         public static int CompareVersion(string v1, string v2)
         {
-            var version1 = new Version(v1);
-            var version2 = new Version(v2);
+            var version1 = ToVersion(v1);
+            var version2 = ToVersion(v2);
             var res = version1.CompareTo(version2);
             return res;
+        }
+
+        private static Version ToVersion(string versionStr)
+        {
+            var v = versionStr.Split('-');
+            var version = Version.Parse(v[0]);
+            if (v.Length == 1)
+                return version;
+            var beta = v[1];
+
+            var result = string.Empty;
+            foreach (var c in beta)
+            {
+                if (int.TryParse(c.ToString(), out var n))
+                    result += n;
+            }
+
+            return new Version(version.Major, version.Minor, version.Build, int.Parse(result));
         }
     }
 }
