@@ -33,7 +33,7 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public override bool Start(Server server, Mode mode)
         {
-            Task.Run(RecordPrevious);
+            RecordPrevious();
 
             try
             {
@@ -63,19 +63,31 @@ namespace Netch.Controllers
 
         private void RecordPrevious()
         {
-            var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings");
-            if (registry == null)
+            try
+            {
+                var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings");
+                if (registry == null)
+                    throw new Exception();
+
+                prevPAC = registry.GetValue("AutoConfigURL")?.ToString() ?? "";
+                prevHTTP = registry.GetValue("ProxyServer")?.ToString() ?? "";
+                prevBypass = registry.GetValue("ProxyOverride")?.ToString() ?? "";
+                prevEnabled = registry.GetValue("ProxyEnable")?.Equals(1) ?? false; // HTTP Proxy Enabled
+
+                if (prevHTTP == $"127.0.0.1:{Global.Settings.HTTPLocalPort}")
+                {
+                    prevEnabled = false;
+                    prevHTTP = "";
+                }
+
+                if (prevPAC != "")
+                    prevEnabled = true;
+            }
+            catch
             {
                 prevEnabled = false;
                 prevPAC = prevHTTP = prevBypass = "";
-                return;
             }
-
-            prevPAC = registry.GetValue("AutoConfigURL")?.ToString() ?? "";
-            if ((registry.GetValue("ProxyEnable")?.Equals(1) ?? false) || prevPAC != "") prevEnabled = true;
-
-            prevHTTP = registry.GetValue("ProxyServer")?.ToString() ?? "";
-            prevBypass = registry.GetValue("ProxyOverride")?.ToString() ?? "";
         }
 
         /// <summary>
@@ -88,12 +100,15 @@ namespace Netch.Controllers
                 Task.Factory.StartNew(pPrivoxyController.Stop),
                 Task.Factory.StartNew(() =>
                 {
-                    NativeMethods.SetGlobal(prevHTTP, prevBypass);
-                    if (prevPAC != "")
-                        NativeMethods.SetURL(prevPAC);
-                    if (!prevEnabled)
+                    if (prevEnabled)
+                    {
+                        if (prevHTTP != "")
+                            NativeMethods.SetGlobal(prevHTTP, prevBypass);
+                        if (prevPAC != "")
+                            NativeMethods.SetURL(prevPAC);
+                    }
+                    else
                         NativeMethods.SetDIRECT();
-                    prevEnabled = false;
                 })
             };
             Task.WaitAll(tasks);
