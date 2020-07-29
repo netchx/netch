@@ -281,11 +281,20 @@ namespace Netch.Controllers
             if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var pRoute) == 0)
             {
                 Global.Adapter.Index = pRoute.dwForwardIfIndex;
-                adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.GetIPProperties().GetIPv4Properties().Index == Global.Adapter.Index);
+                Logging.Info($"出口 网关 地址：{Global.Adapter.Gateway}");
+                try
+                {
+                    adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.GetIPProperties().GetIPv4Properties().Index == Global.Adapter.Index);
+                }
+                catch (InvalidOperationException)
+                {
+                    Logging.Error("找不到出口适配器");
+                    return false;
+                }
+
                 Global.Adapter.Address = adapter.GetIPProperties().UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork).Address;
                 Global.Adapter.Gateway = new IPAddress(pRoute.dwForwardNextHop);
                 Logging.Info($"出口 IPv4 地址：{Global.Adapter.Address}");
-                Logging.Info($"出口 网关 地址：{Global.Adapter.Gateway}");
                 Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Adapter.Index}");
             }
             else
@@ -298,7 +307,7 @@ namespace Netch.Controllers
             Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
-                Logging.Error("未找到可用 TAP 适配器");
+                Logging.Error("找不到 TAP 适配器");
                 if (MessageBoxX.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"), confirm: true) == DialogResult.OK)
                 {
                     Configuration.addtap();
@@ -308,15 +317,24 @@ namespace Netch.Controllers
                 }
                 else
                 {
+                    Logging.Info("拒绝安装 TAP 适配器 ");
                     return false;
                 }
             }
 
-            adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
-            Global.TUNTAP.Adapter = adapter;
-            Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
-            Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
-            return true;
+            try
+            {
+                adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
+                Global.TUNTAP.Adapter = adapter;
+                Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
+                Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                Logging.Error("没有找到 TAP 适配器");
+                return false;
+            }
         }
 
 
