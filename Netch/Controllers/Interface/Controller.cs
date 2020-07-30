@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
 
@@ -137,40 +139,24 @@ namespace Netch.Controllers
         /// <param name="e">数据</param>
         protected void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            var str = Encoding.UTF8.GetString(Encoding.GetEncoding("gbk").GetBytes(e.Data??string.Empty));
+            // 程序结束接收到 null
+            if (e.Data == null)
+            {
+                State = State.Stopped;
+                return;
+            }
 
+            var str = Encoding.UTF8.GetString(Encoding.GetEncoding("gbk").GetBytes(e.Data ?? string.Empty));
             // 写入日志
-            if (!Write(str)) return;
+            Task.Run(() => Write(str));
 
             // 检查启动
             if (State == State.Starting)
             {
-                if (Instance.HasExited)
-                {
+                if (_startedKeywords.Any(s => str.Contains(s)))
+                    State = State.Started;
+                else if (_stoppedKeywords.Any(s => str.Contains(s)))
                     State = State.Stopped;
-
-                    return;
-                }
-
-                foreach (var s in _startedKeywords)
-                {
-                    if (str.Contains(s))
-                    {
-                        State = State.Started;
-
-                        return;
-                    }
-                }
-
-                foreach (var s in _stoppedKeywords)
-                {
-                    if (str.Contains(s))
-                    {
-                        State = State.Stopped;
-
-                        return;
-                    }
-                }
             }
         }
     }

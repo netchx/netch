@@ -86,6 +86,7 @@ namespace Netch.Controllers
                 }
 
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
+                pEncryptedProxyController.ClearLog();
                 result = pEncryptedProxyController.Start(server, mode);
             }
 
@@ -112,6 +113,7 @@ namespace Netch.Controllers
                 if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
+                    pModeController.ClearLog();
                     result = pModeController.Start(server, mode);
                 }
 
