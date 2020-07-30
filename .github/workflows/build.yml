@@ -5,10 +5,10 @@ jobs:
     name: Build
     runs-on: windows-latest
     steps:
-    - name: NuGet
+    - name: Setup NuGet
       uses: nuget/setup-nuget@v1
 
-    - name: MSBuild
+    - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.0
 
     - name: Checkout
@@ -16,6 +16,14 @@ jobs:
 
     - name: Update submodules
       uses: snickerbockers/submodules-init@v4
+
+    - name: Restore NuGet Packages Cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('Netch/Netch.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
     - name: Restore NuGet Package
       run: nuget restore Netch.sln
@@ -27,13 +35,14 @@ jobs:
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
         Compress-Archive -Path Netch\bin\x64\Release\win-x64\* -DestinationPath C:\builtfiles\Netch.zip
         echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.zip)"
+        echo "::set-env name=Netch_EXE_SHA256::$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)"
 
     - name: Upload
       uses: actions/upload-artifact@v1
       with:
         name: Netch
         path: Netch\bin\x64\Release\win-x64
-  
+
     - name: Release
       uses: softprops/action-gh-release@v1
       env:
@@ -55,3 +64,22 @@ jobs:
           | 文件名 | SHA256 |
           | :- | :- |
           | Netch.zip | ${{ env.Netch_SHA256 }} |
+
+  # Deploy:
+  #   needs: [build]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Artifacts
+  #       uses: actions/download-artifact@v1
+  #       with:
+  #         name: Netch
+
+  #     - name: Pushes to another repository
+  #       uses: peaceiris/actions-gh-pages@v3
+  #       with:
+  #         personal_token: ${{ secrets.ACCESS_TOKEN }}
+  #         publish_branch: repo
+  #         publish_dir: ./Netch
+  #         external_repository: ${{ github.repository_owner }}/NetchReleases
+  #         user_name: 'github-actions[bot]'
+  #         user_email: 'github-actions[bot]@users.noreply.github.com'
