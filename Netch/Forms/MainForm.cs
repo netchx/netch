@@ -460,5 +460,14 @@ namespace Netch.Forms
         #endregion
 
         #endregion
+
+        private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        {
+            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
+        }
+        private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        {
+            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+        }
     }
 }

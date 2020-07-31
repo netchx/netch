@@ -406,6 +406,7 @@ namespace Netch.Forms
             this.ModeComboBox.Size = new System.Drawing.Size(546, 24);
             this.ModeComboBox.TabIndex = 2;
             this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.ModeComboBox.SelectedIndexChanged += new System.EventHandler(this.ModeComboBox_SelectedIndexChanged);
             // 
             // ServerComboBox
             // 
@@ -420,6 +421,7 @@ namespace Netch.Forms
             this.ServerComboBox.Size = new System.Drawing.Size(546, 24);
             this.ServerComboBox.TabIndex = 1;
             this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.ServerComboBox.SelectedIndexChanged += new System.EventHandler(this.ServerComboBox_SelectedIndexChanged);
             // 
             // tableLayoutPanel2
             // 
