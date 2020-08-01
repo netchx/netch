@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Text;
+using System.Threading;
 using Netch.Models;
 using Netch.Utils;
 
@@ -10,59 +11,34 @@ namespace Netch.Controllers
         {
             Name = "ShadowsocksR";
             MainFile = "ShadowsocksR.exe";
-            StartedKeywords("listening at");
-            StoppedKeywords("Invalid config path","usage");
+            StartedKeywords.Add("listening at");
+            StoppedKeywords.AddRange(new[] {"Invalid config path", "usage"});
         }
 
         public override bool Start(Server server, Mode mode)
         {
-            Instance = GetProcess();
-            Instance.OutputDataReceived += OnOutputDataReceived;
-            Instance.ErrorDataReceived += OnOutputDataReceived;
+            #region Argument
 
-            Instance.StartInfo.Arguments = $"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120";
-
+            var argument = new StringBuilder();
+            argument.Append($"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
             if (!string.IsNullOrEmpty(server.Protocol))
             {
-                Instance.StartInfo.Arguments += $" -O {server.Protocol}";
-
-                if (!string.IsNullOrEmpty(server.ProtocolParam)) Instance.StartInfo.Arguments += $" -G \"{server.ProtocolParam}\"";
+                argument.Append($" -O {server.Protocol}");
+                if (!string.IsNullOrEmpty(server.ProtocolParam)) argument.Append($" -G \"{server.ProtocolParam}\"");
             }
 
             if (!string.IsNullOrEmpty(server.OBFS))
             {
-                Instance.StartInfo.Arguments += $" -o {server.OBFS}";
-
-                if (!string.IsNullOrEmpty(server.OBFSParam)) Instance.StartInfo.Arguments += $" -g \"{server.OBFSParam}\"";
+                argument.Append($" -o {server.OBFS}");
+                if (!string.IsNullOrEmpty(server.OBFSParam)) argument.Append($" -g \"{server.OBFSParam}\"");
             }
 
-            Instance.StartInfo.Arguments += $" -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -u";
+            argument.Append($" -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -u");
+            if (mode.BypassChina) argument.Append(" --acl default.acl");
 
-            if (mode.BypassChina) Instance.StartInfo.Arguments += " --acl default.acl";
+            #endregion
 
-            State = State.Starting;
-            Instance.Start();
-            Instance.BeginOutputReadLine();
-            Instance.BeginErrorReadLine();
-
-            for (var i = 0; i < 1000; i++)
-            {
-                Thread.Sleep(10);
-
-                if (State == State.Started) return true;
-
-                if (State == State.Stopped)
-                {
-                    Logging.Error("SSR 进程启动失败");
-
-                    Stop();
-                    return false;
-                }
-            }
-
-            Logging.Error("SSR 进程启动超时");
-            Stop();
-            return false;
+            return StartInstanceAuto(argument.ToString());
         }
 
         public override void Stop()

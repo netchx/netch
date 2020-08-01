@@ -14,8 +14,8 @@ namespace Netch.Controllers
         {
             Name = "V2Ray";
             MainFile = "v2ray.exe";
-            StartedKeywords("started");
-            StoppedKeywords("config file not readable", "failed to");
+            StartedKeywords.Add("started");
+            StoppedKeywords.AddRange(new[] {"config file not readable", "failed to"});
         }
 
         public override bool Start(Server server, Mode mode)
@@ -168,38 +168,12 @@ namespace Netch.Controllers
                 }
             }));
 
-            Instance = GetProcess();
-            Instance.StartInfo.Arguments = "-config ..\\data\\last.json";
-
-            Instance.OutputDataReceived += OnOutputDataReceived;
-            Instance.ErrorDataReceived += OnOutputDataReceived;
-
-            State = State.Starting;
-            Instance.Start();
-            Instance.BeginOutputReadLine();
-            Instance.BeginErrorReadLine();
-            for (var i = 0; i < 1000; i++)
+            if (StartInstanceAuto("-config ..\\data\\last.json"))
             {
-                Thread.Sleep(10);
-
-                if (State == State.Started)
-                {
-                    if (File.Exists("data\\last.json")) File.Delete("data\\last.json");
-
-                    return true;
-                }
-
-                if (State == State.Stopped)
-                {
-                    Logging.Error("V2Ray 进程启动失败");
-
-                    Stop();
-                    return false;
-                }
+                if (File.Exists("data\\last.json")) File.Delete("data\\last.json");
+                return true;
             }
 
-            Logging.Error("V2Ray 进程启动超时");
-            Stop();
             return false;
         }
 

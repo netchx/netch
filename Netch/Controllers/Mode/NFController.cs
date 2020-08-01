@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
@@ -45,8 +46,8 @@ namespace Netch.Controllers
         {
             Name = "Redirector";
             MainFile = "Redirector.exe";
-            StartedKeywords("Started");
-            StoppedKeywords("Failed", "Unable");
+            StartedKeywords.Add("Started");
+            StoppedKeywords.AddRange(new[] {"Failed", "Unable"});
         }
 
         public override bool Start(Server server, Mode mode)
@@ -70,10 +71,10 @@ namespace Netch.Controllers
                 processList += proc + ",";
             processList += "NTT.exe";
 
-            Instance = GetProcess();
+            var argument = new StringBuilder();
             if (server.Type != "Socks5")
             {
-                Instance.StartInfo.Arguments += $"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processList}\"";
+                argument.Append($"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processList}\"");
             }
 
             else
@@ -85,42 +86,26 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                Instance.StartInfo.Arguments += $"-r {result}:{server.Port} -p \"{processList}\"";
-                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password)) Instance.StartInfo.Arguments += $" -username \"{server.Username}\" -password \"{server.Password}\"";
+                argument.Append($"-r {result}:{server.Port} -p \"{processList}\"");
+                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
+                    argument.Append($" -username \"{server.Username}\" -password \"{server.Password}\"");
             }
 
-            Instance.StartInfo.Arguments += $" -t {Global.Settings.RedirectorTCPPort}";
-            Instance.OutputDataReceived += OnOutputDataReceived;
-            Instance.ErrorDataReceived += OnOutputDataReceived;
+            argument.Append($" -t {Global.Settings.RedirectorTCPPort}");
 
             for (var i = 0; i < 2; i++)
             {
                 State = State.Starting;
-                Instance.Start();
-                Instance.BeginOutputReadLine();
-                Instance.BeginErrorReadLine();
-
-                for (var j = 0; j < 40; j++)
+                if (!StartInstanceAuto(argument.ToString())) continue;
+                if (Global.Settings.ModifySystemDNS)
                 {
-                    Thread.Sleep(250);
-
-                    if (State == State.Started)
-                    {
-                        if (Global.Settings.ModifySystemDNS)
-                        {
-                            //备份并替换系统DNS
-                            _sysDns = DNS.getSystemDns();
-                            string[] dns = {"1.1.1.1", "8.8.8.8"};
-                            DNS.SetDNS(dns);
-                        }
-
-                        return true;
-                    }
+                    //备份并替换系统DNS
+                    _sysDns = DNS.getSystemDns();
+                    string[] dns = {"1.1.1.1", "8.8.8.8"};
+                    DNS.SetDNS(dns);
                 }
 
-                Logging.Error(Name + " 启动超时");
-                Stop();
-                if (!RestartService()) return false;
+                return true;
             }
 
             return false;

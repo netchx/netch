@@ -16,13 +16,13 @@ namespace Netch.Models
         public string FileName;
 
         /// <summary>
-        ///     类型
-        ///     0. 进程加速
-        ///     1. TUN/TAP 规则内 IP CIDR 加速
-        ///     2. TUN/TAP 全局，绕过规则内 IP CIDR
-        ///     3. HTTP 代理（自动设置到系统代理）
-        ///     4. Socks5 代理（不自动设置到系统代理）
-        ///     5. Socks5 + HTTP 代理（不自动设置到系统代理）
+        ///     类型<para />
+        ///     0. 进程加速<para />
+        ///     1. TUN/TAP 规则内 IP CIDR 加速<para />
+        ///     2. TUN/TAP 全局，绕过规则内 IP CIDR<para />
+        ///     3. HTTP 代理（自动设置到系统代理）<para />
+        ///     4. Socks5 代理（不自动设置到系统代理）<para />
+        ///     5. Socks5 + HTTP 代理（不自动设置到系统代理）<para />
         /// </summary>
         public int Type = 0;
 

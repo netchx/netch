@@ -41,7 +41,7 @@ namespace Netch.Controllers
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
             FlushDNSResolverCache();
 
-            var result = false;
+            bool result;
             if (server.Type == "Socks5")
             {
                 result = mode.Type != 4;
@@ -86,7 +86,6 @@ namespace Netch.Controllers
                 }
 
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
-                pEncryptedProxyController.ClearLog();
                 result = pEncryptedProxyController.Start(server, mode);
             }
 
@@ -113,7 +112,6 @@ namespace Netch.Controllers
                 if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
-                    pModeController.ClearLog();
                     result = pModeController.Start(server, mode);
                 }
 
@@ -142,7 +140,7 @@ namespace Netch.Controllers
             {
                 Logging.Error("主控制器启动失败");
                 Stop();
-            } 
+            }
 
             return result;
         }
@@ -172,7 +170,7 @@ namespace Netch.Controllers
             }
             catch (Win32Exception e)
             {
-                Logging.Error($"结束进程 {name} 错误：\n" + e);
+                Logging.Error($"结束进程 {name} 错误：" + e.Message);
             }
             catch (Exception)
             {

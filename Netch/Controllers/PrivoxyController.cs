@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using Netch.Models;
 
 namespace Netch.Controllers
@@ -26,20 +24,7 @@ namespace Netch.Controllers
                 text = text.Replace("/ 127.0.0.1", $"/ {server.Hostname}");
             File.WriteAllText("data\\privoxy.conf", text);
 
-            Instance = GetProcess();
-            Instance.StartInfo.Arguments = "..\\data\\privoxy.conf";
-            Instance.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            Instance.StartInfo.UseShellExecute = true;
-            try
-            {
-                Instance.Start();
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
+            return StartInstanceAuto("..\\data\\privoxy.conf");
         }
 
         public override void Stop()

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using Netch.Models;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -24,14 +23,9 @@ namespace Netch.Controllers
         {
             try
             {
-                Instance = GetProcess();
-
-                Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
-
+                InitInstance($" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}");
                 Instance.OutputDataReceived += OnOutputDataReceived;
                 Instance.ErrorDataReceived += OnOutputDataReceived;
-
-                State = State.Starting;
                 Instance.Start();
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
@@ -44,10 +38,18 @@ namespace Netch.Controllers
 
                 return (true, natType, localEnd, publicEnd);
             }
-            catch (Win32Exception e)
+            catch (Exception e)
             {
-                Logging.Error("NTT 进程出错\n" + e);
-                Stop();
+                Logging.Error($"{Name} 控制器出错:\n" + e);
+                try
+                {
+                    Stop();
+                }
+                catch
+                {
+                    // ignored
+                }
+
                 return (false, null, null, null);
             }
         }

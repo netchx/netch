@@ -9,6 +9,7 @@ namespace Netch.Controllers
         {
             Name = "DNS Service";
             MainFile = "unbound.exe";
+            RedirectStd = false;
         }
 
         /// <summary>
@@ -17,24 +18,7 @@ namespace Netch.Controllers
         /// <returns></returns>
         public bool Start()
         {
-            Instance = GetProcess();
-            Instance.StartInfo.Arguments = "-c unbound-service.conf -v";
-
-            Instance.OutputDataReceived += OnOutputDataReceived;
-            Instance.ErrorDataReceived += OnOutputDataReceived;
-
-            try
-            {
-                Instance.Start();
-                Instance.BeginOutputReadLine();
-                Instance.BeginErrorReadLine();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logging.Error("dns-unbound 进程出错：\n" + e);
-                return false;
-            }
+            return StartInstanceAuto("-c unbound-service.conf -v");
         }
 
         public override void Stop()

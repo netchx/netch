@@ -116,14 +116,14 @@ namespace Netch.Forms
             }
             else
             {
+                State = State.Stopping;
                 Task.Run(() =>
                 {
                     // 停止
-                    State = State.Stopping;
                     _mainController.Stop();
                     State = State.Stopped;
+                    Task.Run(TestServer);
                 });
-                Task.Run(TestServer);
             }
         }
 

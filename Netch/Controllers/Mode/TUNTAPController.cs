@@ -35,10 +35,10 @@ namespace Netch.Controllers
 
         public TUNTAPController()
         {
-            Name = "Tap";
+            Name = "tun2socks";
             MainFile = "tun2socks.exe";
-            StartedKeywords("Running");
-            StoppedKeywords("failed", "invalid vconfig file");
+            StartedKeywords.Add("Running");
+            StoppedKeywords.AddRange(new[] {"failed", "invalid vconfig file"});
         }
 
         /// <summary>
@@ -190,16 +190,12 @@ namespace Netch.Controllers
 
         public override bool Start(Server server, Mode mode)
         {
-            Global.MainForm.StatusText(i18N.Translate("Starting Tap"));
-
             _savedMode = mode;
             _savedServer = server;
 
             if (!Configure()) return false;
 
             SetupRouteTable();
-
-            Instance = GetProcess();
 
             var adapterName = TUNTAP.GetName(Global.TUNTAP.ComponentID);
 
@@ -226,35 +222,17 @@ namespace Netch.Controllers
 
             if (Global.Settings.TUNTAP.UseFakeDNS) dns += " -fakeDns";
 
+            var argument = new StringBuilder();
             if (server.Type == "Socks5")
-                Instance.StartInfo.Arguments = $"-proxyServer {server.Hostname}:{server.Port} -tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\"";
+                argument.Append($"-proxyServer {server.Hostname}:{server.Port} ");
             else
-                Instance.StartInfo.Arguments = $"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} -tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\"";
+                argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
-            Instance.ErrorDataReceived += OnOutputDataReceived;
-            Instance.OutputDataReceived += OnOutputDataReceived;
+            argument.Append($"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\"");
 
             State = State.Starting;
-            Instance.Start();
-            Instance.BeginErrorReadLine();
-            Instance.BeginOutputReadLine();
-            Instance.PriorityClass = ProcessPriorityClass.RealTime;
-
-            for (var i = 0; i < 1000; i++)
-            {
-                Thread.Sleep(10);
-
-                switch (State)
-                {
-                    case State.Started:
-                        return true;
-                    case State.Stopped:
-                        Stop();
-                        return false;
-                }
-            }
-
-            return false;
+            if (!StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime)) return false;
+            return true;
         }
 
         /// <summary>
