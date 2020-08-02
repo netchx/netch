@@ -94,7 +94,7 @@ namespace Netch.Forms
             {
                 if (country != "")
                 {
-                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}[{2}]", i18N.Translate(": "), text, country);
+                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1} [{2}]", i18N.Translate(": "), text, country);
                 }
                 else
                 {
