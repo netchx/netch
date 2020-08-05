@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms;
@@ -65,12 +66,13 @@ namespace Netch
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))
                 {
-                    // 弹出提示
-                    MessageBoxX.Show(i18N.Translate("Netch is already running"));
+                    OnlyInstance.Send(OnlyInstance.Commands.Show);
 
                     // 退出进程
                     Environment.Exit(1);
                 }
+
+                Task.Run(OnlyInstance.Server);
 
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

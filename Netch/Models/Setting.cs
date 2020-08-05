@@ -125,6 +125,11 @@ namespace Netch.Models
         public int RedirectorTCPPort = 3901;
 
         /// <summary>
+        ///		UDP Socket 占用端口
+        /// </summary>
+        public int UDPSocketPort = 18291;
+
+        /// <summary>
         ///		HTTP 和 Socks5 本地代理地址
         /// </summary>
         public string LocalAddress = "127.0.0.1";

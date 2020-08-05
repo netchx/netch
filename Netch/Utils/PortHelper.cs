@@ -111,6 +111,20 @@ namespace Netch.Utils
 
             return isPortExcluded && (isTcpUsed || isUdpUsed);
         }
+
+        public static int GetAvailablePort()
+        {
+            for (var i = 0; i < 55535; i++)
+            {
+                var p = new Random().Next(10000, 65535);
+                if (!PortInUse(p))
+                {
+                    return p;
+                }
+            }
+
+            throw new Exception("Cant Generate Available Port");
+        }
     }
 
     /// <summary>
