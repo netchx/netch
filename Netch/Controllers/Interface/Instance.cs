@@ -167,11 +167,15 @@ namespace Netch.Controllers
 
         private void OnExited(object sender, EventArgs e)
         {
+            if (RedirectStd)
+            {
+                _writeStreamTimer.Enabled = false;
+                Thread.Sleep(100); // 等待 Write() 写入流
+                _logFileStream.Close();
+                _logFileStream = null;
+            }
+
             State = State.Stopped;
-            if (!RedirectStd) return;
-            Thread.Sleep(500); // 等待 SaveStreamTimerEvent 写入日志
-            _logFileStream.Close();
-            _logFileStream = null;
         }
 
         /// <summary>
