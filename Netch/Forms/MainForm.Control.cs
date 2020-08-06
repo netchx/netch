@@ -18,7 +18,7 @@ namespace Netch.Forms
     {
         private bool _isFirstCloseWindow = true;
 
-        private void ControlFun()
+        private async void ControlFun()
         {
             if (State == State.Waiting || State == State.Stopped)
             {
@@ -35,94 +35,87 @@ namespace Netch.Forms
                     return;
                 }
 
-                State = State.Starting;
-
                 // 清除模式搜索框文本选择
                 ModeComboBox.Select(0, 0);
 
-                Task.Run(() =>
+                State = State.Starting;
+
+                await Task.Run(Firewall.AddNetchFwRules);
+
+                var server = ServerComboBox.SelectedItem as Models.Server;
+                var mode = ModeComboBox.SelectedItem as Models.Mode;
+                bool result;
+
+                try
                 {
-                    Task.Run(Firewall.AddNetchFwRules);
+                    // TODO 完善控制器异常处理
+                    result = _mainController.Start(server, mode);
+                }
+                catch (Exception e)
+                {
+                    if (e is DllNotFoundException || e is FileNotFoundException)
+                        MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
+                    throw;
+                }
 
-                    var server = ServerComboBox.SelectedItem as Models.Server;
-                    var mode = ModeComboBox.SelectedItem as Models.Mode;
-                    var result = false;
-
-                    try
+                if (result)
+                {
+                    State = State.Started;
+                    StatusTextAppend(LocalPortText(server.Type, mode.Type));
+                    await Task.Run(() => { Bandwidth.NetTraffic(server, mode, _mainController); });
+                    // 如果勾选启动后最小化
+                    if (Global.Settings.MinimizeWhenStarted)
                     {
-                        // TODO 完善控制器异常处理
-                        result = _mainController.Start(server, mode);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is DllNotFoundException || e is FileNotFoundException)
-                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
+                        WindowState = FormWindowState.Minimized;
 
-                        Netch.Application_OnException(this, new ThreadExceptionEventArgs(e));
-                    }
-
-                    if (result)
-                    {
-                        Task.Run(() =>
+                        if (_isFirstCloseWindow)
                         {
-                            State = State.Started;
-                            StatusTextAppend(LocalPortText(server.Type, mode.Type));
-                            Bandwidth.NetTraffic(server, mode, _mainController);
-                        });
-                        // 如果勾选启动后最小化
-                        if (Global.Settings.MinimizeWhenStarted)
-                        {
-                            WindowState = FormWindowState.Minimized;
-
-                            if (_isFirstCloseWindow)
-                            {
-                                // 显示提示语
-                                NotifyTip(i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."));
-                                _isFirstCloseWindow = false;
-                            }
-
-                            Hide();
+                            // 显示提示语
+                            NotifyTip(i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."));
+                            _isFirstCloseWindow = false;
                         }
 
-                        if (Global.Settings.StartedTcping)
+                        Hide();
+                    }
+
+                    if (Global.Settings.StartedTcping)
+                    {
+                        // 自动检测延迟
+                        await Task.Run(() =>
                         {
-                            // 自动检测延迟
-                            Task.Run(() =>
+                            while (true)
                             {
-                                while (true)
+                                if (State == State.Started)
                                 {
-                                    if (State == State.Started)
-                                    {
-                                        server.Test();
-                                        // 重载服务器列表
-                                        InitServer();
+                                    server.Test();
+                                    // 重载服务器列表
+                                    InitServer();
 
-                                        Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
+                                    Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                                 }
-                            });
-                        }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        });
                     }
-                    else
-                    {
-                        State = State.Stopped;
-                        StatusText(i18N.Translate("Start failed"));
-                    }
-                });
+                }
+                else
+                {
+                    State = State.Stopped;
+                    StatusText(i18N.Translate("Start failed"));
+                }
             }
             else
             {
                 State = State.Stopping;
-                Task.Run(() =>
+                await Task.Run(async () =>
                 {
                     // 停止
                     _mainController.Stop();
                     State = State.Stopped;
-                    Task.Run(TestServer);
+                    await Task.Run(TestServer);
                 });
             }
         }

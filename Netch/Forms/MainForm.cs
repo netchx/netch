@@ -465,7 +465,7 @@ namespace Netch.Forms
             Activate();
         }
 
-        private void NotifyTip(string text, int timeout = 5, bool info = true)
+        private void NotifyTip(string text, int timeout = 0, bool info = true)
         {
             NotifyIcon.ShowBalloonTip(timeout,
                 UpdateChecker.Name,
@@ -481,6 +481,7 @@ namespace Netch.Forms
         {
             Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
         }
+
         private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;

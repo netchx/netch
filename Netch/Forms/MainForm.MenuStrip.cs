@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
@@ -96,8 +97,13 @@ namespace Netch.Forms
             Hide();
         }
 
-        private void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            void DisableItems(bool v)
+            {
+                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
+            }
+
             if (Global.Settings.UseProxyToUpdateSubscription && ServerComboBox.SelectedIndex == -1)
                 Global.Settings.UseProxyToUpdateSubscription = false;
 
@@ -107,86 +113,80 @@ namespace Netch.Forms
                 return;
             }
 
-            if (Global.Settings.SubscribeLink.Count > 0)
-            {
-                DeleteServerPictureBox.Enabled = false;
-                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = false;
-
-                Task.Run(() =>
-                {
-                    if (Global.Settings.UseProxyToUpdateSubscription)
-                    {
-                        var mode = new Models.Mode
-                        {
-                            Remark = "ProxyUpdate",
-                            Type = 5
-                        };
-                        State = State.Starting;
-                        if (_mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode))
-                            StatusText(i18N.Translate("Starting update subscription"));
-                    }
-                    else
-                        StatusText(i18N.Translate("Starting update subscription"));
-
-                    Task.WaitAll(Global.Settings.SubscribeLink.Select(item => Task.Factory.StartNew(() =>
-                    {
-                        try
-                        {
-                            var request = WebUtil.CreateRequest(item.Link);
-
-                            if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;
-                            if (Global.Settings.UseProxyToUpdateSubscription) request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
-                            var str = WebUtil.DownloadString(request);
-
-                            try
-                            {
-                                str = ShareLink.URLSafeBase64Decode(str);
-                            }
-                            catch
-                            {
-                                // ignored
-                            }
-
-                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                            var result = ShareLink.Parse(str);
-
-                            if (result != null)
-                            {
-                                foreach (var x in result) x.Group = item.Remark;
-
-                                Global.Settings.Server.AddRange(result);
-                                NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
-                            }
-                        }
-                        catch (WebException e)
-                        {
-                            NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                        }
-                    })).ToArray());
-
-                    InitServer();
-
-                    Configuration.Save();
-                    NotifyTip(i18N.Translate("Subscription updated"));
-
-                    if (Global.Settings.UseProxyToUpdateSubscription)
-                    {
-                        _mainController.Stop();
-                        State = State.Stopped;
-                    }
-
-                    State = State.Waiting;
-                    DeleteModePictureBox.Enabled = true;
-                    MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ControlButton.Enabled = SettingsButton.Enabled = true;
-                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = true;
-                });
-
-                NotifyTip(i18N.Translate("Updating in the background"));
-            }
-            else
+            if (Global.Settings.SubscribeLink.Count <= 0)
             {
                 MessageBoxX.Show(i18N.Translate("No subscription link"));
+                return;
+            }
+
+            StatusText(i18N.Translate("Starting update subscription"));
+            DisableItems(false);
+            if (Global.Settings.UseProxyToUpdateSubscription)
+            {
+                var mode = new Models.Mode
+                {
+                    Remark = "ProxyUpdate",
+                    Type = 5
+                };
+                _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+            }
+
+            var mutex = new Mutex();
+
+            await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
+            {
+                try
+                {
+                    var request = WebUtil.CreateRequest(item.Link);
+
+                    if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;
+                    if (Global.Settings.UseProxyToUpdateSubscription)
+                        request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+
+                    var str = await WebUtil.DownloadStringAsync(request);
+
+                    try
+                    {
+                        str = ShareLink.URLSafeBase64Decode(str);
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+
+                    mutex.WaitOne();
+                    Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                    mutex.ReleaseMutex();
+
+
+                    var result = ShareLink.Parse(str);
+
+                    if (result != null)
+                    {
+                        foreach (var x in result) x.Group = item.Remark;
+
+                        Global.Settings.Server.AddRange(result);
+                        NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
+                    }
+                }
+                catch (WebException e)
+                {
+                    NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
+                }
+                catch (Exception e)
+                {
+                    Logging.Error(e.ToString());
+                }
+            })).ToArray());
+
+            Configuration.Save();
+            await Task.Run(InitServer);
+            DisableItems(true);
+            StatusText(i18N.Translate("Subscription updated"));
+
+            if (Global.Settings.UseProxyToUpdateSubscription)
+            {
+                _mainController.Stop();
             }
         }
 
@@ -231,17 +231,22 @@ namespace Netch.Forms
             UpdateACL(false, sender);
         }
 
-        private void UpdateACL(bool useProxy, object sender)
+        private async void UpdateACL(bool useProxy, object sender)
         {
+            void DisableItems(bool v)
+            {
+                ((ToolStripMenuItem) sender).Enabled = v;
+            }
+
             if (useProxy && ServerComboBox.SelectedIndex == -1)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
-            ((ToolStripMenuItem) sender).Enabled = false;
+            DisableItems(false);
 
-            Task.Run(async () =>
+            await Task.Run(async () =>
             {
                 if (useProxy)
                 {
@@ -251,10 +256,11 @@ namespace Netch.Forms
                         Type = 5
                     };
                     State = State.Starting;
-                    if (_mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode))
-                        StatusText(i18N.Translate("Updating in the background"));
+                    _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                    // State = State.Started;
                 }
 
+                NotifyTip(i18N.Translate("Updating in the background"));
                 try
                 {
                     var req = WebUtil.CreateRequest(Global.Settings.ACL);
@@ -268,19 +274,16 @@ namespace Netch.Forms
                 {
                     NotifyTip(i18N.Translate("ACL update failed") + "\n" + e.Message, info: false);
                     Logging.Error("更新 ACL 失败！" + e);
-                    if (!(e is WebException))
-                        throw;
                 }
                 finally
                 {
-                    ((ToolStripMenuItem) sender).Enabled = true;
                     if (useProxy)
                     {
                         _mainController.Stop();
                         State = State.Stopped;
                     }
 
-                    State = State.Waiting;
+                    DisableItems(true);
                 }
             });
         }

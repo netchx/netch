@@ -22,9 +22,25 @@ namespace Netch.Forms
             get => _state;
             private set
             {
+                void StartDisableItems(bool enabled)
+                {
+                    ServerComboBox.Enabled =
+                        ModeComboBox.Enabled =
+                            EditModePictureBox.Enabled =
+                            EditServerPictureBox.Enabled =
+                                DeleteModePictureBox.Enabled =
+                                    DeleteServerPictureBox.Enabled = enabled;
+
+                    // 启动需要禁用的控件
+                    UninstallServiceToolStripMenuItem.Enabled =
+                        updateACLWithProxyToolStripMenuItem.Enabled =
+                            UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                                reinstallTapDriverToolStripMenuItem.Enabled =
+                                    ReloadModesToolStripMenuItem.Enabled = enabled;
+                }
+
                 _state = value;
-                if (IsDisposed)
-                    return;
+
                 StatusText(i18N.Translate(StateExtension.GetStatusString(value)));
                 switch (value)
                 {
@@ -37,19 +53,15 @@ namespace Netch.Forms
                         ControlButton.Enabled = false;
                         ControlButton.Text = "...";
 
-                        ConfigurationGroupBox.Enabled = false;
-
-                        MenuStripsEnabled(false);
+                        ProfileGroupBox.Enabled = false;
+                        StartDisableItems(false);
                         break;
                     case State.Started:
                         ControlButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Stop");
 
-                        LastUploadBandwidth = 0;
-                        //LastDownloadBandwidth = 0;
-                        //UploadSpeedLabel.Text = "↑: 0 KB/s";
-                        DownloadSpeedLabel.Text = @"↑↓: 0 KB/s";
-                        UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
+                        ProfileGroupBox.Enabled = true;
+
                         UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
                         break;
                     case State.Stopping:
@@ -57,7 +69,6 @@ namespace Netch.Forms
                         ControlButton.Text = "...";
 
                         ProfileGroupBox.Enabled = false;
-
                         UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = false;
                         NatTypeStatusText();
                         break;
@@ -69,9 +80,7 @@ namespace Netch.Forms
                         LastDownloadBandwidth = 0;
 
                         ProfileGroupBox.Enabled = true;
-                        ConfigurationGroupBox.Enabled = true;
-
-                        MenuStripsEnabled(true);
+                        StartDisableItems(true);
                         break;
                     case State.Terminating:
                         Dispose();
@@ -100,6 +109,7 @@ namespace Netch.Forms
                 {
                     NatTypeStatusLabel.Text = String.Format("NAT{0}{1}", i18N.Translate(": "), text);
                 }
+
                 if (Enum.TryParse(text, false, out STUN_Client.NatType natType))
                 {
                     NatTypeStatusLightLabel.Visible = true;
@@ -144,7 +154,6 @@ namespace Netch.Forms
             NatTypeStatusLightLabel.ForeColor = c;
         }
 
-
         /// <summary>
         ///     更新状态栏文本
         /// </summary>
@@ -157,15 +166,6 @@ namespace Netch.Forms
         public void StatusTextAppend(string text)
         {
             StatusLabel.Text += text;
-        }
-
-        public void MenuStripsEnabled(bool enabled)
-        {
-            // 需要禁用的菜单项
-            UninstallServiceToolStripMenuItem.Enabled =
-                updateACLWithProxyToolStripMenuItem.Enabled =
-                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                        reinstallTapDriverToolStripMenuItem.Enabled = enabled;
         }
     }
 }

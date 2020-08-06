@@ -173,7 +173,7 @@ namespace Netch.Forms
                 if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) != DialogResult.OK) return;
                 RemoveProfile(index);
                 ProfileButtons[index].Text = i18N.Translate("None");
-                MessageBoxX.Show(i18N.Translate("Profile Removed!"));
+                // MessageBoxX.Show(i18N.Translate("Profile Removed!"));
                 return;
             }
 
