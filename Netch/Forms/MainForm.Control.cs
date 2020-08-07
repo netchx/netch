@@ -114,6 +114,12 @@ namespace Netch.Forms
 
         public void OnBandwidthUpdated(long download)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<long>(OnBandwidthUpdated), download);
+                return;
+            }
+
             try
             {
                 UsedBandwidthLabel.Text = $"{i18N.Translate("Used", ": ")}{Bandwidth.Compute(download)}";
@@ -124,13 +130,20 @@ namespace Netch.Forms
                 LastDownloadBandwidth = download;
                 Refresh();
             }
-            catch (Exception)
+            catch
             {
+                // ignored
             }
         }
 
         public void OnBandwidthUpdated(long upload, long download)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<long, long>(OnBandwidthUpdated), upload, download);
+                return;
+            }
+
             try
             {
                 if (upload < 1 || download < 1)
@@ -147,8 +160,9 @@ namespace Netch.Forms
                 LastDownloadBandwidth = download;
                 Refresh();
             }
-            catch (Exception)
+            catch
             {
+                // ignored
             }
         }
 

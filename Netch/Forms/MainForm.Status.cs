@@ -22,6 +22,12 @@ namespace Netch.Forms
             get => _state;
             private set
             {
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new Action(() => { State = value; }));
+                    return;
+                }
+
                 void StartDisableItems(bool enabled)
                 {
                     ServerComboBox.Enabled =
@@ -61,7 +67,7 @@ namespace Netch.Forms
                         ControlButton.Text = i18N.Translate("Stop");
 
                         StatusTextAppend(_mainController.PortInfo);
-                        
+
                         ProfileGroupBox.Enabled = true;
 
                         UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
@@ -94,6 +100,12 @@ namespace Netch.Forms
 
         public void NatTypeStatusText(string text = "", string country = "")
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<string, string>(NatTypeStatusText), text, country);
+                return;
+            }
+
             if (State != State.Started)
             {
                 NatTypeStatusLabel.Text = "";
@@ -162,6 +174,12 @@ namespace Netch.Forms
         /// <param name="text"></param>
         public void StatusText(string text)
         {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<string>(StatusText), text);
+                return;
+            }
+
             StatusLabel.Text = i18N.Translate("Status", ": ") + text;
         }
 
