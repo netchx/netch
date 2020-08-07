@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading.Tasks;
 using Netch.Forms;
 using Netch.Models;
@@ -22,10 +23,45 @@ namespace Netch.Controllers
 
         public ModeController pModeController;
 
+        private Server _savedServer;
+        private Mode _savedMode;
+
+        public string PortInfo
+        {
+            get
+            {
+                if (_savedMode == null || _savedServer == null)
+                    return string.Empty;
+
+                var text = new StringBuilder();
+                if (_savedServer.Type == "Socks5" && _savedMode.Type != 3 && _savedMode.Type != 5)
+                    // 不可控Socks5, 不可控HTTP
+                    return string.Empty;
+
+                if (_localAddress == "0.0.0.0")
+                    text.Append(i18N.Translate("Allow other Devices to connect") + " ");
+
+                if (_savedServer.Type != "Socks5")
+                    // 可控Socks5
+                    text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{_socks5Port}");
+
+                if (_savedMode.Type == 3 || _savedMode.Type == 5)
+                    // 有HTTP
+                    text.Append($" | HTTP {i18N.Translate("Local Port", ": ")}{_httpPort}");
+
+                return $" ({text})";
+            }
+        }
+
         /// <summary>
         ///     NTT 控制器
         /// </summary>
         public NTTController pNTTController = new NTTController();
+
+        private string _localAddress;
+        private int _redirectorTCPPort;
+        private int _httpPort;
+        private int _socks5Port;
 
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
@@ -39,6 +75,18 @@ namespace Netch.Controllers
         public bool Start(Server server, Mode mode)
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
+
+            #region Record Settings
+
+            _httpPort = Global.Settings.HTTPLocalPort;
+            _socks5Port = Global.Settings.Socks5LocalPort;
+            _redirectorTCPPort = Global.Settings.RedirectorTCPPort;
+            _localAddress = Global.Settings.LocalAddress;
+            _savedServer = server;
+            _savedMode = mode;
+
+            #endregion
+
             FlushDNSResolverCache();
 
             bool result;
@@ -117,6 +165,25 @@ namespace Netch.Controllers
 
                 if (result)
                 {
+                    #region Add UsingPorts
+
+                    switch (mode.Type)
+                    {
+                        // 成功启动
+                        case 3:
+                        case 5:
+                            UsingPorts.Add(Global.Settings.HTTPLocalPort);
+                            break;
+                        case 0:
+                            UsingPorts.Add(Global.Settings.RedirectorTCPPort);
+                            break;
+                    }
+
+                    if (server.Type != "Socks5")
+                        UsingPorts.Add(Global.Settings.Socks5LocalPort);
+
+                    #endregion
+
                     switch (mode.Type)
                     {
                         case 0:
@@ -148,16 +215,15 @@ namespace Netch.Controllers
         /// <summary>
         ///     停止
         /// </summary>
-        public void Stop()
+        public async void Stop()
         {
-            var tasks = new[]
+            await Task.WhenAll(new[]
             {
-                Task.Factory.StartNew(() => pEncryptedProxyController?.Stop()),
-                Task.Factory.StartNew(() => UsingPorts.Clear()),
-                Task.Factory.StartNew(() => pModeController?.Stop()),
-                Task.Factory.StartNew(() => pNTTController.Stop())
-            };
-            Task.WaitAll(tasks);
+                Task.Run(() => pEncryptedProxyController?.Stop()),
+                Task.Run(() => UsingPorts.Clear()),
+                Task.Run(() => pModeController?.Stop()),
+                Task.Run(() => pNTTController.Stop())
+            });
         }
 
         public static void KillProcessByName(string name)

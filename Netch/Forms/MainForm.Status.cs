@@ -60,6 +60,8 @@ namespace Netch.Forms
                         ControlButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Stop");
 
+                        StatusTextAppend(_mainController.PortInfo);
+                        
                         ProfileGroupBox.Enabled = true;
 
                         UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;

@@ -257,7 +257,6 @@ namespace Netch.Forms
                     };
                     State = State.Starting;
                     _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
-                    // State = State.Started;
                 }
 
                 NotifyTip(i18N.Translate("Updating in the background"));

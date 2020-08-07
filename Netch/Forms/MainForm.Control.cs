@@ -44,25 +44,27 @@ namespace Netch.Forms
 
                 var server = ServerComboBox.SelectedItem as Models.Server;
                 var mode = ModeComboBox.SelectedItem as Models.Mode;
-                bool result;
+                var result = false;
 
-                try
+                await Task.Run(() =>
                 {
-                    // TODO 完善控制器异常处理
-                    result = _mainController.Start(server, mode);
-                }
-                catch (Exception e)
-                {
-                    if (e is DllNotFoundException || e is FileNotFoundException)
-                        MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
-                    throw;
-                }
+                    try
+                    {
+                        // TODO 完善控制器异常处理
+                        result = _mainController.Start(server, mode);
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is DllNotFoundException || e is FileNotFoundException)
+                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: Global.MainForm);
+                        Netch.Application_OnException(null, new ThreadExceptionEventArgs(e));
+                    }
+                });
 
                 if (result)
                 {
                     State = State.Started;
-                    StatusTextAppend(LocalPortText(server.Type, mode.Type));
-                    await Task.Run(() => { Bandwidth.NetTraffic(server, mode, _mainController); });
+                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode, _mainController); });
                     // 如果勾选启动后最小化
                     if (Global.Settings.MinimizeWhenStarted)
                     {
@@ -83,20 +85,13 @@ namespace Netch.Forms
                         // 自动检测延迟
                         await Task.Run(() =>
                         {
-                            while (true)
+                            while (State == State.Started)
                             {
-                                if (State == State.Started)
-                                {
-                                    server.Test();
-                                    // 重载服务器列表
-                                    InitServer();
+                                server.Test();
+                                // 重载服务器列表
+                                InitServer();
 
-                                    Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
-                                }
-                                else
-                                {
-                                    break;
-                                }
+                                Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                             }
                         });
                     }
@@ -109,57 +104,13 @@ namespace Netch.Forms
             }
             else
             {
+                // 停止
                 State = State.Stopping;
-                await Task.Run(async () =>
-                {
-                    // 停止
-                    _mainController.Stop();
-                    State = State.Stopped;
-                    await Task.Run(TestServer);
-                });
+                _mainController.Stop();
+                State = State.Stopped;
+                _ = Task.Run(TestServer);
             }
         }
-
-        private static string LocalPortText(string serverType, int modeType)
-        {
-            var text = new StringBuilder(" (");
-            if (Global.Settings.LocalAddress == "0.0.0.0")
-                text.Append(i18N.Translate("Allow other Devices to connect") + " ");
-            if (serverType == "Socks5")
-            {
-                // 不可控Socks5
-                if (modeType == 3 || modeType == 5)
-                {
-                    // 可控HTTP
-                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
-                    text.Append($"HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
-                }
-                else
-                {
-                    // 不可控HTTP
-                    return string.Empty;
-                }
-            }
-            else
-            {
-                // 可控Socks5
-                MainController.UsingPorts.Add(Global.Settings.Socks5LocalPort);
-                text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{Global.Settings.Socks5LocalPort}");
-                if (modeType == 3 || modeType == 5)
-                {
-                    // 有HTTP
-                    MainController.UsingPorts.Add(Global.Settings.HTTPLocalPort);
-                    text.Append($" | HTTP {i18N.Translate("Local Port", ": ")}{Global.Settings.HTTPLocalPort}");
-                }
-            }
-
-            if (modeType == 0)
-                MainController.UsingPorts.Add(Global.Settings.RedirectorTCPPort);
-
-            text.Append(")");
-            return text.ToString();
-        }
-
 
         public void OnBandwidthUpdated(long download)
         {
