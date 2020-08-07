@@ -17,10 +17,10 @@ namespace Netch.Models
 
         /// <summary>
         ///     类型<para />
-        ///     0. 进程加速<para />
-        ///     1. TUN/TAP 规则内 IP CIDR 加速<para />
-        ///     2. TUN/TAP 全局，绕过规则内 IP CIDR<para />
-        ///     3. HTTP 代理（自动设置到系统代理）<para />
+        ///     0. Socks5 + 进程加速<para />
+        ///     1. Socks5 + TUN/TAP 规则内 IP CIDR 加速<para />
+        ///     2. Socks5 + TUN/TAP 全局，绕过规则内 IP CIDR<para />
+        ///     3. Socks5 + HTTP 代理（自动设置到系统代理）<para />
         ///     4. Socks5 代理（不自动设置到系统代理）<para />
         ///     5. Socks5 + HTTP 代理（不自动设置到系统代理）<para />
         /// </summary>

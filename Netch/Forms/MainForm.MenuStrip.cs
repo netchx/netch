@@ -131,7 +131,7 @@ namespace Netch.Forms
                 _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
             }
 
-            var mutex = new Mutex();
+            var serverLock = new object();
 
             await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
             {
@@ -154,10 +154,10 @@ namespace Netch.Forms
                         // ignored
                     }
 
-                    mutex.WaitOne();
-                    Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                    mutex.ReleaseMutex();
-
+                    lock (serverLock)
+                    {
+                        Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                    }
 
                     var result = ShareLink.Parse(str);
 

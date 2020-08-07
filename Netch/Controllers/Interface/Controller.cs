@@ -12,7 +12,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     当前状态
         /// </summary>
-        public State State { get; set; } = State.Waiting;
+        public State State { get; protected set; } = State.Waiting;
 
         /// <summary>
         ///     停止

@@ -43,7 +43,7 @@ namespace Netch.Utils
         /// 根据程序名统计流量
         /// </summary>
         /// <param name="ProcessName"></param>
-        public static void NetTraffic(Server server, Mode mode, MainController mainController)
+        public static void NetTraffic(Server server, Mode mode, ref MainController mainController)
         {
             var counterLock = new object();
             //int sent = 0;

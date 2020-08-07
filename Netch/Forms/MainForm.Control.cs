@@ -56,7 +56,7 @@ namespace Netch.Forms
                     catch (Exception e)
                     {
                         if (e is DllNotFoundException || e is FileNotFoundException)
-                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: Global.MainForm);
+                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
                         Netch.Application_OnException(null, new ThreadExceptionEventArgs(e));
                     }
                 });
@@ -64,7 +64,7 @@ namespace Netch.Forms
                 if (result)
                 {
                     State = State.Started;
-                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode, _mainController); });
+                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode, ref _mainController); });
                     // 如果勾选启动后最小化
                     if (Global.Settings.MinimizeWhenStarted)
                     {

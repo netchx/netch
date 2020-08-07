@@ -19,9 +19,9 @@ namespace Netch.Controllers
         /// </summary>
         public static readonly List<int> UsingPorts = new List<int>();
 
-        public EncryptedProxy pEncryptedProxyController;
+        public EncryptedProxy pEncryptedProxyController { get; private set; }
 
-        public ModeController pModeController;
+        public ModeController pModeController { get; private set; }
 
         private Server _savedServer;
         private Mode _savedMode;
@@ -33,11 +33,11 @@ namespace Netch.Controllers
                 if (_savedMode == null || _savedServer == null)
                     return string.Empty;
 
-                var text = new StringBuilder();
                 if (_savedServer.Type == "Socks5" && _savedMode.Type != 3 && _savedMode.Type != 5)
                     // 不可控Socks5, 不可控HTTP
                     return string.Empty;
 
+                var text = new StringBuilder();
                 if (_localAddress == "0.0.0.0")
                     text.Append(i18N.Translate("Allow other Devices to connect") + " ");
 
@@ -96,40 +96,38 @@ namespace Netch.Controllers
             }
             else
             {
-                switch (server.Type)
+                pEncryptedProxyController = server.Type switch
                 {
-                    case "SS":
-                        pEncryptedProxyController = new SSController();
-                        break;
-                    case "SSR":
-                        pEncryptedProxyController = new SSRController();
-                        break;
-                    case "VMess":
-                        pEncryptedProxyController = new VMessController();
-                        break;
-                    case "Trojan":
-                        pEncryptedProxyController = new TrojanController();
-                        break;
-                }
+                    "SS" => new SSController(),
+                    "SSR" => new SSRController(),
+                    "VMess" => new VMessController(),
+                    "Trojan" => new TrojanController(),
+                    _ => pEncryptedProxyController
+                };
 
                 KillProcessByName(pEncryptedProxyController.MainFile);
 
                 // 检查端口是否被占用
-                if (PortHelper.PortInUse(Global.Settings.Socks5LocalPort))
+                var isPortNotAvailable = false;
+                if (_savedServer.Type != "Socks5")
                 {
-                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "Socks5"));
-                    return false;
+                    isPortNotAvailable = PortCheckAndShowMessageBox(_socks5Port, "Socks5");
                 }
 
-                if (PortHelper.PortInUse(Global.Settings.HTTPLocalPort))
+                switch (_savedMode.Type)
                 {
-                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "HTTP"));
-                    return false;
+                    case 0:
+                        isPortNotAvailable = isPortNotAvailable || PortCheckAndShowMessageBox(_redirectorTCPPort, "Redirector TCP");
+                        break;
+                    case 3:
+                    case 5:
+                        isPortNotAvailable = isPortNotAvailable || PortCheckAndShowMessageBox(_httpPort, "HTTP");
+                        break;
                 }
 
-                if (PortHelper.PortInUse(Global.Settings.RedirectorTCPPort, PortType.TCP))
+                if (isPortNotAvailable)
                 {
-                    MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", "Redirector TCP"));
+                    Logging.Error("主控制器启动失败: 端口被占用");
                     return false;
                 }
 
@@ -139,6 +137,9 @@ namespace Netch.Controllers
 
             if (result)
             {
+                // 加密代理成功启动
+                UsingPorts.Add(Global.Settings.Socks5LocalPort); // 记录Socks5使用端口
+
                 switch (mode.Type)
                 {
                     case 0: // 进程代理模式
@@ -165,24 +166,19 @@ namespace Netch.Controllers
 
                 if (result)
                 {
-                    #region Add UsingPorts
+                    // 成功启动
 
-                    switch (mode.Type)
+                    switch (mode.Type) // 记录使用端口
                     {
-                        // 成功启动
+                        case 0:
+                            UsingPorts.Add(_redirectorTCPPort);
+                            break;
                         case 3:
                         case 5:
-                            UsingPorts.Add(Global.Settings.HTTPLocalPort);
-                            break;
-                        case 0:
-                            UsingPorts.Add(Global.Settings.RedirectorTCPPort);
+                            UsingPorts.Add(_httpPort);
                             break;
                     }
 
-                    if (server.Type != "Socks5")
-                        UsingPorts.Add(Global.Settings.Socks5LocalPort);
-
-                    #endregion
 
                     switch (mode.Type)
                     {
@@ -242,6 +238,20 @@ namespace Netch.Controllers
             {
                 // ignored
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="port"></param>
+        /// <param name="portName"></param>
+        /// <param name="portType"></param>
+        /// <returns>端口是否被占用</returns>
+        private static bool PortCheckAndShowMessageBox(int port, string portName, PortType portType = PortType.Both)
+        {
+            if (!PortHelper.PortInUse(port, portType)) return false;
+            MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", portName));
+            return true;
         }
     }
 }
