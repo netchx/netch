@@ -175,18 +175,9 @@ namespace Netch.Controllers
             }
 
             if (!File.Exists(SystemDriver)) return true;
-
-            try
-            {
-                NFAPI.nf_unRegisterDriver("netfilter2");
-            }
-            catch (Exception e)
-            {
-                Logging.Error(e.ToString());
-                return false;
-            }
-
+            NFAPI.nf_unRegisterDriver("netfilter2");
             File.Delete(SystemDriver);
+
             return true;
         }
 

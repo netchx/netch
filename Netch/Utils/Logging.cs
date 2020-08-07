@@ -35,9 +35,14 @@ namespace Netch.Utils
             Write(text, LogLevel.ERROR);
         }
 
+        private static readonly object FileLock = new object();
+
         private static void Write(string text, LogLevel logLevel)
         {
-            File.AppendAllText(LogFile, $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}");
+            lock (FileLock)
+            {
+                File.AppendAllText(LogFile, $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}");
+            }
         }
     }
 }

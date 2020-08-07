@@ -24,6 +24,7 @@ namespace Netch.Forms
             {
                 if (InvokeRequired)
                 {
+                    // TODO:使所有 State 赋值不在线程中执行然后移除此代码块
                     BeginInvoke(new Action(() => { State = value; }));
                     return;
                 }
@@ -33,9 +34,9 @@ namespace Netch.Forms
                     ServerComboBox.Enabled =
                         ModeComboBox.Enabled =
                             EditModePictureBox.Enabled =
-                            EditServerPictureBox.Enabled =
-                                DeleteModePictureBox.Enabled =
-                                    DeleteServerPictureBox.Enabled = enabled;
+                                EditServerPictureBox.Enabled =
+                                    DeleteModePictureBox.Enabled =
+                                        DeleteServerPictureBox.Enabled = enabled;
 
                     // 启动需要禁用的控件
                     UninstallServiceToolStripMenuItem.Enabled =

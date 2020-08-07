@@ -9,7 +9,10 @@ using Netch.Utils;
 
 namespace Netch.Forms
 {
-    public partial class Dummy { }
+    public partial class Dummy
+    {
+    }
+
     partial class MainForm
     {
         /// init at <see cref="MainForm_Load"/> 
@@ -136,7 +139,7 @@ namespace Netch.Forms
 
         private List<Button> ProfileButtons = new List<Button>();
 
-        private void ProfileButton_Click(object sender, EventArgs e)
+        private async void ProfileButton_Click(object sender, EventArgs e)
         {
             var index = ProfileButtons.IndexOf((Button) sender);
 
@@ -159,6 +162,7 @@ namespace Netch.Forms
                     SaveProfile(index);
                     ProfileButtons[index].Text = ProfileNameText.Text;
                 }
+
                 return;
             }
 
@@ -185,26 +189,20 @@ namespace Netch.Forms
                 ControlFun();
                 if (State == State.Stopping || State == State.Stopped)
                 {
-                    Task.Run(() =>
+                    while (State != State.Stopped)
                     {
-                        while (State != State.Stopped)
-                        {
-                            Thread.Sleep(250);
-                        }
+                        await Task.Delay(250);
+                    }
 
-                        ControlFun();
-                    });
+                    ControlFun();
                 }
             }
             catch (Exception ee)
             {
-                Task.Run(() =>
-                {
-                    Logging.Info(ee.ToString());
-                    ProfileButtons[index].Text = i18N.Translate("Error");
-                    Thread.Sleep(1200);
-                    ProfileButtons[index].Text = i18N.Translate("None");
-                });
+                Logging.Info(ee.ToString());
+                ProfileButtons[index].Text = i18N.Translate("Error");
+                await Task.Delay(1200);
+                ProfileButtons[index].Text = i18N.Translate("None");
             }
         }
     }

@@ -128,7 +128,7 @@ namespace Netch.Forms
                     Remark = "ProxyUpdate",
                     Type = 5
                 };
-                _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
             }
 
             var serverLock = new object();
@@ -157,16 +157,14 @@ namespace Netch.Forms
                     lock (serverLock)
                     {
                         Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                    }
+                        var result = ShareLink.Parse(str);
+                        if (result != null)
+                        {
+                            foreach (var x in result) x.Group = item.Remark;
 
-                    var result = ShareLink.Parse(str);
-
-                    if (result != null)
-                    {
-                        foreach (var x in result) x.Group = item.Remark;
-
-                        Global.Settings.Server.AddRange(result);
-                        NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
+                            Global.Settings.Server.AddRange(result);
+                            NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
+                        }
                     }
                 }
                 catch (WebException e)
@@ -186,7 +184,7 @@ namespace Netch.Forms
 
             if (Global.Settings.UseProxyToUpdateSubscription)
             {
-                _mainController.Stop();
+                await _mainController.Stop();
             }
         }
 
@@ -199,13 +197,10 @@ namespace Netch.Forms
             Utils.Utils.Open(".\\");
         }
 
-        private void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Task.Run(() =>
-            {
-                DNS.Cache.Clear();
-                NotifyTip(i18N.Translate("DNS cache cleanup succeeded"));
-            });
+            await Task.Run(() => DNS.Cache.Clear());
+            StatusText(i18N.Translate("DNS cache cleanup succeeded"));
         }
 
         private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -246,95 +241,83 @@ namespace Netch.Forms
 
             DisableItems(false);
 
-            await Task.Run(async () =>
+            if (useProxy)
+            {
+                var mode = new Models.Mode
+                {
+                    Remark = "ProxyUpdate",
+                    Type = 5
+                };
+                State = State.Starting;
+                await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+            }
+
+            NotifyTip(i18N.Translate("Updating in the background"));
+            try
+            {
+                var req = WebUtil.CreateRequest(Global.Settings.ACL);
+                if (useProxy)
+                    req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+
+                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, "bin\\default.acl"));
+                NotifyTip(i18N.Translate("ACL updated successfully"));
+            }
+            catch (Exception e)
+            {
+                NotifyTip(i18N.Translate("ACL update failed") + "\n" + e.Message, info: false);
+                Logging.Error("更新 ACL 失败！" + e);
+            }
+            finally
             {
                 if (useProxy)
                 {
-                    var mode = new Models.Mode
-                    {
-                        Remark = "ProxyUpdate",
-                        Type = 5
-                    };
-                    State = State.Starting;
-                    _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                    await _mainController.Stop();
+                    State = State.Stopped;
                 }
 
-                NotifyTip(i18N.Translate("Updating in the background"));
-                try
-                {
-                    var req = WebUtil.CreateRequest(Global.Settings.ACL);
-                    if (useProxy)
-                        req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
-                    await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, "bin\\default.acl"));
-                    NotifyTip(i18N.Translate("ACL updated successfully"));
-                }
-                catch (Exception e)
-                {
-                    NotifyTip(i18N.Translate("ACL update failed") + "\n" + e.Message, info: false);
-                    Logging.Error("更新 ACL 失败！" + e);
-                }
-                finally
-                {
-                    if (useProxy)
-                    {
-                        _mainController.Stop();
-                        State = State.Stopped;
-                    }
-
-                    DisableItems(true);
-                }
-            });
+                DisableItems(true);
+            }
         }
 
-
-        private void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
             StatusText(i18N.Translate("Uninstalling NF Service"));
 
-            Task.Run(() =>
+            var result = false;
+            try
             {
-                try
+                await Task.Run(() => result = NFController.UninstallDriver());
+                if (result)
                 {
-                    if (NFController.UninstallDriver())
-                    {
-                        StatusText(i18N.Translate("Service has been uninstalled"));
-                    }
+                    StatusText(i18N.Translate("Service has been uninstalled"));
                 }
-                catch (Exception e)
-                {
-                    MessageBoxX.Show(e.ToString(), LogLevel.ERROR);
-                    Console.WriteLine(e);
-                    throw;
-                }
-
+            }
+            finally
+            {
                 Enabled = true;
-            });
+            }
         }
 
-        private void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Task.Run(() =>
+            StatusText(i18N.Translate("Reinstalling TUN/TAP driver"));
+            Enabled = false;
+            await Task.Run(() =>
             {
-                StatusText(i18N.Translate("Reinstalling TUN/TAP driver"));
-                Enabled = false;
                 try
                 {
                     Configuration.deltapall();
                     Configuration.addtap();
-                    NotifyTip(i18N.Translate("Reinstall TUN/TAP driver successfully"));
+                    StatusText(i18N.Translate("Reinstall TUN/TAP driver successfully"));
                 }
                 catch
                 {
                     NotifyTip(i18N.Translate("Reinstall TUN/TAP driver failed"), info: false);
                 }
-                finally
-                {
-                    State = State.Waiting;
-                    Enabled = true;
-                }
             });
+            State = State.Waiting;
+            Enabled = true;
         }
 
         #endregion

@@ -72,7 +72,7 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Server server, Mode mode)
+        public async Task<bool> Start(Server server, Mode mode)
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
 
@@ -88,6 +88,7 @@ namespace Netch.Controllers
             #endregion
 
             FlushDNSResolverCache();
+            _ = Task.Run(Firewall.AddNetchFwRules);
 
             bool result;
             if (server.Type == "Socks5")
@@ -111,17 +112,17 @@ namespace Netch.Controllers
                 var isPortNotAvailable = false;
                 if (_savedServer.Type != "Socks5")
                 {
-                    isPortNotAvailable = PortCheckAndShowMessageBox(_socks5Port, "Socks5");
+                    isPortNotAvailable |= PortCheckAndShowMessageBox(_socks5Port, "Socks5");
                 }
 
                 switch (_savedMode.Type)
                 {
                     case 0:
-                        isPortNotAvailable = isPortNotAvailable || PortCheckAndShowMessageBox(_redirectorTCPPort, "Redirector TCP");
+                        isPortNotAvailable |= PortCheckAndShowMessageBox(_redirectorTCPPort, "Redirector TCP");
                         break;
                     case 3:
                     case 5:
-                        isPortNotAvailable = isPortNotAvailable || PortCheckAndShowMessageBox(_httpPort, "HTTP");
+                        isPortNotAvailable |= PortCheckAndShowMessageBox(_httpPort, "HTTP");
                         break;
                 }
 
@@ -132,7 +133,7 @@ namespace Netch.Controllers
                 }
 
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
-                result = pEncryptedProxyController.Start(server, mode);
+                result = await Task.Run(() => pEncryptedProxyController.Start(server, mode));
             }
 
             if (result)
@@ -161,7 +162,7 @@ namespace Netch.Controllers
                 if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
-                    result = pModeController.Start(server, mode);
+                    result = await Task.Run(() => pModeController.Start(server, mode));
                 }
 
                 if (result)
@@ -179,13 +180,12 @@ namespace Netch.Controllers
                             break;
                     }
 
-
                     switch (mode.Type)
                     {
                         case 0:
                         case 1:
                         case 2:
-                            Task.Run(() =>
+                            _ = Task.Run(() =>
                             {
                                 Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
                                 // Thread.Sleep(1000);
@@ -202,7 +202,7 @@ namespace Netch.Controllers
             if (!result)
             {
                 Logging.Error("主控制器启动失败");
-                Stop();
+                await Stop();
             }
 
             return result;
@@ -211,15 +211,16 @@ namespace Netch.Controllers
         /// <summary>
         ///     停止
         /// </summary>
-        public async void Stop()
+        public async Task Stop()
         {
-            await Task.WhenAll(new[]
+            var tasks = new Task[]
             {
                 Task.Run(() => pEncryptedProxyController?.Stop()),
                 Task.Run(() => UsingPorts.Clear()),
                 Task.Run(() => pModeController?.Stop()),
                 Task.Run(() => pNTTController.Stop())
-            });
+            };
+            await Task.WhenAll(tasks);
         }
 
         public static void KillProcessByName(string name)

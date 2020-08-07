@@ -40,26 +40,22 @@ namespace Netch.Forms
 
                 State = State.Starting;
 
-                await Task.Run(Firewall.AddNetchFwRules);
-
                 var server = ServerComboBox.SelectedItem as Models.Server;
                 var mode = ModeComboBox.SelectedItem as Models.Mode;
                 var result = false;
 
-                await Task.Run(() =>
+                try
                 {
-                    try
-                    {
-                        // TODO 完善控制器异常处理
-                        result = _mainController.Start(server, mode);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e is DllNotFoundException || e is FileNotFoundException)
-                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
-                        Netch.Application_OnException(null, new ThreadExceptionEventArgs(e));
-                    }
-                });
+                    // TODO 完善控制器异常处理
+                    result = await _mainController.Start(server, mode);
+                }
+                catch (Exception e)
+                {
+                    if (e is DllNotFoundException || e is FileNotFoundException)
+                        MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
+                    Netch.Application_OnException(null, new ThreadExceptionEventArgs(e));
+                }
+
 
                 if (result)
                 {
@@ -106,7 +102,7 @@ namespace Netch.Forms
             {
                 // 停止
                 State = State.Stopping;
-                _mainController.Stop();
+                await _mainController.Stop();
                 State = State.Stopped;
                 _ = Task.Run(TestServer);
             }

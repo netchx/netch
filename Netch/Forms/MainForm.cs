@@ -250,18 +250,15 @@ namespace Netch.Forms
                 ControlFun();
             }
 
-            Task.Run(() =>
+            for (var i = 0; i < 16; i++)
             {
-                for (var i = 0; i < 16; i++)
-                {
-                    if (State == State.Waiting || State == State.Stopped)
-                        break;
-                    Thread.Sleep(250);
-                }
+                if (State == State.Waiting || State == State.Stopped)
+                    break;
+                Thread.Sleep(250);
+            }
 
-                SaveConfigs();
-                State = State.Terminating;
-            });
+            SaveConfigs();
+            State = State.Terminating;
         }
 
         #region MISC
@@ -467,6 +464,7 @@ namespace Netch.Forms
 
         private void NotifyTip(string text, int timeout = 0, bool info = true)
         {
+            // 会阻塞线程 timeout 秒
             NotifyIcon.ShowBalloonTip(timeout,
                 UpdateChecker.Name,
                 text,

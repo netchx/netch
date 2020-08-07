@@ -105,7 +105,7 @@ namespace Netch.Controllers
         /// <param name="argument">主程序启动参数</param>
         /// <param name="priority">进程优先级</param>
         /// <returns>是否成功启动</returns>
-        protected bool StartInstanceAuto(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        protected bool StartInstanceAuto(string argument, ProcessPriorityClass priority = ProcessPriorityClass.RealTime)
         {
             State = State.Starting;
             try
@@ -183,14 +183,14 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="sender">发送者</param>
         /// <param name="e">数据</param>
-        protected async void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        protected void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             // 程序结束, 接收到 null
             if (e.Data == null)
                 return;
 
             var info = Encoding.GetEncoding(InstanceOutputEncoding).GetBytes(e.Data + Global.EOF);
-            await Write(info);
+            Task.Run(() => Write(info));
             var str = Encoding.UTF8.GetString(info);
             // 检查启动
             if (State == State.Starting)
@@ -220,19 +220,24 @@ namespace Netch.Controllers
             }
         }
 
+        private readonly object _fileLocker = new object();
+
         /// <summary>
         ///     写入日志文件流
         /// </summary>
         /// <param name="info"></param>
         /// <returns>转码后的字符串</returns>
-        private async Task Write(byte[] info)
+        private void Write(byte[] info)
         {
             if (info == null)
                 return;
 
             try
             {
-                await _logFileStream.WriteAsync(info, 0, info.Length);
+                lock (_fileLocker)
+                {
+                    _logFileStream.Write(info, 0, info.Length);
+                }
             }
             catch (Exception e)
             {
