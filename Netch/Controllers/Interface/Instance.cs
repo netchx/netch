@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Netch.Models;
 using Netch.Utils;
 
@@ -105,7 +104,7 @@ namespace Netch.Controllers
         /// <param name="argument">主程序启动参数</param>
         /// <param name="priority">进程优先级</param>
         /// <returns>是否成功启动</returns>
-        protected bool StartInstanceAuto(string argument, ProcessPriorityClass priority = ProcessPriorityClass.RealTime)
+        protected bool StartInstanceAuto(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             State = State.Starting;
             try
@@ -128,14 +127,13 @@ namespace Netch.Controllers
 
                 // 启动程序
                 Instance.Start();
-                Instance.PriorityClass = priority;
+                if (priority != ProcessPriorityClass.Normal)
+                    Instance.PriorityClass = priority;
                 if (!RedirectStd || StartedKeywords.Count == 0) return true;
                 // 启动日志重定向
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
-                _writeStreamTimer = new System.Timers.Timer(300);
                 _writeStreamTimer.Elapsed += SaveStreamTimerEvent;
-                _writeStreamTimer.AutoReset = true;
                 _writeStreamTimer.Enabled = true;
                 // 等待启动
                 for (var i = 0; i < 1000; i++)
@@ -163,7 +161,7 @@ namespace Netch.Controllers
             }
         }
 
-        private static System.Timers.Timer _writeStreamTimer;
+        private static System.Timers.Timer _writeStreamTimer = new System.Timers.Timer(300) {AutoReset = true};
 
         private void OnExited(object sender, EventArgs e)
         {

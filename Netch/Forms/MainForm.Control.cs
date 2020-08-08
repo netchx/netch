@@ -1,10 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Controllers;
 using Netch.Models;
 using Netch.Utils;
 
@@ -79,7 +77,7 @@ namespace Netch.Forms
                     if (Global.Settings.StartedTcping)
                     {
                         // 自动检测延迟
-                        await Task.Run(() =>
+                        _ = Task.Run(() =>
                         {
                             while (State == State.Started)
                             {

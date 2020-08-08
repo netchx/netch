@@ -87,6 +87,28 @@ namespace Netch.Forms
             Hide();
         }
 
+        private async void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            try
+            {
+                await Task.Run(() =>
+                {
+                    SaveConfigs();
+                    InitMode();
+                });
+                NotifyTip(i18N.Translate("Modes have been reload"));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+            finally
+            {
+                Enabled = true;
+            }
+        }
+
         #endregion
 
         #region 订阅
@@ -121,70 +143,80 @@ namespace Netch.Forms
 
             StatusText(i18N.Translate("Starting update subscription"));
             DisableItems(false);
-            if (Global.Settings.UseProxyToUpdateSubscription)
+            try
             {
-                var mode = new Models.Mode
+                if (Global.Settings.UseProxyToUpdateSubscription)
                 {
-                    Remark = "ProxyUpdate",
-                    Type = 5
-                };
-                await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
-            }
+                    var mode = new Models.Mode
+                    {
+                        Remark = "ProxyUpdate",
+                        Type = 5
+                    };
+                    await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                }
 
-            var serverLock = new object();
+                var serverLock = new object();
 
-            await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
-            {
-                try
+                await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
                 {
-                    var request = WebUtil.CreateRequest(item.Link);
-
-                    if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;
-                    if (Global.Settings.UseProxyToUpdateSubscription)
-                        request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
-                    var str = await WebUtil.DownloadStringAsync(request);
-
                     try
                     {
-                        str = ShareLink.URLSafeBase64Decode(str);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                        var request = WebUtil.CreateRequest(item.Link);
 
-                    lock (serverLock)
-                    {
-                        Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
-                        var result = ShareLink.Parse(str);
-                        if (result != null)
+                        if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;
+                        if (Global.Settings.UseProxyToUpdateSubscription)
+                            request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
+
+                        var str = await WebUtil.DownloadStringAsync(request);
+
+                        try
                         {
-                            foreach (var x in result) x.Group = item.Remark;
+                            str = ShareLink.URLSafeBase64Decode(str);
+                        }
+                        catch
+                        {
+                            // ignored
+                        }
 
-                            Global.Settings.Server.AddRange(result);
-                            NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
+                        lock (serverLock)
+                        {
+                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                            var result = ShareLink.Parse(str);
+                            if (result != null)
+                            {
+                                foreach (var x in result) x.Group = item.Remark;
+
+                                Global.Settings.Server.AddRange(result);
+                                NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
+                            }
                         }
                     }
-                }
-                catch (WebException e)
-                {
-                    NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                }
-                catch (Exception e)
-                {
-                    Logging.Error(e.ToString());
-                }
-            })).ToArray());
+                    catch (WebException e)
+                    {
+                        NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
+                    }
+                    catch (Exception e)
+                    {
+                        Logging.Error(e.ToString());
+                    }
+                })).ToArray());
 
-            Configuration.Save();
-            await Task.Run(InitServer);
-            DisableItems(true);
-            StatusText(i18N.Translate("Subscription updated"));
-
-            if (Global.Settings.UseProxyToUpdateSubscription)
+                Configuration.Save();
+                await Task.Run(InitServer);
+                StatusText(i18N.Translate("Subscription updated"));
+            }
+            catch (Exception)
             {
-                await _mainController.Stop();
+                // ignored
+            }
+            finally
+            {
+                if (Global.Settings.UseProxyToUpdateSubscription)
+                {
+                    await _mainController.Stop();
+                }
+
+                DisableItems(true);
             }
         }
 
@@ -199,38 +231,32 @@ namespace Netch.Forms
 
         private async void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await Task.Run(() => DNS.Cache.Clear());
-            StatusText(i18N.Translate("DNS cache cleanup succeeded"));
-        }
-
-        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            SaveConfigs();
-            Task.Run(() =>
+            try
             {
-                InitMode();
-
-                NotifyTip(i18N.Translate("Modes have been reload"));
-                Enabled = true;
-            });
+                await Task.Run(() => DNS.Cache.Clear());
+                StatusText(i18N.Translate("DNS cache cleanup succeeded"));
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
         }
 
         private void updateACLWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateACL(true, sender);
+            UpdateACL(true);
         }
 
         private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateACL(false, sender);
+            UpdateACL(false);
         }
 
-        private async void UpdateACL(bool useProxy, object sender)
+        private async void UpdateACL(bool useProxy)
         {
             void DisableItems(bool v)
             {
-                ((ToolStripMenuItem) sender).Enabled = v;
+                UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled = v;
             }
 
             if (useProxy && ServerComboBox.SelectedIndex == -1)
@@ -241,20 +267,21 @@ namespace Netch.Forms
 
             DisableItems(false);
 
-            if (useProxy)
-            {
-                var mode = new Models.Mode
-                {
-                    Remark = "ProxyUpdate",
-                    Type = 5
-                };
-                State = State.Starting;
-                await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
-            }
 
             NotifyTip(i18N.Translate("Updating in the background"));
             try
             {
+                if (useProxy)
+                {
+                    var mode = new Models.Mode
+                    {
+                        Remark = "ProxyUpdate",
+                        Type = 5
+                    };
+                    State = State.Starting;
+                    await _mainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                }
+
                 var req = WebUtil.CreateRequest(Global.Settings.ACL);
                 if (useProxy)
                     req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
@@ -283,15 +310,15 @@ namespace Netch.Forms
         {
             Enabled = false;
             StatusText(i18N.Translate("Uninstalling NF Service"));
-
-            var result = false;
             try
             {
-                await Task.Run(() => result = NFController.UninstallDriver());
-                if (result)
+                await Task.Run(() =>
                 {
-                    StatusText(i18N.Translate("Service has been uninstalled"));
-                }
+                    if (NFController.UninstallDriver())
+                    {
+                        StatusText(i18N.Translate("Service has been uninstalled"));
+                    }
+                });
             }
             finally
             {
@@ -303,21 +330,24 @@ namespace Netch.Forms
         {
             StatusText(i18N.Translate("Reinstalling TUN/TAP driver"));
             Enabled = false;
-            await Task.Run(() =>
+            try
             {
-                try
+                await Task.Run(() =>
                 {
                     Configuration.deltapall();
                     Configuration.addtap();
-                    StatusText(i18N.Translate("Reinstall TUN/TAP driver successfully"));
-                }
-                catch
-                {
-                    NotifyTip(i18N.Translate("Reinstall TUN/TAP driver failed"), info: false);
-                }
-            });
-            State = State.Waiting;
-            Enabled = true;
+                });
+                StatusText(i18N.Translate("Reinstall TUN/TAP driver successfully"));
+            }
+            catch
+            {
+                NotifyTip(i18N.Translate("Reinstall TUN/TAP driver failed"), info: false);
+            }
+            finally
+            {
+                State = State.Waiting;
+                Enabled = true;
+            }
         }
 
         #endregion
