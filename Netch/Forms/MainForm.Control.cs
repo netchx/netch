@@ -40,22 +40,8 @@ namespace Netch.Forms
 
                 var server = ServerComboBox.SelectedItem as Models.Server;
                 var mode = ModeComboBox.SelectedItem as Models.Mode;
-                var result = false;
 
-                try
-                {
-                    // TODO 完善控制器异常处理
-                    result = await _mainController.Start(server, mode);
-                }
-                catch (Exception e)
-                {
-                    if (e is DllNotFoundException || e is FileNotFoundException)
-                        MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: this);
-                    Netch.Application_OnException(null, new ThreadExceptionEventArgs(e));
-                }
-
-
-                if (result)
+                if (await _mainController.Start(server, mode))
                 {
                     State = State.Started;
                     _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode, ref _mainController); });

@@ -11,15 +11,16 @@ namespace Netch.Forms.Mode
     {
         //用于判断当前窗口是否为编辑模式
         private bool EditMode;
+
         //被编辑模式坐标
         private Models.Mode EditMode_Old;
+
         /// <summary>
-		///		编辑模式
-		/// </summary>
-		/// <param name="mode">模式</param>
+        ///		编辑模式
+        /// </summary>
+        /// <param name="mode">模式</param>
         public Process(Models.Mode mode)
         {
-
             InitializeComponent();
 
             CheckForIllegalCrossThreadCalls = false;
@@ -38,8 +39,8 @@ namespace Netch.Forms.Mode
 
             FilenameTextBox.Text = mode.FileName;
             RemarkTextBox.Text = mode.Remark;
-
         }
+
         public Process()
         {
             InitializeComponent();
@@ -51,10 +52,10 @@ namespace Netch.Forms.Mode
         }
 
         /// <summary>
-		///		扫描目录
-		/// </summary>
-		/// <param name="DirName">路径</param>
-		public void ScanDirectory(string DirName)
+        ///		扫描目录
+        /// </summary>
+        /// <param name="DirName">路径</param>
+        public void ScanDirectory(string DirName)
         {
             try
             {
@@ -75,16 +76,24 @@ namespace Netch.Forms.Mode
             while (DirStack.Count > 0)
             {
                 var DirInfo = new DirectoryInfo(DirStack.Pop());
-                foreach (var DirChildInfo in DirInfo.GetDirectories())
+                try
                 {
-                    DirStack.Push(DirChildInfo.FullName);
-                }
-                foreach (var FileChildInfo in DirInfo.GetFiles())
-                {
-                    if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
+                    foreach (var DirChildInfo in DirInfo.GetDirectories())
                     {
-                        RuleListBox.Items.Add(FileChildInfo.Name);
+                        DirStack.Push(DirChildInfo.FullName);
                     }
+
+                    foreach (var FileChildInfo in DirInfo.GetFiles())
+                    {
+                        if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
+                        {
+                            RuleListBox.Items.Add(FileChildInfo.Name);
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
                 }
             }
         }
@@ -136,10 +145,11 @@ namespace Netch.Forms.Mode
             strip.Items.Add(i18N.Translate("Delete"));
             if (e.Button == MouseButtons.Right)
             {
-                strip.Show(RuleListBox, e.Location);//鼠标右键按下弹出菜单
+                strip.Show(RuleListBox, e.Location); //鼠标右键按下弹出菜单
                 strip.MouseClick += deleteRule_Click;
             }
         }
+
         void deleteRule_Click(object sender, EventArgs e)
         {
             if (RuleListBox.SelectedIndex != -1)
@@ -249,7 +259,7 @@ namespace Netch.Forms.Mode
                 else
                 {
                     Global.Settings.ModeFileNameType = 2;
-                    FilenameTextBox.Text = ((long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
+                    FilenameTextBox.Text = ((long) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
                 }
 
                 Configuration.Save();
@@ -261,6 +271,7 @@ namespace Netch.Forms.Mode
                         MessageBoxX.Show(i18N.Translate("Please enter a mode filename"));
                         return;
                     }
+
                     var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
 
                     // 如果文件已存在，返回

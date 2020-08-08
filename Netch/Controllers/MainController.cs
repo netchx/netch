@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -133,7 +134,15 @@ namespace Netch.Controllers
                 }
 
                 Global.MainForm.StatusText(i18N.Translate("Starting ", pEncryptedProxyController.Name));
-                result = await Task.Run(() => pEncryptedProxyController.Start(server, mode));
+                try
+                {
+                    result = await Task.Run(() => pEncryptedProxyController.Start(server, mode));
+                }
+                catch (Exception e)
+                {
+                    Logging.Error("加密代理启动失败未处理异常: " + e);
+                    result = false;
+                }
             }
 
             if (result)
@@ -162,7 +171,18 @@ namespace Netch.Controllers
                 if (pModeController != null)
                 {
                     Global.MainForm.StatusText(i18N.Translate("Starting ", pModeController.Name));
-                    result = await Task.Run(() => pModeController.Start(server, mode));
+                    try
+                    {
+                        result = await Task.Run(() => pModeController.Start(server, mode));
+                    }
+                    catch (Exception e)
+                    {
+                        if (e is DllNotFoundException || e is FileNotFoundException)
+                            MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: Global.MainForm);
+                        else
+                            Logging.Error("模式启动失败未处理异常" + e);
+                        result = false;
+                    }
                 }
 
                 if (result)
