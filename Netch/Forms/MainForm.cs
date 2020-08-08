@@ -237,8 +237,7 @@ namespace Netch.Forms
 
                 Visible = true;
                 ShowInTaskbar = true; // 显示在系统任务栏 
-                WindowState = FormWindowState.Normal; // 还原窗体 
-                NotifyIcon.Visible = true; // 托盘图标隐藏 
+                WindowState = FormWindowState.Normal; // 还原窗体
                 return;
             }
 
@@ -455,8 +454,7 @@ namespace Netch.Forms
             {
                 Visible = true;
                 ShowInTaskbar = true; //显示在系统任务栏 
-                WindowState = FormWindowState.Normal; //还原窗体 
-                NotifyIcon.Visible = true; //托盘图标隐藏 
+                WindowState = FormWindowState.Normal; //还原窗体
             }
 
             Activate();

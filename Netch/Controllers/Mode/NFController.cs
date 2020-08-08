@@ -214,35 +214,6 @@ namespace Netch.Controllers
             return true;
         }
 
-        // private new void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-        // {
-        //     if (!Write(e.Data)) return;
-        //     if (State == State.Starting)
-        //     {
-        //         if (Instance.HasExited)
-        //             State = State.Stopped;
-        //         else if (e.Data.Contains("Started"))
-        //             State = State.Started;
-        //         else if (e.Data.Contains("Failed") || e.Data.Contains("Unable")) State = State.Stopped;
-        //     }
-        //     else if (State == State.Started)
-        //     {
-        //         if (e.Data.StartsWith("[APP][Bandwidth]"))
-        //         {
-        //             var splited = e.Data.Replace("[APP][Bandwidth]", "").Trim().Split(',');
-        //             if (splited.Length == 2)
-        //             {
-        //                 var uploadSplited = splited[0].Split(':');
-        //                 var downloadSplited = splited[1].Split(':');
-        //
-        //                 if (uploadSplited.Length == 2 && downloadSplited.Length == 2)
-        //                     if (long.TryParse(uploadSplited[1], out var upload) && long.TryParse(downloadSplited[1], out var download))
-        //                         Task.Run(() => OnBandwidthUpdated(upload, download));
-        //             }
-        //         }
-        //     }
-        // }
-
         public override void Stop()
         {
             Task.Run(() =>
@@ -253,17 +224,5 @@ namespace Netch.Controllers
             });
             StopInstance();
         }
-
-        /// <summary>
-        ///     流量变动事件
-        /// </summary>
-        public event BandwidthUpdateHandler OnBandwidthUpdated;
-
-        /// <summary>
-        ///     流量变动处理器
-        /// </summary>
-        /// <param name="upload">上传</param>
-        /// <param name="download">下载</param>
-        public delegate void BandwidthUpdateHandler(long upload, long download);
     }
 }

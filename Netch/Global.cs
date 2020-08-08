@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Windows.Forms;
 
 namespace Netch
 {
@@ -12,8 +13,8 @@ namespace Netch
         ///     换行
         /// </summary>
         public const string EOF = "\r\n";
-        
-        public static readonly string NetchDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd();
+
+        public static readonly string NetchDir = Application.StartupPath;
         
         /// <summary>
         ///     主窗体的静态实例

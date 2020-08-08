@@ -4,7 +4,7 @@ using Netch.Models;
 
 namespace Netch.Utils
 {
-    public static partial class Logging
+    public static class Logging
     {
         public const string LogFile = "logging\\application.log";
 
