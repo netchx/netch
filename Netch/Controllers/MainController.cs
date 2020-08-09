@@ -140,7 +140,7 @@ namespace Netch.Controllers
                 }
                 catch (Exception e)
                 {
-                    Logging.Error("加密代理启动失败未处理异常: " + e);
+                    Logging.Error("加密代理启动失败，未处理异常: " + e);
                     result = false;
                 }
             }
@@ -180,7 +180,7 @@ namespace Netch.Controllers
                         if (e is DllNotFoundException || e is FileNotFoundException)
                             MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: Global.MainForm);
                         else
-                            Logging.Error("模式启动失败未处理异常" + e);
+                            Logging.Error("模式启动失败，未处理异常: " + e);
                         result = false;
                     }
                 }
@@ -222,7 +222,14 @@ namespace Netch.Controllers
             if (!result)
             {
                 Logging.Error("主控制器启动失败");
-                await Stop();
+                try
+                {
+                    await Stop();
+                }
+                catch
+                {
+                    // ignored
+                }
             }
 
             return result;

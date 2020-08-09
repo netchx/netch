@@ -17,22 +17,10 @@ namespace Netch
         public static extern bool CreateRoute(string address, int cidr, string gateway, int index, int metric = 0);
 
         /// <summary>
-        ///		修改路由规则
-        /// </summary>
-        /// <param name="address">目标地址</param>
-        /// <param name="cidr">CIDR</param>
-        /// <param name="gateway">网关地址</param>
-        /// <param name="index">适配器索引</param>
-        /// <param name="metric">跃点数</param>
-        /// <returns>是否成功</returns>
-        [DllImport("bin\\NetchCore", CallingConvention = CallingConvention.Cdecl, EntryPoint = "ChangeRoute")]
-        public static extern bool ChangeRoute(string address, int cidr, string gateway, int index, int metric = 0);
-
-        /// <summary>
         ///		删除路由规则
         /// </summary>
         /// <param name="address">目标地址</param>
-        /// <param name="netmask">掩码地址</param>
+        /// <param name="cidr">掩码地址</param>
         /// <param name="gateway">网关地址</param>
         /// <param name="index">适配器索引</param>
         /// <param name="metric">跃点数</param>

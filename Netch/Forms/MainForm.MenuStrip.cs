@@ -358,11 +358,6 @@ namespace Netch.Forms
             Exit(true);
         }
 
-        private void RelyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Utils.Utils.Open("https://mega.nz/file/9OQ1EazJ#0pjJ3xt57AVLr29vYEEv15GSACtXVQOGlEOPpi_2Ico");
-        }
-
         private void VersionLabel_Click(object sender, EventArgs e)
         {
             Utils.Utils.Open($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");

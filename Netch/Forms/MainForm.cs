@@ -208,7 +208,6 @@ namespace Netch.Forms
             AboutToolStripButton.Text = i18N.Translate("About");
             // VersionLabel.Text = i18N.Translate("xxx");
             exitToolStripMenuItem.Text = i18N.Translate("Exit");
-            RelyToolStripMenuItem.Text = i18N.Translate("Unable to start? Click me to download");
             ConfigurationGroupBox.Text = i18N.Translate("Configuration");
             ProfileLabel.Text = i18N.Translate("Profile");
             ModeLabel.Text = i18N.Translate("Mode");
