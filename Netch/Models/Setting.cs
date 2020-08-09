@@ -104,12 +104,6 @@ namespace Netch.Models
         public int RequestTimeout = 10000;
 
         /// <summary>
-        ///		使用何种模式文件名
-        ///		0 为自定义文件名，1 为使用和备注一致的文件名，2 为使用时间数据作为文件名
-        /// </summary>
-        public int ModeFileNameType = 1;
-
-        /// <summary>
         ///		HTTP 本地端口
         /// </summary>
         public int HTTPLocalPort = 2802;

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Netch.Utils;
@@ -31,8 +34,6 @@ namespace Netch.Forms.Mode
             mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
 
             EditMode = true;
-            StaySameButton.Enabled = false;
-            TimeDataButton.Enabled = false;
             FilenameTextBox.Enabled = false;
             FilenameLabel.Enabled = false;
             UseCustomFilenameBox.Enabled = false;
@@ -105,30 +106,12 @@ namespace Netch.Forms.Mode
             RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
             FilenameLabel.Text = i18N.Translate(FilenameLabel.Text);
             UseCustomFilenameBox.Text = i18N.Translate(UseCustomFilenameBox.Text);
-            StaySameButton.Text = i18N.Translate(StaySameButton.Text);
-            TimeDataButton.Text = i18N.Translate(TimeDataButton.Text);
             AddButton.Text = i18N.Translate(AddButton.Text);
             ScanButton.Text = i18N.Translate(ScanButton.Text);
             ControlButton.Text = i18N.Translate(ControlButton.Text);
 
-            if (Global.Settings.ModeFileNameType == 0)
-            {
-                UseCustomFilenameBox.Checked = true;
-                StaySameButton.Enabled = false;
-                TimeDataButton.Enabled = false;
-            }
-            else if (Global.Settings.ModeFileNameType == 1)
-            {
-                FilenameTextBox.Enabled = false;
-                FilenameLabel.Enabled = false;
-                StaySameButton.Checked = true;
-            }
-            else
-            {
-                FilenameTextBox.Enabled = false;
-                FilenameLabel.Enabled = false;
-                TimeDataButton.Checked = true;
-            }
+            FilenameTextBox.Enabled = false;
+            FilenameLabel.Enabled = false;
         }
 
         private void ModeForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -141,44 +124,49 @@ namespace Netch.Forms.Mode
         /// </summary>
         private void RuleListBox_MouseUp(object sender, MouseEventArgs e)
         {
-            var strip = new ContextMenuStrip();
-            strip.Items.Add(i18N.Translate("Delete"));
+            RuleListBox.SelectedIndex = RuleListBox.IndexFromPoint(e.X, e.Y);
+            if (RuleListBox.SelectedIndex == -1)
+                return;
             if (e.Button == MouseButtons.Right)
             {
+                var strip = new ContextMenuStrip();
+                strip.Items.Add(i18N.Translate("Delete"));
+                strip.Items[0].Click += deleteRule_Click;
                 strip.Show(RuleListBox, e.Location); //鼠标右键按下弹出菜单
-                strip.MouseClick += deleteRule_Click;
             }
         }
 
         void deleteRule_Click(object sender, EventArgs e)
         {
-            if (RuleListBox.SelectedIndex != -1)
-            {
-                RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
-            }
+            if (RuleListBox.SelectedIndex == -1) return;
+            RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
         }
 
-        private void AddButton_Click(object sender, EventArgs e)
+        private async void AddButton_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
+            await Task.Run(() =>
             {
-                var process = ProcessNameTextBox.Text;
-                if (!process.EndsWith(".exe"))
+                if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
                 {
-                    process += ".exe";
-                }
+                    var process = ProcessNameTextBox.Text;
+                    if (!process.EndsWith(".exe"))
+                    {
+                        process += ".exe";
+                    }
 
-                if (!RuleListBox.Items.Contains(process))
+                    if (!RuleListBox.Items.Contains(process))
+                    {
+                        RuleListBox.Items.Add(process);
+                    }
+
+                    RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
+                    ProcessNameTextBox.Text = string.Empty;
+                }
+                else
                 {
-                    RuleListBox.Items.Add(process);
+                    MessageBoxX.Show(i18N.Translate("Please enter an process name (xxx.exe)"));
                 }
-
-                ProcessNameTextBox.Text = string.Empty;
-            }
-            else
-            {
-                MessageBoxX.Show(i18N.Translate("Please enter an process name (xxx.exe)"));
-            }
+            });
         }
 
         private void ScanButton_Click(object sender, EventArgs e)
@@ -204,7 +192,6 @@ namespace Netch.Forms.Mode
             if (EditMode)
             {
                 // 编辑模式
-
                 if (RuleListBox.Items.Count != 0)
                 {
                     var mode = new Models.Mode
@@ -244,38 +231,18 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                // 自定义文件名
-                if (UseCustomFilenameBox.Checked)
-                {
-                    Global.Settings.ModeFileNameType = 0;
-                }
-                // 使用和备注一致的文件名
-                else if (StaySameButton.Checked)
-                {
-                    Global.Settings.ModeFileNameType = 1;
-                    FilenameTextBox.Text = RemarkTextBox.Text;
-                }
-                // 使用时间数据作为文件名
-                else
-                {
-                    Global.Settings.ModeFileNameType = 2;
-                    FilenameTextBox.Text = ((long) (DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds).ToString();
-                }
-
                 Configuration.Save();
-
                 if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
                 {
-                    if (Global.Settings.ModeFileNameType == 0 && string.IsNullOrWhiteSpace(FilenameTextBox.Text))
+                    if (string.IsNullOrWhiteSpace(FilenameTextBox.Text))
                     {
                         MessageBoxX.Show(i18N.Translate("Please enter a mode filename"));
                         return;
                     }
 
-                    var ModeFilename = Path.Combine("mode", FilenameTextBox.Text);
-
+                    var modeFilename = Path.Combine("mode", FilenameTextBox.Text);
                     // 如果文件已存在，返回
-                    if (File.Exists(ModeFilename + ".txt"))
+                    if (File.Exists(modeFilename + ".txt"))
                     {
                         MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
                         return;
@@ -306,7 +273,7 @@ namespace Netch.Forms.Mode
                             Directory.CreateDirectory("mode");
                         }
 
-                        File.WriteAllText(ModeFilename + ".txt", text);
+                        File.WriteAllText(modeFilename + ".txt", text);
 
                         MessageBoxX.Show(i18N.Translate("Mode added successfully"));
 
@@ -325,22 +292,27 @@ namespace Netch.Forms.Mode
             }
         }
 
-        private void UseCustomFileNameBox_CheckedChanged(object sender, EventArgs e)
+        private async void RemarkTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (UseCustomFilenameBox.Checked)
+            await Task.Run(() =>
             {
-                StaySameButton.Enabled = false;
-                TimeDataButton.Enabled = false;
-                FilenameTextBox.Enabled = true;
-                FilenameLabel.Enabled = true;
-            }
-            else
-            {
-                StaySameButton.Enabled = true;
-                TimeDataButton.Enabled = true;
-                FilenameTextBox.Enabled = false;
-                FilenameLabel.Enabled = false;
-            }
+                if (!UseCustomFilenameBox.Checked)
+                {
+                    var invalidFileChars = Path.GetInvalidFileNameChars();
+                    var fileName = new StringBuilder(RemarkTextBox.Text);
+                    foreach (var c in invalidFileChars)
+                    {
+                        fileName.Replace(c, '_');
+                    }
+
+                    FilenameTextBox.Text = fileName.ToString();
+                }
+            });
+        }
+
+        private void UseCustomFilenameBox_CheckedChanged(object sender, EventArgs e)
+        {
+            FilenameTextBox.Enabled = FilenameLabel.Enabled = ((CheckBox) sender).Checked;
         }
     }
 }

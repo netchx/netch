@@ -1,4 +1,7 @@
-﻿namespace Netch.Forms.Mode
+﻿using System;
+using System.Windows.Forms;
+
+namespace Netch.Forms.Mode
 {
     partial class Process
     {
@@ -31,8 +34,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Process));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.UseCustomFilenameBox = new System.Windows.Forms.CheckBox();
-            this.TimeDataButton = new System.Windows.Forms.RadioButton();
-            this.StaySameButton = new System.Windows.Forms.RadioButton();
             this.FilenameLabel = new System.Windows.Forms.Label();
             this.FilenameTextBox = new System.Windows.Forms.TextBox();
             this.ScanButton = new System.Windows.Forms.Button();
@@ -50,8 +51,6 @@
             // ConfigurationGroupBox
             // 
             this.ConfigurationGroupBox.Controls.Add(this.UseCustomFilenameBox);
-            this.ConfigurationGroupBox.Controls.Add(this.TimeDataButton);
-            this.ConfigurationGroupBox.Controls.Add(this.StaySameButton);
             this.ConfigurationGroupBox.Controls.Add(this.FilenameLabel);
             this.ConfigurationGroupBox.Controls.Add(this.FilenameTextBox);
             this.ConfigurationGroupBox.Controls.Add(this.ScanButton);
@@ -69,35 +68,13 @@
             // UseCustomFilenameBox
             // 
             this.UseCustomFilenameBox.AutoSize = true;
-            this.UseCustomFilenameBox.Location = new System.Drawing.Point(84, 82);
+            this.UseCustomFilenameBox.Location = new System.Drawing.Point(84, 76);
             this.UseCustomFilenameBox.Name = "UseCustomFilenameBox";
             this.UseCustomFilenameBox.Size = new System.Drawing.Size(152, 21);
             this.UseCustomFilenameBox.TabIndex = 9;
             this.UseCustomFilenameBox.Text = "Use Custom Filename";
             this.UseCustomFilenameBox.UseVisualStyleBackColor = true;
-            this.UseCustomFilenameBox.CheckedChanged += new System.EventHandler(this.UseCustomFileNameBox_CheckedChanged);
-            // 
-            // TimeDataButton
-            // 
-            this.TimeDataButton.AutoSize = true;
-            this.TimeDataButton.Location = new System.Drawing.Point(197, 106);
-            this.TimeDataButton.Name = "TimeDataButton";
-            this.TimeDataButton.Size = new System.Drawing.Size(84, 21);
-            this.TimeDataButton.TabIndex = 8;
-            this.TimeDataButton.TabStop = true;
-            this.TimeDataButton.Text = "Time data";
-            this.TimeDataButton.UseVisualStyleBackColor = true;
-            // 
-            // StaySameButton
-            // 
-            this.StaySameButton.AutoSize = true;
-            this.StaySameButton.Location = new System.Drawing.Point(84, 106);
-            this.StaySameButton.Name = "StaySameButton";
-            this.StaySameButton.Size = new System.Drawing.Size(107, 21);
-            this.StaySameButton.TabIndex = 7;
-            this.StaySameButton.TabStop = true;
-            this.StaySameButton.Text = "Stay the same";
-            this.StaySameButton.UseVisualStyleBackColor = true;
+            this.UseCustomFilenameBox.CheckedChanged += new System.EventHandler(this.UseCustomFilenameBox_CheckedChanged);
             // 
             // FilenameLabel
             // 
@@ -156,9 +133,9 @@
             // 
             this.RuleListBox.FormattingEnabled = true;
             this.RuleListBox.ItemHeight = 17;
-            this.RuleListBox.Location = new System.Drawing.Point(6, 134);
+            this.RuleListBox.Location = new System.Drawing.Point(6, 100);
             this.RuleListBox.Name = "RuleListBox";
-            this.RuleListBox.Size = new System.Drawing.Size(328, 123);
+            this.RuleListBox.Size = new System.Drawing.Size(328, 157);
             this.RuleListBox.TabIndex = 2;
             this.RuleListBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.RuleListBox_MouseUp);
             // 
@@ -168,6 +145,7 @@
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(250, 23);
             this.RemarkTextBox.TabIndex = 1;
+            this.RemarkTextBox.TextChanged += new System.EventHandler(this.RemarkTextBox_TextChanged);
             // 
             // RemarkLabel
             // 
@@ -195,9 +173,9 @@
             this.ClientSize = new System.Drawing.Size(364, 397);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.ConfigurationGroupBox);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "Process";
@@ -210,7 +188,6 @@
             this.ProcessGroupBox.ResumeLayout(false);
             this.ProcessGroupBox.PerformLayout();
             this.ResumeLayout(false);
-
         }
 
         #endregion
@@ -226,8 +203,6 @@
         private System.Windows.Forms.Button ControlButton;
         private System.Windows.Forms.Label FilenameLabel;
         private System.Windows.Forms.TextBox FilenameTextBox;
-        private System.Windows.Forms.RadioButton StaySameButton;
-        private System.Windows.Forms.RadioButton TimeDataButton;
         private System.Windows.Forms.CheckBox UseCustomFilenameBox;
     }
 }

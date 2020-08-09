@@ -149,7 +149,7 @@ namespace Netch.Forms
                 // 如果勾选了关闭时退出，自动点击退出按钮
                 else
                 {
-                    Exit(true);
+                    Exit();
                 }
             }
         }
@@ -234,9 +234,7 @@ namespace Netch.Forms
             {
                 MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
-                Visible = true;
-                ShowInTaskbar = true; // 显示在系统任务栏 
-                WindowState = FormWindowState.Normal; // 还原窗体
+                NotifyIcon_MouseDoubleClick(null, null);
                 return;
             }
 
@@ -246,13 +244,6 @@ namespace Netch.Forms
             {
                 // 已启动
                 ControlFun();
-            }
-
-            for (var i = 0; i < 16; i++)
-            {
-                if (State == State.Waiting || State == State.Stopped)
-                    break;
-                Thread.Sleep(250);
             }
 
             SaveConfigs();
@@ -320,19 +311,21 @@ namespace Netch.Forms
             }
         }
 
-        private void SpeedPictureBox_Click(object sender, EventArgs e)
+        private async void SpeedPictureBox_Click(object sender, EventArgs e)
         {
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
 
-            Task.Run(() =>
+            try
             {
-                TestServer();
-
+                await Task.Run(TestServer);
+            }
+            finally
+            {
                 Enabled = true;
                 StatusText(i18N.Translate("Test done"));
                 Refresh();
-            });
+            }
         }
 
         private void EditModePictureBox_Click(object sender, EventArgs e)

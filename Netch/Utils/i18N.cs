@@ -11,7 +11,6 @@ namespace Netch.Utils
 {
     public static class i18N
     {
-
         /// <summary>
         ///     数据
         /// </summary>
@@ -49,6 +48,12 @@ namespace Netch.Utils
             {
                 // 从外置文件中加载语言
                 text = File.ReadAllText($"i18n\\{langCode}");
+            }
+            else
+            {
+                Logging.Error($"无法找到语言 {langCode}, 使用系统语言");
+                // 加载系统语言
+                LangCode = CultureInfo.CurrentCulture.Name;
             }
 
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
