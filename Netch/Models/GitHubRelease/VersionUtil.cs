@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Netch.Models.GitHubRelease
@@ -20,9 +19,7 @@ namespace Netch.Models.GitHubRelease
 
         private static bool IsVersionString(string str)
         {
-            if (Global.Settings.CheckBetaUpdate)
-                str = str.Split('-')[0];
-            return Version.TryParse(str, out _);
+            return SuffixVersion.TryParse(str, out _);
         }
 
         /// <returns> =0:versions are equal</returns>
@@ -30,28 +27,9 @@ namespace Netch.Models.GitHubRelease
         /// <returns> &lt;0:version2 is greater</returns>
         public static int CompareVersion(string v1, string v2)
         {
-            var version1 = ToVersion(v1);
-            var version2 = ToVersion(v2);
-            var res = version1.CompareTo(version2);
-            return res;
-        }
-
-        private static Version ToVersion(string versionStr)
-        {
-            var v = versionStr.Split('-');
-            var version = Version.Parse(v[0]);
-            if (v.Length == 1)
-                return version;
-            var beta = v[1];
-
-            var result = string.Empty;
-            foreach (var c in beta)
-            {
-                if (int.TryParse(c.ToString(), out var n))
-                    result += n;
-            }
-
-            return new Version(version.Major, version.Minor, version.Build, int.Parse(result));
+            var version1 = SuffixVersion.Parse(v1);
+            var version2 = SuffixVersion.Parse(v2);
+            return version1.CompareTo(version2);
         }
     }
 }
