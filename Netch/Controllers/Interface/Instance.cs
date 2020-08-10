@@ -92,8 +92,7 @@ namespace Netch.Controllers
                     RedirectStandardOutput = RedirectStd,
                     UseShellExecute = !RedirectStd,
                     WindowStyle = ProcessWindowStyle.Hidden
-                },
-                EnableRaisingEvents = true
+                }
             };
         }
 
@@ -111,11 +110,12 @@ namespace Netch.Controllers
             {
                 // 初始化程序
                 InitInstance(argument);
+                Instance.EnableRaisingEvents = true;
                 if (RedirectStd)
                 {
                     // 清理日志
                     _logPath ??= Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
-                    if (_logFileStream == null && File.Exists(_logPath))
+                    if (File.Exists(_logPath))
                         File.Delete(_logPath);
                     _logFileStream = new FileStream(_logPath, FileMode.Create, FileAccess.Write);
 
@@ -239,7 +239,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Logging.Error($"写入 {Name} 日志错误：\n" + e.Message);
+                Logging.Warning($"写入 {Name} 日志错误：\n" + e.Message);
             }
         }
     }
