@@ -124,11 +124,13 @@ namespace Netch.Forms
                 {
                     NatTypeStatusLabel.Text = String.Format("NAT{0}{1}", i18N.Translate(": "), text);
                 }
-
-                if (Enum.TryParse(text, false, out STUN_Client.NatType natType))
+                if (int.TryParse(text, out int natType))
                 {
-                    NatTypeStatusLightLabel.Visible = true;
-                    UpdateNatTypeLight(natType);
+                    if (natType > 0 && natType < 5)
+                    {
+                        NatTypeStatusLightLabel.Visible = true;
+                        UpdateNatTypeLight(natType);
+                    }
                 }
             }
             else
@@ -160,6 +162,35 @@ namespace Netch.Forms
                 case STUN_Client.NatType.OpenInternet:
                 case STUN_Client.NatType.FullCone:
                     c = Color.LimeGreen;
+                    break;
+                default:
+                    c = Color.Black;
+                    break;
+            }
+
+            NatTypeStatusLightLabel.ForeColor = c;
+        }
+
+        /// <summary>
+        ///     更新 NAT指示灯颜色
+        /// </summary>
+        /// <param name="natType"></param>
+        private void UpdateNatTypeLight(int natType)
+        {
+            Color c;
+            switch (natType)
+            {
+                case 1:
+                    c = Color.LimeGreen;
+                    break;
+                case 2:
+                    c = Color.Yellow;
+                    break;
+                case 3:
+                    c = Color.Red;
+                    break;
+                case 4:
+                    c = Color.Black;
                     break;
                 default:
                     c = Color.Black;

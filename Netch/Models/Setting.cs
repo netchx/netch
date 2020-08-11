@@ -166,7 +166,7 @@ namespace Netch.Models
         /// <summary>
         ///     STUN测试服务器
         /// </summary>
-        public string STUN_Server = "stun.stunprotocol.org";
+        public string STUN_Server = "stun.syncthing.net";
 
         /// <summary>
         ///     STUN测试服务器
