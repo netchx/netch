@@ -40,7 +40,13 @@
     "Add [Trojan] Server": "添加 [Trojan] 服务器",
     "Netch is now minimized to the notification bar, double click this icon to restore.": "Netch 已最小化至通知栏，双击此图标恢复窗口。",
     "New version available": "发现新版本",
+    "Already latest version": "已经是最新版本",
+    "New version found failed": "寻找新版本失败",
     "Mode": "模式",
+    "Help": "帮助",
+    "Check for updates": "检查更新",
+    "Download and install now?": "立即下载并安装？",
+    "Start downloading new version": "开始下载新版本",
     "Create Process Mode": "创建进程模式",
     "Edit Process Mode": "修改进程模式",
 

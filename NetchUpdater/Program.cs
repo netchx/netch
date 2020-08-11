@@ -121,6 +121,7 @@ namespace NetchUpdater
                         }
                     }
                 }
+                Thread.Sleep(500);
 
                 Console.WriteLine("Extract Zip");
                 ExtractToDirectory(zipFile, netchDir, true);
@@ -133,13 +134,11 @@ namespace NetchUpdater
             }
             catch (Exception e)
             {
-                if(e is InvalidDataException)
+                if (e is InvalidDataException)
                     Console.WriteLine("Zip file Broken");
                 Console.WriteLine(e.ToString());
-            }
-            finally
-            {
-                Thread.Sleep(1000);
+                Console.WriteLine("Press any key to exit...");
+                Console.Read();
             }
         }
 

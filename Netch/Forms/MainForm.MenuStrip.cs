@@ -231,13 +231,13 @@ namespace Netch.Forms
                 void OnNewVersionNotFound(object o, EventArgs args)
                 {
                     _updater.NewVersionNotFound -= OnNewVersionNotFound;
-                    NotifyTip(i18N.Translate("Already Latest version"));
+                    NotifyTip(i18N.Translate("Already latest version"));
                 }
 
                 void OnNewVersionFoundFailed(object o, EventArgs args)
                 {
                     _updater.NewVersionFoundFailed -= OnNewVersionFoundFailed;
-                    NotifyTip(i18N.Translate("New Version Found Failed"), info: false);
+                    NotifyTip(i18N.Translate("New version found failed"), info: false);
                 }
 
                 _updater.NewVersionNotFound += OnNewVersionNotFound;

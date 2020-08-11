@@ -42,9 +42,9 @@ namespace Netch.Forms
 
         private async void NewVersionLabel_Click(object sender, EventArgs e)
         {
-            if (MessageBoxX.Show("Download and install now?", confirm: true) != DialogResult.OK)
+            if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
                 return;
-            NotifyTip("Start downloading new version");
+            NotifyTip(i18N.Translate("Start downloading new version"));
             var fileName = $"Netch{_updater.LatestVersionNumber}.zip";
             var fileFullPath = Path.Combine(Global.NetchDir, "data", fileName);
             if (File.Exists(fileFullPath))
