@@ -67,12 +67,14 @@ namespace Netch
                 if (!mutex.WaitOne(0, false))
                 {
                     OnlyInstance.Send(OnlyInstance.Commands.Show);
+                    Logging.Info("唤起单实例");
 
                     // 退出进程
                     Environment.Exit(1);
                 }
 
                 Task.Run(OnlyInstance.Server);
+                Logging.Info("启动单实例");
 
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

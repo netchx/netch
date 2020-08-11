@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -101,6 +102,20 @@ namespace Netch.Utils
             catch
             {
                 return "";
+            }
+        }
+
+        public static bool IsZipValid(string path)
+        {
+            try
+            {
+                using var zipFile = ZipFile.OpenRead(path);
+                _ = zipFile.Entries;
+                return true;
+            }
+            catch (InvalidDataException)
+            {
+                return false;
             }
         }
     }

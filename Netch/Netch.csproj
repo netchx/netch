@@ -68,9 +68,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetchLib\NetchLib.csproj" />
+      <ProjectReference Include="..\NetchUpdater\NetchUpdater.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="System.IO.Compression" />
         <Reference Include="System.Management" />
         <Reference Include="System.Net.Http" />
         <Reference Include="System.ServiceProcess" />

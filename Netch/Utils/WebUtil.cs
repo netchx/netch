@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -8,7 +9,8 @@ namespace Netch.Utils
 {
     public class WebUtil
     {
-        public const string DefaultUserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36";
+        public const string DefaultUserAgent =
+            @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.70 Safari/537.36";
 
         private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 
@@ -46,6 +48,24 @@ namespace Netch.Utils
         /// <param name="req"></param>
         /// <returns></returns>
         /// <exception cref="WebException"></exception>
+        public static async Task<List<byte>> DownloadBytesAsync(HttpWebRequest req)
+        {
+            var content = new List<byte>();
+            var buffer = new byte[1024];
+            var response = (HttpWebResponse) await req.GetResponseAsync();
+            using (var responseStream = response.GetResponseStream())
+            {
+                await responseStream.ReadAsync(buffer, 0, buffer.Length);
+                content.AddRange(buffer);
+            }
+
+            response.Close();
+            return content;
+        }
+
+        /// <param name="req"></param>
+        /// <returns></returns>
+        /// <exception cref="WebException"></exception>
         public static string DownloadString(HttpWebRequest req)
         {
             string content;
@@ -67,10 +87,15 @@ namespace Netch.Utils
         /// <exception cref="WebException"></exception>
         public static async Task DownloadFileAsync(HttpWebRequest req, string fileFullPath)
         {
-            var dir = Path.GetDirectoryName(fileFullPath) ?? throw new ArgumentException();
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-            File.WriteAllText(fileFullPath, await DownloadStringAsync(req));
+            using var webResponse = (HttpWebResponse) await req.GetResponseAsync();
+            var fileStream = File.OpenWrite(fileFullPath);
+            using (var input = webResponse.GetResponseStream())
+            {
+                await input.CopyToAsync(fileStream);
+            }
+
+            fileStream.Flush();
+            fileStream.Close();
         }
     }
 }

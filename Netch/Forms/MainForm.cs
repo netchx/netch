@@ -193,6 +193,7 @@ namespace Netch.Forms
             AddVMessServerToolStripMenuItem.Text = i18N.Translate("Add [VMess] Server");
             AddTrojanServerToolStripMenuItem.Text = i18N.Translate("Add [Trojan] Server");
             ModeToolStripMenuItem.Text = i18N.Translate("Mode");
+            HelpToolStripMenuItem.Text = i18N.Translate("Help");
             CreateProcessModeToolStripMenuItem.Text = i18N.Translate("Create Process Mode");
             SubscribeToolStripMenuItem.Text = i18N.Translate("Subscribe");
             ManageSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Manage Subscribe Links");
@@ -204,8 +205,10 @@ namespace Netch.Forms
             UpdateACLToolStripMenuItem.Text = i18N.Translate("Update ACL");
             updateACLWithProxyToolStripMenuItem.Text = i18N.Translate("Update ACL with proxy");
             reinstallTapDriverToolStripMenuItem.Text = i18N.Translate("Reinstall TUN/TAP driver");
+            CheckForUpdatesToolStripMenuItem.Text = i18N.Translate("Check for updates");
             OpenDirectoryToolStripMenuItem.Text = i18N.Translate("Open Directory");
             AboutToolStripButton.Text = i18N.Translate("About");
+            NewVersionLabel.Text = i18N.Translate("New version available");
             // VersionLabel.Text = i18N.Translate("xxx");
             exitToolStripMenuItem.Text = i18N.Translate("Exit");
             ConfigurationGroupBox.Text = i18N.Translate("Configuration");

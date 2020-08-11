@@ -224,6 +224,28 @@ namespace Netch.Forms
 
         #region 选项
 
+        private void CheckForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Task.Run(() =>
+            {
+                void OnNewVersionNotFound(object o, EventArgs args)
+                {
+                    _updater.NewVersionNotFound -= OnNewVersionNotFound;
+                    NotifyTip(i18N.Translate("Already Latest version"));
+                }
+
+                void OnNewVersionFoundFailed(object o, EventArgs args)
+                {
+                    _updater.NewVersionFoundFailed -= OnNewVersionFoundFailed;
+                    NotifyTip(i18N.Translate("New Version Found Failed"), info: false);
+                }
+
+                _updater.NewVersionNotFound += OnNewVersionNotFound;
+                _updater.NewVersionFoundFailed += OnNewVersionFoundFailed;
+                CheckUpdate();
+            });
+        }
+
         private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Utils.Utils.Open(".\\");

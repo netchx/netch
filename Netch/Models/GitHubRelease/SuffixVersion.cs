@@ -128,5 +128,10 @@ namespace Netch.Models.GitHubRelease
                 return hashCode;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{Major}.{Minor}.{Patch}{(string.IsNullOrEmpty(PreRelease) ? "" : "-")}{PreRelease}{(Build == 0 ? "" : Build.ToString())}";
+        }
     }
 }

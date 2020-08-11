@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Net;
 using Netch.Models.GitHubRelease;
 using Netch.Utils;
 using Newtonsoft.Json;
@@ -19,12 +19,13 @@ namespace Netch.Controllers
 
         public string LatestVersionNumber;
         public string LatestVersionUrl;
+        public string LatestVersionDownloadUrl;
 
         public event EventHandler NewVersionFound;
         public event EventHandler NewVersionFoundFailed;
         public event EventHandler NewVersionNotFound;
 
-        public void Check(bool notifyNoFound, bool isPreRelease)
+        public void Check(bool isPreRelease)
         {
             try
             {
@@ -35,22 +36,31 @@ namespace Netch.Controllers
 
                 var releases = JsonConvert.DeserializeObject<List<Release>>(json);
                 var latestRelease = VersionUtil.GetLatestRelease(releases, isPreRelease);
+                LatestVersionNumber = latestRelease.tag_name;
+                LatestVersionUrl = latestRelease.html_url;
+                LatestVersionDownloadUrl = latestRelease.assets[0].browser_download_url;
+                Logging.Info($"Github 最新发布版本: {latestRelease.tag_name}");
                 if (VersionUtil.CompareVersion(latestRelease.tag_name, Version) > 0)
                 {
-                    LatestVersionNumber = latestRelease.tag_name;
-                    LatestVersionUrl = latestRelease.html_url;
+                    Logging.Info($"发现新版本");
                     NewVersionFound?.Invoke(this, new EventArgs());
                 }
                 else
                 {
-                    LatestVersionNumber = latestRelease.tag_name;
-                    if (notifyNoFound) NewVersionNotFound?.Invoke(this, new EventArgs());
+                    Logging.Info("目前是最新版本");
+                    NewVersionNotFound?.Invoke(this, new EventArgs());
                 }
             }
             catch (Exception e)
             {
-                Logging.Error(e.ToString());
-                if (notifyNoFound) NewVersionFoundFailed?.Invoke(this, new EventArgs());
+                if (e is WebException)
+                    Logging.Warning($"获取新版本失败: {e.Message}");
+                else
+                {
+                    Logging.Warning(e.ToString());
+                }
+
+                NewVersionFoundFailed?.Invoke(this, new EventArgs());
             }
         }
     }

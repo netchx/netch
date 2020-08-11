@@ -41,6 +41,7 @@ namespace Netch.Forms
             this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AddTrojanServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,8 +54,10 @@ namespace Netch.Forms
             this.updateACLWithProxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reinstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
+            this.NewVersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.configLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -113,9 +116,11 @@ namespace Netch.Forms
             this.ModeToolStripMenuItem,
             this.SubscribeToolStripMenuItem,
             this.OptionsToolStripMenuItem,
+            this.HelpToolStripMenuItem,
+            this.exitToolStripMenuItem,
             this.AboutToolStripButton,
-            this.VersionLabel,
-            this.exitToolStripMenuItem});
+            this.NewVersionLabel,
+            this.VersionLabel});
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -187,6 +192,15 @@ namespace Netch.Forms
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
             this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
             this.ModeToolStripMenuItem.Text = "Mode";
+            // 
+            // HelpToolStripMenuItem
+            // 
+            this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CheckForUpdatesToolStripMenuItem});
+            this.HelpToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
+            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
+            this.HelpToolStripMenuItem.Text = "Help";
             // 
             // CreateProcessModeToolStripMenuItem
             // 
@@ -282,6 +296,13 @@ namespace Netch.Forms
             this.reinstallTapDriverToolStripMenuItem.Text = "Reinstall TUN/TAP driver";
             this.reinstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
             // 
+            // CheckForUpdatesToolStripMenuItem
+            // 
+            this.CheckForUpdatesToolStripMenuItem.Name = "CheckForUpdatesToolStripMenuItem";
+            this.CheckForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(219, 22);
+            this.CheckForUpdatesToolStripMenuItem.Text = "Check for updates";
+            this.CheckForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.CheckForUpdatesToolStripMenuItem_Click);
+            // 
             // AboutToolStripButton
             // 
             this.AboutToolStripButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
@@ -291,6 +312,20 @@ namespace Netch.Forms
             this.AboutToolStripButton.Size = new System.Drawing.Size(47, 21);
             this.AboutToolStripButton.Text = "About";
             this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
+            // 
+            // NewVersionLabel
+            // 
+            this.NewVersionLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.NewVersionLabel.BackColor = System.Drawing.Color.Transparent;
+            this.NewVersionLabel.ForeColor = System.Drawing.Color.Red;
+            this.NewVersionLabel.LinkColor = System.Drawing.Color.Red;
+            this.NewVersionLabel.IsLink = true;
+            this.NewVersionLabel.Visible = false;
+            this.NewVersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.NewVersionLabel.Name = "NewVersionLabel";
+            this.NewVersionLabel.Size = new System.Drawing.Size(26, 19);
+            this.NewVersionLabel.Text = "New version available";
+            this.NewVersionLabel.Click += new System.EventHandler(this.NewVersionLabel_Click);
             // 
             // VersionLabel
             // 
@@ -732,6 +767,7 @@ namespace Netch.Forms
         private System.Windows.Forms.SearchComboBox ModeComboBox;
         private System.Windows.Forms.Label ModeLabel;
         private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem HelpToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLabel;
         private System.Windows.Forms.NotifyIcon NotifyIcon;
         private System.Windows.Forms.ContextMenuStrip NotifyMenu;
@@ -742,6 +778,7 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox ProfileNameText;
         private System.Windows.Forms.TableLayoutPanel ProfileTable;
         private System.Windows.Forms.ToolStripMenuItem reinstallTapDriverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CheckForUpdatesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.Label ServerLabel;
@@ -760,11 +797,11 @@ namespace Netch.Forms
         private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
+        private System.Windows.Forms.ToolStripLabel NewVersionLabel;
         private System.Windows.Forms.ToolStripLabel VersionLabel;
-
-        #endregion
-
         private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLightLabel;
         private System.Windows.Forms.ToolStripStatusLabel blankToolStripStatusLabel;
+
+        #endregion
     }
 }
