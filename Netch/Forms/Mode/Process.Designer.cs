@@ -31,6 +31,7 @@ namespace Netch.Forms.Mode
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Process));
             this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
             this.UseCustomFilenameBox = new System.Windows.Forms.CheckBox();
@@ -43,9 +44,12 @@ namespace Netch.Forms.Mode
             this.RuleListBox = new System.Windows.Forms.ListBox();
             this.RemarkTextBox = new System.Windows.Forms.TextBox();
             this.RemarkLabel = new System.Windows.Forms.Label();
+            this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ControlButton = new System.Windows.Forms.Button();
+            this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ConfigurationGroupBox.SuspendLayout();
             this.ProcessGroupBox.SuspendLayout();
+            this.contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // ConfigurationGroupBox
@@ -156,6 +160,12 @@ namespace Netch.Forms.Mode
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
+            // contextMenuStrip
+            // 
+            this.contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.DeleteToolStripMenuItem});
+            this.contextMenuStrip.Name = "contextMenuStrip";
+            this.contextMenuStrip.Size = new System.Drawing.Size(153, 48);
+            // 
             // ControlButton
             // 
             this.ControlButton.Location = new System.Drawing.Point(277, 362);
@@ -165,6 +175,13 @@ namespace Netch.Forms.Mode
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
+            // 
+            // DeleteToolStripMenuItem
+            // 
+            this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.DeleteToolStripMenuItem.Text = "Delete";
+            this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.deleteRule_Click);
             // 
             // Process
             // 
@@ -187,11 +204,14 @@ namespace Netch.Forms.Mode
             this.ConfigurationGroupBox.PerformLayout();
             this.ProcessGroupBox.ResumeLayout(false);
             this.ProcessGroupBox.PerformLayout();
+            this.contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
         #endregion
 
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label RemarkLabel;
         private System.Windows.Forms.GroupBox ProcessGroupBox;

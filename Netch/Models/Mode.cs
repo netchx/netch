@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace Netch.Models
 {
@@ -20,9 +21,9 @@ namespace Netch.Models
         ///     0. Socks5 + 进程加速<para />
         ///     1. Socks5 + TUN/TAP 规则内 IP CIDR 加速<para />
         ///     2. Socks5 + TUN/TAP 全局，绕过规则内 IP CIDR<para />
-        ///     3. Socks5 + HTTP 代理（自动设置到系统代理）<para />
-        ///     4. Socks5 代理（不自动设置到系统代理）<para />
-        ///     5. Socks5 + HTTP 代理（不自动设置到系统代理）<para />
+        ///     3. Socks5 + HTTP 代理（设置到系统代理）<para />
+        ///     4. Socks5 代理（不设置到系统代理）<para />
+        ///     5. Socks5 + HTTP 代理（不设置到系统代理）<para />
         /// </summary>
         public int Type = 0;
 
@@ -34,7 +35,7 @@ namespace Netch.Models
         /// <summary>
         ///		规则
         /// </summary>
-        public List<string> Rule = new List<string>();
+        public readonly List<string> Rule = new List<string>();
 
         /// <summary>
         ///		获取备注
@@ -42,7 +43,7 @@ namespace Netch.Models
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return string.Format("[{0}] {1}", Type + 1, Remark);
+            return $"[{Type + 1}] {Remark}";
         }
 
         /// <summary>
@@ -51,38 +52,30 @@ namespace Netch.Models
         /// <returns>模式文件字符串</returns>
         public string ToFileString()
         {
-            string FileString;
+            string fileString;
 
-            // 进程模式
-            if (Type == 0)
+            switch (Type)
             {
-                FileString = $"# {Remark}\r\n";
+                case 0:
+                    // 进程模式
+                    fileString = $"# {Remark}";
+                    break;
+                case 1:
+                    // TUN/TAP 规则内 IP CIDR，无 Bypass China 设置
+                    fileString = $"# {Remark}, {Type}, 0";
+                    break;
+                default:
+                    fileString = $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}";
+                    break;
             }
 
-            // TUN/TAP 规则内 IP CIDR，无 Bypass China 设置
-            else if (Type == 1)
-            {
-                FileString = $"# {Remark}, {Type}, 0\r\n";
-            }
+            fileString += Global.EOF;
 
-            // TUN/TAP 全局，绕过规则内 IP CIDR
-            // HTTP 代理（自动设置到系统代理）
-            // Socks5 代理（不自动设置到系统代理）
-            // Socks5 + HTTP 代理（不自动设置到系统代理）
-            else
-            {
-                FileString = $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}\r\n";
-            }
+            fileString = Rule.Aggregate(fileString, (current, item) => $"{current}{item}{Global.EOF}");
+            // 去除最后的行尾符
+            fileString = fileString.Substring(0, fileString.Length - 2);
 
-            foreach (var item in Rule)
-            {
-                FileString = $"{FileString}{item}\r\n";
-            }
-
-            // 去除最后两个多余回车符和换行符
-            FileString = FileString.Substring(0, FileString.Length - 2);
-
-            return FileString;
+            return fileString;
         }
 
         /// <summary>
@@ -130,6 +123,20 @@ namespace Netch.Models
                     System.IO.File.Delete(NewPath + ".txt");
                 }
             }
+        }
+
+        public string TypeToString()
+        {
+            return Type switch
+            {
+                0 => "Process",
+                1 => "TUNTAP",
+                2 => "TUNTAP",
+                3 => "SYSTEM",
+                4 => "S5",
+                5 => "S5+HTTP",
+                _ => "ERROR",
+            };
         }
     }
 }

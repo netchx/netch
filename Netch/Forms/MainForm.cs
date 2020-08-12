@@ -334,23 +334,28 @@ namespace Netch.Forms
         private void EditModePictureBox_Click(object sender, EventArgs e)
         {
             // 当前ModeComboBox中至少有一项
-            if (ModeComboBox.Items.Count > 0 && ModeComboBox.SelectedIndex != -1)
-            {
-                SaveConfigs();
-                var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
-                // 只允许修改进程加速的模式
-                if (selectedMode.Type == 0)
-                {
-                    //Process.Start(Environment.CurrentDirectory + "\\mode\\" + selectedMode.FileName + ".txt");
-                    var process = new Process(selectedMode);
-                    process.Text = "Edit Process Mode";
-                    process.Show();
-                    Hide();
-                }
-            }
-            else
+            if (ModeComboBox.Items.Count <= 0 || ModeComboBox.SelectedIndex == -1)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a mode first"));
+                return;
+            }
+
+            SaveConfigs();
+            var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
+            switch (selectedMode.Type)
+            {
+                case 0:
+                {
+                    var process = new Process(selectedMode);
+                    process.Show();
+                    Hide();
+                    break;
+                }
+                default:
+                {
+                    MessageBoxX.Show($"Current not support editing {selectedMode.TypeToString()} Mode");
+                    break;
+                }
             }
         }
 

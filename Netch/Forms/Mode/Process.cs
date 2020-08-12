@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,6 +33,7 @@ namespace Netch.Forms.Mode
             mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
 
             EditMode = true;
+            RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
             FilenameTextBox.Enabled = false;
             FilenameLabel.Enabled = false;
             UseCustomFilenameBox.Enabled = false;
@@ -109,6 +109,7 @@ namespace Netch.Forms.Mode
             AddButton.Text = i18N.Translate(AddButton.Text);
             ScanButton.Text = i18N.Translate(ScanButton.Text);
             ControlButton.Text = i18N.Translate(ControlButton.Text);
+            DeleteToolStripMenuItem.Text = i18N.Translate(DeleteToolStripMenuItem.Text);
 
             FilenameTextBox.Enabled = false;
             FilenameLabel.Enabled = false;
@@ -129,10 +130,7 @@ namespace Netch.Forms.Mode
                 return;
             if (e.Button == MouseButtons.Right)
             {
-                var strip = new ContextMenuStrip();
-                strip.Items.Add(i18N.Translate("Delete"));
-                strip.Items[0].Click += deleteRule_Click;
-                strip.Show(RuleListBox, e.Location); //鼠标右键按下弹出菜单
+                contextMenuStrip.Show(RuleListBox, e.Location);
             }
         }
 
