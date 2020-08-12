@@ -25,14 +25,14 @@ namespace Netch.Controllers
         public event EventHandler NewVersionFoundFailed;
         public event EventHandler NewVersionNotFound;
 
-        public void Check(bool isPreRelease)
+        public async void Check(bool isPreRelease)
         {
             try
             {
                 var updater = new GitHubRelease(Owner, Repo);
                 var url = updater.AllReleaseUrl;
 
-                var json = WebUtil.DownloadString(WebUtil.CreateRequest(url));
+                var json = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
 
                 var releases = JsonConvert.DeserializeObject<List<Release>>(json);
                 var latestRelease = VersionUtil.GetLatestRelease(releases, isPreRelease);

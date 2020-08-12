@@ -26,76 +26,51 @@ namespace Netch.Utils
             return req;
         }
 
+
+        /// <summary>
+        ///     异步下载
+        /// </summary>
         /// <param name="req"></param>
         /// <returns></returns>
-        /// <exception cref="WebException"></exception>
-        public static async Task<string> DownloadStringAsync(HttpWebRequest req)
+        public static async Task<byte[]> DownloadBytesAsync(HttpWebRequest req)
         {
-            string content;
-            var response = (HttpWebResponse) await req.GetResponseAsync();
-            using (var responseStream = response.GetResponseStream())
-            {
-                using (var sr = new StreamReader(responseStream, Encoding.GetEncoding("utf-8")))
-                {
-                    content = await sr.ReadToEndAsync();
-                }
-            }
+            using var webResponse = (HttpWebResponse) await req.GetResponseAsync();
+            using var memoryStream = new MemoryStream();
+            using var input = webResponse.GetResponseStream();
 
-            response.Close();
-            return content;
+            await input.CopyToAsync(memoryStream);
+            return memoryStream.ToArray();
         }
 
+        /// <summary>
+        ///     异步下载并编码为字符串
+        /// </summary>
         /// <param name="req"></param>
+        /// <param name="encoding">编码，默认UTF-8</param>
         /// <returns></returns>
-        /// <exception cref="WebException"></exception>
-        public static async Task<List<byte>> DownloadBytesAsync(HttpWebRequest req)
+        public static async Task<string> DownloadStringAsync(HttpWebRequest req, string encoding = "UTF-8")
         {
-            var content = new List<byte>();
-            var buffer = new byte[1024];
-            var response = (HttpWebResponse) await req.GetResponseAsync();
-            using (var responseStream = response.GetResponseStream())
-            {
-                await responseStream.ReadAsync(buffer, 0, buffer.Length);
-                content.AddRange(buffer);
-            }
+            using var webResponse = await req.GetResponseAsync();
+            using var responseStream = webResponse.GetResponseStream();
+            using var streamReader = new StreamReader(responseStream, Encoding.GetEncoding(encoding));
 
-            response.Close();
-            return content;
+            return await streamReader.ReadToEndAsync();
         }
 
-        /// <param name="req"></param>
-        /// <returns></returns>
-        /// <exception cref="WebException"></exception>
-        public static string DownloadString(HttpWebRequest req)
-        {
-            string content;
-            var response = (HttpWebResponse) req.GetResponse();
-            using (var responseStream = response.GetResponseStream())
-            {
-                using (var sr = new StreamReader(responseStream, Encoding.GetEncoding("utf-8")))
-                {
-                    content = sr.ReadToEnd();
-                }
-            }
-
-            response.Close();
-            return content;
-        }
-
+        /// <summary>
+        ///     异步下载到文件
+        /// </summary>
         /// <param name="req"></param>
         /// <param name="fileFullPath"></param>
-        /// <exception cref="WebException"></exception>
+        /// <returns></returns>
         public static async Task DownloadFileAsync(HttpWebRequest req, string fileFullPath)
         {
             using var webResponse = (HttpWebResponse) await req.GetResponseAsync();
-            var fileStream = File.OpenWrite(fileFullPath);
-            using (var input = webResponse.GetResponseStream())
-            {
-                await input.CopyToAsync(fileStream);
-            }
+            using var input = webResponse.GetResponseStream();
+            using var fileStream = File.OpenWrite(fileFullPath);
 
+            await input.CopyToAsync(fileStream);
             fileStream.Flush();
-            fileStream.Close();
         }
     }
 }
