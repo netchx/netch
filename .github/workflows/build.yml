@@ -28,7 +28,7 @@ jobs:
     - name: Restore NuGet Package
       run: nuget restore Netch.sln
 
-    - name: Build .NET 4.8
+    - name: Build Solution
       shell: pwsh
       run: |
         .\BUILD.ps1
@@ -37,7 +37,7 @@ jobs:
         echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.zip)"
         echo "::set-env name=Netch_EXE_SHA256::$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)"
 
-    - name: Upload
+    - name: Upload Artifact
       uses: actions/upload-artifact@v1
       with:
         name: Netch

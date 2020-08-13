@@ -158,7 +158,7 @@ namespace Netch.Forms
                 var stuns = File.ReadLines("bin\\stun.txt");
                 STUN_ServerComboBox.Items.AddRange(stuns.ToArray());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }

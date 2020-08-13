@@ -57,13 +57,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ini-parser" Version="2.5.2" />
         <PackageReference Include="IPNetwork2" Version="2.5.211" />
         <PackageReference Include="MaxMind.GeoIP2" Version="3.2.0" />
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.56" />
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.58" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="System.Buffers" Version="4.5.1" />
-        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
     </ItemGroup>
 
     <ItemGroup>
