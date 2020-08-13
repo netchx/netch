@@ -61,11 +61,9 @@
             this.DetectionIntervalLabel = new System.Windows.Forms.Label();
             this.DetectionIntervalTextBox = new System.Windows.Forms.TextBox();
             this.TcpingAtStartedCheckBox = new System.Windows.Forms.CheckBox();
-            this.STUN_ServerPortTextBox = new System.Windows.Forms.TextBox();
-            this.StunTextBoxSplitLabel = new System.Windows.Forms.Label();
             this.STUNServerLabel = new System.Windows.Forms.Label();
             this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
-            this.STUN_ServerTextBox = new System.Windows.Forms.TextBox();
+            this.STUN_ServerComboBox = new System.Windows.Forms.SearchComboBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCountLabel = new System.Windows.Forms.Label();
             this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
@@ -278,7 +276,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.ControlButton.Location = new System.Drawing.Point(804, 356);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
@@ -289,7 +287,7 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 356);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
@@ -309,11 +307,9 @@
             this.BehaviorGroupBox.Controls.Add(this.DetectionIntervalLabel);
             this.BehaviorGroupBox.Controls.Add(this.DetectionIntervalTextBox);
             this.BehaviorGroupBox.Controls.Add(this.TcpingAtStartedCheckBox);
-            this.BehaviorGroupBox.Controls.Add(this.STUN_ServerPortTextBox);
-            this.BehaviorGroupBox.Controls.Add(this.StunTextBoxSplitLabel);
             this.BehaviorGroupBox.Controls.Add(this.STUNServerLabel);
             this.BehaviorGroupBox.Controls.Add(this.RunAtStartupCheckBox);
-            this.BehaviorGroupBox.Controls.Add(this.STUN_ServerTextBox);
+            this.BehaviorGroupBox.Controls.Add(this.STUN_ServerComboBox);
             this.BehaviorGroupBox.Controls.Add(this.MinimizeWhenStartedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCountLabel);
             this.BehaviorGroupBox.Controls.Add(this.ProfileCountTextBox);
@@ -412,23 +408,6 @@
             this.TcpingAtStartedCheckBox.Text = "Delay test after start";
             this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // STUN_ServerPortTextBox
-            // 
-            this.STUN_ServerPortTextBox.Location = new System.Drawing.Point(366, 241);
-            this.STUN_ServerPortTextBox.Name = "STUN_ServerPortTextBox";
-            this.STUN_ServerPortTextBox.Size = new System.Drawing.Size(68, 23);
-            this.STUN_ServerPortTextBox.TabIndex = 8;
-            this.STUN_ServerPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // StunTextBoxSplitLabel
-            // 
-            this.StunTextBoxSplitLabel.AutoSize = true;
-            this.StunTextBoxSplitLabel.Location = new System.Drawing.Point(353, 244);
-            this.StunTextBoxSplitLabel.Name = "StunTextBoxSplitLabel";
-            this.StunTextBoxSplitLabel.Size = new System.Drawing.Size(11, 17);
-            this.StunTextBoxSplitLabel.TabIndex = 12;
-            this.StunTextBoxSplitLabel.Text = ":";
-            // 
             // STUNServerLabel
             // 
             this.STUNServerLabel.AutoSize = true;
@@ -448,13 +427,13 @@
             this.RunAtStartupCheckBox.Text = "Run at startup";
             this.RunAtStartupCheckBox.UseVisualStyleBackColor = true;
             // 
-            // STUN_ServerTextBox
+            // STUN_ServerComboBox
             // 
-            this.STUN_ServerTextBox.Location = new System.Drawing.Point(120, 241);
-            this.STUN_ServerTextBox.Name = "STUN_ServerTextBox";
-            this.STUN_ServerTextBox.Size = new System.Drawing.Size(233, 23);
-            this.STUN_ServerTextBox.TabIndex = 11;
-            this.STUN_ServerTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.STUN_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.STUN_ServerComboBox.Location = new System.Drawing.Point(120, 241);
+            this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
+            this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 25);
+            this.STUN_ServerComboBox.TabIndex = 11;
             // 
             // MinimizeWhenStartedCheckBox
             // 
@@ -548,9 +527,9 @@
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.TUNTAPGroupBox);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "SettingForm";
@@ -565,7 +544,6 @@
             this.BehaviorGroupBox.ResumeLayout(false);
             this.BehaviorGroupBox.PerformLayout();
             this.ResumeLayout(false);
-
         }
 
         #endregion
@@ -597,10 +575,8 @@
         private System.Windows.Forms.TextBox ProfileCountTextBox;
         private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
         private System.Windows.Forms.CheckBox RunAtStartupCheckBox;
-        private System.Windows.Forms.Label StunTextBoxSplitLabel;
         private System.Windows.Forms.Label STUNServerLabel;
-        private System.Windows.Forms.TextBox STUN_ServerTextBox;
-        private System.Windows.Forms.TextBox STUN_ServerPortTextBox;
+        private System.Windows.Forms.SearchComboBox STUN_ServerComboBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
         private System.Windows.Forms.TextBox DetectionIntervalTextBox;
         private System.Windows.Forms.CheckBox TcpingAtStartedCheckBox;
