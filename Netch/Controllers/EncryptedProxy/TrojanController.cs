@@ -22,8 +22,8 @@ namespace Netch.Controllers
         {
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new Trojan
             {
-                local_addr = Global.Settings.LocalAddress,
-                local_port = Global.Settings.Socks5LocalPort,
+                local_addr = LocalAddress,
+                local_port = Socks5LocalPort,
                 remote_addr = server.Hostname,
                 remote_port = server.Port,
                 password = new List<string>

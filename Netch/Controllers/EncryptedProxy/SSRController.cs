@@ -33,7 +33,7 @@ namespace Netch.Controllers
                 if (!string.IsNullOrEmpty(server.OBFSParam)) argument.Append($" -g \"{server.OBFSParam}\"");
             }
 
-            argument.Append($" -b {Global.Settings.LocalAddress} -l {Global.Settings.Socks5LocalPort} -u");
+            argument.Append($" -b {LocalAddress} -l {Socks5LocalPort} -u");
             if (mode.BypassChina) argument.Append(" --acl default.acl");
 
             #endregion

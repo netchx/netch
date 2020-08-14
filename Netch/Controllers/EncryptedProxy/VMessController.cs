@@ -27,8 +27,8 @@ namespace Netch.Controllers
                     new VMess.Inbounds
                     {
                         settings = new VMess.InboundSettings(),
-                        port = Global.Settings.Socks5LocalPort,
-                        listen = Global.Settings.LocalAddress
+                        port = Socks5LocalPort,
+                        listen = LocalAddress
                     }
                 },
                 outbounds = new List<VMess.Outbounds>
