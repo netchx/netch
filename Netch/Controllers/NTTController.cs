@@ -70,29 +70,37 @@ namespace Netch.Controllers
             var str = e.Data.Split(':');
             if (str.Length < 2)
                 return;
-            str[1] = str[1].Trim();
-            switch (str[0])
+            var key = str[0];
+            var value = str[1].Trim();
+            switch (key)
             {
                 case "Other address is":
-                    _Other_address = str[1];
+                    _Other_address = value;
+                    Logging.Info($"[NTT] Other address is {value}");
                     break;
                 case "Binding test":
-                    _Binding_test = str[1];
+                    _Binding_test = value;
+                    Logging.Info($"[NTT] Binding test {value}");
                     break;
                 case "Local address":
-                    _Local_address = str[1];
+                    _Local_address = value;
+                    Logging.Info($"[NTT] Local address {value}");
                     break;
                 case "Mapped address":
-                    _Mapped_address = str[1];
+                    _Mapped_address = value;
+                    Logging.Info($"[NTT] Mapped address {value}");
                     break;
                 case "Nat mapping behavior":
-                    _Nat_mapping_behavior = str[1];
+                    _Nat_mapping_behavior = value;
+                    Logging.Info($"[NTT] Nat mapping behavior {value}");
                     break;
                 case "Nat filtering behavior":
-                    _Nat_filtering_behavior = str[1];
+                    _Nat_filtering_behavior = value;
+                    Logging.Info($"[NTT] Nat filtering behavior {value}");
                     break;
                 case "result":
-                    _lastResult = str[1];
+                    _lastResult = value;
+                    Logging.Info($"[NTT] result {value}");
                     break;
             }
         }
