@@ -131,7 +131,7 @@ namespace Netch.Models
         /// <summary>
         ///		Mux 多路复用（VMess）
         /// </summary>
-        public bool UseMux = false;
+        public bool UseMux = true;
 
         /// <summary>
         ///     延迟
