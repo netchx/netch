@@ -128,12 +128,13 @@ namespace Netch.Controllers
                 Instance.Start();
                 if (priority != ProcessPriorityClass.Normal)
                     Instance.PriorityClass = priority;
-                if (!RedirectStd || StartedKeywords.Count == 0) return true;
+                if (!RedirectStd) return true;
                 // 启动日志重定向
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
                 SaveBufferTimer.Elapsed += SaveBufferTimerEvent;
                 SaveBufferTimer.Enabled = true;
+                if (StartedKeywords.Count == 0) return true;
                 // 等待启动
                 for (var i = 0; i < 1000; i++)
                 {

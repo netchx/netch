@@ -9,7 +9,7 @@ namespace Netch.Controllers
         {
             Name = "DNS Service";
             MainFile = "unbound.exe";
-            RedirectStd = false;
+            // RedirectStd = false;
         }
 
         /// <summary>
