@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Netch.Utils;
 
@@ -8,7 +7,7 @@ namespace Netch.Forms.Server
 {
     public partial class ShadowsocksR : Form
     {
-        public int Index;
+        private readonly Models.Server _server;
 
         /// <summary>
         ///     初始化
@@ -18,11 +17,15 @@ namespace Netch.Forms.Server
         {
             InitializeComponent();
 
-            Index = index;
+            _server = index != -1
+                ? Global.Settings.Server[index]
+                : new Models.Server {EncryptMethod = Global.EncryptMethods.SSR[0]};
         }
 
         private void ShadowsocksR_Load(object sender, EventArgs e)
         {
+            #region InitText
+
             ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
             RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
             AddressLabel.Text = i18N.Translate(AddressLabel.Text);
@@ -34,39 +37,23 @@ namespace Netch.Forms.Server
             OBFSParamLabel.Text = i18N.Translate(OBFSParamLabel.Text);
             ControlButton.Text = i18N.Translate(ControlButton.Text);
 
-            foreach (var encrypt in Global.EncryptMethods.SSR)
-            {
-                EncryptMethodComboBox.Items.Add(encrypt);
-            }
+            EncryptMethodComboBox.Items.AddRange(Global.EncryptMethods.SSR.ToArray());
 
-            foreach (var protocol in Global.Protocols)
-            {
-                ProtocolComboBox.Items.Add(protocol);
-            }
+            ProtocolComboBox.Items.AddRange(Global.Protocols.ToArray());
+            OBFSComboBox.Items.AddRange(Global.OBFSs.ToArray());
 
-            foreach (var obfs in Global.OBFSs)
-            {
-                OBFSComboBox.Items.Add(obfs);
-            }
+            #endregion
 
-            if (Index != -1)
-            {
-                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
-                AddressTextBox.Text = Global.Settings.Server[Index].Hostname;
-                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
-                PasswordTextBox.Text = Global.Settings.Server[Index].Password;
-                EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(Global.Settings.Server[Index].EncryptMethod);
-                ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(Global.Settings.Server[Index].Protocol);
-                ProtocolParamTextBox.Text = Global.Settings.Server[Index].ProtocolParam;
-                OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(Global.Settings.Server[Index].OBFS);
-                OBFSOptionParamTextBox.Text = Global.Settings.Server[Index].OBFSParam;
-            }
-            else
-            {
-                EncryptMethodComboBox.SelectedIndex = 0;
-                ProtocolComboBox.SelectedIndex = 0;
-                OBFSComboBox.SelectedIndex = 0;
-            }
+
+            RemarkTextBox.Text = _server.Remark;
+            AddressTextBox.Text = _server.Hostname;
+            PortTextBox.Text = _server.Port.ToString();
+            PasswordTextBox.Text = _server.Password;
+            EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.SSR.IndexOf(_server.EncryptMethod);
+            ProtocolComboBox.SelectedIndex = Global.Protocols.IndexOf(_server.Protocol);
+            ProtocolParamTextBox.Text = _server.ProtocolParam;
+            OBFSComboBox.SelectedIndex = Global.OBFSs.IndexOf(_server.OBFS);
+            OBFSOptionParamTextBox.Text = _server.OBFSParam;
         }
 
         private void ShadowsocksR_FormClosing(object sender, FormClosingEventArgs e)
@@ -76,16 +63,17 @@ namespace Netch.Forms.Server
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var cbx = sender as ComboBox;
-            if (cbx != null)
+            if (sender is ComboBox cbx)
             {
                 e.DrawBackground();
 
                 if (e.Index >= 0)
                 {
-                    var sf = new StringFormat();
-                    sf.LineAlignment = StringAlignment.Center;
-                    sf.Alignment = StringAlignment.Center;
+                    var sf = new StringFormat
+                    {
+                        LineAlignment = StringAlignment.Center,
+                        Alignment = StringAlignment.Center
+                    };
 
                     var brush = new SolidBrush(cbx.ForeColor);
 
@@ -101,43 +89,26 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            if (!int.TryParse(PortTextBox.Text, out var port))
             {
                 return;
             }
-            if (Index == -1)
+
+            _server.Remark = RemarkTextBox.Text;
+            _server.Type = "SSR";
+            _server.Hostname = AddressTextBox.Text;
+            _server.Port = port;
+            _server.Password = PasswordTextBox.Text;
+            _server.EncryptMethod = EncryptMethodComboBox.Text;
+            _server.Protocol = ProtocolComboBox.Text;
+            _server.ProtocolParam = ProtocolParamTextBox.Text;
+            _server.OBFS = OBFSComboBox.Text;
+            _server.OBFSParam = OBFSOptionParamTextBox.Text;
+            _server.Country = null;
+
+            if (Global.Settings.Server.IndexOf(_server) == -1)
             {
-                Global.Settings.Server.Add(new Models.Server
-                {
-                    Remark = RemarkTextBox.Text,
-                    Type = "SSR",
-                    Hostname = AddressTextBox.Text,
-                    Port = int.Parse(PortTextBox.Text),
-                    Password = PasswordTextBox.Text,
-                    EncryptMethod = EncryptMethodComboBox.Text,
-                    Protocol = ProtocolComboBox.Text,
-                    ProtocolParam = ProtocolParamTextBox.Text,
-                    OBFS = OBFSComboBox.Text,
-                    OBFSParam = OBFSOptionParamTextBox.Text
-                });
-            }
-            else
-            {
-                Global.Settings.Server[Index] = new Models.Server
-                {
-                    Remark = RemarkTextBox.Text,
-                    Group = Global.Settings.Server[Index].Group,
-                    Type = "SSR",
-                    Hostname = AddressTextBox.Text,
-                    Port = int.Parse(PortTextBox.Text),
-                    Password = PasswordTextBox.Text,
-                    EncryptMethod = EncryptMethodComboBox.Text,
-                    Protocol = ProtocolComboBox.Text,
-                    ProtocolParam = ProtocolParamTextBox.Text,
-                    OBFS = OBFSComboBox.Text,
-                    OBFSParam = OBFSOptionParamTextBox.Text,
-                    Country = null
-                };
+                Global.Settings.Server.Add(_server);
             }
 
             Configuration.Save();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Netch.Utils;
 
@@ -8,7 +7,7 @@ namespace Netch.Forms.Server
 {
     public partial class Trojan : Form
     {
-        public int Index;
+        private readonly Models.Server _server;
 
         /// <summary>
         ///     初始化
@@ -18,7 +17,10 @@ namespace Netch.Forms.Server
         {
             InitializeComponent();
 
-            Index = index;
+
+            _server = index != -1
+                ? Global.Settings.Server[index]
+                : new Models.Server();
         }
 
         private void Trojan_Load(object sender, EventArgs e)
@@ -29,13 +31,10 @@ namespace Netch.Forms.Server
             PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
             ControlButton.Text = i18N.Translate(ControlButton.Text);
 
-            if (Index != -1)
-            {
-                RemarkTextBox.Text = Global.Settings.Server[Index].Remark;
-                AddressTextBox.Text = Global.Settings.Server[Index].Hostname;
-                PortTextBox.Text = Global.Settings.Server[Index].Port.ToString();
-                PasswordTextBox.Text = Global.Settings.Server[Index].Password;
-            }
+            RemarkTextBox.Text = _server.Remark;
+            AddressTextBox.Text = _server.Hostname;
+            PortTextBox.Text = _server.Port.ToString();
+            PasswordTextBox.Text = _server.Password;
         }
 
         private void Trojan_FormClosing(object sender, FormClosingEventArgs e)
@@ -45,16 +44,17 @@ namespace Netch.Forms.Server
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            var cbx = sender as ComboBox;
-            if (cbx != null)
+            if (sender is ComboBox cbx)
             {
                 e.DrawBackground();
 
                 if (e.Index >= 0)
                 {
-                    var sf = new StringFormat();
-                    sf.LineAlignment = StringAlignment.Center;
-                    sf.Alignment = StringAlignment.Center;
+                    var sf = new StringFormat
+                    {
+                        LineAlignment = StringAlignment.Center,
+                        Alignment = StringAlignment.Center
+                    };
 
                     var brush = new SolidBrush(cbx.ForeColor);
 
@@ -70,33 +70,22 @@ namespace Netch.Forms.Server
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            if (!Regex.Match(PortTextBox.Text, "^[0-9]+$").Success)
+            if (!int.TryParse(PortTextBox.Text, out var port))
             {
                 return;
             }
-            if (Index == -1)
+
+
+            _server.Remark = RemarkTextBox.Text;
+            _server.Type = "Trojan";
+            _server.Hostname = AddressTextBox.Text;
+            _server.Port = port;
+            _server.Password = PasswordTextBox.Text;
+            _server.Country = null;
+
+            if (Global.Settings.Server.IndexOf(_server) == -1)
             {
-                Global.Settings.Server.Add(new Models.Server
-                {
-                    Remark = RemarkTextBox.Text,
-                    Type = "Trojan",
-                    Hostname = AddressTextBox.Text,
-                    Port = int.Parse(PortTextBox.Text),
-                    Password = PasswordTextBox.Text
-                });
-            }
-            else
-            {
-                Global.Settings.Server[Index] = new Models.Server
-                {
-                    Remark = RemarkTextBox.Text,
-                    Group = Global.Settings.Server[Index].Group,
-                    Type = "Trojan",
-                    Hostname = AddressTextBox.Text,
-                    Port = int.Parse(PortTextBox.Text),
-                    Password = PasswordTextBox.Text,
-                    Country = null
-                };
+                Global.Settings.Server.Add(_server);
             }
 
             Configuration.Save();
