@@ -354,7 +354,7 @@ namespace Netch.Utils
 
                     if (vmess.mux == null)
                     {
-                        data.UseMux = false;
+                        data.UseMux = true;
                     }
                     else
                     {
@@ -368,7 +368,7 @@ namespace Netch.Utils
                         }
                         else
                         {
-                            data.UseMux = false;
+                            data.UseMux = true;
                         }
                     }
 
