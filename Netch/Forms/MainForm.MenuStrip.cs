@@ -187,8 +187,9 @@ namespace Netch.Forms
                                 foreach (var x in result) x.Group = item.Remark;
 
                                 Global.Settings.Server.AddRange(result);
-                                NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result.Count));
                             }
+
+                            NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result?.Count ?? 0));
                         }
                     }
                     catch (WebException e)

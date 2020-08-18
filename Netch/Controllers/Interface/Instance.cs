@@ -169,6 +169,7 @@ namespace Netch.Controllers
             {
                 SaveBufferTimer.Enabled = false;
             }
+            SaveBufferTimerEvent(null,null);
 
             State = State.Stopped;
         }
