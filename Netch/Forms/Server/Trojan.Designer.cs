@@ -152,7 +152,6 @@
             this.Name = "Trojan";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Trojan";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Trojan_FormClosing);
             this.Load += new System.EventHandler(this.Trojan_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();

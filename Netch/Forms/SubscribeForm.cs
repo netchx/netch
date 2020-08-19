@@ -63,9 +63,6 @@ namespace Netch.Forms
         {
             Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-
-            Global.MainForm.InitServer();
-            Global.MainForm.Show();
         }
 
         private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)

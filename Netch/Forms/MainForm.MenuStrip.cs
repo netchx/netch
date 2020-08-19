@@ -47,34 +47,21 @@ namespace Netch.Forms
             }
         }
 
-        private void AddSocks5ServerToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new Socks5().Show();
-            Hide();
-        }
+            Form form = ((ToolStripMenuItem) sender).Name switch
+            {
+                "AddSocks5ServerToolStripMenuItem" => new Socks5(),
+                "AddShadowsocksServerToolStripMenuItem" => new Shadowsocks(),
+                "AddShadowsocksRServerToolStripMenuItem" => new ShadowsocksR(),
+                "AddVMessServerToolStripMenuItem" => new VMess(),
+                "AddTrojanServerToolStripMenuItem" => new Trojan(),
+                _ => null
+            };
 
-        private void AddShadowsocksServerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new Shadowsocks().Show();
             Hide();
-        }
-
-        private void AddShadowsocksRServerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new ShadowsocksR().Show();
-            Hide();
-        }
-
-        private void AddVMessServerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new VMess().Show();
-            Hide();
-        }
-
-        private void AddTrojanServerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new Trojan().Show();
-            Hide();
+            form?.ShowDialog();
+            Show();
         }
 
         #endregion
@@ -83,8 +70,9 @@ namespace Netch.Forms
 
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
-            new Process().Show();
             Hide();
+            new Process().ShowDialog();
+            Show();
         }
 
         private async void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -115,8 +103,10 @@ namespace Netch.Forms
 
         private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            new SubscribeForm().Show();
             Hide();
+            new SubscribeForm().ShowDialog();
+            InitServer();
+            Show();
         }
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
@@ -388,8 +378,9 @@ namespace Netch.Forms
 
         private void AboutToolStripButton_Click(object sender, EventArgs e)
         {
-            new AboutForm().Show();
             Hide();
+            new AboutForm().ShowDialog();
+            Show();
         }
 
         #endregion

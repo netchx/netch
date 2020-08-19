@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Utils;
@@ -52,92 +53,15 @@ namespace Netch.Forms
 
         #region Mode
 
-        private void InitMode()
+        public void InitMode()
         {
             ModeComboBox.Items.Clear();
-            Global.ModeFiles.Clear();
 
-            if (Directory.Exists("mode"))
-            {
-                foreach (var name in Directory.GetFiles("mode", "*.txt"))
-                {
-                    var ok = true;
-                    var mode = new Models.Mode();
+            Modes.Load();
 
-                    using (var sr = new StringReader(File.ReadAllText(name)))
-                    {
-                        var i = 0;
-                        string text;
+            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
 
-                        while ((text = sr.ReadLine()) != null)
-                        {
-                            if (i == 0)
-                            {
-                                var splited = text.Trim().Substring(1).Split(',');
-
-                                if (splited.Length == 0)
-                                {
-                                    ok = false;
-                                    break;
-                                }
-
-                                if (splited.Length >= 1)
-                                {
-                                    mode.Remark = i18N.Translate(splited[0].Trim());
-                                }
-
-                                if (splited.Length >= 2)
-                                {
-                                    if (int.TryParse(splited[1], out var result))
-                                    {
-                                        mode.Type = result;
-                                    }
-                                    else
-                                    {
-                                        ok = false;
-                                        break;
-                                    }
-                                }
-
-                                if (splited.Length >= 3)
-                                {
-                                    if (int.TryParse(splited[2], out var result))
-                                    {
-                                        mode.BypassChina = result == 1;
-                                    }
-                                    else
-                                    {
-                                        ok = false;
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (!text.StartsWith("#") && !string.IsNullOrWhiteSpace(text))
-                                {
-                                    mode.Rule.Add(text.Trim());
-                                }
-                            }
-
-                            i++;
-                        }
-                    }
-
-                    if (ok)
-                    {
-                        mode.FileName = Path.GetFileNameWithoutExtension(name);
-                        Global.ModeFiles.Add(mode);
-                    }
-                }
-
-                var array = Global.ModeFiles.ToArray();
-                Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
-
-                ModeComboBox.Items.AddRange(array);
-
-                SelectLastMode();
-            }
+            SelectLastMode();
         }
 
         private void SelectLastMode()
@@ -160,20 +84,8 @@ namespace Netch.Forms
         public void AddMode(Models.Mode mode)
         {
             ModeComboBox.Items.Clear();
-            Global.ModeFiles.Add(mode);
-            var array = Global.ModeFiles.ToArray();
-            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
-            ModeComboBox.Items.AddRange(array);
-
-            SelectLastMode();
-        }
-
-        public void UpdateMode(Models.Mode NewMode, Models.Mode OldMode)
-        {
-            ModeComboBox.Items.Clear();
-            Global.ModeFiles.Remove(OldMode);
-            Global.ModeFiles.Add(NewMode);
-            var array = Global.ModeFiles.ToArray();
+            Global.Modes.Add(mode);
+            var array = Global.Modes.ToArray();
             Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
             ModeComboBox.Items.AddRange(array);
 

@@ -11,10 +11,12 @@ namespace Netch.Forms.Mode
     public partial class Process : Form
     {
         //用于判断当前窗口是否为编辑模式
-        private bool EditMode;
+        public readonly bool IsEditing;
 
-        //被编辑模式坐标
-        private Models.Mode EditMode_Old;
+        //被编辑的模式
+        public readonly Models.Mode EditingMode;
+
+        public bool IsEdited { get; private set; } = false;
 
         /// <summary>
         ///		编辑模式
@@ -23,15 +25,14 @@ namespace Netch.Forms.Mode
         public Process(Models.Mode mode)
         {
             InitializeComponent();
-
             CheckForIllegalCrossThreadCalls = false;
 
-            EditMode_Old = mode;
+            EditingMode = mode;
             Text = "Edit Process Mode";
             //循环填充已有规则
             mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
 
-            EditMode = true;
+            IsEditing = true;
             RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
             FilenameTextBox.Enabled = false;
             FilenameLabel.Enabled = false;
@@ -44,11 +45,13 @@ namespace Netch.Forms.Mode
         public Process()
         {
             InitializeComponent();
-
             CheckForIllegalCrossThreadCalls = false;
 
-            EditMode = false;
-            EditMode_Old = null;
+            EditingMode = null;
+
+            FilenameTextBox.Enabled = false;
+            FilenameLabel.Enabled = false;
+            IsEditing = false;
         }
 
         /// <summary>
@@ -88,6 +91,7 @@ namespace Netch.Forms.Mode
                         if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
                         {
                             RuleListBox.Items.Add(FileChildInfo.Name);
+                            IsEdited = true;
                         }
                     }
                 }
@@ -98,7 +102,7 @@ namespace Netch.Forms.Mode
             }
         }
 
-        private void ModeForm_Load(object sender, EventArgs e)
+        public void ModeForm_Load(object sender, EventArgs e)
         {
             Text = i18N.Translate(Text);
             ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
@@ -109,14 +113,6 @@ namespace Netch.Forms.Mode
             ScanButton.Text = i18N.Translate(ScanButton.Text);
             ControlButton.Text = i18N.Translate(ControlButton.Text);
             DeleteToolStripMenuItem.Text = i18N.Translate(DeleteToolStripMenuItem.Text);
-
-            FilenameTextBox.Enabled = false;
-            FilenameLabel.Enabled = false;
-        }
-
-        private void ModeForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.MainForm.Show();
         }
 
         /// <summary>
@@ -137,6 +133,7 @@ namespace Netch.Forms.Mode
         {
             if (RuleListBox.SelectedIndex == -1) return;
             RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
+            IsEdited = true;
         }
 
         private async void AddButton_Click(object sender, EventArgs e)
@@ -156,6 +153,7 @@ namespace Netch.Forms.Mode
                         RuleListBox.Items.Add(process);
                     }
 
+                    IsEdited = true;
                     RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
                     ProcessNameTextBox.Text = string.Empty;
                 }
@@ -176,26 +174,24 @@ namespace Netch.Forms.Mode
             }
         }
 
-        private void ControlButton_Click(object sender, EventArgs e)
+        public void ControlButton_Click(object sender, EventArgs e)
         {
-            if (EditMode)
+            if (IsEditing)
             {
                 // 编辑模式
                 if (RuleListBox.Items.Count != 0)
                 {
-                    var mode = new Models.Mode
-                    {
-                        BypassChina = false,
-                        FileName = FilenameTextBox.Text,
-                        Type = 0,
-                        Remark = RemarkTextBox.Text
-                    };
+                    EditingMode.BypassChina = false;
+                    EditingMode.FileName = FilenameTextBox.Text;
+                    EditingMode.Type = 0;
+                    EditingMode.Remark = RemarkTextBox.Text;
+                    EditingMode.Rule.Clear();
 
                     var text = $"# {RemarkTextBox.Text}, 0\r\n";
                     foreach (var item in RuleListBox.Items)
                     {
                         var process = item as string;
-                        mode.Rule.Add(process);
+                        EditingMode.Rule.Add(process);
                         text += process + "\r\n";
                     }
 
@@ -210,7 +206,7 @@ namespace Netch.Forms.Mode
 
                     MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
 
-                    Global.MainForm.UpdateMode(mode, EditMode_Old);
+                    IsEdited = false;
                     Close();
                 }
                 else

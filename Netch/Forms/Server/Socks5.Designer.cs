@@ -173,7 +173,6 @@
             this.Name = "Socks5";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Socks5";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Shadowsocks_FormClosing);
             this.Load += new System.EventHandler(this.Shadowsocks_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();

@@ -28,11 +28,6 @@ namespace Netch.Forms
             PrefixComboBox.SelectedIndex = 0;
         }
 
-        private void GlobalBypassIPForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.SettingForm.Show();
-        }
-
         private void AddButton_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(IPTextBox.Text))

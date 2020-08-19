@@ -266,7 +266,6 @@
             this.Name = "ShadowsocksR";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ShadowsocksR";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ShadowsocksR_FormClosing);
             this.Load += new System.EventHandler(this.ShadowsocksR_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();

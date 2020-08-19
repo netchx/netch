@@ -198,7 +198,6 @@ namespace Netch.Forms.Mode
             this.Name = "Process";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Process Mode";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ModeForm_FormClosing);
             this.Load += new System.EventHandler(this.ModeForm_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();
@@ -212,7 +211,7 @@ namespace Netch.Forms.Mode
 
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
-        private System.Windows.Forms.GroupBox ConfigurationGroupBox;
+        public System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Label RemarkLabel;
         private System.Windows.Forms.GroupBox ProcessGroupBox;
         private System.Windows.Forms.ListBox RuleListBox;
@@ -220,7 +219,7 @@ namespace Netch.Forms.Mode
         private System.Windows.Forms.TextBox ProcessNameTextBox;
         private System.Windows.Forms.Button AddButton;
         private System.Windows.Forms.Button ScanButton;
-        private System.Windows.Forms.Button ControlButton;
+        public System.Windows.Forms.Button ControlButton;
         private System.Windows.Forms.Label FilenameLabel;
         private System.Windows.Forms.TextBox FilenameTextBox;
         private System.Windows.Forms.CheckBox UseCustomFilenameBox;

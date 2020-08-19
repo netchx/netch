@@ -12,6 +12,11 @@ namespace Netch.Models
         public string Remark;
 
         /// <summary>
+        ///     文件相对路径
+        /// </summary>
+        public string RelativePath;
+
+        /// <summary>
         ///		无后缀文件名
         /// </summary>
         public string FileName;

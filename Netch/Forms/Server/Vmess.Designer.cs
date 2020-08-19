@@ -385,7 +385,6 @@
             this.Name = "VMess";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "VMess";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.VMess_FormClosing);
             this.Load += new System.EventHandler(this.VMess_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();

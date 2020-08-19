@@ -37,11 +37,6 @@ namespace Netch.Forms.Server
             PasswordTextBox.Text = _server.Password;
         }
 
-        private void Trojan_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.MainForm.Show();
-        }
-
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
             if (sender is ComboBox cbx)

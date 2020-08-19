@@ -22,11 +22,6 @@ namespace Netch
         public static Forms.MainForm MainForm;
 
         /// <summary>
-        ///     设置窗体
-        /// </summary>
-        public static Forms.SettingForm SettingForm;
-
-        /// <summary>
 		///		SS/SSR 加密方式
 		/// </summary>
 		public static class EncryptMethods
@@ -206,8 +201,8 @@ namespace Netch
         public static Models.Setting Settings = new Models.Setting();
 
         /// <summary>
-        ///     用于存储模式文件内容
+        ///     用于存储模式
         /// </summary>
-        public static List<Models.Mode> ModeFiles = new List<Models.Mode>();
+        public static readonly List<Models.Mode> Modes = new List<Models.Mode>();
     }
 }

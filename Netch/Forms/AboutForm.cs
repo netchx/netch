@@ -19,11 +19,6 @@ namespace Netch.Forms
             SponsorGroupBox.Text = i18N.Translate(SponsorGroupBox.Text);
         }
 
-        private void AboutForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.MainForm.Show();
-        }
-
         private void NetchPictureBox_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/NetchX/Netch");

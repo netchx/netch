@@ -99,7 +99,6 @@
             this.Name = "AboutForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "About";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AboutForm_FormClosing);
             this.Load += new System.EventHandler(this.AboutForm_Load);
             this.SponsorGroupBox.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.SponsorPictureBox)).EndInit();

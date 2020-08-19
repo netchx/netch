@@ -172,15 +172,11 @@ namespace Netch.Forms
             InitValue();
         }
 
-        private void SettingForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.MainForm.Show();
-        }
-
         private void GlobalBypassIPsButton_Click(object sender, EventArgs e)
         {
-            new GlobalBypassIPForm().Show();
             Hide();
+            new GlobalBypassIPForm().ShowDialog();
+            Show();
         }
 
         private void ControlButton_Click(object sender, EventArgs e)

@@ -162,8 +162,9 @@ namespace Netch.Forms
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
-            (Global.SettingForm = new SettingForm()).Show();
             Hide();
+            new SettingForm().ShowDialog();
+            Show();
         }
 
 
@@ -285,28 +286,19 @@ namespace Netch.Forms
             // 当前ServerComboBox中至少有一项
             if (ServerComboBox.SelectedIndex != -1)
             {
-                switch (Global.Settings.Server[ServerComboBox.SelectedIndex].Type)
+                Form server = Global.Settings.Server[ServerComboBox.SelectedIndex].Type switch
                 {
-                    case "Socks5":
-                        new Socks5(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    case "SS":
-                        new Shadowsocks(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    case "SSR":
-                        new ShadowsocksR(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    case "VMess":
-                        new VMess(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    case "Trojan":
-                        new Trojan(ServerComboBox.SelectedIndex).Show();
-                        break;
-                    default:
-                        return;
-                }
-
+                    "Socks5" => new Socks5(ServerComboBox.SelectedIndex),
+                    "SS" => new Shadowsocks(ServerComboBox.SelectedIndex),
+                    "SSR" => new ShadowsocksR(ServerComboBox.SelectedIndex),
+                    "VMess" => new VMess(ServerComboBox.SelectedIndex),
+                    "Trojan" => new Trojan(ServerComboBox.SelectedIndex),
+                    _ => null
+                };
                 Hide();
+                server?.ShowDialog();
+                InitServer();
+                Show();
             }
             else
             {
@@ -349,6 +341,11 @@ namespace Netch.Forms
                     var process = new Process(selectedMode);
                     process.Show();
                     Hide();
+                    process.FormClosed += (o, args) =>
+                    {
+                        InitMode();
+                        Show();
+                    };
                     break;
                 }
                 default:
@@ -370,8 +367,8 @@ namespace Netch.Forms
                 selectedMode.DeleteFile("mode");
 
                 ModeComboBox.Items.Clear();
-                Global.ModeFiles.Remove(selectedMode);
-                var array = Global.ModeFiles.ToArray();
+                Global.Modes.Remove(selectedMode);
+                var array = Global.Modes.ToArray();
                 Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
                 ModeComboBox.Items.AddRange(array);
 

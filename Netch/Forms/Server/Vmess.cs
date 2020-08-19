@@ -87,11 +87,6 @@ namespace Netch.Forms.Server
             UseMuxCheckBox.Checked = server.UseMux;
         }
 
-        private void VMess_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            Global.MainForm.Show();
-        }
-
         private void ControlButton_Click(object sender, EventArgs e)
         {
             if (!int.TryParse(PortTextBox.Text, out var port))

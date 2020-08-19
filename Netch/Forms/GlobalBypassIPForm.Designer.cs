@@ -125,7 +125,6 @@
             this.Name = "GlobalBypassIPForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Global Bypass IPs";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GlobalBypassIPForm_FormClosing);
             this.Load += new System.EventHandler(this.GlobalBypassIPForm_Load);
             this.IPGroupBox.ResumeLayout(false);
             this.IPGroupBox.PerformLayout();
