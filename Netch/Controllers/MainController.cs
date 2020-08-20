@@ -148,7 +148,7 @@ namespace Netch.Controllers
             if (result)
             {
                 // 加密代理成功启动
-                UsingPorts.Add(pEncryptedProxyController.Socks5LocalPort); // 记录Socks5使用端口
+                UsingPorts.Add(pEncryptedProxyController?.Socks5LocalPort ?? server.Port); // 记录Socks5使用端口
 
                 switch (mode.Type)
                 {
