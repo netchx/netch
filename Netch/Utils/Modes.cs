@@ -8,15 +8,25 @@ namespace Netch.Utils
 {
     public static class Modes
     {
-        private static readonly string ModeDirectory = Path.Combine(Global.NetchDir, "mode\\");
+        private const string MODE_DIR = "mode";
 
+        public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
+
+        /// <summary>
+        ///     从模式文件夹读取模式并为 <see cref="Forms.MainForm.ModeComboBox"/> 绑定数据
+        /// </summary>
         public static void Load()
         {
+            var raiseListChangedEvents = Global.Modes.RaiseListChangedEvents;
+
+            Global.Modes.RaiseListChangedEvents = false;
+            Global.MainForm.ModeComboBox.DataSource = null;
             Global.Modes.Clear();
-            if (!Directory.Exists("mode")) return;
+
+            if (!Directory.Exists(MODE_DIR)) return;
 
             var stack = new Stack<string>();
-            stack.Push("mode");
+            stack.Push(MODE_DIR);
             while (stack.Count > 0)
             {
                 var dirInfo = new DirectoryInfo(stack.Pop());
@@ -34,7 +44,9 @@ namespace Netch.Utils
                 }
             }
 
-            Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+            Sort();
+            Global.MainForm.ModeComboBox.DataSource = Global.Modes;
+            Global.Modes.RaiseListChangedEvents = raiseListChangedEvents;
         }
 
         private static void LoadModeFile(string path)
@@ -80,6 +92,23 @@ namespace Netch.Utils
             }
 
             Global.Modes.Add(mode);
+        }
+
+        private static void Sort()
+        {
+            Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+        }
+
+        public static void Add(Mode mode)
+        {
+            Global.Modes.Add(mode);
+            Sort();
+        }
+
+        public static void Delete(Mode mode)
+        {
+            mode.DeleteFile();
+            Global.Modes.Remove(mode);
         }
     }
 }

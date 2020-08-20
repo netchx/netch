@@ -35,14 +35,16 @@ namespace Netch.Forms
 
                 if (result != null)
                 {
-                    Global.Settings.Server.AddRange(result);
+                    foreach (var server in result)
+                    {
+                        Global.Settings.Server.Add(server);
+                    }
                 }
                 else
                 {
                     MessageBoxX.Show(i18N.Translate("Import servers error!"), LogLevel.ERROR);
                 }
 
-                InitServer();
                 Configuration.Save();
             }
         }
@@ -61,6 +63,7 @@ namespace Netch.Forms
 
             Hide();
             form?.ShowDialog();
+            Configuration.Save();
             Show();
         }
 
@@ -75,16 +78,12 @@ namespace Netch.Forms
             Show();
         }
 
-        private async void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
             try
             {
-                await Task.Run(() =>
-                {
-                    SaveConfigs();
-                    InitMode();
-                });
+                Modes.Load();
                 NotifyTip(i18N.Translate("Modes have been reload"));
             }
             catch (Exception)
@@ -105,7 +104,6 @@ namespace Netch.Forms
         {
             Hide();
             new SubscribeForm().ShowDialog();
-            InitServer();
             Show();
         }
 
@@ -170,13 +168,19 @@ namespace Netch.Forms
 
                         lock (serverLock)
                         {
-                            Global.Settings.Server = Global.Settings.Server.Where(server => server.Group != item.Remark).ToList();
+                            foreach (var server in Global.Settings.Server.Where(server => server.Group == item.Remark))
+                            {
+                                Global.Settings.Server.Remove(server);
+                            }
+
                             var result = ShareLink.Parse(str);
                             if (result != null)
                             {
-                                foreach (var x in result) x.Group = item.Remark;
-
-                                Global.Settings.Server.AddRange(result);
+                                foreach (var server in result)
+                                {
+                                    server.Group = item.Remark;
+                                    Global.Settings.Server.Add(server);
+                                }
                             }
 
                             NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result?.Count ?? 0));
@@ -193,7 +197,6 @@ namespace Netch.Forms
                 })).ToArray());
 
                 Configuration.Save();
-                await Task.Run(InitServer);
                 StatusText(i18N.Translate("Subscription updated"));
             }
             catch (Exception)

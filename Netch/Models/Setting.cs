@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Netch.Models
 {
@@ -87,7 +88,7 @@ namespace Netch.Models
         ///		是否打开软件时检查更新
         /// </summary>
         public bool CheckUpdateWhenOpened = true;
-        
+
         /// <summary>
         ///		是否检查 Beta 更新
         /// </summary>
@@ -146,7 +147,7 @@ namespace Netch.Models
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public List<Server> Server = new List<Server>();
+        public readonly BindingList<Server> Server = new BindingList<Server>();
 
         /// <summary>
         ///		全局绕过 IP 列表

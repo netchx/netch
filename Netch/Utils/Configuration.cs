@@ -16,7 +16,7 @@ namespace Netch.Utils
         /// <summary>
         ///     数据目录
         /// </summary>
-        public static readonly string DATA_DIR = "data";
+        public const string DATA_DIR = "data";
 
         /// <summary>
         ///     设置

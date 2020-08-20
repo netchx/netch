@@ -68,8 +68,8 @@ namespace Netch.Forms
                             while (State == State.Started)
                             {
                                 server.Test();
-                                // 重载服务器列表
-                                InitServer();
+                                // 重绘 ServerComboBox
+                                ServerComboBox.Invalidate();
 
                                 Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                             }

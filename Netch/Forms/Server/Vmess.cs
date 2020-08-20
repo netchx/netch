@@ -7,15 +7,13 @@ namespace Netch.Forms.Server
 {
     public partial class VMess : Form
     {
-        private static Models.Server server;
+        private static Models.Server _server;
 
-        public VMess(int index = -1)
+        public VMess(Models.Server server = default)
         {
             InitializeComponent();
 
-            server = index != -1
-                ? Global.Settings.Server[index]
-                : new Models.Server {EncryptMethod = Global.EncryptMethods.VMess[0]};
+            _server = server ?? new Models.Server {EncryptMethod = Global.EncryptMethods.VMess[0]};
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -71,20 +69,20 @@ namespace Netch.Forms.Server
 
             #endregion
 
-            RemarkTextBox.Text = server.Remark;
-            AddressTextBox.Text = server.Hostname;
-            PortTextBox.Text = server.Port.ToString();
-            UserIDTextBox.Text = server.UserID;
-            AlterIDTextBox.Text = server.AlterID.ToString();
-            EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.VMess.IndexOf(server.EncryptMethod);
-            TransferProtocolComboBox.SelectedIndex = Global.TransferProtocols.IndexOf(server.TransferProtocol);
-            FakeTypeComboBox.SelectedIndex = Global.FakeTypes.IndexOf(server.FakeType);
-            HostTextBox.Text = server.Host;
-            PathTextBox.Text = server.Path;
-            QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(server.QUICSecure);
-            QUICSecretTextBox.Text = server.QUICSecret;
-            TLSSecureCheckBox.Checked = server.TLSSecure;
-            UseMuxCheckBox.Checked = server.UseMux;
+            RemarkTextBox.Text = _server.Remark;
+            AddressTextBox.Text = _server.Hostname;
+            PortTextBox.Text = _server.Port.ToString();
+            UserIDTextBox.Text = _server.UserID;
+            AlterIDTextBox.Text = _server.AlterID.ToString();
+            EncryptMethodComboBox.SelectedIndex = Global.EncryptMethods.VMess.IndexOf(_server.EncryptMethod);
+            TransferProtocolComboBox.SelectedIndex = Global.TransferProtocols.IndexOf(_server.TransferProtocol);
+            FakeTypeComboBox.SelectedIndex = Global.FakeTypes.IndexOf(_server.FakeType);
+            HostTextBox.Text = _server.Host;
+            PathTextBox.Text = _server.Path;
+            QUICSecurityComboBox.SelectedIndex = Global.EncryptMethods.VMessQUIC.IndexOf(_server.QUICSecure);
+            QUICSecretTextBox.Text = _server.QUICSecret;
+            TLSSecureCheckBox.Checked = _server.TLSSecure;
+            UseMuxCheckBox.Checked = _server.UseMux;
         }
 
         private void ControlButton_Click(object sender, EventArgs e)
@@ -105,31 +103,29 @@ namespace Netch.Forms.Server
                 return;
             }
 
-            server.Remark = RemarkTextBox.Text;
-            server.Type = "VMess";
-            server.Hostname = AddressTextBox.Text;
-            server.Port = port;
-            server.UserID = UserIDTextBox.Text;
-            server.AlterID = afterId;
-            server.EncryptMethod = EncryptMethodComboBox.Text;
-            server.TransferProtocol = TransferProtocolComboBox.Text;
-            server.FakeType = FakeTypeComboBox.Text;
-            server.Host = HostTextBox.Text;
-            server.Path = PathTextBox.Text;
-            server.QUICSecure = QUICSecurityComboBox.Text;
-            server.QUICSecret = QUICSecretTextBox.Text;
-            server.TLSSecure = TLSSecureCheckBox.Checked;
-            server.UseMux = UseMuxCheckBox.Checked;
-            server.Country = null;
+            _server.Remark = RemarkTextBox.Text;
+            _server.Type = "VMess";
+            _server.Hostname = AddressTextBox.Text;
+            _server.Port = port;
+            _server.UserID = UserIDTextBox.Text;
+            _server.AlterID = afterId;
+            _server.EncryptMethod = EncryptMethodComboBox.Text;
+            _server.TransferProtocol = TransferProtocolComboBox.Text;
+            _server.FakeType = FakeTypeComboBox.Text;
+            _server.Host = HostTextBox.Text;
+            _server.Path = PathTextBox.Text;
+            _server.QUICSecure = QUICSecurityComboBox.Text;
+            _server.QUICSecret = QUICSecretTextBox.Text;
+            _server.TLSSecure = TLSSecureCheckBox.Checked;
+            _server.UseMux = UseMuxCheckBox.Checked;
+            _server.Country = null;
 
-            if (Global.Settings.Server.IndexOf(server) == -1)
+            if (Global.Settings.Server.IndexOf(_server) == -1)
             {
-                Global.Settings.Server.Add(server);
+                Global.Settings.Server.Add(_server);
             }
 
-            Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
-            Global.MainForm.InitServer();
             Close();
         }
     }

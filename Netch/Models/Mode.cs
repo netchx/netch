@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using Netch.Utils;
 
 namespace Netch.Models
 {
@@ -118,15 +120,12 @@ namespace Netch.Models
         /// <summary>
         ///		删除模式文件
         /// </summary>
-        public void DeleteFile(string Dir)
+        public void DeleteFile()
         {
-            if (System.IO.Directory.Exists(Dir))
+            var fullPath = Path.Combine(Modes.ModeDirectory, RelativePath);
+            if (File.Exists(fullPath))
             {
-                var NewPath = System.IO.Path.Combine(Dir, FileName);
-                if (System.IO.File.Exists(NewPath + ".txt"))
-                {
-                    System.IO.File.Delete(NewPath + ".txt");
-                }
+                File.Delete(fullPath);
             }
         }
 

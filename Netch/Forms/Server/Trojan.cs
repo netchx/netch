@@ -9,18 +9,11 @@ namespace Netch.Forms.Server
     {
         private readonly Models.Server _server;
 
-        /// <summary>
-        ///     初始化
-        /// </summary>
-        /// <param name="index">需要编辑的索引</param>
-        public Trojan(int index = -1)
+        public Trojan(Models.Server server = default)
         {
             InitializeComponent();
 
-
-            _server = index != -1
-                ? Global.Settings.Server[index]
-                : new Models.Server();
+            _server = server ?? new Models.Server();
         }
 
         private void Trojan_Load(object sender, EventArgs e)
@@ -83,9 +76,7 @@ namespace Netch.Forms.Server
                 Global.Settings.Server.Add(_server);
             }
 
-            Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
-            Global.MainForm.InitServer();
             Close();
         }
     }

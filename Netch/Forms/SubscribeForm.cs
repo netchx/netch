@@ -92,8 +92,6 @@ namespace Netch.Forms
                         Global.Settings.SubscribeLink.RemoveAt(item.Index);
                         SubscribeLinkListView.Items.Remove(item);
                         ResetEditingGroup();
-
-                        Global.MainForm.InitServer();
                     }
                 }
             }
@@ -187,18 +185,21 @@ namespace Netch.Forms
 
         private static void DeleteServersInGroup(string group)
         {
-            Global.Settings.Server = Global.Settings.Server.Where(server => !server.Group.Equals(group)).ToList();
+            foreach (var server in Global.Settings.Server.ToList().Where(server => server.Group.Equals(group)))
+            {
+                Global.Settings.Server.Remove(server);
+            }
         }
 
         private static void RenameServersGroup(string oldGroup, string newGroup)
         {
-            Global.Settings.Server.ForEach(server =>
+            foreach (var server in Global.Settings.Server)
             {
                 if (server.Group == oldGroup)
                 {
                     server.Group = newGroup;
                 }
-            });
+            }
         }
 
         /// <summary>

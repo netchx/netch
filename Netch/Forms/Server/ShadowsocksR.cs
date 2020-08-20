@@ -9,17 +9,11 @@ namespace Netch.Forms.Server
     {
         private readonly Models.Server _server;
 
-        /// <summary>
-        ///     初始化
-        /// </summary>
-        /// <param name="index">需要编辑的索引</param>
-        public ShadowsocksR(int index = -1)
+        public ShadowsocksR(Models.Server server = default)
         {
             InitializeComponent();
 
-            _server = index != -1
-                ? Global.Settings.Server[index]
-                : new Models.Server {EncryptMethod = Global.EncryptMethods.SSR[0]};
+            _server = server ?? new Models.Server {EncryptMethod = Global.EncryptMethods.SSR[0]};
         }
 
         private void ShadowsocksR_Load(object sender, EventArgs e)
@@ -43,7 +37,6 @@ namespace Netch.Forms.Server
             OBFSComboBox.Items.AddRange(Global.OBFSs.ToArray());
 
             #endregion
-
 
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;
@@ -106,9 +99,7 @@ namespace Netch.Forms.Server
                 Global.Settings.Server.Add(_server);
             }
 
-            Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
-            Global.MainForm.InitServer();
             Close();
         }
     }

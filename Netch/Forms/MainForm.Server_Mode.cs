@@ -29,11 +29,8 @@ namespace Netch.Forms
             }
         }
 
-        public void InitServer()
+        public void SelectLastServer()
         {
-            ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
-
             // 如果值合法，选中该位置
             if (Global.Settings.ServerComboBoxSelectedIndex > 0 &&
                 Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
@@ -53,18 +50,7 @@ namespace Netch.Forms
 
         #region Mode
 
-        public void InitMode()
-        {
-            ModeComboBox.Items.Clear();
-
-            Modes.Load();
-
-            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
-
-            SelectLastMode();
-        }
-
-        private void SelectLastMode()
+        public void SelectLastMode()
         {
             // 如果值合法，选中该位置
             if (Global.Settings.ModeComboBoxSelectedIndex > 0 &&
@@ -79,17 +65,6 @@ namespace Netch.Forms
             }
 
             // 如果当前 ModeComboBox 中没元素，不做处理
-        }
-
-        public void AddMode(Models.Mode mode)
-        {
-            ModeComboBox.Items.Clear();
-            Global.Modes.Add(mode);
-            var array = Global.Modes.ToArray();
-            Array.Sort(array, (a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
-            ModeComboBox.Items.AddRange(array);
-
-            SelectLastMode();
         }
 
         #endregion

@@ -262,7 +262,7 @@ namespace Netch.Forms.Mode
 
                         MessageBoxX.Show(i18N.Translate("Mode added successfully"));
 
-                        Global.MainForm.AddMode(mode);
+                        Modes.Add(mode);
                         Close();
                     }
                     else
