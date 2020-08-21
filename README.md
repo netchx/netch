@@ -17,6 +17,7 @@ Game accelerator
 - [Netch](#netch)
 	- [TOC](#toc)
 	- [Description](#description)
+    - [Sponsor](#sponsor)
 	- [Donate](#donate)
 	- [Screenshots](#screenshots)
 	- [Requirements](#requirements)
@@ -26,6 +27,13 @@ Game accelerator
 Netch is an open source game accelerator. Unlike SSTap, which needs to add rules to function as a blacklist proxy, Netch is more similar to SocksCap64, which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server. Now supports Socks5, Shadowsocks, ShadowsocksR, VMess.
 
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
+
+## Sponsor
+- [RabbitHosts](https://rabbithosts.com/cart.php)
+- [ManSora](https://www.mansora.co/cart.php)
+- [ExCloud](https://excloud.net/cart.php)
+- [NyanCat](https://nyancat.info/register)
+- [YoYu](https://home.yoyu.ltd/cart.php)
 
 ## Donate
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
