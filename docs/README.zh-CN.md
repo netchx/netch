@@ -9,6 +9,7 @@
 - [Netch](#Netch)
 	- [TOC](#TOC)
 	- [简介](#简介)
+    - [赞助商](#赞助商)
 	- [捐赠](#捐赠)
     - [新手入门](Quickstart.zh-CN.md)
     - [进阶用法](Advanced_Usage.zh-CN.md)
@@ -22,6 +23,13 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 
 
 需要更多特性请移步魔改仓库 [Netch-ForOwnUse](https://github.com/AmazingDM/Netch-ForOwnUse)，
+
+## 赞助商
+- [RabbitHosts](https://rabbithosts.com/cart.php)
+- [ManSora](https://www.mansora.co/cart.php)
+- [ExCloud](https://excloud.net/cart.php)
+- [NyanCat](https://nyancat.info/register)
+- [YoYu](https://home.yoyu.ltd/cart.php)
 
 ## 捐赠
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
