@@ -92,13 +92,7 @@ namespace Netch.Forms.Server
                 return;
             }
 
-            if (AlterIDTextBox.Text == "")
-            {
-                MessageBoxX.Show(i18N.Translate("Please fill in alterID"));
-                return;
-            }
-
-            if (!int.TryParse(PortTextBox.Text, out var afterId))
+            if (!int.TryParse(AlterIDTextBox.Text, out var alterId))
             {
                 return;
             }
@@ -108,7 +102,7 @@ namespace Netch.Forms.Server
             _server.Hostname = AddressTextBox.Text;
             _server.Port = port;
             _server.UserID = UserIDTextBox.Text;
-            _server.AlterID = afterId;
+            _server.AlterID = alterId;
             _server.EncryptMethod = EncryptMethodComboBox.Text;
             _server.TransferProtocol = TransferProtocolComboBox.Text;
             _server.FakeType = FakeTypeComboBox.Text;
