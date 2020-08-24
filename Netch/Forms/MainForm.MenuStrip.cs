@@ -83,6 +83,7 @@ namespace Netch.Forms
             Enabled = false;
             try
             {
+                Modes.Load();
                 InitMode();
                 NotifyTip(i18N.Translate("Modes have been reload"));
             }
@@ -104,6 +105,7 @@ namespace Netch.Forms
         {
             Hide();
             new SubscribeForm().ShowDialog();
+            InitServer();
             Show();
         }
 
@@ -168,10 +170,7 @@ namespace Netch.Forms
 
                         lock (serverLock)
                         {
-                            foreach (var server in Global.Settings.Server.Where(server => server.Group == item.Remark))
-                            {
-                                Global.Settings.Server.Remove(server);
-                            }
+                            Global.Settings.Server.RemoveAll(server => server.Group == item.Remark);
 
                             var result = ShareLink.Parse(str);
                             if (result != null)
@@ -196,6 +195,7 @@ namespace Netch.Forms
                     }
                 })).ToArray());
 
+                InitServer();
                 Configuration.Save();
                 StatusText(i18N.Translate("Subscription updated"));
             }

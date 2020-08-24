@@ -185,10 +185,7 @@ namespace Netch.Forms
 
         private static void DeleteServersInGroup(string group)
         {
-            foreach (var server in Global.Settings.Server.ToList().Where(server => server.Group.Equals(group)))
-            {
-                Global.Settings.Server.Remove(server);
-            }
+            Global.Settings.Server.RemoveAll(server => server.Group == group);
         }
 
         private static void RenameServersGroup(string oldGroup, string newGroup)

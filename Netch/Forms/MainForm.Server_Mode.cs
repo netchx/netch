@@ -67,7 +67,6 @@ namespace Netch.Forms
             _comboBoxInitialized = false;
 
             ModeComboBox.Items.Clear();
-            Modes.Load();
             ModeComboBox.Items.AddRange(Global.Modes.ToArray());
             SelectLastMode();
             _comboBoxInitialized = comboBoxInitialized;
