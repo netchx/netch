@@ -32,7 +32,8 @@ jobs:
       run: |
         .\BUILD.ps1
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
-        7z a -mx9 C:\builtfiles\Netch.7z Netch\bin\x64\Release\win-x64\
+        7z a -mx9 C:\builtfiles\Netch.7z .\Netch\bin\x64\Release\win-x64\
+        7z rn C:\builtfiles\Netch.7z win-x64 Netch
         echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)"
         echo "::set-env name=Netch_EXE_SHA256::$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)"
 
