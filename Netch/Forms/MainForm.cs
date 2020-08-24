@@ -144,14 +144,6 @@ namespace Netch.Forms
         {
             Hide();
             new SettingForm().ShowDialog();
-            Show();
-        }
-
-
-        private void MainForm_VisibleChanged(object sender, EventArgs e)
-        {
-            if (!Visible)
-                return;
 
             if (i18N.LangCode != Global.Settings.Language)
             {
@@ -162,6 +154,8 @@ namespace Netch.Forms
 
             if (ProfileButtons.Count != Global.Settings.ProfileCount)
                 InitProfile();
+
+            Show();
         }
 
         private void InitText()
