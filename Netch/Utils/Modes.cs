@@ -17,10 +17,6 @@ namespace Netch.Utils
         /// </summary>
         public static void Load()
         {
-            var raiseListChangedEvents = Global.Modes.RaiseListChangedEvents;
-
-            Global.Modes.RaiseListChangedEvents = false;
-            Global.MainForm.ModeComboBox.DataSource = null;
             Global.Modes.Clear();
 
             if (!Directory.Exists(MODE_DIR)) return;
@@ -45,8 +41,6 @@ namespace Netch.Utils
             }
 
             Sort();
-            Global.MainForm.ModeComboBox.DataSource = Global.Modes;
-            Global.Modes.RaiseListChangedEvents = raiseListChangedEvents;
         }
 
         private static void LoadModeFile(string path)

@@ -37,12 +37,9 @@ namespace Netch.Forms
             // 计算 ComboBox绘制 目标宽度
             _eWidth = ServerComboBox.Width / 10;
 
-            Modes.Load();
-            ServerComboBox.DataSource = Global.Settings.Server;
-
-            SaveSelectIndex = true;
-            SelectLastMode();
-            SelectLastServer();
+            InitMode();
+            InitServer();
+            _comboBoxInitialized = true;
 
             // 加载翻译
             InitText();
@@ -340,7 +337,9 @@ namespace Netch.Forms
                 return;
             }
 
-            Modes.Delete(ModeComboBox.SelectedItem as Models.Mode);
+            var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
+            this.ModeComboBox.Items.Remove(selectedMode);
+            Modes.Delete(selectedMode);
 
             SelectLastMode();
         }
@@ -431,17 +430,17 @@ namespace Netch.Forms
 
         #endregion
 
-        private bool SaveSelectIndex = false;
+        private bool _comboBoxInitialized = false;
 
         private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
-            if (!SaveSelectIndex) return;
+            if (!_comboBoxInitialized) return;
             Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
         }
 
         private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
-            if (!SaveSelectIndex) return;
+            if (!_comboBoxInitialized) return;
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
     }

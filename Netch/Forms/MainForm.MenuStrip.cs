@@ -83,7 +83,7 @@ namespace Netch.Forms
             Enabled = false;
             try
             {
-                Modes.Load();
+                InitMode();
                 NotifyTip(i18N.Translate("Modes have been reload"));
             }
             catch (Exception)

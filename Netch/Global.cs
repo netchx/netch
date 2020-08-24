@@ -203,6 +203,6 @@ namespace Netch
         /// <summary>
         ///     用于存储模式
         /// </summary>
-        public static readonly SortableBindingList<Models.Mode> Modes = new SortableBindingList<Models.Mode>();
+        public static readonly List<Models.Mode> Modes = new List<Models.Mode>();
     }
 }

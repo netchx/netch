@@ -16,6 +16,17 @@ namespace Netch.Forms
     {
         #region Server
 
+        private void InitServer()
+        {
+            var comboBoxInitialized = _comboBoxInitialized;
+            _comboBoxInitialized = false;
+
+            ServerComboBox.Items.Clear();
+            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
+            SelectLastServer();
+            _comboBoxInitialized = comboBoxInitialized;
+        }
+
         private static void TestServer()
         {
             try
@@ -49,6 +60,18 @@ namespace Netch.Forms
         #endregion
 
         #region Mode
+
+        private void InitMode()
+        {
+            var comboBoxInitialized = _comboBoxInitialized;
+            _comboBoxInitialized = false;
+
+            ModeComboBox.Items.Clear();
+            Modes.Load();
+            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
+            SelectLastMode();
+            _comboBoxInitialized = comboBoxInitialized;
+        }
 
         public void SelectLastMode()
         {

@@ -147,7 +147,7 @@ namespace Netch.Models
         /// <summary>
         ///     服务器列表
         /// </summary>
-        public readonly BindingList<Server> Server = new BindingList<Server>();
+        public readonly List<Server> Server = new List<Server>();
 
         /// <summary>
         ///		全局绕过 IP 列表
