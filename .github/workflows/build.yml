@@ -1,5 +1,5 @@
 name: Netch CI
-on: [push]
+on: [push, pull_request]
 jobs:
   build:
     name: Build
@@ -13,9 +13,8 @@ jobs:
 
     - name: Checkout
       uses: actions/checkout@v2
-
-    - name: Update submodules
-      uses: snickerbockers/submodules-init@v4
+      with:
+        submodules: true
 
     - name: Restore NuGet Packages Cache
       uses: actions/cache@v2
@@ -33,12 +32,12 @@ jobs:
       run: |
         .\BUILD.ps1
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
-        Compress-Archive -Path Netch\bin\x64\Release\win-x64\* -DestinationPath C:\builtfiles\Netch.zip
-        echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.zip)"
+        7z a -mx9 C:\builtfiles\Netch.7z Netch\bin\x64\Release\win-x64\
+        echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)"
         echo "::set-env name=Netch_EXE_SHA256::$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)"
 
     - name: Upload Artifact
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: Netch
         path: Netch\bin\x64\Release\win-x64
@@ -53,17 +52,17 @@ jobs:
         prerelease: true
         draft: false
         files: |
-          C:\builtfiles\Netch.zip
+          C:\builtfiles\Netch.7z
         body: |
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
 
           ## 更新日志
-          * 这是 GitHub Action 自动化部署，更新日志应该很快会手动更新
+          * 这是 GitHub Actions 自动化部署，更新日志应该很快会手动更新
 
           ## 校验和
           | 文件名 | SHA256 |
           | :- | :- |
-          | Netch.zip | ${{ env.Netch_SHA256 }} |
+          | Netch.7z | ${{ env.Netch_SHA256 }} |
 
   # Deploy:
   #   needs: [build]
