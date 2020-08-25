@@ -45,6 +45,7 @@ namespace Netch.Forms
                     MessageBoxX.Show(i18N.Translate("Import servers error!"), LogLevel.ERROR);
                 }
 
+                InitServer();
                 Configuration.Save();
             }
         }

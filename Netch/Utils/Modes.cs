@@ -97,12 +97,14 @@ namespace Netch.Utils
         {
             Global.Modes.Add(mode);
             Sort();
+            Global.MainForm.InitMode();
         }
 
         public static void Delete(Mode mode)
         {
             mode.DeleteFile();
             Global.Modes.Remove(mode);
+            Global.MainForm.InitMode();
         }
     }
 }

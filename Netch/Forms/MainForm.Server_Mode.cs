@@ -61,7 +61,7 @@ namespace Netch.Forms
 
         #region Mode
 
-        private void InitMode()
+        public void InitMode()
         {
             var comboBoxInitialized = _comboBoxInitialized;
             _comboBoxInitialized = false;
