@@ -88,6 +88,7 @@ namespace Netch.Forms
 
                         LastUploadBandwidth = 0;
                         LastDownloadBandwidth = 0;
+                        Bandwidth.Stop();
 
                         ProfileGroupBox.Enabled = true;
                         StartDisableItems(true);

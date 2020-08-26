@@ -169,7 +169,8 @@ namespace Netch.Controllers
             {
                 SaveBufferTimer.Enabled = false;
             }
-            SaveBufferTimerEvent(null,null);
+
+            SaveBufferTimerEvent(null, null);
 
             State = State.Stopped;
         }
@@ -207,8 +208,11 @@ namespace Netch.Controllers
         {
             try
             {
-                File.AppendAllText(_logPath, _logBuffer.ToString());
-                _logBuffer.Clear();
+                if (_logPath != null && _logBuffer != null)
+                {
+                    File.AppendAllText(_logPath, _logBuffer.ToString());
+                    _logBuffer.Clear();
+                }
             }
             catch (Exception exception)
             {

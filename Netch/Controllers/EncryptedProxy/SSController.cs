@@ -6,6 +6,8 @@ namespace Netch.Controllers
 {
     public class SSController : EncryptedProxy
     {
+        private bool dllFlag = false;
+
         public SSController()
         {
             Name = "Shadowsocks";
@@ -19,6 +21,7 @@ namespace Netch.Controllers
             //从DLL启动Shaowsocks
             if (Global.Settings.BootShadowsocksFromDLL && (mode.Type == 0 || mode.Type == 1 || mode.Type == 2))
             {
+                dllFlag = true;
                 State = State.Starting;
                 var client = Encoding.UTF8.GetBytes($"{LocalAddress}:{Socks5LocalPort}");
                 var remote = Encoding.UTF8.GetBytes($"{server.Hostname}:{server.Port}");
@@ -48,7 +51,8 @@ namespace Netch.Controllers
             #region Argument
 
             var argument = new StringBuilder();
-            argument.Append($"-s {server.Hostname} -p {server.Port} -b {LocalAddress} -l {Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u");
+            argument.Append(
+                $"-s {server.Hostname} -p {server.Port} -b {LocalAddress} -l {Socks5LocalPort} -m {server.EncryptMethod} -k \"{server.Password}\" -u");
             if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
                 argument.Append($" --plugin {server.Plugin} --plugin-opts \"{server.PluginOption}\"");
             if (mode.BypassChina) argument.Append(" --acl default.acl");
@@ -63,7 +67,7 @@ namespace Netch.Controllers
         /// </summary>
         public override void Stop()
         {
-            if (Global.Settings.BootShadowsocksFromDLL) NativeMethods.Shadowsocks.Stop();
+            if (dllFlag) NativeMethods.Shadowsocks.Stop();
             else
                 StopInstance();
         }

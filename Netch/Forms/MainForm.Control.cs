@@ -18,6 +18,7 @@ namespace Netch.Forms
 
         private async void ControlFun()
         {
+            Configuration.Save();
             if (State == State.Waiting || State == State.Stopped)
             {
                 // 服务器、模式 需选择
