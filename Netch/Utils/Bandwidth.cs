@@ -21,26 +21,7 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="bandwidth">流量</param>
         /// <returns>带单位的流量字符串</returns>
-        public static string Compute(long bandwidth)
-        {
-            string[] units = {"KB", "MB", "GB", "TB", "PB"};
-            double result = bandwidth;
-            var i = -1;
-
-            do
-            {
-                i++;
-            } while ((result /= 1024) > 1024);
-
-            if (result < 0)
-            {
-                result = 0;
-            }
-
-            return string.Format("{0} {1}", Math.Round(result, 2), units[i]);
-        }
-
-        public static string ToByteSize(long size)
+        public static string Compute(long size)
         {
             var mStrSize = @"0";
             const double step = 1024.00;
