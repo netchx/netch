@@ -64,6 +64,7 @@ namespace Netch.Forms
 
             Hide();
             form?.ShowDialog();
+            InitServer();
             Configuration.Save();
             Show();
         }
