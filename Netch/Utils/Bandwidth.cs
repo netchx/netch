@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
@@ -13,7 +14,7 @@ namespace Netch.Utils
 {
     public static class Bandwidth
     {
-        public static int received;
+        public static ulong received;
         public static TraceEventSession tSession;
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="bandwidth">流量</param>
         /// <returns>带单位的流量字符串</returns>
-        public static string Compute(long size)
+        public static string Compute(ulong size)
         {
             var mStrSize = @"0";
             const double step = 1024.00;
@@ -96,7 +97,7 @@ namespace Netch.Utils
                     if (processList.Contains(data.ProcessID))
                     {
                         lock (counterLock)
-                            received += data.size;
+                            received += ulong.Parse(data.size.ToString());
 
                         // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                     }
@@ -106,7 +107,7 @@ namespace Netch.Utils
                     if (processList.Contains(data.ProcessID))
                     {
                         lock (counterLock)
-                            received += data.size;
+                            received += ulong.Parse(data.size.ToString());
 
                         // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
                     }
