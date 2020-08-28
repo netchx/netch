@@ -605,6 +605,7 @@ namespace Netch.Forms
             this.NatTypeStatusLabel.Size = new System.Drawing.Size(36, 17);
             this.NatTypeStatusLabel.Text = "NAT:";
             this.NatTypeStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.NatTypeStatusLabel.Click += new System.EventHandler(this.NatTypeStatusLabel_Click);
             // 
             // NatTypeStatusLightLabel
             // 
@@ -616,6 +617,7 @@ namespace Netch.Forms
             this.NatTypeStatusLightLabel.Size = new System.Drawing.Size(18, 21);
             this.NatTypeStatusLightLabel.Text = "⬤";
             this.NatTypeStatusLightLabel.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
+            this.NatTypeStatusLightLabel.Click += new System.EventHandler(this.NatTypeStatusLabel_Click);
             // 
             // ControlButton
             // 

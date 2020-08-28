@@ -236,6 +236,22 @@ namespace Netch.Controllers
         }
 
         /// <summary>
+        ///     重测NAT
+        /// </summary>
+        public void RetryNatTest()
+        {
+            _ = Task.Run(() =>
+            {
+                Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
+                // Thread.Sleep(1000);
+                var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
+                var country = Utils.Utils.GetCityCode(publicEnd);
+
+                if (nttResult) Global.MainForm.NatTypeStatusText(natType, country);
+            });
+        }
+
+        /// <summary>
         ///     停止
         /// </summary>
         public async Task Stop()

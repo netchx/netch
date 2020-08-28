@@ -441,5 +441,14 @@ namespace Netch.Forms
             if (!_comboBoxInitialized) return;
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
+
+        private void NatTypeStatusLabel_Click(object sender, EventArgs e)
+        {
+            //一个不太优雅的🔒
+            if (_state == State.Started && NatTypeStatusLabel.ToString().Contains("["))
+            {
+                _mainController.RetryNatTest();
+            }
+        }
     }
 }
