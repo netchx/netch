@@ -444,10 +444,9 @@ namespace Netch.Forms
 
         private void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
-            //一个不太优雅的🔒
-            if (_state == State.Started && NatTypeStatusLabel.ToString().Contains("["))
+            if (_state == State.Started && _mainController.NttTested)
             {
-                _mainController.RetryNatTest();
+                _mainController.NatTest();
             }
         }
     }

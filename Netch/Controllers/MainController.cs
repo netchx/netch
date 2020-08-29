@@ -205,20 +205,7 @@ namespace Netch.Controllers
                         case 0:
                         case 1:
                         case 2:
-                            _ = Task.Run(() =>
-                            {
-                                Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
-                                // Thread.Sleep(1000);
-                                var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
-
-                                if (nttResult)
-                                {
-                                    var country = Utils.Utils.GetCityCode(publicEnd);
-                                    Global.MainForm.NatTypeStatusText(natType, country);
-                                }
-                                else
-                                    Global.MainForm.NatTypeStatusText(natType);
-                            });
+                            NatTest();
                             break;
                     }
                 }
@@ -240,19 +227,29 @@ namespace Netch.Controllers
             return result;
         }
 
+        public bool NttTested;
+
         /// <summary>
-        ///     重测NAT
+        ///     测试 NAT
         /// </summary>
-        public void RetryNatTest()
+        public void NatTest()
         {
-            _ = Task.Run(() =>
+            NttTested = false;
+            Task.Run(() =>
             {
                 Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
                 // Thread.Sleep(1000);
                 var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
-                var country = Utils.Utils.GetCityCode(publicEnd);
 
-                if (nttResult) Global.MainForm.NatTypeStatusText(natType, country);
+                if (nttResult)
+                {
+                    var country = Utils.Utils.GetCityCode(publicEnd);
+                    Global.MainForm.NatTypeStatusText(natType, country);
+                }
+                else
+                    Global.MainForm.NatTypeStatusText(natType);
+
+                NttTested = true;
             });
         }
 
