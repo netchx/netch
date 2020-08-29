@@ -12,6 +12,10 @@ namespace Netch.Utils
 
         public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
 
+        public static string GetRelativePath(string fullName) => fullName.Substring(ModeDirectory.Length);
+        public static string GetFullPath(string relativeName) => Path.Combine(ModeDirectory, relativeName);
+        public static string GetFullPath(Mode mode) => Path.Combine(ModeDirectory, mode.RelativePath);
+
         /// <summary>
         ///     从模式文件夹读取模式并为 <see cref="Forms.MainForm.ModeComboBox"/> 绑定数据
         /// </summary>
@@ -43,15 +47,15 @@ namespace Netch.Utils
             Sort();
         }
 
-        private static void LoadModeFile(string path)
+        private static void LoadModeFile(string fullName)
         {
             var mode = new Mode
             {
-                FileName = Path.GetFileNameWithoutExtension(path),
-                RelativePath = path.Substring(ModeDirectory.Length)
+                FileName = Path.GetFileNameWithoutExtension(fullName),
+                RelativePath = GetRelativePath(fullName)
             };
 
-            var content = File.ReadAllLines(path);
+            var content = File.ReadAllLines(fullName);
             if (content.Length == 0) return;
 
             for (var i = 0; i < content.Length; i++)
@@ -67,8 +71,8 @@ namespace Netch.Utils
                         if ((tmp = splited.ElementAtOrDefault(0)) != null)
                             mode.Remark = i18N.Translate(tmp);
 
-                        if ((tmp = splited.ElementAtOrDefault(1)) != null)
-                            mode.Type = int.Parse(tmp);
+                        tmp = splited.ElementAtOrDefault(1);
+                        mode.Type = tmp != null ? int.Parse(tmp) : 0;
 
                         if ((tmp = splited.ElementAtOrDefault(2)) != null)
                             mode.BypassChina = int.Parse(tmp) == 1;
@@ -88,6 +92,25 @@ namespace Netch.Utils
             Global.Modes.Add(mode);
         }
 
+        public static void WriteFile(Mode mode)
+        {
+            if (!Directory.Exists(ModeDirectory))
+            {
+                Directory.CreateDirectory(ModeDirectory);
+            }
+
+            var fullName = GetFullPath(mode.RelativePath ?? mode.FileName + ".txt");
+
+            if (mode.RelativePath == null && File.Exists(fullName))
+            {
+                throw new Exception("新建模式的文件名已存在，请贡献者检查代码");
+            }
+
+            // 写入到模式文件里
+            File.WriteAllText(fullName, mode.ToFileString());
+            mode.RelativePath = GetRelativePath(fullName);
+        }
+
         private static void Sort()
         {
             Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
@@ -102,7 +125,12 @@ namespace Netch.Utils
 
         public static void Delete(Mode mode)
         {
-            mode.DeleteFile();
+            var fullName = GetFullPath(mode);
+            if (File.Exists(fullName))
+            {
+                File.Delete(fullName);
+            }
+
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
         }

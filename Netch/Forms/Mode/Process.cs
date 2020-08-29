@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,13 +11,15 @@ namespace Netch.Forms.Mode
 {
     public partial class Process : Form
     {
-        //用于判断当前窗口是否为编辑模式
-        public readonly bool IsEditing;
+        /// <summary>
+        ///     被编辑的模式
+        /// </summary>
+        private readonly Models.Mode _mode;
 
-        //被编辑的模式
-        public readonly Models.Mode EditingMode;
-
-        public bool IsEdited { get; private set; } = false;
+        /// <summary>
+        ///     是否被编辑过
+        /// </summary>
+        public bool Edited { get; private set; }
 
         /// <summary>
         ///		编辑模式
@@ -24,19 +27,25 @@ namespace Netch.Forms.Mode
         /// <param name="mode">模式</param>
         public Process(Models.Mode mode)
         {
+            if (mode.Type != 0)
+            {
+                throw new Exception("请传入进程模式");
+            }
+
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
 
-            EditingMode = mode;
             Text = "Edit Process Mode";
-            //循环填充已有规则
-            mode.Rule.ForEach(i => RuleListBox.Items.Add(i));
+            this._mode = mode;
+            RuleListBox.Items.AddRange(mode.Rule.ToArray());
 
-            IsEditing = true;
+            #region 禁用文件名更改
+
             RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-            FilenameTextBox.Enabled = false;
-            FilenameLabel.Enabled = false;
-            UseCustomFilenameBox.Enabled = false;
+            FilenameTextBox.Enabled =
+                UseCustomFilenameBox.Enabled = false;
+
+            #endregion
 
             FilenameTextBox.Text = mode.FileName;
             RemarkTextBox.Text = mode.Remark;
@@ -47,11 +56,7 @@ namespace Netch.Forms.Mode
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
 
-            EditingMode = null;
-
             FilenameTextBox.Enabled = false;
-            FilenameLabel.Enabled = false;
-            IsEditing = false;
         }
 
         /// <summary>
@@ -91,7 +96,7 @@ namespace Netch.Forms.Mode
                         if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
                         {
                             RuleListBox.Items.Add(FileChildInfo.Name);
-                            IsEdited = true;
+                            Edited = true;
                         }
                     }
                 }
@@ -133,7 +138,7 @@ namespace Netch.Forms.Mode
         {
             if (RuleListBox.SelectedIndex == -1) return;
             RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
-            IsEdited = true;
+            Edited = true;
         }
 
         private async void AddButton_Click(object sender, EventArgs e)
@@ -153,7 +158,7 @@ namespace Netch.Forms.Mode
                         RuleListBox.Items.Add(process);
                     }
 
-                    IsEdited = true;
+                    Edited = true;
                     RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
                     ProcessNameTextBox.Text = string.Empty;
                 }
@@ -176,105 +181,58 @@ namespace Netch.Forms.Mode
 
         public void ControlButton_Click(object sender, EventArgs e)
         {
-            if (IsEditing)
+            if (RuleListBox.Items.Count == 0)
             {
-                // 编辑模式
-                if (RuleListBox.Items.Count != 0)
-                {
-                    EditingMode.BypassChina = false;
-                    EditingMode.FileName = FilenameTextBox.Text;
-                    EditingMode.Type = 0;
-                    EditingMode.Remark = RemarkTextBox.Text;
-                    EditingMode.Rule.Clear();
+                MessageBoxX.Show(i18N.Translate("Unable to add empty rule"));
+                return;
+            }
 
-                    var text = $"# {RemarkTextBox.Text}, 0\r\n";
-                    foreach (var item in RuleListBox.Items)
-                    {
-                        var process = item as string;
-                        EditingMode.Rule.Add(process);
-                        text += process + "\r\n";
-                    }
+            if (string.IsNullOrWhiteSpace(RemarkTextBox.Text))
+            {
+                MessageBoxX.Show(i18N.Translate("Please enter a mode remark"));
+                return;
+            }
 
-                    text = text.Substring(0, text.Length - 2);
+            if (string.IsNullOrWhiteSpace(FilenameTextBox.Text))
+            {
+                MessageBoxX.Show(i18N.Translate("Please enter a mode filename"));
+                return;
+            }
 
-                    if (!Directory.Exists("mode"))
-                    {
-                        Directory.CreateDirectory("mode");
-                    }
+            if (_mode != null)
+            {
+                _mode.Remark = RemarkTextBox.Text;
+                _mode.Rule.Clear();
+                _mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
-                    File.WriteAllText(Path.Combine("mode", FilenameTextBox.Text) + ".txt", text);
-
-                    MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
-
-                    IsEdited = false;
-                    Close();
-                }
-                else
-                {
-                    MessageBoxX.Show(i18N.Translate("Unable to add empty rule"));
-                }
+                Modes.WriteFile(_mode);
+                Edited = false;
+                MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }
             else
             {
-                Configuration.Save();
-                if (!string.IsNullOrWhiteSpace(RemarkTextBox.Text))
+                var fullName = Modes.GetFullPath(FilenameTextBox.Text + ".txt");
+                if (File.Exists(fullName))
                 {
-                    if (string.IsNullOrWhiteSpace(FilenameTextBox.Text))
-                    {
-                        MessageBoxX.Show(i18N.Translate("Please enter a mode filename"));
-                        return;
-                    }
-
-                    var modeFilename = Path.Combine("mode", FilenameTextBox.Text);
-                    // 如果文件已存在，返回
-                    if (File.Exists(modeFilename + ".txt"))
-                    {
-                        MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
-                        return;
-                    }
-
-                    if (RuleListBox.Items.Count != 0)
-                    {
-                        var mode = new Models.Mode
-                        {
-                            BypassChina = false,
-                            FileName = FilenameTextBox.Text,
-                            Type = 0,
-                            Remark = RemarkTextBox.Text
-                        };
-
-                        var text = $"# {RemarkTextBox.Text}, 0\r\n";
-                        foreach (var item in RuleListBox.Items)
-                        {
-                            var process = item as string;
-                            mode.Rule.Add(process);
-                            text += process + "\r\n";
-                        }
-
-                        text = text.Substring(0, text.Length - 2);
-
-                        if (!Directory.Exists("mode"))
-                        {
-                            Directory.CreateDirectory("mode");
-                        }
-
-                        File.WriteAllText(modeFilename + ".txt", text);
-
-                        MessageBoxX.Show(i18N.Translate("Mode added successfully"));
-
-                        Modes.Add(mode);
-                        Close();
-                    }
-                    else
-                    {
-                        MessageBoxX.Show(i18N.Translate("Unable to add empty rule"));
-                    }
+                    MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
+                    return;
                 }
-                else
+
+                var mode = new Models.Mode
                 {
-                    MessageBoxX.Show(i18N.Translate("Please enter a mode remark"));
-                }
+                    BypassChina = false,
+                    FileName = FilenameTextBox.Text,
+                    Type = 0,
+                    Remark = RemarkTextBox.Text
+                };
+                mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
+
+                Modes.WriteFile(mode);
+                Modes.Add(mode);
+                MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
+
+            Close();
         }
 
         private async void RemarkTextBox_TextChanged(object sender, EventArgs e)
@@ -297,7 +255,7 @@ namespace Netch.Forms.Mode
 
         private void UseCustomFilenameBox_CheckedChanged(object sender, EventArgs e)
         {
-            FilenameTextBox.Enabled = FilenameLabel.Enabled = ((CheckBox) sender).Checked;
+            FilenameTextBox.Enabled = UseCustomFilenameBox.Checked;
         }
     }
 }
