@@ -1,19 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using Netch.Utils;
 
 namespace Netch.Controllers
 {
     public class NTTController : Controller
     {
-        private string _Other_address;
-        private string _Binding_test;
-        private string _Local_address;
-        private string _Mapped_address;
-        private string _Nat_mapping_behavior;
-        private string _Nat_filtering_behavior;
-        private string _lastResult;
+        private string _localEnd;
+        private string _publicEnd;
+        private string _natType;
+        private bool _nttResult;
 
         public NTTController()
         {
@@ -27,6 +25,9 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (bool, string, string, string) Start()
         {
+            _nttResult = false;
+            _natType = _localEnd = _publicEnd = null;
+
             try
             {
                 InitInstance($" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}");
@@ -36,17 +37,7 @@ namespace Netch.Controllers
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
-
-                /* var result = _lastResult.Split('\n');
-                 var natType = result[0];
-                 var localEnd = result[1];
-                 var publicEnd = result[2];*/
-
-                var natType = _lastResult;
-                var localEnd = _Local_address;
-                var publicEnd = _Mapped_address;
-
-                return (true, natType, localEnd, publicEnd);
+                return (_nttResult, _natType, _localEnd, _publicEnd);
             }
             catch (Exception e)
             {
@@ -67,40 +58,32 @@ namespace Netch.Controllers
         private new void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (string.IsNullOrEmpty(e.Data)) return;
-            var str = e.Data.Split(':');
+            Logging.Info($"[NTT] {e.Data}");
+
+            var str = e.Data.Split(':').Select(s => s.Trim()).ToArray();
             if (str.Length < 2)
                 return;
             var key = str[0];
-            var value = str[1].Trim();
+            var value = str[1];
             switch (key)
             {
                 case "Other address is":
-                    _Other_address = value;
-                    Logging.Info($"[NTT] Other address is {value}");
-                    break;
                 case "Binding test":
-                    _Binding_test = value;
-                    Logging.Info($"[NTT] Binding test {value}");
+                case "Nat mapping behavior":
+                case "Nat filtering behavior":
                     break;
                 case "Local address":
-                    _Local_address = value;
-                    Logging.Info($"[NTT] Local address {value}");
+                    _localEnd = value;
                     break;
                 case "Mapped address":
-                    _Mapped_address = value;
-                    Logging.Info($"[NTT] Mapped address {value}");
-                    break;
-                case "Nat mapping behavior":
-                    _Nat_mapping_behavior = value;
-                    Logging.Info($"[NTT] Nat mapping behavior {value}");
-                    break;
-                case "Nat filtering behavior":
-                    _Nat_filtering_behavior = value;
-                    Logging.Info($"[NTT] Nat filtering behavior {value}");
+                    _publicEnd = value;
                     break;
                 case "result":
-                    _lastResult = value;
-                    Logging.Info($"[NTT] result {value}");
+                    _natType = value;
+                    _nttResult = true;
+                    break;
+                default:
+                    _natType = str.Last();
                     break;
             }
         }

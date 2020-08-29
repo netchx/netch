@@ -210,9 +210,14 @@ namespace Netch.Controllers
                                 Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
                                 // Thread.Sleep(1000);
                                 var (nttResult, natType, localEnd, publicEnd) = pNTTController.Start();
-                                var country = Utils.Utils.GetCityCode(publicEnd);
 
-                                if (nttResult) Global.MainForm.NatTypeStatusText(natType, country);
+                                if (nttResult)
+                                {
+                                    var country = Utils.Utils.GetCityCode(publicEnd);
+                                    Global.MainForm.NatTypeStatusText(natType, country);
+                                }
+                                else
+                                    Global.MainForm.NatTypeStatusText(natType);
                             });
                             break;
                     }
