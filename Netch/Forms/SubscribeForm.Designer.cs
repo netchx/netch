@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubscribeForm));
             this.AddSubscriptionBox = new System.Windows.Forms.GroupBox();
             this.UserAgentTextBox = new System.Windows.Forms.TextBox();
+            this.ClearButton = new System.Windows.Forms.Button();
             this.AddButton = new System.Windows.Forms.Button();
             this.UserAgentLabel = new System.Windows.Forms.Label();
             this.LinkTextBox = new System.Windows.Forms.TextBox();
@@ -46,9 +47,12 @@
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UseSelectedServerCheckBox = new System.Windows.Forms.CheckBox();
-            this.ClearButton = new System.Windows.Forms.Button();
+            this.MainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.ControlsPanel = new System.Windows.Forms.Panel();
             this.AddSubscriptionBox.SuspendLayout();
             this.pContextMenuStrip.SuspendLayout();
+            this.MainTableLayoutPanel.SuspendLayout();
+            this.ControlsPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // AddSubscriptionBox
@@ -61,9 +65,10 @@
             this.AddSubscriptionBox.Controls.Add(this.LinkLabel);
             this.AddSubscriptionBox.Controls.Add(this.RemarkTextBox);
             this.AddSubscriptionBox.Controls.Add(this.RemarkLabel);
-            this.AddSubscriptionBox.Location = new System.Drawing.Point(12, 226);
+            this.AddSubscriptionBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.AddSubscriptionBox.Location = new System.Drawing.Point(8, 214);
             this.AddSubscriptionBox.Name = "AddSubscriptionBox";
-            this.AddSubscriptionBox.Size = new System.Drawing.Size(660, 135);
+            this.AddSubscriptionBox.Size = new System.Drawing.Size(668, 141);
             this.AddSubscriptionBox.TabIndex = 1;
             this.AddSubscriptionBox.TabStop = false;
             // 
@@ -73,6 +78,16 @@
             this.UserAgentTextBox.Name = "UserAgentTextBox";
             this.UserAgentTextBox.Size = new System.Drawing.Size(545, 23);
             this.UserAgentTextBox.TabIndex = 6;
+            // 
+            // ClearButton
+            // 
+            this.ClearButton.Location = new System.Drawing.Point(477, 103);
+            this.ClearButton.Name = "ClearButton";
+            this.ClearButton.Size = new System.Drawing.Size(58, 26);
+            this.ClearButton.TabIndex = 7;
+            this.ClearButton.Text = "Clear";
+            this.ClearButton.UseVisualStyleBackColor = true;
+            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
             // AddButton
             // 
@@ -130,11 +145,12 @@
             // 
             this.SubscribeLinkListView.AllowColumnReorder = true;
             this.SubscribeLinkListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {this.RemarkColumnHeader, this.LinkColumnHeader, this.UserAgentHeader});
+            this.SubscribeLinkListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscribeLinkListView.FullRowSelect = true;
             this.SubscribeLinkListView.HideSelection = false;
-            this.SubscribeLinkListView.Location = new System.Drawing.Point(12, 12);
+            this.SubscribeLinkListView.Location = new System.Drawing.Point(8, 8);
             this.SubscribeLinkListView.Name = "SubscribeLinkListView";
-            this.SubscribeLinkListView.Size = new System.Drawing.Size(660, 208);
+            this.SubscribeLinkListView.Size = new System.Drawing.Size(668, 200);
             this.SubscribeLinkListView.TabIndex = 0;
             this.SubscribeLinkListView.UseCompatibleStateImageBehavior = false;
             this.SubscribeLinkListView.View = System.Windows.Forms.View.Details;
@@ -179,31 +195,47 @@
             // UseSelectedServerCheckBox
             // 
             this.UseSelectedServerCheckBox.AutoSize = true;
-            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(12, 367);
+            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(3, 4);
             this.UseSelectedServerCheckBox.Name = "UseSelectedServerCheckBox";
             this.UseSelectedServerCheckBox.Size = new System.Drawing.Size(285, 21);
             this.UseSelectedServerCheckBox.TabIndex = 9;
             this.UseSelectedServerCheckBox.Text = "Use Selected Server To Update Subscription";
             this.UseSelectedServerCheckBox.UseVisualStyleBackColor = true;
             // 
-            // ClearButton
+            // MainTableLayoutPanel
             // 
-            this.ClearButton.Location = new System.Drawing.Point(477, 103);
-            this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(58, 26);
-            this.ClearButton.TabIndex = 7;
-            this.ClearButton.Text = "Clear";
-            this.ClearButton.UseVisualStyleBackColor = true;
-            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            this.MainTableLayoutPanel.ColumnCount = 1;
+            this.MainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.MainTableLayoutPanel.Controls.Add(this.SubscribeLinkListView, 0, 0);
+            this.MainTableLayoutPanel.Controls.Add(this.AddSubscriptionBox, 0, 1);
+            this.MainTableLayoutPanel.Controls.Add(this.ControlsPanel, 0, 2);
+            this.MainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.MainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.MainTableLayoutPanel.Name = "MainTableLayoutPanel";
+            this.MainTableLayoutPanel.Padding = new System.Windows.Forms.Padding(5);
+            this.MainTableLayoutPanel.RowCount = 3;
+            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 58.35777F));
+            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.64223F));
+            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
+            this.MainTableLayoutPanel.Size = new System.Drawing.Size(684, 391);
+            this.MainTableLayoutPanel.TabIndex = 11;
+            // 
+            // ControlsPanel
+            // 
+            this.ControlsPanel.Controls.Add(this.UseSelectedServerCheckBox);
+            this.ControlsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ControlsPanel.Location = new System.Drawing.Point(5, 358);
+            this.ControlsPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.ControlsPanel.Name = "ControlsPanel";
+            this.ControlsPanel.Size = new System.Drawing.Size(674, 28);
+            this.ControlsPanel.TabIndex = 2;
             // 
             // SubscribeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(684, 391);
-            this.Controls.Add(this.UseSelectedServerCheckBox);
-            this.Controls.Add(this.SubscribeLinkListView);
-            this.Controls.Add(this.AddSubscriptionBox);
+            this.Controls.Add(this.MainTableLayoutPanel);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
@@ -217,13 +249,15 @@
             this.AddSubscriptionBox.ResumeLayout(false);
             this.AddSubscriptionBox.PerformLayout();
             this.pContextMenuStrip.ResumeLayout(false);
+            this.MainTableLayoutPanel.ResumeLayout(false);
+            this.ControlsPanel.ResumeLayout(false);
+            this.ControlsPanel.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
         }
 
+        private System.Windows.Forms.Panel ControlsPanel;
+        private System.Windows.Forms.TableLayoutPanel MainTableLayoutPanel;
         private System.Windows.Forms.Button ClearButton;
-
-        #endregion
         private System.Windows.Forms.GroupBox AddSubscriptionBox;
         private System.Windows.Forms.Label RemarkLabel;
         private System.Windows.Forms.TextBox LinkTextBox;
@@ -240,5 +274,7 @@
         private System.Windows.Forms.TextBox UserAgentTextBox;
         private System.Windows.Forms.ColumnHeader UserAgentHeader;
         private System.Windows.Forms.CheckBox UseSelectedServerCheckBox;
+
+        #endregion
     }
 }
