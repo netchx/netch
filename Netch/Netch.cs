@@ -23,6 +23,32 @@ namespace Netch
                 // 设置当前目录
                 Directory.SetCurrentDirectory(Global.NetchDir);
 
+                // 预创建目录
+                var directories = new[] {"mode", "data", "i18n", "logging"};
+                foreach (var item in directories)
+                {
+                    if (!Directory.Exists(item))
+                    {
+                        Directory.CreateDirectory(item);
+                    }
+                }
+
+                // 加载配置
+                Configuration.Load();
+
+                // 加载语言
+                i18N.Load(Global.Settings.Language);
+
+                // 检查是否已经运行
+                if (!mutex.WaitOne(0, false))
+                {
+                    OnlyInstance.Send(OnlyInstance.Commands.Show);
+                    Logging.Info("唤起单实例");
+
+                    // 退出进程
+                    Environment.Exit(1);
+                }
+
                 // 清理上一次的日志文件，防止淤积占用磁盘空间
                 if (Directory.Exists("logging"))
                 {
@@ -39,42 +65,10 @@ namespace Netch
                     }
                 }
 
-                // 预创建目录
-                var directories = new[] {"mode", "data", "i18n", "logging"};
-                foreach (var item in directories)
-                {
-                    // 检查是否已经存在
-                    if (!Directory.Exists(item))
-                    {
-                        // 创建目录
-                        Directory.CreateDirectory(item);
-                    }
-                }
-
-                // 加载配置
-                Configuration.Load();
-
-                // 加载语言
-                i18N.Load(Global.Settings.Language);
-
-                Task.Run(() =>
-                {
-                    Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-                    Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}");
-                });
-
-                // 检查是否已经运行
-                if (!mutex.WaitOne(0, false))
-                {
-                    OnlyInstance.Send(OnlyInstance.Commands.Show);
-                    Logging.Info("唤起单实例");
-
-                    // 退出进程
-                    Environment.Exit(1);
-                }
-
-                Task.Run(OnlyInstance.Server);
+                Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
+                Task.Run(() => { Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}"); });
                 Logging.Info("启动单实例");
+                Task.Run(OnlyInstance.Server);
 
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
