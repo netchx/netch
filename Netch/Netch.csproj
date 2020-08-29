@@ -57,10 +57,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="ILMerge" Version="3.0.41" />
         <PackageReference Include="IPNetwork2" Version="2.5.211" />
         <PackageReference Include="MaxMind.GeoIP2" Version="3.2.0" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.58" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="System.Collections.Immutable" Version="5.0.0-preview.8.20407.11" />
+        <PackageReference Include="System.Reflection.Metadata" Version="5.0.0-preview.8.20407.11" />
     </ItemGroup>
 
     <ItemGroup>
@@ -107,6 +110,7 @@
     </ItemGroup>
     <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="@ECHO OFF&#xD;&#xA;RD /S /Q $(TargetDir)bin &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)i18n &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)mode &gt;NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;XCOPY /s /Y $(SolutionDir)binaries $(TargetDir)bin\ &gt;NUL&#xD;&#xA;XCOPY /s /Y $(SolutionDir)translations\i18n $(TargetDir)i18n\ &gt;NUL&#xD;&#xA;XCOPY /s /Y $(SolutionDir)modes\mode $(TargetDir)mode\ &gt;NUL&#xD;&#xA;&#xD;&#xA;DEL /f $(TargetDir)*.config &gt;NUL 2&gt;&amp;1&#xD;&#xA;DEL /f $(TargetDir)*.pdb &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /s /Q $(TargetDir)x86 &gt;NUL 2&gt;&amp;1" />
+      <Exec Command="$(ILMergeConsolePath) $(TargetDir)Netch.exe ^&#xD;&#xA;/out:$(TargetDir)NetchMerged.exe ^&#xD;&#xA;/targetplatform:v4,&quot;C:\Windows\Microsoft.NET\Framework64\v4.0.30319&quot; ^&#xD;&#xA;$(TargetDir)Dia2Lib.dll ^&#xD;&#xA;$(TargetDir)Interop.NetFwTypeLib.dll ^&#xD;&#xA;$(TargetDir)Interop.TaskScheduler.dll ^&#xD;&#xA;$(TargetDir)MaxMind.Db.dll ^&#xD;&#xA;$(TargetDir)MaxMind.GeoIP2.dll ^&#xD;&#xA;$(TargetDir)Microsoft.Diagnostics.FastSerialization.dll ^&#xD;&#xA;$(TargetDir)Microsoft.Diagnostics.Tracing.TraceEvent.dll ^&#xD;&#xA;$(TargetDir)NetchLib.dll ^&#xD;&#xA;$(TargetDir)Newtonsoft.Json.dll ^&#xD;&#xA;$(TargetDir)OSExtensions.dll ^&#xD;&#xA;$(TargetDir)System.Net.IPNetwork.dll ^&#xD;&#xA;$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll ^&#xD;&#xA;$(TargetDir)TraceReloggerLib.dll " />
+      <Exec Command="@ECHO OFF&#xD;&#xA;RD /S /Q $(TargetDir)bin &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)i18n &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /S /Q $(TargetDir)mode &gt;NUL 2&gt;&amp;1&#xD;&#xA;&#xD;&#xA;XCOPY /s /Y $(SolutionDir)binaries $(TargetDir)bin\ &gt;NUL&#xD;&#xA;XCOPY /s /Y $(SolutionDir)translations\i18n $(TargetDir)i18n\ &gt;NUL&#xD;&#xA;XCOPY /s /Y $(SolutionDir)modes\mode $(TargetDir)mode\ &gt;NUL&#xD;&#xA;MOVE /Y $(TargetDir)NetchMerged.exe $(TargetDir)Netch.exe&#xD;&#xA;&#xD;&#xA;DEL /f $(TargetDir)*.config &gt;NUL 2&gt;&amp;1&#xD;&#xA;DEL /f $(TargetDir)*.dll &gt;NUL 2&gt;&amp;1&#xD;&#xA;DEL /f $(TargetDir)*.pdb &gt;NUL 2&gt;&amp;1&#xD;&#xA;RD /s /Q $(TargetDir)x86 &gt;NUL 2&gt;&amp;1&#xD;&#xA;" />
     </Target>
 </Project>
