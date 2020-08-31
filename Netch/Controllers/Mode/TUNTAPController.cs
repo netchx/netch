@@ -204,14 +204,7 @@ namespace Netch.Controllers
             //if (Global.Settings.TUNTAP.UseCustomDNS || server.Type.Equals("VMess"))
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {
-                dns = string.Empty;
-                foreach (var value in Global.Settings.TUNTAP.DNS)
-                {
-                    dns += value;
-                    dns += ',';
-                }
-
-                dns = dns.Trim();
+                dns = Global.Settings.TUNTAP.DNS.Aggregate(string.Empty, (current, value) => current + (value + ',')).Trim();
                 dns = dns.Substring(0, dns.Length - 1);
             }
             else
@@ -231,8 +224,7 @@ namespace Netch.Controllers
             argument.Append($"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\"");
 
             State = State.Starting;
-            if (!StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime)) return false;
-            return true;
+            return StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
         }
 
         /// <summary>

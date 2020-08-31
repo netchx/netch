@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
 using Netch.Models;
 using Netch.Utils;
 
@@ -43,10 +44,10 @@ namespace Netch.Forms
                 var server = ServerComboBox.SelectedItem as Models.Server;
                 var mode = ModeComboBox.SelectedItem as Models.Mode;
 
-                if (await _mainController.Start(server, mode))
+                if (await MainController.Start(server, mode))
                 {
                     State = State.Started;
-                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode, ref _mainController); });
+                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode); });
                     // 如果勾选启动后最小化
                     if (Global.Settings.MinimizeWhenStarted)
                     {
@@ -88,7 +89,7 @@ namespace Netch.Forms
             {
                 // 停止
                 State = State.Stopping;
-                await _mainController.Stop();
+                await MainController.Stop();
                 State = State.Stopped;
                 _ = Task.Run(TestServer);
             }

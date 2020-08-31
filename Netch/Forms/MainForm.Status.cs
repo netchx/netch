@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Threading;
 using System.Windows;
+using Netch.Controllers;
 using Netch.Models;
 using Netch.Utils;
 
@@ -68,7 +69,7 @@ namespace Netch.Forms
                         ControlButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Stop");
 
-                        StatusTextAppend(_mainController.PortInfo);
+                        StatusTextAppend(MainController.PortInfo);
 
                         ProfileGroupBox.Enabled = true;
 

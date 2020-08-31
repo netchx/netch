@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
-using Netch.Forms;
 using Netch.Models;
 
 namespace Netch.Utils
@@ -55,29 +52,29 @@ namespace Netch.Utils
         /// 根据程序名统计流量
         /// </summary>
         /// <param name="ProcessName"></param>
-        public static void NetTraffic(Server server, Mode mode, ref MainController mainController)
+        public static void NetTraffic(Server server, Mode mode)
         {
             var counterLock = new object();
             //int sent = 0;
 
             //var processList = Process.GetProcessesByName(ProcessName).Select(p => p.Id).ToHashSet();
             var instances = new List<Process>();
-            if (server.Type.Equals("Socks5") && mainController.pModeController.Name == "HTTP")
+            if (server.Type.Equals("Socks5") && MainController.ModeController.Name == "HTTP")
             {
-                instances.Add(((HTTPController) mainController.pModeController).pPrivoxyController.Instance);
+                instances.Add(((HTTPController) MainController.ModeController).pPrivoxyController.Instance);
             }
             else if (server.Type.Equals("SS") && Global.Settings.BootShadowsocksFromDLL &&
                      (mode.Type == 0 || mode.Type == 1 || mode.Type == 2))
             {
                 instances.Add(Process.GetCurrentProcess());
             }
-            else if (mainController.pEncryptedProxyController != null)
+            else if (MainController.EncryptedProxyController != null)
             {
-                instances.Add(mainController.pEncryptedProxyController.Instance);
+                instances.Add(MainController.EncryptedProxyController.Instance);
             }
-            else if (mainController.pModeController != null)
+            else if (MainController.ModeController != null)
             {
-                instances.Add(mainController.pModeController.Instance);
+                instances.Add(MainController.ModeController.Instance);
             }
 
             var processList = instances.Select(instance => instance.Id).ToList();
@@ -127,7 +124,7 @@ namespace Netch.Utils
 
         public static void Stop()
         {
-            if (tSession != null) tSession.Dispose();
+            tSession?.Dispose();
             received = 0;
         }
     }
