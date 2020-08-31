@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,12 +49,16 @@ namespace Netch.Utils
             return mStrSize;
         }
 
+        public static bool NetTrafficAvailable => /*Global.Settings.EnableNetTraffic && */Environment.OSVersion.Version.Major >= 10;
+
         /// <summary>
         /// 根据程序名统计流量
         /// </summary>
-        /// <param name="ProcessName"></param>
         public static void NetTraffic(Server server, Mode mode)
         {
+            if (!NetTrafficAvailable)
+                return;
+
             var counterLock = new object();
             //int sent = 0;
 
@@ -94,7 +99,7 @@ namespace Netch.Utils
                     if (processList.Contains(data.ProcessID))
                     {
                         lock (counterLock)
-                            received += ulong.Parse(data.size.ToString());
+                            received += (ulong) data.size;
 
                         // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                     }
@@ -104,7 +109,7 @@ namespace Netch.Utils
                     if (processList.Contains(data.ProcessID))
                     {
                         lock (counterLock)
-                            received += ulong.Parse(data.size.ToString());
+                            received += (ulong) data.size;
 
                         // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
                     }

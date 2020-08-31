@@ -73,7 +73,7 @@ namespace Netch.Forms
 
                         ProfileGroupBox.Enabled = true;
 
-                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = true;
+                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = Bandwidth.NetTrafficAvailable;
                         break;
                     case State.Stopping:
                         ControlButton.Enabled = false;
