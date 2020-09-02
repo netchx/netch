@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Netch.Utils;
 
 namespace Netch.Forms.Mode
@@ -171,10 +172,18 @@ namespace Netch.Forms.Mode
 
         private void ScanButton_Click(object sender, EventArgs e)
         {
-            var dialog = new FolderBrowserDialog();
-            if (dialog.ShowDialog(this) == DialogResult.OK)
+            var dialog = new CommonOpenFileDialog
             {
-                ScanDirectory(dialog.SelectedPath);
+                IsFolderPicker = true,
+                Multiselect = false,
+                Title = i18N.Translate("Select a folder"),
+                AddToMostRecentlyUsedList = false,
+                EnsurePathExists = true,
+                NavigateToShortcut = true
+            };
+            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
+            {
+                ScanDirectory(dialog.FileName);
                 MessageBoxX.Show(i18N.Translate("Scan completed"));
             }
         }

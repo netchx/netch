@@ -9,10 +9,17 @@ if %Configuration%==Release (
 %TargetDir%MaxMind.GeoIP2.dll ^
 %TargetDir%Microsoft.Diagnostics.FastSerialization.dll ^
 %TargetDir%Microsoft.Diagnostics.Tracing.TraceEvent.dll ^
+%TargetDir%Microsoft.WindowsAPICodePack.dll ^
+%TargetDir%Microsoft.WindowsAPICodePack.Shell.dll ^
 %TargetDir%NetchLib.dll ^
 %TargetDir%Newtonsoft.Json.dll ^
 %TargetDir%OSExtensions.dll ^
+%TargetDir%System.Buffers.dll ^
+%TargetDir%System.Collections.Immutable.dll ^
+%TargetDir%System.Memory.dll ^
 %TargetDir%System.Net.IPNetwork.dll ^
+%TargetDir%System.Numerics.Vectors.dll ^
+%TargetDir%System.Reflection.Metadata.dll ^
 %TargetDir%System.Runtime.CompilerServices.Unsafe.dll ^
 %TargetDir%TraceReloggerLib.dll
 
