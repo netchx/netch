@@ -362,14 +362,7 @@ namespace Netch.Controllers
         {
             foreach (var address in ipNetworks)
             {
-                try
-                {
-                    RouteAction(action, address, routeType, metric);
-                }
-                catch
-                {
-                    // ignored
-                }
+                RouteAction(action, address, routeType, metric);
             }
         }
 
@@ -396,12 +389,19 @@ namespace Netch.Controllers
                     throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null);
             }
 
-            return action switch
+            var result = action switch
             {
                 Action.Create => NativeMethods.CreateRoute(ipNetwork.Network.ToString(), ipNetwork.Cidr, gateway, index, metric),
                 Action.Delete => NativeMethods.DeleteRoute(ipNetwork.Network.ToString(), ipNetwork.Cidr, gateway, index, metric),
                 _ => throw new ArgumentOutOfRangeException(nameof(action), action, null)
             };
+
+            if (!result)
+            {
+                Logging.Warning($"{action} Route on {routeType} Adapter failed: {ipNetwork}/{ipNetwork.Cidr} metric {metric}");
+            }
+
+            return result;
         }
     }
 }
