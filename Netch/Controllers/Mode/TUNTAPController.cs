@@ -398,7 +398,7 @@ namespace Netch.Controllers
 
             if (!result)
             {
-                Logging.Warning($"{action} Route on {routeType} Adapter failed: {ipNetwork}/{ipNetwork.Cidr} metric {metric}");
+                Logging.Warning($"{action} Route on {routeType} Adapter failed: {ipNetwork} metric {metric}");
             }
 
             return result;
