@@ -358,9 +358,19 @@ namespace Netch.Controllers
             Delete
         }
 
-        private static bool RouteAction(Action action, IEnumerable<IPNetwork> ipNetworks, RouteType routeType, int metric = 0)
+        private static void RouteAction(Action action, IEnumerable<IPNetwork> ipNetworks, RouteType routeType, int metric = 0)
         {
-            return ipNetworks.All(address => RouteAction(action, address, routeType, metric));
+            foreach (var address in ipNetworks)
+            {
+                try
+                {
+                    RouteAction(action, address, routeType, metric);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
         }
 
         private static bool RouteAction(Action action, string address, byte cidr, RouteType routeType, int metric = 0)
