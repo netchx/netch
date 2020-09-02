@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -77,12 +78,6 @@ namespace Netch.Controllers
             Logging.Info("绕行 → 服务器 IP");
             _directIPs.AddRange(_serverAddresses.Where(address => !IPAddress.IsLoopback(address)).Select(address => IPNetwork.Parse(address.ToString(), 32)));
 
-            if (_savedMode.BypassChina)
-            {
-                Logging.Info("绕行 → 中国 IP");
-                _directIPs.AddRange(Encoding.UTF8.GetString(Resources.CNIP).Split('\n').Select(IPNetwork.Parse));
-            }
-
             Logging.Info("绕行 → 局域网 IP");
             _directIPs.AddRange(_bypassLanIPs.Select(IPNetwork.Parse));
 
@@ -145,6 +140,19 @@ namespace Netch.Controllers
                             CreateNoWindow = true
                         }
                     );
+
+                    if (_savedMode.BypassChina)
+                    {
+                        Logging.Info("绕行 → 中国 IP");
+
+                        foreach (var str in File.ReadAllLines("bin\\china_ip_list", Encoding.UTF8))
+                        {
+                            if (IPNetwork.TryParse(str, out var entry))
+                            {
+                                _directIPs.Add(entry);
+                            }
+                        }
+                    }
 
                     Logging.Info("绕行 → 规则 IP");
                     _directIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
