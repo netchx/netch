@@ -83,6 +83,16 @@ namespace Netch.Forms
                     CheckUpdate();
                 }
             });
+
+
+            Task.Run(() =>
+            {
+                // 检查订阅更新
+                if (Global.Settings.UpdateSubscribeatWhenOpened)
+                {
+                    UpdateServersFromSubscribe();
+                }
+            });
         }
 
         private void OnCalled(object sender, OnlyInstance.Commands e)

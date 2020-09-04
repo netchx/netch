@@ -95,6 +95,11 @@ namespace Netch.Models
         public bool CheckBetaUpdate = false;
 
         /// <summary>
+        ///		是否打开软件时更新订阅
+        /// </summary>
+        public bool UpdateSubscribeatWhenOpened = false;
+
+        /// <summary>
         ///     修改系统 DNS
         /// </summary>
         public bool ModifySystemDNS = false;

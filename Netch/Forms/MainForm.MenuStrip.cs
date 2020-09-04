@@ -52,7 +52,7 @@ namespace Netch.Forms
 
         private void AddServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form form = ((ToolStripMenuItem) sender).Name switch
+            Form form = ((ToolStripMenuItem)sender).Name switch
             {
                 "AddSocks5ServerToolStripMenuItem" => new Socks5(),
                 "AddShadowsocksServerToolStripMenuItem" => new Shadowsocks(),
@@ -113,6 +113,12 @@ namespace Netch.Forms
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            UpdateServersFromSubscribe();
+        }
+
+        public async void UpdateServersFromSubscribe()
+        {
+
             void DisableItems(bool v)
             {
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
