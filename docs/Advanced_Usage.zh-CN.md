@@ -1,9 +1,5 @@
 # Netch 模式
 
-用于存储 Netch 模式文件的仓库
-
-
-
 ## 目录
 
 1. [模式介绍](#模式介绍)
@@ -41,9 +37,7 @@
 - 底层依赖于 [NetFilter SDK](https://netfiltersdk.com) 和 Redirector.exe（未开源）等
 - 对于第一次使用 Netch 的用户而言，不需要做多余的事情
   - 若 [NetFilter SDK](https://netfiltersdk.com) 的驱动不存在，会自动安装
-  - 自动安装驱动时不会判断旧驱动是否需要更新
-  - 对于老用户而言，版本更新日志里如果提到要更新驱动，或者你发现无法使用本模式时，可以通过运行 `DriverUpdater.exe` 的方式强制覆盖旧驱动
-  - 相关代码 [NFController.cs](..\Netch\Controllers\NFController.cs)
+  - 若驱动版本过低，会自动更新
 
 范例文件
 
@@ -159,7 +153,7 @@ V2Ray
 
 当前版本已添加配置编辑功能，根据自己的情况，使用订阅或者别的方法添加代理配置，我这里使用的是剪贴板导入
 
-![剪贴板导入](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24_210438.png)
+![剪贴板导入](screenshots\advanced\importServer.png)
 
 如果你发现你的程序没我截图的看起来清晰，可以右键 `Netch.exe - 属性 - 兼容性 - 更改高 DPI 设置 - 替代高 DPI 缩放执行 - 系统（增强）`
 
@@ -173,24 +167,24 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 接着点击菜单栏上的`模式 - 创建进程模式`
 
-![模式 - 创建进程模式](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24%20211537.png)
+![模式 - 创建进程模式](screenshots\advanced\createMode.png)
 
 ### 扫描
 
 在弹出的窗口中点击`扫描`
 
-![扫描](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24%20211842.png)
+![扫描](screenshots\advanced\modeForm.png)
 
 选择你要加速的游戏的安装路径，根据游戏不同，可能需要选择多个不同的目录进行扫描，参见[萌鹰的 Netch 教程](https://www.eaglemoe.com/archives/142)（包括 GTAOL 和 R6S 的配置方法）
 
 >4. 选定 GTA5 游戏目录，点击确定，软件会自动扫描目录下的 exe 程式并填写进去
 >5. 再次点击扫描，选择 SocialClub 的安装地址（一般为 C:\Program Files\Rockstar Games\Social Club），点击确定，点击保存
 >
->注意：加入游戏时请不要忘记加入社交组件，比如说 GTA 不要忘记 SocialClub ，彩虹六号不要忘记 Uplay
+>注意：加入游戏时请不要忘记加入社交组件，比如说 GTA 不要忘记 SocialClub ，彩虹六号不要忘记 Uplay，如果游戏进程名与其他进程名重复，则可手动修改已创建好的模式文件，在进程名前加上绝对路径即可。csgo.exe -> C:\steam\game\Counter-Strike Global Offensive\csgo.exe
 
-这里以战争雷霆为例，只需添加战争雷霆游戏根目录即可
+这里以CSGO为例，只需添加CSGO游戏根目录即可
 
-![选择路径](https://raw.githubusercontent.com/NetchX/Netch/master/docs/screenshots/Browse_For_Folder.png)
+![选择路径](screenshots\advanced\scan.png)
 
 扫描时可能需要稍等片刻，扫描后记得填写备注
 
@@ -198,13 +192,13 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 之后点保存进行`保存`
 
-![保存](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24%20212837.png)
+![保存](screenshots\advanced\saveMode.png)
 
 ### 启动
 
 最后确认服务器一栏和模式一栏均为之前自己添加并需要使用的，没问题后点击`启动`即可
 
-![启动](https://raw.githubusercontent.com/BingLingGroup/BingLingGroup.github.io/img/Netch_guide/2019-06-24%20213121.png)
+![启动](screenshots\advanced\started.png)
 
 启动后，你再去游戏根目录或者别的启动器如 Steam，Uplay 启动游戏即可。此时游戏就已经被代理了
 
