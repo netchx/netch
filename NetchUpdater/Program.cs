@@ -12,10 +12,10 @@ namespace NetchUpdater
 {
     internal class Program
     {
-        static string UpdaterFullName;
-        static string UpdaterDirectory;
-        static string UpdaterFriendlyName;
-        static Process CurrentProcess;
+        private static readonly string UpdaterFullName;
+        private static readonly string UpdaterDirectory;
+        private static readonly string UpdaterFriendlyName;
+        private static readonly Process CurrentProcess;
 
         static Program()
         {
@@ -153,10 +153,33 @@ namespace NetchUpdater
 
                 #region Update
 
+                string extractPath = null;
                 if (!updateExtracted)
-                    Extract(updatePath, targetPath, true);
-                else
-                    MoveDirectory(updatePath, targetPath, true);
+                {
+                    extractPath = Path.Combine(UpdaterDirectory, "extract");
+                    Extract(updatePath, extractPath, true);
+
+                    var netchExeFileInfo = FindFile("Netch.exe", extractPath);
+
+                    if (netchExeFileInfo == null)
+                    {
+                        throw new Exception("Netch.exe not found in archive!");
+                    }
+
+                    updatePath = netchExeFileInfo.Directory.FullName;
+                }
+
+                MoveDirectory(updatePath, targetPath, true);
+
+                try
+                {
+                    if (extractPath != null)
+                        Directory.Delete(extractPath, true);
+                }
+                catch
+                {
+                    // ignored
+                }
 
                 #endregion
 
@@ -211,6 +234,45 @@ namespace NetchUpdater
             })?.WaitForExit();
         }
 
+        public static FileInfo FindFile(string filename, string directory)
+        {
+            var DirStack = new Stack<string>();
+            DirStack.Push(directory);
+
+            while (DirStack.Count > 0)
+            {
+                var DirInfo = new DirectoryInfo(DirStack.Pop());
+                try
+                {
+                    foreach (var DirChildInfo in DirInfo.GetDirectories())
+                    {
+                        DirStack.Push(DirChildInfo.FullName);
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                try
+                {
+                    foreach (var FileChildInfo in DirInfo.GetFiles())
+                    {
+                        if (FileChildInfo.Name == filename)
+                        {
+                            return FileChildInfo;
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+
+            return null;
+        }
+
         private static void MoveDirectory(string sourceDirName, string destDirName, bool overwrite)
         {
             sourceDirName = Path.GetFullPath(sourceDirName);
@@ -221,19 +283,19 @@ namespace NetchUpdater
             }
             else
             {
-                var DirStack = new Stack<string>();
-                DirStack.Push(sourceDirName);
+                var dirStack = new Stack<string>();
+                dirStack.Push(sourceDirName);
 
-                while (DirStack.Count > 0)
+                while (dirStack.Count > 0)
                 {
-                    var DirInfo = new DirectoryInfo(DirStack.Pop());
+                    var dirInfo = new DirectoryInfo(dirStack.Pop());
                     try
                     {
-                        foreach (var DirChildInfo in DirInfo.GetDirectories())
+                        foreach (var dirChildInfo in dirInfo.GetDirectories())
                         {
+                            var destPath = dirChildInfo.FullName.Replace(sourceDirName, destDirName);
                             try
                             {
-                                var destPath = DirChildInfo.ToString().Replace(sourceDirName, destDirName);
                                 if (!Directory.Exists(destPath))
                                 {
                                     Directory.CreateDirectory(destPath);
@@ -241,27 +303,27 @@ namespace NetchUpdater
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine($"Create {DirChildInfo} Folder Error: {e.Message}");
+                                Console.WriteLine($"Create {destPath} Folder Error: {e.Message}");
                             }
 
-                            DirStack.Push(DirChildInfo.FullName);
+                            dirStack.Push(dirChildInfo.FullName);
                         }
 
-                        foreach (var FileChildInfo in DirInfo.GetFiles())
+                        foreach (var fileChildInfo in dirInfo.GetFiles())
                         {
+                            var destPath = fileChildInfo.FullName.Replace(sourceDirName, destDirName);
                             try
                             {
-                                var destPath = FileChildInfo.ToString().Replace(sourceDirName, destDirName);
                                 if (File.Exists(destPath))
                                 {
                                     File.Delete(destPath);
                                 }
 
-                                FileChildInfo.MoveTo(destDirName);
+                                fileChildInfo.MoveTo(destPath);
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine($"Move {FileChildInfo} Error: {e.Message}");
+                                Console.WriteLine($"Move {fileChildInfo.FullName} To {destPath} Error: {e.Message}");
                             }
                         }
                     }
