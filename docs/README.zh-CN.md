@@ -25,6 +25,8 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 需要更多特性请移步魔改仓库 [Netch-ForOwnUse](https://github.com/AmazingDM/Netch-ForOwnUse)，
 
 ## 赞助商
+<a href="https://www.jetbrains.com/?from=Netch"><img src="../.github/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
+
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
 - [ExCloud](https://excloud.net/cart.php)

@@ -29,6 +29,8 @@ Netch is an open source game accelerator. Unlike SSTap, which needs to add rules
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
 
 ## Sponsor
+<a href="https://www.jetbrains.com/?from=Netch"><img src=".github/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
+
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
 - [ExCloud](https://excloud.net/cart.php)
