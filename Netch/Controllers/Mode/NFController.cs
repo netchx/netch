@@ -71,8 +71,8 @@ namespace Netch.Controllers
 
             if (!MainController.IsSocks5Server)
             {
-                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.01:{MainController.Socks5Port}");
-                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.01:{MainController.Socks5Port}");
+                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.Socks5Port}");
+                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.Socks5Port}");
             }
             else
             {
