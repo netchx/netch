@@ -208,12 +208,17 @@ namespace Netch.Controllers
             var adapterName = TUNTAP.GetName(Global.TUNTAP.ComponentID);
 
             string dns;
-            //V2ray使用Unbound本地DNS会导致查询异常缓慢故此V2ray不启动unbound而是使用自定义DNS
-            //if (Global.Settings.TUNTAP.UseCustomDNS || server.Type.Equals("VMess"))
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {
-                dns = Global.Settings.TUNTAP.DNS.Aggregate(string.Empty, (current, value) => current + (value + ',')).Trim();
-                dns = dns.Substring(0, dns.Length - 1);
+                if (Global.Settings.TUNTAP.DNS.Any())
+                {
+                    dns = Global.Settings.TUNTAP.DNS.Aggregate((current, ip) => $"{current},{ip}");
+                }
+                else
+                {
+                    Global.Settings.TUNTAP.DNS.Add("1.1.1.1");
+                    dns = "1.1.1.1";
+                }
             }
             else
             {
@@ -221,17 +226,17 @@ namespace Netch.Controllers
                 dns = "127.0.0.1";
             }
 
-            if (Global.Settings.TUNTAP.UseFakeDNS) dns += " -fakeDns";
-
             var argument = new StringBuilder();
             if (server.Type == "Socks5")
                 argument.Append($"-proxyServer {server.Hostname}:{server.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
-            argument.Append($"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\"");
+            argument.Append($"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\" ");
 
-            State = State.Starting;
+            if (Global.Settings.TUNTAP.UseFakeDNS)
+                argument.Append("-fakeDns ");
+
             return StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
         }
 

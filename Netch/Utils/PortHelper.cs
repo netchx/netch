@@ -136,4 +136,10 @@ namespace Netch.Utils
         UDP,
         Both
     }
+
+    public class PortInUseException : Exception
+    {
+        
+    }
+    
 }
