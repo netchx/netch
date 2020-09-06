@@ -22,6 +22,7 @@ namespace Netch
             {
                 // 设置当前目录
                 Directory.SetCurrentDirectory(Global.NetchDir);
+                Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process) + ";" + Path.Combine(Global.NetchDir, "bin"), EnvironmentVariableTarget.Process);
 
                 // 预创建目录
                 var directories = new[] {"mode", "data", "i18n", "logging"};

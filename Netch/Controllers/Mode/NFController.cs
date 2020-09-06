@@ -41,6 +41,11 @@ namespace Netch.Controllers
             BinDriver = "bin\\" + BinDriver;
         }
 
+        public NFController()
+        {
+            Name = "Redirector";
+        }
+
         public override bool Start(Server server, Mode mode)
         {
             Logging.Info("内置驱动版本: " + DriverVersion(BinDriver));
@@ -57,26 +62,35 @@ namespace Netch.Controllers
                     return false;
             }
 
-            NativeMethods.aio_dial((int)NameList.TYPE_CLRNAME, "");
+            NativeMethods.aio_dial((int) NameList.TYPE_CLRNAME, "");
             foreach (var rule in mode.Rule)
             {
-                NativeMethods.aio_dial((int)NameList.TYPE_ADDNAME, rule);
+                NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }
+            NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            var result = DNS.Lookup(server.Hostname);
-            if (result == null)
+            if (!MainController.IsSocks5Server)
             {
-                Logging.Info("无法解析服务器 IP 地址");
-                return false;
+                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.01:{MainController.Socks5Port}");
+                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.01:{MainController.Socks5Port}");
             }
-            NativeMethods.aio_dial((int)NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
-            NativeMethods.aio_dial((int)NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
+            else
+            {
+                var result = DNS.Lookup(server.Hostname);
+                if (result == null)
+                {
+                    Logging.Info("无法解析服务器 IP 地址");
+                    return false;
+                }
+                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
+                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
+            }
 
             if (Global.Settings.ModifySystemDNS)
             {
                 // 备份并替换系统 DNS
                 _sysDns = DNS.getSystemDns();
-                string[] dns = { "1.1.1.1", "8.8.8.8" };
+                string[] dns = {"1.1.1.1", "8.8.8.8"};
                 DNS.SetDNS(dns);
             }
 
