@@ -5,7 +5,6 @@ using Netch.Models.GitHubRelease;
 using Netch.Utils;
 using Newtonsoft.Json;
 
-
 namespace Netch.Controllers
 {
     public class UpdateChecker
@@ -42,7 +41,7 @@ namespace Netch.Controllers
                 Logging.Info($"Github 最新发布版本: {latestRelease.tag_name}");
                 if (VersionUtil.CompareVersion(latestRelease.tag_name, Version) > 0)
                 {
-                    Logging.Info($"发现新版本");
+                    Logging.Info("发现新版本");
                     NewVersionFound?.Invoke(this, new EventArgs());
                 }
                 else

@@ -1,5 +1,4 @@
 ﻿using Netch.Models;
-using Netch.Utils;
 
 namespace Netch.Controllers
 {

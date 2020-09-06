@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -85,12 +84,12 @@ namespace Netch.Forms
             });
 
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 // 检查订阅更新
                 if (Global.Settings.UpdateSubscribeatWhenOpened)
                 {
-                    UpdateServersFromSubscribe();
+                    await UpdateServersFromSubscribe();
                 }
             });
         }
@@ -341,7 +340,7 @@ namespace Netch.Forms
             }
 
             var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
-            this.ModeComboBox.Items.Remove(selectedMode);
+            ModeComboBox.Items.Remove(selectedMode);
             Modes.Delete(selectedMode);
 
             SelectLastMode();
@@ -434,7 +433,7 @@ namespace Netch.Forms
 
         #endregion
 
-        private bool _comboBoxInitialized = false;
+        private bool _comboBoxInitialized;
 
         private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {

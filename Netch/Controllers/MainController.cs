@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
 
@@ -214,7 +208,7 @@ namespace Netch.Controllers
             SavedServer = null;
             PortHelper.UsingPorts.Clear();
 
-            var tasks = new Task[]
+            var tasks = new[]
             {
                 Task.Run(() => EncryptedProxyController?.Stop()),
                 Task.Run(() => ModeController?.Stop()),

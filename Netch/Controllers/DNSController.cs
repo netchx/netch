@@ -1,7 +1,4 @@
-﻿using System;
-using Netch.Utils;
-
-namespace Netch.Controllers
+﻿namespace Netch.Controllers
 {
     public class DNSController : Controller
     {

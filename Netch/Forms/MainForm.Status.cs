@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
-using System.Threading;
-using System.Windows;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Utils;
@@ -120,16 +118,9 @@ namespace Netch.Forms
 
             if (!string.IsNullOrEmpty(text))
             {
-                if (country != "")
-                {
-                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1} [{2}]", i18N.Translate(": "), text, country);
-                }
-                else
-                {
-                    NatTypeStatusLabel.Text = String.Format("NAT{0}{1}", i18N.Translate(": "), text);
-                }
+                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} {(country != string.Empty ? $"[{country}]" : "")}";
 
-                if (int.TryParse(text, out int natType))
+                if (int.TryParse(text, out var natType))
                 {
                     if (natType > 0 && natType < 5)
                     {
@@ -148,36 +139,6 @@ namespace Netch.Forms
             }
 
             NatTypeStatusLabel.Visible = true;
-        }
-
-        /// <summary>
-        ///     更新 NAT指示灯颜色
-        /// </summary>
-        /// <param name="natType"></param>
-        private void UpdateNatTypeLight(STUN_Client.NatType natType)
-        {
-            Color c;
-            switch (natType)
-            {
-                case STUN_Client.NatType.UdpBlocked:
-                case STUN_Client.NatType.SymmetricUdpFirewall:
-                case STUN_Client.NatType.Symmetric:
-                    c = Color.Red;
-                    break;
-                case STUN_Client.NatType.RestrictedCone:
-                case STUN_Client.NatType.PortRestrictedCone:
-                    c = Color.Yellow;
-                    break;
-                case STUN_Client.NatType.OpenInternet:
-                case STUN_Client.NatType.FullCone:
-                    c = Color.LimeGreen;
-                    break;
-                default:
-                    c = Color.Black;
-                    break;
-            }
-
-            NatTypeStatusLightLabel.ForeColor = c;
         }
 
         /// <summary>

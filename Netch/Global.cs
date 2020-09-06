@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
+using Netch.Forms;
+using Netch.Models;
 
 namespace Netch
 {
@@ -19,7 +20,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        public static Forms.MainForm MainForm;
+        public static MainForm MainForm;
 
         /// <summary>
 		///		SS/SSR 加密方式
@@ -198,11 +199,11 @@ namespace Netch
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>
-        public static Models.Setting Settings = new Models.Setting();
+        public static Setting Settings = new Setting();
 
         /// <summary>
         ///     用于存储模式
         /// </summary>
-        public static readonly List<Models.Mode> Modes = new List<Models.Mode>();
+        public static readonly List<Mode> Modes = new List<Mode>();
     }
 }

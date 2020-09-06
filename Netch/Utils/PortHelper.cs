@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
-using Netch.Controllers;
 
 namespace Netch.Utils
 {
@@ -144,7 +143,5 @@ namespace Netch.Utils
 
     public class PortInUseException : Exception
     {
-        
     }
-    
 }

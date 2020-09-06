@@ -1,6 +1,4 @@
-﻿using Netch.Override;
-
-namespace Netch.Forms
+﻿namespace Netch.Forms
 {
     partial class MainForm
     {

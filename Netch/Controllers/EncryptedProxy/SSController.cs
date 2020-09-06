@@ -6,7 +6,7 @@ namespace Netch.Controllers
 {
     public class SSController : EncryptedProxy
     {
-        private bool dllFlag = false;
+        private bool dllFlag;
 
         public SSController()
         {

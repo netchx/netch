@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
@@ -52,7 +50,7 @@ namespace Netch.Forms
 
         private void AddServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form form = ((ToolStripMenuItem)sender).Name switch
+            Form form = ((ToolStripMenuItem) sender).Name switch
             {
                 "AddSocks5ServerToolStripMenuItem" => new Socks5(),
                 "AddShadowsocksServerToolStripMenuItem" => new Shadowsocks(),
@@ -113,12 +111,11 @@ namespace Netch.Forms
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateServersFromSubscribe();
+            await UpdateServersFromSubscribe();
         }
 
-        public async void UpdateServersFromSubscribe()
+        public async Task UpdateServersFromSubscribe()
         {
-
             void DisableItems(bool v)
             {
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;

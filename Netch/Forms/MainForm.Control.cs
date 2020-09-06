@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;

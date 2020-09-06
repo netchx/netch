@@ -56,8 +56,10 @@ namespace Netch
         {
             [DllImport("bin\\shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
             public static extern bool Info(byte[] client, byte[] remote, byte[] passwd, byte[] method);
+
             [DllImport("bin\\shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
             public static extern bool Start();
+
             [DllImport("bin\\shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Stop();
         }

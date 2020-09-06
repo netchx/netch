@@ -6,9 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
+using Timer = System.Timers.Timer;
 
 namespace Netch.Controllers
 {
@@ -161,7 +161,7 @@ namespace Netch.Controllers
             }
         }
 
-        private static readonly System.Timers.Timer SaveBufferTimer = new System.Timers.Timer(300) {AutoReset = true};
+        private static readonly Timer SaveBufferTimer = new Timer(300) {AutoReset = true};
 
         private void OnExited(object sender, EventArgs e)
         {

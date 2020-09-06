@@ -54,8 +54,8 @@ namespace Netch.Utils
         /// <param name="dns"></param>
         public static void SetDNS(string[] dns)
         {
-            ManagementClass wmi = new ManagementClass("Win32_NetworkAdapterConfiguration");
-            ManagementObjectCollection moc = wmi.GetInstances();
+            var wmi = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            var moc = wmi.GetInstances();
             ManagementBaseObject inPar = null;
             ManagementBaseObject outPar = null;
             foreach (ManagementObject mo in moc)

@@ -37,7 +37,7 @@ namespace Netch.Forms.Mode
             CheckForIllegalCrossThreadCalls = false;
 
             Text = "Edit Process Mode";
-            this._mode = mode;
+            _mode = mode;
             RuleListBox.Items.AddRange(mode.Rule.ToArray());
 
             #region 禁用文件名更改

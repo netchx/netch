@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Utils;
 
 namespace Netch.Forms
 {

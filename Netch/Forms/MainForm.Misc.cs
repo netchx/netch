@@ -2,13 +2,9 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
-using Netch.Forms.Mode;
 using Netch.Utils;
-using Process = System.Diagnostics.Process;
 
 namespace Netch.Forms
 {

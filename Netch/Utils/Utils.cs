@@ -1,16 +1,13 @@
-﻿using MaxMind.GeoIP2;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MaxMind.GeoIP2;
 
 namespace Netch.Utils
 {
@@ -20,7 +17,7 @@ namespace Netch.Utils
         {
             try
             {
-                Process.Start(new ProcessStartInfo()
+                Process.Start(new ProcessStartInfo
                 {
                     FileName = "explorer.exe",
                     Arguments = path,
@@ -66,7 +63,7 @@ namespace Netch.Utils
             {
                 var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
 
-                if (IPAddress.TryParse(Hostname, out _) == true)
+                if (IPAddress.TryParse(Hostname, out _))
                 {
                     Country = databaseReader.Country(Hostname).Country.IsoCode;
                 }
@@ -96,7 +93,7 @@ namespace Netch.Utils
         {
             try
             {
-                var SHA256 = SHA256Managed.Create();
+                var SHA256 = System.Security.Cryptography.SHA256.Create();
                 var fileStream = File.OpenRead(filePath);
                 return SHA256.ComputeHash(fileStream).Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
             }

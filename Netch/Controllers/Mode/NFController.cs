@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.ServiceProcess;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
@@ -203,7 +202,7 @@ namespace Netch.Controllers
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
             {
-                Logging.Info($"驱动安装成功");
+                Logging.Info("驱动安装成功");
             }
             else
             {
