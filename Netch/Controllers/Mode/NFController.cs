@@ -41,14 +41,6 @@ namespace Netch.Controllers
             BinDriver = "bin\\" + BinDriver;
         }
 
-        public NFController()
-        {
-            Name = "Redirector";
-            MainFile = "Redirector.exe";
-            StartedKeywords.Add("Started");
-            StoppedKeywords.AddRange(new[] {"Failed", "Unable"});
-        }
-
         public override bool Start(Server server, Mode mode)
         {
             Logging.Info("内置驱动版本: " + DriverVersion(BinDriver));
@@ -65,86 +57,30 @@ namespace Netch.Controllers
                     return false;
             }
 
-            var processList = "";
-            foreach (var proc in mode.Rule)
-                processList += proc + ",";
-            processList += "NTT.exe";
-
-            var argument = new StringBuilder();
-            if (server.Type != "Socks5")
+            NativeMethods.aio_dial((int)NameList.TYPE_CLRNAME, "");
+            foreach (var rule in mode.Rule)
             {
-                argument.Append($"-r 127.0.0.1:{Global.Settings.Socks5LocalPort} -p \"{processList}\"");
+                NativeMethods.aio_dial((int)NameList.TYPE_ADDNAME, rule);
             }
 
-            else
+            var result = DNS.Lookup(server.Hostname);
+            if (result == null)
             {
-                var result = DNS.Lookup(server.Hostname);
-                if (result == null)
-                {
-                    Logging.Info("无法解析服务器 IP 地址");
-                    return false;
-                }
+                Logging.Info("无法解析服务器 IP 地址");
+                return false;
+            }
+            NativeMethods.aio_dial((int)NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
+            NativeMethods.aio_dial((int)NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
 
-                argument.Append($"-r {result}:{server.Port} -p \"{processList}\"");
-                if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password))
-                    argument.Append($" -username \"{server.Username}\" -password \"{server.Password}\"");
+            if (Global.Settings.ModifySystemDNS)
+            {
+                // 备份并替换系统 DNS
+                _sysDns = DNS.getSystemDns();
+                string[] dns = { "1.1.1.1", "8.8.8.8" };
+                DNS.SetDNS(dns);
             }
 
-            argument.Append($" -t {Global.Settings.RedirectorTCPPort}");
-
-            for (var i = 0; i < 2; i++)
-            {
-                State = State.Starting;
-                if (!StartInstanceAuto(argument.ToString())) continue;
-                if (Global.Settings.ModifySystemDNS)
-                {
-                    //备份并替换系统DNS
-                    _sysDns = DNS.getSystemDns();
-                    string[] dns = {"1.1.1.1", "8.8.8.8"};
-                    DNS.SetDNS(dns);
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private bool RestartService()
-        {
-            try
-            {
-                switch (NFService.Status)
-                {
-                    // 启动驱动服务
-                    case ServiceControllerStatus.Running:
-                        // 防止其他程序占用 重置 NF 百万连接数限制
-                        NFService.Stop();
-                        NFService.WaitForStatus(ServiceControllerStatus.Stopped);
-                        Global.MainForm.StatusText(i18N.Translate("Starting netfilter2 Service"));
-                        NFService.Start();
-                        break;
-                    case ServiceControllerStatus.Stopped:
-                        Global.MainForm.StatusText(i18N.Translate("Starting netfilter2 Service"));
-                        NFService.Start();
-                        break;
-                }
-            }
-            catch (Exception e)
-            {
-                Logging.Error("启动驱动服务失败：\n" + e);
-
-                var result = NFAPI.nf_registerDriver("netfilter2");
-                if (result != NF_STATUS.NF_STATUS_SUCCESS)
-                {
-                    Logging.Error($"注册驱动失败，返回值：{result}");
-                    return false;
-                }
-
-                Logging.Info("注册驱动成功");
-            }
-
-            return true;
+            return NativeMethods.aio_init();
         }
 
         public static string DriverVersion(string file)
@@ -221,7 +157,8 @@ namespace Netch.Controllers
                     //恢复系统DNS
                     DNS.SetDNS(_sysDns);
             });
-            StopInstance();
+
+            NativeMethods.aio_free();
         }
     }
 }

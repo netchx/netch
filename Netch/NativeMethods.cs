@@ -2,6 +2,18 @@
 
 namespace Netch
 {
+    public enum NameList : int
+    {
+        TYPE_FILTERLOOPBACK,
+        TYPE_FILTERTCP,
+        TYPE_FILTERUDP,
+        TYPE_TCPHOST,
+        TYPE_UDPHOST,
+        TYPE_ADDNAME,
+        TYPE_BYPNAME,
+        TYPE_CLRNAME
+    }
+
     public static class NativeMethods
     {
         /// <summary>
@@ -66,5 +78,20 @@ namespace Netch
 
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
+
+        [DllImport("bin\\Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
+
+        [DllImport("bin\\Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_init();
+
+        [DllImport("bin\\Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_free();
+
+        [DllImport("bin\\Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ulong aio_getUP();
+
+        [DllImport("bin\\Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ulong aio_getDL();
     }
 }
