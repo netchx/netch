@@ -1,5 +1,6 @@
 ﻿using MaxMind.GeoIP2;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -105,17 +106,21 @@ namespace Netch.Utils
             }
         }
 
-        public static bool IsZipValid(string path)
+        public static void KillProcessByName(string name)
         {
             try
             {
-                using var zipFile = ZipFile.OpenRead(path);
-                _ = zipFile.Entries;
-                return true;
+                foreach (var p in Process.GetProcessesByName(name))
+                    if (p.MainModule != null && p.MainModule.FileName.StartsWith(Global.NetchDir))
+                        p.Kill();
             }
-            catch (InvalidDataException)
+            catch (Win32Exception e)
             {
-                return false;
+                Logging.Error($"结束进程 {name} 错误：" + e.Message);
+            }
+            catch (Exception)
+            {
+                // ignored
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using Netch.Controllers;
@@ -69,7 +70,7 @@ namespace Netch.Forms
                         ControlButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Stop");
 
-                        StatusTextAppend(MainController.PortInfo);
+                        StatusTextAppend(StatusPortInfoText);
 
                         ProfileGroupBox.Enabled = true;
 
@@ -226,6 +227,37 @@ namespace Netch.Forms
         public void StatusTextAppend(string text)
         {
             StatusLabel.Text += text;
+        }
+
+        private static string StatusPortInfoText
+        {
+            get
+            {
+                if (MainController.SavedMode == null || MainController.SavedServer == null)
+                    return string.Empty;
+
+                if (MainController.SavedServer.Type == "Socks5" && MainController.SavedMode.Type != 3 && MainController.SavedMode.Type != 5)
+                    // 不可控Socks5, 不可控HTTP
+                    return string.Empty;
+
+                var text = new StringBuilder();
+                if (MainController.LocalAddress == "0.0.0.0")
+                    text.Append(i18N.Translate("Allow other Devices to connect") + " ");
+
+                if (MainController.SavedServer.Type != "Socks5")
+                    // 可控Socks5
+                    text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{MainController.Socks5Port}");
+
+                if (MainController.SavedMode.Type == 3 || MainController.SavedMode.Type == 5)
+                    // 有HTTP
+                {
+                    if (MainController.SavedServer.Type != "Socks5")
+                        text.Append(" | ");
+                    text.Append($"HTTP {i18N.Translate("Local Port", ": ")}{MainController.HttpPort}");
+                }
+
+                return $" ({text})";
+            }
         }
     }
 }

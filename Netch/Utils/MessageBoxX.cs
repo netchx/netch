@@ -4,7 +4,7 @@ using Netch.Models;
 
 namespace Netch.Utils
 {
-    class MessageBoxX
+    static class MessageBoxX
     {
         /// <summary>
         /// </summary>

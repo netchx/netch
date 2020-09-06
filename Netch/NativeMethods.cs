@@ -61,5 +61,8 @@ namespace Netch
             [DllImport("bin\\shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
             public static extern void Stop();
         }
+
+        [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+        public static extern uint FlushDNSResolverCache();
     }
 }

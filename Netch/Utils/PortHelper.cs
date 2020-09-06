@@ -107,7 +107,7 @@ namespace Netch.Utils
             var isUdpUsed = type != PortType.TCP &&
                             (IsPortExcluded(port, PortType.UDP) ||
                              netInfo.GetActiveUdpListeners().Any(ipEndPoint => ipEndPoint.Port == port));
-            var isPortExcluded = !MainController.UsingPorts.Contains(port);
+            var isPortExcluded = !UsingPorts.Contains(port);
 
             return isPortExcluded && (isTcpUsed || isUdpUsed);
         }
@@ -125,6 +125,11 @@ namespace Netch.Utils
 
             throw new Exception("Cant Generate Available Port");
         }
+
+        /// <summary>
+        ///     记录Netch使用的端口
+        /// </summary>
+        public static readonly List<int> UsingPorts = new List<int>();
     }
 
     /// <summary>
