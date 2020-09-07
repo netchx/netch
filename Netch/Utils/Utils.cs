@@ -120,5 +120,7 @@ namespace Netch.Utils
                 // ignored
             }
         }
+
+        public static string FileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
     }
 }

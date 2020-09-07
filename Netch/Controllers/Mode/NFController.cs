@@ -48,12 +48,12 @@ namespace Netch.Controllers
 
         public override bool Start(Server server, Mode mode)
         {
-            Logging.Info("内置驱动版本: " + DriverVersion(BinDriver));
-            if (DriverVersion(SystemDriver) != DriverVersion(BinDriver))
+            Logging.Info("内置驱动版本: " + Utils.Utils.FileVersion(BinDriver));
+            if (Utils.Utils.FileVersion(SystemDriver) != Utils.Utils.FileVersion(BinDriver))
             {
                 if (File.Exists(SystemDriver))
                 {
-                    Logging.Info("系统驱动版本: " + DriverVersion(SystemDriver));
+                    Logging.Info("系统驱动版本: " + Utils.Utils.FileVersion(SystemDriver));
                     Logging.Info("更新驱动");
                     UninstallDriver();
                 }
@@ -67,12 +67,13 @@ namespace Netch.Controllers
             {
                 NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }
+
             NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            if (!MainController.IsSocks5Server)
+            if (server.Type != "Socks5")
             {
-                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.Socks5Port}");
-                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.Socks5Port}");
+                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
             }
             else
             {
@@ -82,6 +83,7 @@ namespace Netch.Controllers
                     Logging.Info("无法解析服务器 IP 地址");
                     return false;
                 }
+
                 NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
                 NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
             }
@@ -97,38 +99,19 @@ namespace Netch.Controllers
             return NativeMethods.aio_init();
         }
 
-        public static string DriverVersion(string file)
+        public override void Stop()
         {
-            return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+            Task.Run(() =>
+            {
+                if (Global.Settings.ModifySystemDNS)
+                    //恢复系统DNS
+                    DNS.SetDNS(_sysDns);
+            });
+
+            NativeMethods.aio_free();
         }
 
-        /// <summary>
-        ///     卸载 NF 驱动
-        /// </summary>
-        /// <returns>是否成功卸载</returns>
-        public static bool UninstallDriver()
-        {
-            Global.MainForm.StatusText(i18N.Translate("Uninstalling NF Service"));
-            Logging.Info("卸载 NF 驱动");
-            try
-            {
-                if (NFService.Status == ServiceControllerStatus.Running)
-                {
-                    NFService.Stop();
-                    NFService.WaitForStatus(ServiceControllerStatus.Stopped);
-                }
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-
-            if (!File.Exists(SystemDriver)) return true;
-            NFAPI.nf_unRegisterDriver("netfilter2");
-            File.Delete(SystemDriver);
-
-            return true;
-        }
+        #region Utils
 
         /// <summary>
         ///     安装 NF 驱动
@@ -163,16 +146,34 @@ namespace Netch.Controllers
             return true;
         }
 
-        public override void Stop()
+        /// <summary>
+        ///     卸载 NF 驱动
+        /// </summary>
+        /// <returns>是否成功卸载</returns>
+        public static bool UninstallDriver()
         {
-            Task.Run(() =>
+            Global.MainForm.StatusText(i18N.Translate("Uninstalling NF Service"));
+            Logging.Info("卸载 NF 驱动");
+            try
             {
-                if (Global.Settings.ModifySystemDNS)
-                    //恢复系统DNS
-                    DNS.SetDNS(_sysDns);
-            });
+                if (NFService.Status == ServiceControllerStatus.Running)
+                {
+                    NFService.Stop();
+                    NFService.WaitForStatus(ServiceControllerStatus.Stopped);
+                }
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
 
-            NativeMethods.aio_free();
+            if (!File.Exists(SystemDriver)) return true;
+            NFAPI.nf_unRegisterDriver("netfilter2");
+            File.Delete(SystemDriver);
+
+            return true;
         }
+
+        #endregion
     }
 }

@@ -35,8 +35,6 @@ XCOPY /s /Y %SolutionDir%binaries %TargetDir%bin\ >NUL
 XCOPY /s /Y %SolutionDir%translations\i18n %TargetDir%i18n\ >NUL
 XCOPY /s /Y %SolutionDir%modes\mode %TargetDir%mode\ >NUL
 
-rem MOVE /Y %TargetDir%bin\Core.bin %TargetDir% >NUL
-
 DEL /f %TargetDir%*.config >NUL 2>&1
 DEL /f %TargetDir%*.pdb >NUL 2>&1
 RD /s /Q %TargetDir%x86 >NUL 2>&1
