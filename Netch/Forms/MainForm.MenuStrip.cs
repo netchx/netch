@@ -391,6 +391,11 @@ namespace Netch.Forms
             Show();
         }
 
+        private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Utils.Utils.Open($"https://netch.org/#/docs/zh-CN/faq");
+        }
+
         #endregion
     }
 }

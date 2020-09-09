@@ -189,6 +189,7 @@ namespace Netch.Forms
             CheckForUpdatesToolStripMenuItem.Text = i18N.Translate("Check for updates");
             OpenDirectoryToolStripMenuItem.Text = i18N.Translate("Open Directory");
             AboutToolStripButton.Text = i18N.Translate("About");
+            fAQToolStripMenuItem.Text = i18N.Translate("FAQ");
             NewVersionLabel.Text = i18N.Translate("New version available");
             // VersionLabel.Text = i18N.Translate("xxx");
             exitToolStripMenuItem.Text = i18N.Translate("Exit");
