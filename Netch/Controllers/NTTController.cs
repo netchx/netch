@@ -9,8 +9,8 @@ namespace Netch.Controllers
     {
         private string _localEnd;
         private string _publicEnd;
-        private string _natType;
-        private bool _nttResult;
+        private string _result;
+        private string _bindingTest;
 
         public NTTController()
         {
@@ -22,10 +22,9 @@ namespace Netch.Controllers
         ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
-        public (bool, string, string, string) Start()
+        public (string, string, string) Start()
         {
-            _nttResult = false;
-            _natType = _localEnd = _publicEnd = null;
+            _result = _localEnd = _publicEnd = null;
 
             try
             {
@@ -36,7 +35,9 @@ namespace Netch.Controllers
                 Instance.BeginOutputReadLine();
                 Instance.BeginErrorReadLine();
                 Instance.WaitForExit();
-                return (_nttResult, _natType, _localEnd, _publicEnd);
+                if (_bindingTest == "Fail")
+                    _result = "UdpBlocked";
+                return (_result, _localEnd, _publicEnd);
             }
             catch (Exception e)
             {
@@ -50,7 +51,7 @@ namespace Netch.Controllers
                     // ignored
                 }
 
-                return (false, null, null, null);
+                return (null, null, null);
             }
         }
 
@@ -67,9 +68,11 @@ namespace Netch.Controllers
             switch (key)
             {
                 case "Other address is":
-                case "Binding test":
                 case "Nat mapping behavior":
                 case "Nat filtering behavior":
+                    break;
+                case "Binding test":
+                    _bindingTest = value;
                     break;
                 case "Local address":
                     _localEnd = value;
@@ -78,11 +81,10 @@ namespace Netch.Controllers
                     _publicEnd = value;
                     break;
                 case "result":
-                    _natType = value;
-                    _nttResult = true;
+                    _result = value;
                     break;
                 default:
-                    _natType = str.Last();
+                    _result = str.Last();
                     break;
             }
         }
