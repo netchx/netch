@@ -23,6 +23,18 @@ namespace Netch.Forms
             // 监听电源事件
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
+            ModeComboBox.KeyUp += (sender, args) =>
+            {
+                switch (args.KeyData)
+                {
+                    case Keys.Escape:
+                    {
+                        SelectLastMode();
+                        return;
+                    }
+                }
+            };
+
             CheckForIllegalCrossThreadCalls = false;
         }
 

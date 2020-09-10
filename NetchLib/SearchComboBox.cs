@@ -10,13 +10,48 @@ namespace System.Windows.Forms
             AutoCompleteMode = AutoCompleteMode.Suggest;
         }
 
+
+        private string prevKeyword;
+
+        private string Keyword
+        {
+            get => _keyword;
+            set
+            {
+                prevKeyword = _keyword;
+                if (value == null)
+                {
+                    _keyword = null;
+                    return;
+                }
+
+                if (_keyword == value)
+                {
+                    return;
+                }
+
+                _keyword = value;
+                ReevaluateCompletionList();
+            }
+        }
+
         protected override void OnTextChanged(EventArgs e)
         {
             try
             {
-                if (DesignMode || !string.IsNullOrEmpty(Text) || !Visible) return;
-
-                ResetCompletionList();
+                if (string.IsNullOrEmpty(Text))
+                {
+                    if (!IsOriginalItems)
+                        ResetCompletionList();
+                    Keyword = null;
+                }
+                else
+                {
+                    if (AutoFillTag.All(o => o.ToString() != Text))
+                    {
+                        Keyword = Text;
+                    }
+                }
             }
             finally
             {
@@ -24,53 +59,34 @@ namespace System.Windows.Forms
             }
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+
+        private object[] AutoFillTag
         {
-            try
+            get
             {
-                if (DesignMode || e.KeyData == Keys.Up || e.KeyData == Keys.Down) return;
-
-                if (e.KeyData == Keys.Return)
+                if (Tag == null)
                 {
-                    e.Handled = true;
-                    if (newList.Length > 0 && !newList.Select(o => o.ToString()).Contains(Text))
-                    {
-                        Text = newList[0].ToString();
-                    }
-
-                    DroppedDown = false;
-                    return;
+                    Tag = Items.Cast<object>().ToArray();
                 }
 
-                ReevaluateCompletionList();
-            }
-            finally
-            {
-                base.OnKeyUp(e);
+                return (object[]) Tag;
             }
         }
 
+        private bool IsOriginalItems => Items.Count == AutoFillTag.Length;
+
         private void ResetCompletionList()
         {
-            _previousSearchTerm = null;
+            Keyword = null;
             try
             {
                 SuspendLayout();
 
-                var originalList = (object[])Tag;
-                if (originalList == null)
-                {
-                    Tag = originalList = Items.Cast<object>().ToArray();
-                }
+                if (IsOriginalItems)
+                    return;
 
-                if (Items.Count == originalList.Length) return;
-
-                while (Items.Count > 0)
-                {
-                    Items.RemoveAt(0);
-                }
-
-                Items.AddRange(originalList);
+                Items.Clear();
+                Items.AddRange(AutoFillTag);
             }
             finally
             {
@@ -78,80 +94,85 @@ namespace System.Windows.Forms
             }
         }
 
-        private string _previousSearchTerm;
-        private object[] newList;
+        private static int findFirstDifIndex(string s1, string s2)
+        {
+            for (var i = 0; i < Math.Min(s1.Length, s2.Length); i++)
+                if (s1[i] != s2[i])
+                    return i;
+
+            return -1;
+        }
+
+        private object[] _newList;
+        private string _keyword;
+
         private void ReevaluateCompletionList()
         {
+            SuspendLayout();
+            var keyword = Keyword.ToLowerInvariant().Trim();
+
+            var selectionStart = SelectionStart;
+            if (selectionStart == Text.Length)
+            {
+                selectionStart = -1;
+            }
+            else
+            {
+                selectionStart = findFirstDifIndex(prevKeyword, Keyword);
+            }
+
             try
             {
-                var currentSearchTerm = Text.ToLowerInvariant();
-                if (currentSearchTerm == _previousSearchTerm) return;
-
-                _previousSearchTerm = currentSearchTerm;
-                try
+                var originalList = AutoFillTag;
+                if (originalList == null)
                 {
-                    SuspendLayout();
+                    Tag = originalList = Items.Cast<object>().ToArray();
+                }
 
-                    var originalList = (object[])Tag;
-                    if (originalList == null)
+                if (string.IsNullOrEmpty(Keyword))
+                {
+                    ResetCompletionList();
+                    return;
+                }
+                else
+                {
+                    _newList = originalList.Where(x => x.ToString().ToLowerInvariant().Contains(keyword)).ToArray();
+                }
+
+                if (_newList.Any())
+                {
+                    Items.Clear();
+                    Items.AddRange(_newList.ToArray());
+
+                    if (!DroppedDown)
                     {
-                        Tag = originalList = Items.Cast<object>().ToArray();
-                    }
-
-                    if (string.IsNullOrEmpty(currentSearchTerm))
-                    {
-                        if (Items.Count == originalList.Length) return;
-
-                        newList = originalList;
+                        DroppedDown = true;
                     }
                     else
                     {
-                        newList = originalList.Where(x => x.ToString().ToLowerInvariant().Contains(currentSearchTerm)).ToArray();
+                        // TODO 预期下拉框高度变长则重新打开下拉框
                     }
 
-                    try
-                    {
-                        while (Items.Count > 0)
-                        {
-                            Items.RemoveAt(0);
-                        }
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            Items.Clear();
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
-                    }
-
-                    Items.AddRange(newList.ToArray());
+                    Cursor.Current = Cursors.Default;
                 }
-                finally
+                else
                 {
-                    if (currentSearchTerm.Length >= 2 && !DroppedDown)
-                    {
-                        DroppedDown = true;
-                        Cursor.Current = Cursors.Default;
-                        Text = currentSearchTerm;
-                        Select(currentSearchTerm.Length, 0);
-                    }
+                    DroppedDown = false;
+                    Items.Clear();
+                }
 
-                    if (Items.Count > 0)
-                    {
-                        DroppedDown = false;
-                        DroppedDown = true;
-                    }
-
-                    ResumeLayout(true);
+                if (selectionStart == -1)
+                {
+                    Select(Text.Length, 0);
+                }
+                else
+                {
+                    Select(selectionStart + 1, 0);
                 }
             }
-            catch
+            finally
             {
-                // ignored
+                ResumeLayout(true);
             }
         }
     }
