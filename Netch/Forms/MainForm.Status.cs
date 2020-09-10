@@ -23,13 +23,6 @@ namespace Netch.Forms
             get => _state;
             private set
             {
-                if (InvokeRequired)
-                {
-                    // TODO:使所有 State 赋值不在线程中执行然后移除此代码块
-                    BeginInvoke(new Action(() => { State = value; }));
-                    return;
-                }
-
                 void StartDisableItems(bool enabled)
                 {
                     ServerComboBox.Enabled =
