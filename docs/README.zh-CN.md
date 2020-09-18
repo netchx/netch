@@ -50,6 +50,9 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
 
 ## 引用
+- [core](https://github.com/aiocloud/core)
+- [aiodns](https://github.com/aiocloud/aiodns)
+- [Redirector](https://github.com/aiocloud/Redirector)
 - [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
 - [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
 - [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)

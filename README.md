@@ -48,6 +48,9 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/net48)
 
 ## Quote
+- [core](https://github.com/aiocloud/core)
+- [aiodns](https://github.com/aiocloud/aiodns)
+- [Redirector](https://github.com/aiocloud/Redirector)
 - [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
 - [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
 - [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
