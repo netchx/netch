@@ -153,7 +153,7 @@ V2Ray
 
 当前版本已添加配置编辑功能，根据自己的情况，使用订阅或者别的方法添加代理配置，我这里使用的是剪贴板导入
 
-![剪贴板导入](screenshots\advanced\importServer.png)
+![剪贴板导入](/docs/screenshots/advanced/importServer.png)
 
 如果你发现你的程序没我截图的看起来清晰，可以右键 `Netch.exe - 属性 - 兼容性 - 更改高 DPI 设置 - 替代高 DPI 缩放执行 - 系统（增强）`
 
@@ -167,13 +167,13 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 接着点击菜单栏上的`模式 - 创建进程模式`
 
-![模式 - 创建进程模式](screenshots\advanced\createMode.png)
+![模式 - 创建进程模式](/docs/screenshots/advanced/createMode.png)
 
 ### 扫描
 
 在弹出的窗口中点击`扫描`
 
-![扫描](screenshots\advanced\modeForm.png)
+![扫描](/docs/screenshots/advanced/modeForm.png)
 
 选择你要加速的游戏的安装路径，根据游戏不同，可能需要选择多个不同的目录进行扫描，参见[萌鹰的 Netch 教程](https://www.eaglemoe.com/archives/142)（包括 GTAOL 和 R6S 的配置方法）
 
@@ -184,7 +184,7 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 这里以CSGO为例，只需添加CSGO游戏根目录即可
 
-![选择路径](screenshots\advanced\scan.png)
+![选择路径](/docs/screenshots/advanced/scan.png)
 
 扫描时可能需要稍等片刻，扫描后记得填写备注
 
@@ -192,13 +192,13 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 之后点保存进行`保存`
 
-![保存](screenshots\advanced\saveMode.png)
+![保存](/docs/screenshots/advanced/saveMode.png)
 
 ### 启动
 
 最后确认服务器一栏和模式一栏均为之前自己添加并需要使用的，没问题后点击`启动`即可
 
-![启动](screenshots\advanced\started.png)
+![启动](/docs/screenshots/advanced/started.png)
 
 启动后，你再去游戏根目录或者别的启动器如 Steam，Uplay 启动游戏即可。此时游戏就已经被代理了
 
