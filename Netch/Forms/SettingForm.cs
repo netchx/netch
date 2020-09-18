@@ -68,7 +68,7 @@ namespace Netch.Forms
             }
             else
             {
-                TUNTAPDNSTextBox.Text = "Unbound local DNS";
+                TUNTAPDNSTextBox.Text = "Local DNS";
             }
         }
 

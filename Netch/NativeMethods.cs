@@ -78,20 +78,5 @@ namespace Netch
 
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_init();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_free();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong aio_getUP();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong aio_getDL();
     }
 }

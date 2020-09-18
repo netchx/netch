@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
@@ -62,18 +63,18 @@ namespace Netch.Controllers
                     return false;
             }
 
-            NativeMethods.aio_dial((int) NameList.TYPE_CLRNAME, "");
+            aio_dial((int) NameList.TYPE_CLRNAME, "");
             foreach (var rule in mode.Rule)
             {
-                NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, rule);
+                aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }
 
-            NativeMethods.aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
+            aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
             if (server.Type != "Socks5")
             {
-                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
             }
             else
             {
@@ -84,8 +85,8 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                NativeMethods.aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
-                NativeMethods.aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
+                aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
             }
 
             if (Global.Settings.ModifySystemDNS)
@@ -96,7 +97,7 @@ namespace Netch.Controllers
                 DNS.SetDNS(dns);
             }
 
-            return NativeMethods.aio_init();
+            return aio_init();
         }
 
         public override void Stop()
@@ -108,8 +109,27 @@ namespace Netch.Controllers
                     DNS.SetDNS(_sysDns);
             });
 
-            NativeMethods.aio_free();
+            aio_free();
         }
+
+        #region NativeMethods
+
+        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
+
+        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_init();
+
+        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_free();
+
+        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ulong aio_getUP();
+
+        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ulong aio_getDL();
+
+        #endregion
 
         #region Utils
 
