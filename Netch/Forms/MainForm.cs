@@ -451,7 +451,14 @@ namespace Netch.Forms
         private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
             if (!_comboBoxInitialized) return;
-            Global.Settings.ModeComboBoxSelectedIndex = ModeComboBox.SelectedIndex;
+            try
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
+            }
+            catch
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = 0;
+            }
         }
 
         private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
