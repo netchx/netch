@@ -1,27 +1,10 @@
 if %Configuration%==Release (
 :: Merge dlls
-%ILMergeConsolePath% %TargetDir%Netch.exe ^
-/out:%TargetDir%NetchMerged.exe ^
-%TargetDir%Dia2Lib.dll ^
-%TargetDir%Interop.NetFwTypeLib.dll ^
-%TargetDir%Interop.TaskScheduler.dll ^
-%TargetDir%MaxMind.Db.dll ^
-%TargetDir%MaxMind.GeoIP2.dll ^
-%TargetDir%Microsoft.Diagnostics.FastSerialization.dll ^
-%TargetDir%Microsoft.Diagnostics.Tracing.TraceEvent.dll ^
-%TargetDir%Microsoft.WindowsAPICodePack.dll ^
-%TargetDir%Microsoft.WindowsAPICodePack.Shell.dll ^
-%TargetDir%NetchLib.dll ^
-%TargetDir%Newtonsoft.Json.dll ^
-%TargetDir%OSExtensions.dll ^
-%TargetDir%System.Buffers.dll ^
-%TargetDir%System.Collections.Immutable.dll ^
-%TargetDir%System.Memory.dll ^
-%TargetDir%System.Net.IPNetwork.dll ^
-%TargetDir%System.Numerics.Vectors.dll ^
-%TargetDir%System.Reflection.Metadata.dll ^
-%TargetDir%System.Runtime.CompilerServices.Unsafe.dll ^
-%TargetDir%TraceReloggerLib.dll
+%ILMergeConsolePath% /wildcards /out:%TargetDir%NetchMerged.exe ^
+/lib:"C:\Windows\Microsoft.NET\Framework64\v4.0.30319" ^
+/targetplatform:v4,"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8" ^
+%TargetDir%Netch.exe ^
+%TargetDir%*.dll
 
 DEL /f %TargetDir%*.dll >NUL 2>&1
 MOVE /Y %TargetDir%NetchMerged.exe %TargetDir%Netch.exe >NUL
