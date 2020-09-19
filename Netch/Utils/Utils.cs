@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -122,5 +124,51 @@ namespace Netch.Utils
         }
 
         public static string FileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+
+        public static bool SearchOutboundAdapter()
+        {
+            // 寻找出口适配器
+            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
+                0, out var pRoute) != 0)
+            {
+                Logging.Error("GetBestRoute 搜索失败");
+                return false;
+            }
+
+            Global.Outbound.Index = pRoute.dwForwardIfIndex;
+            // 根据 IP Index 寻找 出口适配器
+            try
+            {
+                var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
+                {
+                    try
+                    {
+                        return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
+                Global.Outbound.Adapter = adapter;
+                Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop);
+                Logging.Info($"出口 IPv4 地址：{Global.Outbound.Address}");
+                Logging.Info($"出口 网关 地址：{Global.Outbound.Gateway}");
+                Logging.Info(
+                    $"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Outbound.Index}");
+                return true;
+            }
+            catch (Exception)
+            {
+                Logging.Error("找不到出口IP所在网卡");
+                return false;
+            }
+        }
+
+        public static void LoggingAdapters(string id)
+        {
+            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(adapter => adapter.Id == id);
+            Logging.Warning($"检索此网卡信息出错: {adapter.Name} {adapter.Id} {adapter.Description}");
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Windows.Forms;
 using Netch.Forms;
 using Netch.Models;
@@ -155,9 +157,9 @@ namespace Netch
         };
 
         /// <summary>
-        ///		适配器
+        ///		出口适配器
         /// </summary>
-        public static class Adapter
+        public static class Outbound
         {
             /// <summary>
             ///		索引
@@ -167,12 +169,14 @@ namespace Netch
             /// <summary>
             ///		地址
             /// </summary>
-            public static IPAddress Address;
+            public static IPAddress Address => Adapter.GetIPProperties().UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork).Address;
 
             /// <summary>
             ///		网关
             /// </summary>
             public static IPAddress Gateway;
+
+            public static NetworkInterface Adapter;
         }
 
         /// <summary>

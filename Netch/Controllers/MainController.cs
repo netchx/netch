@@ -33,6 +33,13 @@ namespace Netch.Controllers
             }
 
             NativeMethods.FlushDNSResolverCache();
+
+            if (!Utils.Utils.SearchOutboundAdapter())
+            {
+                MessageBoxX.Show("No internet connection");
+                return false;
+            }
+
             _ = Task.Run(Firewall.AddNetchFwRules);
 
             try

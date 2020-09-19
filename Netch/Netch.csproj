@@ -73,9 +73,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="System.IO.Compression" />
-        <Reference Include="System.Management" />
-        <Reference Include="System.Net.Http" />
         <Reference Include="System.ServiceProcess" />
         <Reference Include="System.Web" />
     </ItemGroup>

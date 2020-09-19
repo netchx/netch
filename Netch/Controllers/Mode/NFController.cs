@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
-using System.Text;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
@@ -17,7 +15,7 @@ namespace Netch.Controllers
 
         private static readonly string BinDriver = string.Empty;
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-        private static string[] _sysDns = { };
+        private static string _sysDns;
 
         static NFController()
         {
@@ -92,9 +90,8 @@ namespace Netch.Controllers
             if (Global.Settings.ModifySystemDNS)
             {
                 // 备份并替换系统 DNS
-                _sysDns = DNS.getSystemDns();
-                string[] dns = {"1.1.1.1", "8.8.8.8"};
-                DNS.SetDNS(dns);
+                _sysDns = DNS.OutboundDNS;
+                DNS.OutboundDNS = "1.1.1.1,8.8.8.8";
             }
 
             return aio_init();
@@ -106,7 +103,7 @@ namespace Netch.Controllers
             {
                 if (Global.Settings.ModifySystemDNS)
                     //恢复系统DNS
-                    DNS.SetDNS(_sysDns);
+                    DNS.OutboundDNS = _sysDns;
             });
 
             aio_free();
