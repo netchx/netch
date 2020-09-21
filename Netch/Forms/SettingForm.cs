@@ -122,6 +122,7 @@ namespace Netch.Forms
 
         private void SettingForm_Load(object sender, EventArgs e)
         {
+            UseFakeDNSCheckBox.Visible = Global.SupportFakeDns;
             InitText();
             InitValue();
         }

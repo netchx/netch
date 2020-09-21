@@ -184,6 +184,7 @@
             this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(110, 21);
             this.UseFakeDNSCheckBox.TabIndex = 11;
             this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
+            this.UseFakeDNSCheckBox.Visible = false;
             this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
             // 
             // ProxyDNSCheckBox

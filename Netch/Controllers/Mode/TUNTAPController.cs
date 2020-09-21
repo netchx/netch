@@ -237,7 +237,7 @@ namespace Netch.Controllers
             argument.Append(
                 $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{adapterName}\" ");
 
-            if (Global.Settings.TUNTAP.UseFakeDNS)
+            if (Global.Settings.TUNTAP.UseFakeDNS && Global.SupportFakeDns)
                 argument.Append("-fakeDns ");
 
             return StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
@@ -255,6 +255,40 @@ namespace Netch.Controllers
                 Task.Factory.StartNew(pDNSController.Stop)
             };
             Task.WaitAll(tasks);
+        }
+
+        public bool TestFakeDNS()
+        {
+            var exited = false;
+            var helpStr = new StringBuilder();
+            try
+            {
+                void OnOutputDataReceived(object sender,DataReceivedEventArgs e)
+                {
+                    if (e.Data == null)
+                    {
+                        exited = true;
+                        return;
+                    }
+                    helpStr.Append(e.Data);
+                }
+                InitInstance("-h");
+                // Instance.OutputDataReceived += OnOutputDataReceived;
+                Instance.ErrorDataReceived += OnOutputDataReceived;
+                Instance.Start();
+                Instance.BeginOutputReadLine();
+                Instance.BeginErrorReadLine();
+                while (!exited)
+                {
+                    Thread.Sleep(200);
+                }
+
+                return helpStr.ToString().Contains("-fakeDns");
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>

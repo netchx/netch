@@ -24,6 +24,8 @@ namespace Netch
         /// </summary>
         public static MainForm MainForm;
 
+        public static bool SupportFakeDns = false;
+
         /// <summary>
 		///		SS/SSR 加密方式
 		/// </summary>

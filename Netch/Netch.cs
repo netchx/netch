@@ -67,9 +67,16 @@ namespace Netch
                 }
 
                 Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-                Task.Run(() => { Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}"); });
-                Logging.Info("启动单实例");
-                Task.Run(OnlyInstance.Server);
+                Task.Run(() =>
+                {
+                    Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}");
+                });
+                Task.Run(() =>
+                {
+                    Logging.Info("启动单实例");
+                    OnlyInstance.Server();
+                });
+                Task.Run(() => { Global.SupportFakeDns = new TUNTAPController().TestFakeDNS(); });
 
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
