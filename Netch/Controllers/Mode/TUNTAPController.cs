@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -181,7 +180,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     清除绕行规则
         /// </summary>
-        private bool ClearBypass()
+        private bool ClearRouteTable()
         {
             switch (_savedMode.Type)
             {
@@ -252,7 +251,7 @@ namespace Netch.Controllers
             var tasks = new[]
             {
                 Task.Factory.StartNew(StopInstance),
-                Task.Factory.StartNew(ClearBypass),
+                Task.Factory.StartNew(ClearRouteTable),
                 Task.Factory.StartNew(pDNSController.Stop)
             };
             Task.WaitAll(tasks);
