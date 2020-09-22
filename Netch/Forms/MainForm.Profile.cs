@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Models;
@@ -82,43 +83,29 @@ namespace Netch.Forms
             }
         }
 
-        private string LoadProfile(int index)
+        private void LoadProfile(int index)
         {
             var p = Global.Settings.Profiles[index];
+            ProfileNameText.Text = p.ModeRemark;
 
             if (p.IsDummy)
                 throw new Exception("Profile not found.");
 
-            var result = false;
+            var server = ServerComboBox.Items.Cast<Models.Server>().FirstOrDefault(s => s.Remark.Equals(p.ServerRemark));
+            var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(p.ModeRemark));
 
-            foreach (Models.Server server in ServerComboBox.Items)
+            if (server == null)
             {
-                if (server.Remark.Equals(p.ServerRemark))
-                {
-                    ServerComboBox.SelectedItem = server;
-                    result = true;
-                    break;
-                }
-            }
-
-            if (!result)
                 throw new Exception("Server not found.");
-
-            result = false;
-            foreach (Models.Mode mode in ModeComboBox.Items)
-            {
-                if (mode.Remark.Equals(p.ModeRemark))
-                {
-                    ModeComboBox.SelectedItem = mode;
-                    result = true;
-                    break;
-                }
             }
 
-            if (!result)
+            if (mode == null)
+            {
                 throw new Exception("Mode not found.");
+            }
 
-            return p.ProfileName;
+            ServerComboBox.SelectedItem = server;
+            ModeComboBox.SelectedItem = mode;
         }
 
         private void SaveProfile(int index)
@@ -167,7 +154,8 @@ namespace Netch.Forms
 
             if (Global.Settings.Profiles[index].IsDummy)
             {
-                MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
+                MessageBoxX.Show(
+                    i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
                 return;
             }
 
@@ -176,32 +164,29 @@ namespace Netch.Forms
                 if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) != DialogResult.OK) return;
                 RemoveProfile(index);
                 ProfileButtons[index].Text = i18N.Translate("None");
-                // MessageBoxX.Show(i18N.Translate("Profile Removed!"));
                 return;
             }
 
             try
             {
-                ProfileNameText.Text = LoadProfile(index);
-
-                // start the profile
-                ControlFun();
-                if (State == State.Stopping || State == State.Stopped)
-                {
-                    while (State != State.Stopped)
-                    {
-                        await Task.Delay(250);
-                    }
-
-                    ControlFun();
-                }
+                LoadProfile(index);
             }
-            catch (Exception ee)
+            catch (Exception exception)
             {
-                Logging.Info(ee.ToString());
-                ProfileButtons[index].Text = i18N.Translate("Error");
-                await Task.Delay(1200);
-                ProfileButtons[index].Text = i18N.Translate("None");
+                MessageBoxX.Show(exception.Message, LogLevel.ERROR);
+                return;
+            }
+
+            // start the profile
+            ControlFun();
+            if (State == State.Stopping || State == State.Stopped)
+            {
+                while (State != State.Stopped)
+                {
+                    await Task.Delay(250);
+                }
+
+                ControlFun();
             }
         }
     }
