@@ -54,6 +54,14 @@
           <WrapperTool>tlbimp</WrapperTool>
           <Isolated>false</Isolated>
         </COMReference>
+        <COMReference Include="NETCONLib.dll">
+            <Guid>{43E734CA-043D-4A70-9A2C-A8F254063D91}</Guid>
+            <VersionMajor>1</VersionMajor>
+            <VersionMinor>0</VersionMinor>
+            <Lcid>0</Lcid>
+            <WrapperTool>tlbimp</WrapperTool>
+            <Isolated>False</Isolated>
+        </COMReference>
     </ItemGroup>
 
     <ItemGroup>
@@ -73,6 +81,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Reference Include="System.Management" />
         <Reference Include="System.ServiceProcess" />
         <Reference Include="System.Web" />
     </ItemGroup>

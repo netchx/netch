@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
 using Netch.Utils;
 using TaskScheduler;
 
@@ -36,6 +38,7 @@ namespace Netch.Forms
             TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
             ProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
             UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
+            ICSCheckBox.Checked = ICSController.Enabled;
 
             // Behavior
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
@@ -64,7 +67,9 @@ namespace Netch.Forms
 
             if (UseCustomDNSCheckBox.Checked)
             {
-                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? Global.Settings.TUNTAP.DNS.Aggregate((current, ip) => $"{current},{ip}") : "1.1.1.1";
+                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
+                    ? Global.Settings.TUNTAP.DNS.Aggregate((current, ip) => $"{current},{ip}")
+                    : "1.1.1.1";
             }
             else
             {
@@ -195,7 +200,8 @@ namespace Netch.Forms
 
                 if (UseCustomDNSCheckBox.Checked)
                 {
-                    dns = TUNTAPDNSTextBox.Text.Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(s => s.Trim()).ToArray();
+                    dns = TUNTAPDNSTextBox.Text.Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(s => s.Trim())
+                        .ToArray();
                     if (dns.Any())
                     {
                         foreach (var ip in dns)
@@ -400,6 +406,23 @@ namespace Netch.Forms
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
+        }
+
+        private async void ICSCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            ICSCheckBox.Enabled = false;
+            await Task.Run(() =>
+            {
+                if (ICSCheckBox.Checked)
+                {
+                    ICSCheckBox.Checked = ICSController.Enable();
+                }
+                else
+                {
+                    ICSController.Disable();
+                }
+            });
+            ICSCheckBox.Enabled = true;
         }
     }
 }

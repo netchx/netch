@@ -224,7 +224,7 @@ namespace Netch.Controllers
             }
             else
             {
-                pDNSController.Start();
+                var _ = pDNSController.Start();
                 dns = "127.0.0.1";
             }
 

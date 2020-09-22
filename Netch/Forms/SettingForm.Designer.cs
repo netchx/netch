@@ -40,6 +40,7 @@
             this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
             this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.ICSCheckBox = new System.Windows.Forms.CheckBox();
             this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.TUNTAPDNSLabel = new System.Windows.Forms.Label();
             this.TUNTAPDNSTextBox = new System.Windows.Forms.TextBox();
@@ -160,6 +161,7 @@
             // 
             this.TUNTAPGroupBox.Controls.Add(this.UseFakeDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.ProxyDNSCheckBox);
+            this.TUNTAPGroupBox.Controls.Add(this.ICSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.UseCustomDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSLabel);
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSTextBox);
@@ -196,6 +198,18 @@
             this.ProxyDNSCheckBox.TabIndex = 10;
             this.ProxyDNSCheckBox.Text = "Proxy DNS in Mode 2";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // ICSCheckBox
+            // 
+            this.ICSCheckBox.AutoSize = true;
+            this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
+            this.ICSCheckBox.Name = "ICSCheckBox";
+            this.ICSCheckBox.Size = new System.Drawing.Size(46, 21);
+            this.ICSCheckBox.TabIndex = 5;
+            this.ICSCheckBox.Text = "ICS";
+            this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ICSCheckBox.UseVisualStyleBackColor = true;
+            this.ICSCheckBox.CheckedChanged += new System.EventHandler(this.ICSCheckBox_CheckedChanged);
             // 
             // UseCustomDNSCheckBox
             // 
@@ -558,6 +572,8 @@
             this.BehaviorGroupBox.PerformLayout();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.CheckBox ICSCheckBox;
 
         #endregion
 
