@@ -415,7 +415,8 @@ namespace Netch.Forms
             {
                 if (ICSCheckBox.Checked)
                 {
-                    ICSCheckBox.Checked = ICSController.Enable();
+                    if (!ICSController.Enabled)
+                        ICSCheckBox.Checked = ICSController.Enable();
                 }
                 else
                 {

@@ -51,26 +51,23 @@ namespace Netch.Controllers
                 ushort[] gatewayMetric = null;
                 string[] dns = null;
 
-                ManagementObject outboundWmi = null;
-                foreach (ManagementObject mo in moc)
+                var outboundWmi = WMI.GetManagementObjectByDeviceNameOrDefault(Global.Outbound.Adapter.Description);
+
+                if (outboundWmi == null)
                 {
-                    if (((string) mo["Caption"]).EndsWith(Global.Outbound.Adapter.Description))
-                    {
-                        outboundWmi = mo;
-                        if (!(dhcpEnabled = (bool) mo["DHCPEnabled"]))
-                        {
-                            ipAddress = (string[]) mo["IPAddress"];
-                            subnetMask = (string[]) mo["IPSubnet"];
-                            gateway = (string[]) mo["DefaultIPGateway"];
-                            gatewayMetric = (ushort[]) mo["GatewayCostMetric"];
-                            dns = (string[]) mo["DNSServerSearchOrder"];
+                    return false;
+                }
 
-                            ipAddress = new[] {ipAddress[0]};
-                            subnetMask = new[] {subnetMask[0]};
-                        }
+                if (!(dhcpEnabled = (bool) outboundWmi["DHCPEnabled"]))
+                {
+                    ipAddress = (string[]) outboundWmi["IPAddress"];
+                    subnetMask = (string[]) outboundWmi["IPSubnet"];
+                    gateway = (string[]) outboundWmi["DefaultIPGateway"];
+                    gatewayMetric = (ushort[]) outboundWmi["GatewayCostMetric"];
+                    dns = (string[]) outboundWmi["DNSServerSearchOrder"];
 
-                        break;
-                    }
+                    ipAddress = new[] {ipAddress[0]};
+                    subnetMask = new[] {subnetMask[0]};
                 }
 
                 #endregion
