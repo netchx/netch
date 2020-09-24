@@ -160,6 +160,13 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.Translate("Starting ", ModeController.Name));
             if (await Task.Run(() => ModeController.Start(server, mode)))
             {
+                switch (mode.Type)
+                {
+                    case 3:
+                    case 5:
+                        StatusPortInfoText.HttpPort = port;
+                        break;
+                }
                 UsingPorts.Add(port);
                 return true;
             }
