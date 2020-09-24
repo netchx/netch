@@ -33,6 +33,7 @@
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
     "Import servers error!": "未找到可导入的链接！",
+    "Add [{0}] Server": "添加 [{0}] 服务器",
     "Add [Socks5] Server": "添加 [Socks5] 服务器",
     "Add [Shadowsocks] Server": "添加 [Shadowsocks] 服务器",
     "Add [ShadowsocksR] Server": "添加 [ShadowsocksR] 服务器",

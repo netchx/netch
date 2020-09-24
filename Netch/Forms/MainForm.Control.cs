@@ -22,7 +22,7 @@ namespace Netch.Forms
             if (State == State.Waiting || State == State.Stopped)
             {
                 // 服务器、模式 需选择
-                if (!(ServerComboBox.SelectedItem is Models.Server server))
+                if (!(ServerComboBox.SelectedItem is Server server))
                 {
                     MessageBoxX.Show(i18N.Translate("Please select a server first"));
                     return;

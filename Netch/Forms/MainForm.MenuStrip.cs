@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms.Mode;
-using Netch.Forms.Server;
 using Netch.Models;
 using Netch.Utils;
-using Trojan = Netch.Forms.Server.Trojan;
-using VMess = Netch.Forms.Server.VMess;
 
 namespace Netch.Forms
 {
@@ -29,7 +26,7 @@ namespace Netch.Forms
             var texts = Clipboard.GetText();
             if (!string.IsNullOrWhiteSpace(texts))
             {
-                var result = ShareLink.Parse(texts);
+                var result = ShareLink.ParseText(texts);
 
                 if (result != null)
                 {
@@ -50,18 +47,15 @@ namespace Netch.Forms
 
         private void AddServerToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form form = ((ToolStripMenuItem) sender).Name switch
-            {
-                "AddSocks5ServerToolStripMenuItem" => new Socks5(),
-                "AddShadowsocksServerToolStripMenuItem" => new Shadowsocks(),
-                "AddShadowsocksRServerToolStripMenuItem" => new ShadowsocksR(),
-                "AddVMessServerToolStripMenuItem" => new VMess(),
-                "AddTrojanServerToolStripMenuItem" => new Trojan(),
-                _ => null
-            };
+            var s = ((ToolStripMenuItem) sender).Text;
+
+            var start = s.IndexOf("[", StringComparison.Ordinal) + 1;
+            var end = s.IndexOf("]", start, StringComparison.Ordinal);
+            var result = s.Substring(start, end - start);
 
             Hide();
-            form?.ShowDialog();
+            Servers.GetUtilByTypeOrFullName(result).Create();
+
             InitServer();
             Configuration.Save();
             Show();
@@ -147,7 +141,7 @@ namespace Netch.Forms
                         Remark = "ProxyUpdate",
                         Type = 5
                     };
-                    await MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                    await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
                 var serverLock = new object();
@@ -164,20 +158,11 @@ namespace Netch.Forms
 
                         var str = await WebUtil.DownloadStringAsync(request);
 
-                        try
-                        {
-                            str = ShareLink.URLSafeBase64Decode(str);
-                        }
-                        catch
-                        {
-                            // ignored
-                        }
-
                         lock (serverLock)
                         {
                             Global.Settings.Server.RemoveAll(server => server.Group == item.Remark);
 
-                            var result = ShareLink.Parse(str);
+                            var result = ShareLink.ParseText(str);
                             if (result != null)
                             {
                                 foreach (var server in result)
@@ -300,7 +285,7 @@ namespace Netch.Forms
                         Type = 5
                     };
                     State = State.Starting;
-                    await MainController.Start(ServerComboBox.SelectedItem as Models.Server, mode);
+                    await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
                 var req = WebUtil.CreateRequest(Global.Settings.ACL);
@@ -355,8 +340,8 @@ namespace Netch.Forms
             {
                 await Task.Run(() =>
                 {
-                    Configuration.deltapall();
-                    Configuration.addtap();
+                    TUNTAP.deltapall();
+                    TUNTAP.addtap();
                 });
                 StatusText(i18N.Translate("Reinstall TUN/TAP driver successfully"));
             }

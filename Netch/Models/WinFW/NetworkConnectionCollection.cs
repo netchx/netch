@@ -1,7 +1,6 @@
 ﻿﻿using System.Collections;
 using System.Linq;
-using System.Management;
-using NETCONLib;
+ using NETCONLib;
 
 namespace WinFW
 {

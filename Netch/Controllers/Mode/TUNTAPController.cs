@@ -16,6 +16,8 @@ namespace Netch.Controllers
 {
     public class TUNTAPController : ModeController
     {
+        public override bool TestNatRequired { get; } = true;
+
         // ByPassLan IP
         private readonly List<string> _bypassLanIPs = new List<string>
             {"10.0.0.0/8", "172.16.0.0/16", "192.168.0.0/16"};
@@ -198,10 +200,10 @@ namespace Netch.Controllers
             return true;
         }
 
-        public override bool Start(Server server, Mode mode)
+        public override bool Start(Server s, Mode mode)
         {
             _savedMode = mode;
-            _savedServer = server;
+            _savedServer = s;
 
             if (!Configure()) return false;
 
@@ -229,8 +231,8 @@ namespace Netch.Controllers
             }
 
             var argument = new StringBuilder();
-            if (server.Type == "Socks5")
-                argument.Append($"-proxyServer {server.Hostname}:{server.Port} ");
+            if (s.IsSocks5())
+                argument.Append($"-proxyServer {s.Hostname}:{s.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
@@ -303,7 +305,7 @@ namespace Netch.Controllers
                 if (MessageBoxX.Show(i18N.Translate("TUN/TAP driver is not detected. Is it installed now?"),
                     confirm: true) == DialogResult.OK)
                 {
-                    Configuration.addtap();
+                    TUNTAP.addtap();
                     // 给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
                     Thread.Sleep(1000);
                     if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID = TUNTAP.GetComponentID()))

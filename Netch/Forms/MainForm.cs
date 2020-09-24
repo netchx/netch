@@ -5,17 +5,13 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Forms.Mode;
-using Netch.Forms.Server;
 using Netch.Models;
 using Netch.Utils;
-using Trojan = Netch.Forms.Server.Trojan;
-using VMess = Netch.Forms.Server.VMess;
 
 namespace Netch.Forms
 {
     public partial class MainForm : Form
     {
-
         public MainForm()
         {
             InitializeComponent();
@@ -40,6 +36,8 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            AddAddServerToolStripMenuItems();
+            
             OnlyInstance.Called += OnCalled;
             // 计算 ComboBox绘制 目标宽度
             _eWidth = ServerComboBox.Width / 10;
@@ -180,11 +178,6 @@ namespace Netch.Forms
         {
             ServerToolStripMenuItem.Text = i18N.Translate("Server");
             ImportServersFromClipboardToolStripMenuItem.Text = i18N.Translate("Import Servers From Clipboard");
-            AddSocks5ServerToolStripMenuItem.Text = i18N.Translate("Add [Socks5] Server");
-            AddShadowsocksServerToolStripMenuItem.Text = i18N.Translate("Add [Shadowsocks] Server");
-            AddShadowsocksRServerToolStripMenuItem.Text = i18N.Translate("Add [ShadowsocksR] Server");
-            AddVMessServerToolStripMenuItem.Text = i18N.Translate("Add [VMess] Server");
-            AddTrojanServerToolStripMenuItem.Text = i18N.Translate("Add [Trojan] Server");
             ModeToolStripMenuItem.Text = i18N.Translate("Mode");
             HelpToolStripMenuItem.Text = i18N.Translate("Help");
             CreateProcessModeToolStripMenuItem.Text = i18N.Translate("Create Process Mode");
@@ -227,7 +220,7 @@ namespace Netch.Forms
 
         private void Exit(bool forceExit = false)
         {
-            if (State != State.Waiting && State != State.Stopped && !Global.Settings.StopWhenExited && !forceExit)
+            if (!IsWaiting && !Global.Settings.StopWhenExited && !forceExit)
             {
                 MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
@@ -237,9 +230,8 @@ namespace Netch.Forms
 
             Hide();
             NotifyIcon.Visible = false;
-            if (State != State.Waiting && State != State.Stopped)
+            if (!IsWaiting)
             {
-                // 已启动
                 ControlFun();
             }
 
@@ -282,17 +274,11 @@ namespace Netch.Forms
                 return;
             }
 
-            Form server = Global.Settings.Server[ServerComboBox.SelectedIndex].Type switch
-            {
-                "Socks5" => new Socks5(Global.Settings.Server[ServerComboBox.SelectedIndex]),
-                "SS" => new Shadowsocks(Global.Settings.Server[ServerComboBox.SelectedIndex]),
-                "SSR" => new ShadowsocksR(Global.Settings.Server[ServerComboBox.SelectedIndex]),
-                "VMess" => new VMess(Global.Settings.Server[ServerComboBox.SelectedIndex]),
-                "Trojan" => new Trojan(Global.Settings.Server[ServerComboBox.SelectedIndex]),
-                _ => null
-            };
             Hide();
-            server?.ShowDialog();
+
+            var server = Global.Settings.Server[ServerComboBox.SelectedIndex];
+            Servers.GetUtilByTypeOrFullName(server.Type).Edit(server);
+
             InitServer();
             Configuration.Save();
             Show();
@@ -318,7 +304,7 @@ namespace Netch.Forms
         private void EditModePictureBox_Click(object sender, EventArgs e)
         {
             // 当前ModeComboBox中至少有一项
-            if (ModeComboBox.Items.Count <= 0 || ModeComboBox.SelectedIndex == -1)
+            if (ModeComboBox.SelectedIndex == -1)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                 return;
@@ -331,7 +317,6 @@ namespace Netch.Forms
                 {
                     Hide();
                     new Process(selectedMode).ShowDialog();
-                    InitMode();
                     Show();
                     break;
                 }
@@ -352,10 +337,7 @@ namespace Netch.Forms
                 return;
             }
 
-            var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
-            ModeComboBox.Items.Remove(selectedMode);
-            Modes.Delete(selectedMode);
-
+            Modes.Delete((Models.Mode) ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 
@@ -368,11 +350,10 @@ namespace Netch.Forms
                 return;
             }
 
-            var selectedMode = (Models.Server) ServerComboBox.SelectedItem;
             try
             {
                 //听说巨硬BUG经常会炸，所以Catch一下 :D
-                Clipboard.SetText(ShareLink.GetShareLink(selectedMode));
+                Clipboard.SetText(ShareLink.GetShareLink((Server) ServerComboBox.SelectedItem));
             }
             catch (Exception)
             {
@@ -391,7 +372,7 @@ namespace Netch.Forms
 
             var index = ServerComboBox.SelectedIndex;
 
-            Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Models.Server);
+            Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Server);
             InitServer();
 
             Configuration.Save();

@@ -64,18 +64,6 @@ namespace Netch
         [DllImport("sysproxy", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool SetURL([MarshalAs(UnmanagedType.LPTStr)] string remote);
 
-        public class Shadowsocks
-        {
-            [DllImport("shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
-            public static extern bool Info(byte[] client, byte[] remote, byte[] passwd, byte[] method);
-
-            [DllImport("shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
-            public static extern bool Start();
-
-            [DllImport("shadowsocks-windows-dynamic", CallingConvention = CallingConvention.Cdecl)]
-            public static extern void Stop();
-        }
-
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
     }

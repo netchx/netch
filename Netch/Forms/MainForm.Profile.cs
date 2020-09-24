@@ -91,7 +91,7 @@ namespace Netch.Forms
             if (p.IsDummy)
                 throw new Exception("Profile not found.");
 
-            var server = ServerComboBox.Items.Cast<Models.Server>().FirstOrDefault(s => s.Remark.Equals(p.ServerRemark));
+            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(p.ServerRemark));
             var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(p.ModeRemark));
 
             if (server == null)
@@ -110,7 +110,7 @@ namespace Netch.Forms
 
         private void SaveProfile(int index)
         {
-            var selectedServer = (Models.Server) ServerComboBox.SelectedItem;
+            var selectedServer = (Server) ServerComboBox.SelectedItem;
             var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 

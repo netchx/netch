@@ -51,7 +51,7 @@ namespace Netch.Controllers
                 ushort[] gatewayMetric = null;
                 string[] dns = null;
 
-                var outboundWmi = WMI.GetManagementObjectByDeviceNameOrDefault(Global.Outbound.Adapter.Description);
+                var outboundWmi = GetManagementObjectByDeviceNameOrDefault(Global.Outbound.Adapter.Description);
 
                 if (outboundWmi == null)
                 {
@@ -166,6 +166,19 @@ namespace Netch.Controllers
                     entry["IsIcsPublic"] = false;
                 entry.Put(options);
             }
+        }
+
+        public static ManagementObject GetManagementObjectByDeviceNameOrDefault(string deviceName)
+        {
+            foreach (ManagementObject mo in new ManagementClass("Win32_NetworkAdapterConfiguration").GetInstances())
+            {
+                if (((string) mo["Caption"]).EndsWith(deviceName))
+                {
+                    return mo;
+                }
+            }
+
+            return null;
         }
     }
 }
