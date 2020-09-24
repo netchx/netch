@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +25,12 @@ namespace Netch.Utils
             return req;
         }
 
+        public static IPEndPoint BestLocalEndPoint(IPEndPoint remoteIPEndPoint)
+        {
+            var testSocket = new Socket(remoteIPEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            testSocket.Connect(remoteIPEndPoint);
+            return (IPEndPoint) testSocket.LocalEndPoint;
+        }
 
         /// <summary>
         ///     异步下载

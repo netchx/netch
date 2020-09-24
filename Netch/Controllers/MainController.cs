@@ -34,7 +34,7 @@ namespace Netch.Controllers
 
             NativeMethods.FlushDNSResolverCache();
 
-            if (!Utils.Utils.SearchOutboundAdapter())
+            if (!Utils.Utils.SearchOutboundAdapter(false))
             {
                 MessageBoxX.Show("No internet connection");
                 return false;
@@ -167,6 +167,7 @@ namespace Netch.Controllers
                         StatusPortInfoText.HttpPort = port;
                         break;
                 }
+
                 UsingPorts.Add(port);
                 return true;
             }
