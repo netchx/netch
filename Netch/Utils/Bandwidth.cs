@@ -49,14 +49,12 @@ namespace Netch.Utils
             return mStrSize;
         }
 
-        public static bool NetTrafficAvailable => /*Global.Settings.EnableNetTraffic && */Environment.OSVersion.Version.Major >= 10;
-
         /// <summary>
         /// 根据程序名统计流量
         /// </summary>
         public static void NetTraffic(Server server, Mode mode)
         {
-            if (!NetTrafficAvailable)
+            if (!Global.Flags.IsWindows10Upper)
                 return;
 
             var counterLock = new object();

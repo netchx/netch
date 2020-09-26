@@ -76,7 +76,6 @@ namespace Netch
                     Logging.Info("启动单实例");
                     OnlyInstance.Server();
                 });
-                Task.Run(() => { Global.SupportFakeDns = new TUNTAPController().TestFakeDNS(); });
 
                 // 绑定错误捕获
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

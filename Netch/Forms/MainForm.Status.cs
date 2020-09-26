@@ -66,7 +66,7 @@ namespace Netch.Forms
 
                         ProfileGroupBox.Enabled = true;
 
-                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = Bandwidth.NetTrafficAvailable;
+                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = Global.Flags.IsWindows10Upper;
                         break;
                     case State.Stopping:
                         ControlButton.Enabled = false;
@@ -114,18 +114,7 @@ namespace Netch.Forms
             {
                 NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} {(country != string.Empty ? $"[{country}]" : "")}";
 
-                if (int.TryParse(text, out var natType))
-                {
-                    if (natType > 0 && natType < 5)
-                    {
-                        NatTypeStatusLightLabel.Visible = true;
-                        UpdateNatTypeLight(natType);
-                    }
-                }
-                else
-                {
-                    NatTypeStatusLightLabel.Visible = false;
-                }
+                UpdateNatTypeLight(int.TryParse(text, out var natType) ? natType : -1);
             }
             else
             {
@@ -139,29 +128,37 @@ namespace Netch.Forms
         ///     更新 NAT指示灯颜色
         /// </summary>
         /// <param name="natType"></param>
-        private void UpdateNatTypeLight(int natType)
+        private void UpdateNatTypeLight(int natType = -1)
         {
-            Color c;
-            switch (natType)
+            if (natType > 0 && natType < 5)
             {
-                case 1:
-                    c = Color.LimeGreen;
-                    break;
-                case 2:
-                    c = Color.Yellow;
-                    break;
-                case 3:
-                    c = Color.Red;
-                    break;
-                case 4:
-                    c = Color.Black;
-                    break;
-                default:
-                    c = Color.Black;
-                    break;
-            }
+                NatTypeStatusLightLabel.Visible = Global.Flags.IsWindows10Upper;
+                Color c;
+                switch (natType)
+                {
+                    case 1:
+                        c = Color.LimeGreen;
+                        break;
+                    case 2:
+                        c = Color.Yellow;
+                        break;
+                    case 3:
+                        c = Color.Red;
+                        break;
+                    case 4:
+                        c = Color.Black;
+                        break;
+                    default:
+                        c = Color.Black;
+                        break;
+                }
 
-            NatTypeStatusLightLabel.ForeColor = c;
+                NatTypeStatusLightLabel.ForeColor = c;
+            }
+            else
+            {
+                NatTypeStatusLightLabel.Visible = false;
+            }
         }
 
         /// <summary>

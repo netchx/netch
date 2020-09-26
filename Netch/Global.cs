@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
 using Netch.Forms;
 using Netch.Models;
 
@@ -23,7 +26,20 @@ namespace Netch
         /// </summary>
         public static MainForm MainForm;
 
-        public static bool SupportFakeDns = false;
+        public static class Flags
+        {
+            static Flags()
+            {
+                Task.Run(() =>
+                {
+                    SupportFakeDns = new TUNTAPController().TestFakeDNS();
+                    IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
+                });
+            }
+
+            public static bool SupportFakeDns;
+            public static bool IsWindows10Upper;
+        }
 
         /// <summary>
         ///		出口适配器
