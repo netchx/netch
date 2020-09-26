@@ -205,5 +205,46 @@ namespace Netch.Utils
                 }
             }
         }
+
+        public static void ComponentIterator(Component component, Action<Component> func)
+        {
+            func.Invoke(component);
+            switch (component)
+            {
+                case ToolStripMenuItem toolStripMenuItem:
+                    // Iterator Menu strip sub item
+                    foreach (var item in toolStripMenuItem.DropDownItems.Cast<ToolStripItem>())
+                    {
+                        ComponentIterator(item, func);
+                    }
+
+                    break;
+                case MenuStrip menuStrip:
+                    // Menu Strip
+                    foreach (var item in menuStrip.Items.Cast<ToolStripItem>())
+                    {
+                        ComponentIterator(item, func);
+                    }
+
+                    break;
+                case ContextMenuStrip contextMenuStrip:
+                    foreach (var item in contextMenuStrip.Items.Cast<ToolStripItem>())
+                    {
+                        ComponentIterator(item, func);
+                    }
+
+                    break;
+                case Control control:
+                    foreach (var c in control.Controls.Cast<Control>())
+                    {
+                        ComponentIterator(c, func);
+                    }
+
+                    if (control.ContextMenuStrip != null)
+                        ComponentIterator(control.ContextMenuStrip, func);
+
+                    break;
+            }
+        }
     }
 }

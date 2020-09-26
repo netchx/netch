@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -174,47 +177,82 @@ namespace Netch.Forms
             Show();
         }
 
+        private readonly Dictionary<string, object> _mainFormText = new Dictionary<string, object>();
+        private bool _textRecorded;
+
         private void InitText()
         {
-            ServerToolStripMenuItem.Text = i18N.Translate("Server");
-            ImportServersFromClipboardToolStripMenuItem.Text = i18N.Translate("Import Servers From Clipboard");
-            ModeToolStripMenuItem.Text = i18N.Translate("Mode");
-            HelpToolStripMenuItem.Text = i18N.Translate("Help");
-            CreateProcessModeToolStripMenuItem.Text = i18N.Translate("Create Process Mode");
-            SubscribeToolStripMenuItem.Text = i18N.Translate("Subscribe");
-            ManageSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Manage Subscribe Links");
-            UpdateServersFromSubscribeLinksToolStripMenuItem.Text = i18N.Translate("Update Servers From Subscribe Links");
-            OptionsToolStripMenuItem.Text = i18N.Translate("Options");
-            ReloadModesToolStripMenuItem.Text = i18N.Translate("Reload Modes");
-            UninstallServiceToolStripMenuItem.Text = i18N.Translate("Uninstall NF Service");
-            CleanDNSCacheToolStripMenuItem.Text = i18N.Translate("Clean DNS Cache");
-            UpdateACLToolStripMenuItem.Text = i18N.Translate("Update ACL");
-            updateACLWithProxyToolStripMenuItem.Text = i18N.Translate("Update ACL with proxy");
-            reinstallTapDriverToolStripMenuItem.Text = i18N.Translate("Reinstall TUN/TAP driver");
-            CheckForUpdatesToolStripMenuItem.Text = i18N.Translate("Check for updates");
-            OpenDirectoryToolStripMenuItem.Text = i18N.Translate("Open Directory");
-            AboutToolStripButton.Text = i18N.Translate("About");
-            fAQToolStripMenuItem.Text = i18N.Translate("FAQ");
-            NewVersionLabel.Text = i18N.Translate("New version available");
-            // VersionLabel.Text = i18N.Translate("xxx");
-            exitToolStripMenuItem.Text = i18N.Translate("Exit");
-            ConfigurationGroupBox.Text = i18N.Translate("Configuration");
-            ProfileLabel.Text = i18N.Translate("Profile");
-            ModeLabel.Text = i18N.Translate("Mode");
-            ServerLabel.Text = i18N.Translate("Server");
-            // UsedBandwidthLabel.Text = i18N.Translate("Used: 0 KB");
-            // DownloadSpeedLabel.Text = i18N.Translate("↓: 0 KB/s");
-            // UploadSpeedLabel.Text = i18N.Translate("↑: 0 KB/s");
-            NotifyIcon.Text = i18N.Translate("Netch");
-            ShowMainFormToolStripButton.Text = i18N.Translate("Show");
-            ExitToolStripButton.Text = i18N.Translate("Exit");
-            SettingsButton.Text = i18N.Translate("Settings");
-            ProfileGroupBox.Text = i18N.Translate("Profiles");
-            // 加载翻译
+            #region Record English
+
+            if (!_textRecorded)
+            {
+                void RecordText(Component component)
+                {
+                    try
+                    {
+                        switch (component)
+                        {
+                            case TextBoxBase _:
+                            case ListControl _:
+                                break;
+                            case Control c:
+                                _mainFormText.Add(c.Name, c.Text);
+                                break;
+                            case ToolStripItem c:
+                                _mainFormText.Add(c.Name, c.Text);
+                                break;
+                        }
+                    }
+                    catch (ArgumentException)
+                    {
+                        // ignored
+                    }
+                }
+
+                Utils.Utils.ComponentIterator(this, RecordText);
+                Utils.Utils.ComponentIterator(NotifyMenu, RecordText);
+                _textRecorded = true;
+            }
+
+            #endregion
+
+            #region Translate
+
+            void TranslateText(Component component)
+            {
+                switch (component)
+                {
+                    case TextBoxBase _:
+                    case ListControl _:
+                        break;
+                    case Control c:
+
+                        c.Text = ControlText(c.Name);
+                        break;
+                    case ToolStripItem c:
+                        c.Text = ControlText(c.Name);
+                        break;
+                }
+
+                string ControlText(string name)
+                {
+                    var value = _mainFormText[name];
+                    if (value.Equals(string.Empty)) return string.Empty;
+
+                    if (value is object[] values)
+                        return i18N.TranslateFormat(values.First() as string, values.Skip(1).ToArray());
+                    else
+                        return i18N.Translate(value);
+                }
+            }
+
+            Utils.Utils.ComponentIterator(this, TranslateText);
+            Utils.Utils.ComponentIterator(NotifyMenu, TranslateText);
+
+            #endregion
 
             UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
             State = State;
-
             VersionLabel.Text = UpdateChecker.Version;
         }
 
@@ -275,10 +313,8 @@ namespace Netch.Forms
             }
 
             Hide();
-
             var server = Global.Settings.Server[ServerComboBox.SelectedIndex];
             Servers.GetUtilByTypeName(server.Type).Edit(server);
-
             InitServer();
             Configuration.Save();
             Show();
@@ -288,7 +324,6 @@ namespace Netch.Forms
         {
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
-
             try
             {
                 await Task.Run(TestServer);
@@ -382,12 +417,9 @@ namespace Netch.Forms
             }
 
             var index = ServerComboBox.SelectedIndex;
-
             Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Server);
             InitServer();
-
             Configuration.Save();
-
             if (ServerComboBox.Items.Count > 0)
             {
                 ServerComboBox.SelectedIndex = index != 0 ? index - 1 : index;

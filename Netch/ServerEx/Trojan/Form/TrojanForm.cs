@@ -18,11 +18,7 @@ namespace Netch.ServerEx.Trojan.Form
 
         private void TrojanForm_Load(object sender, EventArgs e)
         {
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
-            PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            i18N.TranslateForm(this);
 
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;

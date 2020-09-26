@@ -166,6 +166,7 @@ namespace Netch.Forms
                     Size = new Size(259, 22),
                     Text = i18N.TranslateFormat("Add [{0}] Server", fullName),
                 };
+                _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
                 control.Click += AddServerToolStripMenuItem_Click;
                 ServerToolStripMenuItem.DropDownItems.Add(control);
             }

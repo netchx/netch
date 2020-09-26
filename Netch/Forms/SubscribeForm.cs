@@ -32,16 +32,8 @@ namespace Netch.Forms
 
         private void SubscribeForm_Load(object sender, EventArgs e)
         {
-            Text = i18N.Translate(Text);
-            RemarkColumnHeader.Text = i18N.Translate(RemarkColumnHeader.Text);
-            LinkColumnHeader.Text = i18N.Translate(LinkColumnHeader.Text);
-            UseSelectedServerCheckBox.Text = i18N.Translate(UseSelectedServerCheckBox.Text);
-            DeleteToolStripMenuItem.Text = i18N.Translate(DeleteToolStripMenuItem.Text);
-            CopyLinkToolStripMenuItem.Text = i18N.Translate(CopyLinkToolStripMenuItem.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            LinkLabel.Text = i18N.Translate(LinkLabel.Text);
-            ClearButton.Text = i18N.Translate(ClearButton.Text);
-            AddButton.Text = i18N.Translate(AddButton.Text);
+            i18N.TranslateForm(this);
+            i18N.TranslateForm(pContextMenuStrip);
 
             ResetEditingGroup();
 

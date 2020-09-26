@@ -110,15 +110,8 @@ namespace Netch.Forms.Mode
 
         public void ModeForm_Load(object sender, EventArgs e)
         {
-            Text = i18N.Translate(Text);
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            FilenameLabel.Text = i18N.Translate(FilenameLabel.Text);
-            UseCustomFilenameBox.Text = i18N.Translate(UseCustomFilenameBox.Text);
-            AddButton.Text = i18N.Translate(AddButton.Text);
-            ScanButton.Text = i18N.Translate(ScanButton.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
-            DeleteToolStripMenuItem.Text = i18N.Translate(DeleteToolStripMenuItem.Text);
+            i18N.TranslateForm(this);
+            i18N.Translate(contextMenuStrip);
         }
 
         /// <summary>

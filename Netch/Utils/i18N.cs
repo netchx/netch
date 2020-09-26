@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 using Netch.Properties;
 using Newtonsoft.Json;
 
@@ -103,6 +104,25 @@ namespace Netch.Utils
             if (!Directory.Exists("i18n")) return translateFile;
             translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
             return translateFile;
+        }
+
+        public static void TranslateForm(Control c)
+        {
+            Utils.ComponentIterator(c, component =>
+            {
+                switch (component)
+                {
+                    case TextBoxBase _:
+                    case ListControl _:
+                        break;
+                    case Control c:
+                        c.Text = Translate(c.Text);
+                        break;
+                    case ToolStripItem c:
+                        c.Text = Translate(c.Text);
+                        break;
+                }
+            });
         }
     }
 }

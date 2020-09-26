@@ -17,25 +17,11 @@ namespace Netch.ServerEx.ShadowsocksR.Form
 
         private void ShadowsocksR_Load(object sender, EventArgs e)
         {
-            #region InitText
-
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
-            PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
-            EncryptMethodLabel.Text = i18N.Translate(EncryptMethodLabel.Text);
-            ProtocolLabel.Text = i18N.Translate(ProtocolLabel.Text);
-            ProtocolParamLabel.Text = i18N.Translate(ProtocolParamLabel.Text);
-            OBFSLabel.Text = i18N.Translate(OBFSLabel.Text);
-            OBFSParamLabel.Text = i18N.Translate(OBFSParamLabel.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            i18N.TranslateForm(this);
 
             EncryptMethodComboBox.Items.AddRange(SSRGlobal.EncryptMethods.ToArray());
-
             ProtocolComboBox.Items.AddRange(SSRGlobal.Protocols.ToArray());
             OBFSComboBox.Items.AddRange(SSRGlobal.OBFSs.ToArray());
-
-            #endregion
 
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;

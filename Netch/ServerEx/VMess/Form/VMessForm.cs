@@ -23,30 +23,13 @@ namespace Netch.ServerEx.VMess.Form
 
         private void VMess_Load(object sender, EventArgs e)
         {
-            #region InitText
-
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
-            UserIDLabel.Text = i18N.Translate(UserIDLabel.Text);
-            AlterIDLabel.Text = i18N.Translate(AlterIDLabel.Text);
-            EncryptMethodLabel.Text = i18N.Translate(EncryptMethodLabel.Text);
-            TransferProtocolLabel.Text = i18N.Translate(TransferProtocolLabel.Text);
-            FakeTypeLabel.Text = i18N.Translate(FakeTypeLabel.Text);
-            HostLabel.Text = i18N.Translate(HostLabel.Text);
-            PathLabel.Text = i18N.Translate(PathLabel.Text);
-            QUICSecurityLabel.Text = i18N.Translate(QUICSecurityLabel.Text);
-            QUICSecretLabel.Text = i18N.Translate(QUICSecretLabel.Text);
-            TLSSecureCheckBox.Text = i18N.Translate(TLSSecureCheckBox.Text);
-            UseMuxCheckBox.Text = i18N.Translate(UseMuxCheckBox.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            i18N.TranslateForm(this);
 
             EncryptMethodComboBox.Items.AddRange(VMessGlobal.EncryptMethods.ToArray());
             TransferProtocolComboBox.Items.AddRange(VMessGlobal.TransferProtocols.ToArray());
             FakeTypeComboBox.Items.AddRange(VMessGlobal.FakeTypes.ToArray());
             QUICSecurityComboBox.Items.AddRange(VMessGlobal.QUIC.ToArray());
 
-            #endregion
 
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;

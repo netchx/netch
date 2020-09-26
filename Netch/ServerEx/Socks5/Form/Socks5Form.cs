@@ -16,16 +16,7 @@ namespace Netch.ServerEx.Socks5.Form
 
         private void Socks5_Load(object sender, EventArgs e)
         {
-            #region InitText
-
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
-            UsernameLabel.Text = i18N.Translate(UsernameLabel.Text);
-            PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
-
-            #endregion
+            i18N.TranslateForm(this);
 
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;

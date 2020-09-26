@@ -79,35 +79,7 @@ namespace Netch.Forms
 
         private void InitText()
         {
-            Text = i18N.Translate(Text);
-
-            PortGroupBox.Text = i18N.Translate(PortGroupBox.Text);
-            AllowDevicesCheckBox.Text = i18N.Translate(AllowDevicesCheckBox.Text);
-            TUNTAPAddressLabel.Text = i18N.Translate(TUNTAPAddressLabel.Text);
-            TUNTAPNetmaskLabel.Text = i18N.Translate(TUNTAPNetmaskLabel.Text);
-            TUNTAPGatewayLabel.Text = i18N.Translate(TUNTAPGatewayLabel.Text);
-            UseCustomDNSCheckBox.Text = i18N.Translate(UseCustomDNSCheckBox.Text);
-            ProxyDNSCheckBox.Text = i18N.Translate(ProxyDNSCheckBox.Text);
-            UseFakeDNSCheckBox.Text = i18N.Translate(UseFakeDNSCheckBox.Text);
-            GlobalBypassIPsButton.Text = i18N.Translate(GlobalBypassIPsButton.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
-            BootShadowsocksFromDLLCheckBox.Text = i18N.Translate(BootShadowsocksFromDLLCheckBox.Text);
-            ModifySystemDNSCheckBox.Text = i18N.Translate(ModifySystemDNSCheckBox.Text);
-            CheckBetaUpdateCheckBox.Text = i18N.Translate(CheckBetaUpdateCheckBox.Text);
-            BehaviorGroupBox.Text = i18N.Translate(BehaviorGroupBox.Text);
-            ExitWhenClosedCheckBox.Text = i18N.Translate(ExitWhenClosedCheckBox.Text);
-            StopWhenExitedCheckBox.Text = i18N.Translate(StopWhenExitedCheckBox.Text);
-            StartWhenOpenedCheckBox.Text = i18N.Translate(StartWhenOpenedCheckBox.Text);
-            MinimizeWhenStartedCheckBox.Text = i18N.Translate(MinimizeWhenStartedCheckBox.Text);
-            RunAtStartupCheckBox.Text = i18N.Translate(RunAtStartupCheckBox.Text);
-            UpdateSubscribeatWhenOpenedCheckBox.Text = i18N.Translate(UpdateSubscribeatWhenOpenedCheckBox.Text);
-            CheckUpdateWhenOpenedCheckBox.Text = i18N.Translate(CheckUpdateWhenOpenedCheckBox.Text);
-            ProfileCountLabel.Text = i18N.Translate(ProfileCountLabel.Text);
-            TcpingAtStartedCheckBox.Text = i18N.Translate(TcpingAtStartedCheckBox.Text);
-            DetectionIntervalLabel.Text = i18N.Translate(DetectionIntervalLabel.Text);
-            STUNServerLabel.Text = i18N.Translate(STUNServerLabel.Text);
-            AclLabel.Text = i18N.Translate(AclLabel.Text);
-            LanguageLabel.Text = i18N.Translate(LanguageLabel.Text);
+            i18N.TranslateForm(this);
         }
 
         private void InitSTUN()

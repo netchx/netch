@@ -17,21 +17,10 @@ namespace Netch.ServerEx.Shadowsocks.Form
 
         private void Shadowsocks_Load(object sender, EventArgs e)
         {
-            #region InitText
-
-            ConfigurationGroupBox.Text = i18N.Translate(ConfigurationGroupBox.Text);
-            RemarkLabel.Text = i18N.Translate(RemarkLabel.Text);
-            AddressLabel.Text = i18N.Translate(AddressLabel.Text);
-            PasswordLabel.Text = i18N.Translate(PasswordLabel.Text);
-            EncryptMethodLabel.Text = i18N.Translate(EncryptMethodLabel.Text);
-            PluginLabel.Text = i18N.Translate(PluginLabel.Text);
-            PluginOptionsLabel.Text = i18N.Translate(PluginOptionsLabel.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            i18N.TranslateForm(this);
 
             EncryptMethodComboBox.Items.AddRange(SSGlobal.EncryptMethods.ToArray());
-
-            #endregion
-
+            
             RemarkTextBox.Text = _server.Remark;
             AddressTextBox.Text = _server.Hostname;
             PortTextBox.Text = _server.Port.ToString();

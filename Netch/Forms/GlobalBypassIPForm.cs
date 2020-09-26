@@ -14,10 +14,7 @@ namespace Netch.Forms
 
         private void GlobalBypassIPForm_Load(object sender, EventArgs e)
         {
-            Text = i18N.Translate(Text);
-            AddButton.Text = i18N.Translate(AddButton.Text);
-            DeleteButton.Text = i18N.Translate(DeleteButton.Text);
-            ControlButton.Text = i18N.Translate(ControlButton.Text);
+            i18N.TranslateForm(this);
 
             IPListBox.Items.AddRange(Global.Settings.BypassIPs.ToArray());
 
