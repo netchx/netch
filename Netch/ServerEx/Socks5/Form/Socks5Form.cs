@@ -14,7 +14,7 @@ namespace Netch.ServerEx.Socks5.Form
             _server = (Socks5) (server ?? new Socks5());
         }
 
-        private void Shadowsocks_Load(object sender, EventArgs e)
+        private void Socks5_Load(object sender, EventArgs e)
         {
             #region InitText
 
