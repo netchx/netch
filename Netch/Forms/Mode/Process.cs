@@ -215,6 +215,7 @@ namespace Netch.Forms.Mode
                 _mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
                 Modes.WriteFile(_mode);
+                Global.MainForm.InitMode();
                 Edited = false;
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }

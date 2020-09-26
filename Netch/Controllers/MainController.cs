@@ -10,7 +10,7 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static EncryptedProxy EncryptedProxyController { get; private set; }
+        public static ServerController ServerController { get; private set; }
         public static ModeController ModeController { get; private set; }
 
         public static bool NttTested;
@@ -27,7 +27,7 @@ namespace Netch.Controllers
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
 
-            if (server.Type == "Socks5" && mode.Type == 4)
+            if (server.IsSocks5() && mode.Type == 4)
             {
                 return false;
             }
@@ -54,15 +54,8 @@ namespace Netch.Controllers
                     throw new StartFailedException();
                 }
 
-                // 成功启动
-                switch (mode.Type)
-                {
-                    case 0:
-                    case 1:
-                    case 2:
-                        NatTest();
-                        break;
-                }
+                if (ModeController.TestNatRequired)
+                    NatTest();
 
                 return true;
             }
@@ -97,32 +90,18 @@ namespace Netch.Controllers
 
         private static async Task<bool> StartServer(Server server, Mode mode)
         {
-            switch (server.Type)
+            if (server.IsSocks5())
             {
-                case "Socks5":
-                    return true;
-                case "SS":
-                    EncryptedProxyController = new SSController();
-                    break;
-                case "SSR":
-                    EncryptedProxyController = new SSRController();
-                    break;
-                case "VMess":
-                    EncryptedProxyController = new VMessController();
-                    break;
-                case "Trojan":
-                    EncryptedProxyController = new TrojanController();
-                    break;
-                default:
-                    Logging.Error("未知服务器类型");
-                    return false;
+                return true;
             }
 
-            Utils.Utils.KillProcessByName(EncryptedProxyController.MainFile);
+            ServerController = Servers.GetUtilByTypeName(server.Type).GetController();
+
+            Utils.Utils.KillProcessByName(ServerController.MainFile);
             PortCheckAndShowMessageBox(Global.Settings.Socks5LocalPort, "Socks5");
 
-            Global.MainForm.StatusText(i18N.Translate("Starting ", EncryptedProxyController.Name));
-            if (await Task.Run(() => EncryptedProxyController.Start(server, mode)))
+            Global.MainForm.StatusText(i18N.Translate("Starting ", ServerController.Name));
+            if (await Task.Run(() => ServerController.Start(server, mode)))
             {
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = Global.Settings.Socks5LocalPort);
                 StatusPortInfoText.ShareLan = Global.Settings.LocalAddress == "0.0.0.0";
@@ -186,7 +165,7 @@ namespace Netch.Controllers
 
             var tasks = new[]
             {
-                Task.Run(() => EncryptedProxyController?.Stop()),
+                Task.Run(() => ServerController?.Stop()),
                 Task.Run(() => ModeController?.Stop()),
             };
             await Task.WhenAll(tasks);

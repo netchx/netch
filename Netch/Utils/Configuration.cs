@@ -1,7 +1,7 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using Netch.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Netch.Utils
 {
@@ -26,45 +26,26 @@ namespace Netch.Utils
             {
                 try
                 {
-                    Global.Settings = JsonConvert.DeserializeObject<Setting>(File.ReadAllText(SETTINGS_JSON));
-                    if (Global.Settings.Server != null && Global.Settings.Server.Count > 0)
+                    var settingJObject = (JObject) JsonConvert.DeserializeObject(File.ReadAllText(SETTINGS_JSON));
+                    Global.Settings = settingJObject?.ToObject<Setting>() ?? new Setting();
+                    Global.Settings.Server.Clear();
+
+                    foreach (JObject server in settingJObject["Server"])
                     {
-                        // 如果是旧版 Server 类，使用旧版 Server 类进行读取
-                        if (Global.Settings.Server[0].Hostname == null)
-                        {
-                            var LegacySettingConfig = JsonConvert.DeserializeObject<LegacySetting>(File.ReadAllText(SETTINGS_JSON));
-                            for (var i = 0; i < LegacySettingConfig.Server.Count; i++)
-                            {
-                                Global.Settings.Server[i].Hostname = LegacySettingConfig.Server[i].Address;
-                                if (Global.Settings.Server[i].Type == "Shadowsocks")
-                                {
-                                    Global.Settings.Server[i].Type = "SS";
-                                    Global.Settings.Server[i].Plugin = LegacySettingConfig.Server[i].OBFS;
-                                    Global.Settings.Server[i].PluginOption = LegacySettingConfig.Server[i].OBFSParam;
-                                }
-                                else if (Global.Settings.Server[i].Type == "ShadowsocksR")
-                                {
-                                    Global.Settings.Server[i].Type = "SSR";
-                                }
-                                else if (Global.Settings.Server[i].Type == "VMess")
-                                {
-                                    Global.Settings.Server[i].QUICSecure = LegacySettingConfig.Server[i].QUICSecurity;
-                                }
-                            }
-                        }
+                        var serverResult = Servers.ParseJObject(server);
+                        if (serverResult != null)
+                            Global.Settings.Server.Add(serverResult);
                     }
                 }
 
                 catch (JsonException)
                 {
-
                 }
             }
             else
             {
                 // 弹出提示
                 i18N.Load("System");
-                // MessageBoxX.Show(i18N.Translate("If this is your first time using this software,\n please check https://netch.org to install supports first,\n or the program may report errors."));
 
                 // 创建 data 文件夹并保存默认设置
                 Save();
@@ -80,35 +61,8 @@ namespace Netch.Utils
             {
                 Directory.CreateDirectory(DATA_DIR);
             }
-            File.WriteAllText(SETTINGS_JSON, JsonConvert.SerializeObject(Global.Settings, Formatting.Indented));
-        }
 
-        /// <summary>
-        /// 安装tap网卡
-        /// </summary>
-        public static void addtap()
-        {
-            Logging.Info("正在安装 TUN/TAP 适配器");
-            //安装Tap Driver
-            var installProcess = new Process();
-            installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "addtap.bat");
-            installProcess.Start();
-            installProcess.WaitForExit();
-            installProcess.Close();
-        }
-        /// <summary>
-        /// 卸载tap网卡
-        /// </summary>
-        public static void deltapall()
-        {
-            Logging.Info("正在卸载 TUN/TAP 适配器");
-            var installProcess = new Process();
-            installProcess.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            installProcess.StartInfo.FileName = Path.Combine("bin/tap-driver", "deltapall.bat");
-            installProcess.Start();
-            installProcess.WaitForExit();
-            installProcess.Close();
+            File.WriteAllText(SETTINGS_JSON, JsonConvert.SerializeObject(Global.Settings, Formatting.Indented));
         }
     }
 }

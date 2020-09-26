@@ -11,12 +11,10 @@ namespace Netch.Utils
         {
             "bin/NTT.exe",
             "bin/Privoxy.exe",
-            "bin/Redirector.exe",
             "bin/Shadowsocks.exe",
             "bin/ShadowsocksR.exe",
             "bin/Trojan.exe",
             "bin/tun2socks.exe",
-            "bin/unbound.exe",
             "bin/v2ray.exe",
             "Netch.exe"
         };

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,6 +9,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using MaxMind.GeoIP2;
 
 namespace Netch.Utils
@@ -172,7 +173,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Logging.Error($"找不到出口IP所在网卡{e}");
+                Logging.Error($"找不到出口IP所在网卡: {e}");
                 return false;
             }
         }
@@ -181,6 +182,28 @@ namespace Netch.Utils
         {
             var adapter = NetworkInterface.GetAllNetworkInterfaces().First(adapter => adapter.Id == id);
             Logging.Warning($"检索此网卡信息出错: {adapter.Name} {adapter.Id} {adapter.Description}");
+        }
+
+        public static void DrawCenterComboBox(object sender, DrawItemEventArgs e)
+        {
+            if (sender is ComboBox cbx)
+            {
+                e.DrawBackground();
+
+                if (e.Index >= 0)
+                {
+                    var brush = new SolidBrush(cbx.ForeColor);
+
+                    if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
+                        brush = SystemBrushes.HighlightText as SolidBrush;
+
+                    e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, brush, e.Bounds, new StringFormat
+                    {
+                        LineAlignment = StringAlignment.Center,
+                        Alignment = StringAlignment.Center
+                    });
+                }
+            }
         }
     }
 }

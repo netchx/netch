@@ -14,13 +14,11 @@ namespace Netch.Controllers
 
         public bool Start(Server server, Mode mode)
         {
-            var isSocks5 = server.Type == "Socks5";
-            var socks5Port = isSocks5 ? server.Port : Global.Settings.Socks5LocalPort;
             var text = File.ReadAllText("bin\\default.conf")
                 .Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString())
-                .Replace("_DEST_PORT_", socks5Port.ToString())
+                .Replace("_DEST_PORT_", (server.IsSocks5() ? server.Port : Global.Settings.Socks5LocalPort).ToString())
                 .Replace("0.0.0.0", Global.Settings.LocalAddress);
-            if (isSocks5)
+            if (server.IsSocks5())
                 text = text.Replace("/ 127.0.0.1", $"/ {server.Hostname}");
             File.WriteAllText("data\\privoxy.conf", text);
 

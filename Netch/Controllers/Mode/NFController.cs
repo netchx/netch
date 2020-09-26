@@ -11,6 +11,8 @@ namespace Netch.Controllers
 {
     public class NFController : ModeController
     {
+        public override bool TestNatRequired { get; } = true;
+
         private static readonly ServiceController NFService = new ServiceController("netfilter2");
 
         private static readonly string BinDriver = string.Empty;
@@ -45,7 +47,7 @@ namespace Netch.Controllers
             Name = "Redirector";
         }
 
-        public override bool Start(Server server, Mode mode)
+        public override bool Start(Server s, Mode mode)
         {
             Logging.Info("内置驱动版本: " + Utils.Utils.FileVersion(BinDriver));
             if (Utils.Utils.FileVersion(SystemDriver) != Utils.Utils.FileVersion(BinDriver))
@@ -69,22 +71,22 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            if (server.Type != "Socks5")
+            if (s.IsSocks5())
             {
-                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-            }
-            else
-            {
-                var result = DNS.Lookup(server.Hostname);
+                var result = DNS.Lookup(s.Hostname);
                 if (result == null)
                 {
                     Logging.Info("无法解析服务器 IP 地址");
                     return false;
                 }
 
-                aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{server.Port}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{server.Port}");
+                aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{s.Port}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{s.Port}");
+            }
+            else
+            {
+                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
             }
 
             if (Global.Settings.ModifySystemDNS)

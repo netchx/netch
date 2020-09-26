@@ -17,7 +17,7 @@ namespace Netch.Models
         public string Group = "None";
 
         /// <summary>
-        ///     代理类型（HTTP、HTTPS、Socks5、SS、SSR、VMess）
+        ///     代理类型
         /// </summary>
         public string Type;
 
@@ -37,101 +37,6 @@ namespace Netch.Models
         public int Port;
 
         /// <summary>
-        ///     账号（HTTP、HTTPS、Socks5）
-        /// </summary>
-        public string Username;
-
-        /// <summary>
-        ///     密码（HTTP、HTTPS、Socks5、SS、SSR）
-        /// </summary>
-        public string Password;
-
-        /// <summary>
-        ///		用户 ID（VMess）
-        /// </summary>
-        public string UserID = string.Empty;
-
-        /// <summary>
-        ///		额外 ID（VMess）
-        /// </summary>
-        public int AlterID = 0;
-
-        /// <summary>
-        ///     加密方式（SS、SSR、VMess）
-        /// </summary>
-        public string EncryptMethod;
-
-        /// <summary>
-        ///     插件（SS）
-        /// </summary>
-        public string Plugin;
-
-        /// <summary>
-        ///     插件参数（SS）
-        /// </summary>
-        public string PluginOption;
-
-        /// <summary>
-        ///     协议（SSR）
-        /// </summary>
-        public string Protocol = Global.Protocols[0];
-
-        /// <summary>
-        ///     协议参数（SSR）
-        /// </summary>
-        public string ProtocolParam;
-
-        /// <summary>
-        ///     混淆（SSR）
-        /// </summary>
-        public string OBFS = Global.OBFSs[0];
-
-        /// <summary>
-        ///     混淆参数（SSR）
-        /// </summary>
-        public string OBFSParam;
-
-        /// <summary>
-        ///		传输协议（VMess）
-        /// </summary>
-        public string TransferProtocol = Global.TransferProtocols[0];
-
-        /// <summary>
-        ///		伪装类型（VMess）
-        /// </summary>
-        public string FakeType = Global.FakeTypes[0];
-
-        /// <summary>
-        ///		伪装域名（VMess：HTTP、WebSocket、HTTP/2）
-        /// </summary>
-        public string Host = string.Empty;
-
-        /// <summary>
-        ///		传输路径（VMess：WebSocket、HTTP/2）
-        /// </summary>
-        public string Path = string.Empty;
-
-        /// <summary>
-        ///		QUIC 加密方式（VMess）
-        /// </summary>
-        public string QUICSecure = Global.EncryptMethods.VMessQUIC[0];
-
-        /// <summary>
-        ///		QUIC 加密密钥（VMess）
-        /// </summary>
-        public string QUICSecret = string.Empty;
-
-        /// <summary>
-        ///		TLS 底层传输安全（VMess）
-        /// </summary>
-        public bool TLSSecure = false;
-
-        /// <summary>
-        ///		Mux 多路复用（VMess）
-        /// </summary>
-        public bool UseMux = true;
-
-        /// <summary>
         ///     延迟
         /// </summary>
         public int Delay = -1;
@@ -140,6 +45,8 @@ namespace Netch.Models
         ///     地区
         /// </summary>
         public string Country;
+
+        public bool IsSocks5() => Type == "Socks5";
 
         /// <summary>
         ///		获取备注

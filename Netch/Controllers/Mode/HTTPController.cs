@@ -4,12 +4,15 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Netch.Models;
+using Netch.ServerEx.Socks5;
 using Netch.Utils;
 
 namespace Netch.Controllers
 {
     public class HTTPController : ModeController
     {
+        public override bool TestNatRequired { get; } = false;
+
         public const string IEProxyExceptions = "localhost;127.*;10.*;172.16.*;172.17.*;172.18.*;172.19.*;172.20.*;172.21.*;172.22.*;172.23.*;172.24.*;172.25.*;172.26.*;172.27.*;172.28.*;172.29.*;172.30.*;172.31.*;192.168.*";
 
         /// <summary>
@@ -28,24 +31,25 @@ namespace Netch.Controllers
         /// <summary>
         ///     启动
         /// </summary>
-        /// <param name="server">服务器</param>
+        /// <param name="s">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public override bool Start(Server server, Mode mode)
+        public override bool Start(Server s, Mode mode)
         {
             RecordPrevious();
 
             try
             {
-                if (server.Type == "Socks5")
+                if (s.IsSocks5())
                 {
+                    var server = (Socks5) s;
                     if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password)) return false;
 
-                    pPrivoxyController.Start(server, mode);
+                    pPrivoxyController.Start(s, mode);
                 }
                 else
                 {
-                    pPrivoxyController.Start(server, mode);
+                    pPrivoxyController.Start(s, mode);
                 }
 
                 if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);

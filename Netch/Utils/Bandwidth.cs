@@ -73,9 +73,9 @@ namespace Netch.Utils
             {
                 instances.Add(Process.GetCurrentProcess());
             }
-            else if (MainController.EncryptedProxyController != null)
+            else if (MainController.ServerController != null)
             {
-                instances.Add(MainController.EncryptedProxyController.Instance);
+                instances.Add(MainController.ServerController.Instance);
             }
             else if (MainController.ModeController != null)
             {

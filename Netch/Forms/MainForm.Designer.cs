@@ -33,11 +33,6 @@
             this.MenuStrip = new System.Windows.Forms.MenuStrip();
             this.ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddSocks5ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddShadowsocksServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddShadowsocksRServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddVMessServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AddTrojanServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -129,12 +124,7 @@
             // ServerToolStripMenuItem
             // 
             this.ServerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImportServersFromClipboardToolStripMenuItem,
-            this.AddSocks5ServerToolStripMenuItem,
-            this.AddShadowsocksServerToolStripMenuItem,
-            this.AddShadowsocksRServerToolStripMenuItem,
-            this.AddVMessServerToolStripMenuItem,
-            this.AddTrojanServerToolStripMenuItem});
+            this.ImportServersFromClipboardToolStripMenuItem});
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
             this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
@@ -146,41 +136,6 @@
             this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
             this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
             this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
-            // 
-            // AddSocks5ServerToolStripMenuItem
-            // 
-            this.AddSocks5ServerToolStripMenuItem.Name = "AddSocks5ServerToolStripMenuItem";
-            this.AddSocks5ServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddSocks5ServerToolStripMenuItem.Text = "Add [Socks5] Server";
-            this.AddSocks5ServerToolStripMenuItem.Click += new System.EventHandler(this.AddServerToolStripMenuItem_Click);
-            // 
-            // AddShadowsocksServerToolStripMenuItem
-            // 
-            this.AddShadowsocksServerToolStripMenuItem.Name = "AddShadowsocksServerToolStripMenuItem";
-            this.AddShadowsocksServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddShadowsocksServerToolStripMenuItem.Text = "Add [Shadowsocks] Server";
-            this.AddShadowsocksServerToolStripMenuItem.Click += new System.EventHandler(this.AddServerToolStripMenuItem_Click);
-            // 
-            // AddShadowsocksRServerToolStripMenuItem
-            // 
-            this.AddShadowsocksRServerToolStripMenuItem.Name = "AddShadowsocksRServerToolStripMenuItem";
-            this.AddShadowsocksRServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddShadowsocksRServerToolStripMenuItem.Text = "Add [ShadowsocksR] Server";
-            this.AddShadowsocksRServerToolStripMenuItem.Click += new System.EventHandler(this.AddServerToolStripMenuItem_Click);
-            // 
-            // AddVMessServerToolStripMenuItem
-            // 
-            this.AddVMessServerToolStripMenuItem.Name = "AddVMessServerToolStripMenuItem";
-            this.AddVMessServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddVMessServerToolStripMenuItem.Text = "Add [VMess] Server";
-            this.AddVMessServerToolStripMenuItem.Click += new System.EventHandler(this.AddServerToolStripMenuItem_Click);
-            // 
-            // AddTrojanServerToolStripMenuItem
-            // 
-            this.AddTrojanServerToolStripMenuItem.Name = "AddTrojanServerToolStripMenuItem";
-            this.AddTrojanServerToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.AddTrojanServerToolStripMenuItem.Text = "Add [Trojan] Server";
-            this.AddTrojanServerToolStripMenuItem.Click += new System.EventHandler(this.AddServerToolStripMenuItem_Click);
             // 
             // ModeToolStripMenuItem
             // 
@@ -751,11 +706,6 @@
         }
 
         private System.Windows.Forms.ToolStripButton AboutToolStripButton;
-        private System.Windows.Forms.ToolStripMenuItem AddShadowsocksRServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddShadowsocksServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddSocks5ServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddTrojanServerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem AddVMessServerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel configLayoutPanel;
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;

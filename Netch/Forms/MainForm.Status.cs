@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Text;
-using Netch.Controllers;
 using Netch.Models;
 using Netch.Utils;
 
@@ -13,6 +12,8 @@ namespace Netch.Forms
 
     partial class MainForm
     {
+        private bool IsWaiting => State == State.Waiting || State == State.Stopped;
+
         private State _state = State.Waiting;
 
         /// <summary>

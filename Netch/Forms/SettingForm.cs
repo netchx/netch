@@ -156,7 +156,7 @@ namespace Netch.Forms
 
                 static void CheckPort(string portName, int port, int originPort, PortType portType = PortType.Both)
                 {
-                    if (port <= 0 || port >= 65536)
+                    if (port <= 0 || port > 65536)
                         throw new FormatException();
 
                     if (port == originPort)
