@@ -10,6 +10,7 @@ namespace Netch.ServerEx.Shadowsocks
         public SSController()
         {
             Name = "Shadowsocks";
+            MainFile = "Shadowsocks.exe";
         }
 
         public override bool Start(Server s, Mode mode)
