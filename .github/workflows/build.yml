@@ -9,7 +9,7 @@ jobs:
       uses: nuget/setup-nuget@v1
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.0
+      uses: microsoft/setup-msbuild@v1.0.1
 
     - name: Checkout
       uses: actions/checkout@v2
