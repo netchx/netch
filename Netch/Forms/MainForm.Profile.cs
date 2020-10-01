@@ -167,6 +167,9 @@ namespace Netch.Forms
                 return;
             }
 
+            // Reset Mode ComboBox Items
+            ModeComboBox.Text = string.Empty;
+
             try
             {
                 LoadProfile(index);
