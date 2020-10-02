@@ -1,7 +1,7 @@
 ﻿using System;
 using NETCONLib;
 
-namespace WinFW
+namespace Netch.Models.WinFW
 {
     public class NetworkConnection : INetConnection, INetConnectionProps, INetSharingConfiguration
     {

@@ -45,7 +45,7 @@ namespace Netch.Forms
             // 计算 ComboBox绘制 目标宽度
             _eWidth = ServerComboBox.Width / 10;
 
-            Modes.Load();
+            ModeHelper.Load();
             InitMode();
             InitServer();
             _comboBoxInitialized = true;
@@ -314,7 +314,7 @@ namespace Netch.Forms
 
             Hide();
             var server = Global.Settings.Server[ServerComboBox.SelectedIndex];
-            Servers.GetUtilByTypeName(server.Type).Edit(server);
+            ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
             InitServer();
             Configuration.Save();
             Show();
@@ -372,7 +372,7 @@ namespace Netch.Forms
                 return;
             }
 
-            Modes.Delete((Models.Mode) ModeComboBox.SelectedItem);
+            ModeHelper.Delete((Models.Mode) ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 

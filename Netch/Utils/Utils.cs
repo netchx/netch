@@ -96,9 +96,9 @@ namespace Netch.Utils
         {
             try
             {
-                var SHA256 = System.Security.Cryptography.SHA256.Create();
+                var sha256 = System.Security.Cryptography.SHA256.Create();
                 var fileStream = File.OpenRead(filePath);
-                return SHA256.ComputeHash(fileStream).Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
+                return sha256.ComputeHash(fileStream).Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
             }
             catch
             {
@@ -124,7 +124,7 @@ namespace Netch.Utils
             }
         }
 
-        public static string FileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+        public static string GetFileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
 
         public static bool SearchOutboundAdapter(bool log = true)
         {

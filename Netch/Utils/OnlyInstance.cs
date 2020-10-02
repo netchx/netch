@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Netch.Utils
 {
-    public class OnlyInstance
+    public static class OnlyInstance
     {
         public enum Commands
         {

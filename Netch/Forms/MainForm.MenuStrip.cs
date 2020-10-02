@@ -54,7 +54,7 @@ namespace Netch.Forms
             var result = s.Substring(start, end - start);
 
             Hide();
-            Servers.GetUtilByFullName(result).Create();
+            ServerHelper.GetUtilByFullName(result).Create();
 
             InitServer();
             Configuration.Save();
@@ -77,7 +77,7 @@ namespace Netch.Forms
             Enabled = false;
             try
             {
-                Modes.Load();
+                ModeHelper.Load();
                 InitMode();
                 NotifyTip(i18N.Translate("Modes have been reload"));
             }

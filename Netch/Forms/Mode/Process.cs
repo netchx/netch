@@ -207,14 +207,14 @@ namespace Netch.Forms.Mode
                 _mode.Rule.Clear();
                 _mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
-                Modes.WriteFile(_mode);
+                ModeHelper.WriteFile(_mode);
                 Global.MainForm.InitMode();
                 Edited = false;
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }
             else
             {
-                var fullName = Modes.GetFullPath(FilenameTextBox.Text + ".txt");
+                var fullName = ModeHelper.GetFullPath(FilenameTextBox.Text + ".txt");
                 if (File.Exists(fullName))
                 {
                     MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
@@ -230,8 +230,8 @@ namespace Netch.Forms.Mode
                 };
                 mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
-                Modes.WriteFile(mode);
-                Modes.Add(mode);
+                ModeHelper.WriteFile(mode);
+                ModeHelper.Add(mode);
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
 

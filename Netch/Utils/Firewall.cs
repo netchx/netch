@@ -5,7 +5,7 @@ using NetFwTypeLib;
 
 namespace Netch.Utils
 {
-    public class Firewall
+    public static class Firewall
     {
         private static readonly string[] ProgramPath =
         {

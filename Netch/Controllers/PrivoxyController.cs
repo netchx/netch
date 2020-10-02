@@ -3,14 +3,16 @@ using Netch.Models;
 
 namespace Netch.Controllers
 {
-    public class PrivoxyController : Controller
+    public class PrivoxyController : Guard, IController
     {
         public PrivoxyController()
         {
-            Name = "Privoxy";
-            MainFile = "Privoxy.exe";
             RedirectStd = false;
         }
+
+        public override string Name { get; protected set; } = "Privoxy";
+
+        public override string MainFile { get; protected set; } = "Privoxy.exe";
 
         public bool Start(Server server, Mode mode)
         {

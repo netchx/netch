@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Netch.Controllers;
 using Newtonsoft.Json.Linq;
 
 namespace Netch.Models
@@ -33,7 +34,7 @@ namespace Netch.Models
 
         string GetShareLink(Server server);
 
-        public abstract ServerController GetController();
+        public abstract IServerController GetController();
 
         public abstract IEnumerable<Server> ParseUri(string text);
 

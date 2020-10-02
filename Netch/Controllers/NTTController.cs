@@ -5,18 +5,14 @@ using Netch.Utils;
 
 namespace Netch.Controllers
 {
-    public class NTTController : Controller
+    public class NTTController : Guard, IController
     {
         private string _localEnd;
         private string _publicEnd;
         private string _result;
         private string _bindingTest;
-
-        public NTTController()
-        {
-            Name = "NTT";
-            MainFile = "NTT.exe";
-        }
+        public override string Name { get; protected set; } = "NTT";
+        public override string MainFile { get; protected set; } = "NTT.exe";
 
         /// <summary>
         ///     启动 NatTypeTester
@@ -54,6 +50,7 @@ namespace Netch.Controllers
                 return (null, null, null);
             }
         }
+
 
         private new void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {

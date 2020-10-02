@@ -32,7 +32,7 @@ namespace Netch.Utils
 
                     foreach (JObject server in settingJObject["Server"])
                     {
-                        var serverResult = Servers.ParseJObject(server);
+                        var serverResult = ServerHelper.ParseJObject(server);
                         if (serverResult != null)
                             Global.Settings.Server.Add(serverResult);
                     }

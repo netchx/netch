@@ -10,8 +10,8 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static ServerController ServerController { get; private set; }
-        public static ModeController ModeController { get; private set; }
+        public static IServerController ServerController { get; private set; }
+        public static IModeController ModeController { get; private set; }
 
         public static bool NttTested;
 
@@ -95,9 +95,13 @@ namespace Netch.Controllers
                 return true;
             }
 
-            ServerController = Servers.GetUtilByTypeName(server.Type).GetController();
+            ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
-            Utils.Utils.KillProcessByName(ServerController.MainFile);
+            if (ServerController is Guard instanceController)
+            {
+                Utils.Utils.KillProcessByName(instanceController.MainFile);
+            }
+
             PortCheckAndShowMessageBox(Global.Settings.Socks5LocalPort, "Socks5");
 
             Global.MainForm.StatusText(i18N.Translate("Starting ", ServerController.Name));

@@ -157,7 +157,7 @@ namespace Netch.Forms
 
         private void AddAddServerToolStripMenuItems()
         {
-            foreach (var serversUtil in Servers.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
+            foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
             {
                 var fullName = serversUtil.FullName;
                 var control = new ToolStripMenuItem

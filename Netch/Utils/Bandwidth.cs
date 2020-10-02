@@ -73,11 +73,13 @@ namespace Netch.Utils
             }
             else if (MainController.ServerController != null)
             {
-                instances.Add(MainController.ServerController.Instance);
+                if (MainController.ServerController is Guard instanceController)
+                    instances.Add(instanceController.Instance);
             }
             else if (MainController.ModeController != null)
             {
-                instances.Add(MainController.ModeController.Instance);
+                if (MainController.ModeController is Guard instanceController)
+                    instances.Add(instanceController.Instance);
             }
 
             var processList = instances.Select(instance => instance.Id).ToList();

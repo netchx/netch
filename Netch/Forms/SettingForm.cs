@@ -38,7 +38,7 @@ namespace Netch.Forms
             TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
             ProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
             UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
-            ICSCheckBox.Checked = ICSController.Enabled;
+            ICSCheckBox.Checked = ICSHelper.Enabled;
 
             // Behavior
             ExitWhenClosedCheckBox.Checked = Global.Settings.ExitWhenClosed;
@@ -387,12 +387,12 @@ namespace Netch.Forms
             {
                 if (ICSCheckBox.Checked)
                 {
-                    if (!ICSController.Enabled)
-                        ICSCheckBox.Checked = ICSController.Enable();
+                    if (!ICSHelper.Enabled)
+                        ICSCheckBox.Checked = ICSHelper.Enable();
                 }
                 else
                 {
-                    ICSController.Disable();
+                    ICSHelper.Disable();
                 }
             });
             ICSCheckBox.Enabled = true;

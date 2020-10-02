@@ -4,13 +4,10 @@ using System.Text;
 
 namespace Netch.Controllers
 {
-    public class DNSController : Controller
+    public class DNSController : IController
     {
-        public DNSController()
-        {
-            Name = "DNS Service";
-            RedirectStd = false;
-        }
+
+        public string Name { get; } = "DNS Service";
 
         /// <summary>
         ///     启动DNS服务
@@ -27,7 +24,7 @@ namespace Netch.Controllers
                 aiodns_init();
         }
 
-        public override void Stop()
+        public void Stop()
         {
             aiodns_free();
         }

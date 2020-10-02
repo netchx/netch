@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Netch.ServerEx.Shadowsocks;
-using Netch.ServerEx.Shadowsocks.Models;
+using Netch.Servers.Shadowsocks;
+using Netch.Servers.Shadowsocks.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Server = Netch.Models.Server;
@@ -105,7 +105,7 @@ namespace Netch.Utils
 
         public static string GetShareLink(Server server)
         {
-            return Servers.GetUtilByTypeName(server.Type).GetShareLink(server);
+            return ServerHelper.GetUtilByTypeName(server.Type).GetShareLink(server);
         }
 
         public static List<Server> ParseText(string text)
@@ -169,7 +169,7 @@ namespace Netch.Utils
             {
                 if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
                 {
-                    list.AddRange(Servers.GetUtilByTypeName("Socks5").ParseUri(text));
+                    list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
                 }
                 else if (text.StartsWith("Netch://"))
                 {
@@ -178,7 +178,7 @@ namespace Netch.Utils
                 else
                 {
                     var scheme = GetUriScheme(text);
-                    var util = Servers.GetUtilByUriScheme(scheme);
+                    var util = ServerHelper.GetUtilByUriScheme(scheme);
                     if (util == null)
                     {
                         Logging.Warning($"无法处理 {scheme} 协议订阅链接");
@@ -230,8 +230,8 @@ namespace Netch.Utils
             }
 
             var type = (string) NetchLink["Type"];
-            var s = Servers.GetUtilByTypeName(type).ParseJObject(NetchLink);
-            return Servers.GetUtilByTypeName(s.Type).CheckServer(s) ? s : null;
+            var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(NetchLink);
+            return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : null;
         }
 
         public static string GetNetchLink(Server s)

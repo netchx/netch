@@ -1,8 +1,8 @@
-﻿﻿using System.Collections;
+﻿using System.Collections;
 using System.Linq;
- using NETCONLib;
+using NETCONLib;
 
-namespace WinFW
+namespace Netch.Models.WinFW
 {
     /// <summary>
     ///     A collection that stores 'NetworkConnection' objects.
