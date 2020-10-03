@@ -21,6 +21,8 @@ namespace Netch.Models
         /// </summary>
         string FullName { get; }
 
+        string ShortName { get; }
+
         /// <summary>
         ///     Support URI
         /// </summary>

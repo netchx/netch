@@ -14,7 +14,7 @@ namespace Netch.Servers.ShadowsocksR
         public ushort Priority { get; } = 1;
         public string TypeName { get; } = "SSR";
         public string FullName { get; } = "ShadowsocksR";
-
+        public string ShortName { get; } = "SR";
         public string[] UriScheme { get; } = {"ssr"};
 
         public Server ParseJObject(JObject j)

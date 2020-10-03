@@ -14,6 +14,7 @@ namespace Netch.Servers.VMess
         public ushort Priority { get; } = 2;
         public string TypeName { get; } = "VMess";
         public string FullName { get; } = "VMess";
+        public string ShortName { get; } = "V2";
         public string[] UriScheme { get; } = {"vmess"};
 
         public Server ParseJObject(JObject j)

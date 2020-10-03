@@ -14,7 +14,7 @@ namespace Netch.Servers.Trojan
         public ushort Priority { get; } = 2;
         public string TypeName { get; } = "Trojan";
         public string FullName { get; } = "Trojan";
-
+        public string ShortName { get; } = "TR";
         public string[] UriScheme { get; } = {"trojan"};
 
         public Server ParseJObject(JObject j)

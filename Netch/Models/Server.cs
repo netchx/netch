@@ -59,28 +59,9 @@ namespace Netch.Models
                 Remark = $"{Hostname}:{Port}";
             }
 
-            if (Country == null)
-            {
-                Country = Utils.Utils.GetCityCode(Hostname);
-            }
-
             Group = Group.Equals("None") || Group.Equals("") ? "NONE" : Group;
 
-            switch (Type)
-            {
-                case "Socks5":
-                    return $"[S5][{Country}][{Group}] {Remark}";
-                case "SS":
-                    return $"[SS][{Country}][{Group}] {Remark}";
-                case "SSR":
-                    return $"[SR][{Country}][{Group}] {Remark}";
-                case "VMess":
-                    return $"[V2][{Country}][{Group}] {Remark}";
-                case "Trojan":
-                    return $"[TR][{Country}][{Group}] {Remark}";
-                default:
-                    return "WTF";
-            }
+            return $"[{ServerHelper.GetUtilByTypeName(Type)?.ShortName ?? "WTF"}][{Group}] {Remark}";
         }
 
         /// <summary>

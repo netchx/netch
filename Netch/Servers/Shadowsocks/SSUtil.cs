@@ -18,8 +18,8 @@ namespace Netch.Servers.Shadowsocks
         public ushort Priority { get; } = 1;
         public string TypeName { get; } = "SS";
         public string FullName { get; } = "Shadowsocks";
-
-        public string[] UriScheme { get; } = {"ss","ssd"};
+        public string ShortName { get; } = "SS";
+        public string[] UriScheme { get; } = {"ss", "ssd"};
 
         public Server ParseJObject(JObject j)
         {

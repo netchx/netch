@@ -12,7 +12,7 @@ namespace Netch.Servers.Socks5
         public ushort Priority { get; } = 0;
         public string TypeName { get; } = "Socks5";
         public string FullName { get; } = "Socks5";
-
+        public string ShortName { get; } = "S5";
         public string[] UriScheme { get; } = { };
 
         public Server ParseJObject(JObject j)
