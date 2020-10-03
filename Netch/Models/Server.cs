@@ -41,11 +41,6 @@ namespace Netch.Models
         /// </summary>
         public int Delay = -1;
 
-        /// <summary>
-        ///     地区
-        /// </summary>
-        public string Country;
-
         public bool IsSocks5() => Type == "Socks5";
 
         /// <summary>
