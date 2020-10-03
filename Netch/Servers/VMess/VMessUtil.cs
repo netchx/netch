@@ -24,7 +24,7 @@ namespace Netch.Servers.VMess
 
         public void Edit(Server s)
         {
-            new VMessForm(s).ShowDialog();
+            new VMessForm((VMess) s).ShowDialog();
         }
 
         public void Create()

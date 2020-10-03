@@ -36,7 +36,6 @@
             this.RemarkTextBox = new System.Windows.Forms.TextBox();
             this.RemarkLabel = new System.Windows.Forms.Label();
             this.PortLabel = new System.Windows.Forms.Label();
-            this.ControlButton = new System.Windows.Forms.Button();
             this.ConfigurationGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,7 +52,7 @@
             this.ConfigurationGroupBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(5, 5);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(434, 147);
+            this.ConfigurationGroupBox.Size = new System.Drawing.Size(434, 127);
             this.ConfigurationGroupBox.TabIndex = 0;
             this.ConfigurationGroupBox.TabStop = false;
             this.ConfigurationGroupBox.Text = "Configuration";
@@ -61,7 +60,7 @@
             // AddressLabel
             // 
             this.AddressLabel.AutoSize = true;
-            this.AddressLabel.Location = new System.Drawing.Point(10, 51);
+            this.AddressLabel.Location = new System.Drawing.Point(10, ControlLineHeight*2);
             this.AddressLabel.Name = "AddressLabel";
             this.AddressLabel.Size = new System.Drawing.Size(56, 17);
             this.AddressLabel.TabIndex = 2;
@@ -69,7 +68,7 @@
             // 
             // PortTextBox
             // 
-            this.PortTextBox.Location = new System.Drawing.Point(358, 48);
+            this.PortTextBox.Location = new System.Drawing.Point(358, ControlLineHeight*2);
             this.PortTextBox.Name = "PortTextBox";
             this.PortTextBox.Size = new System.Drawing.Size(56, 23);
             this.PortTextBox.TabIndex = 5;
@@ -77,7 +76,7 @@
             // 
             // AddressTextBox
             // 
-            this.AddressTextBox.Location = new System.Drawing.Point(120, 48);
+            this.AddressTextBox.Location = new System.Drawing.Point(120, ControlLineHeight*2);
             this.AddressTextBox.Name = "AddressTextBox";
             this.AddressTextBox.Size = new System.Drawing.Size(232, 23);
             this.AddressTextBox.TabIndex = 3;
@@ -85,7 +84,7 @@
             // 
             // RemarkTextBox
             // 
-            this.RemarkTextBox.Location = new System.Drawing.Point(120, 19);
+            this.RemarkTextBox.Location = new System.Drawing.Point(120, ControlLineHeight);
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(294, 23);
             this.RemarkTextBox.TabIndex = 1;
@@ -94,7 +93,7 @@
             // RemarkLabel
             // 
             this.RemarkLabel.AutoSize = true;
-            this.RemarkLabel.Location = new System.Drawing.Point(10, 22);
+            this.RemarkLabel.Location = new System.Drawing.Point(10, ControlLineHeight);
             this.RemarkLabel.Name = "RemarkLabel";
             this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
             this.RemarkLabel.TabIndex = 0;
@@ -103,21 +102,11 @@
             // PortLabel
             // 
             this.PortLabel.AutoSize = true;
-            this.PortLabel.Location = new System.Drawing.Point(351, 51);
+            this.PortLabel.Location = new System.Drawing.Point(351, ControlLineHeight*2);
             this.PortLabel.Name = "PortLabel";
             this.PortLabel.Size = new System.Drawing.Size(11, 17);
             this.PortLabel.TabIndex = 4;
             this.PortLabel.Text = ":";
-            // 
-            // ControlButton
-            // 
-            this.ControlButton.Location = new System.Drawing.Point(357, 157);
-            this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
-            this.ControlButton.TabIndex = 1;
-            this.ControlButton.Text = "Save";
-            this.ControlButton.UseVisualStyleBackColor = true;
-            this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
             // ServerForm
             // 
@@ -125,8 +114,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(444, 192);
-            this.Controls.Add(this.ControlButton);
+            this.ClientSize = new System.Drawing.Size(444, 137);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -134,10 +122,9 @@
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "ServerForm";
-            this.Padding = new System.Windows.Forms.Padding(5, 5, 5, 40);
+            this.Padding = new System.Windows.Forms.Padding(11, 5, 11, 4);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Socks5";
-            this.Load += new System.EventHandler(this.Socks5_Load);
+            this.Load += new System.EventHandler(this.ServerForm_Load);
             this.ConfigurationGroupBox.ResumeLayout(false);
             this.ConfigurationGroupBox.PerformLayout();
             this.ResumeLayout(false);
@@ -147,11 +134,10 @@
         #endregion
 
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
-        private System.Windows.Forms.Button ControlButton;
         private System.Windows.Forms.Label RemarkLabel;
-        private System.Windows.Forms.TextBox RemarkTextBox;
+        protected System.Windows.Forms.TextBox RemarkTextBox;
         private System.Windows.Forms.Label PortLabel;
-        private System.Windows.Forms.TextBox AddressTextBox;
+        protected System.Windows.Forms.TextBox AddressTextBox;
         private System.Windows.Forms.TextBox PortTextBox;
         private System.Windows.Forms.Label AddressLabel;
     }

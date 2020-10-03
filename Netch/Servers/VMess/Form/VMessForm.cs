@@ -1,80 +1,62 @@
-﻿using System;
-using System.Windows.Forms;
-using Netch.Models;
-using Netch.Utils;
+﻿using Netch.Forms;
 
 namespace Netch.Servers.VMess.Form
 {
-    public partial class VMessForm : System.Windows.Forms.Form
+    public class VMessForm : ServerForm
     {
-        private static VMess _server;
+        protected override string TypeName { get; } = "VMess";
 
-        public VMessForm(Server server = default)
+        public VMessForm(VMess server = default)
         {
-            InitializeComponent();
-
-            _server = (VMess) server ?? new VMess();
-        }
-
-        private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            Utils.Utils.DrawCenterComboBox(sender, e);
-        }
-
-        private void VMess_Load(object sender, EventArgs e)
-        {
-            i18N.TranslateForm(this);
-
-            EncryptMethodComboBox.Items.AddRange(VMessGlobal.EncryptMethods.ToArray());
-            TransferProtocolComboBox.Items.AddRange(VMessGlobal.TransferProtocols.ToArray());
-            FakeTypeComboBox.Items.AddRange(VMessGlobal.FakeTypes.ToArray());
-            QUICSecurityComboBox.Items.AddRange(VMessGlobal.QUIC.ToArray());
-
-
-            RemarkTextBox.Text = _server.Remark;
-            AddressTextBox.Text = _server.Hostname;
-            PortTextBox.Text = _server.Port.ToString();
-            UserIDTextBox.Text = _server.UserID;
-            AlterIDTextBox.Text = _server.AlterID.ToString();
-            EncryptMethodComboBox.SelectedIndex = VMessGlobal.EncryptMethods.IndexOf(_server.EncryptMethod);
-            TransferProtocolComboBox.SelectedIndex = VMessGlobal.TransferProtocols.IndexOf(_server.TransferProtocol);
-            FakeTypeComboBox.SelectedIndex = VMessGlobal.FakeTypes.IndexOf(_server.FakeType);
-            HostTextBox.Text = _server.Host;
-            PathTextBox.Text = _server.Path;
-            QUICSecurityComboBox.SelectedIndex = VMessGlobal.QUIC.IndexOf(_server.QUICSecure);
-            QUICSecretTextBox.Text = _server.QUICSecret;
-            TLSSecureCheckBox.Checked = _server.TLSSecure;
-            UseMuxCheckBox.Checked = _server.UseMux;
-        }
-
-        private void ControlButton_Click(object sender, EventArgs e)
-        {
-            if (!ushort.TryParse(PortTextBox.Text, out var port)) return;
-
-            if (!int.TryParse(AlterIDTextBox.Text, out var alterId)) return;
-
-            _server.Remark = RemarkTextBox.Text;
-            _server.Type = "VMess";
-            _server.Hostname = AddressTextBox.Text;
-            _server.Port = port;
-            _server.UserID = UserIDTextBox.Text;
-            _server.AlterID = alterId;
-            _server.EncryptMethod = EncryptMethodComboBox.Text;
-            _server.TransferProtocol = TransferProtocolComboBox.Text;
-            _server.FakeType = FakeTypeComboBox.Text;
-            _server.Host = HostTextBox.Text;
-            _server.Path = PathTextBox.Text;
-            _server.QUICSecure = QUICSecurityComboBox.Text;
-            _server.QUICSecret = QUICSecretTextBox.Text;
-            _server.TLSSecure = TLSSecureCheckBox.Checked;
-            _server.UseMux = UseMuxCheckBox.Checked;
-            _server.Country = null;
-
-            if (Global.Settings.Server.IndexOf(_server) == -1)
-                Global.Settings.Server.Add(_server);
-
-            MessageBoxX.Show(i18N.Translate("Saved"));
-            Close();
+            server ??= new VMess();
+            Server = server;
+            CreateTextBox("UserId", "User ID",
+                s => true,
+                s => server.UserID = (string) s,
+                server.UserID);
+            CreateTextBox("AlterId", "Alter ID",
+                s => int.TryParse(s, out _),
+                s => server.AlterID = int.Parse((string) s),
+                server.AlterID.ToString(),
+                76);
+            CreateComboBox("EncryptMethod", "Encrypt Method",
+                VMessGlobal.EncryptMethods,
+                s => VMessGlobal.EncryptMethods.Contains(s),
+                s => server.EncryptMethod = (string) s,
+                server.EncryptMethod);
+            CreateComboBox("TransferProtocol", "Transfer Protocol",
+                VMessGlobal.TransferProtocols,
+                s => VMessGlobal.TransferProtocols.Contains(s),
+                s => server.TransferProtocol = (string) s,
+                server.TransferProtocol);
+            CreateComboBox("FakeType", "Fake Type",
+                VMessGlobal.FakeTypes,
+                s => VMessGlobal.FakeTypes.Contains(s),
+                s => server.FakeType = (string) s,
+                server.FakeType);
+            CreateTextBox("Host", "Host",
+                s => true,
+                s => server.Host = (string) s,
+                server.Host);
+            CreateTextBox("Path", "Path",
+                s => true,
+                s => server.Path = (string) s,
+                server.Path);
+            CreateComboBox("QUICSecurity", "QUIC Security",
+                VMessGlobal.QUIC,
+                s => VMessGlobal.QUIC.Contains(s),
+                s => server.QUIC = (string) s,
+                server.QUIC);
+            CreateTextBox("QUICSecret", "QUIC Secret",
+                s => true,
+                s => server.QUICSecret = (string) s,
+                server.QUICSecret);
+            CreateCheckBox("UseMux", "Use Mux",
+                s => server.UseMux = (bool) s,
+                server.UseMux);
+            CreateCheckBox("TLSSecure", "TLS Secure",
+                s => server.TLSSecure = (bool) s,
+                server.TLSSecure);
         }
     }
 }

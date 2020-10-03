@@ -22,7 +22,7 @@ namespace Netch.Servers.Socks5
 
         public void Edit(Server s)
         {
-            new Socks5Form(s).ShowDialog();
+            new Socks5Form((Socks5) s).ShowDialog();
         }
 
         public void Create()

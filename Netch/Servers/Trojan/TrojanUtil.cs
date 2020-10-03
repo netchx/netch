@@ -24,7 +24,7 @@ namespace Netch.Servers.Trojan
 
         public void Edit(Server s)
         {
-            new TrojanForm(s).ShowDialog();
+            new TrojanForm((Trojan) s).ShowDialog();
         }
 
         public void Create()

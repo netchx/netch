@@ -25,7 +25,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public void Edit(Server s)
         {
-            new ShadowsocksRForm(s).ShowDialog();
+            new ShadowsocksRForm((ShadowsocksR) s).ShowDialog();
         }
 
         public void Create()
