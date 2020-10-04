@@ -62,7 +62,7 @@ namespace Netch.Forms
             );
         }
 
-        protected void CreateComboBox(string name, string remark, List<string> values, Func<string, bool> parse, Action<string> save, string value, int width = InputBoxWidth)
+        protected void CreateComboBox(string name, string remark, List<string> values, Action<string> save, string value, int width = InputBoxWidth)
         {
             _controlLines++;
 
@@ -78,7 +78,6 @@ namespace Netch.Forms
             comboBox.Items.AddRange(values.ToArray());
             comboBox.SelectedIndex = values.IndexOf(value);
             comboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
-            _checkActions.Add(comboBox, parse);
             _saveActions.Add(comboBox, o => save.Invoke((string) o));
             ConfigurationGroupBox.Controls.AddRange(
                 new Control[]
@@ -123,7 +122,7 @@ namespace Netch.Forms
 
         private void ServerForm_Load(object sender, EventArgs e)
         {
-            this.Text = TypeName ?? string.Empty;
+            Text = TypeName ?? string.Empty;
 
             RemarkTextBox.Text = Server.Remark;
             AddressTextBox.Text = Server.Hostname;

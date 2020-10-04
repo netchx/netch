@@ -11,7 +11,7 @@ namespace Netch.Servers.VMess
 {
     public class VMessUtil : IServerUtil
     {
-        public ushort Priority { get; } = 2;
+        public ushort Priority { get; } = 3;
         public string TypeName { get; } = "VMess";
         public string FullName { get; } = "VMess";
         public string ShortName { get; } = "V2";

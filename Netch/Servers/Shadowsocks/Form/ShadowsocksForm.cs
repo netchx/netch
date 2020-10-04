@@ -16,7 +16,6 @@ namespace Netch.Servers.Shadowsocks.Form
                 server.Password);
             CreateComboBox("EncryptMethod", "Encrypt Method",
                 SSGlobal.EncryptMethods,
-                s => SSGlobal.EncryptMethods.Contains(s),
                 s => server.EncryptMethod = s,
                 server.EncryptMethod);
             CreateTextBox("Plugin", "Plugin",

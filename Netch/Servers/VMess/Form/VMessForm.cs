@@ -21,17 +21,14 @@ namespace Netch.Servers.VMess.Form
                 76);
             CreateComboBox("EncryptMethod", "Encrypt Method",
                 VMessGlobal.EncryptMethods,
-                s => VMessGlobal.EncryptMethods.Contains(s),
                 s => server.EncryptMethod = s,
                 server.EncryptMethod);
             CreateComboBox("TransferProtocol", "Transfer Protocol",
                 VMessGlobal.TransferProtocols,
-                s => VMessGlobal.TransferProtocols.Contains(s),
                 s => server.TransferProtocol = s,
                 server.TransferProtocol);
             CreateComboBox("FakeType", "Fake Type",
                 VMessGlobal.FakeTypes,
-                s => VMessGlobal.FakeTypes.Contains(s),
                 s => server.FakeType = s,
                 server.FakeType);
             CreateTextBox("Host", "Host",
@@ -44,7 +41,6 @@ namespace Netch.Servers.VMess.Form
                 server.Path);
             CreateComboBox("QUICSecurity", "QUIC Security",
                 VMessGlobal.QUIC,
-                s => VMessGlobal.QUIC.Contains(s),
                 s => server.QUIC = s,
                 server.QUIC);
             CreateTextBox("QUICSecret", "QUIC Secret",

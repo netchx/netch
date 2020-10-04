@@ -11,7 +11,7 @@ namespace Netch.Servers.Trojan
 {
     public class TrojanUtil : IServerUtil
     {
-        public ushort Priority { get; } = 2;
+        public ushort Priority { get; } = 3;
         public string TypeName { get; } = "Trojan";
         public string FullName { get; } = "Trojan";
         public string ShortName { get; } = "TR";

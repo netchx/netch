@@ -16,12 +16,10 @@ namespace Netch.Servers.ShadowsocksR.Form
                 server.Password);
             CreateComboBox("EncryptMethod", "Encrypt Method",
                 SSRGlobal.EncryptMethods,
-                s => SSRGlobal.EncryptMethods.Contains(s),
                 s => server.EncryptMethod = s,
                 server.EncryptMethod);
             CreateComboBox("Protocol", "Protocol",
                 SSRGlobal.Protocols,
-                s => SSRGlobal.Protocols.Contains(s),
                 s => server.Protocol = s,
                 server.Protocol);
             CreateTextBox("ProtocolParam", "Protocol Param",
@@ -30,7 +28,6 @@ namespace Netch.Servers.ShadowsocksR.Form
                 server.ProtocolParam);
             CreateComboBox("OBFS", "OBFS",
                 SSRGlobal.OBFSs,
-                s => SSRGlobal.OBFSs.Contains(s),
                 s => server.OBFS = s,
                 server.OBFS);
             CreateTextBox("OBFSParam", "OBFS Param",
