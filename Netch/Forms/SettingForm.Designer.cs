@@ -206,7 +206,8 @@
             this.ICSCheckBox.Name = "ICSCheckBox";
             this.ICSCheckBox.Size = new System.Drawing.Size(46, 21);
             this.ICSCheckBox.TabIndex = 5;
-            this.ICSCheckBox.Text = "ICS";
+            this.ICSCheckBox.Text = "Tap Network Sharing";
+            this.ICSCheckBox.Enabled = false;
             this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ICSCheckBox.UseVisualStyleBackColor = true;
             this.ICSCheckBox.CheckedChanged += new System.EventHandler(this.ICSCheckBox_CheckedChanged);

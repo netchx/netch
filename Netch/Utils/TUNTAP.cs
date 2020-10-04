@@ -51,7 +51,7 @@ namespace Netch.Utils
         /// <returns>适配器名称</returns>
         public static string GetName(string componentId)
         {
-            var registry = Registry.LocalMachine.OpenSubKey(string.Format("{0}\\{1}\\Connection", NETWORK_KEY, componentId));
+            var registry = Registry.LocalMachine.OpenSubKey($"{NETWORK_KEY}\\{componentId}\\Connection");
 
             return registry.GetValue("Name", "").ToString();
         }
@@ -70,7 +70,7 @@ namespace Netch.Utils
         /// </summary>
         public static void deltapall()
         {
-            Logging.Info("正在卸载 TUN/TAP 适配器");
+            Logging.Info("卸载 TUN/TAP 适配器");
             var installProcess = new Process {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "deltapall.bat")}};
             installProcess.Start();
             installProcess.WaitForExit();
@@ -82,7 +82,7 @@ namespace Netch.Utils
         /// </summary>
         public static void addtap()
         {
-            Logging.Info("正在安装 TUN/TAP 适配器");
+            Logging.Info("安装 TUN/TAP 适配器");
             //安装Tap Driver
             var installProcess = new Process {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "addtap.bat")}};
             installProcess.Start();

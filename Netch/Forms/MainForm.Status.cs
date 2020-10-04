@@ -37,7 +37,7 @@ namespace Netch.Forms
                     UninstallServiceToolStripMenuItem.Enabled =
                         updateACLWithProxyToolStripMenuItem.Enabled =
                             UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                                reinstallTapDriverToolStripMenuItem.Enabled =
+                                UninstallTapDriverToolStripMenuItem.Enabled =
                                     ReloadModesToolStripMenuItem.Enabled = enabled;
                 }
 

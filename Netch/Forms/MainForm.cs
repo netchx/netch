@@ -41,6 +41,13 @@ namespace Netch.Forms
         {
             AddAddServerToolStripMenuItems();
 
+            #region i18N Translations
+
+            _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] {"Uninstall {0}", "NF Service"});
+            _mainFormText.Add(UninstallTapDriverToolStripMenuItem.Name, new[] {"Uninstall {0}", "TUN/TAP driver"});
+
+            #endregion
+
             OnlyInstance.Called += OnCalled;
             // 计算 ComboBox绘制 目标宽度
             _eWidth = ServerComboBox.Width / 10;

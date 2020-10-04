@@ -169,7 +169,7 @@ namespace Netch.Controllers
         /// <returns>是否成功卸载</returns>
         public static bool UninstallDriver()
         {
-            Global.MainForm.StatusText(i18N.Translate("Uninstalling NF Service"));
+            Global.MainForm.StatusText(i18N.TranslateFormat("Uninstalling {0}", "NF Service"));
             Logging.Info("卸载 NF 驱动");
             try
             {
