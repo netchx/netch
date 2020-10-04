@@ -32,7 +32,7 @@ namespace Netch.Forms
             _saveActions.Add(PortTextBox, s => Server.Port = ushort.Parse((string) s));
         }
 
-        protected void CreateTextBox(string name, string remark, Func<string, bool> check, Action<object> save, string value, int width = InputBoxWidth)
+        protected void CreateTextBox(string name, string remark, Func<string, bool> check, Action<string> save, string value, int width = InputBoxWidth)
         {
             _controlLines++;
 
@@ -45,7 +45,7 @@ namespace Netch.Forms
                 Text = value
             };
             _checkActions.Add(textBox, check);
-            _saveActions.Add(textBox, save);
+            _saveActions.Add(textBox, o => save.Invoke((string) o));
             ConfigurationGroupBox.Controls.AddRange(
                 new Control[]
                 {
@@ -62,7 +62,7 @@ namespace Netch.Forms
             );
         }
 
-        protected void CreateComboBox(string name, string remark, List<string> values, Func<string, bool> parse, Action<object> save, string value, int width = InputBoxWidth)
+        protected void CreateComboBox(string name, string remark, List<string> values, Func<string, bool> parse, Action<string> save, string value, int width = InputBoxWidth)
         {
             _controlLines++;
 
@@ -79,7 +79,7 @@ namespace Netch.Forms
             comboBox.SelectedIndex = values.IndexOf(value);
             comboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
             _checkActions.Add(comboBox, parse);
-            _saveActions.Add(comboBox, save);
+            _saveActions.Add(comboBox, o => save.Invoke((string) o));
             ConfigurationGroupBox.Controls.AddRange(
                 new Control[]
                 {
@@ -96,7 +96,7 @@ namespace Netch.Forms
             );
         }
 
-        protected void CreateCheckBox(string name, string remark, Action<object> save, bool value)
+        protected void CreateCheckBox(string name, string remark, Action<bool> save, bool value)
         {
             _controlLines++;
 
@@ -108,7 +108,7 @@ namespace Netch.Forms
                 Checked = value,
                 Text = remark
             };
-            _saveActions.Add(checkBox, save);
+            _saveActions.Add(checkBox, o => save.Invoke((bool) o));
             ConfigurationGroupBox.Controls.AddRange(
                 new Control[]
                 {

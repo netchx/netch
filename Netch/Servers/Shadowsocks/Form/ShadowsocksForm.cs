@@ -12,20 +12,20 @@ namespace Netch.Servers.Shadowsocks.Form
             Server = server;
             CreateTextBox("Password", "Password",
                 s => true,
-                s => server.Password = (string) s,
+                s => server.Password = s,
                 server.Password);
             CreateComboBox("EncryptMethod", "Encrypt Method",
                 SSGlobal.EncryptMethods,
                 s => SSGlobal.EncryptMethods.Contains(s),
-                s => server.EncryptMethod = (string) s,
+                s => server.EncryptMethod = s,
                 server.EncryptMethod);
             CreateTextBox("Plugin", "Plugin",
                 s => true,
-                s => server.Plugin = (string) s,
+                s => server.Plugin = s,
                 server.Plugin);
             CreateTextBox("PluginsOption", "Plugin Options",
                 s => true,
-                s => server.PluginOption = (string) s,
+                s => server.PluginOption = s,
                 server.PluginOption);
         }
     }
