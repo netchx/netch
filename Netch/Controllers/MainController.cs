@@ -40,6 +40,12 @@ namespace Netch.Controllers
                 return false;
             }
 
+            if (DNS.Lookup(server.Hostname) == null)
+            {
+                MessageBoxX.Show("Lookup Server hostname failed");
+                return false;
+            }
+
             _ = Task.Run(Firewall.AddNetchFwRules);
 
             try

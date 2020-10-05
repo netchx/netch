@@ -3,6 +3,7 @@ using System.IO;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Trojan.Models;
+using Netch.Utils;
 using Newtonsoft.Json;
 
 namespace Netch.Servers.Trojan
@@ -28,7 +29,7 @@ namespace Netch.Servers.Trojan
             {
                 local_addr = LocalAddress ?? Global.Settings.LocalAddress,
                 local_port = Socks5LocalPort ?? Global.Settings.Socks5LocalPort,
-                remote_addr = server.Hostname,
+                remote_addr = DNS.Lookup(server.Hostname).ToString(),
                 remote_port = server.Port,
                 password = new List<string>
                 {

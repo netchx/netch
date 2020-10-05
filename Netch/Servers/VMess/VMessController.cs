@@ -3,6 +3,7 @@ using System.IO;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.VMess.Models;
+using Netch.Utils;
 using Newtonsoft.Json;
 
 namespace Netch.Servers.VMess
@@ -46,7 +47,7 @@ namespace Netch.Servers.VMess
                             {
                                 new VMessConfig.VNext
                                 {
-                                    address = server.Hostname,
+                                    address = DNS.Lookup(server.Hostname).ToString(),
                                     port = server.Port,
                                     users = new List<VMessConfig.User>
                                     {

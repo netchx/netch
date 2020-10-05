@@ -86,7 +86,7 @@ namespace Netch.Controllers
 
             var argument = new StringBuilder();
             if (s.IsSocks5())
-                argument.Append($"-proxyServer {s.Hostname}:{s.Port} ");
+                argument.Append($"-proxyServer {_serverAddresses}:{s.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 

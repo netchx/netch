@@ -1,6 +1,7 @@
 using System.Text;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Servers.ShadowsocksR
 {
@@ -20,7 +21,7 @@ namespace Netch.Servers.ShadowsocksR
             #region Argument
 
             var argument = new StringBuilder();
-            argument.Append($"-s {server.Hostname} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
+            argument.Append($"-s {DNS.Lookup(server.Hostname)} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
             if (!string.IsNullOrEmpty(server.Protocol))
             {
                 argument.Append($" -O {server.Protocol}");
