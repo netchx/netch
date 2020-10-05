@@ -28,17 +28,10 @@ namespace Netch
 
         public static class Flags
         {
-            static Flags()
-            {
-                Task.Run(() =>
-                {
-                    SupportFakeDns = new TUNTAPController().TestFakeDNS();
-                    IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
-                });
-            }
+            public static bool SupportFakeDns => _supportFakeDns ??= new TUNTAPController().TestFakeDNS();
+            public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
 
-            public static bool SupportFakeDns;
-            public static bool IsWindows10Upper;
+            private static bool? _supportFakeDns;
         }
 
         /// <summary>
