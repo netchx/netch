@@ -179,10 +179,10 @@
 
     "The {0} port is in use.": "{0} 端口已被占用",
 
-    "Bypass LAN": "[网页代理] 绕过局域网",
-    "Bypass LAN (Non System Proxy)": "[网页代理] 绕过局域网（不设置系统代理）",
-    "Bypass LAN (TUN/TAP)": "[TUN/TAP] 绕过局域网",
-    "Bypass LAN and China": "[网页代理] 绕过局域网和中国大陆",
-    "Bypass LAN and China (Non System Proxy)": "[网页代理] 绕过局域网和中国大陆 （不设置系统代理）",
-    "Bypass LAN and China (TUN/TAP)": "[TUN/TAP] 绕过局域网和中国大陆"
+    "[Web Proxy] Bypass LAN": "[网页代理] 绕过局域网",
+    "[Non Web Proxy] Bypass LAN": "[不设置代理] 绕过局域网",
+    "[TUN/TAP] Bypass LAN": "[TUN/TAP] 绕过局域网",
+    "[Web Proxy] Bypass LAN and China": "[网页代理] 绕过局域网和中国大陆",
+    "[Non Web Proxy] Bypass LAN and China": "[不设置代理] 绕过局域网和中国大陆",
+    "[TUN/TAP] Bypass LAN and China": "[TUN/TAP] 绕过局域网和中国大陆"
 }
