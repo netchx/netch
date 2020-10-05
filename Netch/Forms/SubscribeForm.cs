@@ -105,7 +105,7 @@ namespace Netch.Forms
 
             if (!LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) && !LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBoxX.Show(i18N.Translate("Links must start with http:// or https://"));
+                MessageBoxX.Show(i18N.Translate("Link must start with http:// or https://"));
                 return;
             }
 

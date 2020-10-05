@@ -69,7 +69,7 @@ namespace Netch.Utils
                     {
                         string tmp;
                         if ((tmp = splited.ElementAtOrDefault(0)) != null)
-                            mode.Remark = i18N.Translate(tmp);
+                            mode.Remark = tmp;
 
                         tmp = splited.ElementAtOrDefault(1);
                         mode.Type = tmp != null ? int.Parse(tmp) : 0;

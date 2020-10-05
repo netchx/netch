@@ -175,6 +175,7 @@ namespace Netch.Forms
             {
                 i18N.Load(Global.Settings.Language);
                 InitText();
+                InitMode();
                 InitProfile();
             }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Netch.Utils;
 
 namespace Netch.Models
 {
@@ -47,7 +48,7 @@ namespace Netch.Models
         /// <returns>备注</returns>
         public override string ToString()
         {
-            return $"[{Type + 1}] {Remark}";
+            return $"[{Type + 1}] {i18N.Translate(Remark)}";
         }
 
         /// <summary>

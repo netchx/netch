@@ -115,7 +115,7 @@ namespace Netch.Controllers
 
             PortCheckAndShowMessageBox(Global.Settings.Socks5LocalPort, "Socks5");
 
-            Global.MainForm.StatusText(i18N.Translate("Starting ", ServerController.Name));
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
             if (await Task.Run(() => ServerController.Start(server, mode)))
             {
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = Global.Settings.Socks5LocalPort);
@@ -151,7 +151,7 @@ namespace Netch.Controllers
                     return false;
             }
 
-            Global.MainForm.StatusText(i18N.Translate("Starting ", ModeController.Name));
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
             if (await Task.Run(() => ModeController.Start(server, mode)))
             {
                 switch (mode.Type)
