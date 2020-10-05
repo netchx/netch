@@ -51,7 +51,9 @@ namespace Netch.Controllers
 
             // 查询服务器 IP 地址
             _serverAddresses = DNS.Lookup(_savedServer.Hostname);
-            if (_serverAddresses == null)
+
+            // 查找出口适配器
+            if (!Utils.Utils.SearchOutboundAdapter())
             {
                 return false;
             }
@@ -123,7 +125,6 @@ namespace Netch.Controllers
         /// <returns>是否设置成功</returns>
         private void SetupRouteTable()
         {
-            Logging.Info("收集路由表规则");
             Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
 
             Logging.Info("绕行 → 全局绕过 IP");
@@ -204,11 +205,10 @@ namespace Netch.Controllers
                     _directIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
 
                     Logging.Info("代理 → 全局");
-                    if (!RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP))
-                    {
-                        State = State.Stopped;
-                        return;
-                    }
+                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
+
+                    Logging.Info("移除 → 出口网卡路由");
+                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.Gateway);
 
                     break;
             }
@@ -229,7 +229,8 @@ namespace Netch.Controllers
                 case 1:
                     break;
                 case 2:
-                    RouteAction(Action.Delete, "0.0.0.0", 0, RouteType.TUNTAP, 10);
+                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
+                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.Gateway);
                     break;
             }
 
@@ -352,11 +353,6 @@ namespace Netch.Controllers
             }
         }
 
-        private static bool RouteAction(Action action, string address, byte cidr, RouteType routeType, int metric = 0)
-        {
-            return RouteAction(action, IPNetwork.Parse(address, cidr), routeType, metric);
-        }
-
         private static bool RouteAction(Action action, IPNetwork ipNetwork, RouteType routeType, int metric = 0)
         {
             string gateway;
@@ -386,7 +382,7 @@ namespace Netch.Controllers
 
             if (!result)
             {
-                Logging.Warning($"{action} Route on {routeType} Adapter failed: {ipNetwork} metric {metric}");
+                Logging.Warning($"Failed {action} Route on {routeType} Adapter: {ipNetwork} metric {metric}");
             }
 
             return result;

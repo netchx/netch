@@ -24,7 +24,7 @@ namespace Netch.Utils
 
         public static bool Enable()
         {
-            Utils.SearchOutboundAdapter();
+            Utils.SearchOutboundAdapter(false);
             TUNTAPController.SearchTapAdapter();
 
             if (Global.TUNTAP.Adapter == null || Global.Outbound.Adapter == null)

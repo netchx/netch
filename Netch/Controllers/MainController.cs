@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Utils;
@@ -34,7 +35,11 @@ namespace Netch.Controllers
 
             NativeMethods.FlushDNSResolverCache();
 
-            if (!Utils.Utils.SearchOutboundAdapter(false))
+            try
+            {
+                WebUtil.BestLocalEndPoint(new IPEndPoint(0x72727272, 53));
+            }
+            catch (Exception)
             {
                 MessageBoxX.Show("No internet connection");
                 return false;
