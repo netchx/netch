@@ -64,18 +64,17 @@ namespace Netch.Utils
 
                 if (i == 0)
                 {
-                    var splited = text.Substring(text.IndexOf('#') + 1).Split(',').Select(s => s.Trim()).ToArray();
                     try
                     {
-                        string tmp;
-                        if ((tmp = splited.ElementAtOrDefault(0)) != null)
-                            mode.Remark = tmp;
+                        var splited = text.Substring(text.IndexOf('#') + 1).Split(',').Select(s => s.Trim()).ToArray();
 
-                        tmp = splited.ElementAtOrDefault(1);
-                        mode.Type = tmp != null ? int.Parse(tmp) : 0;
+                        mode.Remark = splited[0];
 
-                        if ((tmp = splited.ElementAtOrDefault(2)) != null)
-                            mode.BypassChina = int.Parse(tmp) == 1;
+                        var result = int.TryParse(splited.ElementAtOrDefault(1), out var type);
+                        mode.Type = result ? type : 0;
+
+                        var result1 = int.TryParse(splited.ElementAtOrDefault(2), out var bypassChina);
+                        mode.BypassChina = result1 && bypassChina == 1;
                     }
                     catch
                     {
