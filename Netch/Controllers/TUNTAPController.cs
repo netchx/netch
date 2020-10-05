@@ -188,19 +188,6 @@ namespace Netch.Controllers
                         }
                     );
 
-                    if (_savedMode.BypassChina)
-                    {
-                        Logging.Info("绕行 → 中国 IP");
-
-                        foreach (var str in File.ReadAllLines("bin\\china_ip_list", Encoding.UTF8))
-                        {
-                            if (IPNetwork.TryParse(str, out var entry))
-                            {
-                                _directIPs.Add(entry);
-                            }
-                        }
-                    }
-
                     Logging.Info("绕行 → 规则 IP");
                     _directIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
 
