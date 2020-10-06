@@ -168,6 +168,7 @@
     "STUN Server Port": "STUN 服务器端口",
     "Custom ACL": "自定义 ACL 规则",
     "Language": "语言",
+    "Tap Network Sharing": "Tap 网络共享",
 
     "Profile": "配置名",
     "Profiles": "配置",
