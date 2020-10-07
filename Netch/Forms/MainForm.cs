@@ -234,11 +234,12 @@ namespace Netch.Forms
                     case ListControl _:
                         break;
                     case Control c:
-
-                        c.Text = ControlText(c.Name);
+                        if (_mainFormText.ContainsKey(c.Name))
+                            c.Text = ControlText(c.Name);
                         break;
                     case ToolStripItem c:
-                        c.Text = ControlText(c.Name);
+                        if (_mainFormText.ContainsKey(c.Name))
+                            c.Text = ControlText(c.Name);
                         break;
                 }
 
