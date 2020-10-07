@@ -124,11 +124,6 @@
             this.Name = "ServerForm";
             this.Padding = new System.Windows.Forms.Padding(11, 5, 11, 4);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Load += new System.EventHandler(this.ServerForm_Load);
-            this.ConfigurationGroupBox.ResumeLayout(false);
-            this.ConfigurationGroupBox.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
         }
 
         #endregion

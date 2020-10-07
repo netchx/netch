@@ -32,6 +32,35 @@ namespace Netch.Forms
             _saveActions.Add(PortTextBox, s => Server.Port = ushort.Parse((string) s));
         }
 
+        public new void ShowDialog()
+        {
+            AfterFactor();
+            base.ShowDialog();
+        }
+
+        public new void Show()
+        {
+            AfterFactor();
+            base.Show();
+        }
+
+        private void AfterFactor()
+        {
+            Text = TypeName ?? string.Empty;
+
+            RemarkTextBox.Text = Server.Remark;
+            AddressTextBox.Text = Server.Hostname;
+            PortTextBox.Text = Server.Port.ToString();
+
+            AddSaveButton();
+            i18N.TranslateForm(this);
+
+            ConfigurationGroupBox.ResumeLayout(false);
+            ConfigurationGroupBox.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
+        }
+
         protected void CreateTextBox(string name, string remark, Func<string, bool> check, Action<string> save, string value, int width = InputBoxWidth)
         {
             _controlLines++;
@@ -119,18 +148,6 @@ namespace Netch.Forms
         private readonly Dictionary<Control, Func<string, bool>> _checkActions = new Dictionary<Control, Func<string, bool>>();
 
         private readonly Dictionary<Control, Action<object>> _saveActions = new Dictionary<Control, Action<object>>();
-
-        private void ServerForm_Load(object sender, EventArgs e)
-        {
-            Text = TypeName ?? string.Empty;
-
-            RemarkTextBox.Text = Server.Remark;
-            AddressTextBox.Text = Server.Hostname;
-            PortTextBox.Text = Server.Port.ToString();
-
-            AddSaveButton();
-            i18N.TranslateForm(this);
-        }
 
         private void AddSaveButton()
         {
