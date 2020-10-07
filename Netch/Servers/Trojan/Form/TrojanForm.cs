@@ -10,6 +10,14 @@ namespace Netch.Servers.Trojan.Form
         {
             server ??= new Trojan();
             Server = server;
+            CreateTextBox("Password", "Password",
+                s => true,
+                s => server.Password = s,
+                server.Password);
+            CreateTextBox("Host", "Host",
+                s => true,
+                s => server.Host = s,
+                server.Host);
         }
     }
 }
