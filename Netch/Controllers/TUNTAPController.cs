@@ -195,13 +195,13 @@ namespace Netch.Controllers
                     RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
 
                     Logging.Info("移除 → 出口网卡路由");
-                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.Gateway);
+                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.Outbound);
 
                     break;
             }
 
             Logging.Info("设置路由规则");
-            RouteAction(Action.Create, _directIPs, RouteType.Gateway);
+            RouteAction(Action.Create, _directIPs, RouteType.Outbound);
             RouteAction(Action.Create, _proxyIPs, RouteType.TUNTAP);
         }
 
@@ -217,11 +217,11 @@ namespace Netch.Controllers
                     break;
                 case 2:
                     RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
-                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.Gateway);
+                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.Outbound);
                     break;
             }
 
-            RouteAction(Action.Delete, _directIPs, RouteType.Gateway);
+            RouteAction(Action.Delete, _directIPs, RouteType.Outbound);
             RouteAction(Action.Delete, _proxyIPs, RouteType.TUNTAP);
             _directIPs.Clear();
             _proxyIPs.Clear();
@@ -321,7 +321,7 @@ namespace Netch.Controllers
 
         private enum RouteType
         {
-            Gateway,
+            Outbound,
             TUNTAP
         }
 
@@ -346,7 +346,7 @@ namespace Netch.Controllers
             int index;
             switch (routeType)
             {
-                case RouteType.Gateway:
+                case RouteType.Outbound:
                     gateway = Global.Outbound.Gateway.ToString();
                     index = Global.Outbound.Index;
                     break;
@@ -369,7 +369,7 @@ namespace Netch.Controllers
 
             if (!result)
             {
-                Logging.Warning($"Failed {action} Route on {routeType} Adapter: {ipNetwork} metric {metric}");
+                Logging.Warning($"Failed to {action} Route on {routeType} Adapter: {ipNetwork} metric {metric}");
             }
 
             return result;
