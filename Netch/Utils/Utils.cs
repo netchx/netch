@@ -126,47 +126,38 @@ namespace Netch.Utils
 
         public static string GetFileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
 
-        public static bool SearchOutboundAdapter(bool log = true)
+        public static bool SearchOutboundAdapter(bool logging = true)
         {
-            IPAddress localEnd;
-            try
+            // 寻找出口适配器
+            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
+                0, out var pRoute) != 0)
             {
-                localEnd = WebUtil.BestLocalEndPoint(new IPEndPoint(0x72727272, 53)).Address;
-            }
-            catch
-            {
+                Logging.Error("GetBestRoute 搜索失败");
                 return false;
             }
 
+            Global.Outbound.Index = pRoute.dwForwardIfIndex;
+            // 根据 IP Index 寻找 出口适配器
             try
             {
-                // 根据 IP 寻找 出口适配器
-                Global.Outbound.Adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
+                var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
                 {
                     try
                     {
-                        return _.GetIPProperties().UnicastAddresses.Any(ip =>
-                        {
-                            if (ip.Address.AddressFamily == AddressFamily.InterNetwork && ip.Address.ToString().Equals(localEnd.ToString()))
-                            {
-                                Global.Outbound.Index = _.GetIPProperties().GetIPv4Properties().Index;
-                                return true;
-                            }
-
-                            return false;
-                        });
+                        return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
                     }
                     catch
                     {
                         return false;
                     }
                 });
-                Global.Outbound.Gateway = Global.Outbound.Adapter.GetIPProperties().GatewayAddresses[0].Address;
-                if (log)
+                Global.Outbound.Adapter = adapter;
+                Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop);
+                if (logging)
                 {
                     Logging.Info($"出口 IPv4 地址：{Global.Outbound.Address}");
                     Logging.Info($"出口 网关 地址：{Global.Outbound.Gateway}");
-                    Logging.Info($"出口适配器：{Global.Outbound.Adapter.Name} {Global.Outbound.Adapter.Id} {Global.Outbound.Adapter.Description}, index: {Global.Outbound.Index}");
+                    Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Outbound.Index}");
                 }
 
                 return true;
