@@ -109,39 +109,23 @@ namespace Netch.Forms
                 return;
             }
 
-            // 备注重复的订阅项
-            var duplicateRemarkItems = Global.Settings.SubscribeLink.Where(link => link.Remark.Equals(RemarkLabel.Text));
-
-            // 链接重复的订阅项
-            SubscribeLink duplicateLinkItem = null;
-            try
-            {
-                duplicateLinkItem = Global.Settings.SubscribeLink.First(link => link.Link.Equals(LinkTextBox.Text));
-            }
-            catch
-            {
-                // ignored
-            }
-
-            if (duplicateRemarkItems.Any())
+            if (Global.Settings.SubscribeLink.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
             {
                 MessageBoxX.Show("Remark Name Duplicate!");
                 return;
             }
 
-            if (duplicateLinkItem != null)
+            if (_editingIndex == -1)
             {
-                if (duplicateLinkItem.Remark != RemarkTextBox.Text)
+                Global.Settings.SubscribeLink.Add(new SubscribeLink
                 {
-                    RenameServersGroup(duplicateLinkItem.Remark, RemarkTextBox.Text);
-                }
-
-                duplicateLinkItem.Remark = RemarkTextBox.Text;
-                duplicateLinkItem.UserAgent = UserAgentTextBox.Text;
+                    Remark = RemarkTextBox.Text,
+                    Link = LinkTextBox.Text,
+                    UserAgent = UserAgentTextBox.Text
+                });
             }
-            else if (_editingIndex != -1)
+            else
             {
-                // 只修改备注/未修改被上面处理
                 var target = Global.Settings.SubscribeLink[_editingIndex];
                 if (MessageBox.Show(i18N.Translate("Delete the corresponding group of items in the server list?"), i18N.Translate("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
@@ -155,15 +139,6 @@ namespace Netch.Forms
                 target.Link = LinkTextBox.Text;
                 target.Remark = RemarkTextBox.Text;
                 target.UserAgent = UserAgentTextBox.Text;
-            }
-            else
-            {
-                Global.Settings.SubscribeLink.Add(new SubscribeLink
-                {
-                    Remark = RemarkTextBox.Text,
-                    Link = LinkTextBox.Text,
-                    UserAgent = UserAgentTextBox.Text
-                });
             }
 
             Configuration.Save();
@@ -259,18 +234,6 @@ namespace Netch.Forms
         private void ClearButton_Click(object sender, EventArgs e)
         {
             ResetEditingGroup();
-        }
-
-        private void ListTextBox_TextChanged(object sender, EventArgs e)
-        {
-            for (var i = 0; i < SubscribeLinkListView.Items.Count; i++)
-            {
-                if (((TextBox) sender).Text == SubscribeLinkListView.Items[i].SubItems[1].Text)
-                {
-                    _editingIndex = i;
-                    AddSubscriptionBox.Text = SubscribeLinkListView.Items[i].SubItems[0].Text;
-                }
-            }
         }
     }
 }

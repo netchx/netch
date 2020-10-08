@@ -81,11 +81,11 @@
             // 
             // ClearButton
             // 
-            this.ClearButton.Location = new System.Drawing.Point(477, 103);
+            this.ClearButton.Location = new System.Drawing.Point(448, 103);
             this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(58, 26);
+            this.ClearButton.Size = new System.Drawing.Size(87, 26);
             this.ClearButton.TabIndex = 7;
-            this.ClearButton.Text = "Clear";
+            this.ClearButton.Text = "Unselect";
             this.ClearButton.UseVisualStyleBackColor = true;
             this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
             // 
@@ -114,7 +114,6 @@
             this.LinkTextBox.Name = "LinkTextBox";
             this.LinkTextBox.Size = new System.Drawing.Size(545, 23);
             this.LinkTextBox.TabIndex = 4;
-            this.LinkTextBox.TextChanged += new System.EventHandler(this.ListTextBox_TextChanged);
             // 
             // LinkLabel
             // 
