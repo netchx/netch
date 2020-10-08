@@ -9,16 +9,19 @@ namespace Netch.Utils
 {
     public static class ICSHelper
     {
-        public static bool Enabled
+        public static bool? Enabled
         {
             get
             {
-                TUNTAPController.SearchTapAdapter();
-                return (
-                    from NetworkConnection connection in new NetworkConnectionCollection()
-                    where connection.DeviceName == Global.TUNTAP.Adapter.Description
-                    select connection.SharingEnabled
-                ).FirstOrDefault();
+                if (Global.TUNTAP.Adapter == null)
+                    TUNTAPController.SearchTapAdapter();
+
+                foreach (var connection in new NetworkConnectionCollection().Cast<NetworkConnection>().Where(connection => connection.DeviceName == Global.TUNTAP.Adapter?.Description))
+                {
+                    return connection.SharingEnabled;
+                }
+
+                return null;
             }
         }
 

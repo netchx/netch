@@ -39,10 +39,11 @@ namespace Netch.Forms
             ProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
             UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
-            if (TUNTAPController.SearchTapAdapter())
+            var icsHelperEnabled = ICSHelper.Enabled;
+            if (icsHelperEnabled != null)
             {
                 ICSCheckBox.Enabled = true;
-                ICSCheckBox.Checked = ICSHelper.Enabled;
+                ICSCheckBox.Checked = (bool) icsHelperEnabled;
             }
 
             // Behavior
@@ -392,7 +393,7 @@ namespace Netch.Forms
             {
                 if (ICSCheckBox.Checked)
                 {
-                    if (!ICSHelper.Enabled)
+                    if (!(ICSHelper.Enabled ?? true))
                         ICSCheckBox.Checked = ICSHelper.Enable();
                 }
                 else
