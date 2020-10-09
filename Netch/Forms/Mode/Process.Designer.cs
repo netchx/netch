@@ -47,19 +47,21 @@ namespace Netch.Forms.Mode
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ControlButton = new System.Windows.Forms.Button();
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.containerControl1 = new System.Windows.Forms.ContainerControl();
             this.ConfigurationGroupBox.SuspendLayout();
             this.ProcessGroupBox.SuspendLayout();
             this.contextMenuStrip.SuspendLayout();
+            this.containerControl1.SuspendLayout();
             this.SuspendLayout();
             // 
             // ConfigurationGroupBox
             // 
+            this.ConfigurationGroupBox.Controls.Add(this.containerControl1);
             this.ConfigurationGroupBox.Controls.Add(this.UseCustomFilenameBox);
             this.ConfigurationGroupBox.Controls.Add(this.FilenameLabel);
             this.ConfigurationGroupBox.Controls.Add(this.FilenameTextBox);
             this.ConfigurationGroupBox.Controls.Add(this.ScanButton);
             this.ConfigurationGroupBox.Controls.Add(this.ProcessGroupBox);
-            this.ConfigurationGroupBox.Controls.Add(this.RuleListBox);
             this.ConfigurationGroupBox.Controls.Add(this.RemarkTextBox);
             this.ConfigurationGroupBox.Controls.Add(this.RemarkLabel);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
@@ -136,8 +138,9 @@ namespace Netch.Forms.Mode
             // RuleListBox
             // 
             this.RuleListBox.FormattingEnabled = true;
+            this.RuleListBox.Dock = DockStyle.Fill;
             this.RuleListBox.ItemHeight = 17;
-            this.RuleListBox.Location = new System.Drawing.Point(6, 100);
+            this.RuleListBox.Location = new System.Drawing.Point(0, 0);
             this.RuleListBox.Name = "RuleListBox";
             this.RuleListBox.Size = new System.Drawing.Size(328, 157);
             this.RuleListBox.TabIndex = 2;
@@ -183,6 +186,16 @@ namespace Netch.Forms.Mode
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.deleteRule_Click);
             // 
+            // containerControl1
+            // 
+            this.containerControl1.Controls.Add(this.RuleListBox);
+            this.containerControl1.Location = new System.Drawing.Point(6, 100);
+            this.containerControl1.Name = "containerControl1";
+            this.containerControl1.Size = new System.Drawing.Size(328, 157);
+            this.containerControl1.TabIndex = 10;
+            this.containerControl1.Padding = new Padding(0);
+            this.containerControl1.Text = "containerControl1";
+            // 
             // Process
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -204,11 +217,13 @@ namespace Netch.Forms.Mode
             this.ProcessGroupBox.ResumeLayout(false);
             this.ProcessGroupBox.PerformLayout();
             this.contextMenuStrip.ResumeLayout(false);
+            this.containerControl1.ResumeLayout(false);
             this.ResumeLayout(false);
         }
 
         #endregion
 
+        private System.Windows.Forms.ContainerControl containerControl1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;
         public System.Windows.Forms.GroupBox ConfigurationGroupBox;
