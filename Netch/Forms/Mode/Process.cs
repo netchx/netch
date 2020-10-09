@@ -142,10 +142,6 @@ namespace Netch.Forms.Mode
                 if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
                 {
                     var process = ProcessNameTextBox.Text;
-                    if (!process.EndsWith(".exe"))
-                    {
-                        process += ".exe";
-                    }
 
                     if (!RuleListBox.Items.Contains(process))
                     {
