@@ -142,7 +142,7 @@ namespace Netch.Controllers
                 case 1:
                     // 代理规则
                     Logging.Info("代理 → 规则 IP");
-                    _proxyIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
+                    _proxyIPs.AddRange(_savedMode.FullRule.Select(IPNetwork.Parse));
 
                     //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
                     if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
@@ -189,7 +189,7 @@ namespace Netch.Controllers
                     );
 
                     Logging.Info("绕行 → 规则 IP");
-                    _directIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
+                    _directIPs.AddRange(_savedMode.FullRule.Select(IPNetwork.Parse));
 
                     Logging.Info("代理 → 全局");
 

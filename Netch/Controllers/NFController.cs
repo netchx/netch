@@ -62,7 +62,7 @@ namespace Netch.Controllers
             }
 
             aio_dial((int) NameList.TYPE_CLRNAME, "");
-            foreach (var rule in mode.Rule)
+            foreach (var rule in mode.FullRule)
             {
                 aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }

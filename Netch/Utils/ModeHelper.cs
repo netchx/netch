@@ -60,7 +60,7 @@ namespace Netch.Utils
 
             for (var i = 0; i < content.Length; i++)
             {
-                var text = content[i];
+                var text = content[i].Trim();
 
                 if (i == 0)
                 {
@@ -83,8 +83,7 @@ namespace Netch.Utils
                 }
                 else
                 {
-                    if (!text.StartsWith("#") && !string.IsNullOrWhiteSpace(text))
-                        mode.Rule.Add(text.Trim());
+                    mode.Rule.Add(text);
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Netch.Utils;
 
 namespace Netch.Models
@@ -41,6 +42,61 @@ namespace Netch.Models
         ///		规则
         /// </summary>
         public readonly List<string> Rule = new List<string>();
+
+        public List<string> FullRule
+        {
+            get
+            {
+                var result = new List<string>();
+                foreach (var s in Rule)
+                {
+                    if (string.IsNullOrWhiteSpace(s))
+                        continue;
+                    if (s.StartsWith("//"))
+                        continue;
+
+                    if (s.StartsWith("#include"))
+                    {
+                        var relativePath = new StringBuilder(s.Substring(8).Trim());
+                        relativePath.Replace("<", "");
+                        relativePath.Replace(">", "");
+                        relativePath.Replace(".h", ".txt");
+
+                        var mode = Global.Modes.FirstOrDefault(m => m.RelativePath.Equals(relativePath.ToString()));
+
+                        if (mode == null)
+                        {
+                            Logging.Warning($"{relativePath} file included in {Remark} not found");
+                        }
+                        else
+                        {
+                            if (mode.Type != Type)
+                            {
+                                Logging.Warning($"{mode.Remark}'s mode is not as same as {Remark}'s mode");
+                            }
+                            else
+                            {
+                                if (mode.Rule.Any(rule => rule.StartsWith("#include")))
+                                {
+                                    Logging.Warning("Cannot reference mode that reference other mode");
+                                }
+                                else
+                                {
+                                    result.AddRange(mode.FullRule);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        result.Add(s);
+                    }
+                }
+
+                return result;
+            }
+        }
+
 
         /// <summary>
         ///		获取备注
