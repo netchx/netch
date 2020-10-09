@@ -192,10 +192,12 @@ namespace Netch.Controllers
                     _directIPs.AddRange(_savedMode.Rule.Select(IPNetwork.Parse));
 
                     Logging.Info("代理 → 全局");
-                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
 
-                    Logging.Info("移除 → 出口网卡路由");
-                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.Outbound);
+                    if (!RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP))
+                    {
+                        State = State.Stopped;
+                        return;
+                    }
 
                     break;
             }
@@ -216,8 +218,7 @@ namespace Netch.Controllers
                 case 1:
                     break;
                 case 2:
-                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
-                    RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.Outbound);
+                    RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP, 10);
                     break;
             }
 
