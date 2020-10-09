@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
@@ -63,25 +64,24 @@ namespace Netch.Servers.VMess
             var data = new VMess();
 
             text = text.Substring(8);
-            var vmess = JsonConvert.DeserializeObject<VMessJObject>(ShareLink.URLSafeBase64Decode(text));
+            VMessJObject vmess;
+            try
+            {
+                vmess = JsonConvert.DeserializeObject<VMessJObject>(ShareLink.URLSafeBase64Decode(text));
+            }
+            catch (Exception e)
+            {
+                Logging.Warning(e.ToString());
+                return null;
+            }
 
             data.Remark = vmess.ps;
             data.Hostname = vmess.add;
-            data.Port = vmess.port;
+            data.Port = ushort.Parse(vmess.port);
             data.UserID = vmess.id;
-            data.AlterID = vmess.aid;
+            data.AlterID = int.Parse(vmess.aid);
             data.TransferProtocol = vmess.net;
             data.FakeType = vmess.type;
-
-            if (vmess.v == null || vmess.v == "1")
-            {
-                var info = vmess.host.Split(';');
-                if (info.Length == 2)
-                {
-                    vmess.host = info[0];
-                    vmess.path = info[1];
-                }
-            }
 
             if (data.TransferProtocol == "quic")
             {
@@ -98,28 +98,8 @@ namespace Netch.Servers.VMess
             }
 
             data.TLSSecure = vmess.tls == "tls";
-
-            if (vmess.mux == null)
-            {
-                data.UseMux = false;
-            }
-            else
-            {
-                if (vmess.mux.enabled is bool enabled)
-                {
-                    data.UseMux = enabled;
-                }
-                else if (vmess.mux.enabled is string muxEnabled)
-                {
-                    data.UseMux = muxEnabled == "true"; // 针对使用字符串当作布尔值的情况
-                }
-                else
-                {
-                    data.UseMux = false;
-                }
-            }
-
             data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
+
             return CheckServer(data) ? new[] {data} : null;
         }
 

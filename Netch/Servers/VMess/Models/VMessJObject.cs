@@ -6,71 +6,58 @@
     public class VMessJObject
     {
         /// <summary>
-        ///     Mux Class
-        /// </summary>
-        public class Mux
-        {
-            public object enabled;
-        }
-
-        /// <summary>
         ///     链接版本
         /// </summary>
-        public string v;
+        public string v = string.Empty;
 
         /// <summary>
         ///     备注
         /// </summary>
-        public string ps;
+        public string ps = string.Empty;
 
         /// <summary>
         ///     地址
         /// </summary>
-        public string add;
+        public string add = string.Empty;
 
         /// <summary>
         ///     端口
         /// </summary>
-        public int port;
+        public string port = string.Empty;
 
         /// <summary>
         ///     用户 ID
         /// </summary>
-        public string id;
+        public string id = string.Empty;
 
         /// <summary>
         ///     额外 ID
         /// </summary>
-        public int aid = 0;
+        public string aid = string.Empty;
 
         /// <summary>
         ///     传输协议
         /// </summary>
-        public string net;
+        public string net = string.Empty;
 
         /// <summary>
         ///     伪装类型
         /// </summary>
-        public string type;
+        public string type = string.Empty;
 
         /// <summary>
         ///     伪装域名（HTTP，WS）
         /// </summary>
-        public string host;
+        public string host = string.Empty;
 
         /// <summary>
         ///     伪装路径
         /// </summary>
-        public string path;
+        public string path = string.Empty;
 
         /// <summary>
         ///     是否使用 TLS
         /// </summary>
-        public string tls;
-
-        /// <summary>
-        ///     Mux 多路复用
-        /// </summary>
-        public Mux mux;
+        public string tls = string.Empty;
     }
 }
