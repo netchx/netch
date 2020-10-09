@@ -13,22 +13,40 @@ namespace Netch.Utils
         {
             get
             {
-                if (Global.TUNTAP.Adapter == null)
-                    TUNTAPController.SearchTapAdapter();
+                AutoSearchTapAdapter();
 
-                foreach (var connection in new NetworkConnectionCollection().Cast<NetworkConnection>().Where(connection => connection.DeviceName == Global.TUNTAP.Adapter?.Description))
+                if (Global.TUNTAP.Adapter == null)
+                    return null;
+
+                foreach (NetworkConnection connection in new NetworkConnectionCollection())
                 {
-                    return connection.SharingEnabled;
+                    try
+                    {
+                        if (connection.DeviceName == Global.TUNTAP.Adapter?.Description)
+                        {
+                            return connection.SharingEnabled;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Logging.Warning(e.ToString());
+                    }
                 }
 
                 return null;
             }
         }
 
+        private static void AutoSearchTapAdapter()
+        {
+            if (Global.TUNTAP.Adapter == null)
+                TUNTAPController.SearchTapAdapter();
+        }
+
         public static bool Enable()
         {
             Utils.SearchOutboundAdapter(false);
-            TUNTAPController.SearchTapAdapter();
+            AutoSearchTapAdapter();
 
             if (Global.TUNTAP.Adapter == null || Global.Outbound.Adapter == null)
             {
@@ -136,9 +154,19 @@ namespace Netch.Utils
 
         public static void Disable()
         {
-            foreach (var connection in new NetworkConnectionCollection().Cast<NetworkConnection>().Where(connection => connection.SharingEnabled))
+            foreach (NetworkConnection connection in new NetworkConnectionCollection())
             {
-                connection.DisableSharing();
+                try
+                {
+                    if (connection.SharingEnabled)
+                    {
+                        connection.DisableSharing();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logging.Warning(e.ToString());
+                }
             }
 
             CleanupWMISharingEntries();

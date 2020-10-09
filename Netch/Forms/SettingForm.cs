@@ -15,6 +15,7 @@ namespace Netch.Forms
         public SettingForm()
         {
             InitializeComponent();
+            InitText();
         }
 
         private void InitValue()
@@ -39,11 +40,18 @@ namespace Netch.Forms
             ProxyDNSCheckBox.Checked = Global.Settings.TUNTAP.ProxyDNS;
             UseFakeDNSCheckBox.Checked = Global.Settings.TUNTAP.UseFakeDNS;
 
-            var icsHelperEnabled = ICSHelper.Enabled;
-            if (icsHelperEnabled != null)
+            try
             {
-                ICSCheckBox.Enabled = true;
-                ICSCheckBox.Checked = (bool) icsHelperEnabled;
+                var icsHelperEnabled = ICSHelper.Enabled;
+                if (icsHelperEnabled != null)
+                {
+                    ICSCheckBox.Enabled = true;
+                    ICSCheckBox.Checked = (bool) icsHelperEnabled;
+                }
+            }
+            catch
+            {
+                // ignored
             }
 
             // Behavior
@@ -105,9 +113,9 @@ namespace Netch.Forms
 
         private void SettingForm_Load(object sender, EventArgs e)
         {
-            UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns;
-            InitText();
             InitValue();
+
+            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
         }
 
         private void GlobalBypassIPsButton_Click(object sender, EventArgs e)
@@ -388,20 +396,31 @@ namespace Netch.Forms
 
         private async void ICSCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            ICSCheckBox.Enabled = false;
-            await Task.Run(() =>
+            try
             {
-                if (ICSCheckBox.Checked)
+                ICSCheckBox.Enabled = false;
+                await Task.Run(() =>
                 {
-                    if (!(ICSHelper.Enabled ?? true))
-                        ICSCheckBox.Checked = ICSHelper.Enable();
-                }
-                else
-                {
-                    ICSHelper.Disable();
-                }
-            });
-            ICSCheckBox.Enabled = true;
+                    if (ICSCheckBox.Checked)
+                    {
+                        if (!(ICSHelper.Enabled ?? true))
+                            ICSCheckBox.Checked = ICSHelper.Enable();
+                    }
+                    else
+                    {
+                        ICSHelper.Disable();
+                    }
+                });
+            }
+            catch (Exception exception)
+            {
+                ICSCheckBox.Checked = false;
+                Logging.Error(exception.ToString());
+            }
+            finally
+            {
+                ICSCheckBox.Enabled = true;
+            }
         }
     }
 }
