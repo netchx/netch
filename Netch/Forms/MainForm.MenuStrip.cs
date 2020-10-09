@@ -26,19 +26,8 @@ namespace Netch.Forms
             var texts = Clipboard.GetText();
             if (!string.IsNullOrWhiteSpace(texts))
             {
-                var result = ShareLink.ParseText(texts);
-
-                if (result != null)
-                {
-                    foreach (var server in result)
-                    {
-                        Global.Settings.Server.Add(server);
-                    }
-                }
-                else
-                {
-                    MessageBoxX.Show(i18N.Translate("Import servers error!"), LogLevel.ERROR);
-                }
+                Global.Settings.Server.AddRange(ShareLink.ParseText(texts));
+                NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", ShareLink.ParseText(texts).Count));
 
                 InitServer();
                 Configuration.Save();
@@ -108,6 +97,9 @@ namespace Netch.Forms
             await UpdateServersFromSubscribe();
         }
 
+
+        private readonly object _serverLock = new object();
+
         public async Task UpdateServersFromSubscribe()
         {
             void DisableItems(bool v)
@@ -144,8 +136,6 @@ namespace Netch.Forms
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
-                var serverLock = new object();
-
                 await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
                 {
                     try
@@ -156,31 +146,25 @@ namespace Netch.Forms
                         if (Global.Settings.UseProxyToUpdateSubscription)
                             request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
 
-                        var str = await WebUtil.DownloadStringAsync(request);
+                        var servers = ShareLink.ParseText(await WebUtil.DownloadStringAsync(request));
 
-                        lock (serverLock)
+                        foreach (var server in servers)
                         {
-                            Global.Settings.Server.RemoveAll(server => server.Group == item.Remark);
-
-                            var result = ShareLink.ParseText(str);
-                            if (result != null)
-                            {
-                                foreach (var server in result)
-                                {
-                                    server.Group = item.Remark;
-                                    Global.Settings.Server.Add(server);
-                                }
-                            }
-
-                            NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, result?.Count ?? 0));
+                            server.Group = item.Remark;
                         }
-                    }
-                    catch (WebException e)
-                    {
-                        NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
+
+                        lock (_serverLock)
+                        {
+                            Global.Settings.Server.RemoveAll(server => server.Group.Equals(item.Remark));
+                            Global.Settings.Server.AddRange(servers);
+                        }
+
+
+                        NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
                     }
                     catch (Exception e)
                     {
+                        NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
                         Logging.Error(e.ToString());
                     }
                 })).ToArray());

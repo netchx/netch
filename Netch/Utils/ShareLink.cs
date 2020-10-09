@@ -120,42 +120,30 @@ namespace Netch.Utils
             }
 
             var list = new List<Server>();
+
             try
             {
-                try
+                list.AddRange(JsonConvert.DeserializeObject<List<ShadowsocksConfig>>(text).Select(server => new Shadowsocks
                 {
-                    list.AddRange(JsonConvert.DeserializeObject<List<ShadowsocksConfig>>(text).Select(server => new Shadowsocks
-                    {
-                        Hostname = server.server,
-                        Port = server.server_port,
-                        EncryptMethod = server.method,
-                        Password = server.password,
-                        Remark = server.remarks,
-                        Plugin = server.plugin,
-                        PluginOption = server.plugin_opts
-                    }));
-                }
-                catch (JsonReaderException)
+                    Hostname = server.server,
+                    Port = server.server_port,
+                    EncryptMethod = server.method,
+                    Password = server.password,
+                    Remark = server.remarks,
+                    Plugin = server.plugin,
+                    PluginOption = server.plugin_opts
+                }));
+            }
+            catch (JsonReaderException)
+            {
+                foreach (var line in text.GetLines())
                 {
-                    foreach (var line in text.GetLines())
-                    {
-                        var servers = ParseUri(line);
-                        if (servers != null)
-                        {
-                            list.AddRange(servers);
-                        }
-                    }
-                }
-
-                if (list.Count == 0)
-                {
-                    return null;
+                    list.AddRange(ParseUri(line));
                 }
             }
             catch (Exception e)
             {
                 Logging.Error(e.ToString());
-                return null;
             }
 
             return list;
@@ -179,19 +167,19 @@ namespace Netch.Utils
                 {
                     var scheme = GetUriScheme(text);
                     var util = ServerHelper.GetUtilByUriScheme(scheme);
-                    if (util == null)
+                    if (util != null)
+                    {
+                        list.AddRange(util.ParseUri(text));
+                    }
+                    else
                     {
                         Logging.Warning($"无法处理 {scheme} 协议订阅链接");
-                        return null;
                     }
-
-                    list.AddRange(util.ParseUri(text));
                 }
             }
             catch (Exception e)
             {
                 Logging.Error(e.ToString());
-                return null;
             }
 
             foreach (var node in list)
@@ -212,26 +200,35 @@ namespace Netch.Utils
 
         private static Server ParseNetchUri(string text)
         {
-            text = text.Substring(8);
-            var NetchLink = (JObject) JsonConvert.DeserializeObject(URLSafeBase64Decode(text));
-            if (NetchLink == null)
+            try
             {
+                text = text.Substring(8);
+
+                var NetchLink = (JObject) JsonConvert.DeserializeObject(URLSafeBase64Decode(text));
+                if (NetchLink == null)
+                {
+                    return null;
+                }
+
+                if (string.IsNullOrEmpty((string) NetchLink["Hostname"]))
+                {
+                    return null;
+                }
+
+                if (!ushort.TryParse((string) NetchLink["Port"], out _))
+                {
+                    return null;
+                }
+
+                var type = (string) NetchLink["Type"];
+                var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(NetchLink);
+                return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : null;
+            }
+            catch (Exception e)
+            {
+                Logging.Warning(e.ToString());
                 return null;
             }
-
-            if (string.IsNullOrEmpty((string) NetchLink["Hostname"]))
-            {
-                return null;
-            }
-
-            if (!ushort.TryParse((string) NetchLink["Port"], out _))
-            {
-                return null;
-            }
-
-            var type = (string) NetchLink["Type"];
-            var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(NetchLink);
-            return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : null;
         }
 
         public static string GetNetchLink(Server s)
