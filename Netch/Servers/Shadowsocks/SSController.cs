@@ -14,16 +14,16 @@ namespace Netch.Servers.Shadowsocks
         public int? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
+        private Mode _savedMode;
+        public bool DllFlag => Global.Settings.BootShadowsocksFromDLL && (_savedMode.Type == 0 || _savedMode.Type == 1 || _savedMode.Type == 2);
+
         public bool Start(Server s, Mode mode)
         {
-            bool DllFlag()
-            {
-                return Global.Settings.BootShadowsocksFromDLL && (mode.Type == 0 || mode.Type == 1 || mode.Type == 2);
-            }
+            _savedMode = mode;
 
             var server = (Shadowsocks) s;
             //从DLL启动Shaowsocks
-            if (DllFlag())
+            if (DllFlag)
             {
                 State = State.Starting;
                 var client = Encoding.UTF8.GetBytes($"{LocalAddress ?? Global.Settings.LocalAddress}:{Socks5LocalPort ?? Global.Settings.Socks5LocalPort}");
@@ -79,6 +79,7 @@ namespace Netch.Servers.Shadowsocks
                 ShadowsocksDLL.Stop();
             else
                 StopInstance();
+            _savedMode = null;
         }
 
 

@@ -7,6 +7,7 @@ using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Servers.Shadowsocks;
 
 namespace Netch.Utils
 {
@@ -66,20 +67,29 @@ namespace Netch.Utils
             {
                 instances.Add(((HTTPController) MainController.ModeController).pPrivoxyController.Instance);
             }
-            else if (server.Type.Equals("SS") && Global.Settings.BootShadowsocksFromDLL &&
-                     (mode.Type == 0 || mode.Type == 1 || mode.Type == 2))
-            {
-                instances.Add(Process.GetCurrentProcess());
-            }
             else if (MainController.ServerController != null)
             {
-                if (MainController.ServerController is Guard instanceController)
-                    instances.Add(instanceController.Instance);
+                switch (MainController.ServerController)
+                {
+                    case SSController ssController when ssController.DllFlag:
+                        instances.Add(Process.GetCurrentProcess());
+                        break;
+                    case Guard instanceController:
+                        instances.Add(instanceController.Instance);
+                        break;
+                }
             }
             else if (MainController.ModeController != null)
             {
-                if (MainController.ModeController is Guard instanceController)
-                    instances.Add(instanceController.Instance);
+                switch (MainController.ModeController)
+                {
+                    case NFController _:
+                        instances.Add(Process.GetCurrentProcess());
+                        break;
+                    case Guard instanceController:
+                        instances.Add(instanceController.Instance);
+                        break;
+                }
             }
 
             var processList = instances.Select(instance => instance.Id).ToList();

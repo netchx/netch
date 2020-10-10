@@ -184,6 +184,8 @@ namespace Netch.Controllers
                 Task.Run(() => ModeController?.Stop()),
             };
             await Task.WhenAll(tasks);
+            ModeController = null;
+            ServerController = null;
         }
 
 
