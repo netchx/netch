@@ -49,6 +49,8 @@ namespace Netch.Utils
 
         private static RegistryKey AdapterRegistry(bool write = false)
         {
+            if (Global.Outbound.Adapter == null)
+                Utils.SearchOutboundAdapter();
             return Registry.LocalMachine.OpenSubKey(
                 $@"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{Global.Outbound.Adapter.Id}", write);
         }
