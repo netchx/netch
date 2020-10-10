@@ -153,7 +153,7 @@
     "Check update when opened": "打开软件时检查更新",
     "Check Beta update": "检查 Beta 更新",
     "Update subscribeat when opened": "自动更新订阅",
-    "SS DLL(No ACL support)": "SS DLL（不支持 ACL）",
+    "SS DLL": "SS DLL",
     "Modify System DNS": "修改系统 DNS",
     "ProfileCount": "快捷配置数量",
     "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试。",

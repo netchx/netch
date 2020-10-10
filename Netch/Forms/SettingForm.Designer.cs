@@ -378,7 +378,7 @@
             this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
             this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(168, 21);
             this.BootShadowsocksFromDLLCheckBox.TabIndex = 21;
-            this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL(No ACL support)";
+            this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL";
             this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
             // 
             // AclAddrTextBox
