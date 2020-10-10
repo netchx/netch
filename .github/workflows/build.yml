@@ -6,10 +6,10 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Setup NuGet
-      uses: nuget/setup-nuget@v1
+      uses: nuget/setup-nuget@v1.0.2
 
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.0.1
+      uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Checkout
       uses: actions/checkout@v2
@@ -34,8 +34,8 @@ jobs:
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
         7z a -mx9 C:\builtfiles\Netch.7z .\Netch\bin\x64\Release\win-x64\
         7z rn C:\builtfiles\Netch.7z win-x64 Netch
-        echo "::set-env name=Netch_SHA256::$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)"
-        echo "::set-env name=Netch_EXE_SHA256::$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)"
+        echo "Netch_SHA256=$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "Netch_EXE_SHA256=$(.\GetSHA256.ps1 Netch\bin\x64\Release\win-x64\Netch.exe)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
