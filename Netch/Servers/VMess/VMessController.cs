@@ -47,7 +47,7 @@ namespace Netch.Servers.VMess
                             {
                                 new VMessConfig.VNext
                                 {
-                                    address = DNS.Lookup(server.Hostname).ToString(),
+                                    address = server.AutoResolveHostname(),
                                     port = server.Port,
                                     users = new List<VMessConfig.User>
                                     {

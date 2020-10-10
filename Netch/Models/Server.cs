@@ -101,4 +101,12 @@ namespace Netch.Models
             }
         }
     }
+
+    public static class ServerExtension
+    {
+        public static string AutoResolveHostname(this Server server)
+        {
+            return Global.Settings.ResolveServerHostname ? DNS.Lookup(server.Hostname).ToString() : server.Hostname;
+        }
+    }
 }

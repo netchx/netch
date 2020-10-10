@@ -27,7 +27,7 @@ namespace Netch.Servers.Shadowsocks
             {
                 State = State.Starting;
                 var client = Encoding.UTF8.GetBytes($"{this.LocalAddress()}:{this.Socks5LocalPort()}");
-                var remote = Encoding.UTF8.GetBytes($"{DNS.Lookup(server.Hostname)}:{server.Port}");
+                var remote = Encoding.UTF8.GetBytes($"{server.AutoResolveHostname()}:{server.Port}");
                 var passwd = Encoding.UTF8.GetBytes($"{server.Password}");
                 var method = Encoding.UTF8.GetBytes($"{server.EncryptMethod}");
                 if (!ShadowsocksDLL.Info(client, remote, passwd, method))
@@ -55,7 +55,7 @@ namespace Netch.Servers.Shadowsocks
 
             var argument = new StringBuilder();
             argument.Append(
-                $"-s {DNS.Lookup(server.Hostname)} " +
+                $"-s {server.AutoResolveHostname()} " +
                 $"-p {server.Port} " +
                 $"-b {this.LocalAddress()} " +
                 $"-l {this.Socks5LocalPort()} " +

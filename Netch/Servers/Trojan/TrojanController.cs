@@ -29,7 +29,7 @@ namespace Netch.Servers.Trojan
             {
                 local_addr = this.LocalAddress(),
                 local_port = this.Socks5LocalPort(),
-                remote_addr = DNS.Lookup(server.Hostname).ToString(),
+                remote_addr = server.AutoResolveHostname(),
                 remote_port = server.Port,
                 password = new List<string>
                 {

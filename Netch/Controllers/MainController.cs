@@ -45,7 +45,7 @@ namespace Netch.Controllers
                 return false;
             }
 
-            if (DNS.Lookup(server.Hostname) == null)
+            if (Global.Settings.ResolveServerHostname && DNS.Lookup(server.Hostname) == null)
             {
                 MessageBoxX.Show("Lookup Server hostname failed");
                 return false;

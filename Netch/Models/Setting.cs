@@ -104,6 +104,11 @@ namespace Netch.Models
         public bool ModifySystemDNS = false;
 
         /// <summary>
+        ///     解析服务器主机名
+        /// </summary>
+        public bool ResolveServerHostname = true;
+
+        /// <summary>
         ///     网页请求超时 毫秒
         /// </summary>
         public int RequestTimeout = 10000;

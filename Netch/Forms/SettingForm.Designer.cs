@@ -53,8 +53,10 @@
             this.ControlButton = new System.Windows.Forms.Button();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.BehaviorGroupBox = new System.Windows.Forms.GroupBox();
+            this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.LanguageLabel = new System.Windows.Forms.Label();
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
+            this.ResolveServerHostnameCheckBox = new System.Windows.Forms.CheckBox();
             this.ModifySystemDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.BootShadowsocksFromDLLCheckBox = new System.Windows.Forms.CheckBox();
             this.AclAddrTextBox = new System.Windows.Forms.TextBox();
@@ -73,7 +75,6 @@
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.PortGroupBox.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
             this.BehaviorGroupBox.SuspendLayout();
@@ -186,8 +187,8 @@
             this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(110, 21);
             this.UseFakeDNSCheckBox.TabIndex = 11;
             this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
-            this.UseFakeDNSCheckBox.Visible = false;
             this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
+            this.UseFakeDNSCheckBox.Visible = false;
             // 
             // ProxyDNSCheckBox
             // 
@@ -202,12 +203,12 @@
             // ICSCheckBox
             // 
             this.ICSCheckBox.AutoSize = true;
+            this.ICSCheckBox.Enabled = false;
             this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
             this.ICSCheckBox.Name = "ICSCheckBox";
-            this.ICSCheckBox.Size = new System.Drawing.Size(46, 21);
+            this.ICSCheckBox.Size = new System.Drawing.Size(151, 21);
             this.ICSCheckBox.TabIndex = 5;
             this.ICSCheckBox.Text = "Tap Network Sharing";
-            this.ICSCheckBox.Enabled = false;
             this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ICSCheckBox.UseVisualStyleBackColor = true;
             this.ICSCheckBox.CheckedChanged += new System.EventHandler(this.ICSCheckBox_CheckedChanged);
@@ -293,7 +294,7 @@
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.ControlButton.Location = new System.Drawing.Point(804, 356);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
@@ -304,7 +305,7 @@
             // 
             // GlobalBypassIPsButton
             // 
-            this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.GlobalBypassIPsButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.GlobalBypassIPsButton.Location = new System.Drawing.Point(12, 356);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
@@ -318,6 +319,7 @@
             this.BehaviorGroupBox.Controls.Add(this.UpdateSubscribeatWhenOpenedCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.LanguageLabel);
             this.BehaviorGroupBox.Controls.Add(this.LanguageComboBox);
+            this.BehaviorGroupBox.Controls.Add(this.ResolveServerHostnameCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.ModifySystemDNSCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.BootShadowsocksFromDLLCheckBox);
             this.BehaviorGroupBox.Controls.Add(this.AclAddrTextBox);
@@ -343,6 +345,17 @@
             this.BehaviorGroupBox.TabStop = false;
             this.BehaviorGroupBox.Text = "Behavior";
             // 
+            // UpdateSubscribeatWhenOpenedCheckBox
+            // 
+            this.UpdateSubscribeatWhenOpenedCheckBox.AutoSize = true;
+            this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(206, 129);
+            this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
+            this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(224, 21);
+            this.UpdateSubscribeatWhenOpenedCheckBox.TabIndex = 24;
+            this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
+            this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
             // LanguageLabel
             // 
             this.LanguageLabel.AutoSize = true;
@@ -361,6 +374,16 @@
             this.LanguageComboBox.Size = new System.Drawing.Size(121, 25);
             this.LanguageComboBox.TabIndex = 22;
             // 
+            // ResolveServerHostnameCheckBox
+            // 
+            this.ResolveServerHostnameCheckBox.AutoSize = true;
+            this.ResolveServerHostnameCheckBox.Location = new System.Drawing.Point(12, 156);
+            this.ResolveServerHostnameCheckBox.Name = "ResolveServerHostnameCheckBox";
+            this.ResolveServerHostnameCheckBox.Size = new System.Drawing.Size(176, 21);
+            this.ResolveServerHostnameCheckBox.TabIndex = 21;
+            this.ResolveServerHostnameCheckBox.Text = "Resolve Server Hostname";
+            this.ResolveServerHostnameCheckBox.UseVisualStyleBackColor = true;
+            // 
             // ModifySystemDNSCheckBox
             // 
             this.ModifySystemDNSCheckBox.AutoSize = true;
@@ -376,7 +399,7 @@
             this.BootShadowsocksFromDLLCheckBox.AutoSize = true;
             this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(12, 102);
             this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
-            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(168, 21);
+            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(66, 21);
             this.BootShadowsocksFromDLLCheckBox.TabIndex = 21;
             this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL";
             this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
@@ -535,17 +558,6 @@
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // UpdateSubscribeatWhenOpenedCheckBox
-            // 
-            this.UpdateSubscribeatWhenOpenedCheckBox.AutoSize = true;
-            this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(206, 129);
-            this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
-            this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(224, 21);
-            this.UpdateSubscribeatWhenOpenedCheckBox.TabIndex = 24;
-            this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
-            this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -556,9 +568,9 @@
             this.Controls.Add(this.GlobalBypassIPsButton);
             this.Controls.Add(this.ControlButton);
             this.Controls.Add(this.TUNTAPGroupBox);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte) (134)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
             this.Name = "SettingForm";
@@ -573,6 +585,8 @@
             this.BehaviorGroupBox.PerformLayout();
             this.ResumeLayout(false);
         }
+
+        private System.Windows.Forms.CheckBox ResolveServerHostnameCheckBox;
 
         private System.Windows.Forms.CheckBox ICSCheckBox;
 

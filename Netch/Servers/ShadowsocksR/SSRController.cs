@@ -21,7 +21,7 @@ namespace Netch.Servers.ShadowsocksR
             #region Argument
 
             var argument = new StringBuilder();
-            argument.Append($"-s {DNS.Lookup(server.Hostname)} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
+            argument.Append($"-s {server.AutoResolveHostname()} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
             if (!string.IsNullOrEmpty(server.Protocol))
             {
                 argument.Append($" -O {server.Protocol}");

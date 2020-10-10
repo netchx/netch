@@ -65,6 +65,7 @@ namespace Netch.Forms
             CheckBetaUpdateCheckBox.Checked = Global.Settings.CheckBetaUpdate;
             ModifySystemDNSCheckBox.Checked = Global.Settings.ModifySystemDNS;
             UpdateSubscribeatWhenOpenedCheckBox.Checked = Global.Settings.UpdateSubscribeatWhenOpened;
+            ResolveServerHostnameCheckBox.Checked = Global.Settings.ResolveServerHostname;
 
             ProfileCountTextBox.Text = Global.Settings.ProfileCount.ToString();
             TcpingAtStartedCheckBox.Checked = Global.Settings.StartedTcping;
@@ -329,6 +330,7 @@ namespace Netch.Forms
             Global.Settings.CheckBetaUpdate = CheckBetaUpdateCheckBox.Checked;
             Global.Settings.ModifySystemDNS = ModifySystemDNSCheckBox.Checked;
             Global.Settings.UpdateSubscribeatWhenOpened = UpdateSubscribeatWhenOpenedCheckBox.Checked;
+            Global.Settings.ResolveServerHostname = ResolveServerHostnameCheckBox.Checked;
 
             Global.Settings.ProfileCount = profileCount;
             Global.Settings.StartedTcping = TcpingAtStartedCheckBox.Checked;
