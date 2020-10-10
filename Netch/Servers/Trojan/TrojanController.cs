@@ -27,8 +27,8 @@ namespace Netch.Servers.Trojan
             var server = (Trojan) s;
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new TrojanConfig
             {
-                local_addr = LocalAddress ?? Global.Settings.LocalAddress,
-                local_port = Socks5LocalPort ?? Global.Settings.Socks5LocalPort,
+                local_addr = this.LocalAddress(),
+                local_port = this.Socks5LocalPort(),
                 remote_addr = DNS.Lookup(server.Hostname).ToString(),
                 remote_port = server.Port,
                 password = new List<string>

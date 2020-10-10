@@ -34,7 +34,7 @@ namespace Netch.Servers.ShadowsocksR
                 if (!string.IsNullOrEmpty(server.OBFSParam)) argument.Append($" -g \"{server.OBFSParam}\"");
             }
 
-            argument.Append($" -b {LocalAddress ?? Global.Settings.LocalAddress} -l {Socks5LocalPort ?? Global.Settings.Socks5LocalPort} -u");
+            argument.Append($" -b {this.LocalAddress()} -l {this.Socks5LocalPort()} -u");
             if (mode.BypassChina) argument.Append(" --acl default.acl");
 
             #endregion

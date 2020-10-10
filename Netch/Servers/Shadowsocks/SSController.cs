@@ -26,7 +26,7 @@ namespace Netch.Servers.Shadowsocks
             if (DllFlag)
             {
                 State = State.Starting;
-                var client = Encoding.UTF8.GetBytes($"{LocalAddress ?? Global.Settings.LocalAddress}:{Socks5LocalPort ?? Global.Settings.Socks5LocalPort}");
+                var client = Encoding.UTF8.GetBytes($"{this.LocalAddress()}:{this.Socks5LocalPort()}");
                 var remote = Encoding.UTF8.GetBytes($"{DNS.Lookup(server.Hostname)}:{server.Port}");
                 var passwd = Encoding.UTF8.GetBytes($"{server.Password}");
                 var method = Encoding.UTF8.GetBytes($"{server.EncryptMethod}");
@@ -57,8 +57,8 @@ namespace Netch.Servers.Shadowsocks
             argument.Append(
                 $"-s {DNS.Lookup(server.Hostname)} " +
                 $"-p {server.Port} " +
-                $"-b {LocalAddress ?? Global.Settings.LocalAddress} " +
-                $"-l {Socks5LocalPort ?? Global.Settings.Socks5LocalPort} " +
+                $"-b {this.LocalAddress()} " +
+                $"-l {this.Socks5LocalPort()} " +
                 $"-m {server.EncryptMethod} " +
                 $"-k \"{server.Password}\" " +
                 "-u ");

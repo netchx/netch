@@ -33,8 +33,8 @@ namespace Netch.Servers.VMess
                     new VMessConfig.Inbounds
                     {
                         settings = new VMessConfig.InboundSettings(),
-                        port = Socks5LocalPort ?? Global.Settings.Socks5LocalPort,
-                        listen = LocalAddress ?? Global.Settings.LocalAddress
+                        port = this.Socks5LocalPort(),
+                        listen = this.LocalAddress()
                     }
                 },
                 outbounds = new List<VMessConfig.Outbounds>
