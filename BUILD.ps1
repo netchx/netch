@@ -3,7 +3,6 @@ param([string]$buildtfm = 'all')
 Write-Host 'DotNet SDK Version'
 dotnet --version
 
-$exe = 'Netch.exe'
 $mainDir = (Get-Item -Path ".\").FullName
 $net_baseoutput = "$mainDir\Netch\bin\$configuration"
 

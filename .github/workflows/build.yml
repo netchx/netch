@@ -5,9 +5,6 @@ jobs:
     name: Build
     runs-on: windows-latest
     steps:
-    - name: Setup NuGet
-      uses: nuget/setup-nuget@v1.0.2
-
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
 
@@ -15,17 +12,6 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
-
-    - name: Restore NuGet Packages Cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('Netch/Netch.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-
-    - name: Restore NuGet Package
-      run: nuget restore Netch.sln
 
     - name: Build Solution
       shell: pwsh
