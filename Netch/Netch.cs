@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +18,12 @@ namespace Netch
         [STAThread]
         public static void Main(string[] args)
         {
+            if (args.Contains("-console"))
+            {
+                NativeMethods.AllocConsole();
+                NativeMethods.AttachConsole(-1);
+            }
+
             // 创建互斥体防止多次运行
             using (var mutex = new Mutex(false, "Global\\Netch"))
             {
