@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Servers.VMess.Utils;
 
 namespace Netch.Servers.VMess
 {
@@ -20,15 +21,8 @@ namespace Netch.Servers.VMess
 
         public bool Start(Server s, Mode mode)
         {
-            File.WriteAllText("data\\last.json", Utils.V2rayConfigUtils.GenerateClientConfig(s, mode));
-
-            if (StartInstanceAuto("-config ..\\data\\last.json"))
-            {
-                if (File.Exists("data\\last.json")) File.Delete("data\\last.json");
-                return true;
-            }
-
-            return false;
+            File.WriteAllText("data\\last.json", V2rayConfigUtils.GenerateClientConfig(s, mode));
+            return StartInstanceAuto("-config ..\\data\\last.json");
         }
 
         public override void Stop()

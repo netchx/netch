@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -283,6 +284,10 @@ namespace Netch.Forms
             }
 
             Configuration.Save();
+
+            if (File.Exists("data\\last.json"))
+                File.Delete("data\\last.json");
+
             State = State.Terminating;
         }
 
