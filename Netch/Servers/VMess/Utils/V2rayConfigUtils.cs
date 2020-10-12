@@ -152,6 +152,46 @@ namespace Netch.Servers.VMess.Utils
                         outbound.protocol = "socks";
                         break;
                     }
+                    case VLESS.VLESS vless:
+                    {
+                        var vnextItem = new VnextItem
+                        {
+                            users = new List<UsersItem>()
+                        };
+                        outbound.settings.vnext = new List<VnextItem>
+                        {
+                            vnextItem
+                        };
+
+                        vnextItem.address = server.AutoResolveHostname();
+                        vnextItem.port = server.Port;
+
+                        var usersItem = new UsersItem();
+                        vnextItem.users.Add(usersItem);
+
+                        usersItem.id = vless.UserID;
+                        usersItem.alterId = 0;
+                        usersItem.flow = string.Empty;
+                        usersItem.encryption = vless.EncryptMethod;
+
+                        outbound.mux.enabled = vless.UseMux;
+                        outbound.mux.concurrency = vless.UseMux ? 8 : -1;
+
+                        var streamSettings = outbound.streamSettings;
+                        boundStreamSettings(vless, ref streamSettings);
+
+                        if (vless.TransferProtocol == "xtls")
+                        {
+                            usersItem.flow = string.IsNullOrEmpty(vless.Flow) ? "xtls-rprx-origin" : vless.Flow;
+
+                            outbound.mux.enabled = false;
+                            outbound.mux.concurrency = -1;
+                        }
+
+                        outbound.protocol = "vless";
+                        outbound.settings.servers = null;
+                        break;
+                    }
                     case VMess vmess:
                     {
                         var vnextItem = new VnextItem
