@@ -34,17 +34,7 @@ namespace Netch.Controllers
 
             try
             {
-                if (s.IsSocks5())
-                {
-                    var server = (Socks5) s;
-                    if (!string.IsNullOrWhiteSpace(server.Username) && !string.IsNullOrWhiteSpace(server.Password)) return false;
-
-                    pPrivoxyController.Start(s, mode);
-                }
-                else
-                {
-                    pPrivoxyController.Start(s, mode);
-                }
+                pPrivoxyController.Start(s, mode);
 
                 if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
             }

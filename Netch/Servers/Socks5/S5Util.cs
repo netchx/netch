@@ -38,7 +38,7 @@ namespace Netch.Servers.Socks5
 
         public IServerController GetController()
         {
-            return null;
+            return new S5Controller();
         }
 
         public IEnumerable<Server> ParseUri(string text)

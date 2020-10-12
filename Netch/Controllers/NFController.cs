@@ -3,7 +3,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
+using Netch.Forms;
 using Netch.Models;
+using Netch.Servers.Socks5;
 using Netch.Utils;
 using nfapinet;
 
@@ -69,7 +71,7 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            if (s.IsSocks5())
+            if (s is Socks5 socks5 && !socks5.Auth())
             {
                 var result = DNS.Lookup(s.Hostname);
                 if (result == null)
@@ -78,8 +80,8 @@ namespace Netch.Controllers
                     return false;
                 }
 
-                aio_dial((int) NameList.TYPE_TCPHOST, $"{result}:{s.Port}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"{result}:{s.Port}");
+                aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
             }
             else
             {

@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Netch.Models;
+using Netch.Servers.Socks5;
 using Netch.Utils;
 using static Netch.Forms.MainForm;
 using static Netch.Utils.PortHelper;
@@ -28,7 +29,7 @@ namespace Netch.Controllers
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
 
-            if (server.IsSocks5() && mode.Type == 4)
+            if (server is Socks5 && mode.Type == 4)
             {
                 return false;
             }
@@ -101,11 +102,6 @@ namespace Netch.Controllers
 
         private static async Task<bool> StartServer(Server server, Mode mode)
         {
-            if (server.IsSocks5())
-            {
-                return true;
-            }
-
             ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
             if (ServerController is Guard instanceController)

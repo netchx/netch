@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Text;
 using Netch.Models;
+using Netch.Servers.Socks5;
 
 namespace Netch.Controllers
 {
@@ -16,13 +18,21 @@ namespace Netch.Controllers
 
         public bool Start(Server server, Mode mode)
         {
-            var text = File.ReadAllText("bin\\default.conf")
-                .Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString())
-                .Replace("_DEST_PORT_", (server.IsSocks5() ? server.Port : Global.Settings.Socks5LocalPort).ToString())
-                .Replace("0.0.0.0", Global.Settings.LocalAddress);
-            if (server.IsSocks5())
-                text = text.Replace("/ 127.0.0.1", $"/ {server.Hostname}");
-            File.WriteAllText("data\\privoxy.conf", text);
+            var text = new StringBuilder(File.ReadAllText("bin\\default.conf"));
+
+            text.Replace("_BIND_PORT_", Global.Settings.LocalAddress);
+            text.Replace("0.0.0.0", Global.Settings.LocalAddress); /* BIND_HOST */
+
+            if (server is Socks5 socks5 && !socks5.Auth())
+            {
+                text.Replace("/ 127.0.0.1", $"/ {server.AutoResolveHostname()}"); /* DEST_HOST */
+                text.Replace("_DEST_PORT_", socks5.Port.ToString());
+            }
+
+            text.Replace("_DEST_PORT_", Global.Settings.Socks5LocalPort.ToString());
+
+
+            File.WriteAllText("data\\privoxy.conf", text.ToString());
 
             return StartInstanceAuto("..\\data\\privoxy.conf");
         }

@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Models;
+using Netch.Servers.Socks5;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -87,7 +88,7 @@ namespace Netch.Controllers
             }
 
             var argument = new StringBuilder();
-            if (s.IsSocks5())
+            if (s is Socks5 socks5 && !socks5.Auth())
                 argument.Append($"-proxyServer {_serverAddresses}:{s.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");

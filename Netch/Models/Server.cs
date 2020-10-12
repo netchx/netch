@@ -41,8 +41,6 @@ namespace Netch.Models
         /// </summary>
         public int Delay = -1;
 
-        public bool IsSocks5() => Type == "Socks5";
-
         /// <summary>
         ///		获取备注
         /// </summary>

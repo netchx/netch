@@ -34,9 +34,9 @@ namespace Netch.Servers.VMess.Utils
             {
                 var inbound = new Inbounds
                 {
-                    port = MainController.ServerController.Socks5LocalPort(),
+                    port = Global.Settings.Socks5LocalPort,
                     protocol = "socks",
-                    listen = MainController.ServerController.LocalAddress(),
+                    listen = Global.Settings.LocalAddress,
                     settings = new Inboundsettings
                     {
                         udp = true
