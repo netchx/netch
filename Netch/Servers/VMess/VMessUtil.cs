@@ -64,10 +64,10 @@ namespace Netch.Servers.VMess
             var data = new VMess();
 
             text = text.Substring(8);
-            VMessJObject vmess;
+            V2rayNSharing vmess;
             try
             {
-                vmess = JsonConvert.DeserializeObject<VMessJObject>(ShareLink.URLSafeBase64Decode(text));
+                vmess = JsonConvert.DeserializeObject<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text));
             }
             catch (Exception e)
             {

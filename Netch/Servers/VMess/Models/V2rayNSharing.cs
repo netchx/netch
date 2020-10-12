@@ -3,7 +3,7 @@
     /// <summary>
     ///     使用 v2rayN 定义的 VMess 链接格式
     /// </summary>
-    public class VMessJObject
+    public class V2rayNSharing
     {
         /// <summary>
         ///     链接版本
