@@ -66,7 +66,7 @@ namespace Netch.Controllers
                     throw new StartFailedException();
                 }
 
-                if (ModeController?.TestNatRequired ?? false)
+                if (mode.TestNatRequired)
                     NatTest();
 
                 return true;

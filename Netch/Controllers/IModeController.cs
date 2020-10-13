@@ -11,7 +11,5 @@ namespace Netch.Controllers
         /// <param name="mode">模式</param>
         /// <returns>是否成功</returns>
         public abstract bool Start(Server s, Mode mode);
-
-        public abstract bool TestNatRequired { get; }
     }
 }

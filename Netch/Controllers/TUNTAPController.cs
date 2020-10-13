@@ -17,8 +17,6 @@ namespace Netch.Controllers
 {
     public class TUNTAPController : Guard, IModeController
     {
-        public bool TestNatRequired { get; } = true;
-
         private Mode _savedMode = new Mode();
         private Server _savedServer = new Server();
 

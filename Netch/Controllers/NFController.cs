@@ -13,8 +13,6 @@ namespace Netch.Controllers
 {
     public class NFController : IModeController
     {
-        public bool TestNatRequired { get; } = true;
-
         private static readonly ServiceController NFService = new ServiceController("netfilter2");
 
         private static readonly string BinDriver = string.Empty;
