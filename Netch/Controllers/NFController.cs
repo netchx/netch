@@ -71,17 +71,24 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            if (s is Socks5 socks5 && !socks5.Auth())
+            if (s is Socks5 socks5)
             {
-                var result = DNS.Lookup(s.Hostname);
-                if (result == null)
+                if (!socks5.Auth())
                 {
-                    Logging.Info("无法解析服务器 IP 地址");
-                    return false;
+                    aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                    aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
                 }
-
-                aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                else
+                {
+                    /* TODO Direct handled by redirector
+                    aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                    aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                    aio_dial((int) NameList.TYPE_, socks5.Username);
+                    aio_dial((int) NameList.TYPE_, socks5.Password);
+                    */
+                    aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                    aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                }
             }
             else
             {
