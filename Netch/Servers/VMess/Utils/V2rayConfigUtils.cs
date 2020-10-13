@@ -258,67 +258,26 @@ namespace Netch.Servers.VMess.Utils
                     streamSettings.security = "";
                 }
 
-                if (server.TransferProtocol == "xtls")
-                {
-                    streamSettings.security = server.TransferProtocol;
-
-                    TlsSettings xtlsSettings = new TlsSettings
-                    {
-                        allowInsecure = true
-                    };
-                    if (!string.IsNullOrWhiteSpace(host))
-                    {
-                        xtlsSettings.serverName = host;
-                    }
-
-                    streamSettings.xtlsSettings = xtlsSettings;
-                }
-
                 switch (server.TransferProtocol)
                 {
                     case "kcp":
                         var kcpSettings = new KcpSettings
                         {
+                            /*TODO KCP Settings
+                            mtu = Global.Settings.KcpSettings.mtu,
+                            tti = Global.Settings.KcpSettings.tti,
+                            uplinkCapacity = Global.Settings.KcpSettings.uplinkCapacity,
+                            downlinkCapacity = Global.Settings.KcpSettings.downlinkCapacity,
+                            congestion = Global.Settings.KcpSettings.congestion,
+                            readBufferSize = Global.Settings.KcpSettings.readBufferSize,
+                            writeBufferSize = Global.Settings.KcpSettings.writeBufferSize,*/
                             header = new Header
                             {
                                 type = server.FakeType
-                            }
+                            },
+                            seed = !string.IsNullOrWhiteSpace(server.Path) ? server.Path : null
                         };
 
-                        /* TODO KCP Settings
-                         KcpSettings kcpSettings = new KcpSettings
-                        {
-                            mtu = server.kcpItem.mtu,
-                            tti = server.kcpItem.tti
-                        };
-                        if (iobound.Equals("out"))
-                        {
-                            kcpSettings.uplinkCapacity = server.kcpItem.uplinkCapacity;
-                            kcpSettings.downlinkCapacity = server.kcpItem.downlinkCapacity;
-                        }
-                        else if (iobound.Equals("in"))
-                        {
-                            kcpSettings.uplinkCapacity = server.kcpItem.downlinkCapacity;
-                            ;
-                            kcpSettings.downlinkCapacity = server.kcpItem.downlinkCapacity;
-                        }
-                        else
-                        {
-                            kcpSettings.uplinkCapacity = server.kcpItem.uplinkCapacity;
-                            kcpSettings.downlinkCapacity = server.kcpItem.downlinkCapacity;
-                        }
-
-                        kcpSettings.congestion = server.kcpItem.congestion;
-                        kcpSettings.readBufferSize = server.kcpItem.readBufferSize;
-                        kcpSettings.writeBufferSize = server.kcpItem.writeBufferSize;
-                        kcpSettings.header = new Header
-                        {
-                            type = server.FakeType
-                        };
-                        if (!string.IsNullOrEmpty(server.Path))
-                        {
-                            kcpSettings.seed = server.Path;
-                        }*/
 
                         streamSettings.kcpSettings = kcpSettings;
                         break;
@@ -339,7 +298,7 @@ namespace Netch.Servers.VMess.Utils
                         streamSettings.wsSettings = wsSettings;
                         break;
                     case "h2":
-                        var httpSettings = new HttpSettings()
+                        var httpSettings = new HttpSettings
                         {
                             host = new List<string>
                             {
@@ -351,7 +310,7 @@ namespace Netch.Servers.VMess.Utils
                         streamSettings.httpSettings = httpSettings;
                         break;
                     case "quic":
-                        var quicsettings = new QuicSettings
+                        var quicSettings = new QuicSettings
                         {
                             security = host,
                             key = server.Path,
@@ -365,7 +324,21 @@ namespace Netch.Servers.VMess.Utils
                             streamSettings.tlsSettings.serverName = server.Hostname;
                         }
 
-                        streamSettings.quicSettings = quicsettings;
+                        streamSettings.quicSettings = quicSettings;
+                        break;
+                    case "xtls":
+                        streamSettings.security = server.TransferProtocol;
+
+                        var xtlsSettings = new TlsSettings
+                        {
+                            allowInsecure = true
+                        };
+                        if (!string.IsNullOrWhiteSpace(host))
+                        {
+                            xtlsSettings.serverName = host;
+                        }
+
+                        streamSettings.xtlsSettings = xtlsSettings;
                         break;
                     default:
                         if (server.FakeType == "http")
