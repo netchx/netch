@@ -25,10 +25,11 @@ namespace NetchUpdater
             UpdaterFriendlyName = Path.GetFileName(UpdaterFullName);
         }
 
-        public static void Main(string[] args)
+        public static void Main(string[] args1)
         {
             var result = false;
 
+            var args = args1.Aggregate((s, s1) => $"{s} {s1}").Split('|').Select(s => s.Trim()).ToArray();
             try
             {
                 #region Check Arguments
@@ -86,7 +87,7 @@ namespace NetchUpdater
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = newUpdaterPath,
-                        Arguments = $"{port} {updatePath} {targetPath}",
+                        Arguments = $"{port}|{updatePath}|{targetPath}",
                         WorkingDirectory = tempPath,
                         UseShellExecute = false
                     });
@@ -98,9 +99,9 @@ namespace NetchUpdater
 
                 #endregion
 
-                /*while (!Debugger.IsAttached)
+                /*Console.WriteLine("Waiting Attach");
+                while (!Debugger.IsAttached)
                 {
-                    Console.WriteLine("Waiting Attach");
                     Thread.Sleep(1000);
                 }*/
 
@@ -221,7 +222,7 @@ namespace NetchUpdater
                 File.WriteAllBytes("7za.exe", Resources._7za);
 
             var argument = new StringBuilder();
-            argument.Append($" x {archiveFileName} -o{destDirName} ");
+            argument.Append($" x \"{archiveFileName}\" -o\"{destDirName}\" ");
             if (overwrite)
                 argument.Append(" -y ");
 
