@@ -33,6 +33,12 @@ namespace Netch.Models
         /// </summary>
         public int Type = 0;
 
+        public bool SupportSocks5Auth => Type switch
+        {
+            0 => false,
+            _ => false
+        };
+
         /// <summary>
         ///    绕过中国（0. 不绕过 1. 绕过）
         /// </summary>
@@ -67,7 +73,8 @@ namespace Netch.Models
                         if (mode == null)
                         {
                             Logging.Warning($"{relativePath} file included in {Remark} not found");
-                        }else if (mode == this)
+                        }
+                        else if (mode == this)
                         {
                             Logging.Warning("Can't self-reference");
                         }

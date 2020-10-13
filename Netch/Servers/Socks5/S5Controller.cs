@@ -12,7 +12,8 @@ namespace Netch.Servers.Socks5
 
         public bool Start(Server s, Mode mode)
         {
-            if (((Socks5) s).Auth())
+            var server = (Socks5) s;
+            if (server.Auth() && !mode.SupportSocks5Auth)
             {
                 File.WriteAllText("data\\last.json", V2rayConfigUtils.GenerateClientConfig(s, mode));
                 if (StartInstanceAuto("-config ..\\data\\last.json"))
