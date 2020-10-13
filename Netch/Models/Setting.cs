@@ -106,7 +106,7 @@ namespace Netch.Models
         /// <summary>
         ///     解析服务器主机名
         /// </summary>
-        public bool ResolveServerHostname = true;
+        public bool ResolveServerHostname = false;
 
         /// <summary>
         ///     网页请求超时 毫秒
