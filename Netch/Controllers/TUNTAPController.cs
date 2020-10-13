@@ -210,11 +210,6 @@ namespace Netch.Controllers
         /// </summary>
         private bool ClearRouteTable()
         {
-            if (_savedMode.Type == 2)
-            {
-                RouteAction(Action.Delete, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
-            }
-
             RouteAction(Action.Delete, _directIPs, RouteType.Outbound);
             RouteAction(Action.Delete, _proxyIPs, RouteType.TUNTAP);
             _directIPs.Clear();
