@@ -30,10 +30,13 @@ namespace Netch.Servers.Socks5
             new Socks5Form().ShowDialog();
         }
 
-        public string GetShareLink(Server server)
+        public string GetShareLink(Server s)
         {
+            var server = (Socks5) s;
             // https://t.me/socks?server=1.1.1.1&port=443
-            return $"https://t.me/socks?server={server.Hostname}&port={server.Port}";
+            return $"https://t.me/socks?server={server.Hostname}&port={server.Port}" +
+                   $"{(!string.IsNullOrWhiteSpace(server.Username) ? $"&user={server.Username}" : "")}" +
+                   $"{(server.Auth() ? $"&user={server.Password}" : "")}";
         }
 
         public IServerController GetController()

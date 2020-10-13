@@ -32,10 +32,10 @@ namespace Netch.Servers.Trojan
             new TrojanForm().ShowDialog();
         }
 
-        public string GetShareLink(Server server)
+        public string GetShareLink(Server s)
         {
-            // TODO
-            return "";
+            var server = (Trojan) s;
+            return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
         }
 
         public IServerController GetController()

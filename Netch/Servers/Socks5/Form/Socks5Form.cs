@@ -13,7 +13,8 @@ namespace Netch.Servers.Socks5.Form
             CreateTextBox("Username", "Username",
                 s => true,
                 s => server.Username = s,
-                server.Username);CreateTextBox("Password", "Password",
+                server.Username);
+            CreateTextBox("Password", "Password",
                 s => true,
                 s => server.Password = s,
                 server.Password);

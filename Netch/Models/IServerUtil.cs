@@ -34,7 +34,7 @@ namespace Netch.Models
 
         public void Create();
 
-        string GetShareLink(Server server);
+        string GetShareLink(Server s);
 
         public abstract IServerController GetController();
 
