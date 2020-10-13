@@ -67,6 +67,9 @@ namespace Netch.Models
                         if (mode == null)
                         {
                             Logging.Warning($"{relativePath} file included in {Remark} not found");
+                        }else if (mode == this)
+                        {
+                            Logging.Warning("Can't self-reference");
                         }
                         else
                         {
