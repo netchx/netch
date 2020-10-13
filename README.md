@@ -1,17 +1,18 @@
 # Netch
+[![Group](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
+[![Channel](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch)
 [![Platform](https://img.shields.io/badge/platform-windows-orange.svg)](https://github.com/NetchX/Netch)
 [![Version](https://img.shields.io/github/v/release/NetchX/Netch)](https://github.com/NetchX/Netch/releases)
 [![Downloads](https://img.shields.io/github/downloads/NetchX/Netch/total.svg)](https://github.com/NetchX/Netch/releases)
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
-[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group) 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fnetch.org)](https://netch.org/)
+[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
 [中文说明](/docs/README.zh-CN.md)
 
-[FAQ/常见问题](https://netch.org/#/docs/zh-CN/faq)
+[常见问题](https://netch.org/#/docs/zh-CN/faq)
 
-Game accelerator
+Game network accelerator
 
 ## TOC
 - [Netch](#netch)
@@ -23,10 +24,17 @@ Game accelerator
 	- [Requirements](#requirements)
 
 ## Description
+Netch is an open source game network accelerator. Unlike SSTap, which needs to add rules to function as a blacklist proxy, Netch is more similar to SocksCap64, which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server
 
-Netch is an open source game accelerator. Unlike SSTap, which needs to add rules to function as a blacklist proxy, Netch is more similar to SocksCap64, which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server. Now supports Socks5, Shadowsocks, ShadowsocksR, VMess.
+Currently supports the following protocols
+- Socks5
+- Shadowsocks
+- ShadowsocksR
+- Trojan
+- VMess
+- VLess
 
-As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game.
+As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game
 
 ## Sponsor
 <a href="https://www.jetbrains.com/?from=Netch"><img src=".github/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
@@ -58,7 +66,6 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
-- [unbound](https://github.com/NLnetLabs/unbound)
 - [tap-windows6](https://github.com/OpenVPN/tap-windows6)
 - [Privoxy](https://www.privoxy.org/)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)

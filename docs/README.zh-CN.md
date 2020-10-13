@@ -1,5 +1,12 @@
 # Netch
-[![](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-讨论组-green)](https://t.me/Netch_Discuss_Group) ![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)
+[![群组](https://img.shields.io/badge/Telegram-群组-green)](https://t.me/Netch_Discuss_Group)
+[![频道](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/Netch)
+[![平台](https://img.shields.io/badge/平台-windows-orange.svg)](https://github.com/NetchX/Netch)
+[![版本](https://img.shields.io/github/v/release/NetchX/Netch)](https://github.com/NetchX/Netch/releases)
+[![下载](https://img.shields.io/github/downloads/NetchX/Netch/total.svg)](https://github.com/NetchX/Netch/releases)
+[![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
+[![网站](https://img.shields.io/website?url=https%3A%2F%2Fnetch.org)](https://netch.org/)
+[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
 游戏加速工具
 
@@ -15,9 +22,17 @@
     - [进阶用法](Advanced_Usage.zh-CN.md)
 	- [依赖](#依赖)
     - [语言支持](#语言支持)
-    
+
 ## 简介
-Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现类似 SocksCap64 那样的进程代理，也可以实现 SSTap 那样的全局 TUN/TAP 代理，和 Shadowsocks-Windows 那样的本地 Socks5，HTTP 和系统代理。至于连接至远程服务器的代理协议，目前 Netch 支持以下代理协议：Shadowsocks，VMess，Socks5，ShadowsocksR
+Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现类似 SocksCap64 那样的进程代理，也可以实现 SSTap 那样的全局 TUN/TAP 代理，和 Shadowsocks-Windows 那样的本地 Socks5，HTTP 和系统代理
+
+至于连接至远程服务器的代理协议，目前 Netch 支持以下代理协议
+- Socks5
+- Shadowsocks
+- ShadowsocksR
+- Trojan
+- VMess
+- VLess
 
 与此同时 Netch 避免了 SSTap 的 NAT 问题 ，检查 NAT 类型即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况
 
@@ -60,7 +75,6 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
-- [unbound](https://github.com/NLnetLabs/unbound)
 - [tap-windows6](https://github.com/OpenVPN/tap-windows6)
 - [Privoxy](https://www.privoxy.org/)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
