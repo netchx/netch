@@ -20,7 +20,7 @@ namespace Netch.Controllers
         {
             var text = new StringBuilder(File.ReadAllText("bin\\default.conf"));
 
-            text.Replace("_BIND_PORT_", Global.Settings.LocalAddress);
+            text.Replace("_BIND_PORT_", Global.Settings.HTTPLocalPort.ToString());
             text.Replace("0.0.0.0", Global.Settings.LocalAddress); /* BIND_HOST */
 
             if (server is Socks5 socks5 && !socks5.Auth())
