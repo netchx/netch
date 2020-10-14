@@ -33,7 +33,7 @@ namespace Netch.Servers.Socks5
                 StopInstance();
         }
 
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
 
         public string LocalAddress { get; set; }
     }

@@ -11,7 +11,7 @@ namespace Netch.Servers.Shadowsocks
         public override string Name { get; protected set; } = "Shadowsocks";
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
 
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
         private Mode _savedMode;

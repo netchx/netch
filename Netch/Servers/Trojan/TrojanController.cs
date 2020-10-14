@@ -18,7 +18,7 @@ namespace Netch.Servers.Trojan
 
         public override string MainFile { get; protected set; } = "Trojan.exe";
         public override string Name { get; protected set; } = "Trojan";
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
 

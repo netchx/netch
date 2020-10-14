@@ -10,7 +10,7 @@ namespace Netch.Servers.VLESS
         public override string Name { get; protected set; } = "VLESS";
         public override string MainFile { get; protected set; } = "v2ray.exe";
 
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
 
         public string LocalAddress { get; set; }
 

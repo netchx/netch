@@ -11,7 +11,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public override string Name { get; protected set; } = "ShadowsocksR";
 
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
         public bool Start(Server s, Mode mode)

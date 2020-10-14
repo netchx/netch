@@ -4,7 +4,7 @@ namespace Netch.Controllers
 {
     public interface IServerController : IController
     {
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
 
         public string LocalAddress { get; set; }
 
@@ -19,7 +19,7 @@ namespace Netch.Controllers
 
     public static class ServerControllerExtension
     {
-        public static int Socks5LocalPort(this IServerController controller)
+        public static ushort Socks5LocalPort(this IServerController controller)
         {
             return controller.Socks5LocalPort ?? Global.Settings.Socks5LocalPort;
         }

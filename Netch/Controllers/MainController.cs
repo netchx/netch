@@ -124,7 +124,7 @@ namespace Netch.Controllers
 
         private static async Task<bool> StartMode(Server server, Mode mode)
         {
-            var port = 0;
+            ushort port = 0;
             switch (mode.Type)
             {
                 case 0:
@@ -193,7 +193,7 @@ namespace Netch.Controllers
         /// <param name="portName">端口用途名称</param>
         /// <param name="portType"></param>
         /// <exception cref="PortInUseException"></exception>
-        private static void PortCheckAndShowMessageBox(int port, string portName, PortType portType = PortType.Both)
+        private static void PortCheckAndShowMessageBox(ushort port, string portName, PortType portType = PortType.Both)
         {
             if (PortInUse(port, portType))
             {

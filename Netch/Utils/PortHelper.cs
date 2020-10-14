@@ -8,8 +8,8 @@ namespace Netch.Utils
 {
     public static class PortHelper
     {
-        private static readonly List<int[]> TCPExcludedRanges = new List<int[]>();
-        private static readonly List<int[]> UDPExcludedRanges = new List<int[]>();
+        private static readonly List<ushort[]> TCPExcludedRanges = new List<ushort[]>();
+        private static readonly List<ushort[]> UDPExcludedRanges = new List<ushort[]>();
 
         static PortHelper()
         {
@@ -24,7 +24,7 @@ namespace Netch.Utils
             }
         }
 
-        private static void GetExcludedPortRange(PortType portType, ref List<int[]> targetList)
+        private static void GetExcludedPortRange(PortType portType, ref List<ushort[]> targetList)
         {
             var lines = new List<string>();
             var process = new Process
@@ -63,9 +63,9 @@ namespace Netch.Utils
 
                     var value = line.Trim().Split(' ').Where(s => s != string.Empty);
 
-                    var port = 0;
+                    ushort port = 0;
                     var _ = (from s1 in value
-                        where int.TryParse(s1, out port)
+                        where ushort.TryParse(s1, out port)
                         select port).ToArray();
 
                     targetList.Add(_);
@@ -80,7 +80,7 @@ namespace Netch.Utils
         /// <param name="type">端口类型</param>
         /// <returns>是否是保留端口</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        private static bool IsPortExcluded(int port, PortType type)
+        private static bool IsPortExcluded(ushort port, PortType type)
         {
             return type switch
             {
@@ -97,7 +97,7 @@ namespace Netch.Utils
         /// <param name="port">端口</param>
         /// <param name="type">检查端口类型</param>
         /// <returns>是否被占用</returns>
-        public static bool PortInUse(int port, PortType type = PortType.Both)
+        public static bool PortInUse(ushort port, PortType type = PortType.Both)
         {
             var netInfo = IPGlobalProperties.GetIPGlobalProperties();
             var isTcpUsed = type != PortType.UDP &&
@@ -111,11 +111,12 @@ namespace Netch.Utils
             return isPortExcluded && (isTcpUsed || isUdpUsed);
         }
 
-        public static int GetAvailablePort()
+        public static ushort GetAvailablePort()
         {
-            for (var i = 0; i < 55535; i++)
+            var random = new Random();
+            for (ushort i = 0; i < 55535; i++)
             {
-                var p = new Random().Next(10000, 65535);
+                var p = (ushort) random.Next(10000, 65535);
                 if (!PortInUse(p))
                 {
                     return p;
@@ -128,7 +129,7 @@ namespace Netch.Utils
         /// <summary>
         ///     记录Netch使用的端口
         /// </summary>
-        public static readonly List<int> UsingPorts = new List<int>();
+        public static readonly List<ushort> UsingPorts = new List<ushort>();
     }
 
     /// <summary>

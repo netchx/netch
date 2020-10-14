@@ -132,20 +132,17 @@ namespace Netch.Forms
 
             #region Port
 
-            int socks5LocalPort;
-            int httpLocalPort;
-            int redirectorTCPPort;
+            ushort socks5LocalPort;
+            ushort httpLocalPort;
+            ushort redirectorTCPPort;
             try
             {
-                socks5LocalPort = int.Parse(Socks5PortTextBox.Text);
-                httpLocalPort = int.Parse(HTTPPortTextBox.Text);
-                redirectorTCPPort = int.Parse(RedirectorTextBox.Text);
+                socks5LocalPort = ushort.Parse(Socks5PortTextBox.Text);
+                httpLocalPort = ushort.Parse(HTTPPortTextBox.Text);
+                redirectorTCPPort = ushort.Parse(RedirectorTextBox.Text);
 
-                static void CheckPort(string portName, int port, int originPort, PortType portType = PortType.Both)
+                static void CheckPort(string portName, ushort port, ushort originPort, PortType portType = PortType.Both)
                 {
-                    if (port <= 0 || port > 65536)
-                        throw new FormatException();
-
                     if (port == originPort)
                         return;
 

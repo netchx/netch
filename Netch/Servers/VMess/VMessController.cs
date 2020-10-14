@@ -15,7 +15,7 @@ namespace Netch.Servers.VMess
 
         public override string Name { get; protected set; } = "V2Ray";
         public override string MainFile { get; protected set; } = "v2ray.exe";
-        public int? Socks5LocalPort { get; set; }
+        public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
 

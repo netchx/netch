@@ -116,22 +116,22 @@ namespace Netch.Models
         /// <summary>
         ///		HTTP 本地端口
         /// </summary>
-        public int HTTPLocalPort = 2802;
+        public ushort HTTPLocalPort = 2802;
 
         /// <summary>
         ///		Socks5 本地端口
         /// </summary>
-        public int Socks5LocalPort = 2801;
+        public ushort Socks5LocalPort = 2801;
 
         /// <summary>
         ///		Redirector TCP 占用端口
         /// </summary>
-        public int RedirectorTCPPort = 3901;
+        public ushort RedirectorTCPPort = 3901;
 
         /// <summary>
         ///		UDP Socket 占用端口
         /// </summary>
-        public int UDPSocketPort = 18291;
+        public ushort UDPSocketPort = 18291;
 
         /// <summary>
         ///		HTTP 和 Socks5 本地代理地址
