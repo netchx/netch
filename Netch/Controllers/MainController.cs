@@ -56,7 +56,7 @@ namespace Netch.Controllers
 
             try
             {
-                if (!await StartServer(server, mode))
+                if (!await StartServer(server, mode, ServerController))
                 {
                     throw new StartFailedException();
                 }
@@ -100,22 +100,22 @@ namespace Netch.Controllers
             }
         }
 
-        private static async Task<bool> StartServer(Server server, Mode mode)
+        private static async Task<bool> StartServer(Server server, Mode mode, IServerController controller)
         {
-            ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
+            controller = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
-            if (ServerController is Guard instanceController)
+            if (controller is Guard instanceController)
             {
                 Utils.Utils.KillProcessByName(instanceController.MainFile);
             }
 
-            PortCheckAndShowMessageBox(Global.Settings.Socks5LocalPort, "Socks5");
+            PortCheckAndShowMessageBox(controller.Socks5LocalPort(), "Socks5");
 
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
-            if (await Task.Run(() => ServerController.Start(server, mode)))
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
+            if (await Task.Run(() => controller.Start(server, mode)))
             {
-                UsingPorts.Add(StatusPortInfoText.Socks5Port = Global.Settings.Socks5LocalPort);
-                StatusPortInfoText.ShareLan = Global.Settings.LocalAddress == "0.0.0.0";
+                UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
+                StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";
                 return true;
             }
 
