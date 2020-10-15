@@ -45,7 +45,7 @@ namespace Netch.Controllers
             BinDriver = "bin\\" + fileName;
         }
 
-        public bool Start(Server s, Mode mode)
+        public bool Start(Mode mode)
         {
             Logging.Info("内置驱动版本: " + Utils.Utils.GetFileVersion(BinDriver));
             if (Utils.Utils.GetFileVersion(SystemDriver) != Utils.Utils.GetFileVersion(BinDriver))

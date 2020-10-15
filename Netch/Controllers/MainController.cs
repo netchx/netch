@@ -157,7 +157,7 @@ namespace Netch.Controllers
             }
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-            if (await Task.Run(() => ModeController.Start(server, mode)))
+            if (await Task.Run(() => ModeController.Start(mode)))
             {
                 switch (mode.Type)
                 {

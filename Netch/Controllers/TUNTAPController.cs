@@ -39,7 +39,7 @@ namespace Netch.Controllers
         public override string Name { get; protected set; } = "tun2socks";
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 
-        public bool Start(Server s, Mode mode)
+        public bool Start(Mode mode)
         {
             _savedMode = mode;
             _savedServer = MainController.ServerController.Server;
