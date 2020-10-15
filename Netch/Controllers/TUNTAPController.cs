@@ -42,7 +42,7 @@ namespace Netch.Controllers
         public bool Start(Server s, Mode mode)
         {
             _savedMode = mode;
-            _savedServer = s;
+            _savedServer = MainController.ServerController.Server;
 
             // 查询服务器 IP 地址
             _serverAddresses = DNS.Lookup(_savedServer.Hostname);
@@ -82,8 +82,8 @@ namespace Netch.Controllers
             }
 
             var argument = new StringBuilder();
-            if (s is Socks5 socks5 && !socks5.Auth())
-                argument.Append($"-proxyServer {_serverAddresses}:{s.Port} ");
+            if (_savedServer is Socks5 socks5 && !socks5.Auth())
+                argument.Append($"-proxyServer {_serverAddresses}:{_savedServer.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 

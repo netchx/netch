@@ -32,7 +32,7 @@ namespace Netch.Controllers
 
             try
             {
-                pPrivoxyController.Start(s, mode);
+                pPrivoxyController.Start(MainController.ServerController.Server, mode);
 
                 if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
             }

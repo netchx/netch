@@ -69,7 +69,7 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
 
-            if (s is Socks5 socks5)
+            if (MainController.ServerController.Server is Socks5 socks5)
             {
                 if (!socks5.Auth())
                 {
@@ -78,21 +78,17 @@ namespace Netch.Controllers
                 }
                 else
                 {
-                    /* TODO Direct handled by redirector
-                    aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                    aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                    aio_dial((int) NameList.TYPE_, socks5.Username);
-                    aio_dial((int) NameList.TYPE_, socks5.Password);
-                    */
-                    aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-                    aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                    // TODO Socks5 Auth Direct handled by redirector
+                    aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
+                    aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
                 }
             }
             else
             {
-                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
+                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
             }
+
 
             if (Global.Settings.ModifySystemDNS)
             {

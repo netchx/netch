@@ -11,6 +11,7 @@ namespace Netch.Servers.Shadowsocks
         public override string Name { get; protected set; } = "Shadowsocks";
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
 
+        public Server Server { get; set; }
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
@@ -20,7 +21,7 @@ namespace Netch.Servers.Shadowsocks
         public bool Start(Server s, Mode mode)
         {
             _savedMode = mode;
-
+            Server = s;
             var server = (Shadowsocks) s;
             //从DLL启动Shaowsocks
             if (DllFlag)
