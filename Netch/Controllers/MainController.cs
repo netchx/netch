@@ -12,12 +12,18 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static IServerController ServerController { get; private set; }
+        public static IServerController ServerController
+        {
+            get => _serverController;
+            private set => _serverController = value;
+        }
+
         public static IModeController ModeController { get; private set; }
 
         public static bool NttTested;
 
         private static readonly NTTController NTTController = new NTTController();
+        private static IServerController _serverController;
 
         /// <summary>
         ///     启动
@@ -58,7 +64,7 @@ namespace Netch.Controllers
 
             try
             {
-                if (!await StartServer(server, mode, ServerController))
+                if (!await Task.Run(() => StartServer(server, mode, ref _serverController)))
                 {
                     throw new StartFailedException();
                 }
@@ -102,7 +108,7 @@ namespace Netch.Controllers
             }
         }
 
-        private static async Task<bool> StartServer(Server server, Mode mode, IServerController controller)
+        private static bool StartServer(Server server, Mode mode, ref IServerController controller)
         {
             controller = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
@@ -114,12 +120,11 @@ namespace Netch.Controllers
             PortCheckAndShowMessageBox(controller.Socks5LocalPort(), "Socks5");
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
-            if (await Task.Run(() => controller.Start(server, mode)))
+            if (controller.Start(server, mode))
             {
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
                 StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";
 
-                ServerController = controller;
                 return true;
             }
 
