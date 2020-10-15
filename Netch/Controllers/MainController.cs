@@ -34,6 +34,7 @@ namespace Netch.Controllers
                 return false;
             }
 
+            // 刷新DNS缓存
             NativeMethods.FlushDNSResolverCache();
 
             try
@@ -52,6 +53,7 @@ namespace Netch.Controllers
                 return false;
             }
 
+            // 添加Netch到防火墙
             _ = Task.Run(Firewall.AddNetchFwRules);
 
             try
@@ -116,6 +118,8 @@ namespace Netch.Controllers
             {
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
                 StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";
+
+                ServerController = controller;
                 return true;
             }
 
