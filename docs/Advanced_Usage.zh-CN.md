@@ -206,10 +206,6 @@ ping 的值未必准确，因为这只是你本地到代理服务器而非游戏
 
 如果需要 Steam，Uplay 等启动器也被代理，参照前面的方式对 Steam，Uplay 根目录也进行扫描即可
 
-如果出现了启动失败，或者无法代理成功的情况，请先尝试`选项 - 重启服务`或`选项 - 卸载服务`，或者在退出 Netch 以后，点击运行在 Netch 根目录下的 `DriverUpdater.exe` 程序进行驱动更新
-
-
-
 ## 语言支持
 
 Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
