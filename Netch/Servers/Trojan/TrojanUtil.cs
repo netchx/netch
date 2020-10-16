@@ -85,7 +85,7 @@ namespace Netch.Servers.Trojan
 
                 data.Password = match.Groups["psk"].Value;
                 data.Hostname = match.Groups["server"].Value;
-                data.Port = int.Parse(match.Groups["port"].Value);
+                data.Port = ushort.Parse(match.Groups["port"].Value);
 
                 return new[] {data};
             }

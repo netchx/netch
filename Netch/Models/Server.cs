@@ -34,7 +34,7 @@ namespace Netch.Models
         /// <summary>
         ///     端口
         /// </summary>
-        public int Port;
+        public ushort Port;
 
         /// <summary>
         ///     延迟

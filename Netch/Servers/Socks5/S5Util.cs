@@ -61,7 +61,7 @@ namespace Netch.Servers.Socks5
             var data = new Socks5
             {
                 Hostname = dict["server"],
-                Port = int.Parse(dict["port"])
+                Port = ushort.Parse(dict["port"])
             };
 
             if (dict.ContainsKey("user") && !string.IsNullOrWhiteSpace(dict["user"]))

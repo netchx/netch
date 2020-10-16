@@ -15,7 +15,7 @@ namespace Netch.Servers.VMess.Models
     {
         public string tag { get; set; }
 
-        public int port { get; set; }
+        public ushort port { get; set; }
 
         public string listen { get; set; }
 
@@ -92,7 +92,7 @@ namespace Netch.Servers.VMess.Models
     {
         public string address { get; set; }
 
-        public int port { get; set; }
+        public ushort port { get; set; }
 
         public List<UsersItem> users { get; set; }
     }
@@ -109,7 +109,7 @@ namespace Netch.Servers.VMess.Models
 
         public string password { get; set; }
 
-        public int port { get; set; }
+        public ushort port { get; set; }
 
         public int level { get; set; }
 

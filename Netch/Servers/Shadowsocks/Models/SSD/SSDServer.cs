@@ -10,7 +10,7 @@
         /// <summary>
         ///     端口
         /// </summary>
-        public int port;
+        public ushort port;
 
         /// <summary>
         ///     加密方式
