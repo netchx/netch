@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Netch.Controllers;
+using Netch.Forms;
 using Netch.Models;
 
 namespace Netch.Utils
@@ -131,6 +133,38 @@ namespace Netch.Utils
 
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
+        }
+
+        public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)
+        {
+            IModeController modeController;
+            port = null;
+            portName = string.Empty;
+            portType = PortType.Both;
+            switch (type)
+            {
+                case 0:
+                    modeController = new NFController();
+                    port = Global.Settings.RedirectorTCPPort;
+                    portName = "Redirector TCP";
+                    break;
+                case 1:
+                case 2:
+                    modeController = new TUNTAPController();
+                    break;
+                case 3:
+                case 5:
+                    modeController = new HTTPController();
+                    port = Global.Settings.HTTPLocalPort;
+                    portName = "HTTP";
+                    MainForm.StatusPortInfoText.HttpPort = (ushort) port;
+                    break;
+                default:
+                    Logging.Error("未知模式类型");
+                    throw new StartFailedException();
+            }
+
+            return modeController;
         }
     }
 }

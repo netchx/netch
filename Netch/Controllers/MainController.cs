@@ -133,45 +133,20 @@ namespace Netch.Controllers
 
         private static async Task<bool> StartMode(Server server, Mode mode)
         {
-            ushort port = 0;
-            switch (mode.Type)
+            ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName, out var portType);
+            if (port != null)
             {
-                case 0:
-                    ModeController = new NFController();
-                    PortCheckAndShowMessageBox(port = Global.Settings.RedirectorTCPPort, "Redirector TCP");
-                    break;
-                case 1:
-                case 2:
-                    ModeController = new TUNTAPController();
-                    break;
-                case 3:
-                case 5:
-                    ModeController = new HTTPController();
-                    PortCheckAndShowMessageBox(port = Global.Settings.HTTPLocalPort, "HTTP");
-                    break;
-                case 4:
-                    return true;
-                default:
-                    Logging.Error("未知模式类型");
-                    return false;
+                PortCheckAndShowMessageBox((ushort) port, portName, portType);
+                UsingPorts.Add((ushort) port);
             }
 
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-            if (await Task.Run(() => ModeController.Start(mode)))
+            if (ModeController != null)
             {
-                switch (mode.Type)
-                {
-                    case 3:
-                    case 5:
-                        StatusPortInfoText.HttpPort = port;
-                        break;
-                }
-
-                UsingPorts.Add(port);
-                return true;
+                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                return await Task.Run(() => ModeController.Start(mode));
             }
 
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -180,6 +155,7 @@ namespace Netch.Controllers
         public static async Task Stop()
         {
             UsingPorts.Clear();
+            StatusPortInfoText.Reset();
 
             _ = Task.Run(() => NTTController.Stop());
 
