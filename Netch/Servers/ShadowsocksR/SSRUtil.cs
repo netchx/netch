@@ -17,7 +17,7 @@ namespace Netch.Servers.ShadowsocksR
         public string ShortName { get; } = "SR";
         public string[] UriScheme { get; } = {"ssr"};
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<ShadowsocksR>();
         }

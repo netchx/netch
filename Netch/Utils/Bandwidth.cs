@@ -53,7 +53,7 @@ namespace Netch.Utils
         /// <summary>
         /// 根据程序名统计流量
         /// </summary>
-        public static void NetTraffic(Server server, Mode mode)
+        public static void NetTraffic(in Server server, in Mode mode)
         {
             if (!Global.Flags.IsWindows10Upper)
                 return;

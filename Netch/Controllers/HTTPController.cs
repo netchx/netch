@@ -25,7 +25,7 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(Mode mode)
+        public bool Start(in Mode mode)
         {
             RecordPrevious();
 

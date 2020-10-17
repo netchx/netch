@@ -9,6 +9,6 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="mode">模式</param>
         /// <returns>是否成功</returns>
-        public abstract bool Start(Mode mode);
+        public abstract bool Start(in Mode mode);
     }
 }

@@ -18,7 +18,7 @@ namespace Netch.Servers.Shadowsocks
         private Mode _savedMode;
         public bool DllFlag => Global.Settings.BootShadowsocksFromDLL && (_savedMode.Type == 0 || _savedMode.Type == 1 || _savedMode.Type == 2);
 
-        public bool Start(Server s, Mode mode)
+        public bool Start(in Server s, in Mode mode)
         {
             _savedMode = mode;
             Server = s;

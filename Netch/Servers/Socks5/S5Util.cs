@@ -15,7 +15,7 @@ namespace Netch.Servers.Socks5
         public string ShortName { get; } = "S5";
         public string[] UriScheme { get; } = { };
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<Socks5>();
         }

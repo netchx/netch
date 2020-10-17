@@ -13,7 +13,7 @@ namespace Netch.Servers.VLESS
         public string ShortName { get; } = "VL";
         public string[] UriScheme { get; } = { };
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<VLESS>();
         }

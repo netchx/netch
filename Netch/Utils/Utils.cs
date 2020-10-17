@@ -197,7 +197,7 @@ namespace Netch.Utils
             }
         }
 
-        public static void ComponentIterator(Component component, Action<Component> func)
+        public static void ComponentIterator(in Component component, in Action<Component> func)
         {
             func.Invoke(component);
             switch (component)

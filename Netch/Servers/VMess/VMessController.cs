@@ -20,7 +20,7 @@ namespace Netch.Servers.VMess
         public string LocalAddress { get; set; }
 
 
-        public bool Start(Server s, Mode mode)
+        public  bool Start(in Server s,in Mode mode)
         {
             Server = s;
             File.WriteAllText("data\\last.json", V2rayConfigUtils.GenerateClientConfig(s, mode));

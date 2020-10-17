@@ -45,7 +45,7 @@ namespace Netch.Controllers
             BinDriver = "bin\\" + fileName;
         }
 
-        public bool Start(Mode mode)
+        public bool Start(in Mode mode)
         {
             Logging.Info("内置驱动版本: " + Utils.Utils.GetFileVersion(BinDriver));
             if (Utils.Utils.GetFileVersion(SystemDriver) != Utils.Utils.GetFileVersion(BinDriver))
@@ -80,7 +80,7 @@ namespace Netch.Controllers
             return aio_init();
         }
 
-        private void SetServer(IServerController controller, PortType portType)
+        private void SetServer(in IServerController controller, in PortType portType)
         {
             if (portType == PortType.Both)
             {

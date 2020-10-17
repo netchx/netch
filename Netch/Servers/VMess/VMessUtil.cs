@@ -18,7 +18,7 @@ namespace Netch.Servers.VMess
         public string ShortName { get; } = "V2";
         public string[] UriScheme { get; } = {"vmess"};
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<VMess>();
         }

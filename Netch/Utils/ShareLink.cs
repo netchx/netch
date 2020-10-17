@@ -149,7 +149,7 @@ namespace Netch.Utils
             return list;
         }
 
-        private static IEnumerable<Server> ParseUri(string text)
+        private static IEnumerable<Server> ParseUri(in string text)
         {
             var list = new List<Server>();
 

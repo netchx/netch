@@ -10,7 +10,7 @@ namespace Netch.Servers.Socks5
         public override string Name { get; protected set; } = "Socks5";
         public override string MainFile { get; protected set; } = "v2ray.exe";
 
-        public bool Start(Server s, Mode mode)
+        public bool Start(in Server s, in Mode mode)
         {
             Server = s;
             var server = (Socks5) s;

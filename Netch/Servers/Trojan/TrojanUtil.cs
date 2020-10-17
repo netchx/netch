@@ -17,7 +17,7 @@ namespace Netch.Servers.Trojan
         public string ShortName { get; } = "TR";
         public string[] UriScheme { get; } = {"trojan"};
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<Trojan>();
         }

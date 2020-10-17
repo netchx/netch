@@ -120,7 +120,7 @@ namespace Netch.Controllers
             PortCheckAndShowMessageBox(controller.Socks5LocalPort(), "Socks5");
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
-            if (controller.Start(server, mode))
+            if (controller.Start(in server, mode))
             {
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
                 StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";

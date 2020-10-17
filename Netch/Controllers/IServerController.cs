@@ -13,10 +13,10 @@ namespace Netch.Controllers
         /// <summary>
         ///     启动
         /// </summary>
-        /// <param name="server">服务器</param>
+        /// <param name="s">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public abstract bool Start(Server server, Mode mode);
+        public abstract bool Start(in Server s, in Mode mode);
     }
 
     public static class ServerControllerExtension

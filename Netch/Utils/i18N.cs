@@ -106,7 +106,7 @@ namespace Netch.Utils
             return translateFile;
         }
 
-        public static void TranslateForm(Control c)
+        public static void TranslateForm(in Control c)
         {
             Utils.ComponentIterator(c, component =>
             {

@@ -28,7 +28,7 @@ namespace Netch.Models
         /// </summary>
         string[] UriScheme { get; }
 
-        Server ParseJObject(JObject j);
+        Server ParseJObject(in JObject j);
 
         public void Edit(Server s);
 

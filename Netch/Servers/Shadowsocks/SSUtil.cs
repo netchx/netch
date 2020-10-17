@@ -21,7 +21,7 @@ namespace Netch.Servers.Shadowsocks
         public string ShortName { get; } = "SS";
         public string[] UriScheme { get; } = {"ss", "ssd"};
 
-        public Server ParseJObject(JObject j)
+        public Server ParseJObject(in JObject j)
         {
             return j.ToObject<Shadowsocks>();
         }
