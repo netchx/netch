@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Windows.Forms;
-using Netch.Servers.ShadowsocksR.Form;
 using Netch.Servers.ShadowsocksR;
 using Netch.Servers.VMess;
 using Netch.Servers.VMess.Form;
