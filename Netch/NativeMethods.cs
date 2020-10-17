@@ -2,18 +2,6 @@
 
 namespace Netch
 {
-    public enum NameList : int
-    {
-        TYPE_FILTERLOOPBACK,
-        TYPE_FILTERTCP,
-        TYPE_FILTERUDP,
-        TYPE_TCPHOST,
-        TYPE_UDPHOST,
-        TYPE_ADDNAME,
-        TYPE_BYPNAME,
-        TYPE_CLRNAME
-    }
-
     public static class NativeMethods
     {
         /// <summary>

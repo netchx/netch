@@ -35,7 +35,7 @@ namespace Netch.Models
 
         public bool SupportSocks5Auth => Type switch
         {
-            0 => false,
+            0 => true,
             _ => false
         };
 

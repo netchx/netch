@@ -61,34 +61,14 @@ namespace Netch.Controllers
                     return false;
             }
 
-            aio_dial((int) NameList.TYPE_CLRNAME, "");
-            foreach (var rule in mode.FullRule)
-            {
-                aio_dial((int) NameList.TYPE_ADDNAME, rule);
-            }
+            aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
+            aio_dial((int) NameList.TYPE_FILTERTCP, "true");
+            aio_dial((int) NameList.TYPE_FILTERUDP, "true");
+            aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
 
-            aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
+            SetServer(MainController.ServerController, PortType.Both);
 
-            if (MainController.ServerController.Server is Socks5 socks5)
-            {
-                if (!socks5.Auth())
-                {
-                    aio_dial((int) NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                    aio_dial((int) NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                }
-                else
-                {
-                    // TODO Socks5 Auth Direct handled by redirector
-                    aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
-                    aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
-                }
-            }
-            else
-            {
-                aio_dial((int) NameList.TYPE_TCPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
-                aio_dial((int) NameList.TYPE_UDPHOST, $"127.0.0.1:{MainController.ServerController.Socks5LocalPort()}");
-            }
-
+            SetName(mode);
 
             if (Global.Settings.ModifySystemDNS)
             {
@@ -98,6 +78,46 @@ namespace Netch.Controllers
             }
 
             return aio_init();
+        }
+
+        private void SetServer(IServerController controller, PortType portType)
+        {
+            if (portType == PortType.Both)
+            {
+                SetServer(controller, PortType.TCP);
+                SetServer(controller, PortType.UDP);
+                return;
+            }
+
+            var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
+
+            aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
+
+            if (controller.Server is Socks5 socks5)
+            {
+                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                aio_dial((int) NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
+                aio_dial((int) NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
+            }
+            else
+            {
+                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"127.0.0.1:{controller.Socks5LocalPort()}");
+                aio_dial((int) NameList.TYPE_TCPUSER + offset, string.Empty);
+                aio_dial((int) NameList.TYPE_TCPPASS + offset, string.Empty);
+            }
+
+            aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
+        }
+
+        private void SetName(Mode mode)
+        {
+            aio_dial((int) NameList.TYPE_CLRNAME, "");
+            foreach (var rule in mode.FullRule)
+            {
+                aio_dial((int) NameList.TYPE_ADDNAME, rule);
+            }
+
+            aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
         }
 
         public void Stop()
@@ -114,6 +134,8 @@ namespace Netch.Controllers
 
         #region NativeMethods
 
+        private const int UdpNameListOffset = (int) NameList.TYPE_UDPTYPE - (int) NameList.TYPE_TCPTYPE;
+
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
@@ -128,6 +150,28 @@ namespace Netch.Controllers
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong aio_getDL();
+
+
+        public enum NameList : int
+        {
+            TYPE_FILTERLOOPBACK,
+            TYPE_FILTERTCP,
+            TYPE_FILTERUDP,
+            TYPE_TCPLISN,
+            TYPE_TCPTYPE,
+            TYPE_TCPHOST,
+            TYPE_TCPUSER,
+            TYPE_TCPPASS,
+            TYPE_TCPMETH,
+            TYPE_UDPTYPE,
+            TYPE_UDPHOST,
+            TYPE_UDPUSER,
+            TYPE_UDPPASS,
+            TYPE_UDPMETH,
+            TYPE_ADDNAME,
+            TYPE_BYPNAME,
+            TYPE_CLRNAME
+        }
 
         #endregion
 
