@@ -110,9 +110,9 @@ namespace Netch.Controllers
             Task.WaitAll(tasks);
         }
 
-        private readonly List<IPNetwork> _directIPs = new List<IPNetwork>();
+        private readonly List<string> _directIPs = new List<string>();
 
-        private readonly List<IPNetwork> _proxyIPs = new List<IPNetwork>();
+        private readonly List<string> _proxyIPs = new List<string>();
 
         /// <summary>
         ///     设置绕行规则
@@ -129,7 +129,7 @@ namespace Netch.Controllers
             {
                 // 代理规则
                 Logging.Info("代理 → 规则 IP");
-                RouteAction(Action.Create, _savedMode.FullRule.Select(IPNetwork.Parse), RouteType.TUNTAP);
+                RouteAction(Action.Create, _savedMode.FullRule, RouteType.TUNTAP);
 
                 //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
                 if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
@@ -142,7 +142,7 @@ namespace Netch.Controllers
                             {
                                 Dns.GetHostAddresses(Global.Settings.STUN_Server)[0],
                                 Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0]
-                            }.Select(ip => IPNetwork.Parse(ip.ToString(), 32)),
+                            }.Select(ip => $"{ip}/32"),
                             RouteType.TUNTAP);
                     }
                     catch
@@ -157,13 +157,13 @@ namespace Netch.Controllers
                     if (Global.Settings.TUNTAP.UseCustomDNS)
                     {
                         RouteAction(Action.Create,
-                            Global.Settings.TUNTAP.DNS.Select(ip => IPNetwork.Parse(ip, 32)),
+                            Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"),
                             RouteType.TUNTAP);
                     }
                     else
                     {
                         RouteAction(Action.Create,
-                            new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => IPNetwork.Parse(ip, 32)),
+                            new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
                             RouteType.TUNTAP);
                     }
                 }
@@ -184,23 +184,23 @@ namespace Netch.Controllers
                 );
 
                 Logging.Info("绕行 → 规则 IP");
-                RouteAction(Action.Create, _savedMode.FullRule.Select(IPNetwork.Parse), RouteType.Outbound);
+                RouteAction(Action.Create, _savedMode.FullRule, RouteType.Outbound);
             }
 
             #endregion
 
             Logging.Info("绕行 → 服务器 IP");
             if (!IPAddress.IsLoopback(_serverAddresses))
-                RouteAction(Action.Create, IPNetwork.Parse(_serverAddresses.ToString(), 32), RouteType.Outbound);
+                RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
 
             Logging.Info("绕行 → 全局绕过 IP");
-            RouteAction(Action.Create, Global.Settings.BypassIPs.Select(IPNetwork.Parse), RouteType.Outbound);
+            RouteAction(Action.Create, Global.Settings.BypassIPs, RouteType.Outbound);
 
             if (_savedMode.Type == 2)
             {
                 // 绕过规则
                 Logging.Info("代理 → 全局");
-                RouteAction(Action.Create, IPNetwork.Parse("0.0.0.0", 0), RouteType.TUNTAP);
+                RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP);
             }
         }
 
@@ -320,7 +320,7 @@ namespace Netch.Controllers
             Delete
         }
 
-        private void RouteAction(Action action, IEnumerable<IPNetwork> ipNetworks, RouteType routeType,
+        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType,
             int metric = 0)
         {
             foreach (var address in ipNetworks)
@@ -329,7 +329,7 @@ namespace Netch.Controllers
             }
         }
 
-        private bool RouteAction(Action action, IPNetwork ipNetwork, RouteType routeType, int metric = 0)
+        private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0)
         {
             string gateway;
             int index;
@@ -347,12 +347,26 @@ namespace Netch.Controllers
                     throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null);
             }
 
+            string network;
+            ushort cidr;
+            try
+            {
+                var s = ipNetwork.Split('/');
+                network = s[0];
+                cidr = ushort.Parse(s[1]);
+            }
+            catch
+            {
+                Logging.Warning($"Failed to parse rule {ipNetwork}");
+                return false;
+            }
+
             bool result;
             switch (action)
             {
                 case Action.Create:
                 {
-                    result = NativeMethods.CreateRoute(ipNetwork.Network.ToString(), ipNetwork.Cidr, gateway, index, metric);
+                    result = NativeMethods.CreateRoute(network, cidr, gateway, index, metric);
                     switch (routeType)
                     {
                         case RouteType.Outbound:
@@ -366,7 +380,7 @@ namespace Netch.Controllers
                     break;
                 }
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute(ipNetwork.Network.ToString(), ipNetwork.Cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute(network, cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
