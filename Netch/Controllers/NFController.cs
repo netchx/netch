@@ -47,12 +47,16 @@ namespace Netch.Controllers
 
         public bool Start(in Mode mode)
         {
-            Logging.Info("内置驱动版本: " + Utils.Utils.GetFileVersion(BinDriver));
-            if (Utils.Utils.GetFileVersion(SystemDriver) != Utils.Utils.GetFileVersion(BinDriver))
+            var binFileVersion = Utils.Utils.GetFileVersion(BinDriver);
+            var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
+
+            Logging.Info("内置驱动版本: " + binFileVersion);
+            Logging.Info("系统驱动版本: " + systemFileVersion);
+
+            if (!systemFileVersion.Equals(binFileVersion))
             {
                 if (File.Exists(SystemDriver))
                 {
-                    Logging.Info("系统驱动版本: " + Utils.Utils.GetFileVersion(SystemDriver));
                     Logging.Info("更新驱动");
                     UninstallDriver();
                 }
