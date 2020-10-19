@@ -54,11 +54,17 @@ namespace Netch.Controllers
             }
 
             // 查找并安装 TAP 适配器
-            if (!SearchTapAdapter() && !AddTap())
+            if (!SearchTapAdapter())
             {
-                Logging.Error("Tap 适配器安装失败");
-                return false;
+                if (!AddTap())
+                {
+                    Logging.Error("Tap 适配器安装失败");
+                    return false;
+                }
+
+                SearchTapAdapter();
             }
+
 
             SetupRouteTable();
 
