@@ -64,10 +64,8 @@ namespace Netch.Forms
             // 隐藏 NatTypeStatusLabel
             NatTypeStatusText();
 
-            _sizeHeight = Size.Height;
             _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
             _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
-            _profileGroupboxHeight = ProfileGroupBox.Height;
             // 加载快速配置
             InitProfile();
 
