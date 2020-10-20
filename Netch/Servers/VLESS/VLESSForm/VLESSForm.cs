@@ -41,6 +41,9 @@ namespace Netch.Servers.VLESS.VLESSForm
             CreateCheckBox("TLSSecure", "TLS Secure",
                 b => server.TLSSecure = b,
                 server.TLSSecure);
+            CreateCheckBox("UseMux", "Use Mux",
+                b => server.UseMux = b,
+                server.UseMux);
         }
     }
 }
