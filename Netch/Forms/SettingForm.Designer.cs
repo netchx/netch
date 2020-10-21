@@ -34,6 +34,17 @@ namespace Netch.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.TabControl = new System.Windows.Forms.TabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
+            this.LanguageLabel = new System.Windows.Forms.Label();
+            this.LanguageComboBox = new System.Windows.Forms.ComboBox();
+            this.AclAddrTextBox = new System.Windows.Forms.TextBox();
+            this.AclLabel = new System.Windows.Forms.Label();
+            this.DetectionIntervalLabel = new System.Windows.Forms.Label();
+            this.DetectionIntervalTextBox = new System.Windows.Forms.TextBox();
+            this.TcpingAtStartedCheckBox = new System.Windows.Forms.CheckBox();
+            this.STUNServerLabel = new System.Windows.Forms.Label();
+            this.STUN_ServerComboBox = new System.Windows.Forms.ComboBox();
+            this.ProfileCountLabel = new System.Windows.Forms.Label();
+            this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.RedirectorLabel = new System.Windows.Forms.Label();
             this.RedirectorTextBox = new System.Windows.Forms.TextBox();
@@ -62,8 +73,21 @@ namespace Netch.Forms
             this.TUNTAPAddressLabel = new System.Windows.Forms.Label();
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
-            this.ControlButton = new System.Windows.Forms.Button();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.KCPGroupBox = new System.Windows.Forms.GroupBox();
+            this.mtuLabel = new System.Windows.Forms.Label();
+            this.mtuTextBox = new System.Windows.Forms.TextBox();
+            this.ttiLabel = new System.Windows.Forms.Label();
+            this.ttiTextBox = new System.Windows.Forms.TextBox();
+            this.uplinkCapacityLabel = new System.Windows.Forms.Label();
+            this.uplinkCapacityTextBox = new System.Windows.Forms.TextBox();
+            this.downlinkCapacityLabel = new System.Windows.Forms.Label();
+            this.downlinkCapacityTextBox = new System.Windows.Forms.TextBox();
+            this.readBufferSizeLabel = new System.Windows.Forms.Label();
+            this.readBufferSizeTextBox = new System.Windows.Forms.TextBox();
+            this.writeBufferSizeLabel = new System.Windows.Forms.Label();
+            this.writeBufferSizeTextBox = new System.Windows.Forms.TextBox();
+            this.congestionCheckBox = new System.Windows.Forms.CheckBox();
+            this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.OtherTabPage = new System.Windows.Forms.TabPage();
             this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
@@ -73,25 +97,18 @@ namespace Netch.Forms
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
-            this.LanguageLabel = new System.Windows.Forms.Label();
-            this.LanguageComboBox = new System.Windows.Forms.ComboBox();
-            this.AclAddrTextBox = new System.Windows.Forms.TextBox();
-            this.AclLabel = new System.Windows.Forms.Label();
-            this.DetectionIntervalLabel = new System.Windows.Forms.Label();
-            this.DetectionIntervalTextBox = new System.Windows.Forms.TextBox();
-            this.TcpingAtStartedCheckBox = new System.Windows.Forms.CheckBox();
-            this.STUNServerLabel = new System.Windows.Forms.Label();
-            this.STUN_ServerComboBox = new System.Windows.Forms.ComboBox();
-            this.ProfileCountLabel = new System.Windows.Forms.Label();
-            this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
+            this.ControlButton = new System.Windows.Forms.Button();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
             this.NFTabPage.SuspendLayout();
             this.TAPTabPage.SuspendLayout();
             this.TUNTAPGroupBox.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
+            this.v2rayTabPage.SuspendLayout();
+            this.KCPGroupBox.SuspendLayout();
             this.OtherTabPage.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -131,6 +148,103 @@ namespace Netch.Forms
             this.GeneralTabPage.Size = new System.Drawing.Size(461, 325);
             this.GeneralTabPage.TabIndex = 0;
             this.GeneralTabPage.Text = "General";
+            // 
+            // LanguageLabel
+            // 
+            this.LanguageLabel.AutoSize = true;
+            this.LanguageLabel.Location = new System.Drawing.Point(12, 277);
+            this.LanguageLabel.Name = "LanguageLabel";
+            this.LanguageLabel.Size = new System.Drawing.Size(53, 12);
+            this.LanguageLabel.TabIndex = 34;
+            this.LanguageLabel.Text = "Language";
+            // 
+            // LanguageComboBox
+            // 
+            this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.LanguageComboBox.FormattingEnabled = true;
+            this.LanguageComboBox.Location = new System.Drawing.Point(120, 274);
+            this.LanguageComboBox.Name = "LanguageComboBox";
+            this.LanguageComboBox.Size = new System.Drawing.Size(121, 20);
+            this.LanguageComboBox.TabIndex = 33;
+            // 
+            // AclAddrTextBox
+            // 
+            this.AclAddrTextBox.Location = new System.Drawing.Point(120, 245);
+            this.AclAddrTextBox.Name = "AclAddrTextBox";
+            this.AclAddrTextBox.Size = new System.Drawing.Size(315, 21);
+            this.AclAddrTextBox.TabIndex = 31;
+            this.AclAddrTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // AclLabel
+            // 
+            this.AclLabel.AutoSize = true;
+            this.AclLabel.Location = new System.Drawing.Point(12, 248);
+            this.AclLabel.Name = "AclLabel";
+            this.AclLabel.Size = new System.Drawing.Size(65, 12);
+            this.AclLabel.TabIndex = 32;
+            this.AclLabel.Text = "Custom ACL";
+            // 
+            // DetectionIntervalLabel
+            // 
+            this.DetectionIntervalLabel.AutoSize = true;
+            this.DetectionIntervalLabel.Location = new System.Drawing.Point(228, 187);
+            this.DetectionIntervalLabel.Name = "DetectionIntervalLabel";
+            this.DetectionIntervalLabel.Size = new System.Drawing.Size(143, 12);
+            this.DetectionIntervalLabel.TabIndex = 30;
+            this.DetectionIntervalLabel.Text = "Detection interval(sec)";
+            // 
+            // DetectionIntervalTextBox
+            // 
+            this.DetectionIntervalTextBox.Location = new System.Drawing.Point(366, 184);
+            this.DetectionIntervalTextBox.Name = "DetectionIntervalTextBox";
+            this.DetectionIntervalTextBox.Size = new System.Drawing.Size(68, 21);
+            this.DetectionIntervalTextBox.TabIndex = 29;
+            this.DetectionIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // TcpingAtStartedCheckBox
+            // 
+            this.TcpingAtStartedCheckBox.AutoSize = true;
+            this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 186);
+            this.TcpingAtStartedCheckBox.Name = "TcpingAtStartedCheckBox";
+            this.TcpingAtStartedCheckBox.Size = new System.Drawing.Size(156, 16);
+            this.TcpingAtStartedCheckBox.TabIndex = 28;
+            this.TcpingAtStartedCheckBox.TabStop = false;
+            this.TcpingAtStartedCheckBox.Text = "Delay test after start";
+            this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // STUNServerLabel
+            // 
+            this.STUNServerLabel.AutoSize = true;
+            this.STUNServerLabel.Location = new System.Drawing.Point(12, 216);
+            this.STUNServerLabel.Name = "STUNServerLabel";
+            this.STUNServerLabel.Size = new System.Drawing.Size(71, 12);
+            this.STUNServerLabel.TabIndex = 26;
+            this.STUNServerLabel.Text = "STUN Server";
+            // 
+            // STUN_ServerComboBox
+            // 
+            this.STUN_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.STUN_ServerComboBox.Location = new System.Drawing.Point(120, 213);
+            this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
+            this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 20);
+            this.STUN_ServerComboBox.TabIndex = 27;
+            // 
+            // ProfileCountLabel
+            // 
+            this.ProfileCountLabel.AutoSize = true;
+            this.ProfileCountLabel.Location = new System.Drawing.Point(12, 160);
+            this.ProfileCountLabel.Name = "ProfileCountLabel";
+            this.ProfileCountLabel.Size = new System.Drawing.Size(77, 12);
+            this.ProfileCountLabel.TabIndex = 24;
+            this.ProfileCountLabel.Text = "ProfileCount";
+            // 
+            // ProfileCountTextBox
+            // 
+            this.ProfileCountTextBox.Location = new System.Drawing.Point(120, 157);
+            this.ProfileCountTextBox.Name = "ProfileCountTextBox";
+            this.ProfileCountTextBox.Size = new System.Drawing.Size(90, 21);
+            this.ProfileCountTextBox.TabIndex = 25;
+            this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // PortGroupBox
             // 
@@ -409,6 +523,8 @@ namespace Netch.Forms
             // v2rayTabPage
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
+            this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 25);
             this.v2rayTabPage.Name = "v2rayTabPage";
             this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -416,29 +532,149 @@ namespace Netch.Forms
             this.v2rayTabPage.TabIndex = 3;
             this.v2rayTabPage.Text = "V2Ray";
             // 
-            // ControlButton
+            // KCPGroupBox
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(397, 363);
-            this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
-            this.ControlButton.TabIndex = 12;
-            this.ControlButton.Text = "Save";
-            this.ControlButton.UseVisualStyleBackColor = true;
-            this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
+            this.KCPGroupBox.Controls.Add(this.mtuLabel);
+            this.KCPGroupBox.Controls.Add(this.mtuTextBox);
+            this.KCPGroupBox.Controls.Add(this.ttiLabel);
+            this.KCPGroupBox.Controls.Add(this.ttiTextBox);
+            this.KCPGroupBox.Controls.Add(this.uplinkCapacityLabel);
+            this.KCPGroupBox.Controls.Add(this.uplinkCapacityTextBox);
+            this.KCPGroupBox.Controls.Add(this.downlinkCapacityLabel);
+            this.KCPGroupBox.Controls.Add(this.downlinkCapacityTextBox);
+            this.KCPGroupBox.Controls.Add(this.readBufferSizeLabel);
+            this.KCPGroupBox.Controls.Add(this.readBufferSizeTextBox);
+            this.KCPGroupBox.Controls.Add(this.writeBufferSizeLabel);
+            this.KCPGroupBox.Controls.Add(this.writeBufferSizeTextBox);
+            this.KCPGroupBox.Controls.Add(this.congestionCheckBox);
+            this.KCPGroupBox.Location = new System.Drawing.Point(9, 48);
+            this.KCPGroupBox.Name = "KCPGroupBox";
+            this.KCPGroupBox.Size = new System.Drawing.Size(427, 204);
+            this.KCPGroupBox.TabIndex = 1;
+            this.KCPGroupBox.TabStop = false;
+            this.KCPGroupBox.Text = "KCP";
             // 
-            // flowLayoutPanel1
+            // mtuLabel
             // 
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.TabControl);
-            this.flowLayoutPanel1.Controls.Add(this.ControlButton);
-            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
-            this.flowLayoutPanel1.TabIndex = 13;
+            this.mtuLabel.AutoSize = true;
+            this.mtuLabel.Location = new System.Drawing.Point(6, 26);
+            this.mtuLabel.Name = "mtuLabel";
+            this.mtuLabel.Size = new System.Drawing.Size(23, 12);
+            this.mtuLabel.TabIndex = 2;
+            this.mtuLabel.Text = "mtu";
+            // 
+            // mtuTextBox
+            // 
+            this.mtuTextBox.Location = new System.Drawing.Point(103, 17);
+            this.mtuTextBox.Name = "mtuTextBox";
+            this.mtuTextBox.Size = new System.Drawing.Size(90, 21);
+            this.mtuTextBox.TabIndex = 3;
+            this.mtuTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // ttiLabel
+            // 
+            this.ttiLabel.AutoSize = true;
+            this.ttiLabel.Location = new System.Drawing.Point(224, 26);
+            this.ttiLabel.Name = "ttiLabel";
+            this.ttiLabel.Size = new System.Drawing.Size(23, 12);
+            this.ttiLabel.TabIndex = 4;
+            this.ttiLabel.Text = "tti";
+            // 
+            // ttiTextBox
+            // 
+            this.ttiTextBox.Location = new System.Drawing.Point(331, 17);
+            this.ttiTextBox.Name = "ttiTextBox";
+            this.ttiTextBox.Size = new System.Drawing.Size(90, 21);
+            this.ttiTextBox.TabIndex = 5;
+            this.ttiTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // uplinkCapacityLabel
+            // 
+            this.uplinkCapacityLabel.AutoSize = true;
+            this.uplinkCapacityLabel.Location = new System.Drawing.Point(6, 68);
+            this.uplinkCapacityLabel.Name = "uplinkCapacityLabel";
+            this.uplinkCapacityLabel.Size = new System.Drawing.Size(89, 12);
+            this.uplinkCapacityLabel.TabIndex = 6;
+            this.uplinkCapacityLabel.Text = "uplinkCapacity";
+            // 
+            // uplinkCapacityTextBox
+            // 
+            this.uplinkCapacityTextBox.Location = new System.Drawing.Point(103, 59);
+            this.uplinkCapacityTextBox.Name = "uplinkCapacityTextBox";
+            this.uplinkCapacityTextBox.Size = new System.Drawing.Size(90, 21);
+            this.uplinkCapacityTextBox.TabIndex = 7;
+            this.uplinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // downlinkCapacityLabel
+            // 
+            this.downlinkCapacityLabel.AutoSize = true;
+            this.downlinkCapacityLabel.Location = new System.Drawing.Point(224, 68);
+            this.downlinkCapacityLabel.Name = "downlinkCapacityLabel";
+            this.downlinkCapacityLabel.Size = new System.Drawing.Size(101, 12);
+            this.downlinkCapacityLabel.TabIndex = 8;
+            this.downlinkCapacityLabel.Text = "downlinkCapacity";
+            // 
+            // downlinkCapacityTextBox
+            // 
+            this.downlinkCapacityTextBox.Location = new System.Drawing.Point(331, 65);
+            this.downlinkCapacityTextBox.Name = "downlinkCapacityTextBox";
+            this.downlinkCapacityTextBox.Size = new System.Drawing.Size(90, 21);
+            this.downlinkCapacityTextBox.TabIndex = 9;
+            this.downlinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // readBufferSizeLabel
+            // 
+            this.readBufferSizeLabel.AutoSize = true;
+            this.readBufferSizeLabel.Location = new System.Drawing.Point(6, 109);
+            this.readBufferSizeLabel.Name = "readBufferSizeLabel";
+            this.readBufferSizeLabel.Size = new System.Drawing.Size(89, 12);
+            this.readBufferSizeLabel.TabIndex = 10;
+            this.readBufferSizeLabel.Text = "readBufferSize";
+            // 
+            // readBufferSizeTextBox
+            // 
+            this.readBufferSizeTextBox.Location = new System.Drawing.Point(103, 100);
+            this.readBufferSizeTextBox.Name = "readBufferSizeTextBox";
+            this.readBufferSizeTextBox.Size = new System.Drawing.Size(90, 21);
+            this.readBufferSizeTextBox.TabIndex = 11;
+            this.readBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // writeBufferSizeLabel
+            // 
+            this.writeBufferSizeLabel.AutoSize = true;
+            this.writeBufferSizeLabel.Location = new System.Drawing.Point(224, 109);
+            this.writeBufferSizeLabel.Name = "writeBufferSizeLabel";
+            this.writeBufferSizeLabel.Size = new System.Drawing.Size(95, 12);
+            this.writeBufferSizeLabel.TabIndex = 12;
+            this.writeBufferSizeLabel.Text = "writeBufferSize";
+            // 
+            // writeBufferSizeTextBox
+            // 
+            this.writeBufferSizeTextBox.Location = new System.Drawing.Point(331, 106);
+            this.writeBufferSizeTextBox.Name = "writeBufferSizeTextBox";
+            this.writeBufferSizeTextBox.Size = new System.Drawing.Size(90, 21);
+            this.writeBufferSizeTextBox.TabIndex = 13;
+            this.writeBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // congestionCheckBox
+            // 
+            this.congestionCheckBox.AutoSize = true;
+            this.congestionCheckBox.Location = new System.Drawing.Point(8, 139);
+            this.congestionCheckBox.Name = "congestionCheckBox";
+            this.congestionCheckBox.Size = new System.Drawing.Size(84, 16);
+            this.congestionCheckBox.TabIndex = 0;
+            this.congestionCheckBox.Text = "congestion";
+            this.congestionCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // TLSAllowInsecureCheckBox
+            // 
+            this.TLSAllowInsecureCheckBox.AutoSize = true;
+            this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
+            this.TLSAllowInsecureCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.TLSAllowInsecureCheckBox.TabIndex = 0;
+            this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
+            this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
             // 
             // OtherTabPage
             // 
@@ -544,102 +780,29 @@ namespace Netch.Forms
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // LanguageLabel
+            // ControlButton
             // 
-            this.LanguageLabel.AutoSize = true;
-            this.LanguageLabel.Location = new System.Drawing.Point(12, 277);
-            this.LanguageLabel.Name = "LanguageLabel";
-            this.LanguageLabel.Size = new System.Drawing.Size(53, 12);
-            this.LanguageLabel.TabIndex = 34;
-            this.LanguageLabel.Text = "Language";
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Location = new System.Drawing.Point(397, 363);
+            this.ControlButton.Name = "ControlButton";
+            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.TabIndex = 12;
+            this.ControlButton.Text = "Save";
+            this.ControlButton.UseVisualStyleBackColor = true;
+            this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
             // 
-            // LanguageComboBox
+            // flowLayoutPanel1
             // 
-            this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.LanguageComboBox.FormattingEnabled = true;
-            this.LanguageComboBox.Location = new System.Drawing.Point(120, 274);
-            this.LanguageComboBox.Name = "LanguageComboBox";
-            this.LanguageComboBox.Size = new System.Drawing.Size(121, 20);
-            this.LanguageComboBox.TabIndex = 33;
-            // 
-            // AclAddrTextBox
-            // 
-            this.AclAddrTextBox.Location = new System.Drawing.Point(120, 245);
-            this.AclAddrTextBox.Name = "AclAddrTextBox";
-            this.AclAddrTextBox.Size = new System.Drawing.Size(315, 21);
-            this.AclAddrTextBox.TabIndex = 31;
-            this.AclAddrTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // AclLabel
-            // 
-            this.AclLabel.AutoSize = true;
-            this.AclLabel.Location = new System.Drawing.Point(12, 248);
-            this.AclLabel.Name = "AclLabel";
-            this.AclLabel.Size = new System.Drawing.Size(65, 12);
-            this.AclLabel.TabIndex = 32;
-            this.AclLabel.Text = "Custom ACL";
-            // 
-            // DetectionIntervalLabel
-            // 
-            this.DetectionIntervalLabel.AutoSize = true;
-            this.DetectionIntervalLabel.Location = new System.Drawing.Point(228, 187);
-            this.DetectionIntervalLabel.Name = "DetectionIntervalLabel";
-            this.DetectionIntervalLabel.Size = new System.Drawing.Size(143, 12);
-            this.DetectionIntervalLabel.TabIndex = 30;
-            this.DetectionIntervalLabel.Text = "Detection interval(sec)";
-            // 
-            // DetectionIntervalTextBox
-            // 
-            this.DetectionIntervalTextBox.Location = new System.Drawing.Point(366, 184);
-            this.DetectionIntervalTextBox.Name = "DetectionIntervalTextBox";
-            this.DetectionIntervalTextBox.Size = new System.Drawing.Size(68, 21);
-            this.DetectionIntervalTextBox.TabIndex = 29;
-            this.DetectionIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // TcpingAtStartedCheckBox
-            // 
-            this.TcpingAtStartedCheckBox.AutoSize = true;
-            this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 186);
-            this.TcpingAtStartedCheckBox.Name = "TcpingAtStartedCheckBox";
-            this.TcpingAtStartedCheckBox.Size = new System.Drawing.Size(156, 16);
-            this.TcpingAtStartedCheckBox.TabIndex = 28;
-            this.TcpingAtStartedCheckBox.TabStop = false;
-            this.TcpingAtStartedCheckBox.Text = "Delay test after start";
-            this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // STUNServerLabel
-            // 
-            this.STUNServerLabel.AutoSize = true;
-            this.STUNServerLabel.Location = new System.Drawing.Point(12, 216);
-            this.STUNServerLabel.Name = "STUNServerLabel";
-            this.STUNServerLabel.Size = new System.Drawing.Size(71, 12);
-            this.STUNServerLabel.TabIndex = 26;
-            this.STUNServerLabel.Text = "STUN Server";
-            // 
-            // STUN_ServerComboBox
-            // 
-            this.STUN_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.STUN_ServerComboBox.Location = new System.Drawing.Point(120, 213);
-            this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
-            this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 20);
-            this.STUN_ServerComboBox.TabIndex = 27;
-            // 
-            // ProfileCountLabel
-            // 
-            this.ProfileCountLabel.AutoSize = true;
-            this.ProfileCountLabel.Location = new System.Drawing.Point(12, 160);
-            this.ProfileCountLabel.Name = "ProfileCountLabel";
-            this.ProfileCountLabel.Size = new System.Drawing.Size(77, 12);
-            this.ProfileCountLabel.TabIndex = 24;
-            this.ProfileCountLabel.Text = "ProfileCount";
-            // 
-            // ProfileCountTextBox
-            // 
-            this.ProfileCountTextBox.Location = new System.Drawing.Point(120, 157);
-            this.ProfileCountTextBox.Name = "ProfileCountTextBox";
-            this.ProfileCountTextBox.Size = new System.Drawing.Size(90, 21);
-            this.ProfileCountTextBox.TabIndex = 25;
-            this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.flowLayoutPanel1.AutoSize = true;
+            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel1.Controls.Add(this.TabControl);
+            this.flowLayoutPanel1.Controls.Add(this.ControlButton);
+            this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
+            this.flowLayoutPanel1.TabIndex = 13;
             // 
             // SettingForm
             // 
@@ -651,7 +814,7 @@ namespace Netch.Forms
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "SettingForm2";
+            this.Name = "SettingForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
             this.Load += new System.EventHandler(this.SettingForm2_Load);
@@ -665,9 +828,13 @@ namespace Netch.Forms
             this.TAPTabPage.ResumeLayout(false);
             this.TUNTAPGroupBox.ResumeLayout(false);
             this.TUNTAPGroupBox.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
+            this.v2rayTabPage.ResumeLayout(false);
+            this.v2rayTabPage.PerformLayout();
+            this.KCPGroupBox.ResumeLayout(false);
+            this.KCPGroupBox.PerformLayout();
             this.OtherTabPage.ResumeLayout(false);
             this.OtherTabPage.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -727,5 +894,20 @@ namespace Netch.Forms
         private System.Windows.Forms.ComboBox STUN_ServerComboBox;
         private System.Windows.Forms.Label ProfileCountLabel;
         private System.Windows.Forms.TextBox ProfileCountTextBox;
+        private System.Windows.Forms.GroupBox KCPGroupBox;
+        private System.Windows.Forms.CheckBox congestionCheckBox;
+        private System.Windows.Forms.CheckBox TLSAllowInsecureCheckBox;
+        private System.Windows.Forms.Label mtuLabel;
+        private System.Windows.Forms.TextBox mtuTextBox;
+        private System.Windows.Forms.Label writeBufferSizeLabel;
+        private System.Windows.Forms.TextBox writeBufferSizeTextBox;
+        private System.Windows.Forms.Label readBufferSizeLabel;
+        private System.Windows.Forms.TextBox readBufferSizeTextBox;
+        private System.Windows.Forms.Label downlinkCapacityLabel;
+        private System.Windows.Forms.TextBox downlinkCapacityTextBox;
+        private System.Windows.Forms.Label uplinkCapacityLabel;
+        private System.Windows.Forms.TextBox uplinkCapacityTextBox;
+        private System.Windows.Forms.Label ttiLabel;
+        private System.Windows.Forms.TextBox ttiTextBox;
     }
 }

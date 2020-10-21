@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.VMess.Models;
 using Newtonsoft.Json;
+using V2rayConfig = Netch.Servers.VMess.Models.V2rayConfig;
 
 namespace Netch.Servers.VMess.Utils
 {
@@ -263,14 +263,13 @@ namespace Netch.Servers.VMess.Utils
                     case "kcp":
                         var kcpSettings = new KcpSettings
                         {
-                            /*TODO KCP Settings
-                            mtu = Global.Settings.KcpSettings.mtu,
-                            tti = Global.Settings.KcpSettings.tti,
-                            uplinkCapacity = Global.Settings.KcpSettings.uplinkCapacity,
-                            downlinkCapacity = Global.Settings.KcpSettings.downlinkCapacity,
-                            congestion = Global.Settings.KcpSettings.congestion,
-                            readBufferSize = Global.Settings.KcpSettings.readBufferSize,
-                            writeBufferSize = Global.Settings.KcpSettings.writeBufferSize,*/
+                            mtu = Global.Settings.V2RayConfig.KcpConfig.mtu,
+                            tti = Global.Settings.V2RayConfig.KcpConfig.tti,
+                            uplinkCapacity = Global.Settings.V2RayConfig.KcpConfig.uplinkCapacity,
+                            downlinkCapacity = Global.Settings.V2RayConfig.KcpConfig.downlinkCapacity,
+                            congestion = Global.Settings.V2RayConfig.KcpConfig.congestion,
+                            readBufferSize = Global.Settings.V2RayConfig.KcpConfig.readBufferSize,
+                            writeBufferSize = Global.Settings.V2RayConfig.KcpConfig.writeBufferSize,
                             header = new Header
                             {
                                 type = server.FakeType

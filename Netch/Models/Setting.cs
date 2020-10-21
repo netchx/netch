@@ -43,6 +43,30 @@ namespace Netch.Models
         public bool UseFakeDNS = false;
     }
 
+    public class KcpConfig
+    {
+        public int mtu = 1350;
+
+        public int tti = 50;
+
+        public int uplinkCapacity = 12;
+
+        public int downlinkCapacity = 100;
+
+        public bool congestion = false;
+
+        public int readBufferSize = 2;
+
+        public int writeBufferSize = 2;
+    }
+
+    public class V2rayConfig
+    {
+        public bool AllowInsecure = true;
+
+        public KcpConfig KcpConfig = new KcpConfig();
+    }
+
     /// <summary>
     ///     用于读取和写入的配置的类
     /// </summary>
@@ -207,5 +231,7 @@ namespace Netch.Models
         ///     语言设置
         /// </summary>
         public string Language = "System";
+
+        public V2rayConfig V2RayConfig = new V2rayConfig();
     }
 }
