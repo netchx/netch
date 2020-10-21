@@ -73,7 +73,7 @@ namespace Netch.Forms
                 {
                     FileName = Path.Combine(Global.NetchDir, "NetchUpdater.exe"),
                     Arguments =
-                        $"{Global.Settings.UDPSocketPort}|{fileFullPath}|{Global.NetchDir}"
+                        $"{Global.Settings.UDPSocketPort} \"{fileFullPath}\" \"{Global.NetchDir}\""
                 });
             }
         }
