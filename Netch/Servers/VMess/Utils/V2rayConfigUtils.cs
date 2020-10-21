@@ -238,7 +238,7 @@ namespace Netch.Servers.VMess.Utils
             {
                 streamSettings.network = server.TransferProtocol;
                 var host = server.Host;
-                if (server.TLSSecure)
+                if (server.TLSSecure ?? Global.Settings.V2RayConfig.AllowInsecure)
                 {
                     streamSettings.security = "tls";
 
@@ -318,7 +318,7 @@ namespace Netch.Servers.VMess.Utils
                                 type = server.FakeType
                             }
                         };
-                        if (server.TLSSecure)
+                        if (server.TLSSecure ?? Global.Settings.V2RayConfig.AllowInsecure)
                         {
                             streamSettings.tlsSettings.serverName = server.Hostname;
                         }

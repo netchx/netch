@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Netch.Forms;
 
 namespace Netch.Servers.VLESS.VLESSForm
@@ -38,9 +39,19 @@ namespace Netch.Servers.VLESS.VLESSForm
                 s => true,
                 s => server.Path = s,
                 server.Path);
-            CreateCheckBox("TLSSecure", "TLS Secure",
-                b => server.TLSSecure = b,
-                server.TLSSecure);
+            CreateComboBox("TLSSecure", "TLS Secure",
+                new List<string> {"", "true", "false"},
+                s =>
+                {
+                    server.TLSSecure = s switch
+                    {
+                        "" => null,
+                        "true" => true,
+                        "false" => false,
+                        _ => null
+                    };
+                },
+                server.TLSSecure?.ToString() ?? string.Empty);
             CreateCheckBox("UseMux", "Use Mux",
                 b => server.UseMux = b,
                 server.UseMux);
