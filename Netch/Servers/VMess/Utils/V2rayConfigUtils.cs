@@ -244,7 +244,7 @@ namespace Netch.Servers.VMess.Utils
 
                     var tlsSettings = new TlsSettings
                     {
-                        allowInsecure = true
+                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
                     };
                     if (!string.IsNullOrWhiteSpace(host))
                     {
@@ -330,7 +330,7 @@ namespace Netch.Servers.VMess.Utils
 
                         var xtlsSettings = new TlsSettings
                         {
-                            allowInsecure = true
+                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
                         };
                         if (!string.IsNullOrWhiteSpace(host))
                         {
