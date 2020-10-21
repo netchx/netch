@@ -65,6 +65,8 @@ namespace Netch.Models
         public bool AllowInsecure = true;
 
         public KcpConfig KcpConfig = new KcpConfig();
+
+        public bool UseMux = true;
     }
 
     /// <summary>

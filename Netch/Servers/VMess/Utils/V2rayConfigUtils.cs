@@ -174,8 +174,8 @@ namespace Netch.Servers.VMess.Utils
                         usersItem.flow = string.Empty;
                         usersItem.encryption = vless.EncryptMethod;
 
-                        outbound.mux.enabled = vless.UseMux;
-                        outbound.mux.concurrency = vless.UseMux ? 8 : -1;
+                        outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                        outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
 
                         var streamSettings = outbound.streamSettings;
                         boundStreamSettings(vless, ref streamSettings);
@@ -213,8 +213,8 @@ namespace Netch.Servers.VMess.Utils
                         usersItem.alterId = vmess.AlterID;
                         usersItem.security = vmess.EncryptMethod;
 
-                        outbound.mux.enabled = vmess.UseMux;
-                        outbound.mux.concurrency = vmess.UseMux ? 8 : -1;
+                        outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                        outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
 
                         var streamSettings = outbound.streamSettings;
                         boundStreamSettings(vmess, ref streamSettings);

@@ -139,6 +139,9 @@ namespace Netch.Forms
             BindCheckBox(TLSAllowInsecureCheckBox,
                 b => Global.Settings.V2RayConfig.AllowInsecure = b,
                 Global.Settings.V2RayConfig.AllowInsecure);
+            BindCheckBox(UseMuxCheckBox,
+                b => Global.Settings.V2RayConfig.UseMux = b,
+                Global.Settings.V2RayConfig.UseMux);
 
             BindTextBox<int>(mtuTextBox,
                 i => true,

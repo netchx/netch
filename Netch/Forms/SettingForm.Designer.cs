@@ -99,6 +99,7 @@ namespace Netch.Forms
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -524,6 +525,7 @@ namespace Netch.Forms
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
+            this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
             this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 25);
             this.v2rayTabPage.Name = "v2rayTabPage";
@@ -804,6 +806,16 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 13;
             // 
+            // UseMuxCheckBox
+            // 
+            this.UseMuxCheckBox.AutoSize = true;
+            this.UseMuxCheckBox.Location = new System.Drawing.Point(138, 15);
+            this.UseMuxCheckBox.Name = "UseMuxCheckBox";
+            this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
+            this.UseMuxCheckBox.TabIndex = 0;
+            this.UseMuxCheckBox.Text = "Use Mux";
+            this.UseMuxCheckBox.UseVisualStyleBackColor = true;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -909,5 +921,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox uplinkCapacityTextBox;
         private System.Windows.Forms.Label ttiLabel;
         private System.Windows.Forms.TextBox ttiTextBox;
+        private System.Windows.Forms.CheckBox UseMuxCheckBox;
     }
 }

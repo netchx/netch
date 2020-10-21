@@ -69,7 +69,7 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///		Mux 多路复用
         /// </summary>
-        public bool UseMux { get; set; } = true;
+        public bool? UseMux { get; set; } = true;
     }
 
     public class VMessGlobal
