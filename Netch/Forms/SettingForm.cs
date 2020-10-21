@@ -1,11 +1,10 @@
-﻿using System;
+using Netch.Utils;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Controllers;
-using Netch.Utils;
 using TaskScheduler;
 
 namespace Netch.Forms
@@ -15,7 +14,14 @@ namespace Netch.Forms
         public SettingForm()
         {
             InitializeComponent();
-            InitText();
+            i18N.TranslateForm(this);
+        }
+
+
+        private void SettingForm2_Load(object sender, EventArgs e)
+        {
+            InitValue();
+            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
         }
 
         private void InitValue()
@@ -92,10 +98,6 @@ namespace Netch.Forms
             }
         }
 
-        private void InitText()
-        {
-            i18N.TranslateForm(this);
-        }
 
         private void InitSTUN()
         {
@@ -110,13 +112,6 @@ namespace Netch.Forms
             }
 
             STUN_ServerComboBox.Text = $"{Global.Settings.STUN_Server}:{Global.Settings.STUN_Server_Port}";
-        }
-
-        private void SettingForm_Load(object sender, EventArgs e)
-        {
-            InitValue();
-
-            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
         }
 
         private void GlobalBypassIPsButton_Click(object sender, EventArgs e)
@@ -421,5 +416,6 @@ namespace Netch.Forms
                 ICSCheckBox.Enabled = true;
             }
         }
+
     }
 }
