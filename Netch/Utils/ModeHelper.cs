@@ -159,6 +159,9 @@ namespace Netch.Utils
                     portName = "HTTP";
                     MainForm.StatusPortInfoText.HttpPort = (ushort) port;
                     break;
+                case 4:
+                    modeController = null;
+                    break;
                 default:
                     Logging.Error("未知模式类型");
                     throw new StartFailedException();
