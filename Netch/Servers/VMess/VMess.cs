@@ -64,7 +64,7 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///		TLS 底层传输安全
         /// </summary>
-        public bool? TLSSecure { get; set; }
+        public bool TLSSecure { get; set; } = false;
 
         /// <summary>
         ///		Mux 多路复用

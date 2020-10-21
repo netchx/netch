@@ -49,7 +49,7 @@ namespace Netch.Servers.VMess
                 type = server.FakeType,
                 host = server.Host,
                 path = server.Path,
-                tls = server.TLSSecure ?? Global.Settings.V2RayConfig.AllowInsecure ? "tls" : ""
+                tls = server.TLSSecure ? "tls" : ""
             });
             return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
         }
