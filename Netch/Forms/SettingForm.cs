@@ -217,7 +217,7 @@ namespace Netch.Forms
             if (UseCustomDNSCheckBox.Checked)
             {
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
-                    ? Global.Settings.TUNTAP.DNS.Aggregate((current, ip) => $"{current},{ip}")
+                    ? string.Join(",", Global.Settings.TUNTAP.DNS)
                     : "1.1.1.1";
             }
             else
@@ -284,7 +284,7 @@ namespace Netch.Forms
 
                 if (UseCustomDNSCheckBox.Checked)
                 {
-                    TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Aggregate((current, ip) => $"{current},{ip}");
+                    TUNTAPDNSTextBox.Text = string.Join(",", Global.Settings.TUNTAP.DNS);
                 }
 
                 return;

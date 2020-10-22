@@ -131,30 +131,30 @@ namespace Netch.Models
         /// <returns>模式文件字符串</returns>
         public string ToFileString()
         {
-            string fileString;
+            StringBuilder fileString = new StringBuilder();
 
             switch (Type)
             {
                 case 0:
                     // 进程模式
-                    fileString = $"# {Remark}";
+                    fileString.Append($"# {Remark}");
                     break;
                 case 1:
                     // TUN/TAP 规则内 IP CIDR，无 Bypass China 设置
-                    fileString = $"# {Remark}, {Type}, 0";
+                    fileString.Append($"# {Remark}, {Type}, 0");
                     break;
                 default:
-                    fileString = $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}";
+                    fileString.Append($"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}");
                     break;
             }
 
-            fileString += Global.EOF;
+            if (Rule.Any())
+            {
+                fileString.Append(Global.EOF);
+                fileString.Append(string.Join(Global.EOF, Rule));
+            }
 
-            fileString = Rule.Aggregate(fileString, (current, item) => $"{current}{item}{Global.EOF}");
-            // 去除最后的行尾符
-            fileString = fileString.Substring(0, fileString.Length - 2);
-
-            return fileString;
+            return fileString.ToString();
         }
 
         public string TypeToString()
