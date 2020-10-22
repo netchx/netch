@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Utils;
@@ -44,15 +45,37 @@ namespace Netch.Forms
             if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
                 return;
             NotifyTip(i18N.Translate("Start downloading new version"));
+
+            var tagPage = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(_updater.LatestVersionUrl));
+            var match = Regex.Match(tagPage, @"<td .*>(?<sha256>.*)</td>", RegexOptions.Singleline);
+
+            // TODO Replace with regex get basename and sha256 
             var fileName = Path.GetFileName(new Uri(_updater.LatestVersionDownloadUrl).LocalPath);
             fileName = fileName.Insert(fileName.LastIndexOf('.'), _updater.LatestVersionNumber);
             var fileFullPath = Path.Combine(Global.NetchDir, "data", fileName);
 
+            var sha256 = match.Groups["sha256"].Value;
+
             try
             {
-                if (!File.Exists(fileFullPath))
+                if (File.Exists(fileFullPath))
                 {
-                    await WebUtil.DownloadFileAsync(WebUtil.CreateRequest(_updater.LatestVersionDownloadUrl), fileFullPath);
+                    if (Utils.Utils.SHA256CheckSum(fileFullPath) == sha256)
+                    {
+                        RunUpdater();
+                        return;
+                    }
+
+                    File.Delete(fileFullPath);
+                }
+
+                // TODO Replace "New Version Found" to Progress bar
+                await WebUtil.DownloadFileAsync(WebUtil.CreateRequest(_updater.LatestVersionDownloadUrl), fileFullPath);
+
+                if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
+                {
+                    MessageBoxX.Show("The downloaded file has the wrong hash");
+                    return;
                 }
 
                 RunUpdater();
