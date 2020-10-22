@@ -13,7 +13,7 @@ namespace Netch.Servers.VMess
             StoppedKeywords.AddRange(new[] {"config file not readable", "failed to"});
         }
 
-        public override string Name { get; protected set; } = "V2Ray";
+        public override string Name { get; protected set; } = "VMess";
         public override string MainFile { get; protected set; } = "v2ray.exe";
         public Server Server { get; set; }
         public ushort? Socks5LocalPort { get; set; }

@@ -18,7 +18,7 @@ namespace Netch.Servers.VMess.Utils
 
                 routing(server, mode, ref v2rayConfig);
 
-                outbound(server, ref v2rayConfig);
+                outbound(server, mode, ref v2rayConfig);
 
                 return JsonConvert.SerializeObject(v2rayConfig);
             }
@@ -103,7 +103,7 @@ namespace Netch.Servers.VMess.Utils
             }
         }
 
-        private static void outbound(Server server, ref V2rayConfig v2rayConfig)
+        private static void outbound(Server server, Mode mode, ref V2rayConfig v2rayConfig)
         {
             try
             {
@@ -224,7 +224,15 @@ namespace Netch.Servers.VMess.Utils
                     }
                 }
 
-                v2rayConfig.outbounds = new List<Outbounds> {outbound};
+                v2rayConfig.outbounds = new List<Outbounds>
+                {
+                    outbound,
+                    new Outbounds
+                    {
+                        tag = "direct",
+                        protocol = "freedom"
+                    }
+                };
             }
             catch
             {
