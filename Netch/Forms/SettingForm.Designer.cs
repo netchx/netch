@@ -452,6 +452,7 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox.TabIndex = 9;
             this.UseCustomDNSCheckBox.Text = "Use Custom DNS";
             this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
+            this.UseCustomDNSCheckBox.Click += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
             // 
             // TUNTAPDNSLabel
             // 
