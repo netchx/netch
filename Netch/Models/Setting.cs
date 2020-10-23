@@ -69,6 +69,15 @@ namespace Netch.Models
         public bool UseMux = true;
     }
 
+    public class AioDNSConfig
+    {
+        public string RulePath = "bin\\china_site_list";
+
+        public string ChinaDNS = "223.5.5.5";
+
+        public string OtherDNS = "1.1.1.1";
+    }
+
     /// <summary>
     ///     用于读取和写入的配置的类
     /// </summary>
@@ -235,5 +244,7 @@ namespace Netch.Models
         public string Language = "System";
 
         public V2rayConfig V2RayConfig = new V2rayConfig();
+
+        public AioDNSConfig AioDNS = new AioDNSConfig();
     }
 }

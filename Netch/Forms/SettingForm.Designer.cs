@@ -87,6 +87,7 @@ namespace Netch.Forms
             this.writeBufferSizeLabel = new System.Windows.Forms.Label();
             this.writeBufferSizeTextBox = new System.Windows.Forms.TextBox();
             this.congestionCheckBox = new System.Windows.Forms.CheckBox();
+            this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.OtherTabPage = new System.Windows.Forms.TabPage();
             this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
@@ -99,7 +100,13 @@ namespace Netch.Forms
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
+            this.AioDNSTabPage = new System.Windows.Forms.TabPage();
+            this.AioDNSRulePathTextBox = new System.Windows.Forms.TextBox();
+            this.AioDNSRuleRuleLabel = new System.Windows.Forms.Label();
+            this.ChinaDNSTextBox = new System.Windows.Forms.TextBox();
+            this.ChinaDNSLabel = new System.Windows.Forms.Label();
+            this.OtherDNSTextBox = new System.Windows.Forms.TextBox();
+            this.OtherDNSLabel = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -110,6 +117,7 @@ namespace Netch.Forms
             this.KCPGroupBox.SuspendLayout();
             this.OtherTabPage.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            this.AioDNSTabPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // TabControl
@@ -120,6 +128,7 @@ namespace Netch.Forms
             this.TabControl.Controls.Add(this.TAPTabPage);
             this.TabControl.Controls.Add(this.v2rayTabPage);
             this.TabControl.Controls.Add(this.OtherTabPage);
+            this.TabControl.Controls.Add(this.AioDNSTabPage);
             this.TabControl.Location = new System.Drawing.Point(3, 3);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
@@ -669,6 +678,16 @@ namespace Netch.Forms
             this.congestionCheckBox.Text = "congestion";
             this.congestionCheckBox.UseVisualStyleBackColor = true;
             // 
+            // UseMuxCheckBox
+            // 
+            this.UseMuxCheckBox.AutoSize = true;
+            this.UseMuxCheckBox.Location = new System.Drawing.Point(138, 15);
+            this.UseMuxCheckBox.Name = "UseMuxCheckBox";
+            this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
+            this.UseMuxCheckBox.TabIndex = 0;
+            this.UseMuxCheckBox.Text = "Use Mux";
+            this.UseMuxCheckBox.UseVisualStyleBackColor = true;
+            // 
             // TLSAllowInsecureCheckBox
             // 
             this.TLSAllowInsecureCheckBox.AutoSize = true;
@@ -807,15 +826,72 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 13;
             // 
-            // UseMuxCheckBox
+            // AioDNSTabPage
             // 
-            this.UseMuxCheckBox.AutoSize = true;
-            this.UseMuxCheckBox.Location = new System.Drawing.Point(138, 15);
-            this.UseMuxCheckBox.Name = "UseMuxCheckBox";
-            this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
-            this.UseMuxCheckBox.TabIndex = 0;
-            this.UseMuxCheckBox.Text = "Use Mux";
-            this.UseMuxCheckBox.UseVisualStyleBackColor = true;
+            this.AioDNSTabPage.Controls.Add(this.AioDNSRuleRuleLabel);
+            this.AioDNSTabPage.Controls.Add(this.AioDNSRulePathTextBox);
+            this.AioDNSTabPage.Controls.Add(this.ChinaDNSLabel);
+            this.AioDNSTabPage.Controls.Add(this.ChinaDNSTextBox);
+            this.AioDNSTabPage.Controls.Add(this.OtherDNSLabel);
+            this.AioDNSTabPage.Controls.Add(this.OtherDNSTextBox);
+            this.AioDNSTabPage.Location = new System.Drawing.Point(4, 25);
+            this.AioDNSTabPage.Name = "AioDNSTabPage";
+            this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.AioDNSTabPage.Size = new System.Drawing.Size(461, 325);
+            this.AioDNSTabPage.TabIndex = 5;
+            this.AioDNSTabPage.Text = "AioDNS";
+            this.AioDNSTabPage.UseVisualStyleBackColor = true;
+            // 
+            // AioDNSRulePathTextBox
+            // 
+            this.AioDNSRulePathTextBox.Enabled = false;
+            this.AioDNSRulePathTextBox.Location = new System.Drawing.Point(147, 24);
+            this.AioDNSRulePathTextBox.Name = "AioDNSRulePathTextBox";
+            this.AioDNSRulePathTextBox.Size = new System.Drawing.Size(201, 21);
+            this.AioDNSRulePathTextBox.TabIndex = 0;
+            // 
+            // AioDNSRuleRuleLabel
+            // 
+            this.AioDNSRuleRuleLabel.AutoSize = true;
+            this.AioDNSRuleRuleLabel.Location = new System.Drawing.Point(16, 27);
+            this.AioDNSRuleRuleLabel.Name = "AioDNSRuleRuleLabel";
+            this.AioDNSRuleRuleLabel.Size = new System.Drawing.Size(59, 12);
+            this.AioDNSRuleRuleLabel.TabIndex = 1;
+            this.AioDNSRuleRuleLabel.Text = "Rule File";
+            // 
+            // ChinaDNSTextBox
+            // 
+            this.ChinaDNSTextBox.Location = new System.Drawing.Point(147, 70);
+            this.ChinaDNSTextBox.Name = "ChinaDNSTextBox";
+            this.ChinaDNSTextBox.Size = new System.Drawing.Size(201, 21);
+            this.ChinaDNSTextBox.TabIndex = 0;
+            this.ChinaDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // ChinaDNSLabel
+            // 
+            this.ChinaDNSLabel.AutoSize = true;
+            this.ChinaDNSLabel.Location = new System.Drawing.Point(16, 73);
+            this.ChinaDNSLabel.Name = "ChinaDNSLabel";
+            this.ChinaDNSLabel.Size = new System.Drawing.Size(59, 12);
+            this.ChinaDNSLabel.TabIndex = 1;
+            this.ChinaDNSLabel.Text = "China DNS";
+            // 
+            // OtherDNSTextBox
+            // 
+            this.OtherDNSTextBox.Location = new System.Drawing.Point(147, 106);
+            this.OtherDNSTextBox.Name = "OtherDNSTextBox";
+            this.OtherDNSTextBox.Size = new System.Drawing.Size(201, 21);
+            this.OtherDNSTextBox.TabIndex = 0;
+            this.OtherDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // OtherDNSLabel
+            // 
+            this.OtherDNSLabel.AutoSize = true;
+            this.OtherDNSLabel.Location = new System.Drawing.Point(16, 109);
+            this.OtherDNSLabel.Name = "OtherDNSLabel";
+            this.OtherDNSLabel.Size = new System.Drawing.Size(59, 12);
+            this.OtherDNSLabel.TabIndex = 1;
+            this.OtherDNSLabel.Text = "Other DNS";
             // 
             // SettingForm
             // 
@@ -848,6 +924,8 @@ namespace Netch.Forms
             this.OtherTabPage.ResumeLayout(false);
             this.OtherTabPage.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
+            this.AioDNSTabPage.ResumeLayout(false);
+            this.AioDNSTabPage.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -923,5 +1001,12 @@ namespace Netch.Forms
         private System.Windows.Forms.Label ttiLabel;
         private System.Windows.Forms.TextBox ttiTextBox;
         private System.Windows.Forms.CheckBox UseMuxCheckBox;
+        private System.Windows.Forms.TabPage AioDNSTabPage;
+        private System.Windows.Forms.Label AioDNSRuleRuleLabel;
+        private System.Windows.Forms.TextBox AioDNSRulePathTextBox;
+        private System.Windows.Forms.Label OtherDNSLabel;
+        private System.Windows.Forms.Label ChinaDNSLabel;
+        private System.Windows.Forms.TextBox OtherDNSTextBox;
+        private System.Windows.Forms.TextBox ChinaDNSTextBox;
     }
 }

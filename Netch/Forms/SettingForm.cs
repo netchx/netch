@@ -208,6 +208,25 @@ namespace Netch.Forms
                 Global.Settings.UpdateSubscribeatWhenOpened);
 
             #endregion
+
+            #region AioDNS
+
+            BindTextBox(AioDNSRulePathTextBox,
+                s => true,
+                s => Global.Settings.AioDNS.RulePath = s,
+                Global.Settings.AioDNS.RulePath);
+
+            BindTextBox(ChinaDNSTextBox,
+                s => IPAddress.TryParse(s,out _),
+                s => Global.Settings.AioDNS.ChinaDNS= s,
+                Global.Settings.AioDNS.ChinaDNS);
+
+            BindTextBox(OtherDNSTextBox,
+                s => IPAddress.TryParse(s,out _),
+                s => Global.Settings.AioDNS.OtherDNS= s,
+                Global.Settings.AioDNS.OtherDNS);
+
+            #endregion
         }
 
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -222,7 +241,7 @@ namespace Netch.Forms
             }
             else
             {
-                TUNTAPDNSTextBox.Text = "Local DNS";
+                TUNTAPDNSTextBox.Text = "AioDNS";
             }
         }
 
