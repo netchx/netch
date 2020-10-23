@@ -138,7 +138,7 @@ namespace Netch.Forms
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
-                await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(async () =>
+                await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(() =>
                 {
                     try
                     {
