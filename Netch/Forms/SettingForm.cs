@@ -83,12 +83,20 @@ namespace Netch.Forms
 
             #endregion
 
-
             #region Process Mode
 
             BindCheckBox(ModifySystemDNSCheckBox,
                 b => Global.Settings.ModifySystemDNS = b,
                 Global.Settings.ModifySystemDNS);
+
+            BindTextBox(ModifiedDNSTextBox,
+                s =>
+                {
+                    var dns = s.Split(',').Select(ip => ip.Trim()).ToArray();
+                    return dns.Length <= 2 && dns.All(ip => IPAddress.TryParse(ip, out _));
+                },
+                s => Global.Settings.ModifiedDNS = s,
+                Global.Settings.ModifiedDNS);
 
             #endregion
 
@@ -217,13 +225,13 @@ namespace Netch.Forms
                 Global.Settings.AioDNS.RulePath);
 
             BindTextBox(ChinaDNSTextBox,
-                s => IPAddress.TryParse(s,out _),
-                s => Global.Settings.AioDNS.ChinaDNS= s,
+                s => IPAddress.TryParse(s, out _),
+                s => Global.Settings.AioDNS.ChinaDNS = s,
                 Global.Settings.AioDNS.ChinaDNS);
 
             BindTextBox(OtherDNSTextBox,
-                s => IPAddress.TryParse(s,out _),
-                s => Global.Settings.AioDNS.OtherDNS= s,
+                s => IPAddress.TryParse(s, out _),
+                s => Global.Settings.AioDNS.OtherDNS = s,
                 Global.Settings.AioDNS.OtherDNS);
 
             #endregion
@@ -476,5 +484,10 @@ namespace Netch.Forms
         private readonly Dictionary<Control, Func<string, bool>> _checkActions = new Dictionary<Control, Func<string, bool>>();
 
         private readonly Dictionary<Control, Action<Control>> _saveActions = new Dictionary<Control, Action<Control>>();
+
+        private void ModifySystemDNSCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            ModifiedDNSTextBox.Enabled = ModifySystemDNSCheckBox.Checked;
+        }
     }
 }

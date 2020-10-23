@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Netch.Models
 {
@@ -137,6 +139,11 @@ namespace Netch.Models
         ///     修改系统 DNS
         /// </summary>
         public bool ModifySystemDNS = false;
+
+        /// <summary>
+        ///     要修改为的系统 DNS
+        /// </summary>
+        public string ModifiedDNS = "1.1.1.1,8.8.8.8";
 
         /// <summary>
         ///     解析服务器主机名

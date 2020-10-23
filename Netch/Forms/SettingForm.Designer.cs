@@ -57,6 +57,8 @@ namespace Netch.Forms
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
             this.NFTabPage = new System.Windows.Forms.TabPage();
             this.ModifySystemDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.ModifiedDNSLabel = new System.Windows.Forms.Label();
+            this.ModifiedDNSTextBox = new System.Windows.Forms.TextBox();
             this.TAPTabPage = new System.Windows.Forms.TabPage();
             this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
             this.TUNTAPAddressLabel = new System.Windows.Forms.Label();
@@ -133,6 +135,7 @@ namespace Netch.Forms
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(469, 354);
+            this.TabControl.TabIndex = 0;
             // 
             // GeneralTabPage
             // 
@@ -155,6 +158,7 @@ namespace Netch.Forms
             this.GeneralTabPage.Name = "GeneralTabPage";
             this.GeneralTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.GeneralTabPage.Size = new System.Drawing.Size(461, 325);
+            this.GeneralTabPage.TabIndex = 0;
             this.GeneralTabPage.Text = "General";
             // 
             // PortGroupBox
@@ -169,6 +173,8 @@ namespace Netch.Forms
             this.PortGroupBox.Location = new System.Drawing.Point(8, 6);
             this.PortGroupBox.Name = "PortGroupBox";
             this.PortGroupBox.Size = new System.Drawing.Size(241, 140);
+            this.PortGroupBox.TabIndex = 0;
+            this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
             // 
             // Socks5PortLabel
@@ -177,6 +183,7 @@ namespace Netch.Forms
             this.Socks5PortLabel.Location = new System.Drawing.Point(9, 25);
             this.Socks5PortLabel.Name = "Socks5PortLabel";
             this.Socks5PortLabel.Size = new System.Drawing.Size(41, 12);
+            this.Socks5PortLabel.TabIndex = 0;
             this.Socks5PortLabel.Text = "Socks5";
             // 
             // Socks5PortTextBox
@@ -184,6 +191,7 @@ namespace Netch.Forms
             this.Socks5PortTextBox.Location = new System.Drawing.Point(120, 22);
             this.Socks5PortTextBox.Name = "Socks5PortTextBox";
             this.Socks5PortTextBox.Size = new System.Drawing.Size(90, 21);
+            this.Socks5PortTextBox.TabIndex = 1;
             this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // HTTPPortLabel
@@ -192,6 +200,7 @@ namespace Netch.Forms
             this.HTTPPortLabel.Location = new System.Drawing.Point(9, 54);
             this.HTTPPortLabel.Name = "HTTPPortLabel";
             this.HTTPPortLabel.Size = new System.Drawing.Size(29, 12);
+            this.HTTPPortLabel.TabIndex = 2;
             this.HTTPPortLabel.Text = "HTTP";
             // 
             // HTTPPortTextBox
@@ -199,6 +208,7 @@ namespace Netch.Forms
             this.HTTPPortTextBox.Location = new System.Drawing.Point(120, 51);
             this.HTTPPortTextBox.Name = "HTTPPortTextBox";
             this.HTTPPortTextBox.Size = new System.Drawing.Size(90, 21);
+            this.HTTPPortTextBox.TabIndex = 3;
             this.HTTPPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // RedirectorLabel
@@ -207,6 +217,7 @@ namespace Netch.Forms
             this.RedirectorLabel.Location = new System.Drawing.Point(9, 83);
             this.RedirectorLabel.Name = "RedirectorLabel";
             this.RedirectorLabel.Size = new System.Drawing.Size(89, 12);
+            this.RedirectorLabel.TabIndex = 4;
             this.RedirectorLabel.Text = "Redirector TCP";
             // 
             // RedirectorTextBox
@@ -214,6 +225,7 @@ namespace Netch.Forms
             this.RedirectorTextBox.Location = new System.Drawing.Point(120, 80);
             this.RedirectorTextBox.Name = "RedirectorTextBox";
             this.RedirectorTextBox.Size = new System.Drawing.Size(90, 21);
+            this.RedirectorTextBox.TabIndex = 5;
             this.RedirectorTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AllowDevicesCheckBox
@@ -222,6 +234,7 @@ namespace Netch.Forms
             this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 107);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
             this.AllowDevicesCheckBox.Size = new System.Drawing.Size(204, 16);
+            this.AllowDevicesCheckBox.TabIndex = 6;
             this.AllowDevicesCheckBox.Text = "Allow other Devices to connect";
             this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.AllowDevicesCheckBox.UseVisualStyleBackColor = true;
@@ -232,6 +245,7 @@ namespace Netch.Forms
             this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(267, 15);
             this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
             this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(60, 16);
+            this.BootShadowsocksFromDLLCheckBox.TabIndex = 1;
             this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL";
             this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -241,6 +255,7 @@ namespace Netch.Forms
             this.ResolveServerHostnameCheckBox.Location = new System.Drawing.Point(266, 42);
             this.ResolveServerHostnameCheckBox.Name = "ResolveServerHostnameCheckBox";
             this.ResolveServerHostnameCheckBox.Size = new System.Drawing.Size(162, 16);
+            this.ResolveServerHostnameCheckBox.TabIndex = 2;
             this.ResolveServerHostnameCheckBox.Text = "Resolve Server Hostname";
             this.ResolveServerHostnameCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -250,6 +265,7 @@ namespace Netch.Forms
             this.ProfileCountLabel.Location = new System.Drawing.Point(12, 160);
             this.ProfileCountLabel.Name = "ProfileCountLabel";
             this.ProfileCountLabel.Size = new System.Drawing.Size(77, 12);
+            this.ProfileCountLabel.TabIndex = 3;
             this.ProfileCountLabel.Text = "ProfileCount";
             // 
             // ProfileCountTextBox
@@ -257,6 +273,7 @@ namespace Netch.Forms
             this.ProfileCountTextBox.Location = new System.Drawing.Point(120, 157);
             this.ProfileCountTextBox.Name = "ProfileCountTextBox";
             this.ProfileCountTextBox.Size = new System.Drawing.Size(90, 21);
+            this.ProfileCountTextBox.TabIndex = 4;
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TcpingAtStartedCheckBox
@@ -265,6 +282,7 @@ namespace Netch.Forms
             this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 186);
             this.TcpingAtStartedCheckBox.Name = "TcpingAtStartedCheckBox";
             this.TcpingAtStartedCheckBox.Size = new System.Drawing.Size(156, 16);
+            this.TcpingAtStartedCheckBox.TabIndex = 5;
             this.TcpingAtStartedCheckBox.Text = "Delay test after start";
             this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -274,6 +292,7 @@ namespace Netch.Forms
             this.DetectionIntervalLabel.Location = new System.Drawing.Point(228, 187);
             this.DetectionIntervalLabel.Name = "DetectionIntervalLabel";
             this.DetectionIntervalLabel.Size = new System.Drawing.Size(143, 12);
+            this.DetectionIntervalLabel.TabIndex = 6;
             this.DetectionIntervalLabel.Text = "Detection interval(sec)";
             // 
             // DetectionIntervalTextBox
@@ -281,6 +300,7 @@ namespace Netch.Forms
             this.DetectionIntervalTextBox.Location = new System.Drawing.Point(366, 184);
             this.DetectionIntervalTextBox.Name = "DetectionIntervalTextBox";
             this.DetectionIntervalTextBox.Size = new System.Drawing.Size(68, 21);
+            this.DetectionIntervalTextBox.TabIndex = 7;
             this.DetectionIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // STUNServerLabel
@@ -289,6 +309,7 @@ namespace Netch.Forms
             this.STUNServerLabel.Location = new System.Drawing.Point(12, 216);
             this.STUNServerLabel.Name = "STUNServerLabel";
             this.STUNServerLabel.Size = new System.Drawing.Size(71, 12);
+            this.STUNServerLabel.TabIndex = 8;
             this.STUNServerLabel.Text = "STUN Server";
             // 
             // STUN_ServerComboBox
@@ -297,6 +318,7 @@ namespace Netch.Forms
             this.STUN_ServerComboBox.Location = new System.Drawing.Point(120, 213);
             this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
             this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 20);
+            this.STUN_ServerComboBox.TabIndex = 9;
             // 
             // AclLabel
             // 
@@ -304,6 +326,7 @@ namespace Netch.Forms
             this.AclLabel.Location = new System.Drawing.Point(12, 248);
             this.AclLabel.Name = "AclLabel";
             this.AclLabel.Size = new System.Drawing.Size(65, 12);
+            this.AclLabel.TabIndex = 10;
             this.AclLabel.Text = "Custom ACL";
             // 
             // AclAddrTextBox
@@ -311,6 +334,7 @@ namespace Netch.Forms
             this.AclAddrTextBox.Location = new System.Drawing.Point(120, 245);
             this.AclAddrTextBox.Name = "AclAddrTextBox";
             this.AclAddrTextBox.Size = new System.Drawing.Size(315, 21);
+            this.AclAddrTextBox.TabIndex = 11;
             this.AclAddrTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // LanguageLabel
@@ -319,6 +343,7 @@ namespace Netch.Forms
             this.LanguageLabel.Location = new System.Drawing.Point(12, 277);
             this.LanguageLabel.Name = "LanguageLabel";
             this.LanguageLabel.Size = new System.Drawing.Size(53, 12);
+            this.LanguageLabel.TabIndex = 12;
             this.LanguageLabel.Text = "Language";
             // 
             // LanguageComboBox
@@ -328,15 +353,19 @@ namespace Netch.Forms
             this.LanguageComboBox.Location = new System.Drawing.Point(120, 274);
             this.LanguageComboBox.Name = "LanguageComboBox";
             this.LanguageComboBox.Size = new System.Drawing.Size(121, 20);
+            this.LanguageComboBox.TabIndex = 13;
             // 
             // NFTabPage
             // 
             this.NFTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.NFTabPage.Controls.Add(this.ModifySystemDNSCheckBox);
+            this.NFTabPage.Controls.Add(this.ModifiedDNSLabel);
+            this.NFTabPage.Controls.Add(this.ModifiedDNSTextBox);
             this.NFTabPage.Location = new System.Drawing.Point(4, 25);
             this.NFTabPage.Name = "NFTabPage";
             this.NFTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.NFTabPage.Size = new System.Drawing.Size(461, 325);
+            this.NFTabPage.TabIndex = 1;
             this.NFTabPage.Text = "Process Mode";
             // 
             // ModifySystemDNSCheckBox
@@ -345,8 +374,27 @@ namespace Netch.Forms
             this.ModifySystemDNSCheckBox.Location = new System.Drawing.Point(8, 16);
             this.ModifySystemDNSCheckBox.Name = "ModifySystemDNSCheckBox";
             this.ModifySystemDNSCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.ModifySystemDNSCheckBox.TabIndex = 0;
             this.ModifySystemDNSCheckBox.Text = "Modify System DNS";
             this.ModifySystemDNSCheckBox.UseVisualStyleBackColor = true;
+            this.ModifySystemDNSCheckBox.CheckedChanged += new System.EventHandler(this.ModifySystemDNSCheckBox_CheckedChanged);
+            // 
+            // ModifiedDNSLabel
+            // 
+            this.ModifiedDNSLabel.AutoSize = true;
+            this.ModifiedDNSLabel.Location = new System.Drawing.Point(24, 41);
+            this.ModifiedDNSLabel.Name = "ModifiedDNSLabel";
+            this.ModifiedDNSLabel.Size = new System.Drawing.Size(23, 12);
+            this.ModifiedDNSLabel.TabIndex = 2;
+            this.ModifiedDNSLabel.Text = "DNS";
+            // 
+            // ModifiedDNSTextBox
+            // 
+            this.ModifiedDNSTextBox.Location = new System.Drawing.Point(99, 38);
+            this.ModifiedDNSTextBox.Name = "ModifiedDNSTextBox";
+            this.ModifiedDNSTextBox.Size = new System.Drawing.Size(194, 21);
+            this.ModifiedDNSTextBox.TabIndex = 1;
+            this.ModifiedDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TAPTabPage
             // 
@@ -357,6 +405,7 @@ namespace Netch.Forms
             this.TAPTabPage.Name = "TAPTabPage";
             this.TAPTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.TAPTabPage.Size = new System.Drawing.Size(461, 325);
+            this.TAPTabPage.TabIndex = 2;
             this.TAPTabPage.Text = "TUN/TAP";
             // 
             // TUNTAPGroupBox
@@ -376,6 +425,8 @@ namespace Netch.Forms
             this.TUNTAPGroupBox.Location = new System.Drawing.Point(6, 6);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
             this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 187);
+            this.TUNTAPGroupBox.TabIndex = 0;
+            this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
             // 
             // TUNTAPAddressLabel
@@ -384,6 +435,7 @@ namespace Netch.Forms
             this.TUNTAPAddressLabel.Location = new System.Drawing.Point(9, 25);
             this.TUNTAPAddressLabel.Name = "TUNTAPAddressLabel";
             this.TUNTAPAddressLabel.Size = new System.Drawing.Size(47, 12);
+            this.TUNTAPAddressLabel.TabIndex = 0;
             this.TUNTAPAddressLabel.Text = "Address";
             // 
             // TUNTAPAddressTextBox
@@ -391,6 +443,7 @@ namespace Netch.Forms
             this.TUNTAPAddressTextBox.Location = new System.Drawing.Point(120, 22);
             this.TUNTAPAddressTextBox.Name = "TUNTAPAddressTextBox";
             this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPAddressTextBox.TabIndex = 1;
             this.TUNTAPAddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPNetmaskLabel
@@ -399,6 +452,7 @@ namespace Netch.Forms
             this.TUNTAPNetmaskLabel.Location = new System.Drawing.Point(9, 54);
             this.TUNTAPNetmaskLabel.Name = "TUNTAPNetmaskLabel";
             this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(47, 12);
+            this.TUNTAPNetmaskLabel.TabIndex = 2;
             this.TUNTAPNetmaskLabel.Text = "Netmask";
             // 
             // TUNTAPNetmaskTextBox
@@ -406,6 +460,7 @@ namespace Netch.Forms
             this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
             this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
             this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPNetmaskTextBox.TabIndex = 3;
             this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPGatewayLabel
@@ -414,6 +469,7 @@ namespace Netch.Forms
             this.TUNTAPGatewayLabel.Location = new System.Drawing.Point(9, 83);
             this.TUNTAPGatewayLabel.Name = "TUNTAPGatewayLabel";
             this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(47, 12);
+            this.TUNTAPGatewayLabel.TabIndex = 4;
             this.TUNTAPGatewayLabel.Text = "Gateway";
             // 
             // TUNTAPGatewayTextBox
@@ -421,6 +477,7 @@ namespace Netch.Forms
             this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
             this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
             this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPGatewayTextBox.TabIndex = 5;
             this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPDNSLabel
@@ -429,6 +486,7 @@ namespace Netch.Forms
             this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
             this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
             this.TUNTAPDNSLabel.Size = new System.Drawing.Size(23, 12);
+            this.TUNTAPDNSLabel.TabIndex = 6;
             this.TUNTAPDNSLabel.Text = "DNS";
             // 
             // TUNTAPDNSTextBox
@@ -436,6 +494,7 @@ namespace Netch.Forms
             this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 110);
             this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
             this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPDNSTextBox.TabIndex = 7;
             this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // UseCustomDNSCheckBox
@@ -444,6 +503,7 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox.Location = new System.Drawing.Point(10, 139);
             this.UseCustomDNSCheckBox.Name = "UseCustomDNSCheckBox";
             this.UseCustomDNSCheckBox.Size = new System.Drawing.Size(108, 16);
+            this.UseCustomDNSCheckBox.TabIndex = 8;
             this.UseCustomDNSCheckBox.Text = "Use Custom DNS";
             this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
             this.UseCustomDNSCheckBox.Click += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
@@ -454,6 +514,7 @@ namespace Netch.Forms
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
             this.ProxyDNSCheckBox.Size = new System.Drawing.Size(138, 16);
+            this.ProxyDNSCheckBox.TabIndex = 9;
             this.ProxyDNSCheckBox.Text = "Proxy DNS in Mode 2";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -463,6 +524,7 @@ namespace Netch.Forms
             this.UseFakeDNSCheckBox.Location = new System.Drawing.Point(10, 160);
             this.UseFakeDNSCheckBox.Name = "UseFakeDNSCheckBox";
             this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(96, 16);
+            this.UseFakeDNSCheckBox.TabIndex = 10;
             this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
             this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
             this.UseFakeDNSCheckBox.Visible = false;
@@ -474,6 +536,7 @@ namespace Netch.Forms
             this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
             this.ICSCheckBox.Name = "ICSCheckBox";
             this.ICSCheckBox.Size = new System.Drawing.Size(138, 16);
+            this.ICSCheckBox.TabIndex = 11;
             this.ICSCheckBox.Text = "Tap Network Sharing";
             this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ICSCheckBox.UseVisualStyleBackColor = true;
@@ -484,6 +547,7 @@ namespace Netch.Forms
             this.GlobalBypassIPsButton.Location = new System.Drawing.Point(6, 199);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
+            this.GlobalBypassIPsButton.TabIndex = 1;
             this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
             this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
@@ -498,6 +562,7 @@ namespace Netch.Forms
             this.v2rayTabPage.Name = "v2rayTabPage";
             this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.v2rayTabPage.Size = new System.Drawing.Size(461, 325);
+            this.v2rayTabPage.TabIndex = 3;
             this.v2rayTabPage.Text = "V2Ray";
             // 
             // TLSAllowInsecureCheckBox
@@ -506,6 +571,7 @@ namespace Netch.Forms
             this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 15);
             this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
             this.TLSAllowInsecureCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.TLSAllowInsecureCheckBox.TabIndex = 0;
             this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
             this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -515,6 +581,7 @@ namespace Netch.Forms
             this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 15);
             this.UseMuxCheckBox.Name = "UseMuxCheckBox";
             this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
+            this.UseMuxCheckBox.TabIndex = 1;
             this.UseMuxCheckBox.Text = "Use Mux";
             this.UseMuxCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -536,6 +603,8 @@ namespace Netch.Forms
             this.KCPGroupBox.Location = new System.Drawing.Point(9, 48);
             this.KCPGroupBox.Name = "KCPGroupBox";
             this.KCPGroupBox.Size = new System.Drawing.Size(427, 204);
+            this.KCPGroupBox.TabIndex = 2;
+            this.KCPGroupBox.TabStop = false;
             this.KCPGroupBox.Text = "KCP";
             // 
             // mtuLabel
@@ -544,6 +613,7 @@ namespace Netch.Forms
             this.mtuLabel.Location = new System.Drawing.Point(6, 26);
             this.mtuLabel.Name = "mtuLabel";
             this.mtuLabel.Size = new System.Drawing.Size(23, 12);
+            this.mtuLabel.TabIndex = 0;
             this.mtuLabel.Text = "mtu";
             // 
             // mtuTextBox
@@ -551,6 +621,7 @@ namespace Netch.Forms
             this.mtuTextBox.Location = new System.Drawing.Point(103, 17);
             this.mtuTextBox.Name = "mtuTextBox";
             this.mtuTextBox.Size = new System.Drawing.Size(90, 21);
+            this.mtuTextBox.TabIndex = 1;
             this.mtuTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ttiLabel
@@ -559,6 +630,7 @@ namespace Netch.Forms
             this.ttiLabel.Location = new System.Drawing.Point(224, 26);
             this.ttiLabel.Name = "ttiLabel";
             this.ttiLabel.Size = new System.Drawing.Size(23, 12);
+            this.ttiLabel.TabIndex = 2;
             this.ttiLabel.Text = "tti";
             // 
             // ttiTextBox
@@ -566,6 +638,7 @@ namespace Netch.Forms
             this.ttiTextBox.Location = new System.Drawing.Point(331, 17);
             this.ttiTextBox.Name = "ttiTextBox";
             this.ttiTextBox.Size = new System.Drawing.Size(90, 21);
+            this.ttiTextBox.TabIndex = 3;
             this.ttiTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // uplinkCapacityLabel
@@ -574,6 +647,7 @@ namespace Netch.Forms
             this.uplinkCapacityLabel.Location = new System.Drawing.Point(6, 68);
             this.uplinkCapacityLabel.Name = "uplinkCapacityLabel";
             this.uplinkCapacityLabel.Size = new System.Drawing.Size(89, 12);
+            this.uplinkCapacityLabel.TabIndex = 4;
             this.uplinkCapacityLabel.Text = "uplinkCapacity";
             // 
             // uplinkCapacityTextBox
@@ -581,6 +655,7 @@ namespace Netch.Forms
             this.uplinkCapacityTextBox.Location = new System.Drawing.Point(103, 59);
             this.uplinkCapacityTextBox.Name = "uplinkCapacityTextBox";
             this.uplinkCapacityTextBox.Size = new System.Drawing.Size(90, 21);
+            this.uplinkCapacityTextBox.TabIndex = 5;
             this.uplinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // downlinkCapacityLabel
@@ -589,6 +664,7 @@ namespace Netch.Forms
             this.downlinkCapacityLabel.Location = new System.Drawing.Point(224, 68);
             this.downlinkCapacityLabel.Name = "downlinkCapacityLabel";
             this.downlinkCapacityLabel.Size = new System.Drawing.Size(101, 12);
+            this.downlinkCapacityLabel.TabIndex = 6;
             this.downlinkCapacityLabel.Text = "downlinkCapacity";
             // 
             // downlinkCapacityTextBox
@@ -596,6 +672,7 @@ namespace Netch.Forms
             this.downlinkCapacityTextBox.Location = new System.Drawing.Point(331, 65);
             this.downlinkCapacityTextBox.Name = "downlinkCapacityTextBox";
             this.downlinkCapacityTextBox.Size = new System.Drawing.Size(90, 21);
+            this.downlinkCapacityTextBox.TabIndex = 7;
             this.downlinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // readBufferSizeLabel
@@ -604,6 +681,7 @@ namespace Netch.Forms
             this.readBufferSizeLabel.Location = new System.Drawing.Point(6, 109);
             this.readBufferSizeLabel.Name = "readBufferSizeLabel";
             this.readBufferSizeLabel.Size = new System.Drawing.Size(89, 12);
+            this.readBufferSizeLabel.TabIndex = 8;
             this.readBufferSizeLabel.Text = "readBufferSize";
             // 
             // readBufferSizeTextBox
@@ -611,6 +689,7 @@ namespace Netch.Forms
             this.readBufferSizeTextBox.Location = new System.Drawing.Point(103, 100);
             this.readBufferSizeTextBox.Name = "readBufferSizeTextBox";
             this.readBufferSizeTextBox.Size = new System.Drawing.Size(90, 21);
+            this.readBufferSizeTextBox.TabIndex = 9;
             this.readBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // writeBufferSizeLabel
@@ -619,6 +698,7 @@ namespace Netch.Forms
             this.writeBufferSizeLabel.Location = new System.Drawing.Point(224, 109);
             this.writeBufferSizeLabel.Name = "writeBufferSizeLabel";
             this.writeBufferSizeLabel.Size = new System.Drawing.Size(95, 12);
+            this.writeBufferSizeLabel.TabIndex = 10;
             this.writeBufferSizeLabel.Text = "writeBufferSize";
             // 
             // writeBufferSizeTextBox
@@ -626,6 +706,7 @@ namespace Netch.Forms
             this.writeBufferSizeTextBox.Location = new System.Drawing.Point(331, 106);
             this.writeBufferSizeTextBox.Name = "writeBufferSizeTextBox";
             this.writeBufferSizeTextBox.Size = new System.Drawing.Size(90, 21);
+            this.writeBufferSizeTextBox.TabIndex = 11;
             this.writeBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // congestionCheckBox
@@ -634,6 +715,7 @@ namespace Netch.Forms
             this.congestionCheckBox.Location = new System.Drawing.Point(8, 139);
             this.congestionCheckBox.Name = "congestionCheckBox";
             this.congestionCheckBox.Size = new System.Drawing.Size(84, 16);
+            this.congestionCheckBox.TabIndex = 12;
             this.congestionCheckBox.Text = "congestion";
             this.congestionCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -652,6 +734,7 @@ namespace Netch.Forms
             this.OtherTabPage.Name = "OtherTabPage";
             this.OtherTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.OtherTabPage.Size = new System.Drawing.Size(461, 325);
+            this.OtherTabPage.TabIndex = 4;
             this.OtherTabPage.Text = "Others";
             // 
             // ExitWhenClosedCheckBox
@@ -660,6 +743,7 @@ namespace Netch.Forms
             this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(6, 6);
             this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
             this.ExitWhenClosedCheckBox.Size = new System.Drawing.Size(120, 16);
+            this.ExitWhenClosedCheckBox.TabIndex = 0;
             this.ExitWhenClosedCheckBox.Text = "Exit when closed";
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
@@ -670,6 +754,7 @@ namespace Netch.Forms
             this.StopWhenExitedCheckBox.Location = new System.Drawing.Point(200, 7);
             this.StopWhenExitedCheckBox.Name = "StopWhenExitedCheckBox";
             this.StopWhenExitedCheckBox.Size = new System.Drawing.Size(120, 16);
+            this.StopWhenExitedCheckBox.TabIndex = 1;
             this.StopWhenExitedCheckBox.Text = "Stop when exited";
             this.StopWhenExitedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.StopWhenExitedCheckBox.UseVisualStyleBackColor = true;
@@ -680,6 +765,7 @@ namespace Netch.Forms
             this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(6, 33);
             this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
             this.StartWhenOpenedCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.StartWhenOpenedCheckBox.TabIndex = 2;
             this.StartWhenOpenedCheckBox.Text = "Start when opened";
             this.StartWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.StartWhenOpenedCheckBox.UseVisualStyleBackColor = true;
@@ -690,6 +776,7 @@ namespace Netch.Forms
             this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(200, 33);
             this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
             this.MinimizeWhenStartedCheckBox.Size = new System.Drawing.Size(150, 16);
+            this.MinimizeWhenStartedCheckBox.TabIndex = 3;
             this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
             this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -699,6 +786,7 @@ namespace Netch.Forms
             this.RunAtStartupCheckBox.Location = new System.Drawing.Point(6, 60);
             this.RunAtStartupCheckBox.Name = "RunAtStartupCheckBox";
             this.RunAtStartupCheckBox.Size = new System.Drawing.Size(108, 16);
+            this.RunAtStartupCheckBox.TabIndex = 4;
             this.RunAtStartupCheckBox.Text = "Run at startup";
             this.RunAtStartupCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -708,6 +796,7 @@ namespace Netch.Forms
             this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 60);
             this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
             this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(168, 16);
+            this.CheckUpdateWhenOpenedCheckBox.TabIndex = 5;
             this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
             this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
@@ -718,6 +807,7 @@ namespace Netch.Forms
             this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(200, 87);
             this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
             this.CheckBetaUpdateCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.CheckBetaUpdateCheckBox.TabIndex = 6;
             this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
             this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
@@ -728,6 +818,7 @@ namespace Netch.Forms
             this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 109);
             this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
             this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
+            this.UpdateSubscribeatWhenOpenedCheckBox.TabIndex = 7;
             this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
             this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
@@ -744,6 +835,7 @@ namespace Netch.Forms
             this.AioDNSTabPage.Name = "AioDNSTabPage";
             this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.AioDNSTabPage.Size = new System.Drawing.Size(461, 325);
+            this.AioDNSTabPage.TabIndex = 5;
             this.AioDNSTabPage.Text = "AioDNS";
             this.AioDNSTabPage.UseVisualStyleBackColor = true;
             // 
@@ -753,6 +845,7 @@ namespace Netch.Forms
             this.AioDNSRuleRuleLabel.Location = new System.Drawing.Point(16, 27);
             this.AioDNSRuleRuleLabel.Name = "AioDNSRuleRuleLabel";
             this.AioDNSRuleRuleLabel.Size = new System.Drawing.Size(59, 12);
+            this.AioDNSRuleRuleLabel.TabIndex = 0;
             this.AioDNSRuleRuleLabel.Text = "Rule File";
             // 
             // AioDNSRulePathTextBox
@@ -761,6 +854,7 @@ namespace Netch.Forms
             this.AioDNSRulePathTextBox.Location = new System.Drawing.Point(147, 24);
             this.AioDNSRulePathTextBox.Name = "AioDNSRulePathTextBox";
             this.AioDNSRulePathTextBox.Size = new System.Drawing.Size(201, 21);
+            this.AioDNSRulePathTextBox.TabIndex = 1;
             // 
             // ChinaDNSLabel
             // 
@@ -768,6 +862,7 @@ namespace Netch.Forms
             this.ChinaDNSLabel.Location = new System.Drawing.Point(16, 73);
             this.ChinaDNSLabel.Name = "ChinaDNSLabel";
             this.ChinaDNSLabel.Size = new System.Drawing.Size(59, 12);
+            this.ChinaDNSLabel.TabIndex = 2;
             this.ChinaDNSLabel.Text = "China DNS";
             // 
             // ChinaDNSTextBox
@@ -775,6 +870,7 @@ namespace Netch.Forms
             this.ChinaDNSTextBox.Location = new System.Drawing.Point(147, 70);
             this.ChinaDNSTextBox.Name = "ChinaDNSTextBox";
             this.ChinaDNSTextBox.Size = new System.Drawing.Size(201, 21);
+            this.ChinaDNSTextBox.TabIndex = 3;
             this.ChinaDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // OtherDNSLabel
@@ -783,6 +879,7 @@ namespace Netch.Forms
             this.OtherDNSLabel.Location = new System.Drawing.Point(16, 109);
             this.OtherDNSLabel.Name = "OtherDNSLabel";
             this.OtherDNSLabel.Size = new System.Drawing.Size(59, 12);
+            this.OtherDNSLabel.TabIndex = 4;
             this.OtherDNSLabel.Text = "Other DNS";
             // 
             // OtherDNSTextBox
@@ -790,6 +887,7 @@ namespace Netch.Forms
             this.OtherDNSTextBox.Location = new System.Drawing.Point(147, 106);
             this.OtherDNSTextBox.Name = "OtherDNSTextBox";
             this.OtherDNSTextBox.Size = new System.Drawing.Size(201, 21);
+            this.OtherDNSTextBox.TabIndex = 5;
             this.OtherDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ControlButton
@@ -798,6 +896,7 @@ namespace Netch.Forms
             this.ControlButton.Location = new System.Drawing.Point(397, 363);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
@@ -813,6 +912,7 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
+            this.flowLayoutPanel1.TabIndex = 0;
             // 
             // SettingForm
             // 
@@ -929,5 +1029,7 @@ namespace Netch.Forms
         private System.Windows.Forms.Label ChinaDNSLabel;
         private System.Windows.Forms.TextBox OtherDNSTextBox;
         private System.Windows.Forms.TextBox ChinaDNSTextBox;
+        private System.Windows.Forms.TextBox ModifiedDNSTextBox;
+        private System.Windows.Forms.Label ModifiedDNSLabel;
     }
 }
