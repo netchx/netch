@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -147,7 +148,17 @@ namespace Netch.Forms
                         if (Global.Settings.UseProxyToUpdateSubscription)
                             request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
 
-                        var servers = ShareLink.ParseText(await WebUtil.DownloadStringAsync(request));
+                        List<Server> servers;
+
+                        var result = WebUtil.DownloadString(request, out var rep);
+                        if (rep.StatusCode == HttpStatusCode.OK)
+                        {
+                            servers = ShareLink.ParseText(result);
+                        }
+                        else
+                        {
+                            throw new Exception($"{item.Remark} Response Status Code: {rep.StatusCode}");
+                        }
 
                         foreach (var server in servers)
                         {

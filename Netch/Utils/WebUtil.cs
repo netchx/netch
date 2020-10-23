@@ -51,6 +51,22 @@ namespace Netch.Utils
         ///     异步下载并编码为字符串
         /// </summary>
         /// <param name="req"></param>
+        /// <param name="rep"></param>
+        /// <param name="encoding">编码，默认UTF-8</param>
+        /// <returns></returns>
+        public static string DownloadString(HttpWebRequest req, out HttpWebResponse rep, string encoding = "UTF-8")
+        {
+            rep = (HttpWebResponse) req.GetResponse();
+            using var responseStream = rep.GetResponseStream();
+            using var streamReader = new StreamReader(responseStream, Encoding.GetEncoding(encoding));
+
+            return streamReader.ReadToEnd();
+        }
+
+        /// <summary>
+        ///     异步下载并编码为字符串
+        /// </summary>
+        /// <param name="req"></param>
         /// <param name="encoding">编码，默认UTF-8</param>
         /// <returns></returns>
         public static async Task<string> DownloadStringAsync(HttpWebRequest req, string encoding = "UTF-8")
