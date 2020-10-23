@@ -26,8 +26,9 @@ namespace Netch.Forms
             var texts = Clipboard.GetText();
             if (!string.IsNullOrWhiteSpace(texts))
             {
-                Global.Settings.Server.AddRange(ShareLink.ParseText(texts));
-                NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", ShareLink.ParseText(texts).Count));
+                var servers = ShareLink.ParseText(texts);
+                Global.Settings.Server.AddRange(servers);
+                NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
                 InitServer();
                 Configuration.Save();
