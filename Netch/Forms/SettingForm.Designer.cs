@@ -58,21 +58,23 @@ namespace Netch.Forms
             this.NFTabPage = new System.Windows.Forms.TabPage();
             this.ModifySystemDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.TAPTabPage = new System.Windows.Forms.TabPage();
-            this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
-            this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
-            this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
-            this.ICSCheckBox = new System.Windows.Forms.CheckBox();
-            this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
-            this.TUNTAPDNSLabel = new System.Windows.Forms.Label();
-            this.TUNTAPDNSTextBox = new System.Windows.Forms.TextBox();
-            this.TUNTAPGatewayLabel = new System.Windows.Forms.Label();
-            this.TUNTAPGatewayTextBox = new System.Windows.Forms.TextBox();
-            this.TUNTAPNetmaskLabel = new System.Windows.Forms.Label();
-            this.TUNTAPNetmaskTextBox = new System.Windows.Forms.TextBox();
             this.TUNTAPAddressLabel = new System.Windows.Forms.Label();
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
+            this.TUNTAPNetmaskLabel = new System.Windows.Forms.Label();
+            this.TUNTAPNetmaskTextBox = new System.Windows.Forms.TextBox();
+            this.TUNTAPGatewayLabel = new System.Windows.Forms.Label();
+            this.TUNTAPGatewayTextBox = new System.Windows.Forms.TextBox();
+            this.TUNTAPDNSLabel = new System.Windows.Forms.Label();
+            this.TUNTAPDNSTextBox = new System.Windows.Forms.TextBox();
+            this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.ICSCheckBox = new System.Windows.Forms.CheckBox();
+            this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
+            this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
+            this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
             this.KCPGroupBox = new System.Windows.Forms.GroupBox();
             this.mtuLabel = new System.Windows.Forms.Label();
             this.mtuTextBox = new System.Windows.Forms.TextBox();
@@ -87,17 +89,15 @@ namespace Netch.Forms
             this.writeBufferSizeLabel = new System.Windows.Forms.Label();
             this.writeBufferSizeTextBox = new System.Windows.Forms.TextBox();
             this.congestionCheckBox = new System.Windows.Forms.CheckBox();
-            this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
-            this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.OtherTabPage = new System.Windows.Forms.TabPage();
-            this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
-            this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
-            this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
-            this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
-            this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
-            this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
-            this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
+            this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
+            this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
+            this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
+            this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
+            this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.AioDNSTabPage = new System.Windows.Forms.TabPage();
             this.AioDNSRuleRuleLabel = new System.Windows.Forms.Label();
             this.AioDNSRulePathTextBox = new System.Windows.Forms.TextBox();
@@ -169,7 +169,6 @@ namespace Netch.Forms
             this.PortGroupBox.Location = new System.Drawing.Point(8, 6);
             this.PortGroupBox.Name = "PortGroupBox";
             this.PortGroupBox.Size = new System.Drawing.Size(241, 140);
-            this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
             // 
             // Socks5PortLabel
@@ -266,7 +265,6 @@ namespace Netch.Forms
             this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 186);
             this.TcpingAtStartedCheckBox.Name = "TcpingAtStartedCheckBox";
             this.TcpingAtStartedCheckBox.Size = new System.Drawing.Size(156, 16);
-            this.TcpingAtStartedCheckBox.TabStop = false;
             this.TcpingAtStartedCheckBox.Text = "Delay test after start";
             this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -361,15 +359,6 @@ namespace Netch.Forms
             this.TAPTabPage.Size = new System.Drawing.Size(461, 325);
             this.TAPTabPage.Text = "TUN/TAP";
             // 
-            // GlobalBypassIPsButton
-            // 
-            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(6, 199);
-            this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
-            this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
-            this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
-            this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
-            this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
-            // 
             // TUNTAPGroupBox
             // 
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressLabel);
@@ -387,94 +376,7 @@ namespace Netch.Forms
             this.TUNTAPGroupBox.Location = new System.Drawing.Point(6, 6);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
             this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 187);
-            this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
-            // 
-            // UseFakeDNSCheckBox
-            // 
-            this.UseFakeDNSCheckBox.AutoSize = true;
-            this.UseFakeDNSCheckBox.Location = new System.Drawing.Point(10, 160);
-            this.UseFakeDNSCheckBox.Name = "UseFakeDNSCheckBox";
-            this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(96, 16);
-            this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
-            this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
-            this.UseFakeDNSCheckBox.Visible = false;
-            // 
-            // ProxyDNSCheckBox
-            // 
-            this.ProxyDNSCheckBox.AutoSize = true;
-            this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
-            this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
-            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(138, 16);
-            this.ProxyDNSCheckBox.Text = "Proxy DNS in Mode 2";
-            this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // ICSCheckBox
-            // 
-            this.ICSCheckBox.AutoSize = true;
-            this.ICSCheckBox.Enabled = false;
-            this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
-            this.ICSCheckBox.Name = "ICSCheckBox";
-            this.ICSCheckBox.Size = new System.Drawing.Size(138, 16);
-            this.ICSCheckBox.Text = "Tap Network Sharing";
-            this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ICSCheckBox.UseVisualStyleBackColor = true;
-            this.ICSCheckBox.Click += new System.EventHandler(this.ICSCheckBox_CheckedChanged);
-            // 
-            // UseCustomDNSCheckBox
-            // 
-            this.UseCustomDNSCheckBox.AutoSize = true;
-            this.UseCustomDNSCheckBox.Location = new System.Drawing.Point(10, 139);
-            this.UseCustomDNSCheckBox.Name = "UseCustomDNSCheckBox";
-            this.UseCustomDNSCheckBox.Size = new System.Drawing.Size(108, 16);
-            this.UseCustomDNSCheckBox.Text = "Use Custom DNS";
-            this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
-            this.UseCustomDNSCheckBox.Click += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
-            // 
-            // TUNTAPDNSLabel
-            // 
-            this.TUNTAPDNSLabel.AutoSize = true;
-            this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
-            this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
-            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(23, 12);
-            this.TUNTAPDNSLabel.Text = "DNS";
-            // 
-            // TUNTAPDNSTextBox
-            // 
-            this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 110);
-            this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
-            this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 21);
-            this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // TUNTAPGatewayLabel
-            // 
-            this.TUNTAPGatewayLabel.AutoSize = true;
-            this.TUNTAPGatewayLabel.Location = new System.Drawing.Point(9, 83);
-            this.TUNTAPGatewayLabel.Name = "TUNTAPGatewayLabel";
-            this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(47, 12);
-            this.TUNTAPGatewayLabel.Text = "Gateway";
-            // 
-            // TUNTAPGatewayTextBox
-            // 
-            this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
-            this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
-            this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 21);
-            this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // TUNTAPNetmaskLabel
-            // 
-            this.TUNTAPNetmaskLabel.AutoSize = true;
-            this.TUNTAPNetmaskLabel.Location = new System.Drawing.Point(9, 54);
-            this.TUNTAPNetmaskLabel.Name = "TUNTAPNetmaskLabel";
-            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(47, 12);
-            this.TUNTAPNetmaskLabel.Text = "Netmask";
-            // 
-            // TUNTAPNetmaskTextBox
-            // 
-            this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
-            this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
-            this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 21);
-            this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // TUNTAPAddressLabel
             // 
@@ -491,6 +393,101 @@ namespace Netch.Forms
             this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 21);
             this.TUNTAPAddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // TUNTAPNetmaskLabel
+            // 
+            this.TUNTAPNetmaskLabel.AutoSize = true;
+            this.TUNTAPNetmaskLabel.Location = new System.Drawing.Point(9, 54);
+            this.TUNTAPNetmaskLabel.Name = "TUNTAPNetmaskLabel";
+            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(47, 12);
+            this.TUNTAPNetmaskLabel.Text = "Netmask";
+            // 
+            // TUNTAPNetmaskTextBox
+            // 
+            this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
+            this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
+            this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // TUNTAPGatewayLabel
+            // 
+            this.TUNTAPGatewayLabel.AutoSize = true;
+            this.TUNTAPGatewayLabel.Location = new System.Drawing.Point(9, 83);
+            this.TUNTAPGatewayLabel.Name = "TUNTAPGatewayLabel";
+            this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(47, 12);
+            this.TUNTAPGatewayLabel.Text = "Gateway";
+            // 
+            // TUNTAPGatewayTextBox
+            // 
+            this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
+            this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
+            this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // TUNTAPDNSLabel
+            // 
+            this.TUNTAPDNSLabel.AutoSize = true;
+            this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
+            this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
+            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(23, 12);
+            this.TUNTAPDNSLabel.Text = "DNS";
+            // 
+            // TUNTAPDNSTextBox
+            // 
+            this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 110);
+            this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
+            this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 21);
+            this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // UseCustomDNSCheckBox
+            // 
+            this.UseCustomDNSCheckBox.AutoSize = true;
+            this.UseCustomDNSCheckBox.Location = new System.Drawing.Point(10, 139);
+            this.UseCustomDNSCheckBox.Name = "UseCustomDNSCheckBox";
+            this.UseCustomDNSCheckBox.Size = new System.Drawing.Size(108, 16);
+            this.UseCustomDNSCheckBox.Text = "Use Custom DNS";
+            this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
+            this.UseCustomDNSCheckBox.Click += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
+            // 
+            // ProxyDNSCheckBox
+            // 
+            this.ProxyDNSCheckBox.AutoSize = true;
+            this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
+            this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
+            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(138, 16);
+            this.ProxyDNSCheckBox.Text = "Proxy DNS in Mode 2";
+            this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // UseFakeDNSCheckBox
+            // 
+            this.UseFakeDNSCheckBox.AutoSize = true;
+            this.UseFakeDNSCheckBox.Location = new System.Drawing.Point(10, 160);
+            this.UseFakeDNSCheckBox.Name = "UseFakeDNSCheckBox";
+            this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(96, 16);
+            this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
+            this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
+            this.UseFakeDNSCheckBox.Visible = false;
+            // 
+            // ICSCheckBox
+            // 
+            this.ICSCheckBox.AutoSize = true;
+            this.ICSCheckBox.Enabled = false;
+            this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
+            this.ICSCheckBox.Name = "ICSCheckBox";
+            this.ICSCheckBox.Size = new System.Drawing.Size(138, 16);
+            this.ICSCheckBox.Text = "Tap Network Sharing";
+            this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ICSCheckBox.UseVisualStyleBackColor = true;
+            this.ICSCheckBox.Click += new System.EventHandler(this.ICSCheckBox_CheckedChanged);
+            // 
+            // GlobalBypassIPsButton
+            // 
+            this.GlobalBypassIPsButton.Location = new System.Drawing.Point(6, 199);
+            this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
+            this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
+            this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
+            this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
+            this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
+            // 
             // v2rayTabPage
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
@@ -502,6 +499,24 @@ namespace Netch.Forms
             this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
             this.v2rayTabPage.Size = new System.Drawing.Size(461, 325);
             this.v2rayTabPage.Text = "V2Ray";
+            // 
+            // TLSAllowInsecureCheckBox
+            // 
+            this.TLSAllowInsecureCheckBox.AutoSize = true;
+            this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
+            this.TLSAllowInsecureCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
+            this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // UseMuxCheckBox
+            // 
+            this.UseMuxCheckBox.AutoSize = true;
+            this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 15);
+            this.UseMuxCheckBox.Name = "UseMuxCheckBox";
+            this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
+            this.UseMuxCheckBox.Text = "Use Mux";
+            this.UseMuxCheckBox.UseVisualStyleBackColor = true;
             // 
             // KCPGroupBox
             // 
@@ -521,7 +536,6 @@ namespace Netch.Forms
             this.KCPGroupBox.Location = new System.Drawing.Point(9, 48);
             this.KCPGroupBox.Name = "KCPGroupBox";
             this.KCPGroupBox.Size = new System.Drawing.Size(427, 204);
-            this.KCPGroupBox.TabStop = false;
             this.KCPGroupBox.Text = "KCP";
             // 
             // mtuLabel
@@ -623,24 +637,6 @@ namespace Netch.Forms
             this.congestionCheckBox.Text = "congestion";
             this.congestionCheckBox.UseVisualStyleBackColor = true;
             // 
-            // UseMuxCheckBox
-            // 
-            this.UseMuxCheckBox.AutoSize = true;
-            this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 15);
-            this.UseMuxCheckBox.Name = "UseMuxCheckBox";
-            this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
-            this.UseMuxCheckBox.Text = "Use Mux";
-            this.UseMuxCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // TLSAllowInsecureCheckBox
-            // 
-            this.TLSAllowInsecureCheckBox.AutoSize = true;
-            this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 15);
-            this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
-            this.TLSAllowInsecureCheckBox.Size = new System.Drawing.Size(126, 16);
-            this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
-            this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
-            // 
             // OtherTabPage
             // 
             this.OtherTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
@@ -658,63 +654,15 @@ namespace Netch.Forms
             this.OtherTabPage.Size = new System.Drawing.Size(461, 325);
             this.OtherTabPage.Text = "Others";
             // 
-            // UpdateSubscribeatWhenOpenedCheckBox
+            // ExitWhenClosedCheckBox
             // 
-            this.UpdateSubscribeatWhenOpenedCheckBox.AutoSize = true;
-            this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 109);
-            this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
-            this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
-            this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
-            this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // RunAtStartupCheckBox
-            // 
-            this.RunAtStartupCheckBox.AutoSize = true;
-            this.RunAtStartupCheckBox.Location = new System.Drawing.Point(6, 60);
-            this.RunAtStartupCheckBox.Name = "RunAtStartupCheckBox";
-            this.RunAtStartupCheckBox.Size = new System.Drawing.Size(108, 16);
-            this.RunAtStartupCheckBox.Text = "Run at startup";
-            this.RunAtStartupCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // MinimizeWhenStartedCheckBox
-            // 
-            this.MinimizeWhenStartedCheckBox.AutoSize = true;
-            this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(200, 33);
-            this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
-            this.MinimizeWhenStartedCheckBox.Size = new System.Drawing.Size(150, 16);
-            this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
-            this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // CheckBetaUpdateCheckBox
-            // 
-            this.CheckBetaUpdateCheckBox.AutoSize = true;
-            this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(200, 87);
-            this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
-            this.CheckBetaUpdateCheckBox.Size = new System.Drawing.Size(126, 16);
-            this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
-            this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // CheckUpdateWhenOpenedCheckBox
-            // 
-            this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
-            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 60);
-            this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
-            this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(168, 16);
-            this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
-            this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // StartWhenOpenedCheckBox
-            // 
-            this.StartWhenOpenedCheckBox.AutoSize = true;
-            this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(6, 33);
-            this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
-            this.StartWhenOpenedCheckBox.Size = new System.Drawing.Size(126, 16);
-            this.StartWhenOpenedCheckBox.Text = "Start when opened";
-            this.StartWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.StartWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            this.ExitWhenClosedCheckBox.AutoSize = true;
+            this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(6, 6);
+            this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
+            this.ExitWhenClosedCheckBox.Size = new System.Drawing.Size(120, 16);
+            this.ExitWhenClosedCheckBox.Text = "Exit when closed";
+            this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
             // 
             // StopWhenExitedCheckBox
             // 
@@ -726,15 +674,63 @@ namespace Netch.Forms
             this.StopWhenExitedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.StopWhenExitedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // ExitWhenClosedCheckBox
+            // StartWhenOpenedCheckBox
             // 
-            this.ExitWhenClosedCheckBox.AutoSize = true;
-            this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(6, 6);
-            this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
-            this.ExitWhenClosedCheckBox.Size = new System.Drawing.Size(120, 16);
-            this.ExitWhenClosedCheckBox.Text = "Exit when closed";
-            this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
+            this.StartWhenOpenedCheckBox.AutoSize = true;
+            this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(6, 33);
+            this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
+            this.StartWhenOpenedCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.StartWhenOpenedCheckBox.Text = "Start when opened";
+            this.StartWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.StartWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // MinimizeWhenStartedCheckBox
+            // 
+            this.MinimizeWhenStartedCheckBox.AutoSize = true;
+            this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(200, 33);
+            this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
+            this.MinimizeWhenStartedCheckBox.Size = new System.Drawing.Size(150, 16);
+            this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
+            this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // RunAtStartupCheckBox
+            // 
+            this.RunAtStartupCheckBox.AutoSize = true;
+            this.RunAtStartupCheckBox.Location = new System.Drawing.Point(6, 60);
+            this.RunAtStartupCheckBox.Name = "RunAtStartupCheckBox";
+            this.RunAtStartupCheckBox.Size = new System.Drawing.Size(108, 16);
+            this.RunAtStartupCheckBox.Text = "Run at startup";
+            this.RunAtStartupCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // CheckUpdateWhenOpenedCheckBox
+            // 
+            this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
+            this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 60);
+            this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
+            this.CheckUpdateWhenOpenedCheckBox.Size = new System.Drawing.Size(168, 16);
+            this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
+            this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // CheckBetaUpdateCheckBox
+            // 
+            this.CheckBetaUpdateCheckBox.AutoSize = true;
+            this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(200, 87);
+            this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
+            this.CheckBetaUpdateCheckBox.Size = new System.Drawing.Size(126, 16);
+            this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
+            this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // UpdateSubscribeatWhenOpenedCheckBox
+            // 
+            this.UpdateSubscribeatWhenOpenedCheckBox.AutoSize = true;
+            this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 109);
+            this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
+            this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
+            this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
+            this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
             // 
             // AioDNSTabPage
             // 
