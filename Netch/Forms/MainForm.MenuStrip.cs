@@ -298,36 +298,32 @@ namespace Netch.Forms
 
         private async void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            State = State.Starting;
+            Enabled = false;
             StatusText(i18N.TranslateFormat("Uninstalling {0}", "NF Service"));
-            var result = false;
             try
             {
                 await Task.Run(() =>
                 {
                     if (NFController.UninstallDriver())
                     {
-                        result = true;
+                        StatusText(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
                     }
                 });
             }
             finally
             {
-                State = State.Stopped;
-                if (result)
-                    StatusText(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
+                Enabled = true;
             }
         }
 
         private async void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            State = State.Starting;
             StatusText(i18N.TranslateFormat("Uninstalling {0}", "TUN/TAP driver"));
-            var result = false;
+            Enabled = false;
             try
             {
                 await Task.Run(TUNTAP.deltapall);
-                result = true;
+                StatusText(i18N.TranslateFormat("{0} has been uninstalled", "TUN/TAP driver"));
             }
             catch (Exception exception)
             {
@@ -335,9 +331,8 @@ namespace Netch.Forms
             }
             finally
             {
-                State = State.Stopped;
-                if (result)
-                    StatusText(i18N.TranslateFormat("{0} has been uninstalled", "TUN/TAP driver"));
+                State = State.Waiting;
+                Enabled = true;
             }
         }
 

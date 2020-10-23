@@ -334,7 +334,7 @@ namespace Netch.Forms
 
         private async void SpeedPictureBox_Click(object sender, EventArgs e)
         {
-            State = State.Starting;
+            Enabled = false;
             StatusText(i18N.Translate("Testing"));
             try
             {
@@ -342,7 +342,7 @@ namespace Netch.Forms
             }
             finally
             {
-                State = State.Stopped;
+                Enabled = true;
                 StatusText(i18N.Translate("Test done"));
                 Refresh();
             }
