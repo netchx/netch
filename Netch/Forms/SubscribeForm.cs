@@ -109,14 +109,14 @@ namespace Netch.Forms
                 return;
             }
 
-            if (Global.Settings.SubscribeLink.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
-            {
-                MessageBoxX.Show("Remark Name Duplicate!");
-                return;
-            }
-
             if (_editingIndex == -1)
             {
+                if (Global.Settings.SubscribeLink.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
+                {
+                    MessageBoxX.Show("Remark Name Duplicate!");
+                    return;
+                }
+
                 Global.Settings.SubscribeLink.Add(new SubscribeLink
                 {
                     Remark = RemarkTextBox.Text,
