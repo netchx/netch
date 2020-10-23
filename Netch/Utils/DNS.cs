@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Microsoft.Win32;
 
@@ -74,6 +76,25 @@ namespace Netch.Utils
                 }
             }
             set => AdapterRegistry(true).SetValue("NameServer", value, RegistryValueKind.String);
+        }
+
+        public static IEnumerable<string> Split(string dns)
+        {
+            return dns.Split(',').Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => ip.Trim());
+        }
+
+        public static bool TrySplit(string value, out IEnumerable<string> result, ushort maxCount = 0)
+        {
+            result = Split(value).ToArray();
+
+            return maxCount == 0 || result.Count() <= maxCount
+                &&
+                result.All(ip => IPAddress.TryParse(ip, out _));
+        }
+
+        public static string Join(IEnumerable<string> dns)
+        {
+            return string.Join(",", dns);
         }
     }
 }

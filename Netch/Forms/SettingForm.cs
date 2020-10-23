@@ -90,11 +90,7 @@ namespace Netch.Forms
                 Global.Settings.ModifySystemDNS);
 
             BindTextBox(ModifiedDNSTextBox,
-                s =>
-                {
-                    var dns = s.Split(',').Select(ip => ip.Trim()).ToArray();
-                    return dns.Length <= 2 && dns.All(ip => IPAddress.TryParse(ip, out _));
-                },
+                s => DNS.TrySplit(s, out _, 2),
                 s => Global.Settings.ModifiedDNS = s,
                 Global.Settings.ModifiedDNS);
 
@@ -118,6 +114,11 @@ namespace Netch.Forms
                 b => { Global.Settings.TUNTAP.UseCustomDNS = b; },
                 Global.Settings.TUNTAP.UseCustomDNS);
             TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
+
+            BindTextBox(TUNTAPDNSTextBox,
+                s => !UseCustomDNSCheckBox.Checked || DNS.TrySplit(s, out _, 2),
+                s => Global.Settings.TUNTAP.DNS = DNS.Split(s).ToList(),
+                DNS.Join(Global.Settings.TUNTAP.DNS));
 
             BindCheckBox(ProxyDNSCheckBox,
                 b => Global.Settings.TUNTAP.ProxyDNS = b,
@@ -244,7 +245,7 @@ namespace Netch.Forms
             if (UseCustomDNSCheckBox.Checked)
             {
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
-                    ? string.Join(",", Global.Settings.TUNTAP.DNS)
+                    ? DNS.Join(Global.Settings.TUNTAP.DNS)
                     : "1.1.1.1";
             }
             else
@@ -283,42 +284,6 @@ namespace Netch.Forms
 
             #region Check
 
-            #region TUNTAP
-
-            var dns = new string[0];
-            try
-            {
-                if (UseCustomDNSCheckBox.Checked)
-                {
-                    dns = TUNTAPDNSTextBox.Text.Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(s => s.Trim())
-                        .ToArray();
-                    if (dns.Any())
-                    {
-                        foreach (var ip in dns)
-                            IPAddress.Parse(ip);
-                    }
-                    else
-                    {
-                        MessageBoxX.Show("DNS can not be empty");
-                        return;
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                if (exception is FormatException)
-                    MessageBoxX.Show(i18N.Translate("IP address format illegal. Try again."));
-
-                if (UseCustomDNSCheckBox.Checked)
-                {
-                    TUNTAPDNSTextBox.Text = string.Join(",", Global.Settings.TUNTAP.DNS);
-                }
-
-                return;
-            }
-
-            #endregion
-
             #region Behavior
 
             // STUN
@@ -356,7 +321,6 @@ namespace Netch.Forms
                 pair.Value.Invoke(pair.Key);
             }
 
-            Global.Settings.TUNTAP.DNS = dns.ToList();
             Global.Settings.STUN_Server = stunServer;
             Global.Settings.STUN_Server_Port = stunServerPort;
 

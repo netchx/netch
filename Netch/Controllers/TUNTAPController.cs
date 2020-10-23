@@ -73,7 +73,7 @@ namespace Netch.Controllers
             {
                 if (Global.Settings.TUNTAP.DNS.Any())
                 {
-                    dns = string.Join(",", Global.Settings.TUNTAP.DNS);
+                    dns = DNS.Join(Global.Settings.TUNTAP.DNS);
                 }
                 else
                 {
