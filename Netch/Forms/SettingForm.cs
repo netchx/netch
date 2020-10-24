@@ -323,6 +323,7 @@ namespace Netch.Forms
 
             Global.Settings.STUN_Server = stunServer;
             Global.Settings.STUN_Server_Port = stunServerPort;
+            Global.Settings.Language = LanguageComboBox.Text;
 
             #endregion
 
