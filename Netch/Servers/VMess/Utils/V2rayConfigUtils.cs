@@ -224,15 +224,15 @@ namespace Netch.Servers.VMess.Utils
                     }
                 }
 
-                v2rayConfig.outbounds = new List<Outbounds>
-                {
-                    outbound,
+                v2rayConfig.outbounds = new List<Outbounds> {outbound};
+                if (mode.Type <= 2)
+                    return;
+                v2rayConfig.outbounds.Add(
                     new Outbounds
                     {
                         tag = "direct",
                         protocol = "freedom"
-                    }
-                };
+                    });
             }
             catch
             {
