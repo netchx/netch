@@ -75,7 +75,7 @@ namespace System.Windows.Forms
 
         private bool IsOriginalItems => Items.Count == AutoFillTag.Length;
 
-        private void ResetCompletionList()
+        public void ResetCompletionList()
         {
             Keyword = null;
             try

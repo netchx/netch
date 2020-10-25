@@ -40,7 +40,7 @@ namespace Netch.Forms
             BindTextBox<ushort>(RedirectorTextBox,
                 s => CheckPort("RedirectorTCP", s, Global.Settings.RedirectorTCPPort),
                 s => Global.Settings.RedirectorTCPPort = s,
-                Global.Settings.HTTPLocalPort);
+                Global.Settings.RedirectorTCPPort);
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
                 Global.Settings.LocalAddress switch

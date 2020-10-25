@@ -79,7 +79,8 @@ namespace Netch.Forms
         private void LoadProfile(int index)
         {
             var p = Global.Settings.Profiles[index];
-            ProfileNameText.Text = p.ModeRemark;
+            ProfileNameText.Text = p.ProfileName;
+            ModeComboBox.ResetCompletionList();
 
             if (p.IsDummy)
                 throw new Exception("Profile not found.");
@@ -159,9 +160,6 @@ namespace Netch.Forms
                 ProfileButtons[index].Text = i18N.Translate("None");
                 return;
             }
-
-            // Reset Mode ComboBox Items
-            ModeComboBox.Text = string.Empty;
 
             try
             {
