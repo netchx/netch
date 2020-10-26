@@ -122,6 +122,14 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
             if (controller.Start(in server, mode))
             {
+                if (controller is Guard guard)
+                {
+                    if (guard.Instance != null)
+                    {
+                        ChildProcessTracker.AddProcess(guard.Instance);
+                    }
+                }
+
                 UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
                 StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";
 
@@ -143,7 +151,20 @@ namespace Netch.Controllers
             if (ModeController != null)
             {
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-                return await Task.Run(() => ModeController.Start(mode));
+                if (await Task.Run(() => ModeController.Start(mode)))
+                {
+                    if (ModeController is Guard guard)
+                    {
+                        if (guard.Instance != null)
+                        {
+                            ChildProcessTracker.AddProcess(guard.Instance);
+                        }
+                    }
+
+                    return true;
+                }
+
+                return false;
             }
 
             return true;

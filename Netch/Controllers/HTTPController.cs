@@ -31,7 +31,10 @@ namespace Netch.Controllers
 
             try
             {
-                pPrivoxyController.Start(MainController.ServerController.Server, mode);
+                if (pPrivoxyController.Start(MainController.ServerController.Server, mode))
+                {
+                    ChildProcessTracker.AddProcess(pPrivoxyController.Instance);
+                }
 
                 if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
             }
