@@ -256,19 +256,13 @@ namespace Netch.Forms
 
         private async void UpdateACL(bool useProxy)
         {
-            void DisableItems(bool v)
-            {
-                UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled = v;
-            }
-
             if (useProxy && ServerComboBox.SelectedIndex == -1)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
-            DisableItems(false);
-
+            Enabled = false;
 
             NotifyTip(i18N.Translate("Updating in the background"));
             try
@@ -304,7 +298,7 @@ namespace Netch.Forms
                     State = State.Stopped;
                 }
 
-                DisableItems(true);
+                Enabled = true;
             }
         }
 

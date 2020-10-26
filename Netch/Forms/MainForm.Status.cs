@@ -35,10 +35,11 @@ namespace Netch.Forms
 
                     // 启动需要禁用的控件
                     UninstallServiceToolStripMenuItem.Enabled =
-                        updateACLWithProxyToolStripMenuItem.Enabled =
-                            UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                                UninstallTapDriverToolStripMenuItem.Enabled =
-                                    ReloadModesToolStripMenuItem.Enabled = enabled;
+                        UpdateACLToolStripMenuItem.Enabled =
+                            updateACLWithProxyToolStripMenuItem.Enabled =
+                                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                                    UninstallTapDriverToolStripMenuItem.Enabled =
+                                        ReloadModesToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
