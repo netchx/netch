@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
+using System.Linq;
 using Netch.Models;
 using Netch.Utils;
 
@@ -186,12 +187,7 @@ namespace Netch.Forms
         {
             private static ushort? _socks5Port;
             private static ushort? _httpPort;
-            private static bool? _shareLan;
-
-            public static bool ShareLan
-            {
-                set => _shareLan = value;
-            }
+            private static bool ShareLan => Global.Settings.LocalAddress != "127.0.0.1";
 
             public static ushort HttpPort
             {
@@ -207,31 +203,28 @@ namespace Netch.Forms
             {
                 get
                 {
-                    if (_socks5Port == null && _httpPort == null)
-                        return string.Empty;
-
-                    var text = new StringBuilder();
-                    if (_shareLan == true)
-                        text.Append(i18N.Translate("Allow other Devices to connect") + " ");
+                    var strings = new List<string>();
 
                     if (_socks5Port != null)
-                        text.Append($"Socks5 {i18N.Translate("Local Port", ": ")}{_socks5Port}");
+                    {
+                        strings.Add($"Socks5 {i18N.Translate("Local Port", ": ")}{_socks5Port}");
+                    }
 
                     if (_httpPort != null)
                     {
-                        if (_socks5Port != null)
-                            text.Append(" | ");
-                        text.Append($"HTTP {i18N.Translate("Local Port", ": ")}{_httpPort}");
+                        strings.Add($"HTTP {i18N.Translate("Local Port", ": ")}{_httpPort}");
                     }
 
-                    return $" ({text})";
+                    if (!strings.Any())
+                        return string.Empty;
+
+                    return $" ({(ShareLan ? i18N.Translate("Allow other Devices to connect") + " " : "")}{string.Join(" | ", strings)})";
                 }
             }
 
             public static void Reset()
             {
                 _httpPort = _socks5Port = null;
-                _shareLan = null;
             }
         }
     }

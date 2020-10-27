@@ -130,8 +130,15 @@ namespace Netch.Controllers
                     }
                 }
 
-                UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
-                StatusPortInfoText.ShareLan = controller.LocalAddress == "0.0.0.0";
+                if (server is Socks5 socks5)
+                {
+                    if (socks5.Auth() && !mode.SupportSocks5Auth)
+                        UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
+                }
+                else
+                {
+                    UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
+                }
 
                 return true;
             }
