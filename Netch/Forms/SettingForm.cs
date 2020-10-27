@@ -90,6 +90,8 @@ namespace Netch.Forms
                 b => Global.Settings.ModifySystemDNS = b,
                 Global.Settings.ModifySystemDNS);
 
+            ModifySystemDNSCheckBox_CheckedChanged(null, null);
+
             BindTextBox(ModifiedDNSTextBox,
                 s => DNS.TrySplit(s, out _, 2),
                 s => Global.Settings.ModifiedDNS = s,
