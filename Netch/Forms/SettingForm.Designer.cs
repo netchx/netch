@@ -927,7 +927,7 @@ namespace Netch.Forms
             this.Name = "SettingForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Settings";
-            this.Load += new System.EventHandler(this.SettingForm2_Load);
+            this.Load += new System.EventHandler(this.SettingForm_Load);
             this.TabControl.ResumeLayout(false);
             this.GeneralTabPage.ResumeLayout(false);
             this.GeneralTabPage.PerformLayout();

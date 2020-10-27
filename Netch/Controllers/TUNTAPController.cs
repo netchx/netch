@@ -68,6 +68,8 @@ namespace Netch.Controllers
 
             SetupRouteTable();
 
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", Name));
+
             string dns;
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {

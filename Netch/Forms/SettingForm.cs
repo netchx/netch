@@ -20,8 +20,9 @@ namespace Netch.Forms
         }
 
 
-        private void SettingForm2_Load(object sender, EventArgs e)
+        private void SettingForm_Load(object sender, EventArgs e)
         {
+            TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
             Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
         }
 
