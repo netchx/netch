@@ -187,7 +187,7 @@ namespace Netch.Forms
         {
             private static ushort? _socks5Port;
             private static ushort? _httpPort;
-            private static bool ShareLan => Global.Settings.LocalAddress != "127.0.0.1";
+            private static bool _shareLan;
 
             public static ushort HttpPort
             {
@@ -198,6 +198,8 @@ namespace Netch.Forms
             {
                 set => _socks5Port = value;
             }
+
+            public static void UpdateShareLan() => _shareLan = Global.Settings.LocalAddress != "127.0.0.1";
 
             public static string Value
             {
@@ -218,7 +220,7 @@ namespace Netch.Forms
                     if (!strings.Any())
                         return string.Empty;
 
-                    return $" ({(ShareLan ? i18N.Translate("Allow other Devices to connect") + " " : "")}{string.Join(" | ", strings)})";
+                    return $" ({(_shareLan ? i18N.Translate("Allow other Devices to connect") + " " : "")}{string.Join(" | ", strings)})";
                 }
             }
 

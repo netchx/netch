@@ -69,6 +69,8 @@ namespace Netch.Controllers
                     throw new StartFailedException();
                 }
 
+                StatusPortInfoText.UpdateShareLan();
+
                 if (!await StartMode(server, mode))
                 {
                     throw new StartFailedException();
