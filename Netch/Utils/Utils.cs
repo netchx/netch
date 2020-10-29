@@ -7,10 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MaxMind.GeoIP2;
+using TaskScheduler;
 
 namespace Netch.Utils
 {
@@ -96,7 +98,7 @@ namespace Netch.Utils
         {
             try
             {
-                var sha256 = System.Security.Cryptography.SHA256.Create();
+                var sha256 = SHA256.Create();
                 var fileStream = File.OpenRead(filePath);
                 return sha256.ComputeHash(fileStream).Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
             }
@@ -235,6 +237,52 @@ namespace Netch.Utils
                         ComponentIterator(control.ContextMenuStrip, func);
 
                     break;
+            }
+        }
+
+        public static void RegisterNetchStartupItem()
+        {
+            var scheduler = new TaskSchedulerClass();
+            scheduler.Connect();
+            var folder = scheduler.GetFolder("\\");
+
+            var taskIsExists = false;
+            try
+            {
+                folder.GetTask("Netch Startup");
+                taskIsExists = true;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            if (Global.Settings.RunAtStartup)
+            {
+                if (taskIsExists)
+                    folder.DeleteTask("Netch Startup", 0);
+
+                var task = scheduler.NewTask(0);
+                task.RegistrationInfo.Author = "Netch";
+                task.RegistrationInfo.Description = "Netch run at startup.";
+                task.Principal.RunLevel = _TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
+
+                task.Triggers.Create(_TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+                var action = (IExecAction) task.Actions.Create(_TASK_ACTION_TYPE.TASK_ACTION_EXEC);
+                action.Path = Application.ExecutablePath;
+
+
+                task.Settings.ExecutionTimeLimit = "PT0S";
+                task.Settings.DisallowStartIfOnBatteries = false;
+                task.Settings.RunOnlyIfIdle = false;
+
+                folder.RegisterTaskDefinition("Netch Startup", task, (int) _TASK_CREATION.TASK_CREATE, null, null,
+                    _TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "");
+            }
+            else
+            {
+                if (taskIsExists)
+                    folder.DeleteTask("Netch Startup", 0);
             }
         }
     }
