@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
@@ -49,23 +46,10 @@ namespace Netch.Controllers
 
         public bool Start(in Mode mode)
         {
-            var binFileVersion = Utils.Utils.GetFileVersion(BinDriver);
-            var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
+            if (!CheckDriver())
+                return false;
 
-            Logging.Info("内置驱动版本: " + binFileVersion);
-            Logging.Info("系统驱动版本: " + systemFileVersion);
-
-            if (!systemFileVersion.Equals(binFileVersion))
-            {
-                if (File.Exists(SystemDriver))
-                {
-                    Logging.Info("更新驱动");
-                    UninstallDriver();
-                }
-
-                if (!InstallDriver())
-                    return false;
-            }
+            #region aio_dial
 
             aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
             aio_dial((int) NameList.TYPE_FILTERTCP, "true");
@@ -75,6 +59,8 @@ namespace Netch.Controllers
             SetServer(MainController.ServerController, PortType.Both);
 
             SetName(mode);
+
+            #endregion
 
             if (Global.Settings.ModifySystemDNS)
             {
@@ -86,6 +72,66 @@ namespace Netch.Controllers
             }
 
             return aio_init();
+        }
+
+        private static bool CheckDriver()
+        {
+            var binFileVersion = Utils.Utils.GetFileVersion(BinDriver);
+            var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
+
+            Logging.Info("内置驱动版本: " + binFileVersion);
+            Logging.Info("系统驱动版本: " + systemFileVersion);
+
+            if (!File.Exists(BinDriver))
+            {
+                Logging.Warning("内置驱动不存在");
+                if (File.Exists(SystemDriver))
+                {
+                    Logging.Warning("使用系统驱动");
+                    return true;
+                }
+
+                Logging.Error("未安装驱动");
+                return false;
+            }
+
+            if (!File.Exists(SystemDriver))
+            {
+                return InstallDriver();
+            }
+
+            var updateFlag = false;
+
+            if (Version.TryParse(binFileVersion, out var binResult) && Version.TryParse(systemFileVersion, out var systemResult))
+            {
+                if (binResult.CompareTo(systemResult) > 0)
+                {
+                    // Bin greater than Installed
+                    updateFlag = true;
+                }
+                else
+                {
+                    // Installed greater than Bin
+                    if (systemResult.Major != binResult.Major)
+                    {
+                        // API breaking changes
+                        updateFlag = true;
+                    }
+                }
+            }
+            else
+            {
+                if (!systemFileVersion.Equals(binFileVersion))
+                {
+                    updateFlag = true;
+                }
+            }
+
+            if (!updateFlag) return true;
+
+            Logging.Info("更新驱动");
+            UninstallDriver();
+            return InstallDriver();
         }
 
         private void SetServer(in IServerController controller, in PortType portType)
