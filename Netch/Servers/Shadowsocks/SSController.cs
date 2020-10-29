@@ -16,13 +16,15 @@ namespace Netch.Servers.Shadowsocks
         public string LocalAddress { get; set; }
 
         private Mode _savedMode;
-        public bool DllFlag => Global.Settings.BootShadowsocksFromDLL && (_savedMode.Type == 0 || _savedMode.Type == 1 || _savedMode.Type == 2);
+        public bool DllFlag;
 
         public bool Start(in Server s, in Mode mode)
         {
             _savedMode = mode;
             Server = s;
             var server = (Shadowsocks) s;
+            DllFlag = Global.Settings.BootShadowsocksFromDLL && (_savedMode.Type == 0 || _savedMode.Type == 1 || _savedMode.Type == 2);
+
             //从DLL启动Shaowsocks
             if (DllFlag)
             {
@@ -76,13 +78,12 @@ namespace Netch.Servers.Shadowsocks
 
         public override void Stop()
         {
-            if (Instance == null)
+            if (DllFlag)
                 ShadowsocksDLL.Stop();
             else
                 StopInstance();
             _savedMode = null;
         }
-
 
         private class ShadowsocksDLL
         {

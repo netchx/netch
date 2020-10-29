@@ -31,7 +31,7 @@ namespace Netch.Servers.Trojan
             {
                 local_addr = this.LocalAddress(),
                 local_port = this.Socks5LocalPort(),
-                remote_addr = server.AutoResolveHostname(),
+                remote_addr = server.Hostname,
                 remote_port = server.Port,
                 password = new List<string>
                 {
