@@ -151,32 +151,33 @@ namespace Netch.Controllers
         private static async Task<bool> StartMode(Server server, Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName, out var portType);
+
+            if (ModeController == null)
+            {
+                return true;
+            }
+
             if (port != null)
             {
                 PortCheckAndShowMessageBox((ushort) port, portName, portType);
                 UsingPorts.Add((ushort) port);
             }
 
-            if (ModeController != null)
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+            if (await Task.Run(() => ModeController.Start(mode)))
             {
-                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-                if (await Task.Run(() => ModeController.Start(mode)))
+                if (ModeController is Guard guard)
                 {
-                    if (ModeController is Guard guard)
+                    if (guard.Instance != null)
                     {
-                        if (guard.Instance != null)
-                        {
-                            ChildProcessTracker.AddProcess(guard.Instance);
-                        }
+                        ChildProcessTracker.AddProcess(guard.Instance);
                     }
-
-                    return true;
                 }
 
-                return false;
+                return true;
             }
 
-            return true;
+            return false;
         }
 
         /// <summary>

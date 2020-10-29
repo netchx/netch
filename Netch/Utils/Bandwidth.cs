@@ -8,6 +8,7 @@ using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
+using Netch.Servers.Socks5;
 
 namespace Netch.Utils
 {
@@ -63,26 +64,28 @@ namespace Netch.Utils
 
             //var processList = Process.GetProcessesByName(ProcessName).Select(p => p.Id).ToHashSet();
             var instances = new List<Process>();
-            if (server.Type.Equals("Socks5") && MainController.ModeController.Name == "HTTP")
+            switch (MainController.ServerController)
             {
-                instances.Add(((HTTPController) MainController.ModeController).pPrivoxyController.Instance);
-            }
-            else if (MainController.ServerController != null)
-            {
-                switch (MainController.ServerController)
-                {
-                    case SSController ssController when ssController.DllFlag:
-                        instances.Add(Process.GetCurrentProcess());
-                        break;
-                    case Guard instanceController:
+                case null:
+                    break;
+                case SSController ssController when ssController.DllFlag:
+                    instances.Add(Process.GetCurrentProcess());
+                    break;
+                case Guard instanceController:
+                    if (instanceController.Instance != null)
                         instances.Add(instanceController.Instance);
-                        break;
-                }
+                    break;
             }
-            else if (MainController.ModeController != null)
+
+            if (!instances.Any())
             {
                 switch (MainController.ModeController)
                 {
+                    case null:
+                        break;
+                    case HTTPController httpController:
+                        instances.Add(httpController.pPrivoxyController.Instance);
+                        break;
                     case NFController _:
                         instances.Add(Process.GetCurrentProcess());
                         break;
