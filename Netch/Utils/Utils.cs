@@ -285,5 +285,16 @@ namespace Netch.Utils
                     folder.DeleteTask("Netch Startup", 0);
             }
         }
+
+        public static void ChangeControlForeColor(Component component, Color color)
+        {
+            switch (component)
+            {
+                case TextBox _:
+                case ComboBox _:
+                    if (((Control) component).ForeColor != color) ((Control) component).ForeColor = color;
+                    break;
+            }
+        }
     }
 }

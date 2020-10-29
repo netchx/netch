@@ -168,28 +168,37 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            if (_checkActions.All(pair => pair.Value.Invoke(pair.Key.Text)))
+            Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
+
+            var flag = true;
+            foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
             {
-                foreach (var pair in _saveActions)
-                {
-                    switch (pair.Key)
-                    {
-                        case CheckBox c:
-                            pair.Value.Invoke(c.Checked);
-                            break;
-                        default:
-                            pair.Value.Invoke(pair.Key.Text);
-                            break;
-                    }
-                }
-
-                if (Global.Settings.Server.IndexOf(Server) == -1)
-                    Global.Settings.Server.Add(Server);
-
-                MessageBoxX.Show(i18N.Translate("Saved"));
+                Utils.Utils.ChangeControlForeColor(pair.Key, Color.Red);
+                flag = false;
             }
-            else
+
+            if (!flag)
+            {
                 return;
+            }
+
+            foreach (var pair in _saveActions)
+            {
+                switch (pair.Key)
+                {
+                    case CheckBox c:
+                        pair.Value.Invoke(c.Checked);
+                        break;
+                    default:
+                        pair.Value.Invoke(pair.Key.Text);
+                        break;
+                }
+            }
+
+            if (Global.Settings.Server.IndexOf(Server) == -1)
+                Global.Settings.Server.Add(Server);
+
+            MessageBoxX.Show(i18N.Translate("Saved"));
 
             Close();
         }

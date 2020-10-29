@@ -282,26 +282,14 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            void ChangeControlForeColor(Component component, Color color)
-            {
-                switch (component)
-                {
-                    case TextBox _:
-                    case ComboBox _:
-                        if (((Control) component).ForeColor != color)
-                            ((Control) component).ForeColor = color;
-                        break;
-                }
-            }
-
-            Utils.Utils.ComponentIterator(this, component => ChangeControlForeColor(component, Color.Black));
+            Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
 
             #region Check
 
             var flag = true;
             foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
             {
-                ChangeControlForeColor(pair.Key, Color.Red);
+                Utils.Utils.ChangeControlForeColor(pair.Key, Color.Red);
                 flag = false;
             }
 
@@ -335,7 +323,7 @@ namespace Netch.Forms
 
             if (!stunFlag)
             {
-                ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
+                Utils.Utils.ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
                 return;
             }
 
