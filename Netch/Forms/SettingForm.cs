@@ -1,6 +1,8 @@
 using Netch.Utils;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -31,16 +33,16 @@ namespace Netch.Forms
             #region General
 
             BindTextBox<ushort>(Socks5PortTextBox,
-                p => CheckPort("Socks5", p, Global.Settings.Socks5LocalPort),
+                p => p.ToString() != HTTPPortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
                 p => Global.Settings.Socks5LocalPort = p,
                 Global.Settings.Socks5LocalPort);
             BindTextBox<ushort>(HTTPPortTextBox,
-                p => CheckPort("HTTP", p, Global.Settings.HTTPLocalPort),
+                p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
                 p => Global.Settings.HTTPLocalPort = p,
                 Global.Settings.HTTPLocalPort);
             BindTextBox<ushort>(RedirectorTextBox,
-                s => CheckPort("RedirectorTCP", s, Global.Settings.RedirectorTCPPort),
-                s => Global.Settings.RedirectorTCPPort = s,
+                p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != HTTPPortTextBox.Text,
+                p => Global.Settings.RedirectorTCPPort = p,
                 Global.Settings.RedirectorTCPPort);
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
@@ -50,7 +52,6 @@ namespace Netch.Forms
                     "0.0.0.0" => true,
                     _ => false
                 });
-
 
             BindCheckBox(BootShadowsocksFromDLLCheckBox,
                 c => Global.Settings.BootShadowsocksFromDLL = c,
@@ -282,8 +283,31 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            if (!_checkActions.All(pair => pair.Value.Invoke(pair.Key.Text)))
+            void ChangeControlForeColor(Component component, Color color)
+            {
+                switch (component)
+                {
+                    case TextBox _:
+                    case ComboBox _:
+                        if (((Control) component).ForeColor != color)
+                            ((Control) component).ForeColor = color;
+                        break;
+                }
+            }
+
+            Utils.Utils.ComponentIterator(this, component => ChangeControlForeColor(component, Color.Black));
+
+            var flag = true;
+            foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
+            {
+                ChangeControlForeColor(pair.Key, Color.Red);
+                flag = false;
+            }
+
+            if (!flag)
+            {
                 return;
+            }
 
             #region Check
 
@@ -299,7 +323,7 @@ namespace Netch.Forms
 
                 stunServerPort = 3478;
                 if (stun.Length > 1)
-                    stunServerPort = int.Parse(stun[1]);
+                    stunServerPort = ushort.Parse(stun[1]);
 
                 if (stunServerPort <= 0)
                 {
@@ -380,15 +404,6 @@ namespace Netch.Forms
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
-        }
-
-        private bool CheckPort(string portName, ushort port, ushort originPort, PortType portType = PortType.Both)
-        {
-            if (port == originPort) return true;
-            if (!PortHelper.PortInUse(port, portType)) return true;
-
-            MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", portName));
-            return false;
         }
 
         private async void ICSCheckBox_CheckedChanged(object sender, EventArgs e)
