@@ -297,6 +297,8 @@ namespace Netch.Forms
 
             Utils.Utils.ComponentIterator(this, component => ChangeControlForeColor(component, Color.Black));
 
+            #region Check
+
             var flag = true;
             foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
             {
@@ -309,31 +311,32 @@ namespace Netch.Forms
                 return;
             }
 
-            #region Check
 
-            #region Behavior
+            #region CheckSTUN
 
-            // STUN
-            string stunServer;
-            int stunServerPort;
-            try
+            var stunFlag = true;
+            var stunServer = string.Empty;
+            ushort stunServerPort = 3478;
+
+            var stun = STUN_ServerComboBox.Text.Split(':');
+
+            if (stun.Any())
             {
-                var stun = STUN_ServerComboBox.Text.Split(':');
                 stunServer = stun[0];
-
-                stunServerPort = 3478;
                 if (stun.Length > 1)
-                    stunServerPort = ushort.Parse(stun[1]);
-
-                if (stunServerPort <= 0)
-                {
-                    throw new FormatException();
-                }
+                    if (!ushort.TryParse(stun[1], out stunServerPort))
+                    {
+                        stunFlag = false;
+                    }
             }
-            catch (FormatException)
+            else
             {
-                MessageBoxX.Show(i18N.Translate("STUN_ServerPort value illegal. Try again."));
+                stunFlag = false;
+            }
 
+            if (!stunFlag)
+            {
+                ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
                 return;
             }
 
