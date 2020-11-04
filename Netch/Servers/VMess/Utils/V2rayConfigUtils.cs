@@ -246,24 +246,37 @@ namespace Netch.Servers.VMess.Utils
             {
                 streamSettings.network = server.TransferProtocol;
                 var host = server.Host;
-                if (server.TLSSecure)
+                streamSettings.security = server.TLSSecureType;
+                switch (server.TLSSecureType)
                 {
-                    streamSettings.security = "tls";
+                    case "tls":
+                    {
+                        var tlsSettings = new TlsSettings
+                        {
+                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
+                        };
+                        if (!string.IsNullOrWhiteSpace(host))
+                        {
+                            tlsSettings.serverName = host;
+                        }
 
-                    var tlsSettings = new TlsSettings
-                    {
-                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
-                    };
-                    if (!string.IsNullOrWhiteSpace(host))
-                    {
-                        tlsSettings.serverName = host;
+                        streamSettings.tlsSettings = tlsSettings;
+                        break;
                     }
+                    case "xtls":
+                    {
+                        var xtlsSettings = new TlsSettings
+                        {
+                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
+                        };
+                        if (!string.IsNullOrWhiteSpace(host))
+                        {
+                            xtlsSettings.serverName = host;
+                        }
 
-                    streamSettings.tlsSettings = tlsSettings;
-                }
-                else
-                {
-                    streamSettings.security = "";
+                        streamSettings.xtlsSettings = xtlsSettings;
+                        break;
+                    }
                 }
 
                 switch (server.TransferProtocol)
@@ -326,26 +339,12 @@ namespace Netch.Servers.VMess.Utils
                                 type = server.FakeType
                             }
                         };
-                        if (server.TLSSecure)
+                        if (server.TLSSecureType == "tls")
                         {
                             streamSettings.tlsSettings.serverName = server.Hostname;
                         }
 
                         streamSettings.quicSettings = quicSettings;
-                        break;
-                    case "xtls":
-                        streamSettings.security = server.TransferProtocol;
-
-                        var xtlsSettings = new TlsSettings
-                        {
-                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
-                        };
-                        if (!string.IsNullOrWhiteSpace(host))
-                        {
-                            xtlsSettings.serverName = host;
-                        }
-
-                        streamSettings.xtlsSettings = xtlsSettings;
                         break;
                     default:
                         if (server.FakeType == "http")

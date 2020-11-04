@@ -34,13 +34,19 @@ namespace Netch.Servers.VLESS
 
     public class VLESSGlobal
     {
-
         public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
 
         public static readonly List<string> FakeTypes = new List<string>
         {
             "none",
             "http"
+        };
+
+        public static readonly List<string> TLSSecure = new List<string>
+        {
+            "",
+            "tls",
+            "xtls"
         };
     }
 }

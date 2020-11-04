@@ -58,9 +58,10 @@ namespace Netch.Servers.VMess.Form
                     _ => null
                 },
                 server.UseMux?.ToString() ?? "");
-            CreateCheckBox("TLSSecure", "TLS Secure",
-                s => server.TLSSecure = s,
-                server.TLSSecure);
+            CreateComboBox("TLSSecure", "TLS Secure",
+                VMessGlobal.TLSSecure,
+                s => server.TLSSecureType = s,
+                server.TLSSecureType);
         }
     }
 }

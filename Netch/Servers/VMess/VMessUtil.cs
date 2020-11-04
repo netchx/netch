@@ -20,7 +20,24 @@ namespace Netch.Servers.VMess
 
         public Server ParseJObject(in JObject j)
         {
-            return j.ToObject<VMess>();
+            var server = j.ToObject<VMess>();
+            if (server == null)
+                return null;
+
+            if (server.TLSSecure != null)
+            {
+                if ((bool) server.TLSSecure)
+                {
+                    server.TLSSecureType = "tls";
+                    server.TLSSecure = null;
+                }
+                else
+                {
+                    server.TLSSecure = null;
+                }
+            }
+
+            return server;
         }
 
         public void Edit(Server s)
@@ -49,7 +66,7 @@ namespace Netch.Servers.VMess
                 type = server.FakeType,
                 host = server.Host,
                 path = server.Path,
-                tls = server.TLSSecure ? "tls" : ""
+                tls = server.TLSSecure
             });
             return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
         }
@@ -97,7 +114,7 @@ namespace Netch.Servers.VMess
                 data.Path = vmess.path;
             }
 
-            data.TLSSecure = vmess.tls == "tls";
+            data.TLSSecureType = vmess.tls;
             data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
 
             return CheckServer(data) ? new[] {data} : null;
