@@ -66,7 +66,7 @@ namespace Netch.Servers.VMess
                 type = server.FakeType,
                 host = server.Host,
                 path = server.Path,
-                tls = server.TLSSecure
+                tls = server.TLSSecureType
             });
             return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
         }
