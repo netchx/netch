@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Netch.Models;
 using Netch.Servers.VMess.Models;
 using Newtonsoft.Json;
@@ -20,7 +21,7 @@ namespace Netch.Servers.VMess.Utils
 
                 outbound(server, mode, ref v2rayConfig);
 
-                return JsonConvert.SerializeObject(v2rayConfig);
+                return JsonConvert.SerializeObject(v2rayConfig, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
             }
             catch
             {
@@ -58,44 +59,68 @@ namespace Netch.Servers.VMess.Utils
         {
             try
             {
-                RulesItem rulesItem;
+                var directRuleObject = new RulesItem
+                {
+                    type = "field",
+                    ip = new List<string>(),
+                    domain = new List<string>(),
+                    outboundTag = "direct"
+                };
+
+                var blockRuleObject = new RulesItem
+                {
+                    type = "field",
+                    ip = new List<string>(),
+                    domain = new List<string>(),
+                    outboundTag = "block"
+                };
+
                 if (mode.BypassChina)
                 {
-                    rulesItem = new RulesItem
+                    if (mode.Type > 2)
                     {
-                        type = "field",
-                        ip = new List<string>
-                        {
-                            "geoip:cn",
-                            "geoip:private"
-                        },
-                        domain = new List<string>
-                        {
-                            "geosite:cn"
-                        },
-                        outboundTag = "direct"
-                    };
+                        directRuleObject.domain.Add("geosite:cn");
+                    }
+
+                    if (mode.Type == 1 || mode.Type == 2)
+                    {
+                        if (Global.Flags.SupportFakeDns && Global.Settings.TUNTAP.UseFakeDNS)
+                            directRuleObject.domain.Add("geosite:cn");
+                        else
+                            directRuleObject.ip.Add("geoip:cn");
+                    }
                 }
-                else
+
+                if (mode.Type <= 2)
                 {
-                    rulesItem = new RulesItem
-                    {
-                        type = "field",
-                        ip = new List<string>
-                        {
-                            "geoip:private"
-                        },
-                        outboundTag = "direct"
-                    };
+                    blockRuleObject.ip.Add("geoip:private");
                 }
 
                 v2rayConfig.routing = new Routing
                 {
-                    rules = new List<RulesItem>
-                    {
-                        rulesItem
-                    }
+                    rules = new List<RulesItem>()
                 };
+
+                static bool CheckRuleItem(ref RulesItem rulesItem)
+                {
+                    bool ipResult, domainResult;
+                    if (!(ipResult = rulesItem.ip.Any()))
+                    {
+                        rulesItem.ip = null;
+                    }
+
+                    if (!(domainResult = rulesItem.domain.Any()))
+                    {
+                        rulesItem.domain = null;
+                    }
+
+                    return ipResult || domainResult;
+                }
+
+                if (CheckRuleItem(ref directRuleObject))
+                    v2rayConfig.routing.rules.Add(directRuleObject);
+                if (CheckRuleItem(ref blockRuleObject))
+                    v2rayConfig.routing.rules.Add(blockRuleObject);
             }
             catch
             {
@@ -121,31 +146,25 @@ namespace Netch.Servers.VMess.Utils
                 {
                     case Socks5.Socks5 socks5:
                     {
-                        var serversItem = new ServersItem
-                        {
-                            users = new List<SocksUsersItem>()
-                        };
                         outbound.settings.servers = new List<ServersItem>
                         {
-                            serversItem
-                        };
-
-                        serversItem.address = server.AutoResolveHostname();
-                        serversItem.port = server.Port;
-                        serversItem.method = null;
-                        serversItem.password = null;
-
-                        if (socks5.Auth())
-                        {
-                            var socksUsersItem = new SocksUsersItem
+                            new ServersItem
                             {
-                                user = socks5.Username,
-                                pass = socks5.Password,
-                                level = 1
-                            };
-
-                            serversItem.users.Add(socksUsersItem);
-                        }
+                                users = socks5.Auth()
+                                    ? new List<SocksUsersItem>
+                                    {
+                                        new SocksUsersItem
+                                        {
+                                            user = socks5.Username,
+                                            pass = socks5.Password,
+                                            level = 1
+                                        }
+                                    }
+                                    : null,
+                                address = server.AutoResolveHostname(),
+                                port = server.Port
+                            }
+                        };
 
                         outbound.mux.enabled = false;
                         outbound.mux.concurrency = -1;
@@ -156,36 +175,35 @@ namespace Netch.Servers.VMess.Utils
                     {
                         var vnextItem = new VnextItem
                         {
-                            users = new List<UsersItem>()
+                            users = new List<UsersItem>(),
+                            address = server.AutoResolveHostname(),
+                            port = server.Port
                         };
-                        outbound.settings.vnext = new List<VnextItem>
+                        outbound.settings.vnext = new List<VnextItem> {vnextItem};
+
+                        var usersItem = new UsersItem
                         {
-                            vnextItem
+                            id = vless.UserID,
+                            alterId = 0,
+                            flow = string.Empty,
+                            encryption = vless.EncryptMethod
                         };
-
-                        vnextItem.address = server.AutoResolveHostname();
-                        vnextItem.port = server.Port;
-
-                        var usersItem = new UsersItem();
                         vnextItem.users.Add(usersItem);
-
-                        usersItem.id = vless.UserID;
-                        usersItem.alterId = 0;
-                        usersItem.flow = string.Empty;
-                        usersItem.encryption = vless.EncryptMethod;
-
-                        outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                        outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
 
                         var streamSettings = outbound.streamSettings;
                         boundStreamSettings(vless, ref streamSettings);
 
-                        if (vless.TransferProtocol == "xtls")
+                        if (vless.TLSSecureType == "xtls")
                         {
                             usersItem.flow = string.IsNullOrEmpty(vless.Flow) ? "xtls-rprx-origin" : vless.Flow;
 
                             outbound.mux.enabled = false;
                             outbound.mux.concurrency = -1;
+                        }
+                        else
+                        {
+                            outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                            outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
                         }
 
                         outbound.protocol = "vless";
@@ -196,43 +214,42 @@ namespace Netch.Servers.VMess.Utils
                     {
                         var vnextItem = new VnextItem
                         {
-                            users = new List<UsersItem>()
+                            users = new List<UsersItem>(),
+                            address = server.AutoResolveHostname(),
+                            port = server.Port
                         };
-                        outbound.settings.vnext = new List<VnextItem>
+                        outbound.settings.vnext = new List<VnextItem> {vnextItem};
+
+                        var usersItem = new UsersItem
                         {
-                            vnextItem
+                            id = vmess.UserID,
+                            alterId = vmess.AlterID,
+                            security = vmess.EncryptMethod
                         };
-
-                        vnextItem.address = server.AutoResolveHostname();
-                        vnextItem.port = server.Port;
-
-                        var usersItem = new UsersItem();
                         vnextItem.users.Add(usersItem);
-
-                        usersItem.id = vmess.UserID;
-                        usersItem.alterId = vmess.AlterID;
-                        usersItem.security = vmess.EncryptMethod;
-
-                        outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                        outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
 
                         var streamSettings = outbound.streamSettings;
                         boundStreamSettings(vmess, ref streamSettings);
 
+                        outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                        outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
                         outbound.protocol = "vmess";
                         break;
                     }
                 }
 
-                v2rayConfig.outbounds = new List<Outbounds> {outbound};
-                if (mode.Type <= 2)
-                    return;
-                v2rayConfig.outbounds.Add(
+                v2rayConfig.outbounds = new List<Outbounds>
+                {
+                    outbound,
                     new Outbounds
                     {
-                        tag = "direct",
-                        protocol = "freedom"
-                    });
+                        tag = "direct", protocol = "freedom"
+                    },
+                    new Outbounds
+                    {
+                        tag = "block", protocol = "blackhole"
+                    }
+                };
             }
             catch
             {
@@ -245,37 +262,23 @@ namespace Netch.Servers.VMess.Utils
             try
             {
                 streamSettings.network = server.TransferProtocol;
-                var host = server.Host;
-                streamSettings.security = server.TLSSecureType;
-                switch (server.TLSSecureType)
+
+                if ((streamSettings.security = server.TLSSecureType) != "")
                 {
-                    case "tls":
+                    var tlsSettings = new TlsSettings
                     {
-                        var tlsSettings = new TlsSettings
-                        {
-                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
-                        };
-                        if (!string.IsNullOrWhiteSpace(host))
-                        {
-                            tlsSettings.serverName = host;
-                        }
+                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                        serverName = !string.IsNullOrWhiteSpace(server.Host) ? server.Host : null
+                    };
 
-                        streamSettings.tlsSettings = tlsSettings;
-                        break;
-                    }
-                    case "xtls":
+                    switch (server.TLSSecureType)
                     {
-                        var xtlsSettings = new TlsSettings
-                        {
-                            allowInsecure = Global.Settings.V2RayConfig.AllowInsecure
-                        };
-                        if (!string.IsNullOrWhiteSpace(host))
-                        {
-                            xtlsSettings.serverName = host;
-                        }
-
-                        streamSettings.xtlsSettings = xtlsSettings;
-                        break;
+                        case "tls":
+                            streamSettings.tlsSettings = tlsSettings;
+                            break;
+                        case "xtls":
+                            streamSettings.xtlsSettings = tlsSettings;
+                            break;
                     }
                 }
 
@@ -298,21 +301,16 @@ namespace Netch.Servers.VMess.Utils
                             seed = !string.IsNullOrWhiteSpace(server.Path) ? server.Path : null
                         };
 
-
                         streamSettings.kcpSettings = kcpSettings;
                         break;
                     case "ws":
-                        var path = server.Path;
                         var wsSettings = new WsSettings
                         {
                             connectionReuse = true,
-                            headers = !string.IsNullOrWhiteSpace(host)
-                                ? new Headers
-                                {
-                                    Host = host
-                                }
+                            headers = !string.IsNullOrWhiteSpace(server.Host)
+                                ? new Headers {Host = server.Host}
                                 : null,
-                            path = !string.IsNullOrWhiteSpace(path) ? path : null
+                            path = !string.IsNullOrWhiteSpace(server.Path) ? server.Path : null
                         };
 
                         streamSettings.wsSettings = wsSettings;
@@ -332,15 +330,17 @@ namespace Netch.Servers.VMess.Utils
                     case "quic":
                         var quicSettings = new QuicSettings
                         {
-                            security = host,
+                            security = server.Host,
                             key = server.Path,
                             header = new Header
                             {
                                 type = server.FakeType
                             }
                         };
-                        if (server.TLSSecureType == "tls")
+
+                        if (server.TLSSecureType != "")
                         {
+                            // tls or xtls
                             streamSettings.tlsSettings.serverName = server.Hostname;
                         }
 
