@@ -62,7 +62,15 @@ namespace Netch.Utils
                 Directory.CreateDirectory(DATA_DIR);
             }
 
-            File.WriteAllText(SETTINGS_JSON, JsonConvert.SerializeObject(Global.Settings, Formatting.Indented));
+            File.WriteAllText(SETTINGS_JSON,
+                JsonConvert.SerializeObject(
+                    Global.Settings,
+                    Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    }
+                ));
         }
     }
 }
