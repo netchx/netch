@@ -100,9 +100,7 @@ namespace Netch.Forms
         }
 
 
-        private readonly object _serverLock = new object();
-
-        public async Task UpdateServersFromSubscribe()
+        private async Task UpdateServersFromSubscribe()
         {
             void DisableItems(bool v)
             {
@@ -126,9 +124,11 @@ namespace Netch.Forms
 
             StatusText(i18N.Translate("Starting update subscription"));
             DisableItems(false);
+            var useProxyToUpdateSubscription = Global.Settings.UseProxyToUpdateSubscription;
             try
             {
-                if (Global.Settings.UseProxyToUpdateSubscription)
+                string proxyServer = null;
+                if (useProxyToUpdateSubscription)
                 {
                     var mode = new Models.Mode
                     {
@@ -136,50 +136,10 @@ namespace Netch.Forms
                         Type = 5
                     };
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
+                    proxyServer = $"http://127.0.0.1:{Global.Settings.HTTPLocalPort}";
                 }
 
-                await Task.WhenAll(Global.Settings.SubscribeLink.Select(async item => await Task.Run(() =>
-                {
-                    try
-                    {
-                        var request = WebUtil.CreateRequest(item.Link);
-
-                        if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;
-                        if (Global.Settings.UseProxyToUpdateSubscription)
-                            request.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
-                        List<Server> servers;
-
-                        var result = WebUtil.DownloadString(request, out var rep);
-                        if (rep.StatusCode == HttpStatusCode.OK)
-                        {
-                            servers = ShareLink.ParseText(result);
-                        }
-                        else
-                        {
-                            throw new Exception($"{item.Remark} Response Status Code: {rep.StatusCode}");
-                        }
-
-                        foreach (var server in servers)
-                        {
-                            server.Group = item.Remark;
-                        }
-
-                        lock (_serverLock)
-                        {
-                            Global.Settings.Server.RemoveAll(server => server.Group.Equals(item.Remark));
-                            Global.Settings.Server.AddRange(servers);
-                        }
-
-
-                        NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
-                    }
-                    catch (Exception e)
-                    {
-                        NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                        Logging.Error(e.ToString());
-                    }
-                })).ToArray());
+                await Subscription.UpdateServersAsync(proxyServer);
 
                 InitServer();
                 Configuration.Save();
@@ -191,9 +151,16 @@ namespace Netch.Forms
             }
             finally
             {
-                if (Global.Settings.UseProxyToUpdateSubscription)
+                if (useProxyToUpdateSubscription)
                 {
-                    await MainController.Stop();
+                    try
+                    {
+                        await MainController.Stop();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
                 }
 
                 DisableItems(true);

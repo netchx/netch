@@ -472,7 +472,7 @@ namespace Netch.Forms
             Activate();
         }
 
-        private void NotifyTip(string text, int timeout = 0, bool info = true)
+        public void NotifyTip(string text, int timeout = 0, bool info = true)
         {
             // 会阻塞线程 timeout 秒
             NotifyIcon.ShowBalloonTip(timeout,
