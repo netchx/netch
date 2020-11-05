@@ -283,8 +283,11 @@ namespace Netch.Forms
 
             Configuration.Save();
 
-            if (File.Exists("data\\last.json"))
-                File.Delete("data\\last.json");
+            foreach (var file in new[] {"data\\last.json", "data\\privoxy.conf"})
+            {
+                if (File.Exists(file))
+                    File.Delete(file);
+            }
 
             State = State.Terminating;
         }
