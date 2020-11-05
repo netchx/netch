@@ -4,7 +4,7 @@ using Netch.Utils;
 
 namespace Netch.Models
 {
-    public class Server
+    public class Server:ICloneable
     {
         /// <summary>
         ///     备注
@@ -55,6 +55,11 @@ namespace Netch.Models
             Group = Group.Equals("None") || Group.Equals("") ? "NONE" : Group;
 
             return $"[{ServerHelper.GetUtilByTypeName(Type)?.ShortName ?? "WTF"}][{Group}] {Remark}";
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
 
         /// <summary>

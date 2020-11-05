@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Shadowsocks.Models;
+using Netch.Servers.VMess;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Server = Netch.Models.Server;
@@ -233,7 +234,14 @@ namespace Netch.Utils
 
         public static string GetNetchLink(Server s)
         {
-            return "Netch://" + URLSafeBase64Encode(JsonConvert.SerializeObject(s));
+            var server = (Server) s.Clone();
+            if (server is VMess vmess)
+            {
+                vmess.TLSSecure = !string.IsNullOrEmpty(vmess.TLSSecureType);
+                vmess.TLSSecureType = null;
+            }
+
+            return "Netch://" + URLSafeBase64Encode(JsonConvert.SerializeObject(server, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
         }
     }
 }
