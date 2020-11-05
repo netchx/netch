@@ -235,7 +235,12 @@ namespace Netch.Forms
         {
             try
             {
-                await Task.Run(() => DNS.Cache.Clear());
+                await Task.Run(() =>
+                {
+                    NativeMethods.FlushDNSResolverCache();
+                    DNS.Cache.Clear();
+                });
+
                 StatusText(i18N.Translate("DNS cache cleanup succeeded"));
             }
             catch (Exception)
