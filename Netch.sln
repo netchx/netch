@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch", "Netch\Netch.csproj", "{4B041B91-5790-4571-8C58-C63FFE4BC9F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetchLib", "NetchLib\NetchLib.csproj", "{A8715AF4-ACC6-43F9-9381-4294C5360623}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetchLib", "NetchLib\NetchLib.csproj", "{A8715AF4-ACC6-43F9-9381-4294C5360623}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetchUpdater", "NetchUpdater\NetchUpdater.csproj", "{828318A8-9B90-4A5F-BD6B-E632CC9D8933}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetchUpdater", "NetchUpdater\NetchUpdater.csproj", "{828318A8-9B90-4A5F-BD6B-E632CC9D8933}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{53397641-35CA-4336-8E22-2CE12EF476AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{53397641-35CA-4336-8E22-2CE12EF476AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,8 @@ Global
 		{828318A8-9B90-4A5F-BD6B-E632CC9D8933}.Debug|x64.Build.0 = Debug|x64
 		{828318A8-9B90-4A5F-BD6B-E632CC9D8933}.Release|x64.ActiveCfg = Release|x64
 		{828318A8-9B90-4A5F-BD6B-E632CC9D8933}.Release|x64.Build.0 = Release|x64
-		{53397641-35CA-4336-8E22-2CE12EF476AC}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{53397641-35CA-4336-8E22-2CE12EF476AC}.Debug|x64.Build.0 = Debug|Any CPU
-		{53397641-35CA-4336-8E22-2CE12EF476AC}.Release|x64.ActiveCfg = Release|Any CPU
-		{53397641-35CA-4336-8E22-2CE12EF476AC}.Release|x64.Build.0 = Release|Any CPU
+		{53397641-35CA-4336-8E22-2CE12EF476AC}.Debug|x64.ActiveCfg = Debug|x64
+		{53397641-35CA-4336-8E22-2CE12EF476AC}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
