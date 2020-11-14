@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -39,12 +39,12 @@ namespace Netch.Utils
         public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)
         {
             using var client = new TcpClient(ip.AddressFamily);
+
+            var stopwatch = Stopwatch.StartNew();
+
             var task = client.ConnectAsync(ip, port);
 
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            var resTask = await Task.WhenAny(Task.Delay(timeout, ct), task);
+            var resTask = await Task.WhenAny(task, Task.Delay(timeout, ct));
 
             stopwatch.Stop();
             if (resTask == task && client.Connected)
