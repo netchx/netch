@@ -30,14 +30,14 @@ namespace Netch.Utils
                     Global.Settings = settingJObject?.ToObject<Setting>() ?? new Setting();
                     Global.Settings.Server.Clear();
 
-                    foreach (JObject server in settingJObject["Server"])
-                    {
-                        var serverResult = ServerHelper.ParseJObject(server);
-                        if (serverResult != null)
-                            Global.Settings.Server.Add(serverResult);
-                    }
+                    if (settingJObject?["Server"] != null)
+                        foreach (JObject server in settingJObject["Server"])
+                        {
+                            var serverResult = ServerHelper.ParseJObject(server);
+                            if (serverResult != null)
+                                Global.Settings.Server.Add(serverResult);
+                        }
                 }
-
                 catch (JsonException)
                 {
                 }
