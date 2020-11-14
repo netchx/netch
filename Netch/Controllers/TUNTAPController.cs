@@ -228,33 +228,11 @@ namespace Netch.Controllers
 
         public bool TestFakeDNS()
         {
-            var exited = false;
-            var helpStr = new StringBuilder();
             try
             {
-                void OnOutputDataReceived(object sender, DataReceivedEventArgs e)
-                {
-                    if (e.Data == null)
-                    {
-                        exited = true;
-                        return;
-                    }
-
-                    helpStr.Append(e.Data);
-                }
-
                 InitInstance("-h");
-                // Instance.OutputDataReceived += OnOutputDataReceived;
-                Instance.ErrorDataReceived += OnOutputDataReceived;
                 Instance.Start();
-                Instance.BeginOutputReadLine();
-                Instance.BeginErrorReadLine();
-                while (!exited)
-                {
-                    Thread.Sleep(200);
-                }
-
-                return helpStr.ToString().Contains("-fakeDns");
+                return Instance.StandardError.ReadToEnd().Contains("-fakeDns");
             }
             catch
             {
