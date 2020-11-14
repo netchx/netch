@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -33,7 +33,7 @@ namespace Netch.Controllers
             {
                 if (pPrivoxyController.Start(MainController.ServerController.Server, mode))
                 {
-                    ChildProcessTracker.AddProcess(pPrivoxyController.Instance);
+                    Global.Job.AddProcess(pPrivoxyController.Instance);
                 }
 
                 if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);

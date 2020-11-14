@@ -1,14 +1,14 @@
-﻿using System;
+using Netch.Controllers;
+using Netch.Forms;
+using Netch.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Controllers;
-using Netch.Forms;
-using Netch.Models;
+using WindowsJobAPI;
 
 namespace Netch
 {
@@ -87,5 +87,10 @@ namespace Netch
         ///     用于存储模式
         /// </summary>
         public static readonly List<Mode> Modes = new List<Mode>();
+
+        /// <summary>
+        /// Windows Job API
+        /// </summary>
+        public static readonly JobObject Job = new JobObject();
     }
 }

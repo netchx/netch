@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net;
 using System.Threading.Tasks;
@@ -128,7 +128,7 @@ namespace Netch.Controllers
                 {
                     if (guard.Instance != null)
                     {
-                        ChildProcessTracker.AddProcess(guard.Instance);
+                        Global.Job.AddProcess(guard.Instance);
                     }
                 }
 
@@ -170,7 +170,7 @@ namespace Netch.Controllers
                 {
                     if (guard.Instance != null)
                     {
-                        ChildProcessTracker.AddProcess(guard.Instance);
+                        Global.Job.AddProcess(guard.Instance);
                     }
                 }
 
