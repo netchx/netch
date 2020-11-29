@@ -47,14 +47,12 @@ namespace Netch.Models
         /// <returns>备注</returns>
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Remark))
-            {
-                Remark = $"{Hostname}:{Port}";
-            }
+            var remark = string.IsNullOrWhiteSpace(Remark) ? $"{Hostname}:{Port}" : Remark;
 
-            Group = Group.Equals("None") || Group.Equals("") ? "NONE" : Group;
+            if (Group.Equals("None") || Group.Equals(""))
+                Group = "NONE";
 
-            return $"[{ServerHelper.GetUtilByTypeName(Type)?.ShortName ?? "WTF"}][{Group}] {Remark}";
+            return $"[{ServerHelper.GetUtilByTypeName(Type)?.ShortName ?? "WTF"}][{Group}] {remark}";
         }
 
         public object Clone()
