@@ -120,7 +120,11 @@ namespace Netch.Forms
 
             BindTextBox(TUNTAPDNSTextBox,
                 s => !UseCustomDNSCheckBox.Checked || DNS.TrySplit(s, out _, 2),
-                s => Global.Settings.TUNTAP.DNS = DNS.Split(s).ToList(),
+                s =>
+                {
+                    if (UseCustomDNSCheckBox.Checked)
+                        Global.Settings.TUNTAP.DNS = DNS.Split(s).ToList();
+                },
                 DNS.Join(Global.Settings.TUNTAP.DNS));
 
             BindCheckBox(ProxyDNSCheckBox,
