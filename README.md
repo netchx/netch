@@ -41,7 +41,6 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
-- [ExCloud](https://excloud.net/cart.php)
 - [NyanCat](https://nyancat.info/register)
 - [YoYu](https://home.yoyu.ltd/cart.php)
 
