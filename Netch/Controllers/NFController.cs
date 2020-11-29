@@ -168,10 +168,15 @@ namespace Netch.Controllers
             aio_dial((int) NameList.TYPE_CLRNAME, "");
             foreach (var rule in mode.FullRule)
             {
+                if (rule.StartsWith("!"))
+                {
+                    aio_dial((int) NameList.TYPE_BYPNAME, rule.Substring(1));
+                    continue;
+                }
                 aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }
 
-            aio_dial((int) NameList.TYPE_ADDNAME, "NTT.exe");
+            aio_dial((int) NameList.TYPE_ADDNAME, @"NTT\.exe");
         }
 
         public void Stop()
