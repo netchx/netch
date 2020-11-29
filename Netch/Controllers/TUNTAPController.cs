@@ -85,7 +85,21 @@ namespace Netch.Controllers
             }
             else
             {
-                var _ = DNSController.Start();
+                try
+                {
+                    MainController.PortCheckAndShowMessageBox(53, "DNS");
+                }
+                catch
+                {
+                    return false;
+                }
+
+                if (!DNSController.Start())
+                {
+                    Logging.Error("AioDNS 启动失败");
+                    return false;
+                }
+
                 dns = "127.0.0.1";
             }
 

@@ -209,7 +209,7 @@ namespace Netch.Controllers
         /// <param name="portName">端口用途名称</param>
         /// <param name="portType"></param>
         /// <exception cref="PortInUseException"></exception>
-        private static void PortCheckAndShowMessageBox(ushort port, string portName, PortType portType = PortType.Both)
+        public static void PortCheckAndShowMessageBox(ushort port, string portName, PortType portType = PortType.Both)
         {
             if (PortInUse(port, portType))
             {
