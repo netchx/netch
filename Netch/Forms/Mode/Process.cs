@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Netch.Controllers;
 using Netch.Utils;
 
 namespace Netch.Forms.Mode
@@ -139,23 +140,28 @@ namespace Netch.Forms.Mode
         {
             await Task.Run(() =>
             {
-                if (!string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
-                {
-                    var process = ProcessNameTextBox.Text;
-
-                    if (!RuleListBox.Items.Contains(process))
-                    {
-                        RuleListBox.Items.Add(process);
-                    }
-
-                    Edited = true;
-                    RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
-                    ProcessNameTextBox.Text = string.Empty;
-                }
-                else
+                if (string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
                 {
                     MessageBoxX.Show(i18N.Translate("Please enter an process name (xxx.exe)"));
+                    return;
                 }
+
+                if (!NFController.CheckCppRegex(ProcessNameTextBox.Text))
+                {
+                    MessageBoxX.Show("Rule does not conform to C++ regular expression syntax");
+                    return;
+                }
+
+                var process = ProcessNameTextBox.Text;
+
+                if (!RuleListBox.Items.Contains(process))
+                {
+                    RuleListBox.Items.Add(process);
+                }
+
+                Edited = true;
+                RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
+                ProcessNameTextBox.Text = string.Empty;
             });
         }
 

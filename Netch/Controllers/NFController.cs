@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
@@ -58,6 +60,12 @@ namespace Netch.Controllers
 
             SetServer(MainController.ServerController, PortType.Both);
 
+            if (!CheckRule(mode.FullRule, out var list))
+            {
+                MessageBoxX.Show($"\"{string.Join("", list.Select(s => s + "\n"))}\" does not conform to C++ regular expression syntax");
+                return false;
+            }
+
             SetName(mode);
 
             #endregion
@@ -72,6 +80,40 @@ namespace Netch.Controllers
             }
 
             return aio_init();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rules"></param>
+        /// <param name="incompatibleRule"></param>
+        /// <returns>No Problem true</returns>
+        public static bool CheckRule(IEnumerable<string> rules, out IEnumerable<string> incompatibleRule)
+        {
+            incompatibleRule = rules.Where(r => !CheckCppRegex(r, false));
+            aio_dial((int) NameList.TYPE_CLRNAME, "");
+            return !incompatibleRule.Any();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="clear"></param>
+        /// <returns>No Problem true</returns>
+        public static bool CheckCppRegex(string r, bool clear = true)
+        {
+            try
+            {
+                if (r.StartsWith("!"))
+                    return aio_dial((int) NameList.TYPE_ADDNAME, r.Substring(1));
+                return aio_dial((int) NameList.TYPE_ADDNAME, r);
+            }
+            finally
+            {
+                if (clear)
+                    aio_dial((int) NameList.TYPE_CLRNAME, "");
+            }
         }
 
         private static bool CheckDriver()
@@ -173,6 +215,7 @@ namespace Netch.Controllers
                     aio_dial((int) NameList.TYPE_BYPNAME, rule.Substring(1));
                     continue;
                 }
+
                 aio_dial((int) NameList.TYPE_ADDNAME, rule);
             }
 
@@ -196,19 +239,19 @@ namespace Netch.Controllers
         private const int UdpNameListOffset = (int) NameList.TYPE_UDPTYPE - (int) NameList.TYPE_TCPTYPE;
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
+        private static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_init();
+        private static extern bool aio_init();
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aio_free();
+        private static extern bool aio_free();
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong aio_getUP();
+        private static extern ulong aio_getUP();
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong aio_getDL();
+        private static extern ulong aio_getDL();
 
 
         public enum NameList : int
