@@ -235,12 +235,6 @@ namespace Netch.Utils
         public static string GetNetchLink(Server s)
         {
             var server = (Server) s.Clone();
-            if (server is VMess vmess)
-            {
-                vmess.TLSSecure = !string.IsNullOrEmpty(vmess.TLSSecureType);
-                vmess.TLSSecureType = null;
-            }
-
             return "Netch://" + URLSafeBase64Encode(JsonConvert.SerializeObject(server, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
         }
     }

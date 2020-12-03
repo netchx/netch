@@ -20,24 +20,7 @@ namespace Netch.Servers.VMess
 
         public Server ParseJObject(in JObject j)
         {
-            var server = j.ToObject<VMess>();
-            if (server == null)
-                return null;
-
-            if (server.TLSSecure != null)
-            {
-                if ((bool) server.TLSSecure)
-                {
-                    server.TLSSecureType = "tls";
-                    server.TLSSecure = null;
-                }
-                else
-                {
-                    server.TLSSecure = null;
-                }
-            }
-
-            return server;
+            return j.ToObject<VMess>();
         }
 
         public void Edit(Server s)

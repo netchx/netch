@@ -65,12 +65,6 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///		TLS 底层传输安全
         /// </summary>
-        [Obsolete]
-        public bool? TLSSecure { get; set; }
-
-        /// <summary>
-        ///		TLS 底层传输安全
-        /// </summary>
         public string TLSSecureType { get; set; } = VMessGlobal.TLSSecure[0];
 
         /// <summary>

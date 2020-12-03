@@ -15,24 +15,7 @@ namespace Netch.Servers.VLESS
 
         public Server ParseJObject(in JObject j)
         {
-            var server = j.ToObject<VLESS>();
-            if (server == null)
-                return null;
-
-            if (server.TLSSecure != null)
-            {
-                if ((bool) server.TLSSecure)
-                {
-                    server.TLSSecureType = "tls";
-                    server.TLSSecure = null;
-                }
-                else
-                {
-                    server.TLSSecure = null;
-                }
-            }
-
-            return server;
+            return j.ToObject<VLESS>();
         }
 
         public void Edit(Server s)
