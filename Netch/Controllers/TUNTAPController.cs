@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
@@ -17,9 +15,7 @@ namespace Netch.Controllers
 {
     public class TUNTAPController : Guard, IModeController
     {
-        private Mode _savedMode = new Mode();
-        private Server _savedServer = new Server();
-
+        
         /// <summary>
         ///     服务器 IP 地址
         /// </summary>
@@ -41,11 +37,9 @@ namespace Netch.Controllers
 
         public bool Start(in Mode mode)
         {
-            _savedMode = mode;
-            _savedServer = MainController.Server;
-
+            var server = MainController.Server;
             // 查询服务器 IP 地址
-            _serverAddresses = DNS.Lookup(_savedServer.Hostname);
+            _serverAddresses = DNS.Lookup(server.Hostname);
 
             // 查找出口适配器
             if (!Utils.Utils.SearchOutboundAdapter())
@@ -66,7 +60,7 @@ namespace Netch.Controllers
             }
 
 
-            SetupRouteTable();
+            SetupRouteTable(mode);
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", Name));
 
@@ -104,8 +98,8 @@ namespace Netch.Controllers
             }
 
             var argument = new StringBuilder();
-            if (_savedServer is Socks5 socks5 && !socks5.Auth())
-                argument.Append($"-proxyServer {_serverAddresses}:{_savedServer.Port} ");
+            if (server is Socks5 socks5 && !socks5.Auth())
+                argument.Append($"-proxyServer {server.AutoResolveHostname()}:{server.Port} ");
             else
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
@@ -140,73 +134,75 @@ namespace Netch.Controllers
         ///     设置绕行规则
         /// </summary>
         /// <returns>是否设置成功</returns>
-        private void SetupRouteTable()
+        private void SetupRouteTable(Mode mode)
         {
             Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
             Logging.Info("设置路由规则");
 
             #region Rule IPs
 
-            if (_savedMode.Type == 1)
+            switch (mode.Type)
             {
-                // 代理规则
-                Logging.Info("代理 → 规则 IP");
-                RouteAction(Action.Create, _savedMode.FullRule, RouteType.TUNTAP);
+                case 1:
+                    // 代理规则
+                    Logging.Info("代理 → 规则 IP");
+                    RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
 
-                //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
-                if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
-                {
-                    try
+                    //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
+                    if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
                     {
-                        Logging.Info("代理 → STUN 服务器 IP");
-                        RouteAction(Action.Create,
-                            new[]
-                            {
-                                Dns.GetHostAddresses(Global.Settings.STUN_Server)[0],
-                                Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0]
-                            }.Select(ip => $"{ip}/32"),
-                            RouteType.TUNTAP);
+                        try
+                        {
+                            Logging.Info("代理 → STUN 服务器 IP");
+                            RouteAction(Action.Create,
+                                new[]
+                                {
+                                    Dns.GetHostAddresses(Global.Settings.STUN_Server)[0],
+                                    Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0]
+                                }.Select(ip => $"{ip}/32"),
+                                RouteType.TUNTAP);
+                        }
+                        catch
+                        {
+                            Logging.Info("NAT 类型测试域名解析失败，将不会被添加到代理列表");
+                        }
                     }
-                    catch
-                    {
-                        Logging.Info("NAT 类型测试域名解析失败，将不会被添加到代理列表");
-                    }
-                }
 
-                if (Global.Settings.TUNTAP.ProxyDNS)
-                {
-                    Logging.Info("代理 → 自定义 DNS");
-                    if (Global.Settings.TUNTAP.UseCustomDNS)
+                    if (Global.Settings.TUNTAP.ProxyDNS)
                     {
-                        RouteAction(Action.Create,
-                            Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"),
-                            RouteType.TUNTAP);
+                        Logging.Info("代理 → 自定义 DNS");
+                        if (Global.Settings.TUNTAP.UseCustomDNS)
+                        {
+                            RouteAction(Action.Create,
+                                Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"),
+                                RouteType.TUNTAP);
+                        }
+                        else
+                        {
+                            RouteAction(Action.Create,
+                                new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
+                                RouteType.TUNTAP);
+                        }
                     }
-                    else
-                    {
-                        RouteAction(Action.Create,
-                            new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
-                            RouteType.TUNTAP);
-                    }
-                }
-            }
-            else if (_savedMode.Type == 2)
-            {
-                // 绕过规则
 
-                // 将 TUN/TAP 网卡权重放到最高
-                Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "netsh",
-                        Arguments = $"interface ip set interface {Global.TUNTAP.Index} metric=0",
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        UseShellExecute = true,
-                        CreateNoWindow = true
-                    }
-                );
+                    break;
+                case 2:
+                    // 绕过规则
 
-                Logging.Info("绕行 → 规则 IP");
-                RouteAction(Action.Create, _savedMode.FullRule, RouteType.Outbound);
+                    // 将 TUN/TAP 网卡权重放到最高
+                    Process.Start(new ProcessStartInfo
+                        {
+                            FileName = "netsh",
+                            Arguments = $"interface ip set interface {Global.TUNTAP.Index} metric=0",
+                            WindowStyle = ProcessWindowStyle.Hidden,
+                            UseShellExecute = true,
+                            CreateNoWindow = true
+                        }
+                    );
+
+                    Logging.Info("绕行 → 规则 IP");
+                    RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
+                    break;
             }
 
             #endregion
@@ -218,7 +214,7 @@ namespace Netch.Controllers
             Logging.Info("绕行 → 全局绕过 IP");
             RouteAction(Action.Create, Global.Settings.BypassIPs, RouteType.Outbound);
 
-            if (_savedMode.Type == 2)
+            if (mode.Type == 2)
             {
                 // 绕过规则
                 Logging.Info("代理 → 全局");
