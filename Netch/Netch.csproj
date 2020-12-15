@@ -11,7 +11,7 @@
         <ApplicationIcon>Netch.ico</ApplicationIcon>
         <Platforms>x64</Platforms>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>9</LangVersion>
         <PackageProjectUrl>https://github.com/NetchX/Netch</PackageProjectUrl>
     </PropertyGroup>
 
