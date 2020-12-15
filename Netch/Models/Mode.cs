@@ -39,13 +39,7 @@ namespace Netch.Models
             _ => false
         };
 
-        public bool TestNatRequired => Type switch
-        {
-            0 => true,
-            1 => true,
-            2 => true,
-            _ => false
-        };
+        public bool TestNatRequired => Type is 0 or 1 or 2;
 
         /// <summary>
         ///    绕过中国（0. 不绕过 1. 绕过）

@@ -77,21 +77,24 @@ namespace Netch.Servers.VMess.Utils
 
                 if (mode.BypassChina)
                 {
-                    if (mode.Type > 2)
+                    switch (mode.Type)
                     {
-                        directRuleObject.domain.Add("geosite:cn");
-                    }
-
-                    if (mode.Type == 1 || mode.Type == 2)
-                    {
-                        if (Global.Flags.SupportFakeDns && Global.Settings.TUNTAP.UseFakeDNS)
+                        case 0:
+                            break;
+                        case 1:
+                        case 2:
+                            if (Global.Flags.SupportFakeDns && Global.Settings.TUNTAP.UseFakeDNS)
+                                directRuleObject.domain.Add("geosite:cn");
+                            else
+                                directRuleObject.ip.Add("geoip:cn");
+                            break;
+                        default:
                             directRuleObject.domain.Add("geosite:cn");
-                        else
-                            directRuleObject.ip.Add("geoip:cn");
+                            break;
                     }
                 }
 
-                if (mode.Type <= 2)
+                if (mode.Type is 0 or 1 or 2)
                 {
                     blockRuleObject.ip.Add("geoip:private");
                 }
