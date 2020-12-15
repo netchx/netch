@@ -29,6 +29,8 @@ namespace Netch.Servers.Shadowsocks
         {
             Type = "SS";
         }
+
+        public bool HasPlugin() => string.IsNullOrWhiteSpace(Plugin) && string.IsNullOrWhiteSpace(PluginOption);
     }
 
     public static class SSGlobal
