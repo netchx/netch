@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Servers.Shadowsocks;
 using Netch.Servers.ShadowsocksR.Form;
 using Netch.Utils;
 using Newtonsoft.Json.Linq;
@@ -99,6 +100,22 @@ namespace Netch.Servers.ShadowsocksR
             if (paramsDict.ContainsKey("remarks")) remarks = ShareLink.URLSafeBase64Decode(paramsDict["remarks"]);
 
             var group = paramsDict.ContainsKey("group") ? ShareLink.URLSafeBase64Decode(paramsDict["group"]) : string.Empty;
+
+            if (SSGlobal.EncryptMethods.Contains(method) && protocol == "origin" && obfs == "plain")
+            {
+                return new[]
+                {
+                    new Shadowsocks.Shadowsocks
+                    {
+                        Hostname = serverAddr,
+                        Port = serverPort,
+                        EncryptMethod = method,
+                        Password = password,
+                        Remark = remarks,
+                        Group = group
+                    }
+                };
+            }
 
             return new[]
             {
