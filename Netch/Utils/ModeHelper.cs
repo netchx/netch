@@ -5,6 +5,8 @@ using System.Linq;
 using Netch.Controllers;
 using Netch.Forms;
 using Netch.Models;
+using Netch.Servers.Shadowsocks;
+using Netch.Servers.Socks5;
 
 namespace Netch.Utils
 {
@@ -133,6 +135,20 @@ namespace Netch.Utils
 
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
+        }
+
+        public static bool SkipServerController(Server server, Mode mode)
+        {
+            return mode.Type switch
+            {
+                0 => server switch
+                {
+                    Socks5 => true,
+                    Shadowsocks shadowsocks when !shadowsocks.HasPlugin() => true,
+                    _ => false
+                },
+                _ => false
+            };
         }
 
         public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)

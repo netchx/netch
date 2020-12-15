@@ -64,12 +64,20 @@ namespace Netch.Controllers
 
             try
             {
-                if (!await Task.Run(() => StartServer(server, mode, ref _serverController)))
+                if (!ModeHelper.SkipServerController(server, mode))
                 {
-                    throw new StartFailedException();
-                }
+                    if (!await Task.Run(() => StartServer(server, mode, ref _serverController)))
+                    {
+                        throw new StartFailedException();
+                    }
 
-                StatusPortInfoText.UpdateShareLan();
+                    StatusPortInfoText.UpdateShareLan();
+                }
+                else
+                {
+                    _serverController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
+                    _serverController.Server = server;
+                }
 
                 if (!await StartMode(server, mode))
                 {
@@ -134,7 +142,7 @@ namespace Netch.Controllers
 
                 if (server is Socks5 socks5)
                 {
-                    if (socks5.Auth() && !mode.SupportSocks5Auth)
+                    if (socks5.Auth())
                         UsingPorts.Add(StatusPortInfoText.Socks5Port = controller.Socks5LocalPort());
                 }
                 else

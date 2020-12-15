@@ -33,12 +33,7 @@ namespace Netch.Models
         /// </summary>
         public int Type = 0;
 
-        public bool SupportSocks5Auth => Type switch
-        {
-            0 => true,
-            _ => false
-        };
-
+        ///     是否会转发 UDP
         public bool TestNatRequired => Type is 0 or 1 or 2;
 
         /// <summary>
