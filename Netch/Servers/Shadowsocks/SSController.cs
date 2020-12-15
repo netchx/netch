@@ -21,6 +21,10 @@ namespace Netch.Servers.Shadowsocks
         {
             Server = s;
             var server = (Shadowsocks) s;
+
+            if (mode.Type == 0 && !server.HasPlugin())
+                return true;
+
             DllFlag = Global.Settings.BootShadowsocksFromDLL && mode.Type is 0 or 1 or 2 && !server.HasPlugin();
 
             //从DLL启动Shaowsocks

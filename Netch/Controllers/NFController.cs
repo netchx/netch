@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using Netch.Models;
+using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using nfapinet;
@@ -187,22 +188,29 @@ namespace Netch.Controllers
 
             var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
 
-            aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
-
             if (controller.Server is Socks5 socks5)
             {
+                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
                 aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
                 aio_dial((int) NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
                 aio_dial((int) NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
+                aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
+            }
+            else if (controller.Server is Shadowsocks shadowsocks)
+            {
+                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
+                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");
+                aio_dial((int) NameList.TYPE_TCPMETH + offset, shadowsocks.EncryptMethod ?? string.Empty);
+                aio_dial((int) NameList.TYPE_TCPPASS + offset, shadowsocks.Password ?? string.Empty);
             }
             else
             {
+                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
                 aio_dial((int) NameList.TYPE_TCPHOST + offset, $"127.0.0.1:{controller.Socks5LocalPort()}");
                 aio_dial((int) NameList.TYPE_TCPUSER + offset, string.Empty);
                 aio_dial((int) NameList.TYPE_TCPPASS + offset, string.Empty);
+                aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-
-            aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
         }
 
         private void SetName(Mode mode)
