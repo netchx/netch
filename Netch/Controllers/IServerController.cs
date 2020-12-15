@@ -4,8 +4,6 @@ namespace Netch.Controllers
 {
     public interface IServerController : IController
     {
-        public Server Server { get; set; }
-
         public ushort? Socks5LocalPort { get; set; }
 
         public string LocalAddress { get; set; }

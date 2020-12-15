@@ -42,7 +42,7 @@ namespace Netch.Controllers
         public bool Start(in Mode mode)
         {
             _savedMode = mode;
-            _savedServer = MainController.ServerController.Server;
+            _savedServer = MainController.Server;
 
             // 查询服务器 IP 地址
             _serverAddresses = DNS.Lookup(_savedServer.Hostname);

@@ -18,6 +18,8 @@ namespace Netch.Controllers
             private set => _serverController = value;
         }
 
+        /// TCP or Both Server
+        public static Server Server;
         public static IModeController ModeController { get; private set; }
 
         public static bool NttTested;
@@ -34,6 +36,7 @@ namespace Netch.Controllers
         public static async Task<bool> Start(Server server, Mode mode)
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
+            Server = server;
 
             if (server is Socks5 && mode.Type == 4)
             {
@@ -72,11 +75,6 @@ namespace Netch.Controllers
                     }
 
                     StatusPortInfoText.UpdateShareLan();
-                }
-                else
-                {
-                    _serverController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
-                    _serverController.Server = server;
                 }
 
                 if (!await StartMode(server, mode))

@@ -18,14 +18,12 @@ namespace Netch.Servers.Trojan
 
         public override string MainFile { get; protected set; } = "Trojan.exe";
         public override string Name { get; protected set; } = "Trojan";
-        public Server Server { get; set; }
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
 
         public bool Start(in Server s, in Mode mode)
         {
-            Server = s;
             var server = (Trojan) s;
             File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new TrojanConfig
             {

@@ -31,7 +31,7 @@ namespace Netch.Controllers
 
             try
             {
-                if (pPrivoxyController.Start(MainController.ServerController.Server, mode))
+                if (pPrivoxyController.Start(MainController.Server, mode))
                 {
                     Global.Job.AddProcess(pPrivoxyController.Instance);
                 }

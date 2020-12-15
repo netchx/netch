@@ -12,7 +12,6 @@ namespace Netch.Servers.Socks5
 
         public bool Start(in Server s, in Mode mode)
         {
-            Server = s;
             var server = (Socks5) s;
             if (server.Auth())
             {
@@ -34,7 +33,6 @@ namespace Netch.Servers.Socks5
                 StopInstance();
         }
 
-        public Server Server { get; set; }
         public ushort? Socks5LocalPort { get; set; }
 
         public string LocalAddress { get; set; }
