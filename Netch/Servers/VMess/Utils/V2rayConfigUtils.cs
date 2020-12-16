@@ -353,7 +353,6 @@ namespace Netch.Servers.VMess.Utils
                         {
                             var tcpSettings = new TcpSettings
                             {
-                                connectionReuse = true,
                                 header = new Header
                                 {
                                     type = server.FakeType,
