@@ -309,7 +309,6 @@ namespace Netch.Servers.VMess.Utils
                     case "ws":
                         var wsSettings = new WsSettings
                         {
-                            connectionReuse = true,
                             headers = !string.IsNullOrWhiteSpace(server.Host)
                                 ? new Headers {Host = server.Host}
                                 : null,

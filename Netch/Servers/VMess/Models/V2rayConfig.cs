@@ -195,8 +195,6 @@ namespace Netch.Servers.VMess.Models
 
     public class TcpSettings
     {
-        public bool connectionReuse { get; set; }
-
         public Header header { get; set; }
     }
 
@@ -257,8 +255,6 @@ namespace Netch.Servers.VMess.Models
 
     public class WsSettings
     {
-        public bool connectionReuse { get; set; }
-
         public string path { get; set; }
 
         public Headers headers { get; set; }
