@@ -20,8 +20,10 @@ namespace Netch
         {
             if (args.Contains("-console"))
             {
-                NativeMethods.AllocConsole();
-                NativeMethods.AttachConsole(-1);
+                if (!NativeMethods.AttachConsole(-1))
+                {
+                    NativeMethods.AllocConsole();
+                }
             }
 
             // 创建互斥体防止多次运行
