@@ -77,7 +77,7 @@ namespace Netch.Controllers
                     StatusPortInfoText.UpdateShareLan();
                 }
 
-                if (!await StartMode(server, mode))
+                if (!await StartMode(mode))
                 {
                     throw new StartFailedException();
                 }
@@ -154,7 +154,7 @@ namespace Netch.Controllers
             return false;
         }
 
-        private static async Task<bool> StartMode(Server server, Mode mode)
+        private static async Task<bool> StartMode(Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName, out var portType);
 
