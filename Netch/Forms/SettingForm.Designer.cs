@@ -109,6 +109,7 @@ namespace Netch.Forms
             this.OtherDNSTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.RedirectorSSCheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -361,6 +362,7 @@ namespace Netch.Forms
             this.NFTabPage.Controls.Add(this.ModifySystemDNSCheckBox);
             this.NFTabPage.Controls.Add(this.ModifiedDNSLabel);
             this.NFTabPage.Controls.Add(this.ModifiedDNSTextBox);
+            this.NFTabPage.Controls.Add(this.RedirectorSSCheckBox);
             this.NFTabPage.Location = new System.Drawing.Point(4, 29);
             this.NFTabPage.Name = "NFTabPage";
             this.NFTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -914,6 +916,17 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
+            // RedirectorSSCheckBox
+            // 
+            this.RedirectorSSCheckBox.AutoSize = true;
+            this.RedirectorSSCheckBox.Location = new System.Drawing.Point(8, 65);
+            this.RedirectorSSCheckBox.Name = "RedirectorSSCheckBox";
+            this.RedirectorSSCheckBox.Size = new System.Drawing.Size(102, 16);
+            this.RedirectorSSCheckBox.TabIndex = 0;
+            this.RedirectorSSCheckBox.Text = "Redirector SS";
+            this.RedirectorSSCheckBox.UseVisualStyleBackColor = true;
+            this.RedirectorSSCheckBox.CheckedChanged += new System.EventHandler(this.ModifySystemDNSCheckBox_CheckedChanged);
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1032,5 +1045,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox ChinaDNSTextBox;
         private System.Windows.Forms.TextBox ModifiedDNSTextBox;
         private System.Windows.Forms.Label ModifiedDNSLabel;
+        private System.Windows.Forms.CheckBox RedirectorSSCheckBox;
     }
 }

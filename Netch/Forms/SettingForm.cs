@@ -97,6 +97,10 @@ namespace Netch.Forms
                 s => Global.Settings.ModifiedDNS = s,
                 Global.Settings.ModifiedDNS);
 
+            BindCheckBox(RedirectorSSCheckBox,
+                s => Global.Settings.RedirectorSS = s,
+                Global.Settings.RedirectorSS);
+
             #endregion
 
             #region TUN/TAP

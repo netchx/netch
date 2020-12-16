@@ -196,7 +196,7 @@ namespace Netch.Controllers
                 aio_dial((int) NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-            else if (MainController.Server is Shadowsocks shadowsocks)
+            else if (MainController.Server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS)
             {
                 aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
                 aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");

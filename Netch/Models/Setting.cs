@@ -253,5 +253,7 @@ namespace Netch.Models
         public V2rayConfig V2RayConfig = new V2rayConfig();
 
         public AioDNSConfig AioDNS = new AioDNSConfig();
+
+        public bool RedirectorSS = false;
     }
 }

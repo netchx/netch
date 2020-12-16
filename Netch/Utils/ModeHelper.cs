@@ -144,7 +144,7 @@ namespace Netch.Utils
                 0 => server switch
                 {
                     Socks5 => true,
-                    Shadowsocks shadowsocks when !shadowsocks.HasPlugin() => true,
+                    Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
                     _ => false
                 },
                 _ => false
