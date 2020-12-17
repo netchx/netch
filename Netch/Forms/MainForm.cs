@@ -294,6 +294,8 @@ namespace Netch.Forms
 
         #region MISC
 
+        private bool _resumeFlag;
+
         /// <summary>
         /// 监听电源事件，自动重启Netch服务
         /// </summary>
@@ -301,20 +303,24 @@ namespace Netch.Forms
         /// <param name="e"></param>
         private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
-            //不对Netch命令等待状态的电源事件做任何处理
-            if (!State.Equals(State.Waiting))
+            switch (e.Mode)
             {
-                switch (e.Mode)
-                {
-                    case PowerModes.Suspend: //操作系统即将挂起
-                        Logging.Info("操作系统即将挂起，自动停止===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                case PowerModes.Suspend: //操作系统即将挂起
+                    if (!IsWaiting)
+                    {
+                        _resumeFlag = true;
+                        Logging.Info("操作系统即将挂起，自动停止");
                         ControlFun();
-                        break;
-                    case PowerModes.Resume: //操作系统即将从挂起状态继续
-                        Logging.Info("操作系统即将从挂起状态继续，自动重启===>" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));
+                    }
+                    break;
+                case PowerModes.Resume: //操作系统即将从挂起状态继续
+                    if (_resumeFlag)
+                    {
+                        _resumeFlag = false;
+                        Logging.Info("操作系统即将从挂起状态继续，自动重启");
                         ControlFun();
-                        break;
-                }
+                    }
+                    break;
             }
         }
 
@@ -448,7 +454,7 @@ namespace Netch.Forms
             if (WindowState == FormWindowState.Minimized)
             {
                 Visible = true;
-                ShowInTaskbar = true; // 显示在系统任务栏 
+                ShowInTaskbar = true;                 // 显示在系统任务栏 
                 WindowState = FormWindowState.Normal; // 还原窗体 
             }
 
@@ -465,7 +471,7 @@ namespace Netch.Forms
             if (WindowState == FormWindowState.Minimized)
             {
                 Visible = true;
-                ShowInTaskbar = true; //显示在系统任务栏 
+                ShowInTaskbar = true;                 //显示在系统任务栏 
                 WindowState = FormWindowState.Normal; //还原窗体
             }
 
