@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Netch.Controllers;
@@ -36,7 +37,7 @@ namespace Netch.Forms
 
         private async void NewVersionLabel_Click(object sender, EventArgs e)
         {
-            if (!_updater.LatestVersionDownloadUrl.Contains("Netch"))
+            if (!_updater.LatestRelease.assets.Any())
             {
                 Utils.Utils.Open(_updater.LatestVersionUrl);
                 return;
@@ -46,11 +47,12 @@ namespace Netch.Forms
                 return;
             NotifyTip(i18N.Translate("Start downloading new version"));
 
+            var latestVersionDownloadUrl = _updater.LatestRelease.assets[0].browser_download_url;
             var tagPage = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(_updater.LatestVersionUrl));
             var match = Regex.Match(tagPage, @"<td .*>(?<sha256>.*)</td>", RegexOptions.Singleline);
 
             // TODO Replace with regex get basename and sha256 
-            var fileName = Path.GetFileName(new Uri(_updater.LatestVersionDownloadUrl).LocalPath);
+            var fileName = Path.GetFileName(new Uri(latestVersionDownloadUrl).LocalPath);
             fileName = fileName.Insert(fileName.LastIndexOf('.'), _updater.LatestVersionNumber);
             var fileFullPath = Path.Combine(Global.NetchDir, "data", fileName);
 
@@ -70,7 +72,7 @@ namespace Netch.Forms
                 }
 
                 // TODO Replace "New Version Found" to Progress bar
-                await WebUtil.DownloadFileAsync(WebUtil.CreateRequest(_updater.LatestVersionDownloadUrl), fileFullPath);
+                await WebUtil.DownloadFileAsync(WebUtil.CreateRequest(latestVersionDownloadUrl), fileFullPath);
 
                 if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
                 {
