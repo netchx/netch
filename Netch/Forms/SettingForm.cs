@@ -101,6 +101,10 @@ namespace Netch.Forms
                 s => Global.Settings.RedirectorSS = s,
                 Global.Settings.RedirectorSS);
 
+            BindCheckBox(NoProxyForUdpCheckBox,
+                s => Global.Settings.ProcessNoProxyForUdp = s,
+                Global.Settings.ProcessNoProxyForUdp);
+
             #endregion
 
             #region TUN/TAP

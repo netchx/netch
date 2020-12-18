@@ -56,10 +56,17 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
             aio_dial((int) NameList.TYPE_FILTERTCP, "true");
-            aio_dial((int) NameList.TYPE_FILTERUDP, "true");
-            aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
-
-            SetServer(MainController.ServerController, PortType.Both);
+            aio_dial((int)NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
+            if (Global.Settings.ProcessNoProxyForUdp)
+            {
+                aio_dial((int)NameList.TYPE_FILTERUDP, "false");
+                SetServer(MainController.ServerController, PortType.TCP);
+            }
+            else
+            {
+                aio_dial((int)NameList.TYPE_FILTERUDP, "true");
+                SetServer(MainController.ServerController, PortType.Both);
+            }
 
             if (!CheckRule(mode.FullRule, out var list))
             {

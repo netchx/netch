@@ -255,5 +255,7 @@ namespace Netch.Models
         public AioDNSConfig AioDNS = new AioDNSConfig();
 
         public bool RedirectorSS = false;
+
+        public bool ProcessNoProxyForUdp = false;
     }
 }
