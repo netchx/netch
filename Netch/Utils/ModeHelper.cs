@@ -68,17 +68,19 @@ namespace Netch.Utils
 
                 if (i == 0)
                 {
+                    if (text.First() != '#')
+                        return;
                     try
                     {
-                        var splited = text.Substring(text.IndexOf('#') + 1).Split(',').Select(s => s.Trim()).ToArray();
+                        var splited = text.Substring(1).Split(',').Select(s => s.Trim()).ToArray();
 
                         mode.Remark = splited[0];
 
-                        var result = int.TryParse(splited.ElementAtOrDefault(1), out var type);
-                        mode.Type = result ? type : 0;
+                        var typeResult = int.TryParse(splited.ElementAtOrDefault(1), out var type);
+                        mode.Type = typeResult ? type : 0;
 
-                        var result1 = int.TryParse(splited.ElementAtOrDefault(2), out var bypassChina);
-                        mode.BypassChina = result1 && bypassChina == 1;
+                        var bypassChinaResult = int.TryParse(splited.ElementAtOrDefault(2), out var bypassChina);
+                        mode.BypassChina = mode.ClientRouting() && bypassChinaResult && bypassChina == 1;
                     }
                     catch
                     {
@@ -136,6 +138,7 @@ namespace Netch.Utils
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
         }
+
 
         public static bool SkipServerController(Server server, Mode mode)
         {

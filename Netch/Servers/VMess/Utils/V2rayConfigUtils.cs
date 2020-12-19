@@ -80,6 +80,7 @@ namespace Netch.Servers.VMess.Utils
                     switch (mode.Type)
                     {
                         case 0:
+                            directRuleObject.ip.Add("geoip:cn");
                             break;
                         case 1:
                         case 2:

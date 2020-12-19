@@ -82,7 +82,7 @@ namespace Netch.Controllers
                     throw new StartFailedException();
                 }
 
-                if (mode.TestNatRequired)
+                if (mode.TestNatRequired())
                     NatTest();
 
                 return true;

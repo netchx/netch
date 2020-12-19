@@ -33,9 +33,6 @@ namespace Netch.Models
         /// </summary>
         public int Type = 0;
 
-        ///     是否会转发 UDP
-        public bool TestNatRequired => Type is 0 or 1 or 2;
-
         /// <summary>
         ///    绕过中国（0. 不绕过 1. 绕过）
         /// </summary>
@@ -120,44 +117,15 @@ namespace Netch.Models
         /// <returns>模式文件字符串</returns>
         public string ToFileString()
         {
-            StringBuilder fileString = new StringBuilder();
-
-            switch (Type)
-            {
-                case 0:
-                    // 进程模式
-                    fileString.Append($"# {Remark}");
-                    break;
-                case 1:
-                    // TUN/TAP 规则内 IP CIDR，无 Bypass China 设置
-                    fileString.Append($"# {Remark}, {Type}, 0");
-                    break;
-                default:
-                    fileString.Append($"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}");
-                    break;
-            }
-
-            if (Rule.Any())
-            {
-                fileString.Append(Global.EOF);
-                fileString.Append(string.Join(Global.EOF, Rule));
-            }
-
-            return fileString.ToString();
+            return $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}{Global.EOF}{string.Join(Global.EOF, Rule)}";
         }
+    }
+    public static class ModeExtension
+    {
+        ///     是否会转发 UDP
+        public static bool TestNatRequired(this Mode mode) => mode.Type is 0 or 1 or 2;
 
-        public string TypeToString()
-        {
-            return Type switch
-            {
-                0 => "Process",
-                1 => "TUNTAP",
-                2 => "TUNTAP",
-                3 => "SYSTEM",
-                4 => "S5",
-                5 => "S5+HTTP",
-                _ => "ERROR",
-            };
-        }
+        ///     Socks5 分流是否能被有效实施
+        public static bool ClientRouting(this Mode mode) => mode.Type is not 1 or 2;
     }
 }

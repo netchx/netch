@@ -366,21 +366,23 @@ namespace Netch.Forms
                 return;
             }
 
-            var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
-            switch (selectedMode.Type)
+            var mode = (Models.Mode) ModeComboBox.SelectedItem;
+            if (ModifierKeys == Keys.Control)
+            {
+                Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath));
+                return;
+            }
+
+            switch (mode.Type)
             {
                 case 0:
-                {
                     Hide();
-                    new Process(selectedMode).ShowDialog();
+                    new Process(mode).ShowDialog();
                     Show();
                     break;
-                }
                 default:
-                {
-                    MessageBoxX.Show($"Current not support editing {selectedMode.TypeToString()} Mode");
+                    Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath));
                     break;
-                }
             }
         }
 
