@@ -126,6 +126,6 @@ namespace Netch.Models
         public static bool TestNatRequired(this Mode mode) => mode.Type is 0 or 1 or 2;
 
         ///     Socks5 分流是否能被有效实施
-        public static bool ClientRouting(this Mode mode) => mode.Type is not 1 or 2;
+        public static bool ClientRouting(this Mode mode) => mode.Type is not (1 or 2);
     }
 }
