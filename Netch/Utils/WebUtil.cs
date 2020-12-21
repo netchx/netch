@@ -10,7 +10,7 @@ namespace Netch.Utils
     {
         static WebUtil()
         {
-            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
 
         public const string DefaultUserAgent =
