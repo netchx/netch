@@ -56,16 +56,16 @@ namespace Netch.Controllers
 
             aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
             aio_dial((int) NameList.TYPE_FILTERTCP, "true");
-            aio_dial((int)NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
+            aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
             if (Global.Settings.ProcessNoProxyForUdp)
             {
-                aio_dial((int)NameList.TYPE_FILTERUDP, "false");
-                SetServer(MainController.ServerController, PortType.TCP);
+                aio_dial((int) NameList.TYPE_FILTERUDP, "false");
+                SetServer(PortType.TCP);
             }
             else
             {
-                aio_dial((int)NameList.TYPE_FILTERUDP, "true");
-                SetServer(MainController.ServerController, PortType.Both);
+                aio_dial((int) NameList.TYPE_FILTERUDP, "true");
+                SetServer(PortType.Both);
             }
 
             if (!CheckRule(mode.FullRule, out var list))
@@ -184,18 +184,33 @@ namespace Netch.Controllers
             return InstallDriver();
         }
 
-        private void SetServer(in IServerController controller, in PortType portType)
+        private void SetServer(in PortType portType)
         {
             if (portType == PortType.Both)
             {
-                SetServer(controller, PortType.TCP);
-                SetServer(controller, PortType.UDP);
+                SetServer(PortType.TCP);
+                SetServer(PortType.UDP);
                 return;
             }
 
-            var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
+            int offset;
+            Server server;
+            IServerController controller;
 
-            if (MainController.Server is Socks5 socks5)
+            if (portType == PortType.UDP)
+            {
+                offset = UdpNameListOffset;
+                server = MainController.UdpServer;
+                controller = MainController.UdpServerController;
+            }
+            else
+            {
+                offset = 0;
+                server = MainController.Server;
+                controller = MainController.ServerController;
+            }
+
+            if (server is Socks5 socks5)
             {
                 aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
                 aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
@@ -203,7 +218,7 @@ namespace Netch.Controllers
                 aio_dial((int) NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-            else if (MainController.Server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS)
+            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS)
             {
                 aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
                 aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");

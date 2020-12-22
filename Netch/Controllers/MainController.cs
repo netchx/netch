@@ -18,14 +18,29 @@ namespace Netch.Controllers
             private set => _serverController = value;
         }
 
+        public static IServerController UdpServerController
+        {
+            get => _udpServerController ?? _serverController;
+            set => _udpServerController = value;
+        }
+
         /// TCP or Both Server
         public static Server Server;
+
+        public static Server UdpServer
+        {
+            get => _udpServer ?? Server;
+            set => _udpServer = value;
+        }
+
+        private static Server _udpServer;
         public static IModeController ModeController { get; private set; }
 
         public static bool NttTested;
 
         private static readonly NTTController NTTController = new NTTController();
         private static IServerController _serverController;
+        private static IServerController _udpServerController;
 
         /// <summary>
         ///     启动
