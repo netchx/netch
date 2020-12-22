@@ -14,17 +14,17 @@ namespace Netch.Servers.VLESS
         /// <summary>
         ///     加密方式
         /// </summary>
-        public new string EncryptMethod { get; set; } = "none";
+        public override string EncryptMethod { get; set; } = "none";
 
         /// <summary>
         ///		传输协议
         /// </summary>
-        public new string TransferProtocol { get; set; } = VLESSGlobal.TransferProtocols[0];
+        public override string TransferProtocol { get; set; } = VLESSGlobal.TransferProtocols[0];
 
         /// <summary>
         ///		伪装类型
         /// </summary>
-        public new string FakeType { get; set; } = VLESSGlobal.FakeTypes[0];
+        public override string FakeType { get; set; } = VLESSGlobal.FakeTypes[0];
 
         /// <summary>
         ///     

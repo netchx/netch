@@ -24,18 +24,18 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///     加密方式
         /// </summary>
-        public string EncryptMethod { get; set; } = VMessGlobal.EncryptMethods[0];
+        public virtual string EncryptMethod { get; set; } = VMessGlobal.EncryptMethods[0];
 
 
         /// <summary>
         ///		传输协议
         /// </summary>
-        public string TransferProtocol { get; set; } = VMessGlobal.TransferProtocols[0];
+        public virtual string TransferProtocol { get; set; } = VMessGlobal.TransferProtocols[0];
 
         /// <summary>
         ///		伪装类型
         /// </summary>
-        public string FakeType { get; set; } = VMessGlobal.FakeTypes[0];
+        public virtual string FakeType { get; set; } = VMessGlobal.FakeTypes[0];
 
         /// <summary>
         ///     QUIC
