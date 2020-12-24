@@ -56,6 +56,18 @@ namespace Netch.Utils
             return timeout;
         }
 
+        public static int ICMPing(IPAddress ip, int timeout = 1000)
+        {
+            var reply = new Ping().Send(ip, timeout);
+
+            if (reply?.Status == IPStatus.Success)
+            {
+                return Convert.ToInt32(reply.RoundtripTime);
+            }
+
+            return timeout;
+        }
+
         public static string GetCityCode(string Hostname)
         {
             if (Hostname.Contains(":"))
