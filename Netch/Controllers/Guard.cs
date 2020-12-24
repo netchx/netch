@@ -95,9 +95,9 @@ namespace Netch.Controllers
                     CreateNoWindow = true,
                     UseShellExecute = !RedirectStd,
                     RedirectStandardOutput = RedirectStd,
-                    StandardOutputEncoding = InstanceOutputEncoding,
+                    StandardOutputEncoding = RedirectStd ? InstanceOutputEncoding : null,
                     RedirectStandardError = RedirectStd,
-                    StandardErrorEncoding = InstanceOutputEncoding,
+                    StandardErrorEncoding = RedirectStd ? InstanceOutputEncoding : null,
                     WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
