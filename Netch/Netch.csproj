@@ -66,13 +66,14 @@
 
     <ItemGroup>
         <PackageReference Include="ILMerge" Version="3.0.41" />
-        <PackageReference Include="MaxMind.GeoIP2" Version="3.3.0" />
+        <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.62" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
         <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
         <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-        <PackageReference Include="WindowsJobAPI" Version="5.0.0" />
+        <PackageReference Include="WindowsJobAPI" Version="5.0.1" />
+        <PackageReference Include="WindowsProxy" Version="5.0.0" />
     </ItemGroup>
 
     <ItemGroup>

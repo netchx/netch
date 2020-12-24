@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using Netch.Models;
-using Netch.Servers.Socks5;
 using Netch.Utils;
+using WindowsProxy;
 
 namespace Netch.Controllers
 {
@@ -36,7 +36,7 @@ namespace Netch.Controllers
                     Global.Job.AddProcess(pPrivoxyController.Instance);
                 }
 
-                if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
+                //if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
             }
             catch (Exception e)
             {
@@ -91,12 +91,24 @@ namespace Netch.Controllers
                     if (prevEnabled)
                     {
                         if (prevHTTP != "")
-                            NativeMethods.SetGlobal(prevHTTP, prevBypass);
+                        {
+                            using var service = new ProxyService
+                            {
+                                Server = prevHTTP,
+                                Bypass = prevBypass
+                            };
+                        }
                         if (prevPAC != "")
-                            NativeMethods.SetURL(prevPAC);
+                        {
+                            using var service = new ProxyService
+                            {
+                                AutoConfigUrl = prevPAC
+                            };
+                            service.Pac();
+                        }
                     }
                     else
-                        NativeMethods.SetDIRECT();
+                        new ProxyService().Direct();
                 })
             };
             Task.WaitAll(tasks);

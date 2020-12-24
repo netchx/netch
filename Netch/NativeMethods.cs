@@ -28,30 +28,6 @@ namespace Netch
         [DllImport("NetchCore", CallingConvention = CallingConvention.Cdecl, EntryPoint = "DeleteRoute")]
         public static extern bool DeleteRoute(string address, int cidr, string gateway, int index, int metric = 0);
 
-        /// <summary>
-        ///     设置直连
-        /// </summary>
-        /// <returns>是否成功</returns>
-        [DllImport("sysproxy", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool SetDIRECT();
-
-        /// <summary>
-        ///     设置全局
-        /// </summary>
-        /// <param name="remote">地址</param>
-        /// <param name="bypass">绕过</param>
-        /// <returns>是否成功</returns>
-        [DllImport("sysproxy", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool SetGlobal([MarshalAs(UnmanagedType.LPTStr)] string remote, [MarshalAs(UnmanagedType.LPTStr)] string bypass);
-
-        /// <summary>
-        ///     设置自动代理
-        /// </summary>
-        /// <param name="remote">URL</param>
-        /// <returns>是否成功</returns>
-        [DllImport("sysproxy", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool SetURL([MarshalAs(UnmanagedType.LPTStr)] string remote);
-
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
 

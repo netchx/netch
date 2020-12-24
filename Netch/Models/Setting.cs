@@ -156,6 +156,16 @@ namespace Netch.Models
         public int RequestTimeout = 10000;
 
         /// <summary>
+        ///     PAC URL
+        /// </summary>
+        public string Pac_Url = "";
+
+        /// <summary>
+        ///     PAC端口
+        /// </summary>
+        public int Pac_Port = 2803;
+
+        /// <summary>
         ///		HTTP 本地端口
         /// </summary>
         public ushort HTTPLocalPort = 2802;
