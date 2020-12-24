@@ -56,7 +56,7 @@ namespace Netch.Controllers
         ///     程序输出的编码,
         ///     调用于基类的 <see cref="OnOutputDataReceived"/> 
         /// </summary>
-        protected string InstanceOutputEncoding { get; set; } = "gbk";
+        protected Encoding InstanceOutputEncoding { get; set; } = Encoding.GetEncoding("gbk");
 
         /// <summary>
         ///     停止进程
@@ -93,10 +93,11 @@ namespace Netch.Controllers
                     WorkingDirectory = $"{Global.NetchDir}\\bin",
                     Arguments = argument,
                     CreateNoWindow = true,
-                    RedirectStandardError = RedirectStd,
-                    RedirectStandardInput = RedirectStd,
-                    RedirectStandardOutput = RedirectStd,
                     UseShellExecute = !RedirectStd,
+                    RedirectStandardOutput = RedirectStd,
+                    StandardOutputEncoding = InstanceOutputEncoding,
+                    RedirectStandardError = RedirectStd,
+                    StandardErrorEncoding = InstanceOutputEncoding,
                     WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
@@ -192,15 +193,13 @@ namespace Netch.Controllers
             if (e.Data == null)
                 return;
 
-            var info = Encoding.GetEncoding(InstanceOutputEncoding).GetBytes(e.Data);
-            var str = Encoding.UTF8.GetString(info);
-            Write(str);
+            Write(e.Data);
             // 检查启动
             if (State == State.Starting)
             {
-                if (StartedKeywords.Any(s => str.Contains(s)))
+                if (StartedKeywords.Any(s => e.Data.Contains(s)))
                     State = State.Started;
-                else if (StoppedKeywords.Any(s => str.Contains(s)))
+                else if (StoppedKeywords.Any(s => e.Data.Contains(s)))
                     State = State.Stopped;
             }
         }
