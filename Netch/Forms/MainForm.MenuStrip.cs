@@ -3,12 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms.Mode;
 using Netch.Models;
+using Netch.Properties;
 using Netch.Utils;
+using Netch.Utils.HttpProxyHandler;
+using Newtonsoft.Json;
 
 namespace Netch.Forms
 {
@@ -270,6 +274,39 @@ namespace Netch.Forms
                     State = State.Stopped;
                 }
 
+                Enabled = true;
+            }
+        }
+
+        private async void updatePACToolStripMenuItem_Click(object sender, EventArgs eventArgs)
+        {
+            Enabled = false;
+
+            NotifyTip(i18N.Translate("Updating in the background"));
+            try
+            {
+                var req = WebUtil.CreateRequest(Global.Settings.GFWLIST);
+
+                string gfwlist = Path.Combine(Global.NetchDir, $"bin\\gfwlist");
+                string pac = Path.Combine(Global.NetchDir, $"bin\\pac.txt");
+
+                await WebUtil.DownloadFileAsync(req, gfwlist);
+                
+                var gfwContent = File.ReadAllText(gfwlist);
+                List<string> lines = PACUtil.ParseResult(gfwContent);
+                string abpContent = PACUtil.UnGzip(Resources.abp_js);
+                abpContent = abpContent.Replace("__RULES__", JsonConvert.SerializeObject(lines, Formatting.Indented));
+                File.WriteAllText(pac, abpContent, Encoding.UTF8);
+                
+                NotifyTip(i18N.Translate("PAC updated successfully"));
+            }
+            catch (Exception e)
+            {
+                NotifyTip(i18N.Translate("PAC update failed") + "\n" + e.Message, info: false);
+                Logging.Error("更新 PAC 失败！" + e);
+            }
+            finally
+            {
                 Enabled = true;
             }
         }

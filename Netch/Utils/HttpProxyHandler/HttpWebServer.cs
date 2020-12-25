@@ -34,7 +34,6 @@ namespace Netch.Utils.HttpProxyHandler
 
                 _responderMethod = method;
                 _listener.Start();
-
             }
             catch (Exception ex)
             {
@@ -43,7 +42,9 @@ namespace Netch.Utils.HttpProxyHandler
         }
 
         public HttpWebServer(Func<HttpListenerRequest, string> method, params string[] prefixes)
-            : this(prefixes, method) { }
+            : this(prefixes, method)
+        {
+        }
 
         public void Run()
         {
@@ -68,7 +69,7 @@ namespace Netch.Utils.HttpProxyHandler
                             }
                             catch
                             {
-                            }  // suppress any exceptions
+                            } // suppress any exceptions
                             finally
                             {
                                 // always close the stream
@@ -94,6 +95,5 @@ namespace Netch.Utils.HttpProxyHandler
                 _listener = null;
             }
         }
-
     }
 }

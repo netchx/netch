@@ -251,6 +251,11 @@ namespace Netch.Models
         public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
 
         /// <summary>
+        ///     GFWList
+        /// </summary>
+        public string GFWLIST = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt";
+
+        /// <summary>
         ///     是否使用DLL启动Shadowsocks
         /// </summary>
         public bool BootShadowsocksFromDLL = true;

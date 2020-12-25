@@ -35,15 +35,11 @@ namespace Netch.Controllers
 
             File.WriteAllText("data\\privoxy.conf", text.ToString());
 
-            //启动PAC服务器
-            PACServerHandle.InitPACServer("127.0.0.1");
-
             return StartInstanceAuto("..\\data\\privoxy.conf");
         }
 
         public override void Stop()
         {
-            PACServerHandle.Stop();
             StopInstance();
         }
     }

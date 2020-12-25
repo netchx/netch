@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using Netch.Models;
 using Netch.Utils;
 using WindowsProxy;
+using Netch.Utils.HttpProxyHandler;
 
 namespace Netch.Controllers
 {
@@ -36,7 +37,23 @@ namespace Netch.Controllers
                     Global.Job.AddProcess(pPrivoxyController.Instance);
                 }
 
-                //if (mode.Type == 3) NativeMethods.SetGlobal($"127.0.0.1:{Global.Settings.HTTPLocalPort}", IEProxyExceptions);
+                if (mode.Type == 3)
+                {
+                    if (mode.BypassChina)
+                    {
+                        //启动PAC服务器
+                        PACServerHandle.InitPACServer("127.0.0.1");
+                    }
+                    else
+                    {
+                        using var service = new ProxyService
+                        {
+                            Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}",
+                            Bypass = IEProxyExceptions
+                        };
+                        service.Global();
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -88,6 +105,7 @@ namespace Netch.Controllers
                 Task.Factory.StartNew(pPrivoxyController.Stop),
                 Task.Factory.StartNew(() =>
                 {
+                    PACServerHandle.Stop();
                     if (prevEnabled)
                     {
                         if (prevHTTP != "")
@@ -97,6 +115,7 @@ namespace Netch.Controllers
                                 Server = prevHTTP,
                                 Bypass = prevBypass
                             };
+                            service.Global();
                         }
                         if (prevPAC != "")
                         {
