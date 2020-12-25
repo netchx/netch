@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
@@ -149,7 +150,11 @@ namespace Netch.Controllers
                 {
                     if (guard.Instance != null)
                     {
-                        Global.Job.AddProcess(guard.Instance);
+                        Task.Run(() =>
+                        {
+                            Thread.Sleep(1000);
+                            Global.Job.AddProcess(guard.Instance);
+                        });
                     }
                 }
 
