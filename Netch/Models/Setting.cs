@@ -78,6 +78,8 @@ namespace Netch.Models
         public string ChinaDNS = "223.5.5.5";
 
         public string OtherDNS = "1.1.1.1";
+
+        public string Protocol = "tcp";
     }
 
     /// <summary>
