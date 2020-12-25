@@ -72,6 +72,7 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 - [v2ray-core](https://github.com/v2ray/v2ray-core)
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
+- [GFWList](https://github.com/gfwlist/gfwlist)
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
 - [tap-windows6](https://github.com/OpenVPN/tap-windows6)
 - [Privoxy](https://www.privoxy.org/)
