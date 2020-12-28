@@ -119,9 +119,9 @@ namespace Netch.Controllers
         {
             var tasks = new[]
             {
-                Task.Factory.StartNew(StopInstance),
-                Task.Factory.StartNew(ClearRouteTable),
-                Task.Factory.StartNew(DNSController.Stop)
+                Task.Run(StopInstance),
+                Task.Run(ClearRouteTable),
+                Task.Run(DNSController.Stop)
             };
             Task.WaitAll(tasks);
         }

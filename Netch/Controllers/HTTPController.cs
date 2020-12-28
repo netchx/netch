@@ -102,32 +102,36 @@ namespace Netch.Controllers
         {
             var tasks = new[]
             {
-                Task.Factory.StartNew(pPrivoxyController.Stop),
-                Task.Factory.StartNew(() =>
+                Task.Run(pPrivoxyController.Stop),
+                Task.Run(() =>
                 {
-                    PACServerHandle.Stop();
-                    if (prevEnabled)
+                    using var service = new ProxyService();
+                    try
                     {
-                        if (prevHTTP != "")
+                        PACServerHandle.Stop();
+                        if (prevEnabled)
                         {
-                            using var service = new ProxyService
+                            if (prevHTTP != "")
                             {
-                                Server = prevHTTP,
-                                Bypass = prevBypass
-                            };
-                            service.Global();
+                                service.Server = prevHTTP;
+                                service.Bypass = prevBypass;
+                                service.Global();
+                            }
+                            if (prevPAC != "")
+                            {
+                                service.AutoConfigUrl = prevPAC;
+                                service.Pac();
+                            }
                         }
-                        if (prevPAC != "")
+                        else
                         {
-                            using var service = new ProxyService
-                            {
-                                AutoConfigUrl = prevPAC
-                            };
-                            service.Pac();
+                            service.Direct();
                         }
                     }
-                    else
-                        new ProxyService().Direct();
+                    catch (Exception e)
+                    {
+                        Logging.Error($"{Name} 控制器出错:\n" + e);
+                    }
                 })
             };
             Task.WaitAll(tasks);
