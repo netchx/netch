@@ -68,7 +68,7 @@ namespace Netch.Models
 
         public KcpConfig KcpConfig = new KcpConfig();
 
-        public bool UseMux = true;
+        public bool UseMux = false;
     }
 
     public class AioDNSConfig
