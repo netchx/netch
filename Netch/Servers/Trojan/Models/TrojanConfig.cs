@@ -39,12 +39,16 @@ namespace Netch.Servers.Trojan.Models
         /// </summary>
         public int log_level = 1;
 
-        public TrojanSSL ssl = new TrojanSSL();
+        public TrojanSSL ssl;// = new TrojanSSL();
         public TrojanTCP tcp = new TrojanTCP();
     }
 
     public class TrojanSSL
     {
+        public TrojanSSL(string sni)
+        {
+            this.sni = sni;
+        }
         public bool verify = false;
         public bool verify_hostname = false;
         public string cert;

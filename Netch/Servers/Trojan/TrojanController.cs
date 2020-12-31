@@ -34,8 +34,10 @@ namespace Netch.Servers.Trojan
                 password = new List<string>
                 {
                     server.Password
-                }
-            }));
+                },
+                ssl= new TrojanSSL(server.Host)
+
+        }));
 
             return StartInstanceAuto("-c ..\\data\\last.json");
         }
