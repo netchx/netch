@@ -25,7 +25,7 @@ namespace Netch.Servers.Trojan
         public bool Start(in Server s, in Mode mode)
         {
             var server = (Trojan) s;
-            File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(new TrojanConfig
+            var trojanConfig = new TrojanConfig
             {
                 local_addr = this.LocalAddress(),
                 local_port = this.Socks5LocalPort(),
@@ -35,8 +35,15 @@ namespace Netch.Servers.Trojan
                 {
                     server.Password
                 }
-            }));
+            };
 
+            if (!string.IsNullOrWhiteSpace(server.Host))
+                trojanConfig.ssl.sni = server.Host;
+
+            File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(trojanConfig, Formatting.Indented, new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            }));
             return StartInstanceAuto("-c ..\\data\\last.json");
         }
 
