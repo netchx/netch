@@ -331,7 +331,7 @@ namespace Netch.Forms
             }
         }
 
-        private async void reinstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void UninstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StatusText(i18N.TranslateFormat("Uninstalling {0}", "TUN/TAP driver"));
             Enabled = false;

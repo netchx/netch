@@ -245,7 +245,7 @@
             this.UninstallTapDriverToolStripMenuItem.Name = "UninstallTapDriverToolStripMenuItem";
             this.UninstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
             this.UninstallTapDriverToolStripMenuItem.Text = "Uninstall TUN/TAP driver";
-            this.UninstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.reinstallTapDriverToolStripMenuItem_Click);
+            this.UninstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.UninstallTapDriverToolStripMenuItem_Click);
             // 
             // HelpToolStripMenuItem
             // 
