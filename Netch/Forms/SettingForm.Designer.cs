@@ -34,6 +34,9 @@ namespace Netch.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.TabControl = new System.Windows.Forms.TabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
+            this.ServerPingTypeLabel = new System.Windows.Forms.Label();
+            this.TCPingRadioBtn = new System.Windows.Forms.RadioButton();
+            this.ICMPingRadioBtn = new System.Windows.Forms.RadioButton();
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.Socks5PortLabel = new System.Windows.Forms.Label();
             this.Socks5PortTextBox = new System.Windows.Forms.TextBox();
@@ -143,6 +146,9 @@ namespace Netch.Forms
             // GeneralTabPage
             // 
             this.GeneralTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.GeneralTabPage.Controls.Add(this.ServerPingTypeLabel);
+            this.GeneralTabPage.Controls.Add(this.TCPingRadioBtn);
+            this.GeneralTabPage.Controls.Add(this.ICMPingRadioBtn);
             this.GeneralTabPage.Controls.Add(this.PortGroupBox);
             this.GeneralTabPage.Controls.Add(this.BootShadowsocksFromDLLCheckBox);
             this.GeneralTabPage.Controls.Add(this.ResolveServerHostnameCheckBox);
@@ -163,6 +169,39 @@ namespace Netch.Forms
             this.GeneralTabPage.Size = new System.Drawing.Size(461, 325);
             this.GeneralTabPage.TabIndex = 0;
             this.GeneralTabPage.Text = "General";
+            // 
+            // ServerPingTypeLabel
+            // 
+            this.ServerPingTypeLabel.AutoSize = true;
+            this.ServerPingTypeLabel.Location = new System.Drawing.Point(217, 160);
+            this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
+            this.ServerPingTypeLabel.Size = new System.Drawing.Size(89, 12);
+            this.ServerPingTypeLabel.TabIndex = 16;
+            this.ServerPingTypeLabel.Text = "ServerPingType";
+            // 
+            // TCPingRadioBtn
+            // 
+            this.TCPingRadioBtn.AutoSize = true;
+            this.TCPingRadioBtn.Location = new System.Drawing.Point(376, 158);
+            this.TCPingRadioBtn.Name = "TCPingRadioBtn";
+            this.TCPingRadioBtn.Size = new System.Drawing.Size(59, 16);
+            this.TCPingRadioBtn.TabIndex = 15;
+            this.TCPingRadioBtn.TabStop = true;
+            this.TCPingRadioBtn.Text = "TCPing";
+            this.TCPingRadioBtn.UseVisualStyleBackColor = true;
+            this.TCPingRadioBtn.CheckedChanged += new System.EventHandler(this.TCPingRadioBtn_CheckedChanged);
+            // 
+            // ICMPingRadioBtn
+            // 
+            this.ICMPingRadioBtn.AutoSize = true;
+            this.ICMPingRadioBtn.Location = new System.Drawing.Point(312, 158);
+            this.ICMPingRadioBtn.Name = "ICMPingRadioBtn";
+            this.ICMPingRadioBtn.Size = new System.Drawing.Size(65, 16);
+            this.ICMPingRadioBtn.TabIndex = 14;
+            this.ICMPingRadioBtn.TabStop = true;
+            this.ICMPingRadioBtn.Text = "ICMPing";
+            this.ICMPingRadioBtn.UseVisualStyleBackColor = true;
+            this.ICMPingRadioBtn.CheckedChanged += new System.EventHandler(this.ICMPingRadioBtn_CheckedChanged);
             // 
             // PortGroupBox
             // 
@@ -292,7 +331,7 @@ namespace Netch.Forms
             // DetectionIntervalLabel
             // 
             this.DetectionIntervalLabel.AutoSize = true;
-            this.DetectionIntervalLabel.Location = new System.Drawing.Point(228, 187);
+            this.DetectionIntervalLabel.Location = new System.Drawing.Point(217, 187);
             this.DetectionIntervalLabel.Name = "DetectionIntervalLabel";
             this.DetectionIntervalLabel.Size = new System.Drawing.Size(143, 12);
             this.DetectionIntervalLabel.TabIndex = 6;
@@ -383,6 +422,7 @@ namespace Netch.Forms
             this.NoProxyForTcpCheckBox.TabIndex = 4;
             this.NoProxyForTcpCheckBox.Text = "No Proxy for Tcp";
             this.NoProxyForTcpCheckBox.UseVisualStyleBackColor = true;
+            this.NoProxyForTcpCheckBox.CheckedChanged += new System.EventHandler(this.NoProxyForTcpCheckBox_CheckedChanged);
             // 
             // NoProxyForUdpCheckBox
             // 
@@ -393,6 +433,7 @@ namespace Netch.Forms
             this.NoProxyForUdpCheckBox.TabIndex = 3;
             this.NoProxyForUdpCheckBox.Text = "No Proxy for Udp";
             this.NoProxyForUdpCheckBox.UseVisualStyleBackColor = true;
+            this.NoProxyForUdpCheckBox.CheckedChanged += new System.EventHandler(this.NoProxyForUdpCheckBox_CheckedChanged);
             // 
             // ModifySystemDNSCheckBox
             // 
@@ -929,7 +970,7 @@ namespace Netch.Forms
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ControlButton.Location = new System.Drawing.Point(397, 363);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
@@ -960,7 +1001,7 @@ namespace Netch.Forms
             this.ClientSize = new System.Drawing.Size(480, 400);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "SettingForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -987,6 +1028,7 @@ namespace Netch.Forms
             this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
         private System.Windows.Forms.CheckBox NoProxyForTcpCheckBox;
 
@@ -1071,5 +1113,8 @@ namespace Netch.Forms
         private System.Windows.Forms.Label ModifiedDNSLabel;
         private System.Windows.Forms.CheckBox RedirectorSSCheckBox;
         private System.Windows.Forms.CheckBox NoProxyForUdpCheckBox;
+        private System.Windows.Forms.Label ServerPingTypeLabel;
+        private System.Windows.Forms.RadioButton TCPingRadioBtn;
+        private System.Windows.Forms.RadioButton ICMPingRadioBtn;
     }
 }

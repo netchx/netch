@@ -273,6 +273,11 @@ namespace Netch.Models
         public string Language = "System";
 
         /// <summary>
+        /// 服务器测试方式 false.ICMPing true.TCPing
+        /// </summary>
+        public bool ServerTCPing = true;
+
+        /// <summary>
         /// 是否使用RDR内置SS
         /// </summary>
         public bool RedirectorSS = false;

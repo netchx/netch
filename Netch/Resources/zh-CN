@@ -171,6 +171,7 @@
     "Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?": "设置系统代理失败，可能是缺少依赖导致，是否跳转 Netch 官网下载依赖程序？",
     "Delay test after start": "启动后延迟测试",
     "Enable": "启用",
+    "ServerPingType": "测速方式",
     "Detection interval(sec)": "检测间隔（秒）",
     "STUN Server": "STUN 服务器",
     "STUN Server Port": "STUN 服务器端口",

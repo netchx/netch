@@ -4,7 +4,7 @@ using Netch.Utils;
 
 namespace Netch.Models
 {
-    public class Server:ICloneable
+    public class Server : ICloneable
     {
         /// <summary>
         ///     备注
@@ -81,7 +81,7 @@ namespace Netch.Models
                     {
                         try
                         {
-                            return await Utils.Utils.TCPingAsync(destination, Port);
+                            return Global.Settings.ServerTCPing ? await Utils.Utils.TCPingAsync(destination, Port) : await Utils.Utils.ICMPing(destination, Port);
                         }
                         catch (Exception)
                         {
