@@ -105,6 +105,10 @@ namespace Netch.Forms
                 s => Global.Settings.ProcessNoProxyForUdp = s,
                 Global.Settings.ProcessNoProxyForUdp);
 
+            BindCheckBox(NoProxyForTcpCheckBox,
+                s => Global.Settings.ProcessNoProxyForTcp = s,
+                Global.Settings.ProcessNoProxyForTcp);
+
             #endregion
 
             #region TUN/TAP
@@ -310,10 +314,11 @@ namespace Netch.Forms
                 return;
             }
 
+            #endregion
 
             #region CheckSTUN
 
-            var stunFlag = true;
+            var errFlag = false;
             var stunServer = string.Empty;
             ushort stunServerPort = 3478;
 
@@ -325,21 +330,30 @@ namespace Netch.Forms
                 if (stun.Length > 1)
                     if (!ushort.TryParse(stun[1], out stunServerPort))
                     {
-                        stunFlag = false;
+                        errFlag = true;
                     }
             }
             else
             {
-                stunFlag = false;
+                errFlag = true;
             }
 
-            if (!stunFlag)
+            if (errFlag)
             {
                 Utils.Utils.ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
                 return;
             }
 
             #endregion
+
+            #region CheckProcessMode
+
+            if (NoProxyForUdpCheckBox.Checked && NoProxyForTcpCheckBox.Checked)
+            {
+                Utils.Utils.ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
+                MessageBoxX.Show("TCP&UDP只允许勾选一个");
+                return;
+            }
 
             #endregion
 

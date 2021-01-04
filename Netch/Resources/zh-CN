@@ -162,6 +162,7 @@
     "SS DLL": "SS DLL",
     "Modify System DNS": "修改系统 DNS",
     "No Proxy for Udp": "不代理Udp流量",
+    "No Proxy for Tcp": "不代理Tcp流量",
     "ProfileCount": "快捷配置数量",
     "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试。",
     "STUN_ServerPort value illegal. Try again.": "STUN 端口数值非法。请重试。",

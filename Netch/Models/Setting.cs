@@ -87,6 +87,11 @@ namespace Netch.Models
     /// </summary>
     public class Setting
     {
+
+        public V2rayConfig V2RayConfig = new V2rayConfig();
+
+        public AioDNSConfig AioDNS = new AioDNSConfig();
+        
         /// <summary>
         ///		服务器选择位置
         /// </summary>
@@ -267,12 +272,19 @@ namespace Netch.Models
         /// </summary>
         public string Language = "System";
 
-        public V2rayConfig V2RayConfig = new V2rayConfig();
-
-        public AioDNSConfig AioDNS = new AioDNSConfig();
-
+        /// <summary>
+        /// 是否使用RDR内置SS
+        /// </summary>
         public bool RedirectorSS = false;
 
+        /// <summary>
+        /// 不代理UDP
+        /// </summary>
         public bool ProcessNoProxyForUdp = false;
+
+        /// <summary>
+        /// 不代理TCP
+        /// </summary>
+        public bool ProcessNoProxyForTcp = false;
     }
 }
