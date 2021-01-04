@@ -24,6 +24,7 @@ namespace Netch.Controllers
             get => _udpServerController ?? _serverController;
             set => _udpServerController = value;
         }
+        public static Mode Mode;
 
         /// TCP or Both Server
         public static Server Server;
@@ -53,6 +54,7 @@ namespace Netch.Controllers
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
             Server = server;
+            Mode = mode;
 
             if (server is Socks5 && mode.Type == 4)
             {

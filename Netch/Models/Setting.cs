@@ -260,7 +260,7 @@ namespace Netch.Models
         /// <summary>
         ///     GFWList
         /// </summary>
-        public string GFWLIST = "https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt";
+        public string PAC = "https://raw.githubusercontent.com/HMBSbige/Text_Translation/master/ShadowsocksR/ss_white.pac";
 
         /// <summary>
         ///     是否使用DLL启动Shadowsocks

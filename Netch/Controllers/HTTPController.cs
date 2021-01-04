@@ -39,7 +39,7 @@ namespace Netch.Controllers
 
                 if (mode.Type == 3)
                 {
-                    if (mode.BypassChina)
+                    if ((MainController.Server.Type == "Socks5" || MainController.Server.Type == "Trojan") && mode.BypassChina)
                     {
                         //启动PAC服务器
                         PACServerHandle.InitPACServer("127.0.0.1");

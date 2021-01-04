@@ -285,18 +285,11 @@ namespace Netch.Forms
             NotifyTip(i18N.Translate("Updating in the background"));
             try
             {
-                var req = WebUtil.CreateRequest(Global.Settings.GFWLIST);
+                var req = WebUtil.CreateRequest(Global.Settings.PAC);
 
-                string gfwlist = Path.Combine(Global.NetchDir, $"bin\\gfwlist");
                 string pac = Path.Combine(Global.NetchDir, $"bin\\pac.txt");
 
-                await WebUtil.DownloadFileAsync(req, gfwlist);
-                
-                var gfwContent = File.ReadAllText(gfwlist);
-                List<string> lines = PACUtil.ParseResult(gfwContent);
-                string abpContent = PACUtil.UnGzip(Resources.abp_js);
-                abpContent = abpContent.Replace("__RULES__", JsonConvert.SerializeObject(lines, Formatting.Indented));
-                File.WriteAllText(pac, abpContent, Encoding.UTF8);
+                await WebUtil.DownloadFileAsync(req, pac);
                 
                 NotifyTip(i18N.Translate("PAC updated successfully"));
             }

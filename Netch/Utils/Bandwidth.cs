@@ -100,6 +100,7 @@ namespace Netch.Utils
             Logging.Info("流量统计进程:" + string.Join(",",
                 instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
 
+            received = 0;
             Task.Run(() =>
             {
                 tSession = new TraceEventSession("KernelAndClrEventsSession");
