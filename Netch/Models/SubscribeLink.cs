@@ -5,7 +5,7 @@
         /// <summary>
         ///     启用状态
         /// </summary>
-        public bool Enable;
+        public bool Enable = true;
 
         /// <summary>
         ///     备注
