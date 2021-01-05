@@ -5,7 +5,6 @@
 [![Version](https://img.shields.io/github/v/release/NetchX/Netch)](https://github.com/NetchX/Netch/releases)
 [![Downloads](https://img.shields.io/github/downloads/NetchX/Netch/total.svg)](https://github.com/NetchX/Netch/releases)
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fnetch.org)](https://netch.org/)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
 [中文说明](/docs/README.zh-CN.md)
@@ -63,7 +62,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [v2ray-core](https://github.com/v2ray/v2ray-core)
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
-- [GFWList](https://github.com/gfwlist/gfwlist)
+- [PAC](https://github.com/HMBSbige/Text_Translation/blob/master/ShadowsocksR/ss_white.pac)
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
 - [tap-windows6](https://github.com/OpenVPN/tap-windows6)
 - [Privoxy](https://www.privoxy.org/)
