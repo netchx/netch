@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
+using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
@@ -54,7 +55,7 @@ namespace Netch.Utils
         /// <summary>
         /// 根据程序名统计流量
         /// </summary>
-        public static void NetTraffic(in Server server, in Mode mode)
+        public static void NetTraffic()
         {
             if (!Global.Flags.IsWindows10Upper)
                 return;
@@ -101,6 +102,12 @@ namespace Netch.Utils
                 instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
 
             received = 0;
+
+            if (!instances.Any())
+                return;
+
+            Global.MainForm.BandwidthState(true);
+
             Task.Run(() =>
             {
                 tSession = new TraceEventSession("KernelAndClrEventsSession");

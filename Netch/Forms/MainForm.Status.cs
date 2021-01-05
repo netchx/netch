@@ -70,25 +70,13 @@ namespace Netch.Forms
 
                         ProfileGroupBox.Enabled = true;
 
-                        //Socks5
-                        Boolean s5BwFlag = true;
-                        if (MainController.Server is Socks5)
-                        {
-                            Socks5 SocksServer = (Socks5) MainController.Server;
-
-                            if (!SocksServer.Auth()) s5BwFlag = false;
-                        }
-
-                        //Socks5无身份验证且为网页代理模式时无法统计流量不显示流量状态栏，Socks5有身份验证时将统计V2ray的流量
-                        if (s5BwFlag || Models.ModeExtension.TestNatRequired(MainController.Mode))
-                            UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = Global.Flags.IsWindows10Upper;
                         break;
                     case State.Stopping:
                         ControlButton.Enabled = false;
                         ControlButton.Text = "...";
 
                         ProfileGroupBox.Enabled = false;
-                        UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = false;
+                        BandwidthState(false);
                         NatTypeStatusText();
                         break;
                     case State.Stopped:
@@ -108,6 +96,11 @@ namespace Netch.Forms
                         return;
                 }
             }
+        }
+
+        public void BandwidthState(bool state)
+        {
+            UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = state;
         }
 
         public void NatTypeStatusText(string text = "", string country = "")

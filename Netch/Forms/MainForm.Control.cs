@@ -42,7 +42,7 @@ namespace Netch.Forms
                 if (await MainController.Start(server, mode))
                 {
                     State = State.Started;
-                    _ = Task.Run(() => { Bandwidth.NetTraffic(server, mode); });
+                    _ = Task.Run(() => { Bandwidth.NetTraffic(); });
                     // 如果勾选启动后最小化
                     if (Global.Settings.MinimizeWhenStarted)
                     {
