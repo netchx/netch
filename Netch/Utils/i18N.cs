@@ -121,6 +121,9 @@ namespace Netch.Utils
                     case ToolStripItem c:
                         c.Text = Translate(c.Text);
                         break;
+                    case ColumnHeader c:
+                        c.Text = Translate(c.Text);
+                        break;
                 }
             });
         }

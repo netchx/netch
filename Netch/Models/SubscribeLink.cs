@@ -3,6 +3,11 @@
     public class SubscribeLink
     {
         /// <summary>
+        ///     启用状态
+        /// </summary>
+        public bool Enable;
+
+        /// <summary>
         ///     备注
         /// </summary>
         public string Remark;

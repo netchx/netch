@@ -70,6 +70,13 @@
     "Updating in the background": "正在后台更新中",
     "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
     "Update servers error from {0}": "从 {0} 更新服务器失败",
+    "Delete the corresponding group of items in the server list?": "是否删除订阅对应服务器？",
+    "Confirm deletion?": "确认删除？",
+    "DeleteServer": "删除订阅节点",
+    "Status": "状态",
+    "Remark": "备注",
+    "Link": "链接",
+    "Unselect": "取消选择",
 
     "Options": "选项",
     "NF Service": "NF 服务",
@@ -81,16 +88,16 @@
     "Modes have been reload": "模式已重载",
     "Clean DNS Cache": "清理 DNS 缓存",
     "DNS cache cleanup succeeded": "DNS 缓存清理成功",
-    
+
     "Update PAC": "更新 PAC",
     "PAC updated successfully": "PAC 更新成功",
     "PAC update failed": "PAC 更新失败",
-    
+
     "Update ACL": "更新 ACL 规则",
     "Update ACL with proxy": "使用代理更新 ACL 规则",
     "ACL updated successfully": "ACL 更新成功",
     "ACL update failed": "ACL 更新失败",
-    
+
     "Open Directory": "打开目录",
 
     "About": "关于",

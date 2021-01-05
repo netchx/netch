@@ -24,6 +24,10 @@ namespace Netch.Utils
         {
             try
             {
+                if (!item.Enable)
+                {
+                    return;
+                }
                 var request = WebUtil.CreateRequest(item.Link);
 
                 if (!string.IsNullOrEmpty(item.UserAgent)) request.UserAgent = item.UserAgent;

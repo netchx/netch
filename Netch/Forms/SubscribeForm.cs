@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 using Netch.Models;
@@ -21,12 +22,15 @@ namespace Netch.Forms
 
             foreach (var item in Global.Settings.SubscribeLink)
             {
-                SubscribeLinkListView.Items.Add(new ListViewItem(new[]
+                var viewItem = new ListViewItem(new[]
                 {
+                    "",
                     item.Remark,
                     item.Link,
                     !string.IsNullOrEmpty(item.UserAgent) ? item.UserAgent : WebUtil.DefaultUserAgent
-                }));
+                });
+                viewItem.Checked = item.Enable;
+                SubscribeLinkListView.Items.Add(viewItem);
             }
         }
 
@@ -119,6 +123,7 @@ namespace Netch.Forms
 
                 Global.Settings.SubscribeLink.Add(new SubscribeLink
                 {
+                    Enable = true,
                     Remark = RemarkTextBox.Text,
                     Link = LinkTextBox.Text,
                     UserAgent = UserAgentTextBox.Text
@@ -135,7 +140,9 @@ namespace Netch.Forms
                 {
                     RenameServersGroup(target.Remark, RemarkTextBox.Text);
                 }
+                ListViewItem listViewItem = SubscribeLinkListView.Items[_editingIndex];
 
+                target.Enable = listViewItem.Checked;
                 target.Link = LinkTextBox.Text;
                 target.Remark = RemarkTextBox.Text;
                 target.UserAgent = UserAgentTextBox.Text;
@@ -173,31 +180,21 @@ namespace Netch.Forms
         /// <param name="e"></param>
         private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var editingCanOverwrite = true;
-            if (_editingIndex != -1)
+            var listView = (ListView) sender;
+            if (listView.SelectedItems.Count == 0)
             {
-                var targetItem = SubscribeLinkListView.Items[_editingIndex].SubItems;
-                editingCanOverwrite = RemarkTextBox.Text == targetItem[0].Text &&
-                                      LinkTextBox.Text == targetItem[1].Text &&
-                                      UserAgentTextBox.Text == targetItem[2].Text;
-            }
-
-            if (SubscribeLinkListView.SelectedItems.Count == 1)
-            {
-                if (editingCanOverwrite)
-                {
-                    SelectEditing(SubscribeLinkListView.SelectedItems[0].Index);
-                }
-            }
-            else if (SubscribeLinkListView.SelectedItems.Count > 1)
-            {
-            }
-            else if (editingCanOverwrite)
-            {
-                // 不选
                 // 重置
                 ResetEditingGroup();
+                return;
             }
+            _editingIndex = listView.SelectedItems[0].Index;
+
+            ListViewItem target = SubscribeLinkListView.Items[_editingIndex];
+
+            AddSubscriptionBox.Text = target.SubItems[1].Text;
+            RemarkTextBox.Text = target.SubItems[1].Text;
+            LinkTextBox.Text = target.SubItems[2].Text;
+            UserAgentTextBox.Text = target.SubItems[3].Text;
         }
 
         private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
@@ -209,17 +206,6 @@ namespace Netch.Forms
                     pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
                 }
             }
-        }
-
-        private void SelectEditing(int index)
-        {
-            _editingIndex = index;
-            ListViewItem target;
-            target = SubscribeLinkListView.Items[index];
-            AddSubscriptionBox.Text = target.SubItems[0].Text;
-            RemarkTextBox.Text = target.SubItems[0].Text;
-            LinkTextBox.Text = target.SubItems[1].Text;
-            UserAgentTextBox.Text = target.SubItems[2].Text;
         }
 
         private void ResetEditingGroup()
@@ -234,6 +220,37 @@ namespace Netch.Forms
         private void ClearButton_Click(object sender, EventArgs e)
         {
             ResetEditingGroup();
+        }
+
+        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            _editingIndex = e.Item.Index;
+            ListViewItem listViewItem = SubscribeLinkListView.Items[e.Item.Index];
+
+            AddSubscriptionBox.Text = listViewItem.SubItems[1].Text;
+            RemarkTextBox.Text = listViewItem.SubItems[1].Text;
+            LinkTextBox.Text = listViewItem.SubItems[2].Text;
+            UserAgentTextBox.Text = listViewItem.SubItems[3].Text;
+
+            var settingSub = Global.Settings.SubscribeLink[_editingIndex];
+            settingSub.Enable = listViewItem.Checked;
+            settingSub.Remark = listViewItem.SubItems[1].Text;
+            settingSub.Link = listViewItem.SubItems[2].Text;
+            settingSub.UserAgent = listViewItem.SubItems[3].Text;
+
+            Configuration.Save();
+        }
+
+        private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (SubscribeLinkListView.SelectedItems.Count > 0)
+            {
+                var item = SubscribeLinkListView.SelectedItems[0];
+
+                if (MessageBoxX.Show(i18N.Translate("Confirm deletion?"), confirm: true) != DialogResult.OK)
+                    return;
+                DeleteServersInGroup(item.SubItems[1].Text);
+            }
         }
     }
 }

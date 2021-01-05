@@ -216,6 +216,14 @@ namespace Netch.Utils
             func.Invoke(component);
             switch (component)
             {
+                case ListView listView:
+                    // ListView sub item
+                    foreach (var item in listView.Columns.Cast<ColumnHeader>())
+                    {
+                        ComponentIterator(item, func);
+                    }
+
+                    break;
                 case ToolStripMenuItem toolStripMenuItem:
                     // Iterator Menu strip sub item
                     foreach (var item in toolStripMenuItem.DropDownItems.Cast<ToolStripItem>())

@@ -40,11 +40,13 @@
             this.RemarkTextBox = new System.Windows.Forms.TextBox();
             this.RemarkLabel = new System.Windows.Forms.Label();
             this.SubscribeLinkListView = new System.Windows.Forms.ListView();
+            this.EnableColumnHeader = new System.Windows.Forms.ColumnHeader();
             this.RemarkColumnHeader = new System.Windows.Forms.ColumnHeader();
             this.LinkColumnHeader = new System.Windows.Forms.ColumnHeader();
             this.UserAgentHeader = new System.Windows.Forms.ColumnHeader();
             this.pContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UseSelectedServerCheckBox = new System.Windows.Forms.CheckBox();
             this.MainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -143,18 +145,28 @@
             // SubscribeLinkListView
             // 
             this.SubscribeLinkListView.AllowColumnReorder = true;
-            this.SubscribeLinkListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {this.RemarkColumnHeader, this.LinkColumnHeader, this.UserAgentHeader});
+            this.SubscribeLinkListView.CheckBoxes = true;
+            this.SubscribeLinkListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[]
+            {
+                this.EnableColumnHeader, this.RemarkColumnHeader, this.LinkColumnHeader, this.UserAgentHeader
+            });
             this.SubscribeLinkListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.SubscribeLinkListView.FullRowSelect = true;
             this.SubscribeLinkListView.HideSelection = false;
             this.SubscribeLinkListView.Location = new System.Drawing.Point(8, 8);
+            this.SubscribeLinkListView.MultiSelect = false;
             this.SubscribeLinkListView.Name = "SubscribeLinkListView";
             this.SubscribeLinkListView.Size = new System.Drawing.Size(668, 200);
             this.SubscribeLinkListView.TabIndex = 0;
             this.SubscribeLinkListView.UseCompatibleStateImageBehavior = false;
             this.SubscribeLinkListView.View = System.Windows.Forms.View.Details;
+            this.SubscribeLinkListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.SubscribeLinkListView_ItemChecked);
             this.SubscribeLinkListView.SelectedIndexChanged += new System.EventHandler(this.SubscribeLinkListView_SelectedIndexChanged);
             this.SubscribeLinkListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SubscribeLinkListView_MouseUp);
+            // 
+            // EnableColumnHeader
+            // 
+            this.EnableColumnHeader.Text = "Status";
             // 
             // RemarkColumnHeader
             // 
@@ -164,7 +176,7 @@
             // LinkColumnHeader
             // 
             this.LinkColumnHeader.Text = "Link";
-            this.LinkColumnHeader.Width = 400;
+            this.LinkColumnHeader.Width = 364;
             // 
             // UserAgentHeader
             // 
@@ -173,21 +185,31 @@
             // 
             // pContextMenuStrip
             // 
-            this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.DeleteToolStripMenuItem, this.CopyLinkToolStripMenuItem});
+            this.pContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.DeleteToolStripMenuItem, this.deleteServerToolStripMenuItem, this.CopyLinkToolStripMenuItem
+            });
             this.pContextMenuStrip.Name = "pContextMenuStrip";
-            this.pContextMenuStrip.Size = new System.Drawing.Size(130, 48);
+            this.pContextMenuStrip.Size = new System.Drawing.Size(151, 70);
             // 
             // DeleteToolStripMenuItem
             // 
             this.DeleteToolStripMenuItem.Name = "DeleteToolStripMenuItem";
-            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.DeleteToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.DeleteToolStripMenuItem.Text = "Delete";
             this.DeleteToolStripMenuItem.Click += new System.EventHandler(this.DeleteToolStripMenuItem_Click);
+            // 
+            // deleteServerToolStripMenuItem
+            // 
+            this.deleteServerToolStripMenuItem.Name = "deleteServerToolStripMenuItem";
+            this.deleteServerToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
+            this.deleteServerToolStripMenuItem.Text = "DeleteServer";
+            this.deleteServerToolStripMenuItem.Click += new System.EventHandler(this.deleteServerToolStripMenuItem_Click);
             // 
             // CopyLinkToolStripMenuItem
             // 
             this.CopyLinkToolStripMenuItem.Name = "CopyLinkToolStripMenuItem";
-            this.CopyLinkToolStripMenuItem.Size = new System.Drawing.Size(129, 22);
+            this.CopyLinkToolStripMenuItem.Size = new System.Drawing.Size(150, 22);
             this.CopyLinkToolStripMenuItem.Text = "CopyLink";
             this.CopyLinkToolStripMenuItem.Click += new System.EventHandler(this.CopyLinkToolStripMenuItem_Click);
             // 
@@ -253,6 +275,7 @@
             this.ControlsPanel.PerformLayout();
             this.ResumeLayout(false);
         }
+        private System.Windows.Forms.ColumnHeader EnableColumnHeader;
 
         private System.Windows.Forms.Panel ControlsPanel;
         private System.Windows.Forms.TableLayoutPanel MainTableLayoutPanel;
@@ -275,5 +298,7 @@
         private System.Windows.Forms.CheckBox UseSelectedServerCheckBox;
 
         #endregion
+
+        private System.Windows.Forms.ToolStripMenuItem deleteServerToolStripMenuItem;
     }
 }
