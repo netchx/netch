@@ -122,9 +122,6 @@ namespace Netch.Models
     }
     public static class ModeExtension
     {
-        ///     是否为进程或TUN/TAP模式
-        public static bool ProcessOrTuntap(this Mode mode) => mode.Type is 0 or 1 or 2;
-
         ///     是否会转发 UDP
         public static bool TestNatRequired(this Mode mode) => mode.Type is 0 or 1 or 2;
 
