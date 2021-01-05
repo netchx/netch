@@ -129,6 +129,7 @@
     "Add / Modify": "保存/修改",
     "Select a folder": "选择一个目录",
     "Please enter an process name (xxx.exe)": "请输入一个进程名（xxx.exe）",
+    "Rule does not conform to C++ regular expression syntax": "规则不符合C ++正则表达式语法",
     "Scan completed": "扫描完成",
     "Mode added successfully": "模式添加成功",
     "Mode updated successfully": "模式修改成功",

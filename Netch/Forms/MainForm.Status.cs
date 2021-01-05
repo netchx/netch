@@ -72,7 +72,7 @@ namespace Netch.Forms
 
                         //Socks5
                         Boolean s5BwFlag = true;
-                        if (MainController.Server.Type is "Socks5")
+                        if (MainController.Server is Socks5)
                         {
                             Socks5 SocksServer = (Socks5) MainController.Server;
 

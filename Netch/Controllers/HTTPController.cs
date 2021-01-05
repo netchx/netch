@@ -6,6 +6,8 @@ using Microsoft.Win32;
 using Netch.Models;
 using Netch.Utils;
 using WindowsProxy;
+using Netch.Servers.Socks5;
+using Netch.Servers.Trojan;
 using Netch.Utils.HttpProxyHandler;
 
 namespace Netch.Controllers
@@ -39,7 +41,7 @@ namespace Netch.Controllers
 
                 if (mode.Type == 3)
                 {
-                    if ((MainController.Server.Type is "Socks5" or "Trojan") && mode.BypassChina)
+                    if ((MainController.Server is Socks5 or Trojan) && mode.BypassChina)
                     {
                         //启动PAC服务器
                         PACServerHandle.InitPACServer("127.0.0.1");
