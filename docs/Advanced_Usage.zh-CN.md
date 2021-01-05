@@ -34,19 +34,21 @@
 ### 模式 1 进程代理模式
 
 - 根据进程名进行代理
-- 底层依赖于 [NetFilter SDK](https://netfiltersdk.com) 和 Redirector.exe（未开源）等
+- 底层依赖于 [NetFilter SDK](https://netfiltersdk.com)
 - 对于第一次使用 Netch 的用户而言，不需要做多余的事情
   - 若 [NetFilter SDK](https://netfiltersdk.com) 的驱动不存在，会自动安装
   - 若驱动版本过低，会自动更新
 
 范例文件
 
-在这个模式里，第一行只有备注是有用的
+在这个模式里，第一行只有备注是有用的，规则内容支持C++正则表达式
 
 ```
 # 备注
 进程名 1（会被代理）
-进程名 2
+!进程名 2（不会被代理）
+csgo.exe
+\\steam\\（代理运行路径包含steam的所有程序）
 ...
 ```
 
@@ -131,7 +133,7 @@
 
 ## Socks 5 代理中转
 
-说明一下，Netch 并非是以网页代理为目的开发的程序，如果需要网络代理为目的的程序，需要 PAC，规则分流，订阅管理等功能的，请参考使用以下软件而非 Netch（均为 Windows 平台）
+说明一下，Netch 并非是以网页代理为目的开发的程序，如果需要网络代理为目的的程序，需要 PAC，规则分流，订阅管理等功能的，请尽量参考使用以下软件而非 Netch（均为 Windows 平台）
 
 ShadowsocksR
 
