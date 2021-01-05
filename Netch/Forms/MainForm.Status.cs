@@ -72,7 +72,7 @@ namespace Netch.Forms
 
                         //Socks5
                         Boolean s5BwFlag = true;
-                        if (MainController.Server.Type == "Socks5")
+                        if (MainController.Server.Type is "Socks5")
                         {
                             Socks5 SocksServer = (Socks5) MainController.Server;
 
@@ -80,7 +80,7 @@ namespace Netch.Forms
                         }
 
                         //Socks5无身份验证且为网页代理模式时无法统计流量不显示流量状态栏，Socks5有身份验证时将统计V2ray的流量
-                        if (s5BwFlag || (MainController.Mode.Type == 0 || MainController.Mode.Type == 1 || MainController.Mode.Type == 2))
+                        if (s5BwFlag || Models.ModeExtension.TestNatRequired(MainController.Mode))
                             UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = Global.Flags.IsWindows10Upper;
                         break;
                     case State.Stopping:
