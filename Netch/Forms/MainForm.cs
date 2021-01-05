@@ -463,6 +463,9 @@ namespace Netch.Forms
             Activate();
         }
 
+        /// <summary>
+        ///     通知图标右键菜单退出
+        /// </summary>
         private void ExitToolStripButton_Click(object sender, EventArgs e)
         {
             Exit();

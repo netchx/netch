@@ -290,7 +290,7 @@ namespace Netch.Forms
                 string pac = Path.Combine(Global.NetchDir, $"bin\\pac.txt");
 
                 await WebUtil.DownloadFileAsync(req, pac);
-                
+
                 NotifyTip(i18N.Translate("PAC updated successfully"));
             }
             catch (Exception e)
@@ -347,6 +347,9 @@ namespace Netch.Forms
         #endregion
 
 
+        /// <summary>
+        ///     菜单栏强制退出
+        /// </summary>
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Exit(true);
