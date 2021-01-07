@@ -2,7 +2,6 @@
 using System.Text;
 using Netch.Models;
 using Netch.Servers.Socks5;
-using Netch.Utils.HttpProxyHandler;
 
 namespace Netch.Controllers
 {

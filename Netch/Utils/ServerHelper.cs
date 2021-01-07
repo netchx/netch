@@ -13,7 +13,7 @@ namespace Netch.Utils
 
         static ServerHelper()
         {
-            var serversUtilsTypes = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.GetInterfaces().Any(t => t == typeof(IServerUtil)));
+            var serversUtilsTypes = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
             ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)).OrderBy(util => util.Priority);
         }
 

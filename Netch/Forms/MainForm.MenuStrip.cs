@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms.Mode;
 using Netch.Models;
-using Netch.Properties;
 using Netch.Utils;
-using Netch.Utils.HttpProxyHandler;
-using Newtonsoft.Json;
 
 namespace Netch.Forms
 {

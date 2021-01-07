@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Netch.Models;
 using Netch.Servers.VMess;
 
 namespace Netch.Servers.VLESS

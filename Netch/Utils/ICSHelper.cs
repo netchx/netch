@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Management;
 using Netch.Controllers;
 using Netch.Models.WinFW;

@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
-using Netch.Servers.Socks5;
 
 namespace Netch.Utils
 {

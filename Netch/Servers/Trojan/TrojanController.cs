@@ -3,7 +3,6 @@ using System.IO;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Trojan.Models;
-using Netch.Utils;
 using Newtonsoft.Json;
 
 namespace Netch.Servers.Trojan

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Shadowsocks.Models;
-using Netch.Servers.VMess;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Server = Netch.Models.Server;

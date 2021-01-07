@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using Netch.Controllers;
 using Netch.Models;
-using Netch.Servers.Socks5;
 using Netch.Utils;
 
 namespace Netch.Forms

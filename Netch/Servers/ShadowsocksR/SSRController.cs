@@ -1,7 +1,6 @@
 using System.Text;
 using Netch.Controllers;
 using Netch.Models;
-using Netch.Utils;
 
 namespace Netch.Servers.ShadowsocksR
 {
