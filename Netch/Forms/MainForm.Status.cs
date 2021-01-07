@@ -38,9 +38,10 @@ namespace Netch.Forms
                     UninstallServiceToolStripMenuItem.Enabled =
                         UpdateACLToolStripMenuItem.Enabled =
                             updateACLWithProxyToolStripMenuItem.Enabled =
-                                UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                                    UninstallTapDriverToolStripMenuItem.Enabled =
-                                        ReloadModesToolStripMenuItem.Enabled = enabled;
+                                updatePACToolStripMenuItem.Enabled =
+                                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                                        UninstallTapDriverToolStripMenuItem.Enabled =
+                                            ReloadModesToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
