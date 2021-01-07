@@ -212,11 +212,15 @@ namespace Netch.Forms
                     DNS.Cache.Clear();
                 });
 
-                StatusText(i18N.Translate("DNS cache cleanup succeeded"));
+                NotifyTip(i18N.Translate("DNS cache cleanup succeeded"));
             }
             catch (Exception)
             {
                 // ignored
+            }
+            finally
+            {
+                StatusText();
             }
         }
 
@@ -239,8 +243,7 @@ namespace Netch.Forms
             }
 
             Enabled = false;
-
-            NotifyTip(i18N.Translate("Updating in the background"));
+            StatusText(i18N.TranslateFormat("Updating {0}", "ACL"));
             try
             {
                 if (useProxy)
@@ -274,6 +277,7 @@ namespace Netch.Forms
                     State = State.Stopped;
                 }
 
+                StatusText();
                 Enabled = true;
             }
         }
@@ -282,12 +286,12 @@ namespace Netch.Forms
         {
             Enabled = false;
 
-            NotifyTip(i18N.Translate("Updating in the background"));
+            StatusText(i18N.TranslateFormat("Updating {0}", "PAC"));
             try
             {
                 var req = WebUtil.CreateRequest(Global.Settings.PAC);
 
-                string pac = Path.Combine(Global.NetchDir, $"bin\\pac.txt");
+                string pac = Path.Combine(Global.NetchDir, "bin\\pac.txt");
 
                 await WebUtil.DownloadFileAsync(req, pac);
 
@@ -300,6 +304,7 @@ namespace Netch.Forms
             }
             finally
             {
+                StatusText();
                 Enabled = true;
             }
         }
@@ -314,24 +319,25 @@ namespace Netch.Forms
                 {
                     if (NFController.UninstallDriver())
                     {
-                        StatusText(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
+                        NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
                     }
                 });
             }
             finally
             {
+                StatusText();
                 Enabled = true;
             }
         }
 
         private async void UninstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            StatusText(i18N.TranslateFormat("Uninstalling {0}", "TUN/TAP driver"));
             Enabled = false;
+            StatusText(i18N.TranslateFormat("Uninstalling {0}", "TUN/TAP driver"));
             try
             {
                 await Task.Run(TUNTAP.deltapall);
-                StatusText(i18N.TranslateFormat("{0} has been uninstalled", "TUN/TAP driver"));
+                NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "TUN/TAP driver"));
             }
             catch (Exception exception)
             {
@@ -339,7 +345,7 @@ namespace Netch.Forms
             }
             finally
             {
-                State = State.Waiting;
+                StatusText();
                 Enabled = true;
             }
         }

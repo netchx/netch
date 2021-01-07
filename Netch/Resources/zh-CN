@@ -67,7 +67,7 @@
     "Manage Subscribe Links": "管理订阅链接",
     "Update Servers From Subscribe Links": "从订阅链接更新服务器",
     "No subscription link": "没有任何一条订阅链接",
-    "Updating in the background": "正在后台更新中",
+    "Updating {0}": "正在更新 {0}",
     "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
     "Update servers error from {0}": "从 {0} 更新服务器失败",
     "Delete the corresponding group of items in the server list?": "是否删除订阅对应服务器？",

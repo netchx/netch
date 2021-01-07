@@ -348,12 +348,13 @@ namespace Netch.Forms
             try
             {
                 await Task.Run(TestServer);
+                Refresh();
+                NotifyTip(i18N.Translate("Test done"));
             }
             finally
             {
                 Enabled = true;
-                StatusText(i18N.Translate("Test done"));
-                Refresh();
+                StatusText();
             }
         }
 

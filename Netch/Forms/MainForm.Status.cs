@@ -47,7 +47,7 @@ namespace Netch.Forms
 
                 _state = value;
 
-                StatusText(i18N.Translate(StateExtension.GetStatusString(value)));
+                StatusText();
                 switch (value)
                 {
                     case State.Waiting:
@@ -173,7 +173,7 @@ namespace Netch.Forms
         ///     更新状态栏文本
         /// </summary>
         /// <param name="text"></param>
-        public void StatusText(string text)
+        public void StatusText(string text = null)
         {
             if (InvokeRequired)
             {
@@ -181,6 +181,7 @@ namespace Netch.Forms
                 return;
             }
 
+            text ??= i18N.Translate(StateExtension.GetStatusString(State));
             StatusLabel.Text = i18N.Translate("Status", ": ") + text;
         }
 
