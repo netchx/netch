@@ -13,7 +13,7 @@ namespace Netch
         /// <param name="index">适配器索引</param>
         /// <param name="metric">跃点数</param>
         /// <returns>是否成功</returns>
-        [DllImport("NetchCore", CallingConvention = CallingConvention.Cdecl, EntryPoint = "CreateRoute")]
+        [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl, EntryPoint = "CreateRoute")]
         public static extern bool CreateRoute(string address, int cidr, string gateway, int index, int metric = 0);
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace Netch
         /// <param name="index">适配器索引</param>
         /// <param name="metric">跃点数</param>
         /// <returns>是否成功</returns>
-        [DllImport("NetchCore", CallingConvention = CallingConvention.Cdecl, EntryPoint = "DeleteRoute")]
+        [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl, EntryPoint = "DeleteRoute")]
         public static extern bool DeleteRoute(string address, int cidr, string gateway, int index, int metric = 0);
 
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
