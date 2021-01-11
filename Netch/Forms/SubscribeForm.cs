@@ -131,14 +131,14 @@ namespace Netch.Forms
             else
             {
                 var target = Global.Settings.SubscribeLink[_editingIndex];
-                if (MessageBox.Show(i18N.Translate("Delete the corresponding group of items in the server list?"), i18N.Translate("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
+                /*if (MessageBox.Show(i18N.Translate("Delete the corresponding group of items in the server list?"), i18N.Translate("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     DeleteServersInGroup(target.Remark);
                 }
                 else
                 {
                     RenameServersGroup(target.Remark, RemarkTextBox.Text);
-                }
+                }*/
                 ListViewItem listViewItem = SubscribeLinkListView.Items[_editingIndex];
 
                 target.Enable = listViewItem.Checked;
@@ -147,12 +147,11 @@ namespace Netch.Forms
                 target.UserAgent = UserAgentTextBox.Text;
             }
 
+            MessageBoxX.Show(i18N.Translate("Saved"));
             Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-            // MessageBoxX.Show(i18N.Translate("Saved"));
 
             ResetEditingGroup();
-
             InitSubscribeLink();
         }
 
