@@ -8,6 +8,16 @@ namespace Netch.Forms
 {
     public partial class SubscribeForm : Form
     {
+        public SubscribeForm()
+        {
+            InitializeComponent();
+
+            i18N.TranslateForm(this);
+            i18N.TranslateForm(pContextMenuStrip);
+
+            InitSubscribeLink();
+        }
+
         private int SelectedIndex
         {
             get
@@ -19,33 +29,17 @@ namespace Netch.Forms
             }
         }
 
-        public SubscribeForm()
-        {
-            InitializeComponent();
-            i18N.TranslateForm(this);
-            i18N.TranslateForm(pContextMenuStrip);
-
-            UseSelectedServerCheckBox.Enabled = Global.Settings.Server.Any();
-            UseSelectedServerCheckBox.Checked = Global.Settings.Server.Any() && Global.Settings.UseProxyToUpdateSubscription;
-
-            InitSubscribeLink();
-        }
-
         #region EventHandler
 
         private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
-            {
                 if (SelectedIndex != -1)
-                {
                     pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
-                }
-            }
         }
 
         /// <summary>
-        /// 选中/取消选中
+        ///     选中/取消选中
         /// </summary>
         private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -53,7 +47,7 @@ namespace Netch.Forms
         }
 
         /// <summary>
-        /// 订阅启/禁用
+        ///     订阅启/禁用
         /// </summary>
         private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
@@ -63,7 +57,6 @@ namespace Netch.Forms
 
         private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
             Configuration.Save();
         }
 
@@ -168,9 +161,7 @@ namespace Netch.Forms
         private static void RenameServers(string oldGroup, string newGroup)
         {
             foreach (var server in Global.Settings.Server.Where(server => server.Group == oldGroup))
-            {
                 server.Group = newGroup;
-            }
         }
 
         private void InitSubscribeLink()
@@ -178,7 +169,6 @@ namespace Netch.Forms
             SubscribeLinkListView.Items.Clear();
 
             foreach (var item in Global.Settings.SubscribeLink)
-            {
                 SubscribeLinkListView.Items.Add(new ListViewItem(new[]
                 {
                     "",
@@ -189,7 +179,6 @@ namespace Netch.Forms
                 {
                     Checked = item.Enable
                 });
-            }
 
             ResetEditingGroup();
         }

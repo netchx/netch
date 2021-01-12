@@ -94,21 +94,24 @@ namespace Netch.Forms
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Global.Settings.UseProxyToUpdateSubscription = false;
             await UpdateServersFromSubscribe();
         }
 
+        private async void UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Global.Settings.UseProxyToUpdateSubscription = true;
+            await UpdateServersFromSubscribe(true);
+        }
 
-        private async Task UpdateServersFromSubscribe()
+        private async Task UpdateServersFromSubscribe(bool useProxy = false)
         {
             void DisableItems(bool v)
             {
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
             }
 
-            if (Global.Settings.UseProxyToUpdateSubscription && ServerComboBox.SelectedIndex == -1)
-                Global.Settings.UseProxyToUpdateSubscription = false;
-
-            if (Global.Settings.UseProxyToUpdateSubscription && ServerComboBox.SelectedIndex == -1)
+            if (useProxy && ServerComboBox.SelectedIndex == -1)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
@@ -122,11 +125,10 @@ namespace Netch.Forms
 
             StatusText(i18N.Translate("Starting update subscription"));
             DisableItems(false);
-            var useProxyToUpdateSubscription = Global.Settings.UseProxyToUpdateSubscription;
             try
             {
                 string proxyServer = null;
-                if (useProxyToUpdateSubscription)
+                if (useProxy)
                 {
                     var mode = new Models.Mode
                     {
@@ -149,8 +151,7 @@ namespace Netch.Forms
             }
             finally
             {
-                if (useProxyToUpdateSubscription)
-                {
+                if (useProxy)
                     try
                     {
                         await MainController.Stop();
@@ -159,7 +160,6 @@ namespace Netch.Forms
                     {
                         // ignored
                     }
-                }
 
                 DisableItems(true);
             }
@@ -285,7 +285,7 @@ namespace Netch.Forms
             {
                 var req = WebUtil.CreateRequest(Global.Settings.PAC);
 
-                string pac = Path.Combine(Global.NetchDir, "bin\\pac.txt");
+                var pac = Path.Combine(Global.NetchDir, "bin\\pac.txt");
 
                 await WebUtil.DownloadFileAsync(req, pac);
 
@@ -312,9 +312,7 @@ namespace Netch.Forms
                 await Task.Run(() =>
                 {
                     if (NFController.UninstallDriver())
-                    {
                         NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
-                    }
                 });
             }
             finally
@@ -369,7 +367,7 @@ namespace Netch.Forms
 
         private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Utils.Utils.Open($"https://netch.org/#/docs/zh-CN/faq");
+            Utils.Utils.Open("https://netch.org/#/docs/zh-CN/faq");
         }
 
         #endregion

@@ -48,13 +48,10 @@
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyLinkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UseSelectedServerCheckBox = new System.Windows.Forms.CheckBox();
             this.MainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.ControlsPanel = new System.Windows.Forms.Panel();
             this.AddSubscriptionBox.SuspendLayout();
             this.pContextMenuStrip.SuspendLayout();
             this.MainTableLayoutPanel.SuspendLayout();
-            this.ControlsPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // AddSubscriptionBox
@@ -68,9 +65,9 @@
             this.AddSubscriptionBox.Controls.Add(this.RemarkTextBox);
             this.AddSubscriptionBox.Controls.Add(this.RemarkLabel);
             this.AddSubscriptionBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.AddSubscriptionBox.Location = new System.Drawing.Point(8, 214);
+            this.AddSubscriptionBox.Location = new System.Drawing.Point(8, 248);
             this.AddSubscriptionBox.Name = "AddSubscriptionBox";
-            this.AddSubscriptionBox.Size = new System.Drawing.Size(668, 141);
+            this.AddSubscriptionBox.Size = new System.Drawing.Size(668, 135);
             this.AddSubscriptionBox.TabIndex = 1;
             this.AddSubscriptionBox.TabStop = false;
             // 
@@ -156,7 +153,7 @@
             this.SubscribeLinkListView.Location = new System.Drawing.Point(8, 8);
             this.SubscribeLinkListView.MultiSelect = false;
             this.SubscribeLinkListView.Name = "SubscribeLinkListView";
-            this.SubscribeLinkListView.Size = new System.Drawing.Size(668, 200);
+            this.SubscribeLinkListView.Size = new System.Drawing.Size(668, 234);
             this.SubscribeLinkListView.TabIndex = 0;
             this.SubscribeLinkListView.UseCompatibleStateImageBehavior = false;
             this.SubscribeLinkListView.View = System.Windows.Forms.View.Details;
@@ -213,43 +210,22 @@
             this.CopyLinkToolStripMenuItem.Text = "CopyLink";
             this.CopyLinkToolStripMenuItem.Click += new System.EventHandler(this.CopyLinkToolStripMenuItem_Click);
             // 
-            // UseSelectedServerCheckBox
-            // 
-            this.UseSelectedServerCheckBox.AutoSize = true;
-            this.UseSelectedServerCheckBox.Location = new System.Drawing.Point(3, 4);
-            this.UseSelectedServerCheckBox.Name = "UseSelectedServerCheckBox";
-            this.UseSelectedServerCheckBox.Size = new System.Drawing.Size(285, 21);
-            this.UseSelectedServerCheckBox.TabIndex = 9;
-            this.UseSelectedServerCheckBox.Text = "Use Selected Server To Update Subscription";
-            this.UseSelectedServerCheckBox.UseVisualStyleBackColor = true;
-            // 
             // MainTableLayoutPanel
             // 
             this.MainTableLayoutPanel.ColumnCount = 1;
             this.MainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.MainTableLayoutPanel.Controls.Add(this.SubscribeLinkListView, 0, 0);
             this.MainTableLayoutPanel.Controls.Add(this.AddSubscriptionBox, 0, 1);
-            this.MainTableLayoutPanel.Controls.Add(this.ControlsPanel, 0, 2);
             this.MainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
             this.MainTableLayoutPanel.Name = "MainTableLayoutPanel";
             this.MainTableLayoutPanel.Padding = new System.Windows.Forms.Padding(5);
-            this.MainTableLayoutPanel.RowCount = 3;
-            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 58.35777F));
-            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.64223F));
+            this.MainTableLayoutPanel.RowCount = 2;
+            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 62.99213F));
+            this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 37.00787F));
             this.MainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 27F));
             this.MainTableLayoutPanel.Size = new System.Drawing.Size(684, 391);
             this.MainTableLayoutPanel.TabIndex = 11;
-            // 
-            // ControlsPanel
-            // 
-            this.ControlsPanel.Controls.Add(this.UseSelectedServerCheckBox);
-            this.ControlsPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ControlsPanel.Location = new System.Drawing.Point(5, 358);
-            this.ControlsPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.ControlsPanel.Name = "ControlsPanel";
-            this.ControlsPanel.Size = new System.Drawing.Size(674, 28);
-            this.ControlsPanel.TabIndex = 2;
             // 
             // SubscribeForm
             // 
@@ -270,13 +246,10 @@
             this.AddSubscriptionBox.PerformLayout();
             this.pContextMenuStrip.ResumeLayout(false);
             this.MainTableLayoutPanel.ResumeLayout(false);
-            this.ControlsPanel.ResumeLayout(false);
-            this.ControlsPanel.PerformLayout();
             this.ResumeLayout(false);
         }
         private System.Windows.Forms.ColumnHeader EnableColumnHeader;
 
-        private System.Windows.Forms.Panel ControlsPanel;
         private System.Windows.Forms.TableLayoutPanel MainTableLayoutPanel;
         private System.Windows.Forms.Button UnselectButton;
         private System.Windows.Forms.GroupBox AddSubscriptionBox;
@@ -294,7 +267,6 @@
         private System.Windows.Forms.Label UserAgentLabel;
         private System.Windows.Forms.TextBox UserAgentTextBox;
         private System.Windows.Forms.ColumnHeader UserAgentHeader;
-        private System.Windows.Forms.CheckBox UseSelectedServerCheckBox;
 
         #endregion
 

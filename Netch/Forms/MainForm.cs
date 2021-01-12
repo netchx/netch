@@ -108,7 +108,7 @@ namespace Netch.Forms
                 // 检查订阅更新
                 if (Global.Settings.UpdateSubscribeatWhenOpened)
                 {
-                    await UpdateServersFromSubscribe();
+                    await UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription);
                 }
             });
         }

@@ -66,6 +66,7 @@
     "Subscribe": "订阅",
     "Manage Subscribe Links": "管理订阅链接",
     "Update Servers From Subscribe Links": "从订阅链接更新服务器",
+    "Update Servers From Subscribe Links With Proxy": "使用代理从订阅链接更新服务器",
     "No subscription link": "没有任何一条订阅链接",
     "Updating {0}": "正在更新 {0}",
     "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
