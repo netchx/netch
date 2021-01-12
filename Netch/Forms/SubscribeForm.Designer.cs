@@ -160,6 +160,7 @@
             this.SubscribeLinkListView.TabIndex = 0;
             this.SubscribeLinkListView.UseCompatibleStateImageBehavior = false;
             this.SubscribeLinkListView.View = System.Windows.Forms.View.Details;
+            this.SubscribeLinkListView.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.SubscribeLinkListView_ItemChecked);
             this.SubscribeLinkListView.SelectedIndexChanged += new System.EventHandler(this.SubscribeLinkListView_SelectedIndexChanged);
             this.SubscribeLinkListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.SubscribeLinkListView_MouseUp);
             // 

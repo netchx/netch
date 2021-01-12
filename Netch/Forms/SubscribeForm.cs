@@ -23,60 +23,62 @@ namespace Netch.Forms
             ResetEditingGroup();
         }
 
-        public void InitSubscribeLink()
-        {
-            SubscribeLinkListView.Items.Clear();
+        #region EventHandler
 
-            foreach (var item in Global.Settings.SubscribeLink)
+        /// <summary>
+        /// 订阅列表选中节点
+        /// </summary>
+        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var listView = (ListView) sender;
+            if (listView.SelectedItems.Count == 0)
             {
-                var viewItem = new ListViewItem(new[]
-                {
-                    "",
-                    item.Remark,
-                    item.Link,
-                    !string.IsNullOrEmpty(item.UserAgent) ? item.UserAgent : WebUtil.DefaultUserAgent
-                });
-                viewItem.Checked = item.Enable;
-                SubscribeLinkListView.Items.Add(viewItem);
+                // 重置
+                ResetEditingGroup();
+                return;
             }
+            _editingIndex = listView.SelectedItems[0].Index;
+
+            var target = SubscribeLinkListView.Items[_editingIndex];
+
+            AddSubscriptionBox.Text = target.SubItems[1].Text;
+            RemarkTextBox.Text = target.SubItems[1].Text;
+            LinkTextBox.Text = target.SubItems[2].Text;
+            UserAgentTextBox.Text = target.SubItems[3].Text;
         }
 
-        private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
         {
-            Configuration.Save();
-            Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-        }
-
-        private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (SubscribeLinkListView.SelectedItems.Count > 0)
-            {
-                for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
-                {
-                    var item = SubscribeLinkListView.SelectedItems[i];
-                    var link = Global.Settings.SubscribeLink[item.Index];
-                    Clipboard.SetText(link.Link);
-                }
-            }
-        }
-
-        private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), confirm: true) == DialogResult.OK)
+            if (e.Button == MouseButtons.Right)
             {
                 if (SubscribeLinkListView.SelectedItems.Count > 0)
                 {
-                    for (var i = SubscribeLinkListView.SelectedItems.Count - 1; i >= 0; i--)
-                    {
-                        var item = SubscribeLinkListView.SelectedItems[i];
-
-                        DeleteServersInGroup(item.SubItems[0].Text);
-                        Global.Settings.SubscribeLink.RemoveAt(item.Index);
-                        SubscribeLinkListView.Items.Remove(item);
-                        ResetEditingGroup();
-                    }
+                    pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
                 }
             }
+        }
+
+        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            var viewItem = SubscribeLinkListView.Items[e.Item.Index];
+            var subscribeLink = Global.Settings.SubscribeLink[e.Item.Index];
+            subscribeLink.Enable = viewItem.Checked;
+        }
+
+
+        private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
+            Configuration.Save();
+        }
+
+        #endregion
+
+        #region EditBox
+
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            ResetEditingGroup();
         }
 
         private void AddButton_Click(object sender, EventArgs e)
@@ -117,24 +119,57 @@ namespace Netch.Forms
             }
             else
             {
-                var target = Global.Settings.SubscribeLink[_editingIndex];
-                RenameServersGroup(target.Remark, RemarkTextBox.Text);
+                var subscribeLink = Global.Settings.SubscribeLink[_editingIndex];
 
-                var listViewItem = SubscribeLinkListView.Items[_editingIndex];
-
-                target.Enable = listViewItem.Checked;
-                target.Link = LinkTextBox.Text;
-                target.Remark = RemarkTextBox.Text;
-                target.UserAgent = UserAgentTextBox.Text;
+                RenameServersGroup(subscribeLink.Remark, RemarkTextBox.Text);
+                subscribeLink.Link = LinkTextBox.Text;
+                subscribeLink.Remark = RemarkTextBox.Text;
+                subscribeLink.UserAgent = UserAgentTextBox.Text;
             }
 
             MessageBoxX.Show(i18N.Translate("Saved"));
-            Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
-            Configuration.Save();
 
             InitSubscribeLink();
             ResetEditingGroup();
         }
+
+        #endregion
+
+        #region ContextMenu
+
+        private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), confirm: true) != DialogResult.OK)
+                return;
+
+            var viewItem = SubscribeLinkListView.SelectedItems[0];
+            var subscribeLink = Global.Settings.SubscribeLink[viewItem.Index];
+
+            DeleteServersInGroup(subscribeLink.Remark);
+            Global.Settings.SubscribeLink.Remove(subscribeLink);
+            SubscribeLinkListView.Items.Remove(viewItem);
+            ResetEditingGroup();
+        }
+
+        private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MessageBoxX.Show(i18N.Translate("Confirm deletion?"), confirm: true) != DialogResult.OK)
+                return;
+
+            var viewItem = SubscribeLinkListView.SelectedItems[0];
+            DeleteServersInGroup(viewItem.SubItems[1].Text);
+        }
+
+        private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var viewItem = SubscribeLinkListView.SelectedItems[0];
+            var subscribeLink = Global.Settings.SubscribeLink[viewItem.Index];
+            Clipboard.SetText(subscribeLink.Link);
+        }
+
+        #endregion
+
+        #region Helper
 
         private static void DeleteServersInGroup(string group)
         {
@@ -143,47 +178,29 @@ namespace Netch.Forms
 
         private static void RenameServersGroup(string oldGroup, string newGroup)
         {
-            foreach (var server in Global.Settings.Server)
+            foreach (var server in Global.Settings.Server.Where(server => server.Group == oldGroup))
             {
-                if (server.Group == oldGroup)
-                {
-                    server.Group = newGroup;
-                }
+                server.Group = newGroup;
             }
         }
 
-        /// <summary>
-        /// 订阅列表选中节点
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void InitSubscribeLink()
         {
-            var listView = (ListView) sender;
-            if (listView.SelectedItems.Count == 0)
+            SubscribeLinkListView.Items.Clear();
+
+            foreach (var item in Global.Settings.SubscribeLink)
             {
-                // 重置
-                ResetEditingGroup();
-                return;
-            }
-            _editingIndex = listView.SelectedItems[0].Index;
-
-            var target = SubscribeLinkListView.Items[_editingIndex];
-
-            AddSubscriptionBox.Text = target.SubItems[1].Text;
-            RemarkTextBox.Text = target.SubItems[1].Text;
-            LinkTextBox.Text = target.SubItems[2].Text;
-            UserAgentTextBox.Text = target.SubItems[3].Text;
-        }
-
-        private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                if (SubscribeLinkListView.SelectedItems.Count > 0)
+                var viewItem = new ListViewItem(new[]
                 {
-                    pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
-                }
+                    "",
+                    item.Remark,
+                    item.Link,
+                    !string.IsNullOrEmpty(item.UserAgent) ? item.UserAgent : WebUtil.DefaultUserAgent
+                })
+                {
+                    Checked = item.Enable
+                };
+                SubscribeLinkListView.Items.Add(viewItem);
             }
         }
 
@@ -196,21 +213,6 @@ namespace Netch.Forms
             UserAgentTextBox.Text = WebUtil.DefaultUserAgent;
         }
 
-        private void ClearButton_Click(object sender, EventArgs e)
-        {
-            ResetEditingGroup();
-        }
-
-        private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (SubscribeLinkListView.SelectedItems.Count > 0)
-            {
-                var item = SubscribeLinkListView.SelectedItems[0];
-
-                if (MessageBoxX.Show(i18N.Translate("Confirm deletion?"), confirm: true) != DialogResult.OK)
-                    return;
-                DeleteServersInGroup(item.SubItems[1].Text);
-            }
-        }
+        #endregion
     }
 }
