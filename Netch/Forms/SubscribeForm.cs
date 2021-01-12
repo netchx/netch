@@ -8,7 +8,16 @@ namespace Netch.Forms
 {
     public partial class SubscribeForm : Form
     {
-        private int _editingIndex = -1;
+        private int SelectedIndex
+        {
+            get
+            {
+                if (SubscribeLinkListView.MultiSelect)
+                    throw new Exception();
+
+                return SubscribeLinkListView.SelectedIndices.Count == 0 ? -1 : SubscribeLinkListView.SelectedIndices[0];
+            }
+        }
 
         public SubscribeForm()
         {
@@ -20,51 +29,37 @@ namespace Netch.Forms
             UseSelectedServerCheckBox.Checked = Global.Settings.Server.Any() && Global.Settings.UseProxyToUpdateSubscription;
 
             InitSubscribeLink();
-            ResetEditingGroup();
         }
 
         #region EventHandler
-
-        /// <summary>
-        /// 订阅列表选中节点
-        /// </summary>
-        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            var listView = (ListView) sender;
-            if (listView.SelectedItems.Count == 0)
-            {
-                // 重置
-                ResetEditingGroup();
-                return;
-            }
-            _editingIndex = listView.SelectedItems[0].Index;
-
-            var target = SubscribeLinkListView.Items[_editingIndex];
-
-            AddSubscriptionBox.Text = target.SubItems[1].Text;
-            RemarkTextBox.Text = target.SubItems[1].Text;
-            LinkTextBox.Text = target.SubItems[2].Text;
-            UserAgentTextBox.Text = target.SubItems[3].Text;
-        }
 
         private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
-                if (SubscribeLinkListView.SelectedItems.Count > 0)
+                if (SelectedIndex != -1)
                 {
                     pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
                 }
             }
         }
 
-        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
+        /// <summary>
+        /// 选中/取消选中
+        /// </summary>
+        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var viewItem = SubscribeLinkListView.Items[e.Item.Index];
-            var subscribeLink = Global.Settings.SubscribeLink[e.Item.Index];
-            subscribeLink.Enable = viewItem.Checked;
+            SetEditingGroup(SelectedIndex);
         }
 
+        /// <summary>
+        /// 订阅启/禁用
+        /// </summary>
+        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            var index = e.Item.Index;
+            Global.Settings.SubscribeLink[index].Enable = SubscribeLinkListView.Items[index].Checked;
+        }
 
         private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -76,7 +71,7 @@ namespace Netch.Forms
 
         #region EditBox
 
-        private void ClearButton_Click(object sender, EventArgs e)
+        private void UnselectButton_Click(object sender, EventArgs e)
         {
             ResetEditingGroup();
         }
@@ -101,7 +96,7 @@ namespace Netch.Forms
                 return;
             }
 
-            if (_editingIndex == -1)
+            if (SelectedIndex == -1)
             {
                 if (Global.Settings.SubscribeLink.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
                 {
@@ -119,9 +114,9 @@ namespace Netch.Forms
             }
             else
             {
-                var subscribeLink = Global.Settings.SubscribeLink[_editingIndex];
+                var subscribeLink = Global.Settings.SubscribeLink[SelectedIndex];
 
-                RenameServersGroup(subscribeLink.Remark, RemarkTextBox.Text);
+                RenameServers(subscribeLink.Remark, RemarkTextBox.Text);
                 subscribeLink.Link = LinkTextBox.Text;
                 subscribeLink.Remark = RemarkTextBox.Text;
                 subscribeLink.UserAgent = UserAgentTextBox.Text;
@@ -130,7 +125,6 @@ namespace Netch.Forms
             MessageBoxX.Show(i18N.Translate("Saved"));
 
             InitSubscribeLink();
-            ResetEditingGroup();
         }
 
         #endregion
@@ -142,13 +136,11 @@ namespace Netch.Forms
             if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), confirm: true) != DialogResult.OK)
                 return;
 
-            var viewItem = SubscribeLinkListView.SelectedItems[0];
-            var subscribeLink = Global.Settings.SubscribeLink[viewItem.Index];
-
-            DeleteServersInGroup(subscribeLink.Remark);
+            var subscribeLink = Global.Settings.SubscribeLink[SelectedIndex];
+            DeleteServers(subscribeLink.Remark);
             Global.Settings.SubscribeLink.Remove(subscribeLink);
-            SubscribeLinkListView.Items.Remove(viewItem);
-            ResetEditingGroup();
+
+            InitSubscribeLink();
         }
 
         private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
@@ -156,27 +148,24 @@ namespace Netch.Forms
             if (MessageBoxX.Show(i18N.Translate("Confirm deletion?"), confirm: true) != DialogResult.OK)
                 return;
 
-            var viewItem = SubscribeLinkListView.SelectedItems[0];
-            DeleteServersInGroup(viewItem.SubItems[1].Text);
+            DeleteServers(Global.Settings.SubscribeLink[SelectedIndex].Remark);
         }
 
         private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var viewItem = SubscribeLinkListView.SelectedItems[0];
-            var subscribeLink = Global.Settings.SubscribeLink[viewItem.Index];
-            Clipboard.SetText(subscribeLink.Link);
+            Clipboard.SetText(Global.Settings.SubscribeLink[SelectedIndex].Link);
         }
 
         #endregion
 
         #region Helper
 
-        private static void DeleteServersInGroup(string group)
+        private static void DeleteServers(string group)
         {
             Global.Settings.Server.RemoveAll(server => server.Group == group);
         }
 
-        private static void RenameServersGroup(string oldGroup, string newGroup)
+        private static void RenameServers(string oldGroup, string newGroup)
         {
             foreach (var server in Global.Settings.Server.Where(server => server.Group == oldGroup))
             {
@@ -190,7 +179,7 @@ namespace Netch.Forms
 
             foreach (var item in Global.Settings.SubscribeLink)
             {
-                var viewItem = new ListViewItem(new[]
+                SubscribeLinkListView.Items.Add(new ListViewItem(new[]
                 {
                     "",
                     item.Remark,
@@ -199,18 +188,35 @@ namespace Netch.Forms
                 })
                 {
                     Checked = item.Enable
-                };
-                SubscribeLinkListView.Items.Add(viewItem);
+                });
             }
+
+            ResetEditingGroup();
         }
 
         private void ResetEditingGroup()
         {
-            _editingIndex = -1;
             AddSubscriptionBox.Text = string.Empty;
             RemarkTextBox.Text = string.Empty;
             LinkTextBox.Text = string.Empty;
             UserAgentTextBox.Text = WebUtil.DefaultUserAgent;
+        }
+        private void SetEditingGroup(int index)
+        {
+            if (index == -1)
+            {
+                ResetEditingGroup();
+                AddButton.Text = i18N.Translate("Add");
+                return;
+            }
+
+            var item = Global.Settings.SubscribeLink[index];
+            AddSubscriptionBox.Text = item.Remark;
+            RemarkTextBox.Text = item.Remark;
+            LinkTextBox.Text = item.Link;
+            UserAgentTextBox.Text = item.UserAgent;
+
+            AddButton.Text = i18N.Translate("Modify");
         }
 
         #endregion

@@ -32,7 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SubscribeForm));
             this.AddSubscriptionBox = new System.Windows.Forms.GroupBox();
             this.UserAgentTextBox = new System.Windows.Forms.TextBox();
-            this.ClearButton = new System.Windows.Forms.Button();
+            this.UnselectButton = new System.Windows.Forms.Button();
             this.AddButton = new System.Windows.Forms.Button();
             this.UserAgentLabel = new System.Windows.Forms.Label();
             this.LinkTextBox = new System.Windows.Forms.TextBox();
@@ -60,7 +60,7 @@
             // AddSubscriptionBox
             // 
             this.AddSubscriptionBox.Controls.Add(this.UserAgentTextBox);
-            this.AddSubscriptionBox.Controls.Add(this.ClearButton);
+            this.AddSubscriptionBox.Controls.Add(this.UnselectButton);
             this.AddSubscriptionBox.Controls.Add(this.AddButton);
             this.AddSubscriptionBox.Controls.Add(this.UserAgentLabel);
             this.AddSubscriptionBox.Controls.Add(this.LinkTextBox);
@@ -81,15 +81,15 @@
             this.UserAgentTextBox.Size = new System.Drawing.Size(545, 23);
             this.UserAgentTextBox.TabIndex = 6;
             // 
-            // ClearButton
+            // UnselectButton
             // 
-            this.ClearButton.Location = new System.Drawing.Point(448, 103);
-            this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(87, 26);
-            this.ClearButton.TabIndex = 7;
-            this.ClearButton.Text = "Unselect";
-            this.ClearButton.UseVisualStyleBackColor = true;
-            this.ClearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            this.UnselectButton.Location = new System.Drawing.Point(448, 103);
+            this.UnselectButton.Name = "UnselectButton";
+            this.UnselectButton.Size = new System.Drawing.Size(87, 26);
+            this.UnselectButton.TabIndex = 7;
+            this.UnselectButton.Text = "Unselect";
+            this.UnselectButton.UseVisualStyleBackColor = true;
+            this.UnselectButton.Click += new System.EventHandler(this.UnselectButton_Click);
             // 
             // AddButton
             // 
@@ -97,7 +97,7 @@
             this.AddButton.Name = "AddButton";
             this.AddButton.Size = new System.Drawing.Size(113, 26);
             this.AddButton.TabIndex = 7;
-            this.AddButton.Text = "Add / Modify";
+            this.AddButton.Text = "Add";
             this.AddButton.UseVisualStyleBackColor = true;
             this.AddButton.Click += new System.EventHandler(this.AddButton_Click);
             // 
@@ -278,7 +278,7 @@
 
         private System.Windows.Forms.Panel ControlsPanel;
         private System.Windows.Forms.TableLayoutPanel MainTableLayoutPanel;
-        private System.Windows.Forms.Button ClearButton;
+        private System.Windows.Forms.Button UnselectButton;
         private System.Windows.Forms.GroupBox AddSubscriptionBox;
         private System.Windows.Forms.Label RemarkLabel;
         private System.Windows.Forms.TextBox LinkTextBox;
