@@ -105,7 +105,7 @@ namespace Netch.Forms
             this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
-            this.UpdateSubscribeatWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.UpdateServersWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.AioDNSTabPage = new System.Windows.Forms.TabPage();
             this.AioDNSRuleRuleLabel = new System.Windows.Forms.Label();
             this.AioDNSRulePathTextBox = new System.Windows.Forms.TextBox();
@@ -807,7 +807,7 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.RunAtStartupCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckBetaUpdateCheckBox);
-            this.OtherTabPage.Controls.Add(this.UpdateSubscribeatWhenOpenedCheckBox);
+            this.OtherTabPage.Controls.Add(this.UpdateServersWhenOpenedCheckBox);
             this.OtherTabPage.Location = new System.Drawing.Point(4, 25);
             this.OtherTabPage.Name = "OtherTabPage";
             this.OtherTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -890,16 +890,16 @@ namespace Netch.Forms
             this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
             // 
-            // UpdateSubscribeatWhenOpenedCheckBox
+            // UpdateServersWhenOpenedCheckBox
             // 
-            this.UpdateSubscribeatWhenOpenedCheckBox.AutoSize = true;
-            this.UpdateSubscribeatWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 94);
-            this.UpdateSubscribeatWhenOpenedCheckBox.Name = "UpdateSubscribeatWhenOpenedCheckBox";
-            this.UpdateSubscribeatWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
-            this.UpdateSubscribeatWhenOpenedCheckBox.TabIndex = 7;
-            this.UpdateSubscribeatWhenOpenedCheckBox.Text = "Update subscribeat when opened";
-            this.UpdateSubscribeatWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.UpdateSubscribeatWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            this.UpdateServersWhenOpenedCheckBox.AutoSize = true;
+            this.UpdateServersWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 94);
+            this.UpdateServersWhenOpenedCheckBox.Name = "UpdateServersWhenOpenedCheckBox";
+            this.UpdateServersWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
+            this.UpdateServersWhenOpenedCheckBox.TabIndex = 7;
+            this.UpdateServersWhenOpenedCheckBox.Text = "Update Servers when opened";
+            this.UpdateServersWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.UpdateServersWhenOpenedCheckBox.UseVisualStyleBackColor = true;
             // 
             // AioDNSTabPage
             // 
@@ -1067,7 +1067,7 @@ namespace Netch.Forms
         private System.Windows.Forms.Button ControlButton;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.TabPage OtherTabPage;
-        private System.Windows.Forms.CheckBox UpdateSubscribeatWhenOpenedCheckBox;
+        private System.Windows.Forms.CheckBox UpdateServersWhenOpenedCheckBox;
         private System.Windows.Forms.CheckBox RunAtStartupCheckBox;
         private System.Windows.Forms.CheckBox MinimizeWhenStartedCheckBox;
         private System.Windows.Forms.CheckBox CheckBetaUpdateCheckBox;

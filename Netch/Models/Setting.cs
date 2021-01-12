@@ -3,59 +3,58 @@
 namespace Netch.Models
 {
     /// <summary>
-    ///		TUN/TAP 适配器配置类
+    ///     TUN/TAP 适配器配置类
     /// </summary>
     public class TUNTAPConfig
     {
         /// <summary>
-        ///		地址
+        ///     地址
         /// </summary>
         public string Address = "10.0.236.10";
 
         /// <summary>
-        ///		掩码
+        ///     DNS
         /// </summary>
-        public string Netmask = "255.255.255.0";
+        public List<string> DNS = new();
 
         /// <summary>
-        ///		网关
+        ///     网关
         /// </summary>
         public string Gateway = "10.0.236.1";
 
         /// <summary>
-        ///		DNS
+        ///     掩码
         /// </summary>
-        public List<string> DNS = new List<string>();
+        public string Netmask = "255.255.255.0";
 
         /// <summary>
-        ///		使用自定义 DNS 设置
-        /// </summary>
-        public bool UseCustomDNS = false;
-
-        /// <summary>
-        ///		模式 2 下是否代理 DNS
+        ///     模式 2 下是否代理 DNS
         /// </summary>
         public bool ProxyDNS = false;
 
         /// <summary>
-        ///		使用Fake DNS
+        ///     使用自定义 DNS 设置
+        /// </summary>
+        public bool UseCustomDNS = false;
+
+        /// <summary>
+        ///     使用Fake DNS
         /// </summary>
         public bool UseFakeDNS = false;
     }
 
     public class KcpConfig
     {
+        public bool congestion = false;
+
+        public int downlinkCapacity = 100;
         public int mtu = 1350;
+
+        public int readBufferSize = 2;
 
         public int tti = 50;
 
         public int uplinkCapacity = 12;
-
-        public int downlinkCapacity = 100;
-
-        public bool congestion = false;
-
-        public int readBufferSize = 2;
 
         public int writeBufferSize = 2;
     }
@@ -64,20 +63,19 @@ namespace Netch.Models
     {
         public bool AllowInsecure = true;
 
-        public KcpConfig KcpConfig = new KcpConfig();
+        public KcpConfig KcpConfig = new();
 
         public bool UseMux = false;
     }
 
     public class AioDNSConfig
     {
-        public string RulePath = "bin\\china_site_list";
-
         public string ChinaDNS = "223.5.5.5";
 
         public string OtherDNS = "1.1.1.1";
 
         public string Protocol = "tcp";
+        public string RulePath = "bin\\china_site_list";
     }
 
     /// <summary>
@@ -85,35 +83,57 @@ namespace Netch.Models
     /// </summary>
     public class Setting
     {
-
-        public V2rayConfig V2RayConfig = new V2rayConfig();
-
-        public AioDNSConfig AioDNS = new AioDNSConfig();
-        
         /// <summary>
-        ///		服务器选择位置
+        ///     服务器列表
         /// </summary>
-        public int ServerComboBoxSelectedIndex = 0;
+        public readonly List<Server> Server = new();
 
         /// <summary>
-        ///		模式选择位置
+        ///     ACL规则
         /// </summary>
-        public int ModeComboBoxSelectedIndex = 0;
+        public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
+
+        public AioDNSConfig AioDNS = new();
 
         /// <summary>
-        ///		是否关闭窗口时退出
+        ///     是否使用DLL启动Shadowsocks
+        /// </summary>
+        public bool BootShadowsocksFromDLL = true;
+
+        /// <summary>
+        ///     全局绕过 IP 列表
+        /// </summary>
+        public List<string> BypassIPs = new();
+
+        /// <summary>
+        ///     是否检查 Beta 更新
+        /// </summary>
+        public bool CheckBetaUpdate = false;
+
+        /// <summary>
+        ///     是否打开软件时检查更新
+        /// </summary>
+        public bool CheckUpdateWhenOpened = true;
+
+        /// <summary>
+        ///     是否关闭窗口时退出
         /// </summary>
         public bool ExitWhenClosed = false;
 
         /// <summary>
-        ///		是否退出时停止
+        ///     HTTP 本地端口
         /// </summary>
-        public bool StopWhenExited = false;
+        public ushort HTTPLocalPort = 2802;
 
         /// <summary>
-        ///		是否打开软件时启动加速
+        ///     语言设置
         /// </summary>
-        public bool StartWhenOpened = false;
+        public string Language = "System";
+
+        /// <summary>
+        ///     HTTP 和 Socks5 本地代理地址
+        /// </summary>
+        public string LocalAddress = "127.0.0.1";
 
         /// <summary>
         ///     是否启动后自动最小化
@@ -121,29 +141,9 @@ namespace Netch.Models
         public bool MinimizeWhenStarted = false;
 
         /// <summary>
-        ///     是否开机启动软件
+        ///     模式选择位置
         /// </summary>
-        public bool RunAtStartup = false;
-
-        /// <summary>
-        ///		是否打开软件时检查更新
-        /// </summary>
-        public bool CheckUpdateWhenOpened = true;
-
-        /// <summary>
-        ///		是否检查 Beta 更新
-        /// </summary>
-        public bool CheckBetaUpdate = false;
-
-        /// <summary>
-        ///		是否打开软件时更新订阅
-        /// </summary>
-        public bool UpdateSubscribeatWhenOpened = false;
-
-        /// <summary>
-        ///     修改系统 DNS
-        /// </summary>
-        public bool ModifySystemDNS = false;
+        public int ModeComboBoxSelectedIndex = 0;
 
         /// <summary>
         ///     要修改为的系统 DNS
@@ -151,19 +151,14 @@ namespace Netch.Models
         public string ModifiedDNS = "1.1.1.1,8.8.8.8";
 
         /// <summary>
-        ///     解析服务器主机名
+        ///     修改系统 DNS
         /// </summary>
-        public bool ResolveServerHostname = false;
+        public bool ModifySystemDNS = false;
 
         /// <summary>
-        ///     网页请求超时 毫秒
+        ///     GFWList
         /// </summary>
-        public int RequestTimeout = 10000;
-
-        /// <summary>
-        ///     PAC URL
-        /// </summary>
-        public string Pac_Url = "";
+        public string PAC = "https://raw.githubusercontent.com/HMBSbige/Text_Translation/master/ShadowsocksR/ss_white.pac";
 
         /// <summary>
         ///     PAC端口
@@ -171,74 +166,69 @@ namespace Netch.Models
         public int Pac_Port = 2803;
 
         /// <summary>
-        ///		HTTP 本地端口
+        ///     PAC URL
         /// </summary>
-        public ushort HTTPLocalPort = 2802;
+        public string Pac_Url = "";
 
         /// <summary>
-        ///		Socks5 本地端口
+        ///     不代理TCP
         /// </summary>
-        public ushort Socks5LocalPort = 2801;
+        public bool ProcessNoProxyForTcp = false;
 
         /// <summary>
-        ///		Redirector TCP 占用端口
+        ///     不代理UDP
         /// </summary>
-        public ushort RedirectorTCPPort = 3901;
+        public bool ProcessNoProxyForUdp = false;
 
         /// <summary>
-        ///		UDP Socket 占用端口
-        /// </summary>
-        public ushort UDPSocketPort = 18291;
-
-        /// <summary>
-        ///		HTTP 和 Socks5 本地代理地址
-        /// </summary>
-        public string LocalAddress = "127.0.0.1";
-
-        /// <summary>
-        ///		TUNTAP 适配器配置
-        /// </summary>
-        public TUNTAPConfig TUNTAP = new TUNTAPConfig();
-
-        /// <summary>
-        ///		使用代理更新订阅
-        /// </summary>
-        public bool UseProxyToUpdateSubscription = false;
-
-        /// <summary>
-        ///     订阅链接列表
-        /// </summary>
-        public List<SubscribeLink> SubscribeLink = new List<SubscribeLink>();
-
-        /// <summary>
-        ///     服务器列表
-        /// </summary>
-        public readonly List<Server> Server = new List<Server>();
-
-        /// <summary>
-        ///		全局绕过 IP 列表
-        /// </summary>
-        public List<string> BypassIPs = new List<string>();
-
-        /// <summary>
-        ///		已保存的快捷配置
-        /// </summary>
-        public List<Profile> Profiles = new List<Profile>();
-
-        /// <summary>
-        ///		快捷配置数量
+        ///     快捷配置数量
         /// </summary>
         public int ProfileCount = 4;
 
         /// <summary>
-        ///     STUN测试服务器
+        ///     已保存的快捷配置
         /// </summary>
-        public string STUN_Server = "stun.syncthing.net";
+        public List<Profile> Profiles = new();
 
         /// <summary>
-        ///     STUN测试服务器
+        ///     是否使用RDR内置SS
         /// </summary>
-        public int STUN_Server_Port = 3478;
+        public bool RedirectorSS = false;
+
+        /// <summary>
+        ///     Redirector TCP 占用端口
+        /// </summary>
+        public ushort RedirectorTCPPort = 3901;
+
+        /// <summary>
+        ///     网页请求超时 毫秒
+        /// </summary>
+        public int RequestTimeout = 10000;
+
+        /// <summary>
+        ///     解析服务器主机名
+        /// </summary>
+        public bool ResolveServerHostname = false;
+
+        /// <summary>
+        ///     是否开机启动软件
+        /// </summary>
+        public bool RunAtStartup = false;
+
+        /// <summary>
+        ///     服务器选择位置
+        /// </summary>
+        public int ServerComboBoxSelectedIndex = 0;
+
+        /// <summary>
+        ///     服务器测试方式 false.ICMPing true.TCPing
+        /// </summary>
+        public bool ServerTCPing = true;
+
+        /// <summary>
+        ///     Socks5 本地端口
+        /// </summary>
+        public ushort Socks5LocalPort = 2801;
 
         /// <summary>
         ///     是否启用启动后延迟测试
@@ -251,43 +241,50 @@ namespace Netch.Models
         public int StartedTcping_Interval = 3;
 
         /// <summary>
-        ///     ACL规则
+        ///     是否打开软件时启动加速
         /// </summary>
-        public string ACL = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
+        public bool StartWhenOpened = false;
 
         /// <summary>
-        ///     GFWList
+        ///     是否退出时停止
         /// </summary>
-        public string PAC = "https://raw.githubusercontent.com/HMBSbige/Text_Translation/master/ShadowsocksR/ss_white.pac";
+        public bool StopWhenExited = false;
 
         /// <summary>
-        ///     是否使用DLL启动Shadowsocks
+        ///     STUN测试服务器
         /// </summary>
-        public bool BootShadowsocksFromDLL = true;
+        public string STUN_Server = "stun.syncthing.net";
 
         /// <summary>
-        ///     语言设置
+        ///     STUN测试服务器
         /// </summary>
-        public string Language = "System";
+        public int STUN_Server_Port = 3478;
 
         /// <summary>
-        /// 服务器测试方式 false.ICMPing true.TCPing
+        ///     订阅链接列表
         /// </summary>
-        public bool ServerTCPing = true;
+        public List<SubscribeLink> SubscribeLink = new();
 
         /// <summary>
-        /// 是否使用RDR内置SS
+        ///     TUNTAP 适配器配置
         /// </summary>
-        public bool RedirectorSS = false;
+        public TUNTAPConfig TUNTAP = new();
 
         /// <summary>
-        /// 不代理UDP
+        ///     UDP Socket 占用端口
         /// </summary>
-        public bool ProcessNoProxyForUdp = false;
+        public ushort UDPSocketPort = 18291;
 
         /// <summary>
-        /// 不代理TCP
+        ///     是否打开软件时更新订阅
         /// </summary>
-        public bool ProcessNoProxyForTcp = false;
+        public bool UpdateServersWhenOpened = false;
+
+        /// <summary>
+        ///     使用代理更新订阅
+        /// </summary>
+        public bool UseProxyToUpdateSubscription = false;
+
+        public V2rayConfig V2RayConfig = new();
     }
 }

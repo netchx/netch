@@ -1,4 +1,3 @@
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,11 +6,15 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Utils;
 
 namespace Netch.Forms
 {
     public partial class SettingForm : Form
     {
+        private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();
+
+        private readonly Dictionary<Control, Action<Control>> _saveActions = new();
         public SettingForm()
         {
             InitializeComponent();
@@ -238,9 +241,9 @@ namespace Netch.Forms
                 b => Global.Settings.CheckBetaUpdate = b,
                 Global.Settings.CheckBetaUpdate);
 
-            BindCheckBox(UpdateSubscribeatWhenOpenedCheckBox,
-                b => Global.Settings.UpdateSubscribeatWhenOpened = b,
-                Global.Settings.UpdateSubscribeatWhenOpened);
+            BindCheckBox(UpdateServersWhenOpenedCheckBox,
+                b => Global.Settings.UpdateServersWhenOpened = b,
+                Global.Settings.UpdateServersWhenOpened);
 
             #endregion
 
@@ -269,15 +272,11 @@ namespace Netch.Forms
             TUNTAPDNSTextBox.Enabled = UseCustomDNSCheckBox.Checked;
 
             if (UseCustomDNSCheckBox.Checked)
-            {
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
                     ? DNS.Join(Global.Settings.TUNTAP.DNS)
                     : "1.1.1.1";
-            }
             else
-            {
                 TUNTAPDNSTextBox.Text = "AioDNS";
-            }
         }
 
 
@@ -317,9 +316,7 @@ namespace Netch.Forms
             }
 
             if (!flag)
-            {
                 return;
-            }
 
             #endregion
 
@@ -336,9 +333,7 @@ namespace Netch.Forms
                 stunServer = stun[0];
                 if (stun.Length > 1)
                     if (!ushort.TryParse(stun[1], out stunServerPort))
-                    {
                         errFlag = true;
-                    }
             }
             else
             {
@@ -356,9 +351,7 @@ namespace Netch.Forms
             #region Save
 
             foreach (var pair in _saveActions)
-            {
                 pair.Value.Invoke(pair.Key);
-            }
 
             Global.Settings.STUN_Server = stunServer;
             Global.Settings.STUN_Server_Port = stunServerPort;
@@ -428,18 +421,14 @@ namespace Netch.Forms
         {
             control.Checked = value;
             _checkActions.Add(control, s => true);
-            _saveActions.Add(control, c => save.Invoke(((CheckBox)c).Checked));
+            _saveActions.Add(control, c => save.Invoke(((CheckBox) c).Checked));
         }
         private void BindRadioBox(RadioButton control, Action<bool> save, bool value)
         {
             control.Checked = value;
             _checkActions.Add(control, s => true);
-            _saveActions.Add(control, c => save.Invoke(((RadioButton)c).Checked));
+            _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
         }
-
-        private readonly Dictionary<Control, Func<string, bool>> _checkActions = new Dictionary<Control, Func<string, bool>>();
-
-        private readonly Dictionary<Control, Action<Control>> _saveActions = new Dictionary<Control, Action<Control>>();
 
         private void ModifySystemDNSCheckBox_CheckedChanged(object sender, EventArgs e)
         {

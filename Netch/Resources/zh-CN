@@ -167,7 +167,7 @@
     "Port value illegal. Try again.": "端口值非法。请重试。",
     "Check update when opened": "打开软件时检查更新",
     "Check Beta update": "检查 Beta 更新",
-    "Update subscribeat when opened": "自动更新订阅",
+    "Update Servers when opened": "打开软件时更新服务器",
     "SS DLL": "SS DLL",
     "Modify System DNS": "修改系统 DNS",
     "No Proxy for Udp": "不代理Udp流量",

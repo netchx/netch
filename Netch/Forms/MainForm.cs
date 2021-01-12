@@ -16,6 +16,10 @@ namespace Netch.Forms
 {
     public partial class MainForm : Form
     {
+        private readonly Dictionary<string, object> _mainFormText = new();
+
+        private bool _comboBoxInitialized;
+        private bool _textRecorded;
         public MainForm()
         {
             InitializeComponent();
@@ -71,15 +75,12 @@ namespace Netch.Forms
 
             // 打开软件时启动加速，产生开始按钮点击事件
             if (Global.Settings.StartWhenOpened)
-            {
                 ControlButton.PerformClick();
-            }
 
             // 自动检测延迟
             Task.Run(() =>
             {
                 while (true)
-                {
                     if (State == State.Waiting || State == State.Stopped)
                     {
                         TestServer();
@@ -90,26 +91,21 @@ namespace Netch.Forms
                     {
                         Thread.Sleep(200);
                     }
-                }
             });
 
             Task.Run(() =>
             {
                 // 检查更新
                 if (Global.Settings.CheckUpdateWhenOpened)
-                {
                     CheckUpdate();
-                }
             });
 
 
             Task.Run(async () =>
             {
                 // 检查订阅更新
-                if (Global.Settings.UpdateSubscribeatWhenOpened)
-                {
+                if (Global.Settings.UpdateServersWhenOpened)
                     await UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription);
-                }
             });
         }
 
@@ -184,9 +180,6 @@ namespace Netch.Forms
             Show();
         }
 
-        private readonly Dictionary<string, object> _mainFormText = new Dictionary<string, object>();
-        private bool _textRecorded;
-
         private void InitText()
         {
             #region Record English
@@ -249,8 +242,7 @@ namespace Netch.Forms
 
                     if (value is object[] values)
                         return i18N.TranslateFormat(values.First() as string, values.Skip(1).ToArray());
-                    else
-                        return i18N.Translate(value);
+                    return i18N.Translate(value);
                 }
             }
 
@@ -277,19 +269,40 @@ namespace Netch.Forms
             Hide();
             NotifyIcon.Visible = false;
             if (!IsWaiting)
-            {
                 ControlFun();
-            }
 
             Configuration.Save();
 
             foreach (var file in new[] {"data\\last.json", "data\\privoxy.conf"})
-            {
                 if (File.Exists(file))
                     File.Delete(file);
-            }
 
             State = State.Terminating;
+        }
+
+        private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        {
+            if (!_comboBoxInitialized) return;
+            try
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
+            }
+            catch
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = 0;
+            }
+        }
+
+        private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        {
+            if (!_comboBoxInitialized) return;
+            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+        }
+
+        private void NatTypeStatusLabel_Click(object sender, EventArgs e)
+        {
+            if (_state == State.Started && MainController.NttTested)
+                MainController.NatTest();
         }
 
         #region MISC
@@ -297,7 +310,7 @@ namespace Netch.Forms
         private bool _resumeFlag;
 
         /// <summary>
-        /// 监听电源事件，自动重启Netch服务
+        ///     监听电源事件，自动重启Netch服务
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -415,13 +428,9 @@ namespace Netch.Forms
                 var server = (Server) ServerComboBox.SelectedItem;
                 string text;
                 if (ModifierKeys == Keys.Control)
-                {
                     text = ShareLink.GetNetchLink(server);
-                }
                 else
-                {
                     text = ShareLink.GetShareLink(server);
-                }
 
                 Clipboard.SetText(text);
             }
@@ -445,9 +454,7 @@ namespace Netch.Forms
             InitServer();
             Configuration.Save();
             if (ServerComboBox.Items.Count > 0)
-            {
                 ServerComboBox.SelectedIndex = index != 0 ? index - 1 : index;
-            }
         }
 
         #region NotifyIcon
@@ -496,34 +503,5 @@ namespace Netch.Forms
         #endregion
 
         #endregion
-
-        private bool _comboBoxInitialized;
-
-        private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
-        {
-            if (!_comboBoxInitialized) return;
-            try
-            {
-                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
-            }
-            catch
-            {
-                Global.Settings.ModeComboBoxSelectedIndex = 0;
-            }
-        }
-
-        private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
-        {
-            if (!_comboBoxInitialized) return;
-            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-        }
-
-        private void NatTypeStatusLabel_Click(object sender, EventArgs e)
-        {
-            if (_state == State.Started && MainController.NttTested)
-            {
-                MainController.NatTest();
-            }
-        }
     }
 }
