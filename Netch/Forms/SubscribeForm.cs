@@ -13,6 +13,14 @@ namespace Netch.Forms
         public SubscribeForm()
         {
             InitializeComponent();
+            i18N.TranslateForm(this);
+            i18N.TranslateForm(pContextMenuStrip);
+
+            UseSelectedServerCheckBox.Enabled = Global.Settings.Server.Any();
+            UseSelectedServerCheckBox.Checked = Global.Settings.Server.Any() && Global.Settings.UseProxyToUpdateSubscription;
+
+            InitSubscribeLink();
+            ResetEditingGroup();
         }
 
         public void InitSubscribeLink()
@@ -31,27 +39,6 @@ namespace Netch.Forms
                 viewItem.Checked = item.Enable;
                 SubscribeLinkListView.Items.Add(viewItem);
             }
-        }
-
-        private void SubscribeForm_Load(object sender, EventArgs e)
-        {
-            i18N.TranslateForm(this);
-            i18N.TranslateForm(pContextMenuStrip);
-
-            ResetEditingGroup();
-
-            if (Global.Settings.Server.Count > 0)
-            {
-                UseSelectedServerCheckBox.Enabled = true;
-                UseSelectedServerCheckBox.Checked = Global.Settings.UseProxyToUpdateSubscription;
-            }
-            else
-            {
-                UseSelectedServerCheckBox.Checked = false;
-                UseSelectedServerCheckBox.Enabled = false;
-            }
-
-            InitSubscribeLink();
         }
 
         private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -131,15 +118,9 @@ namespace Netch.Forms
             else
             {
                 var target = Global.Settings.SubscribeLink[_editingIndex];
-                /*if (MessageBox.Show(i18N.Translate("Delete the corresponding group of items in the server list?"), i18N.Translate("Confirm"), MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    DeleteServersInGroup(target.Remark);
-                }
-                else
-                {
-                    RenameServersGroup(target.Remark, RemarkTextBox.Text);
-                }*/
-                ListViewItem listViewItem = SubscribeLinkListView.Items[_editingIndex];
+                RenameServersGroup(target.Remark, RemarkTextBox.Text);
+
+                var listViewItem = SubscribeLinkListView.Items[_editingIndex];
 
                 target.Enable = listViewItem.Checked;
                 target.Link = LinkTextBox.Text;
@@ -148,11 +129,11 @@ namespace Netch.Forms
             }
 
             MessageBoxX.Show(i18N.Translate("Saved"));
-            Configuration.Save();
             Global.Settings.UseProxyToUpdateSubscription = UseSelectedServerCheckBox.Checked;
+            Configuration.Save();
 
-            ResetEditingGroup();
             InitSubscribeLink();
+            ResetEditingGroup();
         }
 
         private static void DeleteServersInGroup(string group)
@@ -187,7 +168,7 @@ namespace Netch.Forms
             }
             _editingIndex = listView.SelectedItems[0].Index;
 
-            ListViewItem target = SubscribeLinkListView.Items[_editingIndex];
+            var target = SubscribeLinkListView.Items[_editingIndex];
 
             AddSubscriptionBox.Text = target.SubItems[1].Text;
             RemarkTextBox.Text = target.SubItems[1].Text;
@@ -218,25 +199,6 @@ namespace Netch.Forms
         private void ClearButton_Click(object sender, EventArgs e)
         {
             ResetEditingGroup();
-        }
-
-        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
-        {
-            _editingIndex = e.Item.Index;
-            ListViewItem listViewItem = SubscribeLinkListView.Items[e.Item.Index];
-
-            AddSubscriptionBox.Text = listViewItem.SubItems[1].Text;
-            RemarkTextBox.Text = listViewItem.SubItems[1].Text;
-            LinkTextBox.Text = listViewItem.SubItems[2].Text;
-            UserAgentTextBox.Text = listViewItem.SubItems[3].Text;
-
-            var settingSub = Global.Settings.SubscribeLink[_editingIndex];
-            settingSub.Enable = listViewItem.Checked;
-            settingSub.Remark = listViewItem.SubItems[1].Text;
-            settingSub.Link = listViewItem.SubItems[2].Text;
-            settingSub.UserAgent = listViewItem.SubItems[3].Text;
-
-            Configuration.Save();
         }
 
         private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
