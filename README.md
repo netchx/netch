@@ -59,7 +59,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
 - [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
 - [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
-- [v2ray-core](https://github.com/v2ray/v2ray-core)
+- [v2ray-core](https://github.com/v2fly/v2ray-core)
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [PAC](https://github.com/HMBSbige/Text_Translation/blob/master/ShadowsocksR/ss_white.pac)
