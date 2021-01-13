@@ -198,6 +198,7 @@
     "Unable to start? Click me to download": "无法启动？点我下载依赖",
 
     "The {0} port is in use.": "{0} 端口已被占用",
+    "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
 
     "[Web Proxy] Bypass LAN": "[网页代理] 绕过局域网",
     "[Non Web Proxy] Bypass LAN": "[不设置代理] 绕过局域网",

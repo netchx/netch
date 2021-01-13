@@ -24,11 +24,21 @@ namespace Netch.Utils
         {
             try
             {
-                if (PortHelper.PortInUse(Global.Settings.UDPSocketPort))
-                {
-                    Global.Settings.UDPSocketPort = PortHelper.GetAvailablePort();
-                    Configuration.Save();
-                }
+                const int tryLimit = 3;
+                var i = tryLimit;
+                while (i > 0)
+                    try
+                    {
+                        PortHelper.CheckPort(Global.Settings.UDPSocketPort, PortType.UDP);
+                        if (i != tryLimit)
+                            Configuration.Save();
+                        break;
+                    }
+                    catch
+                    {
+                        Global.Settings.UDPSocketPort = PortHelper.GetAvailablePort(PortType.UDP);
+                        i--;
+                    }
 
                 var data = new byte[1024];
                 var newsock = new UdpClient(new IPEndPoint(IPAddress.Loopback, Global.Settings.UDPSocketPort));
@@ -38,9 +48,7 @@ namespace Netch.Utils
                     var result = await newsock.ReceiveAsync();
                     data = result.Buffer;
                     if (Enum.TryParse<Commands>(Encoding.ASCII.GetString(data, 0, data.Length), out var command))
-                    {
                         OnCalled(command);
-                    }
                 }
             }
             catch (Exception e)
@@ -53,14 +61,12 @@ namespace Netch.Utils
         {
             try
             {
-                using (var udpClient = new UdpClient(Global.Settings.UDPSocketPort))
-                {
-                    udpClient.Connect(IPAddress.Loopback, Global.Settings.UDPSocketPort);
-                    var sendBytes = Encoding.ASCII.GetBytes(command.ToString());
-                    await udpClient.SendAsync(sendBytes, sendBytes.Length);
+                using var udpClient = new UdpClient(Global.Settings.UDPSocketPort);
+                udpClient.Connect(IPAddress.Loopback, Global.Settings.UDPSocketPort);
+                var sendBytes = Encoding.ASCII.GetBytes(command.ToString());
+                await udpClient.SendAsync(sendBytes, sendBytes.Length);
 
-                    udpClient.Close();
-                }
+                udpClient.Close();
             }
             catch (Exception e)
             {

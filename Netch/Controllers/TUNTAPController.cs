@@ -15,7 +15,9 @@ namespace Netch.Controllers
 {
     public class TUNTAPController : Guard, IModeController
     {
-        
+        private readonly List<string> _directIPs = new();
+
+        private readonly List<string> _proxyIPs = new();
         /// <summary>
         ///     服务器 IP 地址
         /// </summary>
@@ -24,16 +26,16 @@ namespace Netch.Controllers
         /// <summary>
         ///     本地 DNS 服务控制器
         /// </summary>
-        public DNSController DNSController = new DNSController();
+        public DNSController DNSController = new();
 
         public TUNTAPController()
         {
             StartedKeywords.Add("Running");
             StoppedKeywords.AddRange(new[] {"failed", "invalid vconfig file"});
         }
+        public override string MainFile { get; protected set; } = "tun2socks.exe";
 
         public override string Name { get; protected set; } = "tun2socks";
-        public override string MainFile { get; protected set; } = "tun2socks.exe";
 
         public bool Start(in Mode mode)
         {
@@ -43,9 +45,7 @@ namespace Netch.Controllers
 
             // 查找出口适配器
             if (!Utils.Utils.SearchOutboundAdapter())
-            {
                 return false;
-            }
 
             // 查找并安装 TAP 适配器
             if (!SearchTapAdapter())
@@ -79,14 +79,8 @@ namespace Netch.Controllers
             }
             else
             {
-                try
-                {
-                    MainController.PortCheckAndShowMessageBox(53, "DNS");
-                }
-                catch
-                {
+                if (!MainController.PortCheckAndShowMessageBox(53, "DNS"))
                     return false;
-                }
 
                 if (!DNSController.Start())
                 {
@@ -126,10 +120,6 @@ namespace Netch.Controllers
             Task.WaitAll(tasks);
         }
 
-        private readonly List<string> _directIPs = new List<string>();
-
-        private readonly List<string> _proxyIPs = new List<string>();
-
         /// <summary>
         ///     设置绕行规则
         /// </summary>
@@ -150,7 +140,6 @@ namespace Netch.Controllers
 
                     //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
                     if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
-                    {
                         try
                         {
                             Logging.Info("代理 → STUN 服务器 IP");
@@ -166,23 +155,18 @@ namespace Netch.Controllers
                         {
                             Logging.Info("NAT 类型测试域名解析失败，将不会被添加到代理列表");
                         }
-                    }
 
                     if (Global.Settings.TUNTAP.ProxyDNS)
                     {
                         Logging.Info("代理 → 自定义 DNS");
                         if (Global.Settings.TUNTAP.UseCustomDNS)
-                        {
                             RouteAction(Action.Create,
                                 Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"),
                                 RouteType.TUNTAP);
-                        }
                         else
-                        {
                             RouteAction(Action.Create,
                                 new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
                                 RouteType.TUNTAP);
-                        }
                     }
 
                     break;
@@ -303,26 +287,11 @@ namespace Netch.Controllers
             return true;
         }
 
-
-        private enum RouteType
-        {
-            Outbound,
-            TUNTAP
-        }
-
-        private enum Action
-        {
-            Create,
-            Delete
-        }
-
         private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType,
             int metric = 0)
         {
             foreach (var address in ipNetworks)
-            {
                 RouteAction(action, address, routeType, metric);
-            }
         }
 
         private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0)
@@ -383,11 +352,22 @@ namespace Netch.Controllers
             }
 
             if (!result)
-            {
                 Logging.Warning($"Failed to {action} Route on {routeType} Adapter: {ipNetwork} metric {metric}");
-            }
 
             return result;
+        }
+
+
+        private enum RouteType
+        {
+            Outbound,
+            TUNTAP
+        }
+
+        private enum Action
+        {
+            Create,
+            Delete
         }
     }
 }

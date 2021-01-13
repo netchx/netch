@@ -16,12 +16,21 @@ namespace Netch.Utils
 
         public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
 
-        public static string GetRelativePath(string fullName) => fullName.Substring(ModeDirectory.Length);
-        public static string GetFullPath(string relativeName) => Path.Combine(ModeDirectory, relativeName);
-        public static string GetFullPath(Mode mode) => Path.Combine(ModeDirectory, mode.RelativePath);
+        public static string GetRelativePath(string fullName)
+        {
+            return fullName.Substring(ModeDirectory.Length);
+        }
+        public static string GetFullPath(string relativeName)
+        {
+            return Path.Combine(ModeDirectory, relativeName);
+        }
+        public static string GetFullPath(Mode mode)
+        {
+            return Path.Combine(ModeDirectory, mode.RelativePath);
+        }
 
         /// <summary>
-        ///     从模式文件夹读取模式并为 <see cref="Forms.MainForm.ModeComboBox"/> 绑定数据
+        ///     从模式文件夹读取模式并为 <see cref="Forms.MainForm.ModeComboBox" /> 绑定数据
         /// </summary>
         public static void Load()
         {
@@ -99,16 +108,12 @@ namespace Netch.Utils
         public static void WriteFile(Mode mode)
         {
             if (!Directory.Exists(ModeDirectory))
-            {
                 Directory.CreateDirectory(ModeDirectory);
-            }
 
             var fullName = GetFullPath(mode.RelativePath ?? mode.FileName + ".txt");
 
             if (mode.RelativePath == null && File.Exists(fullName))
-            {
                 throw new Exception("新建模式的文件名已存在，请贡献者检查代码");
-            }
 
             // 写入到模式文件里
             File.WriteAllText(fullName, mode.ToFileString());
@@ -131,9 +136,7 @@ namespace Netch.Utils
         {
             var fullName = GetFullPath(mode);
             if (File.Exists(fullName))
-            {
                 File.Delete(fullName);
-            }
 
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
@@ -166,6 +169,7 @@ namespace Netch.Utils
                     modeController = new NFController();
                     port = Global.Settings.RedirectorTCPPort;
                     portName = "Redirector TCP";
+                    portType = PortType.TCP;
                     break;
                 case 1:
                 case 2:
@@ -176,6 +180,7 @@ namespace Netch.Utils
                     modeController = new HTTPController();
                     port = Global.Settings.HTTPLocalPort;
                     portName = "HTTP";
+                    portType = PortType.TCP;
                     MainForm.StatusPortInfoText.HttpPort = (ushort) port;
                     break;
                 case 4:
