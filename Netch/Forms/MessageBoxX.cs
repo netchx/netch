@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Windows.Forms;
 using Netch.Models;
+using Netch.Utils;
 
-namespace Netch.Utils
+namespace Netch.Forms
 {
-    static class MessageBoxX
+    public static class MessageBoxX
     {
         /// <summary>
         /// </summary>
@@ -34,11 +35,11 @@ namespace Netch.Utils
             };
 
             return MessageBox.Show(
-                owner: owner,
-                text: text,
-                caption: i18N.Translate(title),
-                buttons: confirm ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
-                icon: msgIcon);
+                owner,
+                text,
+                i18N.Translate(title),
+                confirm ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK,
+                msgIcon);
         }
     }
 }

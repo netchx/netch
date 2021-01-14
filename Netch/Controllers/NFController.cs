@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
+using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
@@ -15,13 +16,11 @@ namespace Netch.Controllers
 {
     public class NFController : IModeController
     {
-        private static readonly ServiceController NFService = new ServiceController("netfilter2");
+        private static readonly ServiceController NFService = new("netfilter2");
 
         private static readonly string BinDriver = string.Empty;
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
         private static string _sysDns;
-
-        public string Name { get; } = "Redirector";
 
         static NFController()
         {
@@ -46,6 +45,8 @@ namespace Netch.Controllers
 
             BinDriver = "bin\\" + fileName;
         }
+
+        public string Name { get; } = "Redirector";
 
         public bool Start(in Mode mode)
         {
@@ -105,8 +106,19 @@ namespace Netch.Controllers
             return aio_init();
         }
 
+        public void Stop()
+        {
+            Task.Run(() =>
+            {
+                if (Global.Settings.ModifySystemDNS)
+                    //恢复系统DNS
+                    DNS.OutboundDNS = _sysDns;
+            });
+
+            aio_free();
+        }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="rules"></param>
         /// <param name="incompatibleRule"></param>
@@ -119,7 +131,6 @@ namespace Netch.Controllers
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="r"></param>
         /// <param name="clear"></param>
@@ -161,9 +172,7 @@ namespace Netch.Controllers
             }
 
             if (!File.Exists(SystemDriver))
-            {
                 return InstallDriver();
-            }
 
             var updateFlag = false;
 
@@ -178,18 +187,14 @@ namespace Netch.Controllers
                 {
                     // Installed greater than Bin
                     if (systemResult.Major != binResult.Major)
-                    {
                         // API breaking changes
                         updateFlag = true;
-                    }
                 }
             }
             else
             {
                 if (!systemFileVersion.Equals(binFileVersion))
-                {
                     updateFlag = true;
-                }
             }
 
             if (!updateFlag) return true;
@@ -267,18 +272,6 @@ namespace Netch.Controllers
             aio_dial((int) NameList.TYPE_ADDNAME, @"NTT\.exe");
         }
 
-        public void Stop()
-        {
-            Task.Run(() =>
-            {
-                if (Global.Settings.ModifySystemDNS)
-                    //恢复系统DNS
-                    DNS.OutboundDNS = _sysDns;
-            });
-
-            aio_free();
-        }
-
         #region NativeMethods
 
         private const int UdpNameListOffset = (int) NameList.TYPE_UDPTYPE - (int) NameList.TYPE_TCPTYPE;
@@ -299,7 +292,7 @@ namespace Netch.Controllers
         private static extern ulong aio_getDL();
 
 
-        public enum NameList : int
+        public enum NameList
         {
             TYPE_FILTERLOOPBACK,
             TYPE_FILTERTCP,

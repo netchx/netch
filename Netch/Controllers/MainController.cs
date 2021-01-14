@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;

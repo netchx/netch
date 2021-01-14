@@ -175,18 +175,18 @@ namespace Netch.Forms
             {
                 void OnNewVersionNotFound(object o, EventArgs args)
                 {
-                    _updater.NewVersionNotFound -= OnNewVersionNotFound;
+                    UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
                     NotifyTip(i18N.Translate("Already latest version"));
                 }
 
                 void OnNewVersionFoundFailed(object o, EventArgs args)
                 {
-                    _updater.NewVersionFoundFailed -= OnNewVersionFoundFailed;
+                    UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
                     NotifyTip(i18N.Translate("New version found failed"), info: false);
                 }
 
-                _updater.NewVersionNotFound += OnNewVersionNotFound;
-                _updater.NewVersionFoundFailed += OnNewVersionFoundFailed;
+                UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
+                UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
                 CheckUpdate();
             });
         }
