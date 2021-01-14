@@ -19,7 +19,7 @@ namespace Netch.Controllers
         public const string Name = @"Netch";
         public const string Copyright = @"Copyright © 2019 - 2020";
 
-        public const string AssemblyVersion = @"1.7.0";
+        public const string AssemblyVersion = @"1.7.1";
         private const string Suffix = @"";
 
         public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
@@ -68,10 +68,12 @@ namespace Netch.Controllers
             }
         }
 
-        public static async Task UpdateNetch()
+        public static async Task UpdateNetch(DownloadProgressChangedEventHandler onDownloadProgressChanged)
         {
+            using WebClient client = new();
+
             var latestVersionDownloadUrl = LatestRelease.assets[0].browser_download_url;
-            var tagPage = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(LatestVersionUrl));
+            var tagPage = await client.DownloadStringTaskAsync(LatestVersionUrl);
             var match = Regex.Match(tagPage, @"<td .*>(?<sha256>.*)</td>", RegexOptions.Singleline);
 
             // TODO Replace with regex get basename and sha256 
@@ -92,11 +94,11 @@ namespace Netch.Controllers
                 File.Delete(fileFullPath);
             }
 
-
             try
             {
-                // TODO Replace "New Version Found" to Progress bar
-                await WebUtil.DownloadFileAsync(WebUtil.CreateRequest(latestVersionDownloadUrl), fileFullPath);
+                client.DownloadProgressChanged += onDownloadProgressChanged;
+                await client.DownloadFileTaskAsync(new Uri(latestVersionDownloadUrl), fileFullPath);
+                client.DownloadProgressChanged -= onDownloadProgressChanged;
             }
             catch (Exception e)
             {
