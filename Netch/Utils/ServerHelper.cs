@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using System.Timers;
 using Netch.Models;
 using Newtonsoft.Json.Linq;
 
@@ -9,13 +11,26 @@ namespace Netch.Utils
 {
     public static class ServerHelper
     {
-        public static readonly IEnumerable<IServerUtil> ServerUtils;
-
         static ServerHelper()
         {
             var serversUtilsTypes = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
             ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)).OrderBy(util => util.Priority);
+
+            Timer = new Timer
+            {
+                Interval = 10000,
+                AutoReset = true,
+                Enabled = false
+            };
+
+            Timer.Elapsed += (_, _) => TestAllDelay();
+            Timer.Start();
         }
+
+        #region Handler
+
+        public static readonly IEnumerable<IServerUtil> ServerUtils;
+
 
         public static Server ParseJObject(JObject o)
         {
@@ -47,5 +62,35 @@ namespace Netch.Utils
         {
             return ServerUtils.FirstOrDefault(i => i.UriScheme.Any(s => s.Equals(typeName)));
         }
+
+        #endregion
+
+        #region Delay
+
+        public static readonly Timer Timer;
+
+        private static bool _mux;
+        public static event EventHandler TestDelayFinished;
+
+        public static bool TestAllDelay()
+        {
+            if (_mux)
+                return false;
+            try
+            {
+                _mux = true;
+                Parallel.ForEach(Global.Settings.Server, new ParallelOptions {MaxDegreeOfParallelism = 16},
+                    server => { server.Test(); });
+                _mux = false;
+                TestDelayFinished?.Invoke(null, new EventArgs());
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+            return true;
+        }
+
+        #endregion
     }
 }

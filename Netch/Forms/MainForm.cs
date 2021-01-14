@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -76,22 +75,6 @@ namespace Netch.Forms
             // 打开软件时启动加速，产生开始按钮点击事件
             if (Global.Settings.StartWhenOpened)
                 ControlButton.PerformClick();
-
-            // 自动检测延迟
-            Task.Run(() =>
-            {
-                while (true)
-                    if (State == State.Waiting || State == State.Stopped)
-                    {
-                        TestServer();
-
-                        Thread.Sleep(10000);
-                    }
-                    else
-                    {
-                        Thread.Sleep(200);
-                    }
-            });
 
             Task.Run(() =>
             {
@@ -258,7 +241,7 @@ namespace Netch.Forms
 
         private void Exit(bool forceExit = false)
         {
-            if (!IsWaiting && !Global.Settings.StopWhenExited && !forceExit)
+            if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
             {
                 MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
@@ -268,7 +251,7 @@ namespace Netch.Forms
 
             Hide();
             NotifyIcon.Visible = false;
-            if (!IsWaiting)
+            if (!IsWaiting())
                 ControlFun();
 
             Configuration.Save();
@@ -319,7 +302,7 @@ namespace Netch.Forms
             switch (e.Mode)
             {
                 case PowerModes.Suspend: //操作系统即将挂起
-                    if (!IsWaiting)
+                    if (!IsWaiting())
                     {
                         _resumeFlag = true;
                         Logging.Info("操作系统即将挂起，自动停止");
@@ -354,18 +337,20 @@ namespace Netch.Forms
             Show();
         }
 
-        private async void SpeedPictureBox_Click(object sender, EventArgs e)
+        private void SpeedPictureBox_Click(object sender, EventArgs e)
         {
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
-            try
+
+            ServerHelper.TestDelayFinished += OnTestDelayFinished;
+            _ = Task.Run(ServerHelper.TestAllDelay);
+
+            void OnTestDelayFinished(object o1, EventArgs e1)
             {
-                await Task.Run(TestServer);
                 Refresh();
                 NotifyTip(i18N.Translate("Test done"));
-            }
-            finally
-            {
+
+                ServerHelper.TestDelayFinished -= OnTestDelayFinished;
                 Enabled = true;
                 StatusText();
             }

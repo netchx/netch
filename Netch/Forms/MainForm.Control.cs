@@ -16,6 +16,16 @@ namespace Netch.Forms
     {
         private bool _isFirstCloseWindow = true;
 
+        /// <summary>
+        ///     上一次下载的流量
+        /// </summary>
+        public ulong LastDownloadBandwidth;
+
+        /// <summary>
+        ///     上一次上传的流量
+        /// </summary>
+        public ulong LastUploadBandwidth;
+
         private async void ControlFun()
         {
             Configuration.Save();
@@ -59,7 +69,6 @@ namespace Netch.Forms
                     }
 
                     if (Global.Settings.StartedTcping)
-                    {
                         // 自动检测延迟
                         _ = Task.Run(() =>
                         {
@@ -72,7 +81,6 @@ namespace Netch.Forms
                                 Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                             }
                         });
-                    }
                 }
                 else
                 {
@@ -86,7 +94,6 @@ namespace Netch.Forms
                 State = State.Stopping;
                 await MainController.Stop();
                 State = State.Stopped;
-                _ = Task.Run(TestServer);
             }
         }
 
@@ -113,15 +120,5 @@ namespace Netch.Forms
                 // ignored
             }
         }
-
-        /// <summary>
-        ///     上一次上传的流量
-        /// </summary>
-        public ulong LastUploadBandwidth;
-
-        /// <summary>
-        ///     上一次下载的流量
-        /// </summary>
-        public ulong LastDownloadBandwidth;
     }
 }

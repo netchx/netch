@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Models;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -13,86 +13,8 @@ namespace Netch.Forms
 
     partial class MainForm
     {
-        #region Server
-
-        private void InitServer()
-        {
-            var comboBoxInitialized = _comboBoxInitialized;
-            _comboBoxInitialized = false;
-
-            ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
-            SelectLastServer();
-            _comboBoxInitialized = comboBoxInitialized;
-        }
-
-        private static void TestServer()
-        {
-            try
-            {
-                Parallel.ForEach(Global.Settings.Server, new ParallelOptions {MaxDegreeOfParallelism = 16},
-                    server => { server.Test(); });
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
-        public void SelectLastServer()
-        {
-            // 如果值合法，选中该位置
-            if (Global.Settings.ServerComboBoxSelectedIndex > 0 &&
-                Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
-            {
-                ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
-            }
-            // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
-            else if (ServerComboBox.Items.Count > 0)
-            {
-                ServerComboBox.SelectedIndex = 0;
-            }
-
-            // 如果当前 ServerComboBox 中没元素，不做处理
-        }
-
-        #endregion
-
-        #region Mode
-
-        public void InitMode()
-        {
-            var comboBoxInitialized = _comboBoxInitialized;
-            _comboBoxInitialized = false;
-
-            ModeComboBox.Items.Clear();
-            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
-            ModeComboBox.Tag = null;
-            SelectLastMode();
-            _comboBoxInitialized = comboBoxInitialized;
-        }
-
-        public void SelectLastMode()
-        {
-            // 如果值合法，选中该位置
-            if (Global.Settings.ModeComboBoxSelectedIndex > 0 &&
-                Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
-            {
-                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
-            }
-            // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
-            else if (ModeComboBox.Items.Count > 0)
-            {
-                ModeComboBox.SelectedIndex = 0;
-            }
-
-            // 如果当前 ModeComboBox 中没元素，不做处理
-        }
-
-        #endregion
-
         /// <summary>
-        ///     Init at <see cref="MainForm_Load"/>
+        ///     Init at <see cref="MainForm_Load" />
         /// </summary>
         private int _eWidth;
 
@@ -101,9 +23,7 @@ namespace Netch.Forms
             try
             {
                 if (!(sender is ComboBox cbx))
-                {
                     return;
-                }
 
                 // 绘制背景颜色
                 e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
@@ -115,7 +35,7 @@ namespace Netch.Forms
 
                 switch (cbx.Items[e.Index])
                 {
-                    case Models.Server item:
+                    case Server item:
                     {
                         // 计算延迟底色
                         SolidBrush brush;
@@ -164,12 +84,69 @@ namespace Netch.Forms
                 {
                     Name = $"Add{fullName}ServerToolStripMenuItem",
                     Size = new Size(259, 22),
-                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName),
+                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName)
                 };
                 _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
                 control.Click += AddServerToolStripMenuItem_Click;
                 ServerToolStripMenuItem.DropDownItems.Add(control);
             }
         }
+
+        #region Server
+
+        private void InitServer()
+        {
+            var comboBoxInitialized = _comboBoxInitialized;
+            _comboBoxInitialized = false;
+
+            ServerComboBox.Items.Clear();
+            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
+            SelectLastServer();
+            _comboBoxInitialized = comboBoxInitialized;
+        }
+
+        public void SelectLastServer()
+        {
+            // 如果值合法，选中该位置
+            if (Global.Settings.ServerComboBoxSelectedIndex > 0 &&
+                Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
+                ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
+            // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
+            else if (ServerComboBox.Items.Count > 0)
+                ServerComboBox.SelectedIndex = 0;
+
+            // 如果当前 ServerComboBox 中没元素，不做处理
+        }
+
+        #endregion
+
+        #region Mode
+
+        public void InitMode()
+        {
+            var comboBoxInitialized = _comboBoxInitialized;
+            _comboBoxInitialized = false;
+
+            ModeComboBox.Items.Clear();
+            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
+            ModeComboBox.Tag = null;
+            SelectLastMode();
+            _comboBoxInitialized = comboBoxInitialized;
+        }
+
+        public void SelectLastMode()
+        {
+            // 如果值合法，选中该位置
+            if (Global.Settings.ModeComboBoxSelectedIndex > 0 &&
+                Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
+                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
+            // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
+            else if (ModeComboBox.Items.Count > 0)
+                ModeComboBox.SelectedIndex = 0;
+
+            // 如果当前 ModeComboBox 中没元素，不做处理
+        }
+
+        #endregion
     }
 }
