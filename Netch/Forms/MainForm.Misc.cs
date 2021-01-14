@@ -35,12 +35,12 @@ namespace Netch.Forms
             NewVersionLabel.Text = "...";
             try
             {
-                DownloadProgressChangedEventHandler OnDownloadProgressChanged()
+                void OnDownloadProgressChanged(object o1, DownloadProgressChangedEventArgs args)
                 {
-                    return (_, args) => { BeginInvoke(new Action(() => { NewVersionLabel.Text = $"{args.ProgressPercentage}%"; })); };
+                    BeginInvoke(new Action(() => { NewVersionLabel.Text = $"{args.ProgressPercentage}%"; }));
                 }
 
-                await UpdateChecker.UpdateNetch(OnDownloadProgressChanged());
+                await UpdateChecker.UpdateNetch(OnDownloadProgressChanged);
             }
             catch (Exception exception)
             {

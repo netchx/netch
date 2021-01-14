@@ -72,10 +72,10 @@ namespace Netch.Utils
         private static bool _mux;
         public static event EventHandler TestDelayFinished;
 
-        public static bool TestAllDelay()
+        public static void TestAllDelay()
         {
             if (_mux)
-                return false;
+                return;
             try
             {
                 _mux = true;
@@ -88,7 +88,6 @@ namespace Netch.Utils
             {
                 // ignored
             }
-            return true;
         }
 
         #endregion
