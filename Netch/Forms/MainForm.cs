@@ -1069,10 +1069,6 @@ namespace Netch.Forms
                         ProfileGroupBox.Enabled = true;
                         StartDisableItems(true);
                         break;
-                    case State.Terminating:
-                        Dispose();
-                        Environment.Exit(Environment.ExitCode);
-                        return;
                 }
             }
         }
@@ -1279,7 +1275,7 @@ namespace Netch.Forms
             Hide();
         }
 
-        private void Exit(bool forceExit = false)
+        private async void Exit(bool forceExit = false)
         {
             if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
             {
@@ -1289,18 +1285,20 @@ namespace Netch.Forms
                 return;
             }
 
-            Hide();
+            State = State.Terminating;
             NotifyIcon.Visible = false;
-            if (!IsWaiting())
-                ControlButton_Click(null, null);
-
+            Hide();
             Configuration.Save();
 
             foreach (var file in new[] {"data\\last.json", "data\\privoxy.conf"})
                 if (File.Exists(file))
                     File.Delete(file);
 
-            State = State.Terminating;
+            if (!IsWaiting())
+                await MainController.Stop();
+
+            Dispose();
+            Environment.Exit(Environment.ExitCode);
         }
 
         private void OnCalled(object sender, OnlyInstance.Commands e)
