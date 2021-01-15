@@ -97,8 +97,8 @@ namespace Netch.Controllers
                 if (!await StartMode(mode))
                     throw new StartFailedException();
 
-                if (mode.TestNatRequired())
-                    NatTest();
+                _ = Task.Run(Bandwidth.NetTraffic);
+                _ = Task.Run(NatTest);
 
                 return true;
             }
@@ -210,7 +210,6 @@ namespace Netch.Controllers
             ServerController = null;
         }
 
-
         /// <summary>
         ///     检查端口是否被占用,
         ///     被占用则弹窗提示, 确认后抛出异常
@@ -239,6 +238,8 @@ namespace Netch.Controllers
         /// </summary>
         public static void NatTest()
         {
+            if (!Mode.TestNatRequired())
+                return;
             NttTested = false;
             Task.Run(() =>
             {

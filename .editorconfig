@@ -1,7 +1,7 @@
+root = true
 # http://editorconfig.org/
 
 # top-most EditorConfig file
-root = true
 
 # all files
 [*]
@@ -32,6 +32,7 @@ resharper_csharp_blank_lines_around_field = 0
 resharper_csharp_blank_lines_around_invocable = 0
 resharper_csharp_blank_lines_around_type = 0
 resharper_csharp_int_align_comments = true
+resharper_csharp_keep_blank_lines_in_declarations = 1
 resharper_csharp_max_line_length = 368
 resharper_csharp_wrap_lines = false
 resharper_place_expr_accessor_on_single_line = true
