@@ -21,3 +21,5 @@ XCOPY /s /Y %SolutionDir%modes\mode %TargetDir%mode\ >NUL
 DEL /f %TargetDir%*.config >NUL 2>&1
 DEL /f %TargetDir%*.pdb >NUL 2>&1
 RD /s /Q %TargetDir%x86 >NUL 2>&1
+
+exit 0
