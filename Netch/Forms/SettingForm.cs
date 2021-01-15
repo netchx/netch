@@ -72,13 +72,14 @@ namespace Netch.Forms
                 i => i > -1,
                 i => Global.Settings.ProfileCount = i,
                 Global.Settings.ProfileCount);
-            BindCheckBox(TcpingAtStartedCheckBox,
-                b => Global.Settings.StartedTcping = b,
-                Global.Settings.StartedTcping);
-            BindTextBox<int>(DetectionIntervalTextBox,
+            BindTextBox<int>(DetectionTickTextBox,
                 i => i >= 0,
-                i => Global.Settings.StartedTcping_Interval = i,
-                Global.Settings.StartedTcping_Interval);
+                i => Global.Settings.DetectionTick = i,
+                Global.Settings.DetectionTick);
+            BindTextBox<int>(StartedPingIntervalTextBox,
+                _ => true,
+                i => Global.Settings.StartedPingInterval = i,
+                Global.Settings.StartedPingInterval);
 
             InitSTUN();
 

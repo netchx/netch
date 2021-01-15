@@ -49,9 +49,10 @@ namespace Netch.Forms
             this.ResolveServerHostnameCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCountLabel = new System.Windows.Forms.Label();
             this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
-            this.TcpingAtStartedCheckBox = new System.Windows.Forms.CheckBox();
-            this.DetectionIntervalLabel = new System.Windows.Forms.Label();
-            this.DetectionIntervalTextBox = new System.Windows.Forms.TextBox();
+            this.StartedPingLabel = new System.Windows.Forms.Label();
+            this.DetectionTickLabel = new System.Windows.Forms.Label();
+            this.StartedPingIntervalTextBox = new System.Windows.Forms.TextBox();
+            this.DetectionTickTextBox = new System.Windows.Forms.TextBox();
             this.STUNServerLabel = new System.Windows.Forms.Label();
             this.STUN_ServerComboBox = new System.Windows.Forms.ComboBox();
             this.AclLabel = new System.Windows.Forms.Label();
@@ -154,9 +155,10 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.ResolveServerHostnameCheckBox);
             this.GeneralTabPage.Controls.Add(this.ProfileCountLabel);
             this.GeneralTabPage.Controls.Add(this.ProfileCountTextBox);
-            this.GeneralTabPage.Controls.Add(this.TcpingAtStartedCheckBox);
-            this.GeneralTabPage.Controls.Add(this.DetectionIntervalLabel);
-            this.GeneralTabPage.Controls.Add(this.DetectionIntervalTextBox);
+            this.GeneralTabPage.Controls.Add(this.StartedPingLabel);
+            this.GeneralTabPage.Controls.Add(this.DetectionTickLabel);
+            this.GeneralTabPage.Controls.Add(this.StartedPingIntervalTextBox);
+            this.GeneralTabPage.Controls.Add(this.DetectionTickTextBox);
             this.GeneralTabPage.Controls.Add(this.STUNServerLabel);
             this.GeneralTabPage.Controls.Add(this.STUN_ServerComboBox);
             this.GeneralTabPage.Controls.Add(this.AclLabel);
@@ -173,7 +175,7 @@ namespace Netch.Forms
             // ServerPingTypeLabel
             // 
             this.ServerPingTypeLabel.AutoSize = true;
-            this.ServerPingTypeLabel.Location = new System.Drawing.Point(217, 160);
+            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 66);
             this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
             this.ServerPingTypeLabel.Size = new System.Drawing.Size(89, 12);
             this.ServerPingTypeLabel.TabIndex = 16;
@@ -182,7 +184,7 @@ namespace Netch.Forms
             // TCPingRadioBtn
             // 
             this.TCPingRadioBtn.AutoSize = true;
-            this.TCPingRadioBtn.Location = new System.Drawing.Point(376, 158);
+            this.TCPingRadioBtn.Location = new System.Drawing.Point(332, 85);
             this.TCPingRadioBtn.Name = "TCPingRadioBtn";
             this.TCPingRadioBtn.Size = new System.Drawing.Size(59, 16);
             this.TCPingRadioBtn.TabIndex = 15;
@@ -193,7 +195,7 @@ namespace Netch.Forms
             // ICMPingRadioBtn
             // 
             this.ICMPingRadioBtn.AutoSize = true;
-            this.ICMPingRadioBtn.Location = new System.Drawing.Point(312, 158);
+            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 85);
             this.ICMPingRadioBtn.Name = "ICMPingRadioBtn";
             this.ICMPingRadioBtn.Size = new System.Drawing.Size(65, 16);
             this.ICMPingRadioBtn.TabIndex = 14;
@@ -316,32 +318,39 @@ namespace Netch.Forms
             this.ProfileCountTextBox.TabIndex = 4;
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // TcpingAtStartedCheckBox
+            // StartedPingLabel
             // 
-            this.TcpingAtStartedCheckBox.AutoSize = true;
-            this.TcpingAtStartedCheckBox.Location = new System.Drawing.Point(15, 186);
-            this.TcpingAtStartedCheckBox.Name = "TcpingAtStartedCheckBox";
-            this.TcpingAtStartedCheckBox.Size = new System.Drawing.Size(156, 16);
-            this.TcpingAtStartedCheckBox.TabIndex = 5;
-            this.TcpingAtStartedCheckBox.Text = "Delay test after start";
-            this.TcpingAtStartedCheckBox.UseVisualStyleBackColor = true;
+            this.StartedPingLabel.AutoSize = true;
+            this.StartedPingLabel.Location = new System.Drawing.Point(12, 187);
+            this.StartedPingLabel.Name = "StartedPingLabel";
+            this.StartedPingLabel.Size = new System.Drawing.Size(137, 12);
+            this.StartedPingLabel.TabIndex = 5;
+            this.StartedPingLabel.Text = "Delay test after start";
             // 
-            // DetectionIntervalLabel
+            // DetectionTickLabel
             // 
-            this.DetectionIntervalLabel.AutoSize = true;
-            this.DetectionIntervalLabel.Location = new System.Drawing.Point(217, 187);
-            this.DetectionIntervalLabel.Name = "DetectionIntervalLabel";
-            this.DetectionIntervalLabel.Size = new System.Drawing.Size(143, 12);
-            this.DetectionIntervalLabel.TabIndex = 6;
-            this.DetectionIntervalLabel.Text = "Detection interval(sec)";
+            this.DetectionTickLabel.AutoSize = true;
+            this.DetectionTickLabel.Location = new System.Drawing.Point(225, 160);
+            this.DetectionTickLabel.Name = "DetectionTickLabel";
+            this.DetectionTickLabel.Size = new System.Drawing.Size(119, 12);
+            this.DetectionTickLabel.TabIndex = 6;
+            this.DetectionTickLabel.Text = "Detection Tick(sec)";
             // 
-            // DetectionIntervalTextBox
+            // StartedPingIntervalTextBox
             // 
-            this.DetectionIntervalTextBox.Location = new System.Drawing.Point(366, 184);
-            this.DetectionIntervalTextBox.Name = "DetectionIntervalTextBox";
-            this.DetectionIntervalTextBox.Size = new System.Drawing.Size(68, 21);
-            this.DetectionIntervalTextBox.TabIndex = 7;
-            this.DetectionIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.StartedPingIntervalTextBox.Location = new System.Drawing.Point(177, 184);
+            this.StartedPingIntervalTextBox.Name = "StartedPingIntervalTextBox";
+            this.StartedPingIntervalTextBox.Size = new System.Drawing.Size(68, 21);
+            this.StartedPingIntervalTextBox.TabIndex = 7;
+            this.StartedPingIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // DetectionTickTextBox
+            // 
+            this.DetectionTickTextBox.Location = new System.Drawing.Point(366, 157);
+            this.DetectionTickTextBox.Name = "DetectionTickTextBox";
+            this.DetectionTickTextBox.Size = new System.Drawing.Size(68, 21);
+            this.DetectionTickTextBox.TabIndex = 7;
+            this.DetectionTickTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // STUNServerLabel
             // 
@@ -373,7 +382,7 @@ namespace Netch.Forms
             // 
             this.AclAddrTextBox.Location = new System.Drawing.Point(120, 245);
             this.AclAddrTextBox.Name = "AclAddrTextBox";
-            this.AclAddrTextBox.Size = new System.Drawing.Size(315, 21);
+            this.AclAddrTextBox.Size = new System.Drawing.Size(314, 21);
             this.AclAddrTextBox.TabIndex = 11;
             this.AclAddrTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
@@ -1027,6 +1036,7 @@ namespace Netch.Forms
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+        private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
         private System.Windows.Forms.CheckBox NoProxyForTcpCheckBox;
 
         #endregion
@@ -1076,9 +1086,9 @@ namespace Netch.Forms
         private System.Windows.Forms.ComboBox LanguageComboBox;
         private System.Windows.Forms.TextBox AclAddrTextBox;
         private System.Windows.Forms.Label AclLabel;
-        private System.Windows.Forms.Label DetectionIntervalLabel;
-        private System.Windows.Forms.TextBox DetectionIntervalTextBox;
-        private System.Windows.Forms.CheckBox TcpingAtStartedCheckBox;
+        private System.Windows.Forms.Label DetectionTickLabel;
+        private System.Windows.Forms.TextBox DetectionTickTextBox;
+        private System.Windows.Forms.Label StartedPingLabel;
         private System.Windows.Forms.Label STUNServerLabel;
         private System.Windows.Forms.ComboBox STUN_ServerComboBox;
         private System.Windows.Forms.Label ProfileCountLabel;

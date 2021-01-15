@@ -116,6 +116,11 @@ namespace Netch.Models
         public bool CheckUpdateWhenOpened = true;
 
         /// <summary>
+        ///     测试所有服务器心跳/秒
+        /// </summary>
+        public int DetectionTick = 10;
+
+        /// <summary>
         ///     是否关闭窗口时退出
         /// </summary>
         public bool ExitWhenClosed = false;
@@ -231,14 +236,9 @@ namespace Netch.Models
         public ushort Socks5LocalPort = 2801;
 
         /// <summary>
-        ///     是否启用启动后延迟测试
-        /// </summary>
-        public bool StartedTcping = false;
-
-        /// <summary>
         ///     启动后延迟测试间隔/秒
         /// </summary>
-        public int StartedTcping_Interval = 3;
+        public int StartedPingInterval = -1;
 
         /// <summary>
         ///     是否打开软件时启动加速

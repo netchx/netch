@@ -63,6 +63,8 @@ namespace Netch.Forms
             _comboBoxNumberBoxWidth = ServerComboBox.Width / 10;
 
             InitServer();
+            ServerHelper.DelayTestHelper.UpdateInterval();
+
             ModeHelper.Load();
             InitMode();
             _comboBoxInitialized = true;
@@ -597,19 +599,28 @@ namespace Netch.Forms
             if (Global.Settings.MinimizeWhenStarted)
                 Minimize();
 
-            if (Global.Settings.StartedTcping)
-                // 自动检测延迟
-                _ = Task.Run(() =>
+            // 自动检测延迟
+            _ = Task.Run(() =>
+            {
+                while (State == State.Started)
                 {
-                    while (State == State.Started)
+                    bool StartedPingEnabled()
+                    {
+                        return Global.Settings.StartedPingInterval >= 0;
+                    }
+
+                    if (StartedPingEnabled())
                     {
                         server.Test();
-                        // 重绘 ServerComboBox
                         ServerComboBox.Refresh();
-
-                        Thread.Sleep(Global.Settings.StartedTcping_Interval * 1000);
                     }
-                });
+
+                    if (StartedPingEnabled())
+                        Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
+                    else
+                        Thread.Sleep(5000);
+                }
+            });
         }
 
         #endregion
@@ -628,6 +639,9 @@ namespace Netch.Forms
                 InitMode();
                 InitProfile();
             }
+
+            if (ServerHelper.DelayTestHelper.Interval != Global.Settings.DetectionTick)
+                ServerHelper.DelayTestHelper.UpdateInterval();
 
             if (ProfileButtons.Count != Global.Settings.ProfileCount)
                 InitProfile();
@@ -691,15 +705,25 @@ namespace Netch.Forms
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
 
-            ServerHelper.TestDelayFinished += OnTestDelayFinished;
-            _ = Task.Run(ServerHelper.TestAllDelay);
-
-            void OnTestDelayFinished(object o1, EventArgs e1)
+            if (IsWaiting())
             {
-                Refresh();
-                NotifyTip(i18N.Translate("Test done"));
+                ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
+                _ = Task.Run(ServerHelper.DelayTestHelper.TestAllDelay);
 
-                ServerHelper.TestDelayFinished -= OnTestDelayFinished;
+                void OnTestDelayFinished(object o1, EventArgs e1)
+                {
+                    Refresh();
+                    NotifyTip(i18N.Translate("Test done"));
+
+                    ServerHelper.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
+                    Enabled = true;
+                    StatusText();
+                }
+            }
+            else
+            {
+                (ServerComboBox.SelectedItem as Server)?.Test();
+                ServerComboBox.Refresh();
                 Enabled = true;
                 StatusText();
             }
@@ -1024,7 +1048,7 @@ namespace Netch.Forms
 
                 _state = value;
 
-                ServerHelper.Timer.Enabled = IsWaiting(_state);
+                ServerHelper.DelayTestHelper.Enabled = IsWaiting(_state);
 
                 StatusText();
                 switch (value)
