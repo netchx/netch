@@ -189,7 +189,6 @@ namespace Netch.Forms
             this.TCPingRadioBtn.TabStop = true;
             this.TCPingRadioBtn.Text = "TCPing";
             this.TCPingRadioBtn.UseVisualStyleBackColor = true;
-            this.TCPingRadioBtn.CheckedChanged += new System.EventHandler(this.TCPingRadioBtn_CheckedChanged);
             // 
             // ICMPingRadioBtn
             // 
@@ -201,7 +200,6 @@ namespace Netch.Forms
             this.ICMPingRadioBtn.TabStop = true;
             this.ICMPingRadioBtn.Text = "ICMPing";
             this.ICMPingRadioBtn.UseVisualStyleBackColor = true;
-            this.ICMPingRadioBtn.CheckedChanged += new System.EventHandler(this.ICMPingRadioBtn_CheckedChanged);
             // 
             // PortGroupBox
             // 
@@ -444,7 +442,6 @@ namespace Netch.Forms
             this.ModifySystemDNSCheckBox.TabIndex = 0;
             this.ModifySystemDNSCheckBox.Text = "Modify System DNS";
             this.ModifySystemDNSCheckBox.UseVisualStyleBackColor = true;
-            this.ModifySystemDNSCheckBox.CheckedChanged += new System.EventHandler(this.ModifySystemDNSCheckBox_CheckedChanged);
             // 
             // ModifiedDNSLabel
             // 
@@ -457,6 +454,7 @@ namespace Netch.Forms
             // 
             // ModifiedDNSTextBox
             // 
+            this.ModifiedDNSTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.ModifySystemDNSCheckBox, "Checked", true));
             this.ModifiedDNSTextBox.Location = new System.Drawing.Point(264, 14);
             this.ModifiedDNSTextBox.Name = "ModifiedDNSTextBox";
             this.ModifiedDNSTextBox.Size = new System.Drawing.Size(194, 21);
@@ -472,7 +470,6 @@ namespace Netch.Forms
             this.RedirectorSSCheckBox.TabIndex = 0;
             this.RedirectorSSCheckBox.Text = "Redirector SS";
             this.RedirectorSSCheckBox.UseVisualStyleBackColor = true;
-            this.RedirectorSSCheckBox.CheckedChanged += new System.EventHandler(this.ModifySystemDNSCheckBox_CheckedChanged);
             // 
             // TAPTabPage
             // 
@@ -569,6 +566,7 @@ namespace Netch.Forms
             // 
             // TUNTAPDNSTextBox
             // 
+            this.TUNTAPDNSTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.UseCustomDNSCheckBox, "Checked", true));
             this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 110);
             this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
             this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 21);
@@ -895,7 +893,7 @@ namespace Netch.Forms
             this.UpdateServersWhenOpenedCheckBox.AutoSize = true;
             this.UpdateServersWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 94);
             this.UpdateServersWhenOpenedCheckBox.Name = "UpdateServersWhenOpenedCheckBox";
-            this.UpdateServersWhenOpenedCheckBox.Size = new System.Drawing.Size(204, 16);
+            this.UpdateServersWhenOpenedCheckBox.Size = new System.Drawing.Size(180, 16);
             this.UpdateServersWhenOpenedCheckBox.TabIndex = 7;
             this.UpdateServersWhenOpenedCheckBox.Text = "Update Servers when opened";
             this.UpdateServersWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -970,7 +968,7 @@ namespace Netch.Forms
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ControlButton.Location = new System.Drawing.Point(397, 363);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
@@ -1001,7 +999,7 @@ namespace Netch.Forms
             this.ClientSize = new System.Drawing.Size(480, 400);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon) (resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "SettingForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
@@ -1028,7 +1026,6 @@ namespace Netch.Forms
             this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
         private System.Windows.Forms.CheckBox NoProxyForTcpCheckBox;
 

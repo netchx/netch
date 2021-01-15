@@ -22,7 +22,6 @@ namespace Netch.Forms
             InitValue();
         }
 
-
         private void SettingForm_Load(object sender, EventArgs e)
         {
             TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
@@ -62,7 +61,7 @@ namespace Netch.Forms
                 Global.Settings.ResolveServerHostname);
 
             BindRadioBox(ICMPingRadioBtn,
-                c => Global.Settings.ServerTCPing = c,
+                _ => { },
                 !Global.Settings.ServerTCPing);
 
             BindRadioBox(TCPingRadioBtn,
@@ -100,8 +99,6 @@ namespace Netch.Forms
                 b => Global.Settings.ModifySystemDNS = b,
                 Global.Settings.ModifySystemDNS);
 
-            ModifySystemDNSCheckBox_CheckedChanged(null, null);
-
             BindTextBox(ModifiedDNSTextBox,
                 s => DNS.TrySplit(s, out _, 2),
                 s => Global.Settings.ModifiedDNS = s,
@@ -138,7 +135,6 @@ namespace Netch.Forms
             BindCheckBox(UseCustomDNSCheckBox,
                 b => { Global.Settings.TUNTAP.UseCustomDNS = b; },
                 Global.Settings.TUNTAP.UseCustomDNS);
-            TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
 
             BindTextBox(TUNTAPDNSTextBox,
                 s => !UseCustomDNSCheckBox.Checked || DNS.TrySplit(s, out _, 2),
@@ -269,8 +265,6 @@ namespace Netch.Forms
 
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            TUNTAPDNSTextBox.Enabled = UseCustomDNSCheckBox.Checked;
-
             if (UseCustomDNSCheckBox.Checked)
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
                     ? DNS.Join(Global.Settings.TUNTAP.DNS)
@@ -278,7 +272,6 @@ namespace Netch.Forms
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
         }
-
 
         private void InitSTUN()
         {
@@ -420,19 +413,12 @@ namespace Netch.Forms
         private void BindCheckBox(CheckBox control, Action<bool> save, bool value)
         {
             control.Checked = value;
-            _checkActions.Add(control, s => true);
             _saveActions.Add(control, c => save.Invoke(((CheckBox) c).Checked));
         }
         private void BindRadioBox(RadioButton control, Action<bool> save, bool value)
         {
             control.Checked = value;
-            _checkActions.Add(control, s => true);
             _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
-        }
-
-        private void ModifySystemDNSCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            ModifiedDNSTextBox.Enabled = ModifySystemDNSCheckBox.Checked;
         }
 
         private void NoProxyForUdpCheckBox_CheckedChanged(object sender, EventArgs e)
@@ -443,16 +429,6 @@ namespace Netch.Forms
         private void NoProxyForTcpCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (NoProxyForTcpCheckBox.Checked) NoProxyForUdpCheckBox.Checked = false;
-        }
-
-        private void ICMPingRadioBtn_CheckedChanged(object sender, EventArgs e)
-        {
-            if (ICMPingRadioBtn.Checked) TCPingRadioBtn.Checked = false;
-        }
-
-        private void TCPingRadioBtn_CheckedChanged(object sender, EventArgs e)
-        {
-            if (TCPingRadioBtn.Checked) ICMPingRadioBtn.Checked = false;
         }
     }
 }
