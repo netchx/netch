@@ -1174,6 +1174,8 @@ namespace Netch.Forms
         }
         public void BandwidthState(bool state)
         {
+            if (InvokeRequired)
+                BeginInvoke(new Action<bool>(BandwidthState), state);
             UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = state;
         }
 
