@@ -39,10 +39,20 @@ namespace Netch.Utils
             public static bool Enabled
             {
                 get => Timer.Enabled;
-                set => Timer.Enabled = value;
+                set
+                {
+                    if (!ValueIsEnabled(Global.Settings.DetectionTick))
+                        return;
+                    Timer.Enabled = value;
+                }
             }
 
             public static int Interval => (int) (Timer.Interval / 1000);
+
+            private static bool ValueIsEnabled(int value)
+            {
+                return value != 0 && Range.InRange(value);
+            }
             public static event EventHandler TestDelayFinished;
 
             public static void TestAllDelay()
@@ -67,7 +77,7 @@ namespace Netch.Utils
             {
                 Timer.Stop();
 
-                if (Global.Settings.DetectionTick == 0 || !Range.InRange(Global.Settings.DetectionTick))
+                if (!ValueIsEnabled(Global.Settings.DetectionTick))
                     return;
 
                 Timer.Interval = Global.Settings.DetectionTick * 1000;
