@@ -61,9 +61,7 @@ namespace Netch.Utils
             var reply = new Ping().Send(ip, timeout);
 
             if (reply?.Status == IPStatus.Success)
-            {
                 return Convert.ToInt32(reply.RoundtripTime);
-            }
 
             return timeout;
         }
@@ -71,9 +69,7 @@ namespace Netch.Utils
         public static string GetCityCode(string Hostname)
         {
             if (Hostname.Contains(":"))
-            {
                 Hostname = Hostname.Split(':')[0];
-            }
 
             string Country;
             try
@@ -89,13 +85,9 @@ namespace Netch.Utils
                     var DnsResult = DNS.Lookup(Hostname);
 
                     if (DnsResult != null)
-                    {
                         Country = databaseReader.Country(DnsResult).Country.IsoCode;
-                    }
                     else
-                    {
                         Country = "Unknown";
-                    }
                 }
             }
             catch (Exception)
@@ -138,7 +130,10 @@ namespace Netch.Utils
             }
         }
 
-        public static string GetFileVersion(string file) => File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+        public static string GetFileVersion(string file)
+        {
+            return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+        }
 
         public static bool SearchOutboundAdapter(bool logging = true)
         {
@@ -195,19 +190,12 @@ namespace Netch.Utils
             {
                 e.DrawBackground();
 
-                if (e.Index >= 0)
-                {
-                    var brush = new SolidBrush(cbx.ForeColor);
+                if (e.Index < 0)
+                    return;
 
-                    if ((e.State & DrawItemState.Selected) == DrawItemState.Selected)
-                        brush = SystemBrushes.HighlightText as SolidBrush;
-
-                    e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, brush, e.Bounds, new StringFormat
-                    {
-                        LineAlignment = StringAlignment.Center,
-                        Alignment = StringAlignment.Center
-                    });
-                }
+                TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds,
+                    (e.State & DrawItemState.Selected) == DrawItemState.Selected ? SystemColors.HighlightText : cbx.ForeColor,
+                    TextFormatFlags.HorizontalCenter);
             }
         }
 
@@ -219,39 +207,29 @@ namespace Netch.Utils
                 case ListView listView:
                     // ListView sub item
                     foreach (var item in listView.Columns.Cast<ColumnHeader>())
-                    {
                         ComponentIterator(item, func);
-                    }
 
                     break;
                 case ToolStripMenuItem toolStripMenuItem:
                     // Iterator Menu strip sub item
                     foreach (var item in toolStripMenuItem.DropDownItems.Cast<ToolStripItem>())
-                    {
                         ComponentIterator(item, func);
-                    }
 
                     break;
                 case MenuStrip menuStrip:
                     // Menu Strip
                     foreach (var item in menuStrip.Items.Cast<ToolStripItem>())
-                    {
                         ComponentIterator(item, func);
-                    }
 
                     break;
                 case ContextMenuStrip contextMenuStrip:
                     foreach (var item in contextMenuStrip.Items.Cast<ToolStripItem>())
-                    {
                         ComponentIterator(item, func);
-                    }
 
                     break;
                 case Control control:
                     foreach (var c in control.Controls.Cast<Control>())
-                    {
                         ComponentIterator(c, func);
-                    }
 
                     if (control.ContextMenuStrip != null)
                         ComponentIterator(control.ContextMenuStrip, func);

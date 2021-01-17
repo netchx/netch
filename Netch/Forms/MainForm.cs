@@ -55,12 +55,29 @@ namespace Netch.Forms
             CheckForIllegalCrossThreadCalls = false;
         }
 
+        private void AddAddServerToolStripMenuItems()
+        {
+            foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
+            {
+                var fullName = serversUtil.FullName;
+                var control = new ToolStripMenuItem
+                {
+                    Name = $"Add{fullName}ServerToolStripMenuItem",
+                    Size = new Size(259, 22),
+                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName)
+                };
+                _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
+                control.Click += AddServerToolStripMenuItem_Click;
+                ServerToolStripMenuItem.DropDownItems.Add(control);
+            }
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             OnlyInstance.Called += OnCalled;
 
             // 计算 ComboBox绘制 目标宽度
-            _comboBoxNumberBoxWidth = ServerComboBox.Width / 10;
+            RecordSize();
 
             InitServer();
             ServerHelper.DelayTestHelper.UpdateInterval();
@@ -75,8 +92,6 @@ namespace Netch.Forms
             // 隐藏 NatTypeStatusLabel
             NatTypeStatusText();
 
-            _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
-            _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
             // 加载快速配置
             InitProfile();
 
@@ -98,27 +113,17 @@ namespace Netch.Forms
                     await UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription);
             });
         }
-        /// <summary>
-        ///     Init at <see cref="MainForm_Load" />
-        /// </summary>
-        private int _comboBoxNumberBoxWidth;
 
-        private void AddAddServerToolStripMenuItems()
+        private void RecordSize()
         {
-            foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
-            {
-                var fullName = serversUtil.FullName;
-                var control = new ToolStripMenuItem
-                {
-                    Name = $"Add{fullName}ServerToolStripMenuItem",
-                    Size = new Size(259, 22),
-                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName)
-                };
-                _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
-                control.Click += AddServerToolStripMenuItem_Click;
-                ServerToolStripMenuItem.DropDownItems.Add(control);
-            }
+            _numberBoxWidth = ServerComboBox.Width / 10;
+            _numberBoxX = _numberBoxWidth * 9;
+            _numberBoxWrap = _numberBoxWidth / 30;
+
+            _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
+            _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
         }
+
         private void InitText()
         {
             #region Record English
@@ -1492,62 +1497,60 @@ namespace Netch.Forms
 
         #endregion
 
+        #region ComboBox_DrawItem
+
+        private readonly SolidBrush _greenBrush = new(Color.FromArgb(50, 255, 56));
+        private int _numberBoxWidth;
+        private int _numberBoxX;
+        private int _numberBoxWrap;
+
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            try
+            if (!(sender is ComboBox cbx))
+                return;
+
+            // 绘制背景颜色
+            e.Graphics.FillRectangle(Brushes.White, e.Bounds);
+
+            if (e.Index < 0) return;
+
+            // 绘制 备注/名称 字符串
+            TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
+
+            switch (cbx.Items[e.Index])
             {
-                if (!(sender is ComboBox cbx))
-                    return;
-
-                // 绘制背景颜色
-                e.Graphics.FillRectangle(new SolidBrush(Color.White), e.Bounds);
-
-                if (e.Index < 0) return;
-
-                // 绘制 备注/名称 字符串
-                e.Graphics.DrawString(cbx.Items[e.Index].ToString(), cbx.Font, new SolidBrush(Color.Black), e.Bounds);
-
-                switch (cbx.Items[e.Index])
+                case Server item:
                 {
-                    case Server item:
+                    // 计算延迟底色
+                    var numBoxBackBrush = item.Delay switch
                     {
-                        // 计算延迟底色
-                        SolidBrush brush;
-                        if (item.Delay > 200)
-                            brush = new SolidBrush(Color.Red);
-                        else if (item.Delay > 80)
-                            brush = new SolidBrush(Color.Yellow);
-                        else if (item.Delay >= 0)
-                            brush = new SolidBrush(Color.FromArgb(50, 255, 56));
-                        else
-                            brush = new SolidBrush(Color.Gray);
+                        > 200 => Brushes.Red,
+                        > 80 => Brushes.Yellow,
+                        >= 0 => _greenBrush,
+                        _ => Brushes.Gray
+                    };
 
-                        // 绘制延迟底色
-                        e.Graphics.FillRectangle(brush, _comboBoxNumberBoxWidth * 9, e.Bounds.Y, _comboBoxNumberBoxWidth, e.Bounds.Height);
+                    // 绘制延迟底色
+                    e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                        // 绘制延迟字符串
-                        e.Graphics.DrawString(item.Delay.ToString(), cbx.Font, new SolidBrush(Color.Black),
-                            _comboBoxNumberBoxWidth * 9 + _comboBoxNumberBoxWidth / 30, e.Bounds.Y);
-                        break;
-                    }
-                    case Models.Mode item:
-                    {
-                        // 绘制 模式Box 底色
-                        e.Graphics.FillRectangle(new SolidBrush(Color.Gray), _comboBoxNumberBoxWidth * 9, e.Bounds.Y, _comboBoxNumberBoxWidth,
-                            e.Bounds.Height);
+                    // 绘制延迟字符串
+                    TextRenderer.DrawText(e.Graphics, item.Delay.ToString(), cbx.Font, new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y), Color.Black, TextFormatFlags.Left);
+                    break;
+                }
+                case Models.Mode item:
+                {
+                    // 绘制 模式Box 底色
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth,
+                        e.Bounds.Height);
 
-                        // 绘制 模式行数 字符串
-                        e.Graphics.DrawString(item.Rule.Count.ToString(), cbx.Font, new SolidBrush(Color.Black),
-                            _comboBoxNumberBoxWidth * 9 + _comboBoxNumberBoxWidth / 30, e.Bounds.Y);
-                        break;
-                    }
+                    // 绘制 模式行数 字符串
+                    TextRenderer.DrawText(e.Graphics, item.Rule.Count.ToString(), cbx.Font, new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y), Color.Black, TextFormatFlags.Left);
+                    break;
                 }
             }
-            catch (Exception)
-            {
-                // ignored
-            }
         }
+
+        #endregion
 
         #endregion
     }
