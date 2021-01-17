@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using Netch.Models;
 
 namespace Netch.Utils
 {
@@ -64,7 +65,6 @@ namespace Netch.Utils
                     targetList.Add(new Range(ushort.Parse(value[0]), ushort.Parse(value[1])));
                 }
         }
-
 
         /// <summary>
         ///     指定类型的端口是否已经被使用了
@@ -148,24 +148,6 @@ namespace Netch.Utils
             }
 
             throw new Exception();
-        }
-    }
-
-    internal readonly struct Range
-    {
-        public int Start { get; }
-
-        public int End { get; }
-
-        public Range(int start, int end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public bool InRange(int num)
-        {
-            return Start <= num && num <= End;
         }
     }
 

@@ -286,5 +286,9 @@ namespace Netch.Models
         public bool UseProxyToUpdateSubscription = false;
 
         public V2rayConfig V2RayConfig = new();
+        public Setting Clone()
+        {
+            return (Setting) MemberwiseClone();
+        }
     }
 }

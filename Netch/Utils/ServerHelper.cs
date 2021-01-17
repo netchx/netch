@@ -23,13 +23,14 @@ namespace Netch.Utils
         {
             private static readonly Timer Timer;
             private static bool _mux;
+
+            public static readonly Range Range = new(0, int.MaxValue / 1000);
             static DelayTestHelper()
             {
                 Timer = new Timer
                 {
                     Interval = 10000,
-                    AutoReset = true,
-                    Enabled = false
+                    AutoReset = true
                 };
 
                 Timer.Elapsed += (_, _) => TestAllDelay();
@@ -64,17 +65,14 @@ namespace Netch.Utils
 
             public static void UpdateInterval()
             {
-                var enabled = Enabled;
                 Timer.Stop();
-                if (Global.Settings.DetectionTick <= 0)
+
+                if (Global.Settings.DetectionTick == 0 || !Range.InRange(Global.Settings.DetectionTick))
                     return;
 
                 Timer.Interval = Global.Settings.DetectionTick * 1000;
-                if (enabled)
-                {
-                    Task.Run(TestAllDelay);
-                    Timer.Start();
-                }
+                Task.Run(TestAllDelay);
+                Timer.Start();
             }
         }
 

@@ -629,10 +629,12 @@ namespace Netch.Forms
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
+            var oldSettings = Global.Settings.Clone();
+
             Hide();
             new SettingForm().ShowDialog();
 
-            if (i18N.LangCode != Global.Settings.Language)
+            if (oldSettings.Language != Global.Settings.Language)
             {
                 i18N.Load(Global.Settings.Language);
                 InitText();
@@ -640,10 +642,10 @@ namespace Netch.Forms
                 InitProfile();
             }
 
-            if (ServerHelper.DelayTestHelper.Interval != Global.Settings.DetectionTick)
+            if (oldSettings.DetectionTick != Global.Settings.DetectionTick)
                 ServerHelper.DelayTestHelper.UpdateInterval();
 
-            if (ProfileButtons.Count != Global.Settings.ProfileCount)
+            if (oldSettings.ProfileCount != Global.Settings.ProfileCount)
                 InitProfile();
 
             Show();
