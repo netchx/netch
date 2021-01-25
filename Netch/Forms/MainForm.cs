@@ -1076,8 +1076,6 @@ namespace Netch.Forms
                         ControlButton.Enabled = true;
                         ControlButton.Text = i18N.Translate("Stop");
 
-                        StatusTextAppend(StatusPortInfoText.Value);
-
                         ProfileGroupBox.Enabled = true;
 
                         break;
@@ -1173,12 +1171,10 @@ namespace Netch.Forms
 
             text ??= i18N.Translate(StateExtension.GetStatusString(State));
             StatusLabel.Text = i18N.Translate("Status", ": ") + text;
+            if (_state == State.Started)
+                StatusLabel.Text += StatusPortInfoText.Value;
         }
 
-        public void StatusTextAppend(string text)
-        {
-            StatusLabel.Text += text;
-        }
         public void BandwidthState(bool state)
         {
             if (InvokeRequired)
