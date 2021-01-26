@@ -721,7 +721,6 @@ namespace Netch.Forms
                 void OnTestDelayFinished(object o1, EventArgs e1)
                 {
                     Refresh();
-                    NotifyTip(i18N.Translate("Test done"));
 
                     ServerHelper.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
                     Enabled = true;
