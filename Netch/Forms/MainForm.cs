@@ -435,7 +435,6 @@ namespace Netch.Forms
                         Remark = "ProxyUpdate",
                         Type = 5
                     };
-                    State = State.Starting;
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
@@ -456,7 +455,6 @@ namespace Netch.Forms
                 if (useProxy)
                 {
                     await MainController.Stop();
-                    State = State.Stopped;
                 }
 
                 StatusText();
@@ -1049,8 +1047,9 @@ namespace Netch.Forms
                             updateACLWithProxyToolStripMenuItem.Enabled =
                                 updatePACToolStripMenuItem.Enabled =
                                     UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                                        UninstallTapDriverToolStripMenuItem.Enabled =
-                                            ReloadModesToolStripMenuItem.Enabled = enabled;
+                                        UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled =
+                                            UninstallTapDriverToolStripMenuItem.Enabled =
+                                                ReloadModesToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
