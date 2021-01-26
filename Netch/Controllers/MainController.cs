@@ -21,9 +21,7 @@ namespace Netch.Controllers
 
         private static Server _udpServer;
 
-        public static bool NttTested;
-
-        private static readonly NTTController NTTController = new();
+        public static readonly NTTController NTTController = new();
         private static IServerController _serverController;
         private static IServerController _udpServerController;
 
@@ -96,9 +94,6 @@ namespace Netch.Controllers
 
                 if (!await StartMode(mode))
                     throw new StartFailedException();
-
-                _ = Task.Run(Bandwidth.NetTraffic);
-                _ = Task.Run(NatTest);
 
                 return true;
             }
@@ -231,34 +226,6 @@ namespace Netch.Controllers
                 MessageBoxX.Show(i18N.TranslateFormat("The {0} port is reserved by system.", $"{portName} ({port})"));
                 return false;
             }
-        }
-
-        /// <summary>
-        ///     测试 NAT
-        /// </summary>
-        public static void NatTest()
-        {
-            if (!Mode.TestNatRequired())
-                return;
-            NttTested = false;
-            Task.Run(() =>
-            {
-                Global.MainForm.NatTypeStatusText(i18N.Translate("Starting NatTester"));
-                // Thread.Sleep(1000);
-                var (result, localEnd, publicEnd) = NTTController.Start();
-
-                if (!string.IsNullOrEmpty(publicEnd))
-                {
-                    var country = Utils.Utils.GetCityCode(publicEnd);
-                    Global.MainForm.NatTypeStatusText(result, country);
-                }
-                else
-                {
-                    Global.MainForm.NatTypeStatusText(result ?? "Error");
-                }
-
-                NttTested = true;
-            });
         }
     }
 

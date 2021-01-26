@@ -599,6 +599,9 @@ namespace Netch.Forms
 
             State = State.Started;
 
+            _ = Task.Run(Bandwidth.NetTraffic);
+            _ = Task.Run(NatTest);
+
             if (Global.Settings.MinimizeWhenStarted)
                 Minimize();
 
@@ -1255,8 +1258,38 @@ namespace Netch.Forms
 
         private void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
-            if (_state == State.Started && MainController.NttTested)
-                MainController.NatTest();
+            if (_state == State.Started && NttTested)
+                NatTest();
+        }
+
+        private static bool NttTested;
+
+        /// <summary>
+        ///     测试 NAT
+        /// </summary>
+        public void NatTest()
+        {
+            if (!MainController.Mode.TestNatRequired())
+                return;
+            NttTested = false;
+            Task.Run(() =>
+            {
+                NatTypeStatusText(i18N.Translate("Starting NatTester"));
+                // Thread.Sleep(1000);
+                var (result, localEnd, publicEnd) = MainController.NTTController.Start();
+
+                if (!string.IsNullOrEmpty(publicEnd))
+                {
+                    var country = Utils.Utils.GetCityCode(publicEnd);
+                    NatTypeStatusText(result, country);
+                }
+                else
+                {
+                    NatTypeStatusText(result ?? "Error");
+                }
+
+                NttTested = true;
+            });
         }
 
         #endregion
