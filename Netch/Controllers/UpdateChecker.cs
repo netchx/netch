@@ -17,7 +17,7 @@ namespace Netch.Controllers
         public const string Repo = @"Netch";
 
         public const string Name = @"Netch";
-        public const string Copyright = @"Copyright © 2019 - 2020";
+        public const string Copyright = @"Copyright © 2019 - 2021";
 
         public const string AssemblyVersion = @"1.7.3";
         private const string Suffix = @"";
