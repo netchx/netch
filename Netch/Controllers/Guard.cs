@@ -83,7 +83,7 @@ namespace Netch.Controllers
         ///     仅初始化 <see cref="Instance"/>,不设定事件处理方法
         /// </summary>
         /// <param name="argument"></param>
-        protected void InitInstance(string argument)
+        protected virtual void InitInstance(string argument)
         {
             Instance = new Process
             {

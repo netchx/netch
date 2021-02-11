@@ -10,6 +10,6 @@
         /// <summary>
         ///     停止
         /// </summary>
-        public abstract void Stop();
+        public void Stop();
     }
 }
