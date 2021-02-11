@@ -7,7 +7,7 @@ namespace Netch.Controllers
 {
     public class NTTController : Guard, IController
     {
-        public override string Name { get; protected set; } = "NTT";
+        public override string Name { get; } = "NTT";
         public override string MainFile { get; protected set; } = "NTT.exe";
 
         /// <summary>
@@ -16,10 +16,10 @@ namespace Netch.Controllers
         /// <returns></returns>
         public (string, string, string) Start()
         {
-            string localEnd=null;
-            string publicEnd=null;
-            string result =null;
-            string bindingTest=null;
+            string localEnd = null;
+            string publicEnd = null;
+            string result = null;
+            string bindingTest = null;
 
             try
             {

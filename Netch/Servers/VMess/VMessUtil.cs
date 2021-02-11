@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Servers.V2ray;
+using Netch.Servers.V2ray.Models;
 using Netch.Servers.VMess.Form;
-using Netch.Servers.VMess.Models;
 using Netch.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -56,7 +57,7 @@ namespace Netch.Servers.VMess
 
         public IServerController GetController()
         {
-            return new VMessController();
+            return new V2RayController();
         }
 
         public IEnumerable<Server> ParseUri(string text)

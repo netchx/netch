@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Netch.Servers.VMess.Models
+namespace Netch.Servers.V2ray.Models
 {
     public class V2rayConfig
     {
@@ -39,7 +39,6 @@ namespace Netch.Servers.VMess.Models
         public string address { get; set; }
 
         public List<UsersItem> clients { get; set; }
-
 
         public string decryption { get; set; }
     }
@@ -124,7 +123,6 @@ namespace Netch.Servers.VMess.Models
 
         public int level { get; set; }
     }
-
 
     public class Mux
     {
@@ -217,7 +215,6 @@ namespace Netch.Servers.VMess.Models
 
         public TCPRequestHeaders headers;
     }
-
 
     public class TCPRequestHeaders
     {

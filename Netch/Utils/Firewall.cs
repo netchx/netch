@@ -120,7 +120,6 @@ namespace Netch.Utils
             return (INetFwRule) Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule"));
         }
 
-
         private static string GetFwRulePath(string ruleName)
         {
             try

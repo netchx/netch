@@ -14,12 +14,12 @@ namespace Netch.Controllers
 {
     public abstract class Guard
     {
-        public abstract string Name { get; protected set; }
+        public virtual string Name { get; }
 
         /// <summary>
         ///     主程序名
         /// </summary>
-        public abstract string MainFile { get; protected set; }
+        public virtual string MainFile { get; protected set; }
 
         protected State State { get; set; } = State.Waiting;
 
@@ -102,7 +102,6 @@ namespace Netch.Controllers
                 }
             };
         }
-
 
         /// <summary>
         ///     默认行为启动主程序

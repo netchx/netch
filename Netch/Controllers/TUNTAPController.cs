@@ -35,7 +35,7 @@ namespace Netch.Controllers
         }
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 
-        public override string Name { get; protected set; } = "tun2socks";
+        public override string Name { get; } = "tun2socks";
 
         public bool Start(in Mode mode)
         {
@@ -206,7 +206,6 @@ namespace Netch.Controllers
             }
         }
 
-
         /// <summary>
         ///     清除绕行规则
         /// </summary>
@@ -218,7 +217,6 @@ namespace Netch.Controllers
             _proxyIPs.Clear();
             return true;
         }
-
 
         public bool TestFakeDNS()
         {
@@ -356,7 +354,6 @@ namespace Netch.Controllers
 
             return result;
         }
-
 
         private enum RouteType
         {

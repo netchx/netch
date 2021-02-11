@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
+using Netch.Servers.V2ray;
 using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.VLESS
@@ -36,7 +37,7 @@ namespace Netch.Servers.VLESS
 
         public IServerController GetController()
         {
-            return new VLESSController();
+            return new V2RayController();
         }
 
         public IEnumerable<Server> ParseUri(string text)

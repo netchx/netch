@@ -8,7 +8,7 @@ namespace Netch.Servers.Shadowsocks
 {
     public class SSController : Guard, IServerController
     {
-        public override string Name { get; protected set; } = "Shadowsocks";
+        public override string Name { get; } = "Shadowsocks";
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
 
         public ushort? Socks5LocalPort { get; set; }

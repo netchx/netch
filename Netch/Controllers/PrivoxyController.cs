@@ -12,7 +12,7 @@ namespace Netch.Controllers
             RedirectStd = false;
         }
 
-        public override string Name { get; protected set; } = "Privoxy";
+        public override string Name { get; } = "Privoxy";
 
         public override string MainFile { get; protected set; } = "Privoxy.exe";
 

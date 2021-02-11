@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Netch.Models;
-using Netch.Servers.VMess.Models;
+using Netch.Servers.V2ray.Models;
 using Newtonsoft.Json;
-using V2rayConfig = Netch.Servers.VMess.Models.V2rayConfig;
+using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
 
-namespace Netch.Servers.VMess.Utils
+namespace Netch.Servers.V2ray.Utils
 {
     public static class V2rayConfigUtils
     {
@@ -214,7 +214,7 @@ namespace Netch.Servers.VMess.Utils
                         outbound.settings.servers = null;
                         break;
                     }
-                    case VMess vmess:
+                    case VMess.VMess vmess:
                     {
                         var vnextItem = new VnextItem
                         {
@@ -261,7 +261,7 @@ namespace Netch.Servers.VMess.Utils
             }
         }
 
-        private static void boundStreamSettings(VMess server, ref StreamSettings streamSettings)
+        private static void boundStreamSettings(VMess.VMess server, ref StreamSettings streamSettings)
         {
             try
             {
