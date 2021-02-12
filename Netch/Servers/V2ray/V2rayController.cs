@@ -12,9 +12,9 @@ namespace Netch.Servers.V2ray
             StartedKeywords.Add("started");
             StoppedKeywords.AddRange(new[] {"config file not readable", "failed to"});
         }
+        public override string MainFile { get; protected set; } = "xray.exe";
 
-        public override string Name { get; } = "V2ray";
-        public override string MainFile { get; protected set; } = "v2ray.exe";
+        public override string Name { get; } = "Xray";
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
         public virtual bool Start(in Server s, in Mode mode)
@@ -26,6 +26,13 @@ namespace Netch.Servers.V2ray
         public override void Stop()
         {
             StopInstance();
+        }
+
+        protected override void InitInstance(string argument)
+        {
+            base.InitInstance(argument);
+            if (!Global.Settings.V2RayConfig.XrayCone)
+                Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
         }
     }
 }

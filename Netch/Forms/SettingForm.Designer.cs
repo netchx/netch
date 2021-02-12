@@ -116,6 +116,7 @@ namespace Netch.Forms
             this.OtherDNSTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -641,6 +642,7 @@ namespace Netch.Forms
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
+            this.v2rayTabPage.Controls.Add(this.XrayConeCheckBox);
             this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
             this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 25);
@@ -653,7 +655,7 @@ namespace Netch.Forms
             // TLSAllowInsecureCheckBox
             // 
             this.TLSAllowInsecureCheckBox.AutoSize = true;
-            this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 42);
             this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
             this.TLSAllowInsecureCheckBox.Size = new System.Drawing.Size(126, 16);
             this.TLSAllowInsecureCheckBox.TabIndex = 0;
@@ -663,7 +665,7 @@ namespace Netch.Forms
             // UseMuxCheckBox
             // 
             this.UseMuxCheckBox.AutoSize = true;
-            this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 15);
+            this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 42);
             this.UseMuxCheckBox.Name = "UseMuxCheckBox";
             this.UseMuxCheckBox.Size = new System.Drawing.Size(66, 16);
             this.UseMuxCheckBox.TabIndex = 1;
@@ -685,7 +687,7 @@ namespace Netch.Forms
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeLabel);
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeTextBox);
             this.KCPGroupBox.Controls.Add(this.congestionCheckBox);
-            this.KCPGroupBox.Location = new System.Drawing.Point(9, 48);
+            this.KCPGroupBox.Location = new System.Drawing.Point(9, 75);
             this.KCPGroupBox.Name = "KCPGroupBox";
             this.KCPGroupBox.Size = new System.Drawing.Size(427, 204);
             this.KCPGroupBox.TabIndex = 2;
@@ -999,6 +1001,16 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
+            // XrayConeCheckBox
+            // 
+            this.XrayConeCheckBox.AutoSize = true;
+            this.XrayConeCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.XrayConeCheckBox.Name = "XrayConeCheckBox";
+            this.XrayConeCheckBox.Size = new System.Drawing.Size(78, 16);
+            this.XrayConeCheckBox.TabIndex = 1;
+            this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+)";
+            this.XrayConeCheckBox.UseVisualStyleBackColor = true;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1036,6 +1048,7 @@ namespace Netch.Forms
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+        private System.Windows.Forms.CheckBox XrayConeCheckBox;
         private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
         private System.Windows.Forms.CheckBox NoProxyForTcpCheckBox;
 

@@ -171,6 +171,10 @@ namespace Netch.Forms
 
             #region V2Ray
 
+            BindCheckBox(XrayConeCheckBox,
+                b => Global.Settings.V2RayConfig.XrayCone = b,
+                Global.Settings.V2RayConfig.XrayCone);
+
             BindCheckBox(TLSAllowInsecureCheckBox,
                 b => Global.Settings.V2RayConfig.AllowInsecure = b,
                 Global.Settings.V2RayConfig.AllowInsecure);
