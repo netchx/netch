@@ -60,8 +60,8 @@
             this.ModeLabel = new System.Windows.Forms.Label();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.ProfileNameText = new System.Windows.Forms.TextBox();
-            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
+            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.EditServerPictureBox = new System.Windows.Forms.PictureBox();
             this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();

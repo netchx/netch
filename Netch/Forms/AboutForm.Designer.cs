@@ -37,7 +37,7 @@
             // ChannelLabel
             // 
             this.ChannelLabel.AutoSize = true;
-            this.ChannelLabel.Location = new System.Drawing.Point(200, 642);
+            this.ChannelLabel.Location = new System.Drawing.Point(202, 629);
             this.ChannelLabel.Margin = new System.Windows.Forms.Padding(9, 0, 9, 0);
             this.ChannelLabel.Name = "ChannelLabel";
             this.ChannelLabel.Size = new System.Drawing.Size(333, 46);
@@ -50,7 +50,7 @@
             // 
             this.NetchPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.NetchPictureBox.Image = global::Netch.Properties.Resources.Netch;
-            this.NetchPictureBox.Location = new System.Drawing.Point(75, 35);
+            this.NetchPictureBox.Location = new System.Drawing.Point(75, 9);
             this.NetchPictureBox.Margin = new System.Windows.Forms.Padding(9, 9, 9, 9);
             this.NetchPictureBox.Name = "NetchPictureBox";
             this.NetchPictureBox.Size = new System.Drawing.Size(600, 600);
