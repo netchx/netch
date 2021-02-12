@@ -24,12 +24,7 @@ namespace Netch.Forms
 
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start("https://t.me/Netch");
-        }
-
-        private void SponsorPictureBox_Click(object sender, EventArgs e)
-        {
-            Process.Start("https://www.mansora.co");
+            Process.Start("https://t.me/XMU_Cloud");
         }
     }
 }
