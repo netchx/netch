@@ -13,18 +13,14 @@ namespace Netch
     public static class Netch
     {
         /// <summary>
-        /// 应用程序的主入口点
+        ///     应用程序的主入口点
         /// </summary>
         [STAThread]
         public static void Main(string[] args)
         {
             if (args.Contains("-console"))
-            {
                 if (!NativeMethods.AttachConsole(-1))
-                {
                     NativeMethods.AllocConsole();
-                }
-            }
 
             // 创建互斥体防止多次运行
             using (var mutex = new Mutex(false, "Global\\Netch"))
@@ -36,18 +32,20 @@ namespace Netch
                 // 预创建目录
                 var directories = new[] {"mode", "data", "i18n", "logging"};
                 foreach (var item in directories)
-                {
                     if (!Directory.Exists(item))
-                    {
                         Directory.CreateDirectory(item);
-                    }
-                }
 
                 // 加载配置
                 Configuration.Load();
 
                 // 加载语言
                 i18N.Load(Global.Settings.Language);
+
+                if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
+                {
+                    MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
+                    Environment.Exit(2);
+                }
 
                 // 检查是否已经运行
                 if (!mutex.WaitOne(0, false))
@@ -65,21 +63,14 @@ namespace Netch
                     var directory = new DirectoryInfo("logging");
 
                     foreach (var file in directory.GetFiles())
-                    {
                         file.Delete();
-                    }
 
                     foreach (var dir in directory.GetDirectories())
-                    {
                         dir.Delete(true);
-                    }
                 }
 
                 Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-                Task.Run(() =>
-                {
-                    Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}");
-                });
+                Task.Run(() => { Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Application.ExecutablePath)}"); });
                 Task.Run(() =>
                 {
                     Logging.Info("启动单实例");

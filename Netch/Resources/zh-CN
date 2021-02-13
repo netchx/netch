@@ -6,6 +6,7 @@
     "If this is your first time using this software,\n please check https://netch.org to install supports first,\n or the program may report errors.": "如果你是第一次使用本软件，\n请务必前往 https://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！",
     "Netch is already running": "Netch 已经在运行中",
     "Missing File or runtime components": "缺少文件或运行库",
+    "Please extract all files then run the program!": "请先解压所有文件再执行程序！",
 
     "Start": "启动",
     "Stop": "停止",
