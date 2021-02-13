@@ -21,5 +21,6 @@ XCOPY /s /Y %SolutionDir%translations\i18n %TargetDir%i18n\ >NUL
 XCOPY /s /Y %SolutionDir%modes\mode %TargetDir%mode\ >NUL
 
 RD /s /Q %TargetDir%x86 >NUL 2>&1
+RD /s /Q %TargetDir%de %TargetDir%es %TargetDir%fr %TargetDir%it %TargetDir%pl %TargetDir%ru %TargetDir%zh-CN >NUL 2>&1
 
 exit 0
