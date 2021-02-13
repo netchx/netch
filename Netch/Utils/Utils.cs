@@ -56,7 +56,7 @@ namespace Netch.Utils
             return timeout;
         }
 
-        public static async Task<int> ICMPing(IPAddress ip, int timeout = 1000)
+        public static int ICMPing(IPAddress ip, int timeout = 1000)
         {
             var reply = new Ping().Send(ip, timeout);
 
