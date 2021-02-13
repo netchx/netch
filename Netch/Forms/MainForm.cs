@@ -528,6 +528,11 @@ namespace Netch.Forms
             }
         }
 
+        private void RemoveNetchFirewallRulesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Firewall.RemoveNetchFwRules();
+        }
+
         #endregion
 
         /// <summary>

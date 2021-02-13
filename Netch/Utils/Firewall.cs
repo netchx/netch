@@ -51,7 +51,7 @@ namespace Netch.Utils
         /// <summary>
         ///     清除防火墙规则 (Netch 自带程序)
         /// </summary>
-        private static void RemoveNetchFwRules()
+        public static void RemoveNetchFwRules()
         {
             try
             {

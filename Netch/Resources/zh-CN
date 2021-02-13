@@ -89,6 +89,7 @@
     "Modes have been reload": "模式已重载",
     "Clean DNS Cache": "清理 DNS 缓存",
     "DNS cache cleanup succeeded": "DNS 缓存清理成功",
+    "Remove Netch Firewall Rules": "移除 Netch 防火墙规则",
 
     "Update PAC": "更新 PAC",
     "PAC updated successfully": "PAC 更新成功",
