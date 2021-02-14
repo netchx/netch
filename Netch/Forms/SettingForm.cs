@@ -153,20 +153,6 @@ namespace Netch.Forms
                 b => Global.Settings.TUNTAP.UseFakeDNS = b,
                 Global.Settings.TUNTAP.UseFakeDNS);
 
-            try
-            {
-                var icsHelperEnabled = ICSHelper.Enabled;
-                if (icsHelperEnabled != null)
-                {
-                    ICSCheckBox.Enabled = true;
-                    ICSCheckBox.Checked = (bool) icsHelperEnabled;
-                }
-            }
-            catch
-            {
-                // ignored
-            }
-
             #endregion
 
             #region V2Ray
@@ -362,35 +348,6 @@ namespace Netch.Forms
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
-        }
-
-        private async void ICSCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                ICSCheckBox.Enabled = false;
-                await Task.Run(() =>
-                {
-                    if (ICSCheckBox.Checked)
-                    {
-                        if (!(ICSHelper.Enabled ?? true))
-                            ICSCheckBox.Checked = ICSHelper.Enable();
-                    }
-                    else
-                    {
-                        ICSHelper.Disable();
-                    }
-                });
-            }
-            catch (Exception exception)
-            {
-                ICSCheckBox.Checked = false;
-                Logging.Error(exception.ToString());
-            }
-            finally
-            {
-                ICSCheckBox.Enabled = true;
-            }
         }
 
         private void BindTextBox(TextBox control, Func<string, bool> check, Action<string> save, object value)

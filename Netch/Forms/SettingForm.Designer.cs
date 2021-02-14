@@ -79,7 +79,7 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
-            this.ICSCheckBox = new System.Windows.Forms.CheckBox();
+            new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
@@ -506,7 +506,6 @@ namespace Netch.Forms
             this.TUNTAPGroupBox.Controls.Add(this.UseCustomDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.ProxyDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.UseFakeDNSCheckBox);
-            this.TUNTAPGroupBox.Controls.Add(this.ICSCheckBox);
             this.TUNTAPGroupBox.Location = new System.Drawing.Point(6, 6);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
             this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 187);
@@ -614,19 +613,6 @@ namespace Netch.Forms
             this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
             this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
             this.UseFakeDNSCheckBox.Visible = false;
-            // 
-            // ICSCheckBox
-            // 
-            this.ICSCheckBox.AutoSize = true;
-            this.ICSCheckBox.Enabled = false;
-            this.ICSCheckBox.Location = new System.Drawing.Point(261, 160);
-            this.ICSCheckBox.Name = "ICSCheckBox";
-            this.ICSCheckBox.Size = new System.Drawing.Size(138, 16);
-            this.ICSCheckBox.TabIndex = 11;
-            this.ICSCheckBox.Text = "Tap Network Sharing";
-            this.ICSCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.ICSCheckBox.UseVisualStyleBackColor = true;
-            this.ICSCheckBox.Click += new System.EventHandler(this.ICSCheckBox_CheckedChanged);
             // 
             // GlobalBypassIPsButton
             // 
@@ -1072,7 +1058,6 @@ namespace Netch.Forms
         private System.Windows.Forms.GroupBox TUNTAPGroupBox;
         private System.Windows.Forms.CheckBox UseFakeDNSCheckBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
-        private System.Windows.Forms.CheckBox ICSCheckBox;
         private System.Windows.Forms.CheckBox UseCustomDNSCheckBox;
         private System.Windows.Forms.Label TUNTAPDNSLabel;
         private System.Windows.Forms.TextBox TUNTAPDNSTextBox;
