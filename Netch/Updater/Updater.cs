@@ -148,7 +148,14 @@ namespace Netch.Updater
         public static void CleanOld()
         {
             foreach (var f in Directory.GetFiles(Global.NetchDir, "*.old", SearchOption.AllDirectories))
-                File.Delete(f);
+                try
+                {
+                    File.Delete(f);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
         }
     }
 }
