@@ -37,17 +37,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <COMReference Include="NETCONLib.dll">
-            <Guid>{43E734CA-043D-4A70-9A2C-A8F254063D91}</Guid>
-            <VersionMajor>1</VersionMajor>
-            <VersionMinor>0</VersionMinor>
-            <Lcid>0</Lcid>
-            <WrapperTool>tlbimp</WrapperTool>
-            <Isolated>False</Isolated>
-        </COMReference>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="ILMerge" Version="3.0.41" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.65" />
