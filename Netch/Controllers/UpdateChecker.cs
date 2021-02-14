@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -8,6 +7,7 @@ using System.Threading.Tasks;
 using Netch.Models.GitHubRelease;
 using Netch.Utils;
 using Newtonsoft.Json;
+using static Netch.Updater.Updater;
 
 namespace Netch.Controllers
 {
@@ -19,7 +19,7 @@ namespace Netch.Controllers
         public const string Name = @"Netch";
         public const string Copyright = @"Copyright © 2019 - 2021";
 
-        public const string AssemblyVersion = @"1.7.4";
+        public const string AssemblyVersion = @"1.7.3";
         private const string Suffix = @"";
 
         public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
@@ -68,7 +68,7 @@ namespace Netch.Controllers
             }
         }
 
-        public static async Task UpdateNetch(DownloadProgressChangedEventHandler onDownloadProgressChanged)
+        public static async Task DownloadUpdate(DownloadProgressChangedEventHandler onDownloadProgressChanged)
         {
             using WebClient client = new();
 
@@ -87,7 +87,7 @@ namespace Netch.Controllers
             {
                 if (Utils.Utils.SHA256CheckSum(fileFullPath) == sha256)
                 {
-                    RunUpdater();
+                    UpdateNetch(fileFullPath);
                     return;
                 }
 
@@ -108,21 +108,7 @@ namespace Netch.Controllers
             if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
                 throw new Exception(i18N.Translate("The downloaded file has the wrong hash"));
 
-            RunUpdater();
-
-            void RunUpdater()
-            {
-                // if debugging process stopped, debugger will kill child processes!!!!
-                // 调试进程结束,调试器将会杀死子进程
-                // uncomment if(!Debugger.isAttach) block in NetchUpdater Project's main() method and attach to NetchUpdater process to debug
-                // 在 NetchUpdater 项目的  main() 方法中取消注释 if（!Debugger.isAttach）块，并附加到 NetchUpdater 进程进行调试
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = Path.Combine(Global.NetchDir, "NetchUpdater.exe"),
-                    Arguments =
-                        $"{Global.Settings.UDPSocketPort} \"{fileFullPath}\" \"{Global.NetchDir}\""
-                });
-            }
+            UpdateNetch(fileFullPath);
         }
     }
 }

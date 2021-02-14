@@ -149,5 +149,15 @@ namespace Netch.Properties {
                 return ((byte[])(obj));
             }
         }
+		
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] _7za {
+            get {
+                object obj = ResourceManager.GetObject("7za", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
     }
 }

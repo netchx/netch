@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -69,43 +68,11 @@ namespace Netch.Forms.Mode
         {
             try
             {
-                var RDirInfo = new DirectoryInfo(DirName);
-                if (!RDirInfo.Exists)
-                {
-                    return;
-                }
+                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return;
-            }
-
-            var DirStack = new Stack<string>();
-            DirStack.Push(DirName);
-
-            while (DirStack.Count > 0)
-            {
-                var DirInfo = new DirectoryInfo(DirStack.Pop());
-                try
-                {
-                    foreach (var DirChildInfo in DirInfo.GetDirectories())
-                    {
-                        DirStack.Push(DirChildInfo.FullName);
-                    }
-
-                    foreach (var FileChildInfo in DirInfo.GetFiles())
-                    {
-                        if (FileChildInfo.Name.EndsWith(".exe") && !RuleListBox.Items.Contains(FileChildInfo.Name))
-                        {
-                            RuleListBox.Items.Add(FileChildInfo.Name);
-                            Edited = true;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
+                // ignored
             }
         }
 
@@ -216,7 +183,8 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                var fullName = ModeHelper.GetFullPath(FilenameTextBox.Text + ".txt");
+                var relativePath = $"Custom\\{FilenameTextBox.Text}.txt";
+                var fullName = ModeHelper.GetFullPath(relativePath);
                 if (File.Exists(fullName))
                 {
                     MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
@@ -227,6 +195,7 @@ namespace Netch.Forms.Mode
                 {
                     BypassChina = false,
                     FileName = FilenameTextBox.Text,
+                    RelativePath = relativePath,
                     Type = 0,
                     Remark = RemarkTextBox.Text
                 };

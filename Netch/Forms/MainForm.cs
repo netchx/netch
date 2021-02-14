@@ -1346,7 +1346,7 @@ namespace Netch.Forms
             Hide();
         }
 
-        private async void Exit(bool forceExit = false)
+        public async void Exit(bool forceExit = false)
         {
             if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
             {
@@ -1441,7 +1441,7 @@ namespace Netch.Forms
                     BeginInvoke(new Action(() => { NewVersionLabel.Text = $"{args.ProgressPercentage}%"; }));
                 }
 
-                await UpdateChecker.UpdateNetch(OnDownloadProgressChanged);
+                await UpdateChecker.DownloadUpdate(OnDownloadProgressChanged);
             }
             catch (Exception exception)
             {

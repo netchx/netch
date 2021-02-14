@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 using WindowsJobAPI;
 
@@ -25,6 +26,8 @@ namespace Netch
         ///     主窗体的静态实例
         /// </summary>
         public static MainForm MainForm;
+
+        public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
         public static class Flags
         {

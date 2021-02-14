@@ -65,7 +65,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\NetchLib\NetchLib.csproj" />
-      <ProjectReference Include="..\NetchUpdater\NetchUpdater.csproj" />
     </ItemGroup>
 
     <ItemGroup>
