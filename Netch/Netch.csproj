@@ -51,11 +51,12 @@
         <PackageReference Include="ILMerge" Version="3.0.41" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.65" />
-        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
         <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
         <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
         <PackageReference Include="TaskScheduler" Version="2.9.1" />
+        <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.3.4" />
         <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
         <PackageReference Include="WindowsFirewallHelper" Version="2.0.4.70-beta2" />
         <PackageReference Include="WindowsJobAPI" Version="5.0.1" />

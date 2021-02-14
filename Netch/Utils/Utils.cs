@@ -139,14 +139,14 @@ namespace Netch.Utils
         public static bool SearchOutboundAdapter(bool logging = true)
         {
             // 寻找出口适配器
-            if (Win32Native.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
+            if (Vanara.PInvoke.IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
                 0, out var pRoute) != 0)
             {
                 Logging.Error("GetBestRoute 搜索失败");
                 return false;
             }
 
-            Global.Outbound.Index = pRoute.dwForwardIfIndex;
+            Global.Outbound.Index = (int) pRoute.dwForwardIfIndex;
             // 根据 IP Index 寻找 出口适配器
             try
             {
@@ -162,7 +162,7 @@ namespace Netch.Utils
                     }
                 });
                 Global.Outbound.Adapter = adapter;
-                Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop);
+                Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop.S_un_b);
                 if (logging)
                 {
                     Logging.Info($"出口 IPv4 地址：{Global.Outbound.Address}");
