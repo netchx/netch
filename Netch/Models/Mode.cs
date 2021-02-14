@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Netch.Utils;
@@ -7,41 +8,51 @@ namespace Netch.Models
 {
     public class Mode
     {
+        public readonly string FullName;
+
         /// <summary>
-        ///		备注
+        ///     规则
+        /// </summary>
+        public readonly List<string> Rule = new();
+
+        /// <summary>
+        ///     绕过中国（0. 不绕过 1. 绕过）
+        /// </summary>
+        public bool BypassChina = false;
+        /// <summary>
+        ///     备注
         /// </summary>
         public string Remark;
 
         /// <summary>
-        ///     文件相对路径(必须是存在的文件)
-        /// </summary>
-        public string RelativePath;
-
-        /// <summary>
-        ///		无后缀文件名
-        /// </summary>
-        public string FileName;
-
-        /// <summary>
-        ///     类型<para />
-        ///     0. Socks5 + 进程加速<para />
-        ///     1. Socks5 + TUN/TAP 规则内 IP CIDR 加速<para />
-        ///     2. Socks5 + TUN/TAP 全局，绕过规则内 IP CIDR<para />
-        ///     3. Socks5 + HTTP 代理（设置到系统代理）<para />
-        ///     4. Socks5 代理（不设置到系统代理）<para />
-        ///     5. Socks5 + HTTP 代理（不设置到系统代理）<para />
+        ///     类型
+        ///     <para />
+        ///     0. Socks5 + 进程加速
+        ///     <para />
+        ///     1. Socks5 + TUN/TAP 规则内 IP CIDR 加速
+        ///     <para />
+        ///     2. Socks5 + TUN/TAP 全局，绕过规则内 IP CIDR
+        ///     <para />
+        ///     3. Socks5 + HTTP 代理（设置到系统代理）
+        ///     <para />
+        ///     4. Socks5 代理（不设置到系统代理）
+        ///     <para />
+        ///     5. Socks5 + HTTP 代理（不设置到系统代理）
+        ///     <para />
         /// </summary>
         public int Type = 0;
+        public Mode(string fullName)
+        {
+            FullName = fullName;
+        }
+        public Mode()
+        {
+        }
 
         /// <summary>
-        ///    绕过中国（0. 不绕过 1. 绕过）
+        ///     文件相对路径(必须是存在的文件)
         /// </summary>
-        public bool BypassChina = false;
-
-        /// <summary>
-        ///		规则
-        /// </summary>
-        public readonly List<string> Rule = new List<string>();
+        public string RelativePath => ModeHelper.GetRelativePath(FullName);
 
         public List<string> FullRule
         {
@@ -81,13 +92,9 @@ namespace Netch.Models
                             else
                             {
                                 if (mode.Rule.Any(rule => rule.StartsWith("#include")))
-                                {
                                     Logging.Warning("Cannot reference mode that reference other mode");
-                                }
                                 else
-                                {
                                     result.AddRange(mode.FullRule);
-                                }
                             }
                         }
                     }
@@ -101,9 +108,18 @@ namespace Netch.Models
             }
         }
 
+        public void WriteFile()
+        {
+            var dir = Path.GetDirectoryName(FullName);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            // 写入到模式文件里
+            File.WriteAllText(FullName, ToFileString());
+        }
 
         /// <summary>
-        ///		获取备注
+        ///     获取备注
         /// </summary>
         /// <returns>备注</returns>
         public override string ToString()
@@ -112,7 +128,7 @@ namespace Netch.Models
         }
 
         /// <summary>
-        ///		获取模式文件字符串
+        ///     获取模式文件字符串
         /// </summary>
         /// <returns>模式文件字符串</returns>
         public string ToFileString()
@@ -122,10 +138,16 @@ namespace Netch.Models
     }
     public static class ModeExtension
     {
-        ///     是否会转发 UDP
-        public static bool TestNatRequired(this Mode mode) => mode.Type is 0 or 1 or 2;
+        /// 是否会转发 UDP
+        public static bool TestNatRequired(this Mode mode)
+        {
+            return mode.Type is 0 or 1 or 2;
+        }
 
-        ///     Socks5 分流是否能被有效实施
-        public static bool ClientRouting(this Mode mode) => mode.Type is not (1 or 2);
+        /// Socks5 分流是否能被有效实施
+        public static bool ClientRouting(this Mode mode)
+        {
+            return mode.Type is not (1 or 2);
+        }
     }
 }

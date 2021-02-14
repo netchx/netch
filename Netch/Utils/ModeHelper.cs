@@ -62,11 +62,7 @@ namespace Netch.Utils
 
         private static void LoadModeFile(string fullName)
         {
-            var mode = new Mode
-            {
-                FileName = Path.GetFileNameWithoutExtension(fullName),
-                RelativePath = GetRelativePath(fullName)
-            };
+            var mode = new Mode(fullName);
 
             var content = File.ReadAllLines(fullName);
             if (content.Length == 0) return;
@@ -105,21 +101,6 @@ namespace Netch.Utils
             Global.Modes.Add(mode);
         }
 
-        public static void WriteFile(Mode mode)
-        {
-            if (!Directory.Exists(ModeDirectory))
-                Directory.CreateDirectory(ModeDirectory);
-
-            var fullName = GetFullPath(mode.RelativePath ?? mode.FileName + ".txt");
-
-            if (mode.RelativePath == null && File.Exists(fullName))
-                throw new Exception("新建模式的文件名已存在，请贡献者检查代码");
-
-            // 写入到模式文件里
-            File.WriteAllText(fullName, mode.ToFileString());
-            mode.RelativePath = GetRelativePath(fullName);
-        }
-
         private static void Sort()
         {
             Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
@@ -141,7 +122,6 @@ namespace Netch.Utils
             Global.Modes.Remove(mode);
             Global.MainForm.InitMode();
         }
-
 
         public static bool SkipServerController(Server server, Mode mode)
         {

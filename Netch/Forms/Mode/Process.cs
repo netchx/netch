@@ -18,20 +18,13 @@ namespace Netch.Forms.Mode
         private readonly Models.Mode _mode;
 
         /// <summary>
-        ///     是否被编辑过
-        /// </summary>
-        public bool Edited { get; private set; }
-
-        /// <summary>
-        ///		编辑模式
+        ///     编辑模式
         /// </summary>
         /// <param name="mode">模式</param>
         public Process(Models.Mode mode)
         {
             if (mode.Type != 0)
-            {
                 throw new Exception("请传入进程模式");
-            }
 
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
@@ -48,7 +41,7 @@ namespace Netch.Forms.Mode
 
             #endregion
 
-            FilenameTextBox.Text = mode.FileName;
+            FilenameTextBox.Text = mode.RelativePath;
             RemarkTextBox.Text = mode.Remark;
         }
 
@@ -61,16 +54,21 @@ namespace Netch.Forms.Mode
         }
 
         /// <summary>
-        ///		扫描目录
+        ///     是否被编辑过
+        /// </summary>
+        public bool Edited { get; private set; }
+
+        /// <summary>
+        ///     扫描目录
         /// </summary>
         /// <param name="DirName">路径</param>
         public void ScanDirectory(string DirName)
         {
             try
             {
-                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories));
+                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories).Select(f => Path.GetFileName(f)).ToArray());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -83,7 +81,7 @@ namespace Netch.Forms.Mode
         }
 
         /// <summary>
-        /// listBox右键菜单
+        ///     listBox右键菜单
         /// </summary>
         private void RuleListBox_MouseUp(object sender, MouseEventArgs e)
         {
@@ -91,12 +89,10 @@ namespace Netch.Forms.Mode
             if (RuleListBox.SelectedIndex == -1)
                 return;
             if (e.Button == MouseButtons.Right)
-            {
                 contextMenuStrip.Show(RuleListBox, e.Location);
-            }
         }
 
-        void deleteRule_Click(object sender, EventArgs e)
+        private void deleteRule_Click(object sender, EventArgs e)
         {
             if (RuleListBox.SelectedIndex == -1) return;
             RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
@@ -122,9 +118,7 @@ namespace Netch.Forms.Mode
                 var process = ProcessNameTextBox.Text;
 
                 if (!RuleListBox.Items.Contains(process))
-                {
                     RuleListBox.Items.Add(process);
-                }
 
                 Edited = true;
                 RuleListBox.SelectedIndex = RuleListBox.Items.IndexOf(process);
@@ -176,7 +170,7 @@ namespace Netch.Forms.Mode
                 _mode.Rule.Clear();
                 _mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
-                ModeHelper.WriteFile(_mode);
+                _mode.WriteFile();
                 Global.MainForm.InitMode();
                 Edited = false;
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
@@ -191,17 +185,15 @@ namespace Netch.Forms.Mode
                     return;
                 }
 
-                var mode = new Models.Mode
+                var mode = new Models.Mode(fullName)
                 {
                     BypassChina = false,
-                    FileName = FilenameTextBox.Text,
-                    RelativePath = relativePath,
                     Type = 0,
                     Remark = RemarkTextBox.Text
                 };
                 mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
-                ModeHelper.WriteFile(mode);
+                mode.WriteFile();
                 ModeHelper.Add(mode);
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
@@ -218,9 +210,7 @@ namespace Netch.Forms.Mode
                     var invalidFileChars = Path.GetInvalidFileNameChars();
                     var fileName = new StringBuilder(RemarkTextBox.Text);
                     foreach (var c in invalidFileChars)
-                    {
                         fileName.Replace(c, '_');
-                    }
 
                     FilenameTextBox.Text = fileName.ToString();
                 }

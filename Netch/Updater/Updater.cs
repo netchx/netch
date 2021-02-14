@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
 using System.Text;
 using System.Windows.Forms;
-using Netch.Controllers;
 using Netch.Forms;
 using Netch.Properties;
-using Netch.Utils;
 
 namespace Netch.Updater
 {
@@ -88,9 +85,7 @@ namespace Netch.Updater
                 try
                 {
                     foreach (var DirChildInfo in DirInfo.GetDirectories())
-                    {
                         DirStack.Push(DirChildInfo.FullName);
-                    }
                 }
                 catch
                 {
@@ -100,12 +95,8 @@ namespace Netch.Updater
                 try
                 {
                     foreach (var FileChildInfo in DirInfo.GetFiles())
-                    {
                         if (FileChildInfo.Name == filename)
-                        {
                             return FileChildInfo;
-                        }
-                    }
                 }
                 catch
                 {
@@ -127,21 +118,17 @@ namespace Netch.Updater
             else
             {
                 foreach (var dir in Directory.GetDirectories(sourceDirName, "*", SearchOption.AllDirectories))
-                {
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
-                }
                 foreach (var f in Directory.GetFiles(sourceDirName, "*", SearchOption.AllDirectories))
-                {
                     try
                     {
                         File.Move(f, f.Replace(sourceDirName, destDirName));
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         throw new Exception("Updater wasn't able to move file: " + f);
                     }
-                }
             }
         }
 
