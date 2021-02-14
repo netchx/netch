@@ -115,8 +115,6 @@ namespace Netch.Forms
                 subscribeLink.UserAgent = UserAgentTextBox.Text;
             }
 
-            MessageBoxX.Show(i18N.Translate("Saved"));
-
             InitSubscribeLink();
         }
 
