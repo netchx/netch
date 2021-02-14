@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Netch.Utils
 {
-    static class StringEx
+    public static class StringEx
     {
         public static bool IsNullOrEmpty(this string value)
         {
@@ -41,6 +42,18 @@ namespace Netch.Utils
                 if (line.IsWhiteSpace()) continue;
                 yield return line;
             }
+        }
+
+        public static string ToRegexString(this string value)
+        {
+            var sb = new StringBuilder();
+            foreach (var t in value)
+            {
+                if (new[] {'\\', '(', ')', '[', ']', '.'}.Any(s => s == t))
+                    sb.Append(@"\");
+                sb.Append(t);
+            }
+            return sb.ToString();
         }
     }
 }

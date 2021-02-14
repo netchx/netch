@@ -270,6 +270,7 @@ namespace Netch.Controllers
             }
 
             aio_dial((int) NameList.TYPE_ADDNAME, @"NTT\.exe");
+            aio_dial((int) NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
         }
 
         #region NativeMethods
@@ -290,7 +291,6 @@ namespace Netch.Controllers
 
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong aio_getDL();
-
 
         public enum NameList
         {
