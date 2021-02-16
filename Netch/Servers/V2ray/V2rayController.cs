@@ -5,9 +5,9 @@ using Netch.Servers.V2ray.Utils;
 
 namespace Netch.Servers.V2ray
 {
-    public class V2RayController : Guard, IServerController
+    public class V2rayController : Guard, IServerController
     {
-        public V2RayController()
+        public V2rayController()
         {
             StartedKeywords.Add("started");
             StoppedKeywords.AddRange(new[] {"config file not readable", "failed to"});

@@ -36,7 +36,7 @@ namespace Netch.Servers.VLESS
 
         public IServerController GetController()
         {
-            return new V2RayController();
+            return new V2rayController();
         }
 
         public IEnumerable<Server> ParseUri(string text)
