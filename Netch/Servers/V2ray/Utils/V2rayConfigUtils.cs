@@ -325,8 +325,8 @@ namespace Netch.Servers.V2ray.Utils
                     case "quic":
                         var quicSettings = new QuicSettings
                         {
-                            security = server.Host,
-                            key = server.Path,
+                            security = server.QUICSecure,
+                            key = server.QUICSecret,
                             header = new Header
                             {
                                 type = server.FakeType

@@ -3,10 +3,8 @@ using Netch.Forms;
 
 namespace Netch.Servers.VLESS.VLESSForm
 {
-    class VLESSForm : ServerForm
+    internal class VLESSForm : ServerForm
     {
-        protected override string TypeName { get; } = "VLESS";
-
         public VLESSForm(VLESS server = default)
         {
             server ??= new VLESS();
@@ -39,6 +37,14 @@ namespace Netch.Servers.VLESS.VLESSForm
                 s => true,
                 s => server.Path = s,
                 server.Path);
+            CreateComboBox("QUICSecurity", "QUIC Security",
+                VLESSGlobal.QUIC,
+                s => server.QUICSecure = s,
+                server.QUICSecure);
+            CreateTextBox("QUICSecret", "QUIC Secret",
+                s => true,
+                s => server.QUICSecret = s,
+                server.QUICSecret);
             CreateComboBox("UseMux", "Use Mux",
                 new List<string> {"", "true", "false"},
                 s => server.UseMux = s switch
@@ -54,5 +60,6 @@ namespace Netch.Servers.VLESS.VLESSForm
                 s => server.TLSSecureType = s,
                 server.TLSSecureType);
         }
+        protected override string TypeName { get; } = "VLESS";
     }
 }
