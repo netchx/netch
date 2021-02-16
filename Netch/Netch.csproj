@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -12,7 +12,7 @@
         <Platforms>x64</Platforms>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <LangVersion>latest</LangVersion>
-        <PackageProjectUrl>https://github.com/NetchX/Netch</PackageProjectUrl>
+        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -37,29 +37,44 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="ILMerge" Version="3.0.41" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.65" />
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.65" GeneratePathProperty="true"/>
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
-        <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
-        <PackageReference Include="TaskScheduler" Version="2.9.1" />
-        <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.3.4" />
-        <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
-        <PackageReference Include="WindowsFirewallHelper" Version="2.0.4.70-beta2" />
-        <PackageReference Include="WindowsJobAPI" Version="5.0.1" />
-        <PackageReference Include="WindowsProxy" Version="5.0.0" />
+        <PackageReference Include="System.Collections.Immutable" Version="5.0.0"/>
+        <PackageReference Include="System.Reflection.Metadata" Version="5.0.0"/>
+        <PackageReference Include="TaskScheduler" Version="2.9.1"/>
+        <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.3.4"/>
+        <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4"/>
+        <PackageReference Include="WindowsFirewallHelper" Version="2.0.4.70-beta2"/>
+        <PackageReference Include="WindowsJobAPI" Version="5.0.1"/>
+        <PackageReference Include="WindowsProxy" Version="5.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <!--    .NET Framework    -->
+        <PackageReference Include="ILMerge" Version="3.0.41"/>
+        <Reference Include="System.Management"/>
+        <Reference Include="System.ServiceProcess"/>
+        <Reference Include="System.Web"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' != 'net'">
+        <!--    .NET Core    -->
+        <PackageReference Include="System.Management" Version="5.0.0"/>
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0"/>
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SearchComboBox\SearchComboBox.csproj" />
+        <ProjectReference Include="..\SearchComboBox\SearchComboBox.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="System.Management" />
-        <Reference Include="System.ServiceProcess" />
-        <Reference Include="System.Web" />
+        <None Include="..\binaries\**" LinkBase="bin" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest"/>
+        <None Remove="..\binaries\.git"/>
+        <None Include="..\translations\i18n\**" LinkBase="i18n" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest"/>
+        <None Include="..\modes\mode\**" LinkBase="mode" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -88,8 +103,21 @@
             <LastGenOutput>Settings.Designer.cs</LastGenOutput>
         </None>
     </ItemGroup>
-    <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions>
+        <VisualStudio>
+            <UserProperties/>
+        </VisualStudio>
+    </ProjectExtensions>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="set Configuration=$(Configuration)&#xD;&#xA;set ILMergeConsolePath=$(ILMergeConsolePath)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;$(ProjectDir)PostBuild.bat" />
+        <Exec Command="set TargetFramework=$(TargetFramework)&#xD;&#xA;set Configuration=$(Configuration)&#xD;&#xA;set ILMergeConsolePath=$(ILMergeConsolePath)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;$(ProjectDir)PostBuild.bat"/>
     </Target>
+
+    <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
+        <ItemGroup>
+            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\Dia2Lib.dll"/>
+            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\OSExtensions.dll"/>
+            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\TraceReloggerLib.dll"/>
+        </ItemGroup>
+    </Target>
+
 </Project>

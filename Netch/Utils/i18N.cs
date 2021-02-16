@@ -12,10 +12,17 @@ namespace Netch.Utils
 {
     public static class i18N
     {
+#if NET
+        static i18N()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+#endif
+
         /// <summary>
         ///     数据
         /// </summary>
-        public static Hashtable Data = new Hashtable();
+        public static Hashtable Data = new();
 
         public static string LangCode { get; private set; }
 
@@ -29,10 +36,8 @@ namespace Netch.Utils
 
             var text = "";
             if (langCode.Equals("System"))
-            {
                 // 加载系统语言
                 langCode = CultureInfo.CurrentCulture.Name;
-            }
 
             if (langCode == "zh-CN")
             {
@@ -63,9 +68,7 @@ namespace Netch.Utils
 
             Data = new Hashtable();
             foreach (var v in data)
-            {
                 Data.Add(v.Key, v.Value);
-            }
         }
 
         /// <summary>
@@ -87,12 +90,8 @@ namespace Netch.Utils
         public static string TranslateFormat(string format, params object[] args)
         {
             for (var i = 0; i < args.Length; i++)
-            {
                 if (args[i] is string)
-                {
                     args[i] = Translate((string) args[i]);
-                }
-            }
 
             return string.Format(Translate(format), args);
         }

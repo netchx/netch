@@ -1,9 +1,9 @@
 Write-Host 'Building'
 
-msbuild -v:n -m:1 /p:Configuration="Release" `
+msbuild -v:n /p:Configuration="Release" `
 	/p:Platform="x64" `
 	/p:TargetFramework=net48 `
-	/p:SolutionDir="..\" `
+	/p:SolutionDir="$pwd\" `
 	/restore `
 	Netch\Netch.csproj
 
