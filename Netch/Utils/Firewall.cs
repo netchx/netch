@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using WindowsFirewallHelper;
+using WindowsFirewallHelper.FirewallRules;
 
 namespace Netch.Utils
 {
@@ -25,12 +26,18 @@ namespace Netch.Utils
         /// </summary>
         public static void AddNetchFwRules()
         {
+            if (!FirewallWAS.IsSupported)
+            {
+                Logging.Warning("不支持防火墙");
+                return;
+            }
+
             try
             {
                 var rule = FirewallManager.Instance.Rules.FirstOrDefault(r => r.Name == Netch);
                 if (rule != null)
                 {
-                    if (rule.Name.StartsWith(Global.NetchDir))
+                    if (rule.ApplicationName.StartsWith(Global.NetchDir))
                         return;
                     RemoveNetchFwRules();
                 }
@@ -53,6 +60,9 @@ namespace Netch.Utils
         /// </summary>
         public static void RemoveNetchFwRules()
         {
+            if (!FirewallWAS.IsSupported)
+                return;
+
             try
             {
                 foreach (var rule in FirewallManager.Instance.Rules.Where(r => r.Name == Netch))
@@ -68,8 +78,13 @@ namespace Netch.Utils
 
         private static void AddFwRule(string ruleName, string exeFullPath)
         {
-            var rule = FirewallManager.Instance.CreateApplicationRule(ruleName, FirewallAction.Allow, exeFullPath);
-            rule.Direction = FirewallDirection.Inbound;
+            var rule = new FirewallWASRule(
+                ruleName,
+                exeFullPath,
+                FirewallAction.Allow,
+                FirewallDirection.Inbound,
+                FirewallProfiles.Private | FirewallProfiles.Public | FirewallProfiles.Domain
+            );
 
             FirewallManager.Instance.Rules.Add(rule);
         }
