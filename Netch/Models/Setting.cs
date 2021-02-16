@@ -61,13 +61,14 @@ namespace Netch.Models
 
     public class V2rayConfig
     {
-        public bool XrayCone = false;
-
         public bool AllowInsecure = true;
 
         public KcpConfig KcpConfig = new();
 
         public bool UseMux = false;
+
+        public bool V2rayNShareLink = true;
+        public bool XrayCone = false;
     }
 
     public class AioDNSConfig

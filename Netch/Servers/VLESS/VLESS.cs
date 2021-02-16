@@ -32,18 +32,15 @@ namespace Netch.Servers.VLESS
 
     public class VLESSGlobal
     {
-        public static readonly List<string> FakeTypes = new()
-        {
-            "none",
-            "http"
-        };
-
         public static readonly List<string> TLSSecure = new()
         {
             "none",
             "tls",
             "xtls"
         };
+        public static List<string> FakeTypes => VMessGlobal.FakeTypes;
         public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
+
+        public static List<string> QUIC => VMessGlobal.QUIC;
     }
 }

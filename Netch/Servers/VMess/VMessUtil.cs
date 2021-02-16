@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
@@ -36,23 +35,28 @@ namespace Netch.Servers.VMess
 
         public string GetShareLink(Server s)
         {
-            var server = (VMess) s;
-
-            var vmessJson = JsonConvert.SerializeObject(new
+            if (Global.Settings.V2RayConfig.V2rayNShareLink)
             {
-                v = "2",
-                ps = server.Remark,
-                add = server.Hostname,
-                port = server.Port,
-                id = server.UserID,
-                aid = server.AlterID,
-                net = server.TransferProtocol,
-                type = server.FakeType,
-                host = server.Host,
-                path = server.Path,
-                tls = server.TLSSecureType
-            });
-            return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
+                var server = (VMess) s;
+
+                var vmessJson = JsonConvert.SerializeObject(new
+                {
+                    v = "2",
+                    ps = server.Remark,
+                    add = server.Hostname,
+                    port = server.Port,
+                    id = server.UserID,
+                    aid = server.AlterID,
+                    net = server.TransferProtocol,
+                    type = server.FakeType,
+                    host = server.Host,
+                    path = server.Path,
+                    tls = server.TLSSecureType
+                });
+                return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
+            }
+
+            return V2rayUtils.GetVShareLink(s);
         }
 
         public IServerController GetController()
@@ -64,16 +68,14 @@ namespace Netch.Servers.VMess
         {
             var data = new VMess();
 
-            text = text.Substring(8);
             V2rayNSharing vmess;
             try
             {
-                vmess = JsonConvert.DeserializeObject<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text));
+                vmess = JsonConvert.DeserializeObject<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text.Substring(8)));
             }
-            catch (Exception e)
+            catch
             {
-                Logging.Warning(e.ToString());
-                return null;
+                return V2rayUtils.ParseVUri(text);
             }
 
             data.Remark = vmess.ps;
@@ -120,13 +122,11 @@ namespace Netch.Servers.VMess
             }
 
             if (server.TransferProtocol == "quic")
-            {
                 if (!VMessGlobal.QUIC.Contains(server.QUICSecure))
                 {
                     Logging.Error($"不支持的 VMess QUIC 加密方式：{server.QUICSecure}");
                     return false;
                 }
-            }
 
             return true;
         }
