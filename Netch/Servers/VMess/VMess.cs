@@ -37,11 +37,6 @@ namespace Netch.Servers.VMess
         public virtual string FakeType { get; set; } = VMessGlobal.FakeTypes[0];
 
         /// <summary>
-        ///     QUIC
-        /// </summary>
-        public string QUIC { get; set; } = VMessGlobal.QUIC[0];
-
-        /// <summary>
         ///     伪装域名
         /// </summary>
         public string Host { get; set; }

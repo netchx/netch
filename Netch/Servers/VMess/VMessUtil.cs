@@ -20,7 +20,15 @@ namespace Netch.Servers.VMess
 
         public Server ParseJObject(in JObject j)
         {
-            return j.ToObject<VMess>();
+            // TODO Remove Migrate code
+            var server = j.ToObject<VMess>();
+            if (server == null)
+                return null;
+            string quic;
+            if ((quic = j.GetValue("QUIC")?.ToString()) != null)
+                server.QUICSecure = quic;
+
+            return server;
         }
 
         public void Edit(Server s)

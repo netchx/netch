@@ -5,8 +5,6 @@ namespace Netch.Servers.VMess.Form
 {
     public class VMessForm : ServerForm
     {
-        protected override string TypeName { get; } = "VMess";
-
         public VMessForm(VMess server = default)
         {
             server ??= new VMess();
@@ -42,8 +40,8 @@ namespace Netch.Servers.VMess.Form
                 server.Path);
             CreateComboBox("QUICSecurity", "QUIC Security",
                 VMessGlobal.QUIC,
-                s => server.QUIC = s,
-                server.QUIC);
+                s => server.QUICSecure = s,
+                server.QUICSecure);
             CreateTextBox("QUICSecret", "QUIC Secret",
                 s => true,
                 s => server.QUICSecret = s,
@@ -63,5 +61,6 @@ namespace Netch.Servers.VMess.Form
                 s => server.TLSSecureType = s,
                 server.TLSSecureType);
         }
+        protected override string TypeName { get; } = "VMess";
     }
 }
