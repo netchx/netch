@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
+    <TargetFrameworks>net48;net5.0-windows</TargetFrameworks>
     <Platforms>x64</Platforms>
+    <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
 </PropertyGroup>
 
@@ -15,12 +16,12 @@
 </ItemGroup>
 
 <ItemGroup>
-    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="NUnit" Version="3.13.1"/>
 </ItemGroup>
+
 
 <ItemGroup>
-  <PackageReference Include="NUnit" Version="3.13.1" />
+    <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)' == 'net48'"/>
 </ItemGroup>
-
 </Project>
 

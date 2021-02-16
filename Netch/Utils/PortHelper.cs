@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
-using Netch.Models;
+using Range = Netch.Models.Range;
 
 namespace Netch.Utils
 {

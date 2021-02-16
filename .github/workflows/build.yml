@@ -4,6 +4,14 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    env:
+        Target48 : net48
+        TargetDir48 : Netch\bin\x64\Release\net48
+        Target5 : net5.0-windows
+        TargetDir5 : Netch\bin\x64\Release\net5.0-windows\win-x64\publish
+        Package_Path: C:\builtfiles
+        Release48: Netch.7z
+        Release5: Netch-net5.0-windows.7z
     steps:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
@@ -13,27 +21,35 @@ jobs:
       with:
         submodules: true
 
-    - name: Build Solution
+    - name: Build 
       shell: pwsh
       run: .\BUILD.ps1
 
-    - name: Upload Artifact
+    - name: Upload net48
       continue-on-error: true
       if: ${{ !startsWith(github.ref, 'refs/tags/') }}
       uses: actions/upload-artifact@v2
       with:
-        name: Netch
-        path: Netch\bin\x64\Release
+        name: Netch-NET48
+        path: ${{ env.TargetDir48 }}
+
+    - name: Upload net5.0-windows
+      continue-on-error: true
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Netch-NET5
+        path: ${{ env.TargetDir5 }}
 
     - name: Package
       if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
       shell: pwsh
       run: |
-        New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
-        7z a -mx9 C:\builtfiles\Netch.7z .\Netch\bin\x64\Release\
-        7z rn C:\builtfiles\Netch.7z Release Netch
-        echo "Netch_SHA256=$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Netch_EXE_SHA256=$(.\GetSHA256.ps1 Netch\bin\x64\Release\Netch.exe)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        New-Item -ItemType Directory -Path $env:Package_Path -Force > $null
+
+        7z a -mx9 "$env:Package_Path\$env:Release48" .\$env:TargetDir48
+        7z rn "$env:Package_Path\$env:Release48" $env:Target48 Netch
+        echo "Netch48_SHA256=$(.\GetSHA256.ps1 "$env:Package_Path\$env:Release48")" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -45,7 +61,8 @@ jobs:
         prerelease: true
         draft: false
         files: |
-          C:\builtfiles\Netch.7z
+          ${{ env.Package_Path }}\${{ env.Release48 }}
+          ${{ env.Package_Path }}\${{ env.Release5 }}
         body: |
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
 
@@ -55,4 +72,4 @@ jobs:
           ## 校验和
           | 文件名 | SHA256 |
           | :- | :- |
-          | Netch.7z | ${{ env.Netch_SHA256 }} |
+          | ${{ env.Release48 }} | ${{ env.Netch48_SHA256 }} |

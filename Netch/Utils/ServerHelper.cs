@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using Netch.Models;
 using Newtonsoft.Json.Linq;
+using Range = Netch.Models.Range;
 
 namespace Netch.Utils
 {

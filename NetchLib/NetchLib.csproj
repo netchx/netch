@@ -1,11 +1,38 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net48</TargetFramework>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <Platforms>x64</Platforms>
+        <TargetFrameworks>net48;net5.0-windows</TargetFrameworks>
+        <!--        <Platforms>x64</Platforms>-->
         <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>latest</LangVersion>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <NoWarn/>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <NoWarn/>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <NoWarn/>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+        <OutputPath>bin\x64\Release\</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="System.Windows.Forms" Condition="'$(TargetFramework)' == 'net48'"/>
+    </ItemGroup>
 
 </Project>

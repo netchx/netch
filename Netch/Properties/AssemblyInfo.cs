@@ -1,6 +1,6 @@
-﻿using Netch.Controllers;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Netch.Controllers;
 
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
@@ -13,6 +13,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright(UpdateChecker.Copyright)]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+#if NET5_0
+[assembly: System.Runtime.Versioning.TargetPlatformAttribute("Windows10.0.19042.789")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
+#endif
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
 //对 COM 组件不可见。如果需要从 COM 访问此程序集中的类型
