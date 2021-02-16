@@ -76,7 +76,6 @@ namespace Netch.Servers.V2ray.Utils
                 };
 
                 if (mode.BypassChina)
-                {
                     switch (mode.Type)
                     {
                         case 0:
@@ -93,12 +92,9 @@ namespace Netch.Servers.V2ray.Utils
                             directRuleObject.domain.Add("geosite:cn");
                             break;
                     }
-                }
 
                 if (mode.Type is 0 or 1 or 2)
-                {
                     blockRuleObject.ip.Add("geoip:private");
-                }
 
                 v2rayConfig.routing = new Routing
                 {
@@ -109,14 +105,10 @@ namespace Netch.Servers.V2ray.Utils
                 {
                     bool ipResult, domainResult;
                     if (!(ipResult = rulesItem.ip.Any()))
-                    {
                         rulesItem.ip = null;
-                    }
 
                     if (!(domainResult = rulesItem.domain.Any()))
-                    {
                         rulesItem.domain = null;
-                    }
 
                     return ipResult || domainResult;
                 }
@@ -152,12 +144,12 @@ namespace Netch.Servers.V2ray.Utils
                     {
                         outbound.settings.servers = new List<ServersItem>
                         {
-                            new ServersItem
+                            new()
                             {
                                 users = socks5.Auth()
                                     ? new List<SocksUsersItem>
                                     {
-                                        new SocksUsersItem
+                                        new()
                                         {
                                             user = socks5.Username,
                                             pass = socks5.Password,
@@ -245,11 +237,11 @@ namespace Netch.Servers.V2ray.Utils
                 v2rayConfig.outbounds = new List<Outbounds>
                 {
                     outbound,
-                    new Outbounds
+                    new()
                     {
                         tag = "direct", protocol = "freedom"
                     },
-                    new Outbounds
+                    new()
                     {
                         tag = "block", protocol = "blackhole"
                     }
@@ -267,7 +259,7 @@ namespace Netch.Servers.V2ray.Utils
             {
                 streamSettings.network = server.TransferProtocol;
 
-                if ((streamSettings.security = server.TLSSecureType) != "")
+                if ((streamSettings.security = server.TLSSecureType) != "none")
                 {
                     var tlsSettings = new TlsSettings
                     {
@@ -341,11 +333,9 @@ namespace Netch.Servers.V2ray.Utils
                             }
                         };
 
-                        if (server.TLSSecureType != "")
-                        {
+                        if (server.TLSSecureType != "none")
                             // tls or xtls
                             streamSettings.tlsSettings.serverName = server.Hostname;
-                        }
 
                         streamSettings.quicSettings = quicSettings;
                         break;

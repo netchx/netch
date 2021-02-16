@@ -16,36 +16,34 @@ namespace Netch.Servers.VLESS
         public override string EncryptMethod { get; set; } = "none";
 
         /// <summary>
-        ///		传输协议
+        ///     传输协议
         /// </summary>
         public override string TransferProtocol { get; set; } = VLESSGlobal.TransferProtocols[0];
 
         /// <summary>
-        ///		伪装类型
+        ///     伪装类型
         /// </summary>
         public override string FakeType { get; set; } = VLESSGlobal.FakeTypes[0];
 
         /// <summary>
-        ///     
         /// </summary>
         public string Flow { get; set; }
     }
 
     public class VLESSGlobal
     {
-        public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
-
-        public static readonly List<string> FakeTypes = new List<string>
+        public static readonly List<string> FakeTypes = new()
         {
             "none",
             "http"
         };
 
-        public static readonly List<string> TLSSecure = new List<string>
+        public static readonly List<string> TLSSecure = new()
         {
-            "",
+            "none",
             "tls",
             "xtls"
         };
+        public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
     }
 }
