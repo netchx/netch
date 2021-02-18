@@ -12,11 +12,16 @@ namespace Netch.Controllers
             RedirectStd = false;
         }
 
-        public override string Name { get; } = "Privoxy";
-
         public override string MainFile { get; protected set; } = "Privoxy.exe";
 
-        public bool Start(Server server, Mode mode)
+        public override string Name { get; } = "Privoxy";
+
+        public override void Stop()
+        {
+            StopInstance();
+        }
+
+        public void Start(Server server)
         {
             var text = new StringBuilder(File.ReadAllText("bin\\default.conf"));
 
@@ -34,12 +39,7 @@ namespace Netch.Controllers
 
             File.WriteAllText("data\\privoxy.conf", text.ToString());
 
-            return StartInstanceAuto("..\\data\\privoxy.conf");
-        }
-
-        public override void Stop()
-        {
-            StopInstance();
+            StartInstanceAuto("..\\data\\privoxy.conf");
         }
     }
 }

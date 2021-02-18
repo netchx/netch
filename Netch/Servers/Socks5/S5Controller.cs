@@ -7,13 +7,11 @@ namespace Netch.Servers.Socks5
     {
         public override string Name { get; } = "Socks5";
 
-        public override bool Start(in Server s, in Mode mode)
+        public override void Start(in Server s, in Mode mode)
         {
             var server = (Socks5) s;
             if (server.Auth())
-                return base.Start(s, mode);
-
-            return true;
+                base.Start(s, mode);
         }
     }
 }

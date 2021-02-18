@@ -20,7 +20,7 @@ namespace Netch.Servers.Trojan
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
-        public bool Start(in Server s, in Mode mode)
+        public void Start(in Server s, in Mode mode)
         {
             var server = (Trojan) s;
             var trojanConfig = new TrojanConfig
@@ -42,7 +42,7 @@ namespace Netch.Servers.Trojan
             {
                 NullValueHandling = NullValueHandling.Ignore
             }));
-            return StartInstanceAuto("-c ..\\data\\last.json");
+            StartInstanceAuto("-c ..\\data\\last.json");
         }
 
         public override void Stop()

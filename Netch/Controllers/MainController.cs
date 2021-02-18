@@ -3,11 +3,9 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
-using static Netch.Forms.MainForm;
 using static Netch.Utils.PortHelper;
 
 namespace Netch.Controllers
@@ -51,14 +49,15 @@ namespace Netch.Controllers
         /// <param name="server">服务器</param>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public static async Task<bool> Start(Server server, Mode mode)
+        /// <exception cref="MessageException"></exception>
+        public static async Task Start(Server server, Mode mode)
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
             Server = server;
             Mode = mode;
 
             if (server is Socks5 && mode.Type == 4)
-                return false;
+                throw new MessageException("Already Socks5 Server");
 
             // 刷新DNS缓存
             NativeMethods.FlushDNSResolverCache();
@@ -69,15 +68,11 @@ namespace Netch.Controllers
             }
             catch (Exception)
             {
-                MessageBoxX.Show("No internet connection");
-                return false;
+                throw new MessageException(i18N.Translate("No internet connection"));
             }
 
             if (Global.Settings.ResolveServerHostname && DNS.Lookup(server.Hostname) == null)
-            {
-                MessageBoxX.Show("Lookup Server hostname failed");
-                return false;
-            }
+                throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
             // 添加Netch到防火墙
             _ = Task.Run(Firewall.AddNetchFwRules);
@@ -86,32 +81,15 @@ namespace Netch.Controllers
             {
                 if (!ModeHelper.SkipServerController(server, mode))
                 {
-                    if (!await Task.Run(() => StartServer(server, mode, ref _serverController)))
-                        throw new StartFailedException();
+                    await Task.Run(() => StartServer(server, mode, out _serverController));
 
                     StatusPortInfoText.UpdateShareLan();
                 }
 
-                if (!await StartMode(mode))
-                    throw new StartFailedException();
-
-                return true;
+                await Task.Run(() => StartMode(mode));
             }
             catch (Exception e)
             {
-                switch (e)
-                {
-                    case DllNotFoundException _:
-                    case FileNotFoundException _:
-                        MessageBoxX.Show(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"), owner: Global.MainForm);
-                        break;
-                    case StartFailedException _:
-                        break;
-                    default:
-                        Logging.Error($"主控制器未处理异常: {e}");
-                        break;
-                }
-
                 try
                 {
                     await Stop();
@@ -121,69 +99,66 @@ namespace Netch.Controllers
                     // ignored
                 }
 
-                return false;
+                switch (e)
+                {
+                    case DllNotFoundException:
+                    case FileNotFoundException:
+                        throw new Exception(e.Message + "\n\n" + i18N.Translate("Missing File or runtime components"));
+                    case MessageException:
+                        throw;
+                    default:
+                        Logging.Error(e.ToString());
+                        Utils.Utils.Open(Logging.LogFile);
+                        throw new MessageException($"未处理异常\n{e.Message}");
+                }
             }
         }
 
-        private static bool StartServer(Server server, Mode mode, ref IServerController controller)
+        private static void StartServer(Server server, Mode mode, out IServerController controller)
         {
             controller = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
             if (controller is Guard instanceController)
                 Utils.Utils.KillProcessByName(instanceController.MainFile);
 
-            if (!PortCheckAndShowMessageBox(controller.Socks5LocalPort(), "Socks5"))
-                return false;
+            PortCheck(controller.Socks5LocalPort(), "Socks5");
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
-            if (controller.Start(in server, mode))
+
+            controller.Start(in server, mode);
+            if (controller is Guard {Instance: { }} guard)
+                Task.Run(() =>
+                {
+                    Thread.Sleep(1000);
+                    Global.Job.AddProcess(guard.Instance);
+                });
+
+            if (server is Socks5 socks5)
             {
-                if (controller is Guard guard)
-                    if (guard.Instance != null)
-                        Task.Run(() =>
-                        {
-                            Thread.Sleep(1000);
-                            Global.Job.AddProcess(guard.Instance);
-                        });
-
-                if (server is Socks5 socks5)
-                {
-                    if (socks5.Auth())
-                        StatusPortInfoText.Socks5Port = controller.Socks5LocalPort();
-                }
-                else
-                {
+                if (socks5.Auth())
                     StatusPortInfoText.Socks5Port = controller.Socks5LocalPort();
-                }
-
-                return true;
             }
-
-            return false;
+            else
+            {
+                StatusPortInfoText.Socks5Port = controller.Socks5LocalPort();
+            }
         }
 
-        private static async Task<bool> StartMode(Mode mode)
+        private static void StartMode(Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName, out var portType);
 
             if (ModeController == null)
-                return true;
+                throw new MessageException("未知模式类型");
 
             if (port != null)
-                if (!PortCheckAndShowMessageBox((ushort) port, portName, portType))
-                    return false;
+                PortCheck((ushort) port, portName, portType);
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-            if (await Task.Run(() => ModeController.Start(mode)))
-            {
-                if (ModeController is Guard guard)
-                    if (guard.Instance != null)
-                        Global.Job.AddProcess(guard.Instance);
 
-                return true;
-            }
-
-            return false;
+            ModeController.Start(mode);
+            if (ModeController is Guard {Instance: { }} guard)
+                Global.Job.AddProcess(guard.Instance);
         }
 
         /// <summary>
@@ -205,31 +180,31 @@ namespace Netch.Controllers
             ServerController = null;
         }
 
-        /// <summary>
-        ///     检查端口是否被占用,
-        ///     被占用则弹窗提示, 确认后抛出异常
-        /// </summary>
-        public static bool PortCheckAndShowMessageBox(ushort port, string portName, PortType portType = PortType.Both)
+        public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)
         {
             try
             {
                 CheckPort(port, portType);
-                return true;
             }
             catch (PortInUseException)
             {
-                MessageBoxX.Show(i18N.TranslateFormat("The {0} port is in use.", $"{portName} ({port})"));
-                return false;
+                throw new MessageException(i18N.TranslateFormat("The {0} port is in use.", $"{portName} ({port})"));
             }
             catch (PortReservedException)
             {
-                MessageBoxX.Show(i18N.TranslateFormat("The {0} port is reserved by system.", $"{portName} ({port})"));
-                return false;
+                throw new MessageException(i18N.TranslateFormat("The {0} port is reserved by system.", $"{portName} ({port})"));
             }
         }
     }
 
-    public class StartFailedException : Exception
+    public class MessageException : Exception
     {
+        public MessageException()
+        {
+        }
+
+        public MessageException(string message) : base(message)
+        {
+        }
     }
 }

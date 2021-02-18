@@ -13,7 +13,7 @@ namespace Netch.Servers.ShadowsocksR
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
-        public bool Start(in Server s, in Mode mode)
+        public void Start(in Server s, in Mode mode)
         {
             var server = (ShadowsocksR) s;
 
@@ -38,7 +38,7 @@ namespace Netch.Servers.ShadowsocksR
 
             #endregion
 
-            return StartInstanceAuto(argument.ToString());
+            StartInstanceAuto(argument.ToString());
         }
 
         public override void Stop()

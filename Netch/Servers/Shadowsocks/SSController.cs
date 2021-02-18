@@ -8,15 +8,14 @@ namespace Netch.Servers.Shadowsocks
 {
     public class SSController : Guard, IServerController
     {
-        public override string Name { get; } = "Shadowsocks";
+        public bool DllFlag;
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
+        public override string Name { get; } = "Shadowsocks";
 
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 
-        public bool DllFlag;
-
-        public bool Start(in Server s, in Mode mode)
+        public void Start(in Server s, in Mode mode)
         {
             var server = (Shadowsocks) s;
 
@@ -33,8 +32,7 @@ namespace Netch.Servers.Shadowsocks
                 if (!ShadowsocksDLL.Info(client, remote, passwd, method))
                 {
                     State = State.Stopped;
-                    Logging.Error("DLL SS INFO 设置失败！");
-                    return false;
+                    throw new MessageException("DLL SS INFO 设置失败！");
                 }
 
                 Logging.Info("DLL SS INFO 设置成功！");
@@ -42,13 +40,12 @@ namespace Netch.Servers.Shadowsocks
                 if (!ShadowsocksDLL.Start())
                 {
                     State = State.Stopped;
-                    Logging.Error("DLL SS 启动失败！");
-                    return false;
+                    throw new MessageException("DLL SS 启动失败！");
                 }
 
                 Logging.Info("DLL SS 启动成功！");
                 State = State.Started;
-                return true;
+                return;
             }
 
             #region Argument
@@ -70,7 +67,7 @@ namespace Netch.Servers.Shadowsocks
 
             #endregion
 
-            return StartInstanceAuto(argument.ToString());
+            StartInstanceAuto(argument.ToString());
         }
 
         public override void Stop()

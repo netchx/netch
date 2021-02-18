@@ -1,10 +1,7 @@
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using WindowsProxy;
 using Microsoft.Win32;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Servers.Trojan;
@@ -27,42 +24,30 @@ namespace Netch.Controllers
         /// </summary>
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
-        public bool Start(in Mode mode)
+        public void Start(in Mode mode)
         {
             RecordPrevious();
 
-            try
-            {
-                if (pPrivoxyController.Start(MainController.Server, mode))
-                    Global.Job.AddProcess(pPrivoxyController.Instance);
+            pPrivoxyController.Start(MainController.Server);
+            Global.Job.AddProcess(pPrivoxyController.Instance);
 
-                if (mode.Type == 3)
+            if (mode.Type == 3)
+            {
+                if (MainController.Server is Socks5 or Trojan && mode.BypassChina)
                 {
-                    if (MainController.Server is Socks5 or Trojan && mode.BypassChina)
+                    //启动PAC服务器
+                    PACServerHandle.InitPACServer("127.0.0.1");
+                }
+                else
+                {
+                    using var service = new ProxyService
                     {
-                        //启动PAC服务器
-                        PACServerHandle.InitPACServer("127.0.0.1");
-                    }
-                    else
-                    {
-                        using var service = new ProxyService
-                        {
-                            Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}",
-                            Bypass = string.Join(";", ProxyService.LanIp)
-                        };
-                        service.Global();
-                    }
+                        Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}",
+                        Bypass = string.Join(";", ProxyService.LanIp)
+                    };
+                    service.Global();
                 }
             }
-            catch (Exception e)
-            {
-                if (MessageBoxX.Show(i18N.Translate("Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?"), confirm: true) == DialogResult.OK) Process.Start("https://netch.org/#/?id=%e4%be%9d%e8%b5%96");
-
-                Logging.Error("设置系统代理失败" + e);
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

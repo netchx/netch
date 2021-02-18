@@ -333,9 +333,10 @@ namespace Netch.Forms
                 Configuration.Save();
                 StatusText(i18N.Translate("Subscription updated"));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // ignored
+                NotifyTip(i18N.Translate("update servers failed") + "\n" + e.Message, info: false);
+                Logging.Error("更新服务器 失败！" + e);
             }
             finally
             {
@@ -453,9 +454,7 @@ namespace Netch.Forms
             finally
             {
                 if (useProxy)
-                {
                     await MainController.Stop();
-                }
 
                 StatusText();
                 Enabled = true;
@@ -595,10 +594,15 @@ namespace Netch.Forms
 
             State = State.Starting;
 
-            if (!await MainController.Start(server, mode))
+            try
+            {
+                await MainController.Start(server, mode);
+            }
+            catch (Exception exception)
             {
                 State = State.Stopped;
                 StatusText(i18N.Translate("Start failed"));
+                MessageBoxX.Show(exception.Message);
                 return;
             }
 
@@ -1115,52 +1119,6 @@ namespace Netch.Forms
         private static bool IsWaiting(State state)
         {
             return state == State.Waiting || state == State.Stopped;
-        }
-
-        public static class StatusPortInfoText
-        {
-            private static ushort? _socks5Port;
-            private static ushort? _httpPort;
-            private static bool _shareLan;
-
-            public static ushort HttpPort
-            {
-                set => _httpPort = value;
-            }
-
-            public static ushort Socks5Port
-            {
-                set => _socks5Port = value;
-            }
-
-            public static string Value
-            {
-                get
-                {
-                    var strings = new List<string>();
-
-                    if (_socks5Port != null)
-                        strings.Add($"Socks5 {i18N.Translate("Local Port", ": ")}{_socks5Port}");
-
-                    if (_httpPort != null)
-                        strings.Add($"HTTP {i18N.Translate("Local Port", ": ")}{_httpPort}");
-
-                    if (!strings.Any())
-                        return string.Empty;
-
-                    return $" ({(_shareLan ? i18N.Translate("Allow other Devices to connect") + " " : "")}{string.Join(" | ", strings)})";
-                }
-            }
-
-            public static void UpdateShareLan()
-            {
-                _shareLan = Global.Settings.LocalAddress != "127.0.0.1";
-            }
-
-            public static void Reset()
-            {
-                _httpPort = _socks5Port = null;
-            }
         }
 
         /// <summary>

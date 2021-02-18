@@ -163,8 +163,20 @@ namespace Netch.Utils
 
     public class PortInUseException : Exception
     {
+        public PortInUseException(string message) : base(message)
+        {
+        }
+        public PortInUseException()
+        {
+        }
     }
     public class PortReservedException : Exception
     {
+        public PortReservedException(string message) : base(message)
+        {
+        }
+        public PortReservedException()
+        {
+        }
     }
 }

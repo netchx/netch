@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MaxMind.GeoIP2;
 using Microsoft.Win32.TaskScheduler;
+using Vanara.PInvoke;
 using Task = System.Threading.Tasks.Task;
 
 namespace Netch.Utils
@@ -136,46 +137,37 @@ namespace Netch.Utils
             return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
         }
 
-        public static bool SearchOutboundAdapter(bool logging = true)
+        public static void SearchOutboundAdapter(bool logging = true)
         {
             // 寻找出口适配器
-            if (Vanara.PInvoke.IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
+            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
                 0, out var pRoute) != 0)
             {
                 Logging.Error("GetBestRoute 搜索失败");
-                return false;
+                throw new Exception("GetBestRoute 搜索失败");
             }
 
             Global.Outbound.Index = (int) pRoute.dwForwardIfIndex;
             // 根据 IP Index 寻找 出口适配器
-            try
+            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
             {
-                var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
+                try
                 {
-                    try
-                    {
-                        return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                });
-                Global.Outbound.Adapter = adapter;
-                Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop.S_un_b);
-                if (logging)
-                {
-                    Logging.Info($"出口 IPv4 地址：{Global.Outbound.Address}");
-                    Logging.Info($"出口 网关 地址：{Global.Outbound.Gateway}");
-                    Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Outbound.Index}");
+                    return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
                 }
+                catch
+                {
+                    return false;
+                }
+            });
+            Global.Outbound.Adapter = adapter;
+            Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop.S_un_b);
 
-                return true;
-            }
-            catch (Exception e)
+            if (logging)
             {
-                Logging.Error($"找不到出口IP所在网卡: {e}");
-                return false;
+                Logging.Info($"出口 IPv4 地址：{Global.Outbound.Address}");
+                Logging.Info($"出口 网关 地址：{Global.Outbound.Gateway}");
+                Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Outbound.Index}");
             }
         }
 

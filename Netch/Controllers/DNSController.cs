@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -8,11 +9,16 @@ namespace Netch.Controllers
     {
         public string Name { get; } = "DNS Service";
 
+        public void Stop()
+        {
+            aiodns_free();
+        }
+
         /// <summary>
         ///     启动DNS服务
         /// </summary>
         /// <returns></returns>
-        public bool Start()
+        public void Start()
         {
             aiodns_dial((int) NameList.TYPE_REST, null);
             aiodns_dial((int) NameList.TYPE_ADDR, Encoding.UTF8.GetBytes($"{Global.Settings.LocalAddress}:53"));
@@ -21,12 +27,8 @@ namespace Netch.Controllers
             aiodns_dial((int) NameList.TYPE_ODNS, Encoding.UTF8.GetBytes($"{Global.Settings.AioDNS.OtherDNS}:53"));
             aiodns_dial((int) NameList.TYPE_METH, Encoding.UTF8.GetBytes(Global.Settings.AioDNS.Protocol));
 
-            return aiodns_init();
-        }
-
-        public void Stop()
-        {
-            aiodns_free();
+            if (aiodns_init())
+                throw new Exception("AioDNS start failed");
         }
 
         #region NativeMethods
@@ -40,7 +42,7 @@ namespace Netch.Controllers
         [DllImport("aiodns.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern void aiodns_free();
 
-        enum NameList : int
+        private enum NameList
         {
             TYPE_REST,
             TYPE_ADDR,

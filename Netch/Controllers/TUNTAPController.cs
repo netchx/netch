@@ -37,28 +37,19 @@ namespace Netch.Controllers
 
         public override string Name { get; } = "tun2socks";
 
-        public bool Start(in Mode mode)
+        public void Start(in Mode mode)
         {
             var server = MainController.Server;
             // 查询服务器 IP 地址
             _serverAddresses = DNS.Lookup(server.Hostname);
 
             // 查找出口适配器
-            if (!Utils.Utils.SearchOutboundAdapter())
-                return false;
+            Utils.Utils.SearchOutboundAdapter();
 
             // 查找并安装 TAP 适配器
-            if (!SearchTapAdapter())
-            {
-                if (!AddTap())
-                {
-                    Logging.Error("Tap 适配器安装失败");
-                    return false;
-                }
-
-                SearchTapAdapter();
-            }
-
+            if (string.IsNullOrEmpty(TUNTAP.GetComponentID()))
+                AddTap();
+            SearchTapAdapter();
 
             SetupRouteTable(mode);
 
@@ -79,14 +70,9 @@ namespace Netch.Controllers
             }
             else
             {
-                if (!MainController.PortCheckAndShowMessageBox(53, "DNS"))
-                    return false;
+                MainController.PortCheck(53, "DNS");
 
-                if (!DNSController.Start())
-                {
-                    Logging.Error("AioDNS 启动失败");
-                    return false;
-                }
+                DNSController.Start();
 
                 dns = "127.0.0.1";
             }
@@ -103,7 +89,7 @@ namespace Netch.Controllers
             if (Global.Settings.TUNTAP.UseFakeDNS && Global.Flags.SupportFakeDns)
                 argument.Append("-fakeDns ");
 
-            return StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
+            StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
         }
 
         /// <summary>
@@ -235,7 +221,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     搜索出口和TUNTAP适配器
         /// </summary>
-        public static bool SearchTapAdapter()
+        public static void SearchTapAdapter()
         {
             Global.TUNTAP.Adapter = null;
             Global.TUNTAP.Index = -1;
@@ -244,31 +230,16 @@ namespace Netch.Controllers
             // 搜索 TUN/TAP 适配器的索引
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
             {
-                Logging.Info("TAP 适配器未安装");
-                return false;
+                const string s = "TAP 适配器未安装";
+                Logging.Info(s);
+                throw new Exception(s);
             }
 
             // 根据 ComponentID 寻找 Tap适配器
-            try
-            {
-                var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
-                Global.TUNTAP.Adapter = adapter;
-                Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
-                Logging.Info(
-                    $"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
-                return true;
-            }
-            catch (Exception e)
-            {
-                var msg = e switch
-                {
-                    InvalidOperationException _ => $"找不到标识符为 {Global.TUNTAP.ComponentID} 的 TAP 适配器: {e.Message}",
-                    NetworkInformationException _ => $"获取 Tap 适配器信息错误: {e.Message}",
-                    _ => $"Tap 适配器其他异常: {e}"
-                };
-                Logging.Error(msg);
-                return false;
-            }
+            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
+            Global.TUNTAP.Adapter = adapter;
+            Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
+            Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
         }
 
         private static bool AddTap()
@@ -278,8 +249,9 @@ namespace Netch.Controllers
             Thread.Sleep(1000);
             if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID = TUNTAP.GetComponentID()))
             {
-                Logging.Error("找不到 TAP 适配器，驱动可能安装失败");
-                return false;
+                const string s = "TAP 驱动安装失败，找不到 ComponentID 注册表项";
+                Logging.Error(s);
+                throw new Exception(s);
             }
 
             return true;

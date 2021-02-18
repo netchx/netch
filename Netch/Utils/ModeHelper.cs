@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Netch.Controllers;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
@@ -161,14 +160,14 @@ namespace Netch.Utils
                     port = Global.Settings.HTTPLocalPort;
                     portName = "HTTP";
                     portType = PortType.TCP;
-                    MainForm.StatusPortInfoText.HttpPort = (ushort) port;
+                    StatusPortInfoText.HttpPort = (ushort) port;
                     break;
                 case 4:
                     modeController = null;
                     break;
                 default:
                     Logging.Error("未知模式类型");
-                    throw new StartFailedException();
+                    throw new MessageException();
             }
 
             return modeController;
