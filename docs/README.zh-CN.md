@@ -54,9 +54,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 ## 进阶用法
 [进阶教程](Advanced_Usage.zh-CN.md)
 ## 依赖
-- [Visual C++ 运行库合集](https://www.google.com/search?q=Visual+C%2B%2B+%E8%BF%90%E8%A1%8C%E5%BA%93%E5%90%88%E9%9B%86)
-- [.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
-- [TAP-Windows](https://build.openvpn.net/downloads/releases/tap-windows-9.21.2.exe)
+- [.NET Framework 4.8 (Windows 10 1903+ 已包含)](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
 
 ## 语言支持
 Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
@@ -68,7 +66,7 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 - [go-tun2socks](https://github.com/eycorsican/go-tun2socks)
 - [shadowsocks-libev](https://github.com/shadowsocks/shadowsocks-libev)
 - [shadowsocksr-libev](https://github.com/shadowsocksrr/shadowsocksr-libev)
-- [v2ray-core](https://github.com/v2fly/v2ray-core)
+- [Xray-core](https://github.com/XTLS/Xray-core)
 - [trojan](https://github.com/trojan-gfw/trojan)
 - [ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)
 - [PAC](https://github.com/HMBSbige/Text_Translation/blob/master/ShadowsocksR/ss_white.pac)
