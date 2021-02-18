@@ -257,7 +257,7 @@ namespace Netch.Utils
                 td.Principal.RunLevel = TaskRunLevel.Highest;
 
                 td.Triggers.Add(new LogonTrigger());
-                td.Actions.Add(new ExecAction(Application.ExecutablePath));
+                td.Actions.Add(new ExecAction(Global.NetchExecutable));
 
                 td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
                 td.Settings.DisallowStartIfOnBatteries = false;

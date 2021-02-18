@@ -41,7 +41,7 @@ namespace Netch.Updater
             MoveDirectory(Path.Combine(extractPath, "Netch"), Global.NetchDir, true);
 
             Global.Mutex.ReleaseMutex();
-            Process.Start(Application.ExecutablePath);
+            Process.Start(Global.NetchExecutable);
             Global.MainForm.Exit(true);
         }
 

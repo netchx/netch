@@ -22,6 +22,8 @@ namespace Netch
 
         public static readonly string NetchDir = Application.StartupPath;
 
+        public static readonly string NetchExecutable = Application.ExecutablePath;
+
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
