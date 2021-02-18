@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Netch.Utils
 {
-    public static class StringEx
+    public static class StringExtension
     {
         public static bool IsNullOrEmpty(this string value)
         {
