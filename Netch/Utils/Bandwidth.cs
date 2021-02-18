@@ -15,42 +15,30 @@ namespace Netch.Utils
         public static ulong received;
         public static TraceEventSession tSession;
 
+        private static readonly string[] Suffix = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
         /// <summary>
         ///     计算流量
         /// </summary>
-        /// <param name="bandwidth">流量</param>
+        /// <param name="d"></param>
         /// <returns>带单位的流量字符串</returns>
-        public static string Compute(ulong size)
+        public static string Compute(ulong d)
         {
-            var mStrSize = @"0";
             const double step = 1024.00;
-            var factSize = size;
-            if (factSize < step)
-            {
-                mStrSize = $@"{factSize:0.##} B";
-            }
-            else if (factSize >= step && factSize < 1048576)
-            {
-                mStrSize = $@"{factSize / step:0.##} KB";
-            }
-            else if (factSize >= 1048576 && factSize < 1073741824)
-            {
-                mStrSize = $@"{factSize / step / step:0.##} MB";
-            }
-            else if (factSize >= 1073741824 && factSize < 1099511627776)
-            {
-                mStrSize = $@"{factSize / step / step / step:0.##} GB";
-            }
-            else if (factSize >= 1099511627776)
-            {
-                mStrSize = $@"{factSize / step / step / step / step:0.##} TB";
-            }
 
-            return mStrSize;
+            byte level = 0;
+            double? size = null;
+            while ((size ?? d) > step)
+            {
+                if (level >= 6) // Suffix.Length - 1
+                    break;
+                level++;
+                size = (size ?? d) / step;
+            }
+            return $@"{size ?? 0:0.##} {Suffix[level]}";
         }
 
         /// <summary>
-        /// 根据程序名统计流量
+        ///     根据程序名统计流量
         /// </summary>
         public static void NetTraffic()
         {
@@ -76,7 +64,6 @@ namespace Netch.Utils
             }
 
             if (!instances.Any())
-            {
                 switch (MainController.ModeController)
                 {
                     case null:
@@ -91,7 +78,6 @@ namespace Netch.Utils
                         instances.Add(instanceController.Instance);
                         break;
                 }
-            }
 
             var processList = instances.Select(instance => instance.Id).ToList();
 
