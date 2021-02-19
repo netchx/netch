@@ -904,6 +904,8 @@ namespace Netch.Forms
             {
                 // Load Profiles
 
+                if (Global.Settings.ProfileTableColumnCount == 0)
+                    Global.Settings.ProfileTableColumnCount = 5;
                 var columnCount = Global.Settings.ProfileTableColumnCount;
 
                 ProfileTable.ColumnCount = profileCount >= columnCount ? columnCount : profileCount;
