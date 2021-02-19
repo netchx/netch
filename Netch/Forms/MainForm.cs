@@ -122,6 +122,8 @@ namespace Netch.Forms
 
             _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
             _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
+            _profileGroupBoxPaddingHeight = ProfileGroupBox.Height - ProfileTable.Height;
+            _profileTableHeight = ProfileTable.Height;
         }
 
         private void InitText()
@@ -875,44 +877,50 @@ namespace Netch.Forms
 
         private int _configurationGroupBoxHeight;
         private int _profileConfigurationHeight;
+        private int _profileGroupBoxPaddingHeight;
+        private int _profileTableHeight;
 
         private void InitProfile()
         {
             // Clear
-            foreach (var button in ProfileButtons)
-                button.Dispose();
+            foreach (var button in ProfileTable.Controls)
+                ((Button) button).Dispose();
 
-            ProfileButtons.Clear();
+            ProfileTable.Controls.Clear();
             ProfileTable.ColumnStyles.Clear();
             ProfileTable.RowStyles.Clear();
 
-            var numProfile = Global.Settings.ProfileCount;
-            if (numProfile == 0)
+            var profileCount = Global.Settings.ProfileCount;
+            if (profileCount == 0)
             {
                 // Hide Profile GroupBox, Change window size
                 configLayoutPanel.RowStyles[2].SizeType = SizeType.Percent;
                 configLayoutPanel.RowStyles[2].Height = 0;
                 ProfileGroupBox.Visible = false;
 
-                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight - _profileConfigurationHeight);
+                ConfigurationGroupBox.Height = _configurationGroupBoxHeight - _profileConfigurationHeight;
             }
             else
             {
                 // Load Profiles
-                ProfileTable.ColumnCount = numProfile;
 
-                while (Global.Settings.Profiles.Count < numProfile)
-                    Global.Settings.Profiles.Add(new Profile());
+                var columnCount = Global.Settings.ProfileTableColumnCount;
 
-                for (var i = 0; i < numProfile; ++i)
+                ProfileTable.ColumnCount = profileCount >= columnCount ? columnCount : profileCount;
+                ProfileTable.RowCount = (int) Math.Ceiling(profileCount / (float) columnCount);
+
+                for (var i = 0; i < profileCount; ++i)
                 {
-                    var b = new Button();
-                    b.Click += ProfileButton_Click;
-                    b.Dock = DockStyle.Fill;
-                    b.Text = !Global.Settings.Profiles[i].IsDummy ? Global.Settings.Profiles[i].ProfileName : i18N.Translate("None");
+                    var profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == i);
+                    var b = new Button
+                    {
+                        Dock = DockStyle.Fill,
+                        Text = profile?.ProfileName ?? i18N.Translate("None"),
+                        Tag = profile
+                    };
 
-                    ProfileTable.Controls.Add(b, i, 0);
-                    ProfileButtons.Add(b);
+                    b.Click += ProfileButton_Click;
+                    ProfileTable.Controls.Add(b, i % columnCount, i / columnCount);
                 }
 
                 // equal column
@@ -924,21 +932,18 @@ namespace Netch.Forms
 
                 configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
                 ProfileGroupBox.Visible = true;
-                ConfigurationGroupBox.Size = new Size(ConfigurationGroupBox.Size.Width, _configurationGroupBoxHeight);
+                ProfileGroupBox.Height = ProfileTable.RowCount * _profileTableHeight + _profileGroupBoxPaddingHeight;
+                ConfigurationGroupBox.Height = _configurationGroupBoxHeight;
             }
         }
 
-        private void LoadProfile(int index)
+        private void LoadProfile(Profile profile)
         {
-            var p = Global.Settings.Profiles[index];
-            ProfileNameText.Text = p.ProfileName;
+            ProfileNameText.Text = profile.ProfileName;
             ModeComboBox.ResetCompletionList();
 
-            if (p.IsDummy)
-                throw new Exception("Profile not found.");
-
-            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(p.ServerRemark));
-            var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(p.ModeRemark));
+            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
+            var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(profile.ModeRemark));
 
             if (server == null)
                 throw new Exception("Server not found.");
@@ -950,67 +955,70 @@ namespace Netch.Forms
             ModeComboBox.SelectedItem = mode;
         }
 
-        private void SaveProfile(int index)
+        private Profile CreateProfileAtIndex(int index)
         {
-            var selectedServer = (Server) ServerComboBox.SelectedItem;
-            var selectedMode = (Models.Mode) ModeComboBox.SelectedItem;
+            var server = (Server) ServerComboBox.SelectedItem;
+            var mode = (Models.Mode) ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 
-            Global.Settings.Profiles[index] = new Profile(selectedServer, selectedMode, name);
+            Profile profile;
+            if ((profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == index)) != null)
+                Global.Settings.Profiles.Remove(profile);
+            profile = new Profile(server, mode, name, index);
+            Global.Settings.Profiles.Add(profile);
+            return profile;
         }
-
-        private void RemoveProfile(int index)
-        {
-            Global.Settings.Profiles[index] = new Profile();
-        }
-
-        private readonly List<Button> ProfileButtons = new();
 
         private async void ProfileButton_Click(object sender, EventArgs e)
         {
-            var index = ProfileButtons.IndexOf((Button) sender);
+            var profileButton = (Button) sender;
+            var profile = (Profile) profileButton.Tag;
+            var index = ProfileTable.Controls.IndexOf(profileButton);
 
-            if (ModifierKeys == Keys.Control)
+            switch (ModifierKeys)
             {
-                if (ServerComboBox.SelectedIndex == -1)
-                {
-                    MessageBoxX.Show(i18N.Translate("Please select a server first"));
-                }
-                else if (ModeComboBox.SelectedIndex == -1)
-                {
-                    MessageBoxX.Show(i18N.Translate("Please select a mode first"));
-                }
-                else if (ProfileNameText.Text == "")
-                {
-                    MessageBoxX.Show(i18N.Translate("Please enter a profile name first"));
-                }
-                else
-                {
-                    SaveProfile(index);
-                    ProfileButtons[index].Text = ProfileNameText.Text;
-                }
+                case Keys.Control:
+                    if (ServerComboBox.SelectedIndex == -1)
+                    {
+                        MessageBoxX.Show(i18N.Translate("Please select a server first"));
+                        return;
+                    }
 
-                return;
+                    if (ModeComboBox.SelectedIndex == -1)
+                    {
+                        MessageBoxX.Show(i18N.Translate("Please select a mode first"));
+                        return;
+                    }
+
+                    if (ProfileNameText.Text == "")
+                    {
+                        MessageBoxX.Show(i18N.Translate("Please enter a profile name first"));
+                        ProfileNameText.Focus();
+                        return;
+                    }
+
+                    profileButton.Tag = profile = CreateProfileAtIndex(index);
+                    profileButton.Text = profile.ProfileName;
+                    ProfileNameText.Clear();
+                    return;
+                case Keys.Shift:
+                    if (profile == null)
+                        return;
+                    Global.Settings.Profiles.Remove(profile);
+                    profileButton.Tag = null;
+                    profileButton.Text = i18N.Translate("None");
+                    return;
             }
 
-            if (Global.Settings.Profiles[index].IsDummy)
+            if (profile == null)
             {
-                MessageBoxX.Show(
-                    i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
-                return;
-            }
-
-            if (ModifierKeys == Keys.Shift)
-            {
-                if (MessageBoxX.Show(i18N.Translate("Remove this Profile?"), confirm: true) != DialogResult.OK) return;
-                RemoveProfile(index);
-                ProfileButtons[index].Text = i18N.Translate("None");
+                MessageBoxX.Show(i18N.Translate("No saved profile here. Save a profile first by Ctrl+Click on the button"));
                 return;
             }
 
             try
             {
-                LoadProfile(index);
+                LoadProfile(profile);
             }
             catch (Exception exception)
             {

@@ -5,15 +5,14 @@
         public string ServerRemark;
         public string ModeRemark;
         public string ProfileName;
+        public int Index;
 
-        public bool IsDummy = true;
-
-        public Profile(Server server, Mode mode, string name)
+        public Profile(Server server, Mode mode, string name,int index)
         {
             ServerRemark = server.Remark;
             ModeRemark = mode.Remark;
             ProfileName = name;
-            IsDummy = false;
+            Index = index;
         }
 
         /// <summary>

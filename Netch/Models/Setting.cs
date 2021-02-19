@@ -289,6 +289,12 @@ namespace Netch.Models
         public bool UseProxyToUpdateSubscription = false;
 
         public V2rayConfig V2RayConfig = new();
+        
+        /// <summary>
+        ///     配置最大列数
+        /// </summary>
+        public int ProfileTableColumnCount = 5;
+
         public Setting Clone()
         {
             return (Setting) MemberwiseClone();
