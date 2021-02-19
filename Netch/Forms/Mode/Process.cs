@@ -171,7 +171,7 @@ namespace Netch.Forms.Mode
                 _mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
                 _mode.WriteFile();
-                Global.MainForm.InitMode();
+                Global.MainForm.LoadModes();
                 Edited = false;
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }

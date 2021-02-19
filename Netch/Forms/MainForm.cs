@@ -79,21 +79,21 @@ namespace Netch.Forms
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
-            InitServer();
+            LoadServers();
             ServerHelper.DelayTestHelper.UpdateInterval();
 
             ModeHelper.Load();
-            InitMode();
+            LoadModes();
             _comboBoxInitialized = true;
 
             // 加载翻译
-            InitText();
+            TranslateControls();
 
             // 隐藏 NatTypeStatusLabel
             NatTypeStatusText();
 
             // 加载快速配置
-            InitProfile();
+            LoadProfiles();
 
             // 打开软件时启动加速，产生开始按钮点击事件
             if (Global.Settings.StartWhenOpened)
@@ -126,7 +126,7 @@ namespace Netch.Forms
             _profileTableHeight = ProfileTable.Height;
         }
 
-        private void InitText()
+        private void TranslateControls()
         {
             #region Record English
 
@@ -219,7 +219,7 @@ namespace Netch.Forms
                 Global.Settings.Server.AddRange(servers);
                 NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
-                InitServer();
+                LoadServers();
                 Configuration.Save();
             }
         }
@@ -235,7 +235,7 @@ namespace Netch.Forms
             Hide();
             ServerHelper.GetUtilByFullName(result).Create();
 
-            InitServer();
+            LoadServers();
             Configuration.Save();
             Show();
         }
@@ -257,7 +257,7 @@ namespace Netch.Forms
             try
             {
                 ModeHelper.Load();
-                InitMode();
+                LoadModes();
                 NotifyTip(i18N.Translate("Modes have been reload"));
             }
             catch (Exception)
@@ -278,7 +278,7 @@ namespace Netch.Forms
         {
             Hide();
             new SubscribeForm().ShowDialog();
-            InitServer();
+            LoadServers();
             Show();
         }
 
@@ -331,7 +331,7 @@ namespace Netch.Forms
 
                 await Subscription.UpdateServersAsync(proxyServer);
 
-                InitServer();
+                LoadServers();
                 Configuration.Save();
                 StatusText(i18N.Translate("Subscription updated"));
             }
@@ -654,16 +654,16 @@ namespace Netch.Forms
             if (oldSettings.Language != Global.Settings.Language)
             {
                 i18N.Load(Global.Settings.Language);
-                InitText();
-                InitMode();
-                InitProfile();
+                TranslateControls();
+                LoadModes();
+                LoadProfiles();
             }
 
             if (oldSettings.DetectionTick != Global.Settings.DetectionTick)
                 ServerHelper.DelayTestHelper.UpdateInterval();
 
             if (oldSettings.ProfileCount != Global.Settings.ProfileCount)
-                InitProfile();
+                LoadProfiles();
 
             Show();
         }
@@ -672,7 +672,7 @@ namespace Netch.Forms
 
         #region Server
 
-        private void InitServer()
+        private void LoadServers()
         {
             var comboBoxInitialized = _comboBoxInitialized;
             _comboBoxInitialized = false;
@@ -714,7 +714,7 @@ namespace Netch.Forms
             Hide();
             var server = Global.Settings.Server[ServerComboBox.SelectedIndex];
             ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
-            InitServer();
+            LoadServers();
             Configuration.Save();
             Show();
         }
@@ -784,14 +784,14 @@ namespace Netch.Forms
             }
 
             Global.Settings.Server.Remove(ServerComboBox.SelectedItem as Server);
-            InitServer();
+            LoadServers();
         }
 
         #endregion
 
         #region Mode
 
-        public void InitMode()
+        public void LoadModes()
         {
             var comboBoxInitialized = _comboBoxInitialized;
             _comboBoxInitialized = false;
@@ -880,7 +880,7 @@ namespace Netch.Forms
         private int _profileGroupBoxPaddingHeight;
         private int _profileTableHeight;
 
-        private void InitProfile()
+        private void LoadProfiles()
         {
             // Clear
             foreach (var button in ProfileTable.Controls)
@@ -939,7 +939,7 @@ namespace Netch.Forms
             }
         }
 
-        private void LoadProfile(Profile profile)
+        private void ActiveProfile(Profile profile)
         {
             ProfileNameText.Text = profile.ProfileName;
             ModeComboBox.ResetCompletionList();
@@ -1020,7 +1020,7 @@ namespace Netch.Forms
 
             try
             {
-                LoadProfile(profile);
+                ActiveProfile(profile);
             }
             catch (Exception exception)
             {

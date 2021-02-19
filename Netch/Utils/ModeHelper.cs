@@ -109,7 +109,7 @@ namespace Netch.Utils
         {
             Global.Modes.Add(mode);
             Sort();
-            Global.MainForm.InitMode();
+            Global.MainForm.LoadModes();
         }
 
         public static void Delete(Mode mode)
@@ -119,7 +119,7 @@ namespace Netch.Utils
                 File.Delete(fullName);
 
             Global.Modes.Remove(mode);
-            Global.MainForm.InitMode();
+            Global.MainForm.LoadModes();
         }
 
         public static bool SkipServerController(Server server, Mode mode)
