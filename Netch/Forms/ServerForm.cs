@@ -10,6 +10,8 @@ using Netch.Utils;
 
 namespace Netch.Forms
 {
+
+    [DesignerCategory(@"Code")]
     public abstract class ServerForm : Form
     {
         protected abstract string TypeName { get; }
