@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net48</TargetFramework>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <Platforms>x64</Platforms>
+        <Platforms>AnyCPU</Platforms>
         <UseWindowsForms>true</UseWindowsForms>
         <LangVersion>latest</LangVersion>
     </PropertyGroup>

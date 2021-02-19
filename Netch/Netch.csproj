@@ -53,7 +53,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\NetchLib\NetchLib.csproj" />
+      <ProjectReference Include="..\SearchComboBox\SearchComboBox.csproj" />
     </ItemGroup>
 
     <ItemGroup>
