@@ -8,9 +8,14 @@
         <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <DebugType>none</DebugType>
+      <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <!--    NET Framework    -->
-        <Reference Include="System.Windows.Forms"/>
+        <Reference Include="System.Windows.Forms" />
     </ItemGroup>
 
 </Project>
