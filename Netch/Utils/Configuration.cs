@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using Netch.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -37,6 +38,14 @@ namespace Netch.Utils
                             if (serverResult != null)
                                 Global.Settings.Server.Add(serverResult);
                         }
+
+                    if (settingJObject?["Profiles"] != null && Global.Settings.Profiles.Any() && settingJObject["Profiles"].First()?["Index"] == null)
+                    {
+                        foreach (var profile in Global.Settings.Profiles)
+                        {
+                            profile.Index = Global.Settings.Profiles.IndexOf(profile);
+                        }
+                    }
                 }
                 catch (JsonException)
                 {
