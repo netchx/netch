@@ -38,7 +38,7 @@ namespace Netch.Servers.V2ray
                             break;
                         case "ws":
                             server.Path = Uri.UnescapeDataString(parameter.Get("path") ?? "/");
-                            server.Host = parameter.Get("host") ?? "";
+                            server.Host = Uri.UnescapeDataString(parameter.Get("host") ?? "");
                             break;
                         case "h2":
                             server.Path = Uri.UnescapeDataString(parameter.Get("path") ?? "/");
@@ -83,6 +83,7 @@ namespace Netch.Servers.V2ray
 
         public static string GetVShareLink(Server s, string scheme = "vmess")
         {
+            // https://github.com/XTLS/Xray-core/issues/91
             var server = (VMess.VMess) s;
             var parameter = new Dictionary<string, string>();
             // protocol-specific fields
@@ -107,7 +108,7 @@ namespace Netch.Servers.V2ray
                 case "ws":
                     parameter.Add("path", Uri.EscapeDataString(server.Path.IsNullOrWhiteSpace() ? "/" : server.Path));
                     if (!server.Host.IsNullOrWhiteSpace())
-                        parameter.Add("host", server.Host);
+                        parameter.Add("host", Uri.EscapeDataString(server.Host));
 
                     break;
                 case "h2":
