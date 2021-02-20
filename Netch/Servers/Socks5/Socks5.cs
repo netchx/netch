@@ -19,6 +19,9 @@ namespace Netch.Servers.Socks5
             Type = "Socks5";
         }
 
-        public bool Auth() => !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
+        public bool Auth()
+        {
+            return !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
+        }
     }
 }

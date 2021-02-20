@@ -16,9 +16,13 @@ namespace Netch.Servers.Shadowsocks
     public class SSUtil : IServerUtil
     {
         public ushort Priority { get; } = 1;
+
         public string TypeName { get; } = "SS";
+
         public string FullName { get; } = "Shadowsocks";
+
         public string ShortName { get; } = "SS";
+
         public string[] UriScheme { get; } = {"ss", "ssd"};
 
         public Server ParseJObject(in JObject j)
@@ -40,7 +44,8 @@ namespace Netch.Servers.Shadowsocks
         {
             var server = (Shadowsocks) s;
             // ss://method:password@server:port#Remark
-            return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") + "#" + HttpUtility.UrlEncode(server.Remark);
+            return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") + "#" +
+                   HttpUtility.UrlEncode(server.Remark);
         }
 
         public IServerController GetController()
@@ -51,16 +56,26 @@ namespace Netch.Servers.Shadowsocks
         public IEnumerable<Server> ParseUri(string text)
         {
             if (text.StartsWith("ss://"))
-            {
                 return new[] {ParseSsUri(text)};
-            }
 
             if (text.StartsWith("ssd://"))
-            {
                 return ParseSsdUri(text);
-            }
 
             return null;
+        }
+
+        public bool CheckServer(Server s)
+        {
+            var server = (Shadowsocks) s;
+            if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
+            {
+                Logging.Error($"不支持的 SS 加密方式：{server.EncryptMethod}");
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public IEnumerable<Server> ParseSsdUri(string s)
@@ -75,7 +90,9 @@ namespace Netch.Servers.Shadowsocks
                     Password = server.password ?? json.password,
                     EncryptMethod = server.encryption ?? json.encryption,
                     Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin,
-                    PluginOption = string.IsNullOrEmpty(json.plugin_options) ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options : json.plugin_options
+                    PluginOption = string.IsNullOrEmpty(json.plugin_options)
+                        ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options
+                        : json.plugin_options
                 })
                 .Where(CheckServer);
         }
@@ -112,11 +129,13 @@ namespace Netch.Servers.Shadowsocks
                                     plugin = "simple-obfs";
                                     if (!pluginopts.Contains("obfs="))
                                         pluginopts = "obfs=http;obfs-host=" + pluginopts;
+
                                     break;
                                 case "simple-obfs-tls":
                                     plugin = "simple-obfs";
                                     if (!pluginopts.Contains("obfs="))
                                         pluginopts = "obfs=tls;obfs-host=" + pluginopts;
+
                                     break;
                             }
 
@@ -137,14 +156,16 @@ namespace Netch.Servers.Shadowsocks
                     var finder = new Regex(@"^ss://(?<base64>.+?)@(?<server>.+):(?<port>\d+)");
                     var parser = new Regex(@"^(?<method>.+?):(?<password>.+)$");
                     var match = finder.Match(text);
-                    if (!match.Success) throw new FormatException();
+                    if (!match.Success)
+                        throw new FormatException();
 
                     data.Hostname = match.Groups["server"].Value;
                     data.Port = ushort.Parse(match.Groups["port"].Value);
 
                     var base64 = ShareLink.URLSafeBase64Decode(match.Groups["base64"].Value);
                     match = parser.Match(base64);
-                    if (!match.Success) throw new FormatException();
+                    if (!match.Success)
+                        throw new FormatException();
 
                     data.EncryptMethod = match.Groups["method"].Value;
                     data.Password = match.Groups["password"].Value;
@@ -153,7 +174,8 @@ namespace Netch.Servers.Shadowsocks
                 {
                     var parser = new Regex(@"^((?<method>.+?):(?<password>.+)@(?<server>.+):(?<port>\d+))");
                     var match = parser.Match(ShareLink.URLSafeBase64Decode(text.Replace("ss://", "")));
-                    if (!match.Success) throw new FormatException();
+                    if (!match.Success)
+                        throw new FormatException();
 
                     data.Hostname = match.Groups["server"].Value;
                     data.Port = ushort.Parse(match.Groups["port"].Value);
@@ -167,20 +189,6 @@ namespace Netch.Servers.Shadowsocks
             {
                 return null;
             }
-        }
-
-        public bool CheckServer(Server s)
-        {
-            var server = (Shadowsocks) s;
-            if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
-            {
-                Logging.Error($"不支持的 SS 加密方式：{server.EncryptMethod}");
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 }

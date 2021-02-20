@@ -33,16 +33,17 @@ namespace Netch.Utils
 
             try
             {
-                list.AddRange(JsonConvert.DeserializeObject<List<ShadowsocksConfig>>(text).Select(server => new Shadowsocks
-                {
-                    Hostname = server.server,
-                    Port = server.server_port,
-                    EncryptMethod = server.method,
-                    Password = server.password,
-                    Remark = server.remarks,
-                    Plugin = server.plugin,
-                    PluginOption = server.plugin_opts
-                }));
+                list.AddRange(JsonConvert.DeserializeObject<List<ShadowsocksConfig>>(text)
+                    .Select(server => new Shadowsocks
+                    {
+                        Hostname = server.server,
+                        Port = server.server_port,
+                        EncryptMethod = server.method,
+                        Password = server.password,
+                        Remark = server.remarks,
+                        Plugin = server.plugin,
+                        PluginOption = server.plugin_opts
+                    }));
             }
             catch (JsonReaderException)
             {
@@ -98,6 +99,7 @@ namespace Netch.Utils
             var endIndex = text.IndexOf("://", StringComparison.Ordinal);
             if (endIndex == -1)
                 throw new UriFormatException("Text is not a URI");
+
             return text.Substring(0, endIndex);
         }
 
@@ -131,7 +133,9 @@ namespace Netch.Utils
         public static string GetNetchLink(Server s)
         {
             var server = (Server) s.Clone();
-            return "Netch://" + URLSafeBase64Encode(JsonConvert.SerializeObject(server, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
+            return "Netch://" +
+                   URLSafeBase64Encode(JsonConvert.SerializeObject(server,
+                       new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
         }
 
         #region Utils
@@ -143,7 +147,8 @@ namespace Netch.Utils
         /// <returns>解码后的字符串</returns>
         public static string URLSafeBase64Decode(string text)
         {
-            return Encoding.UTF8.GetString(Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
+            return Encoding.UTF8.GetString(
+                Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
         }
 
         /// <summary>
@@ -163,6 +168,7 @@ namespace Netch.Utils
             var startIndex = 0;
             while (remark.Length > startIndex + 1 && remark[startIndex] == emojiBytes[0] && remark[startIndex + 1] == emojiBytes[1])
                 startIndex += 4;
+
             return Encoding.UTF8.GetString(remark.Skip(startIndex).ToArray()).Trim();
         }
 

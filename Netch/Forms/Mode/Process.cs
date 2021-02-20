@@ -36,8 +36,7 @@ namespace Netch.Forms.Mode
             #region 禁用文件名更改
 
             RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-            FilenameTextBox.Enabled =
-                UseCustomFilenameBox.Enabled = false;
+            FilenameTextBox.Enabled = UseCustomFilenameBox.Enabled = false;
 
             #endregion
 
@@ -66,7 +65,9 @@ namespace Netch.Forms.Mode
         {
             try
             {
-                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories).Select(f => Path.GetFileName(f)).ToArray());
+                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories)
+                    .Select(f => Path.GetFileName(f))
+                    .ToArray());
             }
             catch (Exception)
             {
@@ -88,13 +89,16 @@ namespace Netch.Forms.Mode
             RuleListBox.SelectedIndex = RuleListBox.IndexFromPoint(e.X, e.Y);
             if (RuleListBox.SelectedIndex == -1)
                 return;
+
             if (e.Button == MouseButtons.Right)
                 contextMenuStrip.Show(RuleListBox, e.Location);
         }
 
         private void deleteRule_Click(object sender, EventArgs e)
         {
-            if (RuleListBox.SelectedIndex == -1) return;
+            if (RuleListBox.SelectedIndex == -1)
+                return;
+
             RuleListBox.Items.RemoveAt(RuleListBox.SelectedIndex);
             Edited = true;
         }
@@ -137,6 +141,7 @@ namespace Netch.Forms.Mode
                 EnsurePathExists = true,
                 NavigateToShortcut = true
             };
+
             if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
@@ -191,6 +196,7 @@ namespace Netch.Forms.Mode
                     Type = 0,
                     Remark = RemarkTextBox.Text
                 };
+
                 mode.Rule.AddRange(RuleListBox.Items.Cast<string>());
 
                 mode.WriteFile();

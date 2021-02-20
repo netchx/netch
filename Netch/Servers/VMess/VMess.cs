@@ -6,6 +6,7 @@ namespace Netch.Servers.VMess
     public class VMess : Server
     {
         private string _tlsSecureType = VMessGlobal.TLSSecure[0];
+
         public VMess()
         {
             Type = "VMess";
@@ -66,6 +67,7 @@ namespace Netch.Servers.VMess
             {
                 if (value == "")
                     value = "none";
+
                 _tlsSecureType = value;
             }
         }

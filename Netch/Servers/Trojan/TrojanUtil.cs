@@ -12,9 +12,13 @@ namespace Netch.Servers.Trojan
     public class TrojanUtil : IServerUtil
     {
         public ushort Priority { get; } = 3;
+
         public string TypeName { get; } = "Trojan";
+
         public string FullName { get; } = "Trojan";
+
         public string ShortName { get; } = "TR";
+
         public string[] UriScheme { get; } = {"trojan"};
 
         public Server ParseJObject(in JObject j)
@@ -79,9 +83,7 @@ namespace Netch.Servers.Trojan
                 var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
                 var match = finder.Match(text);
                 if (!match.Success)
-                {
                     throw new FormatException();
-                }
 
                 data.Password = match.Groups["psk"].Value;
                 data.Hostname = match.Groups["server"].Value;

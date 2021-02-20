@@ -83,7 +83,8 @@ namespace Netch.Forms
                 return;
             }
 
-            if (!LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) && !LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
+            if (!LinkTextBox.Text.StartsWith("HTTP://", StringComparison.OrdinalIgnoreCase) &&
+                !LinkTextBox.Text.StartsWith("HTTPS://", StringComparison.OrdinalIgnoreCase))
             {
                 MessageBoxX.Show(i18N.Translate("Link must start with http:// or https://"));
                 return;
@@ -124,7 +125,8 @@ namespace Netch.Forms
 
         private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"), confirm: true) != DialogResult.OK)
+            if (MessageBoxX.Show(i18N.Translate("Delete or not ? Will clean up the corresponding group of items in the server list"),
+                confirm: true) != DialogResult.OK)
                 return;
 
             var subscribeLink = Global.Settings.SubscribeLink[SelectedIndex];
@@ -188,6 +190,7 @@ namespace Netch.Forms
             LinkTextBox.Text = string.Empty;
             UserAgentTextBox.Text = WebUtil.DefaultUserAgent;
         }
+
         private void SetEditingGroup(int index)
         {
             if (index == -1)

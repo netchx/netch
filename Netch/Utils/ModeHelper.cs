@@ -19,10 +19,12 @@ namespace Netch.Utils
         {
             return fullName.Substring(ModeDirectory.Length);
         }
+
         public static string GetFullPath(string relativeName)
         {
             return Path.Combine(ModeDirectory, relativeName);
         }
+
         public static string GetFullPath(Mode mode)
         {
             return Path.Combine(ModeDirectory, mode.RelativePath);
@@ -35,7 +37,8 @@ namespace Netch.Utils
         {
             Global.Modes.Clear();
 
-            if (!Directory.Exists(MODE_DIR)) return;
+            if (!Directory.Exists(MODE_DIR))
+                return;
 
             var stack = new Stack<string>();
             stack.Push(MODE_DIR);
@@ -64,7 +67,8 @@ namespace Netch.Utils
             var mode = new Mode(fullName);
 
             var content = File.ReadAllLines(fullName);
-            if (content.Length == 0) return;
+            if (content.Length == 0)
+                return;
 
             for (var i = 0; i < content.Length; i++)
             {
@@ -74,6 +78,7 @@ namespace Netch.Utils
                 {
                     if (text.First() != '#')
                         return;
+
                     try
                     {
                         var splited = text.Substring(1).Split(',').Select(s => s.Trim()).ToArray();
@@ -125,15 +130,15 @@ namespace Netch.Utils
         public static bool SkipServerController(Server server, Mode mode)
         {
             return mode.Type switch
-            {
-                0 => server switch
-                {
-                    Socks5 => true,
-                    Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
-                    _ => false
-                },
-                _ => false
-            };
+                   {
+                       0 => server switch
+                            {
+                                Socks5 => true,
+                                Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
+                                _ => false
+                            },
+                       _ => false
+                   };
         }
 
         public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)

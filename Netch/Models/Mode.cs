@@ -41,10 +41,12 @@ namespace Netch.Models
         ///     <para />
         /// </summary>
         public int Type = 0;
+
         public Mode(string fullName)
         {
             FullName = fullName;
         }
+
         public Mode()
         {
         }
@@ -63,6 +65,7 @@ namespace Netch.Models
                 {
                     if (string.IsNullOrWhiteSpace(s))
                         continue;
+
                     if (s.StartsWith("//"))
                         continue;
 
@@ -136,6 +139,7 @@ namespace Netch.Models
             return $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}{Global.EOF}{string.Join(Global.EOF, Rule)}";
         }
     }
+
     public static class ModeExtension
     {
         /// 是否会转发 UDP

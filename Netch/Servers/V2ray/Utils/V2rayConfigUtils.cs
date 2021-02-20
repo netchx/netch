@@ -21,7 +21,9 @@ namespace Netch.Servers.V2ray.Utils
 
                 outbound(server, mode, ref v2rayConfig);
 
-                return JsonConvert.SerializeObject(v2rayConfig, Formatting.Indented, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
+                return JsonConvert.SerializeObject(v2rayConfig,
+                    Formatting.Indented,
+                    new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
             }
             catch
             {
@@ -87,6 +89,7 @@ namespace Netch.Servers.V2ray.Utils
                                 directRuleObject.domain.Add("geosite:cn");
                             else
                                 directRuleObject.ip.Add("geoip:cn");
+
                             break;
                         default:
                             directRuleObject.domain.Add("geosite:cn");
@@ -115,6 +118,7 @@ namespace Netch.Servers.V2ray.Utils
 
                 if (CheckRuleItem(ref directRuleObject))
                     v2rayConfig.routing.rules.Add(directRuleObject);
+
                 if (CheckRuleItem(ref blockRuleObject))
                     v2rayConfig.routing.rules.Add(blockRuleObject);
             }
@@ -175,6 +179,7 @@ namespace Netch.Servers.V2ray.Utils
                             address = server.AutoResolveHostname(),
                             port = server.Port
                         };
+
                         outbound.settings.vnext = new List<VnextItem> {vnextItem};
 
                         var usersItem = new UsersItem
@@ -184,6 +189,7 @@ namespace Netch.Servers.V2ray.Utils
                             flow = string.Empty,
                             encryption = vless.EncryptMethod
                         };
+
                         vnextItem.users.Add(usersItem);
 
                         var streamSettings = outbound.streamSettings;
@@ -214,6 +220,7 @@ namespace Netch.Servers.V2ray.Utils
                             address = server.AutoResolveHostname(),
                             port = server.Port
                         };
+
                         outbound.settings.vnext = new List<VnextItem> {vnextItem};
 
                         var usersItem = new UsersItem
@@ -222,6 +229,7 @@ namespace Netch.Servers.V2ray.Utils
                             alterId = vmess.AlterID,
                             security = vmess.EncryptMethod
                         };
+
                         vnextItem.users.Add(usersItem);
 
                         var streamSettings = outbound.streamSettings;
@@ -302,9 +310,7 @@ namespace Netch.Servers.V2ray.Utils
                     case "ws":
                         var wsSettings = new WsSettings
                         {
-                            headers = !string.IsNullOrWhiteSpace(server.Host)
-                                ? new Headers {Host = server.Host}
-                                : null,
+                            headers = !string.IsNullOrWhiteSpace(server.Host) ? new Headers {Host = server.Host} : null,
                             path = !string.IsNullOrWhiteSpace(server.Path) ? server.Path : null
                         };
 

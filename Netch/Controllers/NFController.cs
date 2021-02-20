@@ -57,7 +57,8 @@ namespace Netch.Controllers
             aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
             aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
 
-            if (Global.Settings.ProcessNoProxyForUdp && Global.Settings.ProcessNoProxyForTcp) MessageBoxX.Show("？");
+            if (Global.Settings.ProcessNoProxyForUdp && Global.Settings.ProcessNoProxyForTcp)
+                MessageBoxX.Show("？");
 
             //UDP
             if (Global.Settings.ProcessNoProxyForUdp)
@@ -96,6 +97,7 @@ namespace Netch.Controllers
                 _sysDns = DNS.OutboundDNS;
                 if (string.IsNullOrWhiteSpace(Global.Settings.ModifiedDNS))
                     Global.Settings.ModifiedDNS = "1.1.1.1,8.8.8.8";
+
                 DNS.OutboundDNS = Global.Settings.ModifiedDNS;
             }
 
@@ -138,6 +140,7 @@ namespace Netch.Controllers
             {
                 if (r.StartsWith("!"))
                     return aio_dial((int) NameList.TYPE_ADDNAME, r.Substring(1));
+
                 return aio_dial((int) NameList.TYPE_ADDNAME, r);
             }
             finally
@@ -177,7 +180,8 @@ namespace Netch.Controllers
                     reinstallFlag = true;
             }
 
-            if (!reinstallFlag) return;
+            if (!reinstallFlag)
+                return;
 
             Logging.Info("更新驱动");
             UninstallDriver();
@@ -352,7 +356,9 @@ namespace Netch.Controllers
                 // ignored
             }
 
-            if (!File.Exists(SystemDriver)) return true;
+            if (!File.Exists(SystemDriver))
+                return true;
+
             NFAPI.nf_unRegisterDriver("netfilter2");
             File.Delete(SystemDriver);
 

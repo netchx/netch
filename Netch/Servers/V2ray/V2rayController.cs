@@ -17,7 +17,9 @@ namespace Netch.Servers.V2ray
         public override string Name { get; } = "Xray";
 
         public ushort? Socks5LocalPort { get; set; }
+
         public string LocalAddress { get; set; }
+
         public virtual void Start(in Server s, in Mode mode)
         {
             File.WriteAllText("data\\last.json", V2rayConfigUtils.GenerateClientConfig(s, mode));

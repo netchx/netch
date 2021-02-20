@@ -39,6 +39,7 @@ namespace Netch.Utils
                 {
                     if (rule.ApplicationName.StartsWith(Global.NetchDir))
                         return;
+
                     RemoveNetchFwRules();
                 }
 
@@ -78,13 +79,11 @@ namespace Netch.Utils
 
         private static void AddFwRule(string ruleName, string exeFullPath)
         {
-            var rule = new FirewallWASRule(
-                ruleName,
+            var rule = new FirewallWASRule(ruleName,
                 exeFullPath,
                 FirewallAction.Allow,
                 FirewallDirection.Inbound,
-                FirewallProfiles.Private | FirewallProfiles.Public | FirewallProfiles.Domain
-            );
+                FirewallProfiles.Private | FirewallProfiles.Public | FirewallProfiles.Domain);
 
             FirewallManager.Instance.Rules.Add(rule);
         }

@@ -7,9 +7,13 @@ namespace Netch.Models.GitHubRelease
     public struct SuffixVersion : ICloneable, IComparable, IComparable<SuffixVersion>, IEquatable<SuffixVersion>
     {
         public int Major { get; }
+
         public int Minor { get; }
+
         public int Patch { get; }
+
         public string PreRelease { get; }
+
         public int Build { get; }
 
         public SuffixVersion(int major, int minor, int patch, string preRelease, int build)
@@ -39,16 +43,10 @@ namespace Netch.Models.GitHubRelease
 
             if (splitStr.Length > 1)
                 foreach (var c in splitStr[1])
-                {
                     if (int.TryParse(c.ToString(), out var n))
-                    {
                         build = build * 10 + n;
-                    }
                     else
-                    {
                         preRelease.Append(c);
-                    }
-                }
 
             return new SuffixVersion(dotNetVersion, preRelease.ToString(), build);
         }
@@ -67,41 +65,49 @@ namespace Netch.Models.GitHubRelease
             }
         }
 
-
-        public object Clone() => new SuffixVersion(Major, Major, Patch, PreRelease, Build);
+        public object Clone()
+        {
+            return new SuffixVersion(Major, Major, Patch, PreRelease, Build);
+        }
 
         public int CompareTo(object obj)
         {
             if (obj is SuffixVersion version)
                 return CompareTo(version);
+
             return -1;
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="other"></param>
         /// <returns>
-        /// greater than 0 newer
+        ///     greater than 0 newer
         /// </returns>
         public int CompareTo(SuffixVersion other)
         {
             var majorComparison = Major.CompareTo(other.Major);
             if (majorComparison != 0)
                 return majorComparison;
+
             var minorComparison = Minor.CompareTo(other.Minor);
             if (minorComparison != 0)
                 return minorComparison;
+
             var patchComparison = Patch.CompareTo(other.Patch);
             if (patchComparison != 0)
                 return patchComparison;
+
             if (PreRelease == string.Empty)
                 return other.PreRelease == string.Empty ? 0 : 1;
+
             if (other.PreRelease == string.Empty)
                 return -1;
+
             var suffixComparison = string.Compare(PreRelease, other.PreRelease, StringComparison.Ordinal);
             if (suffixComparison != 0)
                 return suffixComparison;
+
             return Build.CompareTo(other.Build);
         }
 
@@ -114,7 +120,6 @@ namespace Netch.Models.GitHubRelease
         {
             return obj is SuffixVersion other && Equals(other);
         }
-
 
         public override int GetHashCode()
         {

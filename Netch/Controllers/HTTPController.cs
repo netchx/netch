@@ -45,6 +45,7 @@ namespace Netch.Controllers
                         Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}",
                         Bypass = string.Join(";", ProxyService.LanIp)
                     };
+
                     service.Global();
                 }
             }
@@ -72,6 +73,7 @@ namespace Netch.Controllers
                                 service.Bypass = prevBypass;
                                 service.Global();
                             }
+
                             if (prevPAC != "")
                             {
                                 service.AutoConfigUrl = prevPAC;
@@ -89,6 +91,7 @@ namespace Netch.Controllers
                     }
                 })
             };
+
             Task.WaitAll(tasks);
         }
 

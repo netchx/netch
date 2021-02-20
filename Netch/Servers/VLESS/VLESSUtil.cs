@@ -9,9 +9,13 @@ namespace Netch.Servers.VLESS
     public class VLESSUtil : IServerUtil
     {
         public ushort Priority { get; } = 2;
+
         public string TypeName { get; } = "VLESS";
+
         public string FullName { get; } = "VLESS";
+
         public string ShortName { get; } = "VL";
+
         public string[] UriScheme { get; } = {"vless"};
 
         public Server ParseJObject(in JObject j)

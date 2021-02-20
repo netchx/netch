@@ -13,9 +13,13 @@ namespace Netch.Servers.VMess
     public class VMessUtil : IServerUtil
     {
         public ushort Priority { get; } = 3;
+
         public string TypeName { get; } = "VMess";
+
         public string FullName { get; } = "VMess";
+
         public string ShortName { get; } = "V2";
+
         public string[] UriScheme { get; } = {"vmess"};
 
         public Server ParseJObject(in JObject j)
@@ -24,6 +28,7 @@ namespace Netch.Servers.VMess
             var server = j.ToObject<VMess>();
             if (server == null)
                 return null;
+
             string quic;
             if ((quic = j.GetValue("QUIC")?.ToString()) != null)
                 server.QUICSecure = quic;
@@ -61,6 +66,7 @@ namespace Netch.Servers.VMess
                     path = server.Path,
                     tls = server.TLSSecureType
                 });
+
                 return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
             }
 

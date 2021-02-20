@@ -19,7 +19,9 @@ namespace Netch.Utils
 
         public static bool BeginWithAny(this string s, IEnumerable<char> chars)
         {
-            if (s.IsNullOrEmpty()) return false;
+            if (s.IsNullOrEmpty())
+                return false;
+
             return chars.Contains(s[0]);
         }
 
@@ -27,10 +29,12 @@ namespace Netch.Utils
         {
             foreach (var c in value)
             {
-                if (char.IsWhiteSpace(c)) continue;
+                if (char.IsWhiteSpace(c))
+                    continue;
 
                 return false;
             }
+
             return true;
         }
 
@@ -39,7 +43,9 @@ namespace Netch.Utils
             string line;
             while ((line = reader.ReadLine()) != null)
             {
-                if (line.IsWhiteSpace()) continue;
+                if (line.IsWhiteSpace())
+                    continue;
+
                 yield return line;
             }
         }
@@ -51,8 +57,10 @@ namespace Netch.Utils
             {
                 if (new[] {'\\', '(', ')', '[', ']', '.'}.Any(s => s == t))
                     sb.Append(@"\");
+
                 sb.Append(t);
             }
+
             return sb.ToString();
         }
     }

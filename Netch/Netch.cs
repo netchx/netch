@@ -24,7 +24,9 @@ namespace Netch
 
             // 设置当前目录
             Directory.SetCurrentDirectory(Global.NetchDir);
-            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process) + ";" + Path.Combine(Global.NetchDir, "bin"), EnvironmentVariableTarget.Process);
+            Environment.SetEnvironmentVariable("PATH",
+                Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process) + ";" + Path.Combine(Global.NetchDir, "bin"),
+                EnvironmentVariableTarget.Process);
 
             Updater.Updater.CleanOld();
 

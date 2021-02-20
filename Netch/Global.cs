@@ -20,6 +20,9 @@ namespace Netch
         /// </summary>
         public const string EOF = "\r\n";
 
+        public const string UserACL = "data\\user.acl";
+        public const string BuiltinACL = "bin\\default.acl";
+
         public static readonly string NetchDir = Application.StartupPath;
 
         public static readonly string NetchExecutable = Application.ExecutablePath;
@@ -31,74 +34,74 @@ namespace Netch
 
         public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
-        public static class Flags
-        {
-            public static bool SupportFakeDns => _supportFakeDns ??= new TUNTAPController().TestFakeDNS();
-            public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
-
-            private static bool? _supportFakeDns;
-        }
-
-        public const string UserACL = "data\\user.acl";
-        public const string BuiltinACL = "bin\\default.acl";
-
-        /// <summary>
-        ///		出口适配器
-        /// </summary>
-        public static class Outbound
-        {
-            /// <summary>
-            ///		索引
-            /// </summary>
-            public static int Index = -1;
-
-            /// <summary>
-            ///		地址
-            /// </summary>
-            public static IPAddress Address => Adapter.GetIPProperties().UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork).Address;
-
-            /// <summary>
-            ///		网关
-            /// </summary>
-            public static IPAddress Gateway;
-
-            public static NetworkInterface Adapter;
-        }
-
-        /// <summary>
-        ///		TUN/TAP 适配器
-        /// </summary>
-        public static class TUNTAP
-        {
-            /// <summary>
-            ///		适配器
-            /// </summary>
-            public static NetworkInterface Adapter;
-
-            /// <summary>
-            ///		索引
-            /// </summary>
-            public static int Index = -1;
-
-            /// <summary>
-            ///		组件 ID
-            /// </summary>
-            public static string ComponentID = string.Empty;
-        }
-
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>
-        public static Setting Settings = new Setting();
+        public static Setting Settings = new();
 
         /// <summary>
         ///     用于存储模式
         /// </summary>
-        public static readonly List<Mode> Modes = new List<Mode>();
+        public static readonly List<Mode> Modes = new();
 
         /// <summary>
-        /// Windows Job API
+        ///     Windows Job API
         /// </summary>
-        public static readonly JobObject Job = new JobObject();
+        public static readonly JobObject Job = new();
+
+        public static class Flags
+        {
+            public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
+
+            private static bool? _supportFakeDns;
+
+            public static bool SupportFakeDns => _supportFakeDns ??= new TUNTAPController().TestFakeDNS();
+        }
+
+        /// <summary>
+        ///     出口适配器
+        /// </summary>
+        public static class Outbound
+        {
+            /// <summary>
+            ///     索引
+            /// </summary>
+            public static int Index = -1;
+
+            /// <summary>
+            ///     网关
+            /// </summary>
+            public static IPAddress Gateway;
+
+            public static NetworkInterface Adapter;
+
+            /// <summary>
+            ///     地址
+            /// </summary>
+            public static IPAddress Address => Adapter.GetIPProperties()
+                .UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                .Address;
+        }
+
+        /// <summary>
+        ///     TUN/TAP 适配器
+        /// </summary>
+        public static class TUNTAP
+        {
+            /// <summary>
+            ///     适配器
+            /// </summary>
+            public static NetworkInterface Adapter;
+
+            /// <summary>
+            ///     索引
+            /// </summary>
+            public static int Index = -1;
+
+            /// <summary>
+            ///     组件 ID
+            /// </summary>
+            public static string ComponentID = string.Empty;
+        }
     }
 }

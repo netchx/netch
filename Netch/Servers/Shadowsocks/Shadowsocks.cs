@@ -5,6 +5,11 @@ namespace Netch.Servers.Shadowsocks
 {
     public class Shadowsocks : Server
     {
+        public Shadowsocks()
+        {
+            Type = "SS";
+        }
+
         /// <summary>
         ///     加密方式
         /// </summary>
@@ -25,12 +30,10 @@ namespace Netch.Servers.Shadowsocks
         /// </summary>
         public string PluginOption { get; set; }
 
-        public Shadowsocks()
+        public bool HasPlugin()
         {
-            Type = "SS";
+            return !string.IsNullOrWhiteSpace(Plugin) && !string.IsNullOrWhiteSpace(PluginOption);
         }
-
-        public bool HasPlugin() => !string.IsNullOrWhiteSpace(Plugin) && !string.IsNullOrWhiteSpace(PluginOption);
     }
 
     public static class SSGlobal
@@ -38,7 +41,7 @@ namespace Netch.Servers.Shadowsocks
         /// <summary>
         ///     SS 加密列表
         /// </summary>
-        public static readonly List<string> EncryptMethods = new List<string>
+        public static readonly List<string> EncryptMethods = new()
         {
             "rc4-md5",
             "aes-128-gcm",

@@ -10,11 +10,15 @@ namespace Netch.Servers.Trojan
     public class TrojanController : Guard, IServerController
     {
         public override string MainFile { get; protected set; } = "Trojan.exe";
+
         protected override IEnumerable<string> StartedKeywords { get; } = new[] {"started"};
+
         protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"exiting"};
+
         public override string Name { get; } = "Trojan";
 
         public ushort? Socks5LocalPort { get; set; }
+
         public string LocalAddress { get; set; }
 
         public void Start(in Server s, in Mode mode)
@@ -35,10 +39,14 @@ namespace Netch.Servers.Trojan
             if (!string.IsNullOrWhiteSpace(server.Host))
                 trojanConfig.ssl.sni = server.Host;
 
-            File.WriteAllText("data\\last.json", JsonConvert.SerializeObject(trojanConfig, Formatting.Indented, new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore
-            }));
+            File.WriteAllText("data\\last.json",
+                JsonConvert.SerializeObject(trojanConfig,
+                    Formatting.Indented,
+                    new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore
+                    }));
+
             StartInstanceAuto("-c ..\\data\\last.json");
         }
 

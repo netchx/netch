@@ -79,7 +79,9 @@ namespace Netch.Models
                     {
                         try
                         {
-                            return Global.Settings.ServerTCPing ? await Utils.Utils.TCPingAsync(destination, Port) : Utils.Utils.ICMPing(destination, Port);
+                            return Global.Settings.ServerTCPing
+                                ? await Utils.Utils.TCPingAsync(destination, Port)
+                                : Utils.Utils.ICMPing(destination, Port);
                         }
                         catch (Exception)
                         {

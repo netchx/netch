@@ -69,6 +69,7 @@ namespace Netch.Updater
                 FileName = temp7za,
                 Arguments = argument.ToString()
             });
+
             process?.WaitForExit();
             return process?.ExitCode ?? 2;
         }
@@ -119,6 +120,7 @@ namespace Netch.Updater
                 foreach (var dir in Directory.GetDirectories(sourceDirName, "*", SearchOption.AllDirectories))
                     if (!Directory.Exists(dir))
                         Directory.CreateDirectory(dir);
+
                 foreach (var f in Directory.GetFiles(sourceDirName, "*", SearchOption.AllDirectories))
                     try
                     {

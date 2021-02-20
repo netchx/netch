@@ -13,7 +13,10 @@ namespace Netch.Utils
     {
         static ServerHelper()
         {
-            var serversUtilsTypes = Assembly.GetExecutingAssembly().GetExportedTypes().Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
+            var serversUtilsTypes = Assembly.GetExecutingAssembly()
+                .GetExportedTypes()
+                .Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
+
             ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)).OrderBy(util => util.Priority);
         }
 
@@ -25,6 +28,7 @@ namespace Netch.Utils
             private static bool _mux;
 
             public static readonly Range Range = new(0, int.MaxValue / 1000);
+
             static DelayTestHelper()
             {
                 Timer = new Timer
@@ -43,6 +47,7 @@ namespace Netch.Utils
                 {
                     if (!ValueIsEnabled(Global.Settings.DetectionTick))
                         return;
+
                     Timer.Enabled = value;
                 }
             }
@@ -53,17 +58,18 @@ namespace Netch.Utils
             {
                 return value != 0 && Range.InRange(value);
             }
+
             public static event EventHandler TestDelayFinished;
 
             public static void TestAllDelay()
             {
                 if (_mux)
                     return;
+
                 try
                 {
                     _mux = true;
-                    Parallel.ForEach(Global.Settings.Server, new ParallelOptions {MaxDegreeOfParallelism = 16},
-                        server => { server.Test(); });
+                    Parallel.ForEach(Global.Settings.Server, new ParallelOptions {MaxDegreeOfParallelism = 16}, server => { server.Test(); });
                     _mux = false;
                     TestDelayFinished?.Invoke(null, new EventArgs());
                 }
@@ -108,6 +114,7 @@ namespace Netch.Utils
         {
             if (string.IsNullOrEmpty(typeName))
                 return null;
+
             return ServerUtils.FirstOrDefault(i => (i.TypeName ?? "").Equals(typeName));
         }
 
@@ -115,6 +122,7 @@ namespace Netch.Utils
         {
             if (string.IsNullOrEmpty(fullName))
                 return null;
+
             return ServerUtils.FirstOrDefault(i => (i.FullName ?? "").Equals(fullName));
         }
 

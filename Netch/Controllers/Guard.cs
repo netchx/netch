@@ -67,7 +67,9 @@ namespace Netch.Controllers
         {
             try
             {
-                if (Instance == null || Instance.HasExited) return;
+                if (Instance == null || Instance.HasExited)
+                    return;
+
                 Instance.Kill();
                 Instance.WaitForExit();
             }
@@ -134,7 +136,10 @@ namespace Netch.Controllers
             Instance.Start();
             if (priority != ProcessPriorityClass.Normal)
                 Instance.PriorityClass = priority;
-            if (!RedirectStd) return;
+
+            if (!RedirectStd)
+                return;
+
             // 启动日志重定向
             Instance.BeginOutputReadLine();
             Instance.BeginErrorReadLine();

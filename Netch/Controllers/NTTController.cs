@@ -7,8 +7,14 @@ namespace Netch.Controllers
 {
     public class NTTController : Guard, IController
     {
-        public override string Name { get; } = "NTT";
         public override string MainFile { get; protected set; } = "NTT.exe";
+
+        public override string Name { get; } = "NTT";
+
+        public override void Stop()
+        {
+            StopInstance();
+        }
 
         /// <summary>
         ///     启动 NatTypeTester
@@ -42,6 +48,7 @@ namespace Netch.Controllers
                     var str = line.Split(':').Select(s => s.Trim()).ToArray();
                     if (str.Length < 2)
                         continue;
+
                     var key = str[0];
                     var value = str[1];
                     switch (key)
@@ -70,6 +77,7 @@ namespace Netch.Controllers
 
                 if (bindingTest == "Fail")
                     result = "UdpBlocked";
+
                 return (result, localEnd, publicEnd);
             }
             catch (Exception e)
@@ -86,11 +94,6 @@ namespace Netch.Controllers
 
                 return (null, null, null);
             }
-        }
-
-        public override void Stop()
-        {
-            StopInstance();
         }
     }
 }

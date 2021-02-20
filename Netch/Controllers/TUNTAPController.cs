@@ -48,6 +48,7 @@ namespace Netch.Controllers
             // 查找并安装 TAP 适配器
             if (string.IsNullOrEmpty(TUNTAP.GetComponentID()))
                 AddTap();
+
             SearchTapAdapter();
 
             SetupRouteTable(mode);
@@ -102,6 +103,7 @@ namespace Netch.Controllers
                 Task.Run(ClearRouteTable),
                 Task.Run(DNSController.Stop)
             };
+
             Task.WaitAll(tasks);
         }
 
@@ -145,9 +147,7 @@ namespace Netch.Controllers
                     {
                         Logging.Info("代理 → 自定义 DNS");
                         if (Global.Settings.TUNTAP.UseCustomDNS)
-                            RouteAction(Action.Create,
-                                Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"),
-                                RouteType.TUNTAP);
+                            RouteAction(Action.Create, Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
                         else
                             RouteAction(Action.Create,
                                 new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
@@ -160,14 +160,13 @@ namespace Netch.Controllers
 
                     // 将 TUN/TAP 网卡权重放到最高
                     Process.Start(new ProcessStartInfo
-                        {
-                            FileName = "netsh",
-                            Arguments = $"interface ip set interface {Global.TUNTAP.Index} metric=0",
-                            WindowStyle = ProcessWindowStyle.Hidden,
-                            UseShellExecute = true,
-                            CreateNoWindow = true
-                        }
-                    );
+                    {
+                        FileName = "netsh",
+                        Arguments = $"interface ip set interface {Global.TUNTAP.Index} metric=0",
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        UseShellExecute = true,
+                        CreateNoWindow = true
+                    });
 
                     Logging.Info("绕行 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
@@ -256,8 +255,7 @@ namespace Netch.Controllers
             return true;
         }
 
-        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType,
-            int metric = 0)
+        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0)
         {
             foreach (var address in ipNetworks)
                 RouteAction(action, address, routeType, metric);

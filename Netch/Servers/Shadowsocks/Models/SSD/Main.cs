@@ -10,11 +10,6 @@ namespace Netch.Servers.Shadowsocks.Models.SSD
         public string airport;
 
         /// <summary>
-        ///     端口
-        /// </summary>
-        public ushort port;
-
-        /// <summary>
         ///     加密方式
         /// </summary>
         public string encryption;
@@ -33,6 +28,11 @@ namespace Netch.Servers.Shadowsocks.Models.SSD
         ///     插件参数
         /// </summary>
         public string plugin_options;
+
+        /// <summary>
+        ///     端口
+        /// </summary>
+        public ushort port;
 
         /// <summary>
         ///     服务器数组

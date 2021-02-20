@@ -64,7 +64,8 @@ namespace Netch.Utils
 
             var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
 
-            if (data == null) return;
+            if (data == null)
+                return;
 
             Data = new Hashtable();
             foreach (var v in data)
@@ -84,6 +85,7 @@ namespace Netch.Utils
                     a.Append(Data.Contains(t) ? Data[t].ToString() : t);
                 else
                     a.Append(t);
+
             return a.ToString();
         }
 
@@ -100,31 +102,34 @@ namespace Netch.Utils
         {
             var translateFile = new List<string> {"System", "zh-CN", "en-US"};
 
-            if (!Directory.Exists("i18n")) return translateFile;
+            if (!Directory.Exists("i18n"))
+                return translateFile;
+
             translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
             return translateFile;
         }
 
         public static void TranslateForm(in Control c)
         {
-            Utils.ComponentIterator(c, component =>
-            {
-                switch (component)
+            Utils.ComponentIterator(c,
+                component =>
                 {
-                    case TextBoxBase _:
-                    case ListControl _:
-                        break;
-                    case Control c:
-                        c.Text = Translate(c.Text);
-                        break;
-                    case ToolStripItem c:
-                        c.Text = Translate(c.Text);
-                        break;
-                    case ColumnHeader c:
-                        c.Text = Translate(c.Text);
-                        break;
-                }
-            });
+                    switch (component)
+                    {
+                        case TextBoxBase _:
+                        case ListControl _:
+                            break;
+                        case Control c:
+                            c.Text = Translate(c.Text);
+                            break;
+                        case ToolStripItem c:
+                            c.Text = Translate(c.Text);
+                            break;
+                        case ColumnHeader c:
+                            c.Text = Translate(c.Text);
+                            break;
+                    }
+                });
         }
     }
 }

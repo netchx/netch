@@ -8,13 +8,13 @@ namespace Netch.Utils
 {
     public static class WebUtil
     {
+        public const string DefaultUserAgent =
+            @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.55";
+
         static WebUtil()
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
         }
-
-        public const string DefaultUserAgent =
-            @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.67 Safari/537.36 Edg/87.0.664.55";
 
         private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 

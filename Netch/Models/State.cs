@@ -30,7 +30,6 @@
         /// </summary>
         Stopped,
 
-
         /// <summary>
         ///     退出中
         /// </summary>
@@ -43,6 +42,7 @@
         {
             if (state == State.Waiting)
                 return "Waiting for command";
+
             return state.ToString();
         }
     }

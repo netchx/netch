@@ -38,7 +38,9 @@ namespace Netch.Servers.VLESS
             "tls",
             "xtls"
         };
+
         public static List<string> FakeTypes => VMessGlobal.FakeTypes;
+
         public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
 
         public static List<string> QUIC => VMessGlobal.QUIC;

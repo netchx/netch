@@ -40,10 +40,13 @@ namespace Netch.Utils
                     CreateNoWindow = true
                 }
             };
+
             process.OutputDataReceived += (s, e) =>
             {
-                if (e.Data != null) lines.Add(e.Data);
+                if (e.Data != null)
+                    lines.Add(e.Data);
             };
+
             process.Start();
             process.BeginOutputReadLine();
             process.WaitForExit();
@@ -86,6 +89,7 @@ namespace Netch.Utils
                     break;
             }
         }
+
         private static void CheckPortInUse(ushort port, PortType type)
         {
             switch (type)
@@ -97,15 +101,18 @@ namespace Netch.Utils
                 case PortType.TCP:
                     if (NetInfo.GetActiveTcpListeners().Any(ipEndPoint => ipEndPoint.Port == port))
                         throw new PortInUseException();
+
                     break;
                 case PortType.UDP:
                     if (NetInfo.GetActiveUdpListeners().Any(ipEndPoint => ipEndPoint.Port == port))
                         throw new PortInUseException();
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
+
         /// <summary>
         ///     检查端口是否是保留端口
         /// </summary>
@@ -120,10 +127,12 @@ namespace Netch.Utils
                 case PortType.TCP:
                     if (TCPReservedRanges.Any(range => range.InRange(port)))
                         throw new PortReservedException();
+
                     break;
                 case PortType.UDP:
                     if (UDPReservedRanges.Any(range => range.InRange(port)))
                         throw new PortReservedException();
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
@@ -166,15 +175,18 @@ namespace Netch.Utils
         public PortInUseException(string message) : base(message)
         {
         }
+
         public PortInUseException()
         {
         }
     }
+
     public class PortReservedException : Exception
     {
         public PortReservedException(string message) : base(message)
         {
         }
+
         public PortReservedException()
         {
         }

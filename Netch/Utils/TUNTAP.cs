@@ -23,18 +23,14 @@ namespace Netch.Utils
                 var adaptersRegistry = Registry.LocalMachine.OpenSubKey(ADAPTER_KEY);
 
                 foreach (var adapterRegistryName in adaptersRegistry.GetSubKeyNames())
-                {
                     if (adapterRegistryName != "Configuration" && adapterRegistryName != "Properties")
                     {
                         var adapterRegistry = adaptersRegistry.OpenSubKey(adapterRegistryName);
 
                         var adapterComponentId = adapterRegistry.GetValue("ComponentId", "").ToString();
                         if (adapterComponentId == TUNTAP_COMPONENT_ID_0901 || adapterComponentId == TUNTAP_COMPONENT_ID_0801)
-                        {
                             return adapterRegistry.GetValue("NetCfgInstanceId", "").ToString();
-                        }
                     }
-                }
             }
             catch (Exception e)
             {
@@ -66,25 +62,29 @@ namespace Netch.Utils
         }
 
         /// <summary>
-        /// 卸载tap网卡
+        ///     卸载tap网卡
         /// </summary>
         public static void deltapall()
         {
             Logging.Info("卸载 TUN/TAP 适配器");
-            var installProcess = new Process {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "deltapall.bat")}};
+            var installProcess = new Process
+                {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "deltapall.bat")}};
+
             installProcess.Start();
             installProcess.WaitForExit();
             installProcess.Close();
         }
 
         /// <summary>
-        /// 安装tap网卡
+        ///     安装tap网卡
         /// </summary>
         public static void addtap()
         {
             Logging.Info("安装 TUN/TAP 适配器");
             //安装Tap Driver
-            var installProcess = new Process {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "addtap.bat")}};
+            var installProcess = new Process
+                {StartInfo = {WindowStyle = ProcessWindowStyle.Hidden, FileName = Path.Combine("bin/tap-driver", "addtap.bat")}};
+
             installProcess.Start();
             installProcess.WaitForExit();
             installProcess.Close();

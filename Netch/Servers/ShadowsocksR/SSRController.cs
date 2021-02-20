@@ -17,6 +17,7 @@ namespace Netch.Servers.ShadowsocksR
         public override string Name { get; } = "ShadowsocksR";
 
         public ushort? Socks5LocalPort { get; set; }
+
         public string LocalAddress { get; set; }
 
         public void Start(in Server s, in Mode mode)
@@ -30,13 +31,15 @@ namespace Netch.Servers.ShadowsocksR
             if (!string.IsNullOrEmpty(server.Protocol))
             {
                 argument.Append($" -O {server.Protocol}");
-                if (!string.IsNullOrEmpty(server.ProtocolParam)) argument.Append($" -G \"{server.ProtocolParam}\"");
+                if (!string.IsNullOrEmpty(server.ProtocolParam))
+                    argument.Append($" -G \"{server.ProtocolParam}\"");
             }
 
             if (!string.IsNullOrEmpty(server.OBFS))
             {
                 argument.Append($" -o {server.OBFS}");
-                if (!string.IsNullOrEmpty(server.OBFSParam)) argument.Append($" -g \"{server.OBFSParam}\"");
+                if (!string.IsNullOrEmpty(server.OBFSParam))
+                    argument.Append($" -g \"{server.OBFSParam}\"");
             }
 
             argument.Append($" -b {this.LocalAddress()} -l {this.Socks5LocalPort()} -u");

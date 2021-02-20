@@ -40,12 +40,8 @@ namespace Netch.Utils
                         }
 
                     if (settingJObject?["Profiles"] != null && Global.Settings.Profiles.Any() && settingJObject["Profiles"].First()?["Index"] == null)
-                    {
                         foreach (var profile in Global.Settings.Profiles)
-                        {
                             profile.Index = Global.Settings.Profiles.IndexOf(profile);
-                        }
-                    }
                 }
                 catch (JsonException)
                 {
@@ -67,19 +63,15 @@ namespace Netch.Utils
         public static void Save()
         {
             if (!Directory.Exists(DATA_DIR))
-            {
                 Directory.CreateDirectory(DATA_DIR);
-            }
 
             File.WriteAllText(SETTINGS_JSON,
-                JsonConvert.SerializeObject(
-                    Global.Settings,
+                JsonConvert.SerializeObject(Global.Settings,
                     Formatting.Indented,
                     new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore
-                    }
-                ));
+                    }));
         }
     }
 }

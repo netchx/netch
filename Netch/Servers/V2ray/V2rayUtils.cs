@@ -50,6 +50,7 @@ namespace Netch.Servers.V2ray
                             server.FakeType = parameter.Get("headerType") ?? "none";
                             break;
                     }
+
                     server.TLSSecureType = parameter.Get("security") ?? "none";
                     if (server.TLSSecureType != "none")
                     {
@@ -58,6 +59,7 @@ namespace Netch.Servers.V2ray
                             ((VLESS.VLESS) server).Flow = parameter.Get("flow") ?? "";
                     }
                 }
+
                 var finder = new Regex(@$"^{scheme}://(?<guid>.+?)@(?<server>.+):(?<port>\d+)");
                 var match = finder.Match(text.Split('?')[0]);
                 if (!match.Success)
@@ -78,6 +80,7 @@ namespace Netch.Servers.V2ray
                 return null;
             }
         }
+
         public static string GetVShareLink(Server s, string scheme = "vmess")
         {
             var server = (VMess.VMess) s;
@@ -87,6 +90,7 @@ namespace Netch.Servers.V2ray
             if (server.EncryptMethod == "none")
                 // VLESS outbounds[].settings.encryption，当前可选值只有 none
                 parameter.Add("encryption", server.EncryptMethod);
+
             // transport-specific fields
             switch (server.TransferProtocol)
             {
@@ -95,18 +99,22 @@ namespace Netch.Servers.V2ray
                 case "kcp":
                     if (server.FakeType != "none")
                         parameter.Add("headerType", server.FakeType);
+
                     if (!server.Path.IsNullOrWhiteSpace())
                         parameter.Add("seed", Uri.EscapeDataString(server.Path));
+
                     break;
                 case "ws":
                     parameter.Add("path", Uri.EscapeDataString(server.Path.IsNullOrWhiteSpace() ? "/" : server.Path));
                     if (!server.Host.IsNullOrWhiteSpace())
                         parameter.Add("host", server.Host);
+
                     break;
                 case "h2":
                     parameter.Add("path", Uri.EscapeDataString(server.Path.IsNullOrWhiteSpace() ? "/" : server.Path));
                     if (!server.Host.IsNullOrWhiteSpace())
                         parameter.Add("host", Uri.EscapeDataString(server.Host));
+
                     break;
                 case "quic":
                     if (server.QUICSecure != "none")
@@ -117,6 +125,7 @@ namespace Netch.Servers.V2ray
 
                     if (server.FakeType != "none")
                         parameter.Add("headerType", server.FakeType);
+
                     break;
             }
 
@@ -135,7 +144,8 @@ namespace Netch.Servers.V2ray
                 }
             }
 
-            return $"{scheme}://{server.UserID}@{server.Hostname}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={p.Value}"))}{(server.Remark.IsNullOrWhiteSpace() ? "" : $"#{Uri.EscapeDataString(server.Remark)}")}";
+            return
+                $"{scheme}://{server.UserID}@{server.Hostname}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={p.Value}"))}{(server.Remark.IsNullOrWhiteSpace() ? "" : $"#{Uri.EscapeDataString(server.Remark)}")}";
         }
     }
 }

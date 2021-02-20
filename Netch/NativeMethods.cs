@@ -5,7 +5,7 @@ namespace Netch
     public static class NativeMethods
     {
         /// <summary>
-        ///		创建路由规则
+        ///     创建路由规则
         /// </summary>
         /// <param name="address">目标地址</param>
         /// <param name="cidr">CIDR</param>
@@ -17,7 +17,7 @@ namespace Netch
         public static extern bool CreateRoute(string address, int cidr, string gateway, int index, int metric = 0);
 
         /// <summary>
-        ///		删除路由规则
+        ///     删除路由规则
         /// </summary>
         /// <param name="address">目标地址</param>
         /// <param name="cidr">掩码地址</param>

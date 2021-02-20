@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -10,17 +10,27 @@ using Netch.Utils;
 
 namespace Netch.Forms
 {
-
     [DesignerCategory(@"Code")]
     public abstract class ServerForm : Form
     {
-        protected abstract string TypeName { get; }
-        protected Server Server { get; set; }
-
-        private int _controlLines = 2;
-
         private const int ControlLineHeight = 28;
         private const int InputBoxWidth = 294;
+
+        private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();
+
+        private readonly Dictionary<Control, Action<object>> _saveActions = new();
+
+        private int _controlLines = 2;
+        private Label AddressLabel;
+        protected TextBox AddressTextBox;
+
+        private readonly IContainer components = null;
+
+        private GroupBox ConfigurationGroupBox;
+        private Label PortLabel;
+        private TextBox PortTextBox;
+        private Label RemarkLabel;
+        protected TextBox RemarkTextBox;
 
         protected ServerForm()
         {
@@ -35,6 +45,10 @@ namespace Netch.Forms
             _checkActions.Add(PortTextBox, s => ushort.TryParse(s, out var port) && port != 0);
             _saveActions.Add(PortTextBox, s => Server.Port = ushort.Parse((string) s));
         }
+
+        protected abstract string TypeName { get; }
+
+        protected Server Server { get; set; }
 
         public new void ShowDialog()
         {
@@ -65,7 +79,12 @@ namespace Netch.Forms
             PerformLayout();
         }
 
-        protected void CreateTextBox(string name, string remark, Func<string, bool> check, Action<string> save, string value, int width = InputBoxWidth)
+        protected void CreateTextBox(string name,
+            string remark,
+            Func<string, bool> check,
+            Action<string> save,
+            string value,
+            int width = InputBoxWidth)
         {
             _controlLines++;
 
@@ -77,22 +96,21 @@ namespace Netch.Forms
                 TextAlign = HorizontalAlignment.Center,
                 Text = value
             };
+
             _checkActions.Add(textBox, check);
             _saveActions.Add(textBox, o => save.Invoke((string) o));
-            ConfigurationGroupBox.Controls.AddRange(
-                new Control[]
+            ConfigurationGroupBox.Controls.AddRange(new Control[]
+            {
+                textBox,
+                new Label
                 {
-                    textBox,
-                    new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(10, ControlLineHeight * _controlLines),
-                        Name = $"{name}Label",
-                        Size = new Size(56, 17),
-                        Text = remark
-                    }
+                    AutoSize = true,
+                    Location = new Point(10, ControlLineHeight * _controlLines),
+                    Name = $"{name}Label",
+                    Size = new Size(56, 17),
+                    Text = remark
                 }
-            );
+            });
         }
 
         protected void CreateComboBox(string name, string remark, List<string> values, Action<string> save, string value, int width = InputBoxWidth)
@@ -108,24 +126,23 @@ namespace Netch.Forms
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 FormattingEnabled = true
             };
+
             comboBox.Items.AddRange(values.ToArray());
             comboBox.SelectedIndex = values.IndexOf(value);
             comboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
             _saveActions.Add(comboBox, o => save.Invoke((string) o));
-            ConfigurationGroupBox.Controls.AddRange(
-                new Control[]
+            ConfigurationGroupBox.Controls.AddRange(new Control[]
+            {
+                comboBox,
+                new Label
                 {
-                    comboBox,
-                    new Label
-                    {
-                        AutoSize = true,
-                        Location = new Point(10, ControlLineHeight * _controlLines),
-                        Name = $"{name}Label",
-                        Size = new Size(56, 17),
-                        Text = remark
-                    }
+                    AutoSize = true,
+                    Location = new Point(10, ControlLineHeight * _controlLines),
+                    Name = $"{name}Label",
+                    Size = new Size(56, 17),
+                    Text = remark
                 }
-            );
+            });
         }
 
         protected void CreateCheckBox(string name, string remark, Action<bool> save, bool value)
@@ -140,18 +157,13 @@ namespace Netch.Forms
                 Checked = value,
                 Text = remark
             };
+
             _saveActions.Add(checkBox, o => save.Invoke((bool) o));
-            ConfigurationGroupBox.Controls.AddRange(
-                new Control[]
-                {
-                    checkBox
-                }
-            );
+            ConfigurationGroupBox.Controls.AddRange(new Control[]
+            {
+                checkBox
+            });
         }
-
-        private readonly Dictionary<Control, Func<string, bool>> _checkActions = new Dictionary<Control, Func<string, bool>>();
-
-        private readonly Dictionary<Control, Action<object>> _saveActions = new Dictionary<Control, Action<object>>();
 
         private void AddSaveButton()
         {
@@ -164,6 +176,7 @@ namespace Netch.Forms
                 Text = "Save",
                 UseVisualStyleBackColor = true
             };
+
             control.Click += ControlButton_Click;
             ConfigurationGroupBox.Controls.Add(control);
         }
@@ -180,12 +193,9 @@ namespace Netch.Forms
             }
 
             if (!flag)
-            {
                 return;
-            }
 
             foreach (var pair in _saveActions)
-            {
                 switch (pair.Key)
                 {
                     case CheckBox c:
@@ -195,7 +205,6 @@ namespace Netch.Forms
                         pair.Value.Invoke(pair.Key.Text);
                         break;
                 }
-            }
 
             if (Global.Settings.Server.IndexOf(Server) == -1)
                 Global.Settings.Server.Add(Server);
@@ -205,14 +214,10 @@ namespace Netch.Forms
             Close();
         }
 
-        private IContainer components = null;
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 components?.Dispose();
-            }
 
             base.Dispose(disposing);
         }
@@ -306,7 +311,7 @@ namespace Netch.Forms
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(444, 137);
             Controls.Add(ConfigurationGroupBox);
-            Font = new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, (byte) 134);
+            Font = new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = Icon.FromHandle(Resources.Netch.GetHicon());
             Margin = new Padding(3, 4, 3, 4);
@@ -315,13 +320,5 @@ namespace Netch.Forms
             Padding = new Padding(11, 5, 11, 4);
             StartPosition = FormStartPosition.CenterScreen;
         }
-
-        private GroupBox ConfigurationGroupBox;
-        private Label RemarkLabel;
-        protected TextBox RemarkTextBox;
-        private Label PortLabel;
-        protected TextBox AddressTextBox;
-        private TextBox PortTextBox;
-        private Label AddressLabel;
     }
 }

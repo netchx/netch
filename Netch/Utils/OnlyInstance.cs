@@ -32,6 +32,7 @@ namespace Netch.Utils
                         PortHelper.CheckPort(Global.Settings.UDPSocketPort, PortType.UDP);
                         if (i != tryLimit)
                             Configuration.Save();
+
                         break;
                     }
                     catch

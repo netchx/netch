@@ -2,12 +2,12 @@
 {
     public class Profile
     {
-        public string ServerRemark;
+        public int Index;
         public string ModeRemark;
         public string ProfileName;
-        public int Index;
+        public string ServerRemark;
 
-        public Profile(Server server, Mode mode, string name,int index)
+        public Profile(Server server, Mode mode, string name, int index)
         {
             ServerRemark = server.Remark;
             ModeRemark = mode.Remark;
@@ -16,12 +16,10 @@
         }
 
         /// <summary>
-        /// Return a dummy one.
+        ///     Return a dummy one.
         /// </summary>
         public Profile()
         {
         }
-
-
     }
 }

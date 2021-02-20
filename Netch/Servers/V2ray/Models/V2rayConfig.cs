@@ -207,24 +207,22 @@ namespace Netch.Servers.V2ray.Models
 
     public class TCPRequest
     {
-        public string version = "1.1";
+        public TCPRequestHeaders headers;
 
         public string method = "GET";
 
         public string path = "/";
-
-        public TCPRequestHeaders headers;
+        public string version = "1.1";
     }
 
     public class TCPRequestHeaders
     {
-        public string Host;
-
         //public string User_Agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36";
 
         public string Accept_Encoding = "gzip, deflate";
 
         public string Connection = "keep-alive";
+        public string Host;
 
         public string Pragma = "no-cache";
     }

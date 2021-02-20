@@ -15,6 +15,7 @@ namespace Netch.Forms
         private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();
 
         private readonly Dictionary<Control, Action<Control>> _saveActions = new();
+
         public SettingForm()
         {
             InitializeComponent();
@@ -36,46 +37,34 @@ namespace Netch.Forms
                 p => p.ToString() != HTTPPortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
                 p => Global.Settings.Socks5LocalPort = p,
                 Global.Settings.Socks5LocalPort);
+
             BindTextBox<ushort>(HTTPPortTextBox,
                 p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
                 p => Global.Settings.HTTPLocalPort = p,
                 Global.Settings.HTTPLocalPort);
+
             BindTextBox<ushort>(RedirectorTextBox,
                 p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != HTTPPortTextBox.Text,
                 p => Global.Settings.RedirectorTCPPort = p,
                 Global.Settings.RedirectorTCPPort);
+
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
-                Global.Settings.LocalAddress switch
-                {
-                    "127.0.0.1" => false,
-                    "0.0.0.0" => true,
-                    _ => false
-                });
+                Global.Settings.LocalAddress switch {"127.0.0.1" => false, "0.0.0.0" => true, _ => false});
 
-            BindCheckBox(BootShadowsocksFromDLLCheckBox,
-                c => Global.Settings.BootShadowsocksFromDLL = c,
-                Global.Settings.BootShadowsocksFromDLL);
-            BindCheckBox(ResolveServerHostnameCheckBox,
-                c => Global.Settings.ResolveServerHostname = c,
-                Global.Settings.ResolveServerHostname);
+            BindCheckBox(BootShadowsocksFromDLLCheckBox, c => Global.Settings.BootShadowsocksFromDLL = c, Global.Settings.BootShadowsocksFromDLL);
+            BindCheckBox(ResolveServerHostnameCheckBox, c => Global.Settings.ResolveServerHostname = c, Global.Settings.ResolveServerHostname);
 
-            BindRadioBox(ICMPingRadioBtn,
-                _ => { },
-                !Global.Settings.ServerTCPing);
+            BindRadioBox(ICMPingRadioBtn, _ => { }, !Global.Settings.ServerTCPing);
 
-            BindRadioBox(TCPingRadioBtn,
-                c => Global.Settings.ServerTCPing = c,
-                Global.Settings.ServerTCPing);
+            BindRadioBox(TCPingRadioBtn, c => Global.Settings.ServerTCPing = c, Global.Settings.ServerTCPing);
 
-            BindTextBox<int>(ProfileCountTextBox,
-                i => i > -1,
-                i => Global.Settings.ProfileCount = i,
-                Global.Settings.ProfileCount);
+            BindTextBox<int>(ProfileCountTextBox, i => i > -1, i => Global.Settings.ProfileCount = i, Global.Settings.ProfileCount);
             BindTextBox<int>(DetectionTickTextBox,
                 i => ServerHelper.DelayTestHelper.Range.InRange(i),
                 i => Global.Settings.DetectionTick = i,
                 Global.Settings.DetectionTick);
+
             BindTextBox<int>(StartedPingIntervalTextBox,
                 _ => true,
                 i => Global.Settings.StartedPingInterval = i,
@@ -83,10 +72,7 @@ namespace Netch.Forms
 
             InitSTUN();
 
-            BindTextBox<string>(AclAddrTextBox,
-                s => true,
-                s => Global.Settings.ACL = s,
-                Global.Settings.ACL);
+            BindTextBox<string>(AclAddrTextBox, s => true, s => Global.Settings.ACL = s, Global.Settings.ACL);
             AclAddrTextBox.Text = Global.Settings.ACL;
 
             LanguageComboBox.Items.AddRange(i18N.GetTranslateList().ToArray());
@@ -96,26 +82,15 @@ namespace Netch.Forms
 
             #region Process Mode
 
-            BindCheckBox(ModifySystemDNSCheckBox,
-                b => Global.Settings.ModifySystemDNS = b,
-                Global.Settings.ModifySystemDNS);
+            BindCheckBox(ModifySystemDNSCheckBox, b => Global.Settings.ModifySystemDNS = b, Global.Settings.ModifySystemDNS);
 
-            BindTextBox(ModifiedDNSTextBox,
-                s => DNS.TrySplit(s, out _, 2),
-                s => Global.Settings.ModifiedDNS = s,
-                Global.Settings.ModifiedDNS);
+            BindTextBox(ModifiedDNSTextBox, s => DNS.TrySplit(s, out _, 2), s => Global.Settings.ModifiedDNS = s, Global.Settings.ModifiedDNS);
 
-            BindCheckBox(RedirectorSSCheckBox,
-                s => Global.Settings.RedirectorSS = s,
-                Global.Settings.RedirectorSS);
+            BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
 
-            BindCheckBox(NoProxyForUdpCheckBox,
-                s => Global.Settings.ProcessNoProxyForUdp = s,
-                Global.Settings.ProcessNoProxyForUdp);
+            BindCheckBox(NoProxyForUdpCheckBox, s => Global.Settings.ProcessNoProxyForUdp = s, Global.Settings.ProcessNoProxyForUdp);
 
-            BindCheckBox(NoProxyForTcpCheckBox,
-                s => Global.Settings.ProcessNoProxyForTcp = s,
-                Global.Settings.ProcessNoProxyForTcp);
+            BindCheckBox(NoProxyForTcpCheckBox, s => Global.Settings.ProcessNoProxyForTcp = s, Global.Settings.ProcessNoProxyForTcp);
 
             #endregion
 
@@ -125,17 +100,18 @@ namespace Netch.Forms
                 s => IPAddress.TryParse(s, out _),
                 s => Global.Settings.TUNTAP.Address = s,
                 Global.Settings.TUNTAP.Address);
+
             BindTextBox(TUNTAPNetmaskTextBox,
                 s => IPAddress.TryParse(s, out _),
                 s => Global.Settings.TUNTAP.Netmask = s,
                 Global.Settings.TUNTAP.Netmask);
+
             BindTextBox(TUNTAPGatewayTextBox,
                 s => IPAddress.TryParse(s, out _),
                 s => Global.Settings.TUNTAP.Gateway = s,
                 Global.Settings.TUNTAP.Gateway);
-            BindCheckBox(UseCustomDNSCheckBox,
-                b => { Global.Settings.TUNTAP.UseCustomDNS = b; },
-                Global.Settings.TUNTAP.UseCustomDNS);
+
+            BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
             BindTextBox(TUNTAPDNSTextBox,
                 s => !UseCustomDNSCheckBox.Checked || DNS.TrySplit(s, out _, 2),
@@ -146,52 +122,40 @@ namespace Netch.Forms
                 },
                 DNS.Join(Global.Settings.TUNTAP.DNS));
 
-            BindCheckBox(ProxyDNSCheckBox,
-                b => Global.Settings.TUNTAP.ProxyDNS = b,
-                Global.Settings.TUNTAP.ProxyDNS);
-            BindCheckBox(UseFakeDNSCheckBox,
-                b => Global.Settings.TUNTAP.UseFakeDNS = b,
-                Global.Settings.TUNTAP.UseFakeDNS);
+            BindCheckBox(ProxyDNSCheckBox, b => Global.Settings.TUNTAP.ProxyDNS = b, Global.Settings.TUNTAP.ProxyDNS);
+            BindCheckBox(UseFakeDNSCheckBox, b => Global.Settings.TUNTAP.UseFakeDNS = b, Global.Settings.TUNTAP.UseFakeDNS);
 
             #endregion
 
             #region V2Ray
 
-            BindCheckBox(XrayConeCheckBox,
-                b => Global.Settings.V2RayConfig.XrayCone = b,
-                Global.Settings.V2RayConfig.XrayCone);
+            BindCheckBox(XrayConeCheckBox, b => Global.Settings.V2RayConfig.XrayCone = b, Global.Settings.V2RayConfig.XrayCone);
 
-            BindCheckBox(TLSAllowInsecureCheckBox,
-                b => Global.Settings.V2RayConfig.AllowInsecure = b,
-                Global.Settings.V2RayConfig.AllowInsecure);
-            BindCheckBox(UseMuxCheckBox,
-                b => Global.Settings.V2RayConfig.UseMux = b,
-                Global.Settings.V2RayConfig.UseMux);
+            BindCheckBox(TLSAllowInsecureCheckBox, b => Global.Settings.V2RayConfig.AllowInsecure = b, Global.Settings.V2RayConfig.AllowInsecure);
+            BindCheckBox(UseMuxCheckBox, b => Global.Settings.V2RayConfig.UseMux = b, Global.Settings.V2RayConfig.UseMux);
 
-            BindTextBox<int>(mtuTextBox,
-                i => true,
-                i => Global.Settings.V2RayConfig.KcpConfig.mtu = i,
-                Global.Settings.V2RayConfig.KcpConfig.mtu);
-            BindTextBox<int>(ttiTextBox,
-                i => true,
-                i => Global.Settings.V2RayConfig.KcpConfig.tti = i,
-                Global.Settings.V2RayConfig.KcpConfig.tti);
+            BindTextBox<int>(mtuTextBox, i => true, i => Global.Settings.V2RayConfig.KcpConfig.mtu = i, Global.Settings.V2RayConfig.KcpConfig.mtu);
+            BindTextBox<int>(ttiTextBox, i => true, i => Global.Settings.V2RayConfig.KcpConfig.tti = i, Global.Settings.V2RayConfig.KcpConfig.tti);
             BindTextBox<int>(uplinkCapacityTextBox,
                 i => true,
                 i => Global.Settings.V2RayConfig.KcpConfig.uplinkCapacity = i,
                 Global.Settings.V2RayConfig.KcpConfig.uplinkCapacity);
+
             BindTextBox<int>(downlinkCapacityTextBox,
                 i => true,
                 i => Global.Settings.V2RayConfig.KcpConfig.downlinkCapacity = i,
                 Global.Settings.V2RayConfig.KcpConfig.downlinkCapacity);
+
             BindTextBox<int>(readBufferSizeTextBox,
                 i => true,
                 i => Global.Settings.V2RayConfig.KcpConfig.readBufferSize = i,
                 Global.Settings.V2RayConfig.KcpConfig.readBufferSize);
+
             BindTextBox<int>(writeBufferSizeTextBox,
                 i => true,
                 i => Global.Settings.V2RayConfig.KcpConfig.writeBufferSize = i,
                 Global.Settings.V2RayConfig.KcpConfig.writeBufferSize);
+
             BindCheckBox(congestionCheckBox,
                 b => Global.Settings.V2RayConfig.KcpConfig.congestion = b,
                 Global.Settings.V2RayConfig.KcpConfig.congestion);
@@ -200,46 +164,27 @@ namespace Netch.Forms
 
             #region Others
 
-            BindCheckBox(ExitWhenClosedCheckBox,
-                b => Global.Settings.ExitWhenClosed = b,
-                Global.Settings.ExitWhenClosed);
+            BindCheckBox(ExitWhenClosedCheckBox, b => Global.Settings.ExitWhenClosed = b, Global.Settings.ExitWhenClosed);
 
-            BindCheckBox(StopWhenExitedCheckBox,
-                b => Global.Settings.StopWhenExited = b,
-                Global.Settings.StopWhenExited);
+            BindCheckBox(StopWhenExitedCheckBox, b => Global.Settings.StopWhenExited = b, Global.Settings.StopWhenExited);
 
-            BindCheckBox(StartWhenOpenedCheckBox,
-                b => Global.Settings.StartWhenOpened = b,
-                Global.Settings.StartWhenOpened);
+            BindCheckBox(StartWhenOpenedCheckBox, b => Global.Settings.StartWhenOpened = b, Global.Settings.StartWhenOpened);
 
-            BindCheckBox(MinimizeWhenStartedCheckBox,
-                b => Global.Settings.MinimizeWhenStarted = b,
-                Global.Settings.MinimizeWhenStarted);
+            BindCheckBox(MinimizeWhenStartedCheckBox, b => Global.Settings.MinimizeWhenStarted = b, Global.Settings.MinimizeWhenStarted);
 
-            BindCheckBox(RunAtStartupCheckBox,
-                b => Global.Settings.RunAtStartup = b,
-                Global.Settings.RunAtStartup);
+            BindCheckBox(RunAtStartupCheckBox, b => Global.Settings.RunAtStartup = b, Global.Settings.RunAtStartup);
 
-            BindCheckBox(CheckUpdateWhenOpenedCheckBox,
-                b => Global.Settings.CheckUpdateWhenOpened = b,
-                Global.Settings.CheckUpdateWhenOpened);
+            BindCheckBox(CheckUpdateWhenOpenedCheckBox, b => Global.Settings.CheckUpdateWhenOpened = b, Global.Settings.CheckUpdateWhenOpened);
 
-            BindCheckBox(CheckBetaUpdateCheckBox,
-                b => Global.Settings.CheckBetaUpdate = b,
-                Global.Settings.CheckBetaUpdate);
+            BindCheckBox(CheckBetaUpdateCheckBox, b => Global.Settings.CheckBetaUpdate = b, Global.Settings.CheckBetaUpdate);
 
-            BindCheckBox(UpdateServersWhenOpenedCheckBox,
-                b => Global.Settings.UpdateServersWhenOpened = b,
-                Global.Settings.UpdateServersWhenOpened);
+            BindCheckBox(UpdateServersWhenOpenedCheckBox, b => Global.Settings.UpdateServersWhenOpened = b, Global.Settings.UpdateServersWhenOpened);
 
             #endregion
 
             #region AioDNS
 
-            BindTextBox(AioDNSRulePathTextBox,
-                s => true,
-                s => Global.Settings.AioDNS.RulePath = s,
-                Global.Settings.AioDNS.RulePath);
+            BindTextBox(AioDNSRulePathTextBox, s => true, s => Global.Settings.AioDNS.RulePath = s, Global.Settings.AioDNS.RulePath);
 
             BindTextBox(ChinaDNSTextBox,
                 s => IPAddress.TryParse(s, out _),
@@ -257,9 +202,7 @@ namespace Netch.Forms
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object sender, EventArgs e)
         {
             if (UseCustomDNSCheckBox.Checked)
-                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any()
-                    ? DNS.Join(Global.Settings.TUNTAP.DNS)
-                    : "1.1.1.1";
+                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DNS.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
         }
@@ -358,17 +301,19 @@ namespace Netch.Forms
         private void BindTextBox<T>(TextBox control, Func<T, bool> check, Action<T> save, object value)
         {
             control.Text = value.ToString();
-            _checkActions.Add(control, s =>
-            {
-                try
+            _checkActions.Add(control,
+                s =>
                 {
-                    return check.Invoke((T) Convert.ChangeType(s, typeof(T)));
-                }
-                catch
-                {
-                    return false;
-                }
-            });
+                    try
+                    {
+                        return check.Invoke((T) Convert.ChangeType(s, typeof(T)));
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
+
             _saveActions.Add(control, c => save.Invoke((T) Convert.ChangeType(((TextBox) c).Text, typeof(T))));
         }
 
@@ -377,6 +322,7 @@ namespace Netch.Forms
             control.Checked = value;
             _saveActions.Add(control, c => save.Invoke(((CheckBox) c).Checked));
         }
+
         private void BindRadioBox(RadioButton control, Action<bool> save, bool value)
         {
             control.Checked = value;
@@ -385,12 +331,14 @@ namespace Netch.Forms
 
         private void NoProxyForUdpCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (NoProxyForUdpCheckBox.Checked) NoProxyForTcpCheckBox.Checked = false;
+            if (NoProxyForUdpCheckBox.Checked)
+                NoProxyForTcpCheckBox.Checked = false;
         }
 
         private void NoProxyForTcpCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (NoProxyForTcpCheckBox.Checked) NoProxyForUdpCheckBox.Checked = false;
+            if (NoProxyForTcpCheckBox.Checked)
+                NoProxyForUdpCheckBox.Checked = false;
         }
     }
 }

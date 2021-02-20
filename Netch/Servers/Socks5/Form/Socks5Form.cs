@@ -4,20 +4,14 @@ namespace Netch.Servers.Socks5.Form
 {
     public class Socks5Form : ServerForm
     {
-        protected override string TypeName { get; } = "Socks5";
-
         public Socks5Form(Socks5 server = default)
         {
             server ??= new Socks5();
             Server = server;
-            CreateTextBox("Username", "Username",
-                s => true,
-                s => server.Username = s,
-                server.Username);
-            CreateTextBox("Password", "Password",
-                s => true,
-                s => server.Password = s,
-                server.Password);
+            CreateTextBox("Username", "Username", s => true, s => server.Username = s, server.Username);
+            CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password);
         }
+
+        protected override string TypeName { get; } = "Socks5";
     }
 }

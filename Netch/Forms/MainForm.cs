@@ -24,6 +24,7 @@ namespace Netch.Forms
 
         private bool _comboBoxInitialized;
         private bool _textRecorded;
+
         public MainForm()
         {
             InitializeComponent();
@@ -66,6 +67,7 @@ namespace Netch.Forms
                     Size = new Size(259, 22),
                     Text = i18N.TranslateFormat("Add [{0}] Server", fullName)
                 };
+
                 _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
                 control.Click += AddServerToolStripMenuItem_Click;
                 ServerToolStripMenuItem.DropDownItems.Add(control);
@@ -174,20 +176,24 @@ namespace Netch.Forms
                     case Control c:
                         if (_mainFormText.ContainsKey(c.Name))
                             c.Text = ControlText(c.Name);
+
                         break;
                     case ToolStripItem c:
                         if (_mainFormText.ContainsKey(c.Name))
                             c.Text = ControlText(c.Name);
+
                         break;
                 }
 
                 string ControlText(string name)
                 {
                     var value = _mainFormText[name];
-                    if (value.Equals(string.Empty)) return string.Empty;
+                    if (value.Equals(string.Empty))
+                        return string.Empty;
 
                     if (value is object[] values)
                         return i18N.TranslateFormat(values.First() as string, values.Skip(1).ToArray());
+
                     return i18N.Translate(value);
                 }
             }
@@ -325,6 +331,7 @@ namespace Netch.Forms
                         Remark = "ProxyUpdate",
                         Type = 5
                     };
+
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                     proxyServer = $"http://127.0.0.1:{Global.Settings.HTTPLocalPort}";
                 }
@@ -438,6 +445,7 @@ namespace Netch.Forms
                         Remark = "ProxyUpdate",
                         Type = 5
                     };
+
                     await MainController.Start(ServerComboBox.SelectedItem as Server, mode);
                 }
 
@@ -686,8 +694,7 @@ namespace Netch.Forms
         public void SelectLastServer()
         {
             // 如果值合法，选中该位置
-            if (Global.Settings.ServerComboBoxSelectedIndex > 0 &&
-                Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
+            if (Global.Settings.ServerComboBoxSelectedIndex > 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
                 ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
             // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
             else if (ServerComboBox.Items.Count > 0)
@@ -698,7 +705,9 @@ namespace Netch.Forms
 
         private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
-            if (!_comboBoxInitialized) return;
+            if (!_comboBoxInitialized)
+                return;
+
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
 
@@ -806,8 +815,7 @@ namespace Netch.Forms
         public void SelectLastMode()
         {
             // 如果值合法，选中该位置
-            if (Global.Settings.ModeComboBoxSelectedIndex > 0 &&
-                Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
+            if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
                 ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
             // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
             else if (ModeComboBox.Items.Count > 0)
@@ -818,7 +826,9 @@ namespace Netch.Forms
 
         private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
         {
-            if (!_comboBoxInitialized) return;
+            if (!_comboBoxInitialized)
+                return;
+
             try
             {
                 Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
@@ -906,6 +916,7 @@ namespace Netch.Forms
 
                 if (Global.Settings.ProfileTableColumnCount == 0)
                     Global.Settings.ProfileTableColumnCount = 5;
+
                 var columnCount = Global.Settings.ProfileTableColumnCount;
 
                 ProfileTable.ColumnCount = profileCount >= columnCount ? columnCount : profileCount;
@@ -966,6 +977,7 @@ namespace Netch.Forms
             Profile profile;
             if ((profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == index)) != null)
                 Global.Settings.Profiles.Remove(profile);
+
             profile = new Profile(server, mode, name, index);
             Global.Settings.Profiles.Add(profile);
             return profile;
@@ -1006,6 +1018,7 @@ namespace Netch.Forms
                 case Keys.Shift:
                     if (profile == null)
                         return;
+
                     Global.Settings.Profiles.Remove(profile);
                     profileButton.Tag = null;
                     profileButton.Text = i18N.Translate("None");
@@ -1055,22 +1068,14 @@ namespace Netch.Forms
             {
                 void StartDisableItems(bool enabled)
                 {
-                    ServerComboBox.Enabled =
-                        ModeComboBox.Enabled =
-                            EditModePictureBox.Enabled =
-                                EditServerPictureBox.Enabled =
-                                    DeleteModePictureBox.Enabled =
-                                        DeleteServerPictureBox.Enabled = enabled;
+                    ServerComboBox.Enabled = ModeComboBox.Enabled = EditModePictureBox.Enabled =
+                        EditServerPictureBox.Enabled = DeleteModePictureBox.Enabled = DeleteServerPictureBox.Enabled = enabled;
 
                     // 启动需要禁用的控件
-                    UninstallServiceToolStripMenuItem.Enabled =
-                        UpdateACLToolStripMenuItem.Enabled =
-                            updateACLWithProxyToolStripMenuItem.Enabled =
-                                updatePACToolStripMenuItem.Enabled =
-                                    UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                                        UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled =
-                                            UninstallTapDriverToolStripMenuItem.Enabled =
-                                                ReloadModesToolStripMenuItem.Enabled = enabled;
+                    UninstallServiceToolStripMenuItem.Enabled = UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled =
+                        updatePACToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
+                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled = UninstallTapDriverToolStripMenuItem.Enabled =
+                                ReloadModesToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
@@ -1126,6 +1131,7 @@ namespace Netch.Forms
         {
             return State == State.Waiting || State == State.Stopped;
         }
+
         private static bool IsWaiting(State state)
         {
             return state == State.Waiting || state == State.Stopped;
@@ -1159,6 +1165,7 @@ namespace Netch.Forms
 
             if (IsWaiting())
                 return;
+
             UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = state;
         }
 
@@ -1243,6 +1250,7 @@ namespace Netch.Forms
         {
             if (!MainController.Mode.TestNatRequired())
                 return;
+
             NttTested = false;
             Task.Run(() =>
             {
@@ -1285,6 +1293,7 @@ namespace Netch.Forms
                         Logging.Info("操作系统即将挂起，自动停止");
                         ControlButton_Click(null, null);
                     }
+
                     break;
                 case PowerModes.Resume: //操作系统即将从挂起状态继续
                     if (_resumeFlag)
@@ -1293,6 +1302,7 @@ namespace Netch.Forms
                         Logging.Info("操作系统即将从挂起状态继续，自动重启");
                         ControlButton_Click(null, null);
                     }
+
                     break;
             }
         }
@@ -1358,6 +1368,7 @@ namespace Netch.Forms
         #region FormClosingButton
 
         private bool _isFirstCloseWindow = true;
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing && State != State.Terminating)
@@ -1385,6 +1396,7 @@ namespace Netch.Forms
                 NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
                 NewVersionLabel.Visible = true;
             };
+
             UpdateChecker.Check(Global.Settings.CheckBetaUpdate);
         }
 
@@ -1398,6 +1410,7 @@ namespace Netch.Forms
 
             if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
                 return;
+
             NotifyTip(i18N.Translate("Start downloading new version"));
 
             NewVersionLabel.Enabled = false;
@@ -1495,10 +1508,7 @@ namespace Netch.Forms
         public void NotifyTip(string text, int timeout = 0, bool info = true)
         {
             // 会阻塞线程 timeout 秒
-            NotifyIcon.ShowBalloonTip(timeout,
-                UpdateChecker.Name,
-                text,
-                info ? ToolTipIcon.Info : ToolTipIcon.Error);
+            NotifyIcon.ShowBalloonTip(timeout, UpdateChecker.Name, text, info ? ToolTipIcon.Info : ToolTipIcon.Error);
         }
 
         #endregion
@@ -1518,7 +1528,8 @@ namespace Netch.Forms
             // 绘制背景颜色
             e.Graphics.FillRectangle(Brushes.White, e.Bounds);
 
-            if (e.Index < 0) return;
+            if (e.Index < 0)
+                return;
 
             // 绘制 备注/名称 字符串
             TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
@@ -1528,29 +1539,34 @@ namespace Netch.Forms
                 case Server item:
                 {
                     // 计算延迟底色
-                    var numBoxBackBrush = item.Delay switch
-                    {
-                        > 200 => Brushes.Red,
-                        > 80 => Brushes.Yellow,
-                        >= 0 => _greenBrush,
-                        _ => Brushes.Gray
-                    };
+                    var numBoxBackBrush = item.Delay switch {> 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray};
 
                     // 绘制延迟底色
                     e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
                     // 绘制延迟字符串
-                    TextRenderer.DrawText(e.Graphics, item.Delay.ToString(), cbx.Font, new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y), Color.Black, TextFormatFlags.Left);
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Delay.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
+
                     break;
                 }
                 case Models.Mode item:
                 {
                     // 绘制 模式Box 底色
-                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth,
-                        e.Bounds.Height);
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
                     // 绘制 模式行数 字符串
-                    TextRenderer.DrawText(e.Graphics, item.Rule.Count.ToString(), cbx.Font, new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y), Color.Black, TextFormatFlags.Left);
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Rule.Count.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
+
                     break;
                 }
             }

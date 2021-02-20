@@ -16,6 +16,7 @@ namespace Netch.Utils
         public static TraceEventSession tSession;
 
         private static readonly string[] Suffix = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
+
         /// <summary>
         ///     计算流量
         /// </summary>
@@ -31,9 +32,11 @@ namespace Netch.Utils
             {
                 if (level >= 6) // Suffix.Length - 1
                     break;
+
                 level++;
                 size = (size ?? d) / step;
             }
+
             return $@"{size ?? 0:0.##} {Suffix[level]}";
         }
 
@@ -60,6 +63,7 @@ namespace Netch.Utils
                 case Guard instanceController:
                     if (instanceController.Instance != null)
                         instances.Add(instanceController.Instance);
+
                     break;
             }
 
@@ -81,8 +85,7 @@ namespace Netch.Utils
 
             var processList = instances.Select(instance => instance.Id).ToList();
 
-            Logging.Info("流量统计进程:" + string.Join(",",
-                instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
+            Logging.Info("流量统计进程:" + string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
 
             received = 0;
 
@@ -101,23 +104,21 @@ namespace Netch.Utils
                 tSession.Source.Kernel.TcpIpRecv += data =>
                 {
                     if (processList.Contains(data.ProcessID))
-                    {
                         lock (counterLock)
                             received += (ulong) data.size;
 
-                        // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
-                    }
+                    // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                 };
+
                 tSession.Source.Kernel.UdpIpRecv += data =>
                 {
                     if (processList.Contains(data.ProcessID))
-                    {
                         lock (counterLock)
                             received += (ulong) data.size;
 
-                        // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
-                    }
+                    // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
                 };
+
                 tSession.Source.Process();
             });
 
@@ -125,9 +126,7 @@ namespace Netch.Utils
             {
                 Task.Delay(1000).Wait();
                 lock (counterLock)
-                {
                     Global.MainForm.OnBandwidthUpdated(received);
-                }
             }
         }
 

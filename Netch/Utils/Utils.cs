@@ -30,6 +30,7 @@ namespace Netch.Utils
                     Arguments = path,
                     UseShellExecute = true
                 });
+
                 return true;
             }
             catch
@@ -140,8 +141,7 @@ namespace Netch.Utils
         public static void SearchOutboundAdapter(bool logging = true)
         {
             // 寻找出口适配器
-            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0),
-                0, out var pRoute) != 0)
+            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var pRoute) != 0)
             {
                 Logging.Error("GetBestRoute 搜索失败");
                 throw new Exception("GetBestRoute 搜索失败");
@@ -149,17 +149,19 @@ namespace Netch.Utils
 
             Global.Outbound.Index = (int) pRoute.dwForwardIfIndex;
             // 根据 IP Index 寻找 出口适配器
-            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ =>
-            {
-                try
+            var adapter = NetworkInterface.GetAllNetworkInterfaces()
+                .First(_ =>
                 {
-                    return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
-                }
-                catch
-                {
-                    return false;
-                }
-            });
+                    try
+                    {
+                        return _.GetIPProperties().GetIPv4Properties().Index == Global.Outbound.Index;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                });
+
             Global.Outbound.Adapter = adapter;
             Global.Outbound.Gateway = new IPAddress(pRoute.dwForwardNextHop.S_un_b);
 
@@ -186,7 +188,10 @@ namespace Netch.Utils
                 if (e.Index < 0)
                     return;
 
-                TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds,
+                TextRenderer.DrawText(e.Graphics,
+                    cbx.Items[e.Index].ToString(),
+                    cbx.Font,
+                    e.Bounds,
                     (e.State & DrawItemState.Selected) == DrawItemState.Selected ? SystemColors.HighlightText : cbx.ForeColor,
                     TextFormatFlags.HorizontalCenter);
             }
@@ -271,7 +276,9 @@ namespace Netch.Utils
             {
                 case TextBox _:
                 case ComboBox _:
-                    if (((Control) component).ForeColor != color) ((Control) component).ForeColor = color;
+                    if (((Control) component).ForeColor != color)
+                        ((Control) component).ForeColor = color;
+
                     break;
             }
         }
