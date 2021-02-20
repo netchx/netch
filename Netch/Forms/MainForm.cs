@@ -445,7 +445,7 @@ namespace Netch.Forms
                 if (useProxy)
                     req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
 
-                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, "bin\\default.acl"));
+                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, Global.UserACL));
                 NotifyTip(i18N.Translate("ACL updated successfully"));
             }
             catch (Exception e)

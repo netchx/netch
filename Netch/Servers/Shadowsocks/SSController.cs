@@ -1,3 +1,4 @@
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Netch.Controllers;
@@ -58,12 +59,14 @@ namespace Netch.Servers.Shadowsocks
                 $"-l {this.Socks5LocalPort()} " +
                 $"-m {server.EncryptMethod} " +
                 $"-k \"{server.Password}\" " +
-                "-u ");
+                "-u");
             if (!string.IsNullOrWhiteSpace(server.Plugin) && !string.IsNullOrWhiteSpace(server.PluginOption))
-                argument.Append($"--plugin {server.Plugin} " +
-                                $"--plugin-opts \"{server.PluginOption}\"");
+                argument.Append($" --plugin {server.Plugin}" +
+                                $" --plugin-opts \"{server.PluginOption}\"");
             if (mode.BypassChina)
-                argument.Append(" --acl default.acl");
+            {
+                argument.Append($" --acl {Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}");
+            }
 
             #endregion
 

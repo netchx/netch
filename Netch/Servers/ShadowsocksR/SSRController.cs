@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text;
 using Netch.Controllers;
 using Netch.Models;
@@ -34,7 +35,8 @@ namespace Netch.Servers.ShadowsocksR
             }
 
             argument.Append($" -b {this.LocalAddress()} -l {this.Socks5LocalPort()} -u");
-            if (mode.BypassChina) argument.Append(" --acl default.acl");
+            if (mode.BypassChina)
+                argument.Append($" --acl {Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}");
 
             #endregion
 

@@ -1,6 +1,3 @@
-using Netch.Controllers;
-using Netch.Forms;
-using Netch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +7,9 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
 using WindowsJobAPI;
+using Netch.Controllers;
+using Netch.Forms;
+using Netch.Models;
 
 namespace Netch
 {
@@ -38,6 +38,9 @@ namespace Netch
 
             private static bool? _supportFakeDns;
         }
+
+        public const string UserACL = "data\\user.acl";
+        public const string BuiltinACL = "bin\\default.acl";
 
         /// <summary>
         ///		出口适配器
