@@ -19,19 +19,20 @@ namespace Netch.Controllers
         private readonly StringBuilder _logBuffer = new();
 
         /// <summary>
+        ///     日志文件(重定向输出文件)
+        /// </summary>
+        private string _logPath;
+
+        /// <summary>
         ///     成功启动关键词
         /// </summary>
-        protected readonly List<string> StartedKeywords = new();
+        protected virtual IEnumerable<string> StartedKeywords { get; } = null;
 
         /// <summary>
         ///     启动失败关键词
         /// </summary>
-        protected readonly List<string> StoppedKeywords = new();
+        protected virtual IEnumerable<string> StoppedKeywords { get; } = null;
 
-        /// <summary>
-        ///     日志文件(重定向输出文件)
-        /// </summary>
-        private string _logPath;
         public virtual string Name { get; }
 
         /// <summary>
@@ -139,7 +140,12 @@ namespace Netch.Controllers
             Instance.BeginErrorReadLine();
             SaveBufferTimer.Elapsed += SaveBufferTimerEvent;
             SaveBufferTimer.Enabled = true;
-            if (StartedKeywords.Count == 0) return;
+            if (!(StartedKeywords?.Any() ?? false))
+            {
+                State = State.Started;
+                return;
+            }
+
             // 等待启动
             for (var i = 0; i < 1000; i++)
             {

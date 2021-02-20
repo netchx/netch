@@ -9,14 +9,11 @@ namespace Netch.Servers.Trojan
 {
     public class TrojanController : Guard, IServerController
     {
-        public TrojanController()
-        {
-            StartedKeywords.Add("started");
-            StoppedKeywords.Add("exiting");
-        }
-
         public override string MainFile { get; protected set; } = "Trojan.exe";
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"started"};
+        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"exiting"};
         public override string Name { get; } = "Trojan";
+
         public ushort? Socks5LocalPort { get; set; }
         public string LocalAddress { get; set; }
 

@@ -28,11 +28,10 @@ namespace Netch.Controllers
         /// </summary>
         public DNSController DNSController = new();
 
-        public TUNTAPController()
-        {
-            StartedKeywords.Add("Running");
-            StoppedKeywords.AddRange(new[] {"failed", "invalid vconfig file"});
-        }
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"Running"};
+
+        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"failed", "invalid vconfig file"};
+
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 
         public override string Name { get; } = "tun2socks";

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Netch.Controllers;
@@ -8,6 +9,10 @@ namespace Netch.Servers.ShadowsocksR
     public class SSRController : Guard, IServerController
     {
         public override string MainFile { get; protected set; } = "ShadowsocksR.exe";
+
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"listening at"};
+
+        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"Invalid config path", "usage"};
 
         public override string Name { get; } = "ShadowsocksR";
 

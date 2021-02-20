@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,6 +12,10 @@ namespace Netch.Servers.Shadowsocks
     {
         public bool DllFlag;
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
+
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"listening at"};
+
+        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"Invalid config path", "usage", "plugin service exit unexpectedly"};
         public override string Name { get; } = "Shadowsocks";
 
         public ushort? Socks5LocalPort { get; set; }
@@ -64,9 +69,7 @@ namespace Netch.Servers.Shadowsocks
                 argument.Append($" --plugin {server.Plugin}" +
                                 $" --plugin-opts \"{server.PluginOption}\"");
             if (mode.BypassChina)
-            {
                 argument.Append($" --acl {Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}");
-            }
 
             #endregion
 
