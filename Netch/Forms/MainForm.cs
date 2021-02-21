@@ -1575,5 +1575,11 @@ namespace Netch.Forms
         #endregion
 
         #endregion
+
+        private void AttachConsoleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!NativeMethods.AttachConsole(-1))
+                NativeMethods.AllocConsole();
+        }
     }
 }
