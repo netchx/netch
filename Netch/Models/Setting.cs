@@ -61,7 +61,7 @@ namespace Netch.Models
 
     public class V2rayConfig
     {
-        public bool AllowInsecure = true;
+        public bool AllowInsecure = false;
 
         public KcpConfig KcpConfig = new();
 
