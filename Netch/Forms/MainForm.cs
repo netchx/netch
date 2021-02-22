@@ -862,6 +862,12 @@ namespace Netch.Forms
                     new Process(mode).ShowDialog();
                     Show();
                     break;
+                case 1:
+                case 2:
+                    Hide();
+                    new Route(mode).ShowDialog();
+                    Show();
+                    break;
                 default:
                     Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath));
                     break;
@@ -1580,6 +1586,13 @@ namespace Netch.Forms
         {
             if (!NativeMethods.AttachConsole(-1))
                 NativeMethods.AllocConsole();
+        }
+
+        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Hide();
+            new Route().ShowDialog();
+            Show();
         }
     }
 }

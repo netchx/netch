@@ -41,6 +41,8 @@
     "Download update failed": "下载更新错误",
     "Create Process Mode": "创建进程模式",
     "Edit Process Mode": "修改进程模式",
+    "Create Route Table Rule": "创建路由表规则",
+    "Edit Route Table Rule": "修改路由表规则",
 
     "Address": "地址",
     "Username": "用户名",
@@ -140,6 +142,10 @@
     "Please enter a mode remark": "请输入模式的备注",
     "File already exists.\n Please Change the filename": "文件名已存在，请修改文件名",
     "Please enter a mode filename": "请输入模式的文件名",
+    
+    "Proxy Rule IPs": "代理规则 IP",
+    "Bypass Rule IPs": "绕过规则 IP",
+    
 
     "Link": "链接",
     "Use Selected Server To Update Subscription": "使用选中的服务器更新订阅",

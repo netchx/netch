@@ -35,6 +35,7 @@
             this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CreateRouteTableRuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,6 +50,7 @@
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AttachConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -90,7 +92,6 @@
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtomControlContainerControl = new System.Windows.Forms.ContainerControl();
-            this.AttachConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
@@ -142,7 +143,7 @@
             // 
             // ModeToolStripMenuItem
             // 
-            this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.CreateProcessModeToolStripMenuItem, this.ReloadModesToolStripMenuItem});
+            this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.CreateProcessModeToolStripMenuItem, this.CreateRouteTableRuleToolStripMenuItem, this.ReloadModesToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
             this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
@@ -151,14 +152,21 @@
             // CreateProcessModeToolStripMenuItem
             // 
             this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
-            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
             this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
+            // 
+            // CreateRouteTableRuleToolStripMenuItem
+            // 
+            this.CreateRouteTableRuleToolStripMenuItem.Name = "CreateRouteTableRuleToolStripMenuItem";
+            this.CreateRouteTableRuleToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
+            this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.createRouteTableModeToolStripMenuItem_Click);
             // 
             // ReloadModesToolStripMenuItem
             // 
             this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(202, 22);
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
             this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
@@ -259,6 +267,13 @@
             this.removeNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.removeNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
             this.removeNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
+            // 
+            // AttachConsoleToolStripMenuItem
+            // 
+            this.AttachConsoleToolStripMenuItem.Name = "AttachConsoleToolStripMenuItem";
+            this.AttachConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
+            this.AttachConsoleToolStripMenuItem.Text = "Attach Console";
+            this.AttachConsoleToolStripMenuItem.Click += new System.EventHandler(this.AttachConsoleToolStripMenuItem_Click);
             // 
             // HelpToolStripMenuItem
             // 
@@ -701,13 +716,6 @@
             this.ButtomControlContainerControl.TabStop = false;
             this.ButtomControlContainerControl.Text = "groupBox1";
             // 
-            // AttachConsoleToolStripMenuItem
-            // 
-            this.AttachConsoleToolStripMenuItem.Name = "AttachConsoleToolStripMenuItem";
-            this.AttachConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.AttachConsoleToolStripMenuItem.Text = "Attach Console";
-            this.AttachConsoleToolStripMenuItem.Click += new System.EventHandler(this.AttachConsoleToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -752,6 +760,8 @@
             this.ResumeLayout(false);
             this.PerformLayout();
         }
+
+        private System.Windows.Forms.ToolStripMenuItem CreateRouteTableRuleToolStripMenuItem;
 
         private System.Windows.Forms.ToolStripMenuItem AttachConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeNetchFirewallRulesToolStripMenuItem;

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Netch.Controllers;
+using Netch.Properties;
 using Netch.Utils;
 
 namespace Netch.Forms.Mode
@@ -21,35 +22,26 @@ namespace Netch.Forms.Mode
         ///     编辑模式
         /// </summary>
         /// <param name="mode">模式</param>
-        public Process(Models.Mode mode)
+        public Process(Models.Mode mode = null)
         {
-            if (mode.Type != 0)
-                throw new Exception("请传入进程模式");
+            if ((mode?.Type ?? 0) is not 0)
+                throw new ArgumentOutOfRangeException();
 
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
 
-            Text = "Edit Process Mode";
             _mode = mode;
-            RuleListBox.Items.AddRange(mode.Rule.ToArray());
+            if (mode != null)
+            {
+                Text = "Edit Process Mode";
 
-            #region 禁用文件名更改
+                RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
+                FilenameTextBox.Enabled = UseCustomFilenameBox.Enabled = false;
 
-            RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-            FilenameTextBox.Enabled = UseCustomFilenameBox.Enabled = false;
-
-            #endregion
-
-            FilenameTextBox.Text = mode.RelativePath;
-            RemarkTextBox.Text = mode.Remark;
-        }
-
-        public Process()
-        {
-            InitializeComponent();
-            CheckForIllegalCrossThreadCalls = false;
-
-            FilenameTextBox.Enabled = false;
+                RemarkTextBox.Text = mode.Remark;
+                FilenameTextBox.Text = mode.RelativePath;
+                RuleListBox.Items.AddRange(mode.Rule.ToArray());
+            }
         }
 
         /// <summary>
@@ -213,19 +205,9 @@ namespace Netch.Forms.Mode
             {
                 if (!UseCustomFilenameBox.Checked)
                 {
-                    var invalidFileChars = Path.GetInvalidFileNameChars();
-                    var fileName = new StringBuilder(RemarkTextBox.Text);
-                    foreach (var c in invalidFileChars)
-                        fileName.Replace(c, '_');
-
-                    FilenameTextBox.Text = fileName.ToString();
+                    FilenameTextBox.Text = ModeEditorUtils.ToSafeFileName(RemarkTextBox.Text);
                 }
             });
-        }
-
-        private void UseCustomFilenameBox_CheckedChanged(object sender, EventArgs e)
-        {
-            FilenameTextBox.Enabled = UseCustomFilenameBox.Checked;
         }
     }
 }

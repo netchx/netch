@@ -90,6 +90,9 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>Settings.settings</DependentUpon>
         </Compile>
+        <Compile Update="Forms\Mode\Route.cs">
+          <SubType>Form</SubType>
+        </Compile>
     </ItemGroup>
 
     <ItemGroup>
