@@ -28,6 +28,7 @@ namespace Netch.Forms.Mode
                 throw new ArgumentOutOfRangeException();
 
             InitializeComponent();
+            Icon = Resources.icon;
             CheckForIllegalCrossThreadCalls = false;
 
             _mode = mode;

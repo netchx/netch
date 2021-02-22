@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using Netch.Models;
+using Netch.Properties;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -11,6 +12,7 @@ namespace Netch.Forms
         public SubscribeForm()
         {
             InitializeComponent();
+            Icon = Resources.icon;
 
             i18N.TranslateForm(this);
             i18N.TranslateForm(pContextMenuStrip);

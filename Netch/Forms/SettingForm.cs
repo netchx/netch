@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Properties;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -19,6 +20,7 @@ namespace Netch.Forms
         public SettingForm()
         {
             InitializeComponent();
+            Icon = Resources.icon;
             i18N.TranslateForm(this);
             InitValue();
         }

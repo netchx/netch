@@ -40,6 +40,7 @@ namespace Netch.Forms.Mode
             _mode = mode;
 
             InitializeComponent();
+            Icon = Resources.icon;
             comboBox1.DataSource = _items;
             comboBox1.ValueMember = "Value";
             comboBox1.DisplayMember = "Text";

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Properties;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -10,6 +11,7 @@ namespace Netch.Forms
         public GlobalBypassIPForm()
         {
             InitializeComponent();
+            Icon = Resources.icon;
         }
 
         private void GlobalBypassIPForm_Load(object sender, EventArgs e)

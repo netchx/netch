@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Forms.Mode;
 using Netch.Models;
+using Netch.Properties;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -28,6 +29,7 @@ namespace Netch.Forms
         public MainForm()
         {
             InitializeComponent();
+            NotifyIcon.Icon = Icon = Resources.icon;
 
             AddAddServerToolStripMenuItems();
 

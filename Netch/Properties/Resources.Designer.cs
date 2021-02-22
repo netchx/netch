@@ -63,6 +63,16 @@ namespace Netch.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] _7za {
+            get {
+                object obj = ResourceManager.GetObject("7za", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] abp_js {
             get {
                 object obj = ResourceManager.GetObject("abp_js", resourceCulture);
@@ -111,6 +121,16 @@ namespace Netch.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon icon {
+            get {
+                object obj = ResourceManager.GetObject("icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap Netch {
@@ -146,16 +166,6 @@ namespace Netch.Properties {
         internal static byte[] zh_CN {
             get {
                 object obj = ResourceManager.GetObject("zh_CN", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-		
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] _7za {
-            get {
-                object obj = ResourceManager.GetObject("7za", resourceCulture);
                 return ((byte[])(obj));
             }
         }

@@ -8,7 +8,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <StartupObject>Netch.Netch</StartupObject>
         <ApplicationManifest>App.manifest</ApplicationManifest>
-        <ApplicationIcon>Netch.ico</ApplicationIcon>
+        <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
         <Platforms>x64</Platforms>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <LangVersion>latest</LangVersion>
