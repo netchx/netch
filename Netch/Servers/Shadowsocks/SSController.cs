@@ -67,7 +67,7 @@ namespace Netch.Servers.Shadowsocks
                 argument.Append($" --plugin {server.Plugin}" + $" --plugin-opts \"{server.PluginOption}\"");
 
             if (mode.BypassChina)
-                argument.Append($" --acl {Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}");
+                argument.Append($" --acl \"{Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}\"");
 
             #endregion
 
