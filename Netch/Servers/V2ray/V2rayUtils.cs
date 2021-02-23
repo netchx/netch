@@ -12,10 +12,10 @@ namespace Netch.Servers.V2ray
     {
         public static IEnumerable<Server> ParseVUri(string text)
         {
-            var scheme = ShareLink.GetUriScheme(text);
+            var scheme = ShareLink.GetUriScheme(text).ToLower();
             try
             {
-                var server = new VMess.VMess();
+                var server = scheme switch {"vmess" => new VMess.VMess(), "vless" => new VLESS.VLESS(), _ => throw new ArgumentOutOfRangeException()};
                 if (text.Contains("#"))
                 {
                     server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
