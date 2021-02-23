@@ -24,7 +24,7 @@ namespace Netch.Forms.Mode
         /// <param name="mode">模式</param>
         public Process(Models.Mode mode = null)
         {
-            if ((mode?.Type ?? 0) is not 0)
+            if (mode != null && mode.Type is not 0)
                 throw new ArgumentOutOfRangeException();
 
             InitializeComponent();

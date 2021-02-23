@@ -34,7 +34,7 @@ namespace Netch.Forms.Mode
 
         public Route(Models.Mode mode = null)
         {
-            if ((mode?.Type ?? 1) is not (1 or 2))
+            if (mode != null && mode.Type is not (1 or 2))
                 throw new ArgumentOutOfRangeException();
 
             _mode = mode;
