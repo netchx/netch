@@ -75,7 +75,7 @@ namespace Netch.Utils
 
         public static IEnumerable<string> Split(string dns)
         {
-            return dns.Split(',').Where(ip => !string.IsNullOrWhiteSpace(ip)).Select(ip => ip.Trim());
+            return dns.SplitRemoveEmptyEntriesAndTrimEntries(',');
         }
 
         public static bool TrySplit(string value, out IEnumerable<string> result, ushort maxCount = 0)

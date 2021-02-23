@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -62,6 +63,21 @@ namespace Netch.Utils
             }
 
             return sb.ToString();
+        }
+
+        public static string[] SplitRemoveEmptyEntriesAndTrimEntries(this string value, params char[] separator)
+        {
+            return value.Split(separator).Select(s => s.Trim()).Where(s => s != string.Empty).ToArray();
+        }
+
+        public static string[] SplitTrimEntries(this string value, params char[] separator)
+        {
+            return value.Split(separator).Select(s => s.Trim()).ToArray();
+        }
+
+        public static string[] SplitRemoveEmptyEntries(this string value, params char[] separator)
+        {
+            return value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 }

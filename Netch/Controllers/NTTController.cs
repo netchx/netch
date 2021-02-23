@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Netch.Utils;
 
 namespace Netch.Controllers
@@ -20,7 +21,7 @@ namespace Netch.Controllers
         ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
-        public (string, string, string) Start()
+        public async Task<(string, string, string)> Start()
         {
             string localEnd = null;
             string publicEnd = null;
@@ -33,19 +34,30 @@ namespace Netch.Controllers
                 Instance.OutputDataReceived += OnOutputDataReceived;
                 Instance.ErrorDataReceived += OnOutputDataReceived;
                 Instance.Start();
-                var output = Instance.StandardOutput.ReadToEnd();
+
+                var output = await Instance.StandardOutput.ReadToEndAsync();
+                var error = await Instance.StandardError.ReadToEndAsync();
+
                 try
                 {
-                    File.WriteAllText(Path.Combine(Global.NetchDir, $"logging\\{Name}.log"), output);
+                    File.WriteAllText(Path.Combine(Global.NetchDir, $"logging\\{Name}.log"), $"{output}\r\n{error}");
                 }
                 catch (Exception e)
                 {
                     Logging.Warning($"写入 {Name} 日志错误：\n" + e.Message);
                 }
 
+                if (output.IsNullOrWhiteSpace())
+                    if (!error.IsNullOrWhiteSpace())
+                    {
+                        error = error.Trim();
+                        var errorFirst = error.Substring(0, error.IndexOf('\n')).Trim();
+                        return (errorFirst.SplitTrimEntries(':').Last(), null, null);
+                    }
+
                 foreach (var line in output.Split('\n'))
                 {
-                    var str = line.Split(':').Select(s => s.Trim()).ToArray();
+                    var str = line.SplitTrimEntries(':');
                     if (str.Length < 2)
                         continue;
 
@@ -69,14 +81,11 @@ namespace Netch.Controllers
                         case "result":
                             result = value;
                             break;
-                        default:
-                            result = str.Last();
-                            break;
                     }
                 }
 
                 if (bindingTest == "Fail")
-                    result = "UdpBlocked";
+                    result = "Fail";
 
                 return (result, localEnd, publicEnd);
             }

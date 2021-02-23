@@ -19,6 +19,13 @@ namespace Netch.Forms
 {
     public partial class MainForm : Form
     {
+        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Hide();
+            new Route().ShowDialog();
+            Show();
+        }
+
         #region Start
 
         private readonly Dictionary<string, object> _mainFormText = new();
@@ -1263,8 +1270,8 @@ namespace Netch.Forms
             Task.Run(() =>
             {
                 NatTypeStatusText(i18N.Translate("Starting NatTester"));
-                // Thread.Sleep(1000);
-                var (result, localEnd, publicEnd) = MainController.NTTController.Start();
+
+                var (result, localEnd, publicEnd) = MainController.NTTController.Start().Result;
 
                 if (!string.IsNullOrEmpty(publicEnd))
                 {
@@ -1583,12 +1590,5 @@ namespace Netch.Forms
         #endregion
 
         #endregion
-
-        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Hide();
-            new Route().ShowDialog();
-            Show();
-        }
     }
 }

@@ -81,7 +81,7 @@ namespace Netch.Utils
 
                     try
                     {
-                        var splited = text.Substring(1).Split(',').Select(s => s.Trim()).ToArray();
+                        var splited = text.Substring(1).SplitTrimEntries(',');
 
                         mode.Remark = splited[0];
 

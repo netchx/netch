@@ -28,7 +28,6 @@ namespace Netch.Utils
 
         private static void GetReservedPortRange(PortType portType, ref List<Range> targetList)
         {
-            var lines = new List<string>();
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
@@ -41,32 +40,20 @@ namespace Netch.Utils
                 }
             };
 
-            process.OutputDataReceived += (s, e) =>
-            {
-                if (e.Data != null)
-                    lines.Add(e.Data);
-            };
-
             process.Start();
-            process.BeginOutputReadLine();
-            process.WaitForExit();
+            var output = process.StandardOutput.ReadToEnd();
 
-            var splitLine = false;
-            foreach (var line in lines)
-                if (!splitLine)
-                {
-                    if (line.StartsWith("-"))
-                        splitLine = true;
-                }
-                else
-                {
-                    if (line == string.Empty)
-                        break;
+            foreach (var line in output.SplitRemoveEmptyEntriesAndTrimEntries('\n'))
+            {
+                var value = line.Trim().SplitRemoveEmptyEntries(' ');
+                if (value.Length != 2)
+                    continue;
 
-                    var value = line.Trim().Split(' ').Where(s => s != string.Empty).ToArray();
+                if (!ushort.TryParse(value[0], out var start) || !ushort.TryParse(value[1], out var end))
+                    continue;
 
-                    targetList.Add(new Range(ushort.Parse(value[0]), ushort.Parse(value[1])));
-                }
+                targetList.Add(new Range(start, end));
+            }
         }
 
         /// <summary>
