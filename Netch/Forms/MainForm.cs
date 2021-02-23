@@ -1584,12 +1584,6 @@ namespace Netch.Forms
 
         #endregion
 
-        private void AttachConsoleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (!NativeMethods.AttachConsole(-1))
-                NativeMethods.AllocConsole();
-        }
-
         private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Hide();

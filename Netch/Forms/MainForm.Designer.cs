@@ -50,7 +50,6 @@
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AttachConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -116,10 +115,8 @@
             this.MenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
             {
-                this.ServerToolStripMenuItem, this.ModeToolStripMenuItem, this.SubscribeToolStripMenuItem, this.OptionsToolStripMenuItem, this.HelpToolStripMenuItem, this.exitToolStripMenuItem, this.AboutToolStripButton,
-                this.NewVersionLabel, this.VersionLabel
+                this.ServerToolStripMenuItem, this.ModeToolStripMenuItem, this.SubscribeToolStripMenuItem, this.OptionsToolStripMenuItem, this.HelpToolStripMenuItem, this.exitToolStripMenuItem, this.AboutToolStripButton, this.NewVersionLabel, this.VersionLabel
             });
-
             this.MenuStrip.Location = new System.Drawing.Point(0, 0);
             this.MenuStrip.Name = "MenuStrip";
             this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -128,7 +125,10 @@
             // 
             // ServerToolStripMenuItem
             // 
-            this.ServerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ImportServersFromClipboardToolStripMenuItem});
+            this.ServerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.ImportServersFromClipboardToolStripMenuItem
+            });
             this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
             this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
             this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
@@ -172,7 +172,10 @@
             // 
             // SubscribeToolStripMenuItem
             // 
-            this.SubscribeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ManageSubscribeLinksToolStripMenuItem, this.UpdateServersFromSubscribeLinksToolStripMenuItem, this.UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem});
+            this.SubscribeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.ManageSubscribeLinksToolStripMenuItem, this.UpdateServersFromSubscribeLinksToolStripMenuItem, this.UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem
+            });
             this.SubscribeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.SubscribeToolStripMenuItem.Name = "SubscribeToolStripMenuItem";
             this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(77, 21);
@@ -203,10 +206,8 @@
             // 
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[]
             {
-                this.OpenDirectoryToolStripMenuItem, this.CleanDNSCacheToolStripMenuItem, this.UpdateACLToolStripMenuItem, this.updateACLWithProxyToolStripMenuItem, this.updatePACToolStripMenuItem, this.UninstallServiceToolStripMenuItem, this.UninstallTapDriverToolStripMenuItem,
-                this.removeNetchFirewallRulesToolStripMenuItem, this.AttachConsoleToolStripMenuItem
+                this.OpenDirectoryToolStripMenuItem, this.CleanDNSCacheToolStripMenuItem, this.UpdateACLToolStripMenuItem, this.updateACLWithProxyToolStripMenuItem, this.updatePACToolStripMenuItem, this.UninstallServiceToolStripMenuItem, this.UninstallTapDriverToolStripMenuItem, this.removeNetchFirewallRulesToolStripMenuItem
             });
-
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
@@ -268,16 +269,12 @@
             this.removeNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
             this.removeNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
             // 
-            // AttachConsoleToolStripMenuItem
-            // 
-            this.AttachConsoleToolStripMenuItem.Name = "AttachConsoleToolStripMenuItem";
-            this.AttachConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.AttachConsoleToolStripMenuItem.Text = "Attach Console";
-            this.AttachConsoleToolStripMenuItem.Click += new System.EventHandler(this.AttachConsoleToolStripMenuItem_Click);
-            // 
             // HelpToolStripMenuItem
             // 
-            this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {this.CheckForUpdatesToolStripMenuItem, this.fAQToolStripMenuItem});
+            this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.CheckForUpdatesToolStripMenuItem, this.fAQToolStripMenuItem
+            });
             this.HelpToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             this.HelpToolStripMenuItem.Size = new System.Drawing.Size(47, 21);
@@ -553,7 +550,10 @@
             // StatusStrip
             // 
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.StatusLabel, this.UsedBandwidthLabel, this.DownloadSpeedLabel, this.UploadSpeedLabel, this.blankToolStripStatusLabel, this.NatTypeStatusLabel, this.NatTypeStatusLightLabel});
+            this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.StatusLabel, this.UsedBandwidthLabel, this.DownloadSpeedLabel, this.UploadSpeedLabel, this.blankToolStripStatusLabel, this.NatTypeStatusLabel, this.NatTypeStatusLightLabel
+            });
             this.StatusStrip.Location = new System.Drawing.Point(0, 272);
             this.StatusStrip.Name = "StatusStrip";
             this.StatusStrip.Size = new System.Drawing.Size(740, 22);
@@ -635,7 +635,10 @@
             // NotifyMenu
             // 
             this.NotifyMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.NotifyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {this.ShowMainFormToolStripButton, this.ExitToolStripButton});
+            this.NotifyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[]
+            {
+                this.ShowMainFormToolStripButton, this.ExitToolStripButton
+            });
             this.NotifyMenu.Name = "NotifyMenu";
             this.NotifyMenu.ShowItemToolTips = false;
             this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
@@ -761,7 +764,6 @@
 
         private System.Windows.Forms.ToolStripMenuItem CreateRouteTableRuleToolStripMenuItem;
 
-        private System.Windows.Forms.ToolStripMenuItem AttachConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem removeNetchFirewallRulesToolStripMenuItem;
 
         private System.Windows.Forms.ToolStripButton AboutToolStripButton;
