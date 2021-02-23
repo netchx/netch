@@ -34,6 +34,8 @@ namespace Netch.Controllers
 
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 
+        protected override Encoding InstanceOutputEncoding { get; } = Encoding.UTF8;
+
         public override string Name { get; } = "tun2socks";
 
         public void Start(in Mode mode)

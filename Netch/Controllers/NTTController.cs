@@ -31,8 +31,6 @@ namespace Netch.Controllers
             try
             {
                 InitInstance($" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}");
-                Instance.OutputDataReceived += OnOutputDataReceived;
-                Instance.ErrorDataReceived += OnOutputDataReceived;
                 Instance.Start();
 
                 var output = await Instance.StandardOutput.ReadToEndAsync();
