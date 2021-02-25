@@ -17,9 +17,7 @@ namespace UnitTest
             var server = ParseSingle<ShadowsocksR, SSRUtil>(
                 @"ssr://MTI3LjAuMC4xOjEyMzQ6YXV0aF9hZXMxMjhfbWQ1OmFlcy0xMjgtY2ZiOnRsczEuMl90aWNrZXRfYXV0aDpZV0ZoWW1KaS8_b2Jmc3BhcmFtPVluSmxZV3QzWVRFeExtMXZaUSZyZW1hcmtzPTVyV0w2Sy1WNUxpdDVwYUg");
 
-            if (server == null)
-                Assert.Fail();
-
+            Assert.IsNotNull(server);
             Console.WriteLine(JsonSerializerFormatted(server));
         }
 
@@ -44,9 +42,7 @@ namespace UnitTest
             var server = ParseSingle<VMess, VMessUtil>(
                 @"vmess://eyAidiI6ICIyIiwgInBzIjogIuWkh+azqOWIq+WQjSIsICJhZGQiOiAiMTExLjExMS4xMTEuMTExIiwgInBvcnQiOiAiMzIwMDAiLCAiaWQiOiAiMTM4NmY4NWUtNjU3Yi00ZDZlLTlkNTYtNzhiYWRiNzVlMWZkIiwgImFpZCI6ICIxMDAiLCAibmV0IjogInRjcCIsICJ0eXBlIjogIm5vbmUiLCAiaG9zdCI6ICJ3d3cuYmJiLmNvbSIsICJwYXRoIjogIi8iLCAidGxzIjogInRscyIgfQ==");
 
-            if (server == null)
-                Assert.Fail();
-
+            Assert.IsNotNull(server);
             Console.WriteLine(JsonSerializerFormatted(server));
         }
 
@@ -56,9 +52,7 @@ namespace UnitTest
             var server = ParseSingle<VLESS, VLESSUtil>(
                 @"vless://399ce595-894d-4d40-add1-7d87f1a3bd10@qv2ray.net:41971?type=kcp&headerType=wireguard&seed=69f04be3-d64e-45a3-8550-af3172c63055#VLESSmKCPSeedWG");
 
-            if (server == null)
-                Assert.Fail();
-
+            Assert.IsNotNull(server);
             Console.WriteLine(JsonSerializerFormatted(server));
         }
 
