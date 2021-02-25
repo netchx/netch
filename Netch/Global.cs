@@ -34,6 +34,12 @@ namespace Netch
 
         public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
+#if DEBUG
+        public static bool Testing = false;
+#else
+        public const bool Testing = false;
+#endif
+
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>

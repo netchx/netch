@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net48</TargetFramework>
+        <Platforms>x64</Platforms>
+        <UseWindowsForms>true</UseWindowsForms>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove=".gitignore"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Netch\Netch.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+        <!--    NET Framework    -->
+        <Reference Include="System.Windows.Forms"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1"/>
+        <PackageReference Include="MSTest.TestAdapter" Version="2.1.2"/>
+        <PackageReference Include="MSTest.TestFramework" Version="2.1.2"/>
+    </ItemGroup>
+
+</Project>
+

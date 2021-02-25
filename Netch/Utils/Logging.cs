@@ -39,8 +39,15 @@ namespace Netch.Utils
 
         private static void Write(string text, LogLevel logLevel)
         {
+            var contents = $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}";
+            if (Global.Testing)
+            {
+                Console.WriteLine(contents);
+                return;
+            }
+
             lock (FileLock)
-                File.AppendAllText(LogFile, $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}");
+                File.AppendAllText(LogFile, contents);
         }
     }
 }
