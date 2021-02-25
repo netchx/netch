@@ -39,15 +39,6 @@ namespace Netch
             // 加载配置
             Configuration.Load();
 
-            // 加载语言
-            i18N.Load(Global.Settings.Language);
-
-            if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
-            {
-                MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
-                Environment.Exit(2);
-            }
-
             // 检查是否已经运行
             if (!Global.Mutex.WaitOne(0, false))
             {
@@ -68,6 +59,15 @@ namespace Netch
 
                 foreach (var dir in directory.GetDirectories())
                     dir.Delete(true);
+            }
+
+            // 加载语言
+            i18N.Load(Global.Settings.Language);
+
+            if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
+            {
+                MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
+                Environment.Exit(2);
             }
 
             Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");

@@ -29,47 +29,50 @@ namespace Netch.Utils
         /// <summary>
         ///     加载
         /// </summary>
-        /// <param name="langCode">语言代码</param>
-        public static void Load(string langCode)
+        /// <param name="value">语言代码</param>
+        public static void Load(string value)
         {
-            LangCode = langCode;
+            string text;
+            var languages = GetTranslateList().Skip(1).ToList();
 
-            var text = "";
-            if (langCode.Equals("System"))
-                // 加载系统语言
-                langCode = CultureInfo.CurrentCulture.Name;
+            LangCode = value.Equals("System") ? CultureInfo.CurrentCulture.Name : value;
 
-            if (langCode == "zh-CN")
+            if (!languages.Contains(LangCode))
             {
-                // 尝试加载内置中文语言
-                text = Encoding.UTF8.GetString(Resources.zh_CN);
-            }
-            else if (langCode.Equals("en-US"))
-            {
-                // 清除得到英文
-                Data.Clear();
-                return;
-            }
-            else if (File.Exists($"i18n\\{langCode}"))
-            {
-                // 从外置文件中加载语言
-                text = File.ReadAllText($"i18n\\{langCode}");
-            }
-            else
-            {
-                Logging.Error($"无法找到语言 {langCode}, 使用系统语言");
-                // 加载系统语言
-                LangCode = CultureInfo.CurrentCulture.Name;
+                var oldLangCode = LangCode;
+                LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
+                Logging.Info($"找不到语言 {oldLangCode}, 使用 {LangCode}");
             }
 
-            var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+            switch (LangCode)
+            {
+                case "en-US":
+                    Data.Clear();
+                    return;
+                case "zh-CN":
+                    text = Encoding.UTF8.GetString(Resources.zh_CN);
+                    break;
+                default:
+                    text = File.ReadAllText($"i18n\\{LangCode}");
+                    break;
+            }
 
-            if (data == null)
+            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+
+            if (dictionary == null)
                 return;
 
             Data = new Hashtable();
-            foreach (var v in data)
+            foreach (var v in dictionary)
                 Data.Add(v.Key, v.Value);
+        }
+
+        private static string GetLanguage(string culture)
+        {
+            if (!culture.Contains('-'))
+                return "";
+
+            return culture.Substring(0, culture.IndexOf('-'));
         }
 
         /// <summary>
