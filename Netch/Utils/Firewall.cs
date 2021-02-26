@@ -66,7 +66,7 @@ namespace Netch.Utils
 
             try
             {
-                foreach (var rule in FirewallManager.Instance.Rules.Where(r => r.Name == Netch))
+                foreach (var rule in FirewallManager.Instance.Rules.Where(r => r.ApplicationName?.StartsWith(Global.NetchDir) ?? r.Name == Netch))
                     FirewallManager.Instance.Rules.Remove(rule);
             }
             catch (Exception e)
