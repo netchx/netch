@@ -9,17 +9,6 @@ namespace Netch.Utils
     public static class Firewall
     {
         private const string Netch = "Netch";
-        private static readonly string[] ProgramPath =
-        {
-            "bin/NTT.exe",
-            "bin/Privoxy.exe",
-            "bin/Shadowsocks.exe",
-            "bin/ShadowsocksR.exe",
-            "bin/Trojan.exe",
-            "bin/tun2socks.exe",
-            "bin/xray.exe",
-            "Netch.exe"
-        };
 
         /// <summary>
         ///     Netch 自带程序添加防火墙
@@ -43,12 +32,8 @@ namespace Netch.Utils
                     RemoveNetchFwRules();
                 }
 
-                foreach (var p in ProgramPath)
-                {
-                    var path = Path.GetFullPath(p);
-                    if (File.Exists(path))
-                        AddFwRule(Netch, path);
-                }
+                foreach (var path in Directory.GetFiles(Global.NetchDir, "*.exe", SearchOption.AllDirectories))
+                    AddFwRule(Netch, path);
             }
             catch (Exception e)
             {
@@ -66,7 +51,8 @@ namespace Netch.Utils
 
             try
             {
-                foreach (var rule in FirewallManager.Instance.Rules.Where(r => r.ApplicationName?.StartsWith(Global.NetchDir) ?? r.Name == Netch))
+                foreach (var rule in FirewallManager.Instance.Rules.Where(r
+                    => r.ApplicationName?.StartsWith(Global.NetchDir, StringComparison.OrdinalIgnoreCase) ?? r.Name == Netch))
                     FirewallManager.Instance.Rules.Remove(rule);
             }
             catch (Exception e)

@@ -75,7 +75,7 @@ namespace Netch.Controllers
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
             // 添加Netch到防火墙
-            _ = Task.Run(Firewall.AddNetchFwRules);
+            Firewall.AddNetchFwRules();
 
             try
             {
