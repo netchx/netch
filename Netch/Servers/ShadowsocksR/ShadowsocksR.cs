@@ -5,10 +5,7 @@ namespace Netch.Servers.ShadowsocksR
 {
     public class ShadowsocksR : Server
     {
-        public ShadowsocksR()
-        {
-            Type = "SSR";
-        }
+        public override string Type { get; } = "SSR";
 
         /// <summary>
         ///     加密方式

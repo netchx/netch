@@ -5,10 +5,7 @@ namespace Netch.Servers.VLESS
 {
     public class VLESS : VMess.VMess
     {
-        public VLESS()
-        {
-            Type = "VLESS";
-        }
+        public override string Type { get; } = "VLESS";
 
         /// <summary>
         ///     加密方式

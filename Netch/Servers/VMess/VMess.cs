@@ -7,10 +7,7 @@ namespace Netch.Servers.VMess
     {
         private string _tlsSecureType = VMessGlobal.TLSSecure[0];
 
-        public VMess()
-        {
-            Type = "VMess";
-        }
+        public override string Type { get; } = "VMess";
 
         /// <summary>
         ///     用户 ID

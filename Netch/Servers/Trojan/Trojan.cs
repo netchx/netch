@@ -4,10 +4,7 @@ namespace Netch.Servers.Trojan
 {
     public class Trojan : Server
     {
-        public Trojan()
-        {
-            Type = "Trojan";
-        }
+        public override string Type { get; } = "Trojan";
 
         /// <summary>
         ///     密码

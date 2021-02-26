@@ -11,36 +11,37 @@ namespace Netch.Models
         ///     延迟
         /// </summary>
         [JsonIgnore]
-        public int Delay = -1;
+        public int Delay { get; private set; } = -1;
 
         /// <summary>
         ///     组
         /// </summary>
-        public string Group = "None";
+        public string Group { get; set; } = "None";
 
         /// <summary>
         ///     地址
         /// </summary>
-        public string Hostname;
+        public string Hostname { get; set; }
 
         /// <summary>
         ///     端口
         /// </summary>
-        public ushort Port;
+        public ushort Port { get; set; }
 
         /// <summary>
         ///     倍率
         /// </summary>
-        public double Rate = 1.0;
+        public double Rate { get; } = 1.0;
+
         /// <summary>
         ///     备注
         /// </summary>
-        public string Remark;
+        public string Remark { get; set; }
 
         /// <summary>
         ///     代理类型
         /// </summary>
-        public string Type;
+        public virtual string Type { get; } = "WTF";
 
         public object Clone()
         {
