@@ -742,7 +742,14 @@ namespace Netch.Forms
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
 
-            if (IsWaiting())
+            if (!IsWaiting() || ModifierKeys == Keys.Control)
+            {
+                (ServerComboBox.SelectedItem as Server)?.Test();
+                ServerComboBox.Refresh();
+                Enabled = true;
+                StatusText();
+            }
+            else
             {
                 ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
                 _ = Task.Run(ServerHelper.DelayTestHelper.TestAllDelay);
@@ -755,13 +762,6 @@ namespace Netch.Forms
                     Enabled = true;
                     StatusText();
                 }
-            }
-            else
-            {
-                (ServerComboBox.SelectedItem as Server)?.Test();
-                ServerComboBox.Refresh();
-                Enabled = true;
-                StatusText();
             }
         }
 
