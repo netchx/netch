@@ -12,7 +12,7 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///     用户 ID
         /// </summary>
-        public string UserID { get; set; }
+        public string UserID { get; set; } = string.Empty;
 
         /// <summary>
         ///     额外 ID
@@ -37,22 +37,22 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///     伪装域名
         /// </summary>
-        public string Host { get; set; }
+        public string? Host { get; set; }
 
         /// <summary>
         ///     传输路径
         /// </summary>
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
         /// <summary>
         ///     QUIC 加密方式
         /// </summary>
-        public string QUICSecure { get; set; } = VMessGlobal.QUIC[0];
+        public string? QUICSecure { get; set; } = VMessGlobal.QUIC[0];
 
         /// <summary>
         ///     QUIC 加密密钥
         /// </summary>
-        public string QUICSecret { get; set; } = string.Empty;
+        public string? QUICSecret { get; set; } = string.Empty;
 
         /// <summary>
         ///     TLS 底层传输安全

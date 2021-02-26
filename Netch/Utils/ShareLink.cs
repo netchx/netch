@@ -85,13 +85,13 @@ namespace Netch.Utils
             catch (Exception e)
             {
                 Logging.Error(e.ToString());
+                Utils.Open(Logging.LogFile);
             }
 
-            foreach (var node in list)
-                if (!node.Remark.IsNullOrWhiteSpace())
-                    node.Remark = RemoveEmoji(node.Remark);
+            foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))
+                node.Remark = RemoveEmoji(node.Remark);
 
-            return list.Where(s => s != null);
+            return list;
         }
 
         public static string GetUriScheme(string text)
@@ -105,29 +105,13 @@ namespace Netch.Utils
 
         private static Server ParseNetchUri(string text)
         {
-            try
-            {
-                text = text.Substring(8);
+            text = text.Substring(8);
 
-                var NetchLink = (JObject) JsonConvert.DeserializeObject(URLSafeBase64Decode(text));
-                if (NetchLink == null)
-                    return null;
+            var jObject = (JObject) JsonConvert.DeserializeObject(URLSafeBase64Decode(text))!;
 
-                if (string.IsNullOrEmpty((string) NetchLink["Hostname"]))
-                    return null;
-
-                if (!ushort.TryParse((string) NetchLink["Port"], out _))
-                    return null;
-
-                var type = (string) NetchLink["Type"];
-                var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(NetchLink);
-                return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : null;
-            }
-            catch (Exception e)
-            {
-                Logging.Warning(e.ToString());
-                return null;
-            }
+            var type = (string) jObject["Type"]!;
+            var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(jObject);
+            return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : throw new FormatException();
         }
 
         public static string GetNetchLink(Server s)
@@ -209,7 +193,7 @@ namespace Netch.Utils
         public static IEnumerable<string> GetLines(this string str, bool removeEmptyLines = true)
         {
             using var sr = new StringReader(str);
-            string line;
+            string? line;
             while ((line = sr.ReadLine()) != null)
             {
                 if (removeEmptyLines && string.IsNullOrWhiteSpace(line))

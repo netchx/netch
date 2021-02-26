@@ -16,31 +16,32 @@ namespace Netch.Controllers
     public abstract class Guard
     {
         private readonly Timer _flushFileStreamTimer = new(300) {AutoReset = true};
-        private FileStream _logFileStream;
 
         /// <summary>
         ///     日志文件(重定向输出文件)
         /// </summary>
-        private string _logPath;
+        private string LogPath => Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
 
-        private StreamWriter _logStreamWriter;
+        private FileStream? _logFileStream;
+
+        private StreamWriter? _logStreamWriter;
 
         /// <summary>
         ///     成功启动关键词
         /// </summary>
-        protected virtual IEnumerable<string> StartedKeywords { get; } = null;
+        protected virtual IEnumerable<string> StartedKeywords { get; } = new List<string>();
 
         /// <summary>
         ///     启动失败关键词
         /// </summary>
-        protected virtual IEnumerable<string> StoppedKeywords { get; } = null;
+        protected virtual IEnumerable<string> StoppedKeywords { get; } = new List<string>();
 
-        public virtual string Name { get; }
+        public abstract string Name { get; }
 
         /// <summary>
         ///     主程序名
         /// </summary>
-        public virtual string MainFile { get; protected set; }
+        public abstract string MainFile { get; protected set; }
 
         protected State State { get; set; } = State.Waiting;
 
@@ -52,13 +53,12 @@ namespace Netch.Controllers
         /// <summary>
         ///     进程实例
         /// </summary>
-        public Process Instance { get; private set; }
+        public Process? Instance { get; private set; }
 
         /// <summary>
         ///     程序输出的编码,
-        ///     调用于基类的 <see cref="OnOutputDataReceived" />
         /// </summary>
-        protected virtual Encoding InstanceOutputEncoding { get; } = null;
+        protected virtual Encoding? InstanceOutputEncoding { get; } = null;
 
         public abstract void Stop();
 
@@ -120,12 +120,11 @@ namespace Netch.Controllers
             State = State.Starting;
             // 初始化程序
             InitInstance(argument);
-            Instance.EnableRaisingEvents = true;
+            Instance!.EnableRaisingEvents = true;
             if (RedirectStd)
             {
                 // 清理日志
-                _logPath ??= Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
-                _logFileStream = File.Open(_logPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+                _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
                 _logStreamWriter = new StreamWriter(_logFileStream);
             }
 
@@ -149,7 +148,7 @@ namespace Netch.Controllers
             // 启动日志重定向
             _flushFileStreamTimer.Elapsed += FlushFileStreamTimerEvent;
             _flushFileStreamTimer.Enabled = true;
-            if (!(StartedKeywords?.Any() ?? false))
+            if (!StartedKeywords.Any())
             {
                 State = State.Started;
                 return;
@@ -165,7 +164,7 @@ namespace Netch.Controllers
                         return;
                     case State.Stopped:
                         Stop();
-                        Utils.Utils.Open(_logPath);
+                        Utils.Utils.Open(LogPath);
                         throw new MessageException($"{Name} 控制器启动失败");
                 }
             }
@@ -176,20 +175,15 @@ namespace Netch.Controllers
 
         private void OnExited(object sender, EventArgs e)
         {
-            if (RedirectStd)
-                _flushFileStreamTimer.Enabled = false;
-
-            _logStreamWriter?.Close();
-
             State = State.Stopped;
         }
 
         protected void ReadOutput(TextReader reader)
         {
-            string line;
+            string? line;
             while ((line = reader.ReadLine()) != null)
             {
-                Write(line);
+                _logStreamWriter!.WriteLine(line);
 
                 // 检查启动
                 if (State == State.Starting)
@@ -200,6 +194,11 @@ namespace Netch.Controllers
                         State = State.Stopped;
                 }
             }
+
+            _flushFileStreamTimer.Enabled = false;
+            _logStreamWriter!.Close();
+            _logFileStream!.Close();
+            _logStreamWriter = _logStreamWriter = null;
         }
 
         /// <summary>
@@ -211,22 +210,12 @@ namespace Netch.Controllers
         {
             try
             {
-                _logStreamWriter.Flush();
+                _logStreamWriter!.Flush();
             }
             catch (Exception exception)
             {
                 Logging.Warning($"写入 {Name} 日志错误：\n" + exception.Message);
             }
-        }
-
-        /// <summary>
-        ///     写入日志文件缓冲
-        /// </summary>
-        /// <param name="info"></param>
-        /// <returns>转码后的字符串</returns>
-        private void Write(string info)
-        {
-            _logStreamWriter.WriteLine(info);
         }
     }
 }

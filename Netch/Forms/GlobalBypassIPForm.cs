@@ -53,7 +53,7 @@ namespace Netch.Forms
         {
             Global.Settings.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
-                Global.Settings.BypassIPs.Add(ip as string);
+                Global.Settings.BypassIPs.Add((string) ip);
 
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));

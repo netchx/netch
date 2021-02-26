@@ -21,7 +21,7 @@ namespace Netch.Models
         /// <summary>
         ///     地址
         /// </summary>
-        public string Hostname { get; set; }
+        public string Hostname { get; set; } = string.Empty;
 
         /// <summary>
         ///     端口
@@ -36,12 +36,12 @@ namespace Netch.Models
         /// <summary>
         ///     备注
         /// </summary>
-        public string Remark { get; set; }
+        public string Remark { get; set; } = "";
 
         /// <summary>
         ///     代理类型
         /// </summary>
-        public virtual string Type { get; } = "WTF";
+        public virtual string Type { get; } = null!;
 
         public object Clone()
         {
@@ -107,7 +107,7 @@ namespace Netch.Models
     {
         public static string AutoResolveHostname(this Server server)
         {
-            return Global.Settings.ResolveServerHostname ? DNS.Lookup(server.Hostname).ToString() : server.Hostname;
+            return Global.Settings.ResolveServerHostname ? DNS.Lookup(server.Hostname)!.ToString() : server.Hostname;
         }
     }
 }

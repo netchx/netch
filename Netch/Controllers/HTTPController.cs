@@ -12,9 +12,9 @@ namespace Netch.Controllers
 {
     public class HTTPController : IModeController
     {
-        public PrivoxyController pPrivoxyController = new();
+        public readonly PrivoxyController PrivoxyController = new();
 
-        private string prevBypass, prevHTTP, prevPAC;
+        private string prevBypass = "", prevHTTP = "", prevPAC = "";
         private bool prevEnabled;
 
         public string Name { get; } = "HTTP";
@@ -28,8 +28,8 @@ namespace Netch.Controllers
         {
             RecordPrevious();
 
-            pPrivoxyController.Start(MainController.Server);
-            Global.Job.AddProcess(pPrivoxyController.Instance);
+            PrivoxyController.Start(MainController.Server!);
+            Global.Job.AddProcess(PrivoxyController.Instance!);
 
             if (mode.Type == 3)
             {
@@ -58,7 +58,7 @@ namespace Netch.Controllers
         {
             var tasks = new[]
             {
-                Task.Run(pPrivoxyController.Stop),
+                Task.Run(PrivoxyController.Stop),
                 Task.Run(() =>
                 {
                     using var service = new ProxyService();

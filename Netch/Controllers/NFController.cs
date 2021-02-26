@@ -20,7 +20,7 @@ namespace Netch.Controllers
 
         private static readonly string BinDriver = string.Empty;
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-        private static string _sysDns;
+        private static string _sysDns = string.Empty;
 
         static NFController()
         {
@@ -204,14 +204,14 @@ namespace Netch.Controllers
             if (portType == PortType.UDP)
             {
                 offset = UdpNameListOffset;
-                server = MainController.UdpServer;
-                controller = MainController.UdpServerController;
+                server = MainController.UdpServer!;
+                controller = MainController.UdpServerController!;
             }
             else
             {
                 offset = 0;
-                server = MainController.Server;
-                controller = MainController.ServerController;
+                server = MainController.Server!;
+                controller = MainController.ServerController!;
             }
 
             if (server is Socks5 socks5)

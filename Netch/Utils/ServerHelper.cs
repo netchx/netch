@@ -59,7 +59,7 @@ namespace Netch.Utils
                 return value != 0 && Range.InRange(value);
             }
 
-            public static event EventHandler TestDelayFinished;
+            public static event EventHandler? TestDelayFinished;
 
             public static void TestAllDelay()
             {
@@ -98,37 +98,41 @@ namespace Netch.Utils
 
         public static readonly IEnumerable<IServerUtil> ServerUtils;
 
-        public static Server ParseJObject(JObject o)
+        public static Server? ParseJObject(JObject o)
         {
-            var handle = GetUtilByTypeName((string) o["Type"]);
-            if (handle == null)
+            try
             {
-                Logging.Warning($"不支持的服务器类型: {o["Type"]}");
+                var type = (string) o["Type"]!;
+                var handle = GetUtilByTypeName(type);
+
+                return handle.ParseJObject(o);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"读取服务器错误: {e}\n错误项: {o}");
                 return null;
             }
-
-            return handle.ParseJObject(o);
         }
 
         public static IServerUtil GetUtilByTypeName(string typeName)
         {
             if (string.IsNullOrEmpty(typeName))
-                return null;
+                throw new ArgumentNullException();
 
-            return ServerUtils.FirstOrDefault(i => (i.TypeName ?? "").Equals(typeName));
+            return ServerUtils.Single(i => i.TypeName.Equals(typeName));
         }
 
         public static IServerUtil GetUtilByFullName(string fullName)
         {
             if (string.IsNullOrEmpty(fullName))
-                return null;
+                throw new ArgumentNullException();
 
-            return ServerUtils.FirstOrDefault(i => (i.FullName ?? "").Equals(fullName));
+            return ServerUtils.Single(i => i.FullName.Equals(fullName));
         }
 
-        public static IServerUtil GetUtilByUriScheme(string typeName)
+        public static IServerUtil? GetUtilByUriScheme(string typeName)
         {
-            return ServerUtils.FirstOrDefault(i => i.UriScheme.Any(s => s.Equals(typeName)));
+            return ServerUtils.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(typeName)));
         }
 
         #endregion

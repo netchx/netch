@@ -4,7 +4,7 @@ namespace Netch.Servers.Shadowsocks.Form
 {
     public class ShadowsocksForm : ServerForm
     {
-        public ShadowsocksForm(Shadowsocks server = default)
+        public ShadowsocksForm(Shadowsocks? server = default)
         {
             server ??= new Shadowsocks();
             Server = server;

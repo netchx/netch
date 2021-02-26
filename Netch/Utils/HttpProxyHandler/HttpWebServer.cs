@@ -7,8 +7,8 @@ namespace Netch.Utils.HttpProxyHandler
 {
     public class HttpWebServer
     {
-        private HttpListener _listener;
-        private readonly Func<HttpListenerRequest, string> _responderMethod;
+        private HttpListener? _listener;
+        private readonly Func<HttpListenerRequest, string>? _responderMethod;
 
         public HttpWebServer(string[] prefixes, Func<HttpListenerRequest, string> method)
         {
@@ -51,13 +51,13 @@ namespace Netch.Utils.HttpProxyHandler
                 Logging.Info("Webserver running...");
                 try
                 {
-                    while (_listener.IsListening)
+                    while (_listener!.IsListening)
                         ThreadPool.QueueUserWorkItem(c =>
                             {
-                                var ctx = c as HttpListenerContext;
+                                var ctx = (HttpListenerContext) c;
                                 try
                                 {
-                                    var rstr = _responderMethod(ctx.Request);
+                                    var rstr = _responderMethod!(ctx.Request);
                                     var buf = Encoding.UTF8.GetBytes(rstr);
                                     ctx.Response.StatusCode = 200;
                                     ctx.Response.ContentType = "application/x-ns-proxy-autoconfig";
@@ -66,10 +66,10 @@ namespace Netch.Utils.HttpProxyHandler
                                 }
                                 catch
                                 {
-                                } // suppress any exceptions
+                                    // ignored
+                                }
                                 finally
                                 {
-                                    // always close the stream
                                     ctx.Response.OutputStream.Close();
                                 }
                             },
@@ -77,9 +77,8 @@ namespace Netch.Utils.HttpProxyHandler
                 }
                 catch (Exception ex)
                 {
-                    //Logging.Error(ex.Message, ex);
                     Logging.Error(ex.Message);
-                } // suppress any exceptions
+                }
             });
         }
 

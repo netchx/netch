@@ -15,7 +15,7 @@ namespace Netch.Forms.Mode
 
             public Item(int value, string text)
             {
-                Text = text;
+                _text = text;
                 Value = value;
             }
 
@@ -28,11 +28,11 @@ namespace Netch.Forms.Mode
             public int Value { get; set; }
         }
 
-        private Item[] _items = {new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs")};
+        private readonly Item[] _items = {new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs")};
 
-        private readonly Models.Mode _mode;
+        private readonly Models.Mode? _mode;
 
-        public Route(Models.Mode mode = null)
+        public Route(Models.Mode? mode = null)
         {
             if (mode != null && mode.Type is not (1 or 2))
                 throw new ArgumentOutOfRangeException();

@@ -1,4 +1,5 @@
-﻿namespace Netch.Models.GitHubRelease
+﻿#nullable disable
+namespace Netch.Models.GitHubRelease
 {
     public class GitHubUser
     {

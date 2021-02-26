@@ -14,12 +14,5 @@
             ProfileName = name;
             Index = index;
         }
-
-        /// <summary>
-        ///     Return a dummy one.
-        /// </summary>
-        public Profile()
-        {
-        }
     }
 }

@@ -9,11 +9,11 @@ namespace Netch.Servers.Trojan
         /// <summary>
         ///     密码
         /// </summary>
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         /// <summary>
         ///     伪装域名
         /// </summary>
-        public string Host { get; set; }
+        public string? Host { get; set; }
     }
 }

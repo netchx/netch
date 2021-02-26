@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -44,7 +43,7 @@ namespace Netch.Updater
             Global.MainForm.Exit(true);
         }
 
-        private static int Extract(string archiveFileName, string destDirName, bool overwrite, string tempFolder = null)
+        private static int Extract(string archiveFileName, string destDirName, bool overwrite, string? tempFolder = null)
         {
             tempFolder ??= Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             var temp7za = Path.Combine(tempFolder, "7za.exe");
@@ -74,39 +73,6 @@ namespace Netch.Updater
             return process?.ExitCode ?? 2;
         }
 
-        public static FileInfo FindFile(string filename, string directory)
-        {
-            var DirStack = new Stack<string>();
-            DirStack.Push(directory);
-
-            while (DirStack.Count > 0)
-            {
-                var DirInfo = new DirectoryInfo(DirStack.Pop());
-                try
-                {
-                    foreach (var DirChildInfo in DirInfo.GetDirectories())
-                        DirStack.Push(DirChildInfo.FullName);
-                }
-                catch
-                {
-                    // ignored
-                }
-
-                try
-                {
-                    foreach (var FileChildInfo in DirInfo.GetFiles())
-                        if (FileChildInfo.Name == filename)
-                            return FileChildInfo;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
-            return null;
-        }
-
         private static void MoveDirectory(string sourceDirName, string destDirName, bool overwrite)
         {
             sourceDirName = Path.GetFullPath(sourceDirName);
@@ -130,19 +96,6 @@ namespace Netch.Updater
                     {
                         throw new Exception("Updater wasn't able to move file: " + f);
                     }
-            }
-        }
-
-        private static bool TestFileFree(string FileName)
-        {
-            try
-            {
-                File.Move(FileName, FileName);
-                return true;
-            }
-            catch
-            {
-                return false;
             }
         }
 

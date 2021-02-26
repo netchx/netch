@@ -16,13 +16,13 @@ namespace Netch.Forms.Mode
         /// <summary>
         ///     被编辑的模式
         /// </summary>
-        private readonly Models.Mode _mode;
+        private readonly Models.Mode? _mode;
 
         /// <summary>
         ///     编辑模式
         /// </summary>
         /// <param name="mode">模式</param>
-        public Process(Models.Mode mode = null)
+        public Process(Models.Mode? mode = null)
         {
             if (mode != null && mode.Type is not 0)
                 throw new ArgumentOutOfRangeException();

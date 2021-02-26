@@ -21,17 +21,14 @@ namespace Netch.Controllers
         ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
-        public async Task<(string, string, string)> Start()
+        public async Task<(string?, string?, string?)> Start()
         {
-            string localEnd = null;
-            string publicEnd = null;
-            string result = null;
-            string bindingTest = null;
+            string? localEnd = null, publicEnd = null, result = null, bindingTest = null;
 
             try
             {
                 InitInstance($" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}");
-                Instance.Start();
+                Instance!.Start();
 
                 var output = await Instance.StandardOutput.ReadToEndAsync();
                 var error = await Instance.StandardError.ReadToEndAsync();

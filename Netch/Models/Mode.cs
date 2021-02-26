@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Netch.Models
 {
     public class Mode
     {
-        public readonly string FullName;
+        public readonly string? FullName;
 
         /// <summary>
         ///     规则
@@ -18,11 +19,12 @@ namespace Netch.Models
         /// <summary>
         ///     绕过中国（0. 不绕过 1. 绕过）
         /// </summary>
-        public bool BypassChina = false;
+        public bool BypassChina { get; set; }
+
         /// <summary>
         ///     备注
         /// </summary>
-        public string Remark;
+        public string Remark { get; set; } = "";
 
         /// <summary>
         ///     类型
@@ -54,7 +56,7 @@ namespace Netch.Models
         /// <summary>
         ///     文件相对路径(必须是存在的文件)
         /// </summary>
-        public string RelativePath => ModeHelper.GetRelativePath(FullName);
+        public string? RelativePath => FullName == null ? null : ModeHelper.GetRelativePath(FullName);
 
         public List<string> FullRule
         {
@@ -76,7 +78,7 @@ namespace Netch.Models
                         relativePath.Replace(">", "");
                         relativePath.Replace(".h", ".txt");
 
-                        var mode = Global.Modes.FirstOrDefault(m => m.RelativePath.Equals(relativePath.ToString()));
+                        var mode = Global.Modes.FirstOrDefault(m => m!.FullName != null && m.RelativePath!.Equals(relativePath.ToString()));
 
                         if (mode == null)
                         {
@@ -111,14 +113,17 @@ namespace Netch.Models
             }
         }
 
-        public void WriteFile()
+        public void WriteFile(string? fullName = null)
         {
-            var dir = Path.GetDirectoryName(FullName);
+            if (fullName != null)
+                throw new NotImplementedException();
+
+            var dir = Path.GetDirectoryName(FullName)!;
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
             // 写入到模式文件里
-            File.WriteAllText(FullName, ToFileString());
+            File.WriteAllText(FullName!, ToFileString());
         }
 
         /// <summary>

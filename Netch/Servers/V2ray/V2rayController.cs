@@ -18,7 +18,7 @@ namespace Netch.Servers.V2ray
 
         public ushort? Socks5LocalPort { get; set; }
 
-        public string LocalAddress { get; set; }
+        public string? LocalAddress { get; set; }
 
         public virtual void Start(in Server s, in Mode mode)
         {
@@ -35,7 +35,7 @@ namespace Netch.Servers.V2ray
         {
             base.InitInstance(argument);
             if (!Global.Settings.V2RayConfig.XrayCone)
-                Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+                Instance!.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
         }
     }
 }

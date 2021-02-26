@@ -15,17 +15,17 @@ namespace Netch.Servers.Shadowsocks
         /// <summary>
         ///     密码
         /// </summary>
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         /// <summary>
         ///     插件
         /// </summary>
-        public string Plugin { get; set; }
+        public string? Plugin { get; set; }
 
         /// <summary>
         ///     插件参数
         /// </summary>
-        public string PluginOption { get; set; }
+        public string? PluginOption { get; set; }
 
         public bool HasPlugin()
         {

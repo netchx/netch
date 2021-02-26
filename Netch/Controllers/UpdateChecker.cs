@@ -24,15 +24,15 @@ namespace Netch.Controllers
 
         public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
 
-        public static string LatestVersionNumber;
-        public static string LatestVersionUrl;
-        public static Release LatestRelease;
+        public static string? LatestVersionNumber;
+        public static string? LatestVersionUrl;
+        public static Release? LatestRelease;
 
-        public static event EventHandler NewVersionFound;
+        public static event EventHandler? NewVersionFound;
 
-        public static event EventHandler NewVersionFoundFailed;
+        public static event EventHandler? NewVersionFoundFailed;
 
-        public static event EventHandler NewVersionNotFound;
+        public static event EventHandler? NewVersionNotFound;
 
         public static async void Check(bool isPreRelease)
         {
@@ -74,13 +74,13 @@ namespace Netch.Controllers
         {
             using WebClient client = new();
 
-            var latestVersionDownloadUrl = LatestRelease.assets[0].browser_download_url;
-            var tagPage = await client.DownloadStringTaskAsync(LatestVersionUrl);
+            var latestVersionDownloadUrl = LatestRelease!.assets[0].browser_download_url;
+            var tagPage = await client.DownloadStringTaskAsync(LatestVersionUrl!);
             var match = Regex.Match(tagPage, @"<td .*>(?<sha256>.*)</td>", RegexOptions.Singleline);
 
             // TODO Replace with regex get basename and sha256 
             var fileName = Path.GetFileName(new Uri(latestVersionDownloadUrl).LocalPath);
-            fileName = fileName.Insert(fileName.LastIndexOf('.'), LatestVersionNumber);
+            fileName = fileName.Insert(fileName.LastIndexOf('.'), LatestVersionNumber!);
             var fileFullPath = Path.Combine(Global.NetchDir, "data", fileName);
 
             var sha256 = match.Groups["sha256"].Value;

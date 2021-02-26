@@ -30,7 +30,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        public static MainForm MainForm;
+        private static MainForm? _mainForm;
 
         public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
@@ -77,14 +77,14 @@ namespace Netch
             /// <summary>
             ///     网关
             /// </summary>
-            public static IPAddress Gateway;
+            public static IPAddress? Gateway;
 
-            public static NetworkInterface Adapter;
+            public static NetworkInterface? Adapter;
 
             /// <summary>
             ///     地址
             /// </summary>
-            public static IPAddress Address => Adapter.GetIPProperties()
+            public static IPAddress Address => Adapter!.GetIPProperties()
                 .UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
                 .Address;
         }
@@ -97,7 +97,7 @@ namespace Netch
             /// <summary>
             ///     适配器
             /// </summary>
-            public static NetworkInterface Adapter;
+            public static NetworkInterface? Adapter;
 
             /// <summary>
             ///     索引
@@ -109,5 +109,10 @@ namespace Netch
             /// </summary>
             public static string ComponentID = string.Empty;
         }
+
+        /// <summary>
+        ///     主窗体的静态实例
+        /// </summary>
+        public static MainForm MainForm => _mainForm ??= new MainForm();
     }
 }

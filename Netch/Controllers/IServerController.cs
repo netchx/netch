@@ -6,7 +6,7 @@ namespace Netch.Controllers
     {
         public ushort? Socks5LocalPort { get; set; }
 
-        public string LocalAddress { get; set; }
+        public string? LocalAddress { get; set; }
 
         /// <summary>
         ///     启动

@@ -4,7 +4,7 @@ namespace Netch.Servers.Socks5.Form
 {
     public class Socks5Form : ServerForm
     {
-        public Socks5Form(Socks5 server = default)
+        public Socks5Form(Socks5? server = default)
         {
             server ??= new Socks5();
             Server = server;

@@ -34,7 +34,7 @@ namespace Netch.Controllers
         #region NativeMethods
 
         [DllImport("aiodns.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool aiodns_dial(int name, byte[] value);
+        public static extern bool aiodns_dial(int name, byte[]? value);
 
         [DllImport("aiodns.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool aiodns_init();

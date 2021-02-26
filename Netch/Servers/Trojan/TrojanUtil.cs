@@ -52,49 +52,38 @@ namespace Netch.Servers.Trojan
             var data = new Trojan();
 
             text = text.Replace("/?", "?");
-            try
+            if (text.Contains("#"))
             {
-                if (text.Contains("#"))
-                {
-                    data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
-                    text = text.Split('#')[0];
-                }
+                data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
+                text = text.Split('#')[0];
+            }
 
-                if (text.Contains("?"))
-                {
-                    var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
-                    var regmatch = reg.Match(text);
+            if (text.Contains("?"))
+            {
+                var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
+                var regmatch = reg.Match(text);
 
-                    if (regmatch.Success)
-                    {
-                        var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
-
-                        if (peer != null)
-                            data.Host = peer;
-
-                        text = regmatch.Groups["data"].Value;
-                    }
-                    else
-                    {
-                        throw new FormatException();
-                    }
-                }
-
-                var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
-                var match = finder.Match(text);
-                if (!match.Success)
+                if (!regmatch.Success)
                     throw new FormatException();
 
-                data.Password = match.Groups["psk"].Value;
-                data.Hostname = match.Groups["server"].Value;
-                data.Port = ushort.Parse(match.Groups["port"].Value);
+                var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
 
-                return new[] {data};
+                if (peer != null)
+                    data.Host = peer;
+
+                text = regmatch.Groups["data"].Value;
             }
-            catch (FormatException)
-            {
-                return null;
-            }
+
+            var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
+            var match = finder.Match(text);
+            if (!match.Success)
+                throw new FormatException();
+
+            data.Password = match.Groups["psk"].Value;
+            data.Hostname = match.Groups["server"].Value;
+            data.Port = ushort.Parse(match.Groups["port"].Value);
+
+            return new[] {data};
         }
 
         public bool CheckServer(Server s)

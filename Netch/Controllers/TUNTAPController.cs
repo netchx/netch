@@ -21,7 +21,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     服务器 IP 地址
         /// </summary>
-        private IPAddress _serverAddresses;
+        private IPAddress? _serverAddresses;
 
         /// <summary>
         ///     本地 DNS 服务控制器
@@ -40,9 +40,9 @@ namespace Netch.Controllers
 
         public void Start(in Mode mode)
         {
-            var server = MainController.Server;
+            var server = MainController.Server!;
             // 查询服务器 IP 地址
-            _serverAddresses = DNS.Lookup(server.Hostname);
+            _serverAddresses = DNS.Lookup(server.Hostname)!;
 
             // 查找出口适配器
             Utils.Utils.SearchOutboundAdapter();
@@ -178,7 +178,7 @@ namespace Netch.Controllers
             #endregion
 
             Logging.Info("绕行 → 服务器 IP");
-            if (!IPAddress.IsLoopback(_serverAddresses))
+            if (!IPAddress.IsLoopback(_serverAddresses!))
                 RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
 
             Logging.Info("绕行 → 全局绕过 IP");
@@ -209,7 +209,7 @@ namespace Netch.Controllers
             try
             {
                 InitInstance("-h");
-                Instance.Start();
+                Instance!.Start();
                 return Instance.StandardError.ReadToEnd().Contains("-fakeDns");
             }
             catch
@@ -270,7 +270,7 @@ namespace Netch.Controllers
             switch (routeType)
             {
                 case RouteType.Outbound:
-                    gateway = Global.Outbound.Gateway.ToString();
+                    gateway = Global.Outbound.Gateway!.ToString();
                     index = Global.Outbound.Index;
                     break;
                 case RouteType.TUNTAP:

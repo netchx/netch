@@ -141,7 +141,7 @@ namespace Netch.Utils
                    };
         }
 
-        public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)
+        public static IModeController? GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)
         {
             port = null;
             portName = string.Empty;

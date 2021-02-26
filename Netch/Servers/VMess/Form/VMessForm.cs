@@ -5,7 +5,7 @@ namespace Netch.Servers.VMess.Form
 {
     public class VMessForm : ServerForm
     {
-        public VMessForm(VMess server = default)
+        public VMessForm(VMess? server = default)
         {
             server ??= new VMess();
             Server = server;

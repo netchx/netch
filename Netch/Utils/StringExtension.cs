@@ -8,12 +8,12 @@ namespace Netch.Utils
 {
     public static class StringExtension
     {
-        public static bool IsNullOrEmpty(this string value)
+        public static bool IsNullOrEmpty(this string? value)
         {
             return string.IsNullOrEmpty(value);
         }
 
-        public static bool IsNullOrWhiteSpace(this string value)
+        public static bool IsNullOrWhiteSpace(this string? value)
         {
             return string.IsNullOrWhiteSpace(value);
         }
@@ -28,20 +28,12 @@ namespace Netch.Utils
 
         public static bool IsWhiteSpace(this string value)
         {
-            foreach (var c in value)
-            {
-                if (char.IsWhiteSpace(c))
-                    continue;
-
-                return false;
-            }
-
-            return true;
+            return value.All(char.IsWhiteSpace);
         }
 
         public static IEnumerable<string> NonWhiteSpaceLines(this TextReader reader)
         {
-            string line;
+            string? line;
             while ((line = reader.ReadLine()) != null)
             {
                 if (line.IsWhiteSpace())

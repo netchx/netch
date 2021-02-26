@@ -201,7 +201,7 @@ namespace Netch.Forms
             #endregion
         }
 
-        private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
         {
             if (UseCustomDNSCheckBox.Checked)
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DNS.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";

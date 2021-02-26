@@ -18,10 +18,10 @@ namespace Netch.Utils
 
         private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 
-        public static HttpWebRequest CreateRequest(string url, int? timeout = null, string userAgent = null)
+        public static HttpWebRequest CreateRequest(string url, int? timeout = null, string? userAgent = null)
         {
             var req = (HttpWebRequest) WebRequest.Create(url);
-            req.UserAgent = string.IsNullOrEmpty(userAgent) ? DefaultUserAgent : userAgent;
+            req.UserAgent = string.IsNullOrWhiteSpace(userAgent) ? DefaultUserAgent : userAgent;
             req.Accept = "*/*";
             req.KeepAlive = true;
             req.Timeout = timeout ?? DefaultGetTimeout;

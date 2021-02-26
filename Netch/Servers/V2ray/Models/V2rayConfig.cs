@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿#nullable disable
+using System.Collections.Generic;
 
 namespace Netch.Servers.V2ray.Models
 {
     public class V2rayConfig
     {
-        public List<Inbounds> inbounds { get; set; }
+        public List<Inbounds> inbounds { get; } = new();
 
-        public List<Outbounds> outbounds { get; set; }
+        public List<Outbounds> outbounds { get; } = new();
 
-        public Routing routing { get; set; }
+        public Routing routing { get; } = new();
     }
 
     public class Inbounds
@@ -160,7 +161,7 @@ namespace Netch.Servers.V2ray.Models
     {
         public string domainStrategy { get; set; }
 
-        public List<RulesItem> rules { get; set; }
+        public List<RulesItem> rules { get; } = new();
     }
 
     public class StreamSettings

@@ -13,7 +13,7 @@ namespace Netch.Utils
             Exit
         }
 
-        public static event EventHandler<Commands> Called;
+        public static event EventHandler<Commands>? Called;
 
         private static void OnCalled(Commands e)
         {

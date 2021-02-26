@@ -18,7 +18,7 @@ namespace Netch.Forms
             LogLevel level = LogLevel.INFO,
             string title = "",
             bool confirm = false,
-            IWin32Window owner = null)
+            IWin32Window? owner = null)
         {
             MessageBoxIcon msgIcon;
             if (string.IsNullOrWhiteSpace(title))

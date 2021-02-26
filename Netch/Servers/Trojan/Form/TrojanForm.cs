@@ -4,7 +4,7 @@ namespace Netch.Servers.Trojan.Form
 {
     public class TrojanForm : ServerForm
     {
-        public TrojanForm(Trojan server = default)
+        public TrojanForm(Trojan? server = default)
         {
             server ??= new Trojan();
             Server = server;

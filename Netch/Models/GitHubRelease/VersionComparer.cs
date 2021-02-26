@@ -6,7 +6,7 @@ namespace Netch.Models.GitHubRelease
     {
         public int Compare(object x, object y)
         {
-            return VersionUtil.CompareVersion(x?.ToString(), y?.ToString());
+            return VersionUtil.CompareVersion(x.ToString(), y.ToString());
         }
     }
 }

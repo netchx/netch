@@ -10,16 +10,16 @@
         /// <summary>
         ///     链接
         /// </summary>
-        public string Link;
+        public string Link = "";
 
         /// <summary>
         ///     备注
         /// </summary>
-        public string Remark;
+        public string Remark = "";
 
         /// <summary>
         ///     User Agent
         /// </summary>
-        public string UserAgent;
+        public string UserAgent = "";
     }
 }

@@ -27,19 +27,20 @@ namespace Netch.Utils
             {
                 try
                 {
-                    var settingJObject = (JObject) JsonConvert.DeserializeObject(File.ReadAllText(SETTINGS_JSON));
+                    var settingJObject = (JObject) JsonConvert.DeserializeObject(File.ReadAllText(SETTINGS_JSON))!;
                     Global.Settings = settingJObject?.ToObject<Setting>() ?? new Setting();
                     Global.Settings.Server.Clear();
 
                     if (settingJObject?["Server"] != null)
-                        foreach (JObject server in settingJObject["Server"])
+                        foreach (JObject server in settingJObject["Server"]!)
                         {
                             var serverResult = ServerHelper.ParseJObject(server);
                             if (serverResult != null)
                                 Global.Settings.Server.Add(serverResult);
                         }
 
-                    if (settingJObject?["Profiles"] != null && Global.Settings.Profiles.Any() && settingJObject["Profiles"].First()?["Index"] == null)
+                    if (settingJObject?["Profiles"] != null && Global.Settings.Profiles.Any() &&
+                        settingJObject["Profiles"]!.First()?["Index"] == null)
                         foreach (var profile in Global.Settings.Profiles)
                             profile.Index = Global.Settings.Profiles.IndexOf(profile);
                 }

@@ -1,3 +1,4 @@
+#nullable disable
 namespace Netch.Servers.Shadowsocks.Models
 {
     public class ShadowsocksConfig

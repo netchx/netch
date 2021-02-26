@@ -24,7 +24,7 @@ namespace Netch.Servers.VLESS
 
         /// <summary>
         /// </summary>
-        public string Flow { get; set; }
+        public string? Flow { get; set; }
     }
 
     public class VLESSGlobal

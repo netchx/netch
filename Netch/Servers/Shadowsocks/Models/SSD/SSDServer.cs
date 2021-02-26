@@ -1,4 +1,5 @@
-﻿namespace Netch.Servers.Shadowsocks.Models.SSD
+﻿#nullable disable
+namespace Netch.Servers.Shadowsocks.Models.SSD
 {
     public class SSDServer
     {

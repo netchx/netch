@@ -18,7 +18,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public ushort? Socks5LocalPort { get; set; }
 
-        public string LocalAddress { get; set; }
+        public string? LocalAddress { get; set; }
 
         public void Start(in Server s, in Mode mode)
         {

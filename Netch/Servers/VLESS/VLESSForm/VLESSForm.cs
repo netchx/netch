@@ -5,7 +5,7 @@ namespace Netch.Servers.VLESS.VLESSForm
 {
     internal class VLESSForm : ServerForm
     {
-        public VLESSForm(VLESS server = default)
+        public VLESSForm(VLESS? server = default)
         {
             server ??= new VLESS();
             Server = server;

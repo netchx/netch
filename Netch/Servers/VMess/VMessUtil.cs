@@ -24,16 +24,7 @@ namespace Netch.Servers.VMess
 
         public Server ParseJObject(in JObject j)
         {
-            // TODO Remove Migrate code
-            var server = j.ToObject<VMess>();
-            if (server == null)
-                return null;
-
-            string quic;
-            if ((quic = j.GetValue("QUIC")?.ToString()) != null)
-                server.QUICSecure = quic;
-
-            return server;
+            return j.ToObject<VMess>();
         }
 
         public void Edit(Server s)
@@ -117,31 +108,11 @@ namespace Netch.Servers.VMess
             data.TLSSecureType = vmess.tls;
             data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
 
-            return CheckServer(data) ? new[] {data} : null;
+            return new[] {data};
         }
 
         public bool CheckServer(Server s)
         {
-            var server = (VMess) s;
-            if (!VMessGlobal.TransferProtocols.Contains(server.TransferProtocol))
-            {
-                Logging.Error($"不支持的 VMess 传输协议：{server.TransferProtocol}");
-                return false;
-            }
-
-            if (server.FakeType.Length != 0 && !VMessGlobal.FakeTypes.Contains(server.FakeType))
-            {
-                Logging.Error($"不支持的 VMess 伪装类型：{server.FakeType}");
-                return false;
-            }
-
-            if (server.TransferProtocol == "quic")
-                if (!VMessGlobal.QUIC.Contains(server.QUICSecure))
-                {
-                    Logging.Error($"不支持的 VMess QUIC 加密方式：{server.QUICSecure}");
-                    return false;
-                }
-
             return true;
         }
     }

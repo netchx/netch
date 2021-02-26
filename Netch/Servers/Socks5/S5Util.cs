@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Netch.Controllers;
 using Netch.Models;
@@ -57,7 +58,7 @@ namespace Netch.Servers.Socks5
                 .ToDictionary(splited => splited[0], splited => splited[1]);
 
             if (!dict.ContainsKey("server") || !dict.ContainsKey("port"))
-                return null;
+                throw new FormatException();
 
             var data = new Socks5
             {

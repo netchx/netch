@@ -12,36 +12,36 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static Mode Mode;
+        public static Mode? Mode;
 
         /// TCP or Both Server
-        public static Server Server;
+        public static Server? Server;
 
-        private static Server _udpServer;
+        private static Server? _udpServer;
 
         public static readonly NTTController NTTController = new();
-        private static IServerController _serverController;
-        private static IServerController _udpServerController;
+        private static IServerController? _serverController;
+        private static IServerController? _udpServerController;
 
-        public static IServerController ServerController
+        public static IServerController? ServerController
         {
             get => _serverController;
             private set => _serverController = value;
         }
 
-        public static IServerController UdpServerController
+        public static IServerController? UdpServerController
         {
             get => _udpServerController ?? _serverController;
             set => _udpServerController = value;
         }
 
-        public static Server UdpServer
+        public static Server? UdpServer
         {
             get => _udpServer ?? Server;
             set => _udpServer = value;
         }
 
-        public static IModeController ModeController { get; private set; }
+        public static IModeController? ModeController { get; private set; }
 
         /// <summary>
         ///     启动
@@ -130,7 +130,7 @@ namespace Netch.Controllers
                 Task.Run(() =>
                 {
                     Thread.Sleep(1000);
-                    Global.Job.AddProcess(guard.Instance);
+                    Global.Job.AddProcess(guard.Instance!);
                 });
 
             if (server is Socks5 socks5)
@@ -158,7 +158,7 @@ namespace Netch.Controllers
 
             ModeController.Start(mode);
             if (ModeController is Guard {Instance: { }} guard)
-                Global.Job.AddProcess(guard.Instance);
+                Global.Job.AddProcess(guard.Instance!);
         }
 
         /// <summary>
@@ -166,6 +166,9 @@ namespace Netch.Controllers
         /// </summary>
         public static async Task Stop()
         {
+            if (_serverController == null && ModeController == null)
+                return;
+
             StatusPortInfoText.Reset();
 
             _ = Task.Run(() => NTTController.Stop());

@@ -1,3 +1,4 @@
+#nullable disable
 using System;
 using System.Runtime.InteropServices;
 
@@ -14,33 +15,32 @@ namespace nfapinet
 
     public enum NF_DIRECTION
     {
-        NF_D_IN = 1,        // Incoming TCP connection or UDP packet
-        NF_D_OUT = 2,       // Outgoing TCP connection or UDP packet
-        NF_D_BOTH = 3       // Any direction
+        NF_D_IN = 1,  // Incoming TCP connection or UDP packet
+        NF_D_OUT = 2, // Outgoing TCP connection or UDP packet
+        NF_D_BOTH = 3 // Any direction
     };
 
     public enum NF_FILTERING_FLAG
     {
-        NF_ALLOW = 0,       // Allow the activity without filtering transmitted packets
-        NF_BLOCK = 1,       // Block the activity
-        NF_FILTER = 2,      // Filter the transmitted packets
-        NF_SUSPENDED = 4,   // Suspend receives from server and sends from client
-        NF_OFFLINE = 8,     // Emulate establishing a TCP connection with remote server
-        NF_INDICATE_CONNECT_REQUESTS = 16, // Indicate outgoing connect requests to API
+        NF_ALLOW = 0,                        // Allow the activity without filtering transmitted packets
+        NF_BLOCK = 1,                        // Block the activity
+        NF_FILTER = 2,                       // Filter the transmitted packets
+        NF_SUSPENDED = 4,                    // Suspend receives from server and sends from client
+        NF_OFFLINE = 8,                      // Emulate establishing a TCP connection with remote server
+        NF_INDICATE_CONNECT_REQUESTS = 16,   // Indicate outgoing connect requests to API
         NF_DISABLE_REDIRECT_PROTECTION = 32, // Disable blocking indicating connect requests for outgoing connections of local proxies
-        NF_PEND_CONNECT_REQUEST = 64, // Pend outgoing connect request to complete it later using nf_complete(TCP|UDP)ConnectRequest
-        NF_FILTER_AS_IP_PACKETS = 128, // Indicate the traffic as IP packets via ipSend/ipReceive
-        NF_READONLY = 256,              // Don't block the IP packets and indicate them to ipSend/ipReceive only for monitoring
-        NF_CONTROL_FLOW = 512,          // Use the flow limit rules even without NF_FILTER flag
+        NF_PEND_CONNECT_REQUEST = 64,        // Pend outgoing connect request to complete it later using nf_complete(TCP|UDP)ConnectRequest
+        NF_FILTER_AS_IP_PACKETS = 128,       // Indicate the traffic as IP packets via ipSend/ipReceive
+        NF_READONLY = 256,                   // Don't block the IP packets and indicate them to ipSend/ipReceive only for monitoring
+        NF_CONTROL_FLOW = 512,               // Use the flow limit rules even without NF_FILTER flag
     };
 
     public enum NF_FLAGS
     {
         NFF_NONE = 0,
-        NFF_DONT_DISABLE_TEREDO = 1, // Don't disable Teredo 
+        NFF_DONT_DISABLE_TEREDO = 1,        // Don't disable Teredo 
         NFF_DONT_DISABLE_TCP_OFFLOADING = 2 // Don't disable TCP offloading
     };
-
 
     public enum NF_CONSTS
     {
@@ -61,30 +61,30 @@ namespace nfapinet
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct NF_RULE
     {
-        public int protocol;    // IPPROTO_TCP or IPPROTO_UDP        
-        public UInt32 processId;    // Process identifier
-        public Byte direction;  // See NF_DIRECTION
-        public ushort localPort;    // Local port
-        public ushort remotePort;   // Remote port
-        public ushort ip_family;    // AF_INET for IPv4 and AF_INET6 for IPv6
+        public int protocol;      // IPPROTO_TCP or IPPROTO_UDP        
+        public UInt32 processId;  // Process identifier
+        public Byte direction;    // See NF_DIRECTION
+        public ushort localPort;  // Local port
+        public ushort remotePort; // Remote port
+        public ushort ip_family;  // AF_INET for IPv4 and AF_INET6 for IPv6
 
         // Local IP (or network if localIpAddressMask is not zero)
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddress;
 
         // Local IP mask
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddressMask;
 
         // Remote IP (or network if remoteIpAddressMask is not zero)
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] remoteIpAddress;
 
         // Remote IP mask
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] remoteIpAddressMask;
 
-        public UInt32 filteringFlag;    // See NF_FILTERING_FLAG
+        public UInt32 filteringFlag; // See NF_FILTERING_FLAG
     };
 
     /**
@@ -93,30 +93,30 @@ namespace nfapinet
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     public struct NF_RULE_EX
     {
-        public int protocol;    // IPPROTO_TCP or IPPROTO_UDP        
-        public UInt32 processId;    // Process identifier
-        public Byte direction;  // See NF_DIRECTION
-        public ushort localPort;    // Local port
-        public ushort remotePort;   // Remote port
-        public ushort ip_family;    // AF_INET for IPv4 and AF_INET6 for IPv6
+        public int protocol;      // IPPROTO_TCP or IPPROTO_UDP        
+        public UInt32 processId;  // Process identifier
+        public Byte direction;    // See NF_DIRECTION
+        public ushort localPort;  // Local port
+        public ushort remotePort; // Remote port
+        public ushort ip_family;  // AF_INET for IPv4 and AF_INET6 for IPv6
 
         // Local IP (or network if localIpAddressMask is not zero)
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddress;
 
         // Local IP mask
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddressMask;
 
         // Remote IP (or network if remoteIpAddressMask is not zero)
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] remoteIpAddress;
 
         // Remote IP mask
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] remoteIpAddressMask;
 
-        public UInt32 filteringFlag;    // See NF_FILTERING_FLAG
+        public UInt32 filteringFlag; // See NF_FILTERING_FLAG
 
         // Tail part of the process path mask 
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
@@ -129,17 +129,17 @@ namespace nfapinet
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct NF_TCP_CONN_INFO
     {
-        public UInt32 filteringFlag;    // See NF_FILTERING_FLAG
-        public UInt32 processId;        // Process identifier
-        public Byte direction;      // See NF_DIRECTION
-        public ushort ip_family;        // AF_INET for IPv4 and AF_INET6 for IPv6
+        public UInt32 filteringFlag; // See NF_FILTERING_FLAG
+        public UInt32 processId;     // Process identifier
+        public Byte direction;       // See NF_DIRECTION
+        public ushort ip_family;     // AF_INET for IPv4 and AF_INET6 for IPv6
 
         // Local address as sockaddr_in for IPv4 and sockaddr_in6 for IPv6
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
         public byte[] localAddress;
 
         // Remote address as sockaddr_in for IPv4 and sockaddr_in6 for IPv6
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
         public byte[] remoteAddress;
     };
 
@@ -149,11 +149,11 @@ namespace nfapinet
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct NF_UDP_CONN_INFO
     {
-        public UInt32 processId;        // Process identifier
-        public ushort ip_family;        // AF_INET for IPv4 and AF_INET6 for IPv6
+        public UInt32 processId; // Process identifier
+        public ushort ip_family; // AF_INET for IPv4 and AF_INET6 for IPv6
 
         // Local address as sockaddr_in for IPv4 and sockaddr_in6 for IPv6
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
         public byte[] localAddress;
     };
 
@@ -175,35 +175,35 @@ namespace nfapinet
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct NF_UDP_CONN_REQUEST
     {
-        public UInt32 filteringFlag;    // See NF_FILTERING_FLAG
-        public UInt32 processId;        // Process identifier
-        public ushort ip_family;        // AF_INET for IPv4 and AF_INET6 for IPv6
+        public UInt32 filteringFlag; // See NF_FILTERING_FLAG
+        public UInt32 processId;     // Process identifier
+        public ushort ip_family;     // AF_INET for IPv4 and AF_INET6 for IPv6
 
         // Local address as sockaddr_in for IPv4 and sockaddr_in6 for IPv6
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
         public byte[] localAddress;
 
         // Remote address as sockaddr_in for IPv4 and sockaddr_in6 for IPv6
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_ADDRESS_LENGTH)]
         public byte[] remoteAddress;
     };
 
     public enum NF_IP_FLAG
     {
-        NFIF_NONE = 0,      // No flags
-        NFIF_READONLY = 1,  // The packet was not blocked and indicated only for monitoring in read-only mode 
-                            // (see NF_READ_ONLY flags from NF_FILTERING_FLAG).
+        NFIF_NONE = 0,     // No flags
+        NFIF_READONLY = 1, // The packet was not blocked and indicated only for monitoring in read-only mode 
+        // (see NF_READ_ONLY flags from NF_FILTERING_FLAG).
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct NF_IP_PACKET_OPTIONS
     {
-        public ushort ip_family;    // AF_INET for IPv4 and AF_INET6 for IPv6
-        public UInt32 ipHeaderSize; // Size in bytes of IP header
-        public UInt32 compartmentId;  // Network routing compartment identifier (can be zero)
-        public UInt32 interfaceIndex; // Index of the interface on which the original packet data was received (irrelevant to outgoing packets)
-        public UInt32 subInterfaceIndex;    // Index of the subinterface on which the original packet data was received (irrelevant to outgoing packets)
-        public UInt32 flags;                // Can be a combination of flags from NF_IP_FLAG enumeration
+        public ushort ip_family;         // AF_INET for IPv4 and AF_INET6 for IPv6
+        public UInt32 ipHeaderSize;      // Size in bytes of IP header
+        public UInt32 compartmentId;     // Network routing compartment identifier (can be zero)
+        public UInt32 interfaceIndex;    // Index of the interface on which the original packet data was received (irrelevant to outgoing packets)
+        public UInt32 subInterfaceIndex; // Index of the subinterface on which the original packet data was received (irrelevant to outgoing packets)
+        public UInt32 flags;             // Can be a combination of flags from NF_IP_FLAG enumeration
     };
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -257,15 +257,15 @@ namespace nfapinet
         public ushort ip_family;
 
         // Local IP (or network if localIpAddressMask is not zero)
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddress;
 
         // Local IP mask
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] localIpAddressMask;
 
         // Redirect bind request to this IP 
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)]
         public byte[] newLocalIpAddress;
 
         // Redirect bind request to this port, if it is not zero
@@ -277,38 +277,55 @@ namespace nfapinet
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_threadStart();
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_threadEnd();
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpConnectRequest(ulong id, ref NF_TCP_CONN_INFO pConnInfo);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpConnected(ulong id, ref NF_TCP_CONN_INFO pConnInfo);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpClosed(ulong id, ref NF_TCP_CONN_INFO pConnInfo);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpReceive(ulong id, IntPtr buf, int len);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpSend(ulong id, IntPtr buf, int len);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpCanReceive(ulong id);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_tcpCanSend(ulong id);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpCreated(ulong id, ref NF_UDP_CONN_INFO pConnInfo);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpConnectRequest(ulong id, ref NF_UDP_CONN_REQUEST pConnReq);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpClosed(ulong id, ref NF_UDP_CONN_INFO pConnInfo);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpReceive(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpSend(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpCanReceive(ulong id);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_udpCanSend(ulong id);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_ipReceive(IntPtr buf, int len, ref NF_IP_PACKET_OPTIONS ipOptions);
+
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     delegate void cbd_ipSend(IntPtr buf, int len, ref NF_IP_PACKET_OPTIONS ipOptions);
 
@@ -355,80 +372,95 @@ namespace nfapinet
         {
             m_pEventHandler.threadStart();
         }
+
         public static void threadEnd()
         {
             m_pEventHandler.threadEnd();
         }
+
         public static void tcpConnectRequest(ulong id, ref NF_TCP_CONN_INFO pConnInfo)
         {
             m_pEventHandler.tcpConnectRequest(id, ref pConnInfo);
         }
+
         public static void tcpConnected(ulong id, ref NF_TCP_CONN_INFO pConnInfo)
         {
             m_pEventHandler.tcpConnected(id, pConnInfo);
         }
+
         public static void tcpClosed(ulong id, ref NF_TCP_CONN_INFO pConnInfo)
         {
             m_pEventHandler.tcpClosed(id, pConnInfo);
         }
+
         public static void tcpReceive(ulong id, IntPtr buf, int len)
         {
             m_pEventHandler.tcpReceive(id, buf, len);
         }
+
         public static void tcpSend(ulong id, IntPtr buf, int len)
         {
             m_pEventHandler.tcpSend(id, buf, len);
         }
+
         public static void tcpCanReceive(ulong id)
         {
             m_pEventHandler.tcpCanReceive(id);
         }
+
         public static void tcpCanSend(ulong id)
         {
             m_pEventHandler.tcpCanSend(id);
         }
+
         public static void udpCreated(ulong id, ref NF_UDP_CONN_INFO pConnInfo)
         {
             m_pEventHandler.udpCreated(id, pConnInfo);
         }
+
         public static void udpConnectRequest(ulong id, ref NF_UDP_CONN_REQUEST pConnReq)
         {
             m_pEventHandler.udpConnectRequest(id, ref pConnReq);
         }
+
         public static void udpClosed(ulong id, ref NF_UDP_CONN_INFO pConnInfo)
         {
             m_pEventHandler.udpClosed(id, pConnInfo);
         }
+
         public static void udpReceive(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options)
         {
             if (options.ToInt64() != 0)
             {
-                NF_UDP_OPTIONS optionsCopy = (NF_UDP_OPTIONS)Marshal.PtrToStructure((IntPtr)options, typeof(NF_UDP_OPTIONS));
+                NF_UDP_OPTIONS optionsCopy = (NF_UDP_OPTIONS) Marshal.PtrToStructure((IntPtr) options, typeof(NF_UDP_OPTIONS));
                 int optionsLen = 8 + optionsCopy.optionsLength;
                 m_pEventHandler.udpReceive(id, remoteAddress, buf, len, options, optionsLen);
             }
             else
             {
-                m_pEventHandler.udpReceive(id, remoteAddress, buf, len, (IntPtr)null, 0);
+                m_pEventHandler.udpReceive(id, remoteAddress, buf, len, (IntPtr) null, 0);
             }
         }
+
         public static void udpSend(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options)
         {
             if (options.ToInt64() != 0)
             {
-                NF_UDP_OPTIONS optionsCopy = (NF_UDP_OPTIONS)Marshal.PtrToStructure((IntPtr)options, typeof(NF_UDP_OPTIONS));
+                NF_UDP_OPTIONS optionsCopy = (NF_UDP_OPTIONS) Marshal.PtrToStructure((IntPtr) options, typeof(NF_UDP_OPTIONS));
                 int optionsLen = 8 + optionsCopy.optionsLength;
                 m_pEventHandler.udpSend(id, remoteAddress, buf, len, options, optionsLen);
             }
             else
             {
-                m_pEventHandler.udpSend(id, remoteAddress, buf, len, (IntPtr)null, 0);
+                m_pEventHandler.udpSend(id, remoteAddress, buf, len, (IntPtr) null, 0);
             }
         }
+
         public static void udpCanReceive(ulong id)
         {
             m_pEventHandler.udpCanReceive(id);
         }
+
         public static void udpCanSend(ulong id)
         {
             m_pEventHandler.udpCanSend(id);
@@ -446,6 +478,7 @@ namespace nfapinet
         {
             m_pEventHandler.ipReceive(buf, len, ref ipOptions);
         }
+
         public static void ipSend(IntPtr buf, int len, ref NF_IP_PACKET_OPTIONS ipOptions)
         {
             m_pEventHandler.ipSend(buf, len, ref ipOptions);
@@ -489,9 +522,9 @@ namespace nfapinet
     // Managed wrapper over API 
     public class NFAPI
     {
-        private static IntPtr m_pEventHandlerRaw = (IntPtr)null;
+        private static IntPtr m_pEventHandlerRaw = (IntPtr) null;
         private static NF_EventHandlerInternal m_pEventHandler;
-        private static IntPtr m_pIPEventHandlerRaw = (IntPtr)null;
+        private static IntPtr m_pIPEventHandlerRaw = (IntPtr) null;
         private static NF_IPEventHandlerInternal m_pIPEventHandler;
 
         /**
@@ -554,7 +587,6 @@ namespace nfapinet
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
         public static extern NF_STATUS nf_unRegisterDriver(String driverName);
 
-
         //
         // TCP control routines
         //
@@ -612,10 +644,7 @@ namespace nfapinet
 		* @param len Buffer length
 		**/
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NF_STATUS nf_udpPostSend(ulong id,
-            IntPtr remoteAddress,
-            IntPtr buf, int len,
-            IntPtr options);
+        public static extern NF_STATUS nf_udpPostSend(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options);
 
         /**
         * Indicates the buffer to local process via specified socket.
@@ -625,10 +654,7 @@ namespace nfapinet
         * @param len Buffer length
         **/
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NF_STATUS nf_udpPostReceive(ulong id,
-            IntPtr remoteAddress,
-            IntPtr buf, int len,
-            IntPtr options);
+        public static extern NF_STATUS nf_udpPostReceive(ulong id, IntPtr remoteAddress, IntPtr buf, int len, IntPtr options);
 
         /**
 		* Indicates a packet to TCP/IP stack
@@ -637,9 +663,7 @@ namespace nfapinet
 		* @param options IP options
 		**/
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NF_STATUS nf_ipPostReceive(
-            IntPtr buf, int len,
-            ref NF_IP_PACKET_OPTIONS options);
+        public static extern NF_STATUS nf_ipPostReceive(IntPtr buf, int len, ref NF_IP_PACKET_OPTIONS options);
 
         /**
 		* Sends a packet to remote IP
@@ -648,9 +672,7 @@ namespace nfapinet
 		* @param options IP options
 		**/
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NF_STATUS nf_ipPostSend(
-            IntPtr buf, int len,
-            ref NF_IP_PACKET_OPTIONS options);
+        public static extern NF_STATUS nf_ipPostSend(IntPtr buf, int len, ref NF_IP_PACKET_OPTIONS options);
 
         //
         // Filtering rules 
@@ -668,13 +690,13 @@ namespace nfapinet
         {
             if (buf == null)
             {
-                buf = new byte[(int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH];
+                buf = new byte[(int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH];
             }
             else
             {
-                if (buf.Length < (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)
+                if (buf.Length < (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH)
                 {
-                    Array.Resize(ref buf, (int)NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH);
+                    Array.Resize(ref buf, (int) NF_CONSTS.NF_MAX_IP_ADDRESS_LENGTH);
                 }
             }
         }
@@ -853,9 +875,9 @@ namespace nfapinet
 
             fixed (char* p = buf)
             {
-                if (nf_getProcessNameFromKernel(processId, (IntPtr)p, buf.Length))
+                if (nf_getProcessNameFromKernel(processId, (IntPtr) p, buf.Length))
                 {
-                    return Marshal.PtrToStringUni((IntPtr)p);
+                    return Marshal.PtrToStringUni((IntPtr) p);
                 }
             }
 
@@ -871,9 +893,9 @@ namespace nfapinet
 
             fixed (char* p = buf)
             {
-                if (nf_getProcessNameW(processId, (IntPtr)p, buf.Length))
+                if (nf_getProcessNameW(processId, (IntPtr) p, buf.Length))
                 {
-                    return Marshal.PtrToStringUni((IntPtr)p);
+                    return Marshal.PtrToStringUni((IntPtr) p);
                 }
             }
 
@@ -983,11 +1005,9 @@ namespace nfapinet
         * Add binding rule to driver
         */
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        private static extern NF_STATUS
-        nf_addBindingRule(ref NF_BINDING_RULE pRule, int toHead);
+        private static extern NF_STATUS nf_addBindingRule(ref NF_BINDING_RULE pRule, int toHead);
 
-        public static NF_STATUS
-        nf_addBindingRule(NF_BINDING_RULE pRule, int toHead)
+        public static NF_STATUS nf_addBindingRule(NF_BINDING_RULE pRule, int toHead)
         {
             updateAddressLength(ref pRule.localIpAddress);
             updateAddressLength(ref pRule.localIpAddressMask);
@@ -1000,15 +1020,12 @@ namespace nfapinet
         * Delete all binding rules from driver
         */
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern NF_STATUS
-        nf_deleteBindingRules();
+        public static extern NF_STATUS nf_deleteBindingRules();
 
         /**
         * Returns the type of attached driver (DT_WFP, DT_TDI or DT_UNKNOWN)
         */
         [DllImport("bin\\nfapinet", CallingConvention = CallingConvention.Cdecl)]
-        public static extern UInt32
-        nf_getDriverType();
+        public static extern UInt32 nf_getDriverType();
     };
-
 }

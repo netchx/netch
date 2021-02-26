@@ -11,12 +11,12 @@ namespace Netch.Utils
     {
         private static readonly object ServerLock = new();
 
-        public static async Task UpdateServersAsync(string proxyServer = default)
+        public static async Task UpdateServersAsync(string? proxyServer = default)
         {
             await Task.WhenAll(Global.Settings.SubscribeLink.Select(item => Task.Run(() => UpdateServer(item, proxyServer))).ToArray());
         }
 
-        public static void UpdateServer(SubscribeLink item, string proxyServer)
+        public static void UpdateServer(SubscribeLink item, string? proxyServer)
         {
             try
             {

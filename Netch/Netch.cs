@@ -84,7 +84,7 @@ namespace Netch
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(Global.MainForm = new MainForm());
+            Application.Run(Global.MainForm);
         }
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)

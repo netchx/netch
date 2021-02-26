@@ -50,7 +50,6 @@ namespace Netch.Servers.VLESS
 
         public bool CheckServer(Server s)
         {
-            // TODO
             return true;
         }
     }

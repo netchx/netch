@@ -74,31 +74,31 @@ namespace Netch.Utils
             if (Hostname.Contains(":"))
                 Hostname = Hostname.Split(':')[0];
 
-            string Country;
+            string? country = null;
             try
             {
                 var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
 
                 if (IPAddress.TryParse(Hostname, out _))
                 {
-                    Country = databaseReader.Country(Hostname).Country.IsoCode;
+                    country = databaseReader.Country(Hostname).Country.IsoCode;
                 }
                 else
                 {
-                    var DnsResult = DNS.Lookup(Hostname);
+                    var dnsResult = DNS.Lookup(Hostname);
 
-                    if (DnsResult != null)
-                        Country = databaseReader.Country(DnsResult).Country.IsoCode;
-                    else
-                        Country = "Unknown";
+                    if (dnsResult != null)
+                        country = databaseReader.Country(dnsResult).Country.IsoCode;
                 }
             }
-            catch (Exception)
+            catch
             {
-                Country = "Unknown";
+                // ignored
             }
 
-            return Country == null ? "Unknown" : Country;
+            country ??= "Unknown";
+
+            return country;
         }
 
         public static string SHA256CheckSum(string filePath)
@@ -171,12 +171,6 @@ namespace Netch.Utils
                 Logging.Info($"出口 网关 地址：{Global.Outbound.Gateway}");
                 Logging.Info($"出口适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.Outbound.Index}");
             }
-        }
-
-        public static void LoggingAdapters(string id)
-        {
-            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(adapter => adapter.Id == id);
-            Logging.Warning($"检索此网卡信息出错: {adapter.Name} {adapter.Id} {adapter.Description}");
         }
 
         public static void DrawCenterComboBox(object sender, DrawItemEventArgs e)

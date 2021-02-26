@@ -13,7 +13,7 @@ namespace Netch.Utils
     public static class Bandwidth
     {
         public static ulong received;
-        public static TraceEventSession tSession;
+        public static TraceEventSession? tSession;
 
         private static readonly string[] Suffix = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
 
@@ -57,7 +57,7 @@ namespace Netch.Utils
             {
                 case null:
                     break;
-                case SSController ssController when ssController.DllFlag:
+                case SSController {DllFlag: true}:
                     instances.Add(Process.GetCurrentProcess());
                     break;
                 case Guard instanceController:
@@ -73,13 +73,13 @@ namespace Netch.Utils
                     case null:
                         break;
                     case HTTPController httpController:
-                        instances.Add(httpController.pPrivoxyController.Instance);
+                        instances.Add(httpController.PrivoxyController.Instance!);
                         break;
                     case NFController _:
                         instances.Add(Process.GetCurrentProcess());
                         break;
                     case Guard instanceController:
-                        instances.Add(instanceController.Instance);
+                        instances.Add(instanceController.Instance!);
                         break;
                 }
 

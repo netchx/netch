@@ -40,7 +40,7 @@ namespace Netch.Utils
         /// </summary>
         /// <param name="hostname">主机名</param>
         /// <returns></returns>
-        public static IPAddress Lookup(string hostname)
+        public static IPAddress? Lookup(string hostname)
         {
             try
             {
@@ -69,8 +69,8 @@ namespace Netch.Utils
             if (Global.Outbound.Adapter == null)
                 Utils.SearchOutboundAdapter();
 
-            return Registry.LocalMachine.OpenSubKey($@"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{Global.Outbound.Adapter.Id}",
-                write);
+            return Registry.LocalMachine.OpenSubKey($@"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{Global.Outbound.Adapter!.Id}",
+                write)!;
         }
 
         public static IEnumerable<string> Split(string dns)
