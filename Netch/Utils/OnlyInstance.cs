@@ -62,7 +62,7 @@ namespace Netch.Utils
         {
             try
             {
-                using var udpClient = new UdpClient(Global.Settings.UDPSocketPort);
+                using var udpClient = new UdpClient(new IPEndPoint(IPAddress.Loopback, Global.Settings.UDPSocketPort));
                 udpClient.Connect(IPAddress.Loopback, Global.Settings.UDPSocketPort);
                 var sendBytes = Encoding.ASCII.GetBytes(command.ToString());
                 await udpClient.SendAsync(sendBytes, sendBytes.Length);
