@@ -143,39 +143,32 @@ namespace Netch.Utils
 
         public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)
         {
-            IModeController modeController;
             port = null;
             portName = string.Empty;
             portType = PortType.Both;
             switch (type)
             {
                 case 0:
-                    modeController = new NFController();
                     port = Global.Settings.RedirectorTCPPort;
                     portName = "Redirector TCP";
                     portType = PortType.TCP;
-                    break;
+                    return new NFController();
                 case 1:
                 case 2:
-                    modeController = new TUNTAPController();
-                    break;
+                    return new TUNTAPController();
                 case 3:
                 case 5:
-                    modeController = new HTTPController();
                     port = Global.Settings.HTTPLocalPort;
                     portName = "HTTP";
                     portType = PortType.TCP;
                     StatusPortInfoText.HttpPort = (ushort) port;
-                    break;
+                    return new HTTPController();
                 case 4:
-                    modeController = null;
-                    break;
+                    return null;
                 default:
                     Logging.Error("未知模式类型");
-                    throw new MessageException();
+                    throw new MessageException("未知模式类型");
             }
-
-            return modeController;
         }
     }
 }

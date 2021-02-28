@@ -149,7 +149,7 @@ namespace Netch.Controllers
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName, out var portType);
 
             if (ModeController == null)
-                throw new MessageException("未知模式类型");
+                return;
 
             if (port != null)
                 PortCheck((ushort) port, portName, portType);
