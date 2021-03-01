@@ -8,55 +8,56 @@
         /// <summary>
         ///     地址
         /// </summary>
-        public string add = string.Empty;
+        public string add { get; set; } = string.Empty;
 
         /// <summary>
         ///     额外 ID
         /// </summary>
-        public string aid = string.Empty;
+        public string aid { get; set; } = string.Empty;
 
         /// <summary>
         ///     伪装域名（HTTP，WS）
         /// </summary>
-        public string host = string.Empty;
+        public string? host { get; set; } = string.Empty;
 
         /// <summary>
         ///     用户 ID
         /// </summary>
-        public string id = string.Empty;
+        public string id { get; set; } = string.Empty;
 
         /// <summary>
         ///     传输协议
         /// </summary>
-        public string net = string.Empty;
+        public string net { get; set; } = string.Empty;
 
         /// <summary>
         ///     伪装路径
         /// </summary>
-        public string path = string.Empty;
+        public string? path { get; set; } = string.Empty;
 
         /// <summary>
         ///     端口
         /// </summary>
-        public string port = string.Empty;
+        public string port { get; set; } = string.Empty;
 
         /// <summary>
         ///     备注
         /// </summary>
-        public string ps = string.Empty;
+        public string ps { get; set; } = string.Empty;
 
         /// <summary>
         ///     是否使用 TLS
         /// </summary>
-        public string tls = string.Empty;
+        public string tls { get; set; } = string.Empty;
 
         /// <summary>
         ///     伪装类型
         /// </summary>
-        public string type = string.Empty;
+        public string type { get; set; } = string.Empty;
+
         /// <summary>
         ///     链接版本
         /// </summary>
-        public string v = string.Empty;
+        public string v { get; set; } = string.Empty;
     }
 }

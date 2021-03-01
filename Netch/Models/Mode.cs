@@ -42,7 +42,7 @@ namespace Netch.Models
         ///     5. Socks5 + HTTP 代理（不设置到系统代理）
         ///     <para />
         /// </summary>
-        public int Type = 0;
+        public int Type { get; set; } = 0;
 
         public Mode(string fullName)
         {
