@@ -28,7 +28,7 @@ namespace Netch
                 Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process) + ";" + Path.Combine(Global.NetchDir, "bin"),
                 EnvironmentVariableTarget.Process);
 
-            Updater.Updater.CleanOld();
+            Updater.Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
             var directories = new[] {"mode\\Custom", "data", "i18n", "logging"};

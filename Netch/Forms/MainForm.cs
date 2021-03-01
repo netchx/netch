@@ -1338,7 +1338,7 @@ namespace Netch.Forms
             Hide();
         }
 
-        public async void Exit(bool forceExit = false)
+        public async void Exit(bool forceExit = false, bool saveConfiguration = true)
         {
             if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
             {
@@ -1351,7 +1351,11 @@ namespace Netch.Forms
             State = State.Terminating;
             NotifyIcon.Visible = false;
             Hide();
-            Configuration.Save();
+
+            if (saveConfiguration)
+            {
+                Configuration.Save();
+            }
 
             foreach (var file in new[] {"data\\last.json", "data\\privoxy.conf"})
                 if (File.Exists(file))
@@ -1411,12 +1415,12 @@ namespace Netch.Forms
                 NewVersionLabel.Visible = true;
             };
 
-            UpdateChecker.Check(Global.Settings.CheckBetaUpdate);
+            UpdateChecker.Check(Global.Settings.CheckBetaUpdate).Wait();
         }
 
         private async void NewVersionLabel_Click(object sender, EventArgs e)
         {
-            if (!UpdateChecker.LatestRelease!.assets.Any())
+            if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
             {
                 Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
                 return;
@@ -1436,7 +1440,7 @@ namespace Netch.Forms
                     BeginInvoke(new Action(() => { NewVersionLabel.Text = $"{args.ProgressPercentage}%"; }));
                 }
 
-                await UpdateChecker.DownloadUpdate(OnDownloadProgressChanged);
+                await Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"), Global.NetchDir, OnDownloadProgressChanged);
             }
             catch (Exception exception)
             {
