@@ -1,102 +1,74 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
+using Netch.Controllers;
 
 namespace Netch.Utils.HttpProxyHandler
 {
     /// <summary>
     ///     提供PAC功能支持
     /// </summary>
-    internal class PACServerHandle
+    internal static class PACServerHandle
     {
-        private static readonly Hashtable httpWebServer = new();
-        private static readonly Hashtable pacList = new();
+        private static HttpWebServer? _httpWebServer;
+        private static string? _pacContent;
 
         public static string InitPACServer(string address)
         {
             try
             {
-                if (!pacList.ContainsKey(address))
-                    pacList.Add(address, GetPacList(address));
-
+                _pacContent = GetPacList(address);
                 var prefixes = $"http://{address}:{Global.Settings.Pac_Port}/pac/";
 
-                var ws = new HttpWebServer(SendResponse, prefixes);
-                ws.Run();
-
-                if (!httpWebServer.ContainsKey(address))
-                    httpWebServer.Add(address, ws);
+                _httpWebServer = new HttpWebServer(SendResponse, prefixes);
+                Task.Run(() => _httpWebServer.StartWaitingRequest());
 
                 var pacUrl = GetPacUrl();
                 Logging.Info($"Webserver InitServer OK: {pacUrl}");
                 return pacUrl;
             }
-            catch (Exception ex)
+            catch
             {
-                throw new Exception("Webserver InitServer Error:" + ex.Message);
+                Logging.Error("Webserver InitServer Failed");
+                throw;
             }
         }
 
         public static string SendResponse(HttpListenerRequest request)
         {
-            try
-            {
-                var arrAddress = request.UserHostAddress.Split(':');
-                var address = "127.0.0.1";
-                if (arrAddress.Length > 0)
-                    address = arrAddress[0];
-
-                return pacList[address].ToString();
-            }
-            catch (Exception ex)
-            {
-                Logging.Error("Webserver SendResponse " + ex.Message);
-                return ex.Message;
-            }
+            return _pacContent!;
         }
 
         public static void Stop()
         {
             try
             {
-                if (httpWebServer == null)
-                    return;
-
-                foreach (var key in httpWebServer.Keys)
-                {
-                    Logging.Info("Webserver Stop " + key);
-                    ((HttpWebServer) httpWebServer[key]).Stop();
-                }
-
-                httpWebServer.Clear();
+                _httpWebServer?.Stop();
             }
-            catch (Exception ex)
+            catch
             {
-                Logging.Error("Webserver Stop " + ex.Message);
+                // ignored
             }
+
+            _httpWebServer = null;
         }
 
         private static string GetPacList(string address)
         {
             try
             {
-                var lstProxy = new List<string>();
-                lstProxy.Add(string.Format("PROXY {0}:{1};", address, Global.Settings.HTTPLocalPort));
+                var proxy = $"PROXY {address}:{Global.Settings.HTTPLocalPort};";
+                var pacfile = Path.Combine(Global.NetchDir, "bin\\pac.txt");
 
-                var proxy = string.Join("", lstProxy.ToArray());
-                var strPacfile = Path.Combine(Global.NetchDir, "bin\\pac.txt");
-
-                var pac = File.ReadAllText(strPacfile, Encoding.UTF8).Replace("__PROXY__", proxy);
+                var pac = File.ReadAllText(pacfile, Encoding.UTF8).Replace("__PROXY__", proxy);
                 return pac;
             }
             catch
             {
+                throw new MessageException("Pac file not found!");
             }
-
-            return "No pac content";
         }
 
         /// <summary>
@@ -105,9 +77,7 @@ namespace Netch.Utils.HttpProxyHandler
         /// <returns></returns>
         public static string GetPacUrl()
         {
-            var pacUrl = string.Format("http://127.0.0.1:{0}/pac/?t={1}", Global.Settings.Pac_Port, DateTime.Now.ToString("yyyyMMddHHmmssfff"));
-
-            return pacUrl;
+            return $"http://127.0.0.1:{Global.Settings.Pac_Port}/pac/?t={DateTime.Now:yyyyMMddHHmmssfff}";
         }
     }
 }

@@ -174,7 +174,7 @@ namespace Netch.Models
         /// <summary>
         ///     PAC端口
         /// </summary>
-        public int Pac_Port { get; set; } = 2803;
+        public ushort Pac_Port { get; set; } = 2803;
 
         /// <summary>
         ///     不代理TCP
@@ -292,6 +292,8 @@ namespace Netch.Models
         public bool UseProxyToUpdateSubscription { get; set; } = false;
 
         public V2rayConfig V2RayConfig { get; set; } = new();
+
+        public bool? AlwaysStartPACServer { get; set; }
 
         public Setting Clone()
         {

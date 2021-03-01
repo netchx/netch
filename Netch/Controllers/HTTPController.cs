@@ -3,6 +3,7 @@ using WindowsProxy;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Servers.Trojan;
+using Netch.Utils;
 using Netch.Utils.HttpProxyHandler;
 
 namespace Netch.Controllers
@@ -24,16 +25,30 @@ namespace Netch.Controllers
         {
             PrivoxyController.Start(MainController.Server!);
             Global.Job.AddProcess(PrivoxyController.Instance!);
+            string? pacUrl = null;
+
+            if (MainController.Server is Socks5 or Trojan && mode.BypassChina || (Global.Settings.AlwaysStartPACServer ?? false))
+            {
+                try
+                {
+                    PortHelper.CheckPort(Global.Settings.Pac_Port);
+                }
+                catch
+                {
+                    Global.Settings.Pac_Port = PortHelper.GetAvailablePort();
+                }
+
+                pacUrl = PACServerHandle.InitPACServer("127.0.0.1");
+            }
 
             if (mode.Type is 3)
             {
                 using var service = new ProxyService();
                 _oldState = service.Query();
 
-                if (MainController.Server is Socks5 or Trojan && mode.BypassChina)
+                if (pacUrl != null)
                 {
-                    service.AutoConfigUrl = PACServerHandle.InitPACServer("127.0.0.1");
-
+                    service.AutoConfigUrl = pacUrl;
                     service.Pac();
                 }
                 else
