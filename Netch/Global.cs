@@ -32,7 +32,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        private static Lazy<MainForm> _mainForm = new(() => new MainForm());
+        private static readonly Lazy<MainForm> LazyMainForm = new(() => new MainForm());
 
         public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
@@ -61,9 +61,9 @@ namespace Netch
         {
             public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
 
-            private static bool? _supportFakeDns;
+            private static readonly Lazy<bool> LazySupportFakeDns = new(() => new TUNTAPController().TestFakeDNS());
 
-            public static bool SupportFakeDns => _supportFakeDns ??= new TUNTAPController().TestFakeDNS();
+            public static bool SupportFakeDns => LazySupportFakeDns.Value;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        public static MainForm MainForm => _mainForm.Value;
+        public static MainForm MainForm => LazyMainForm.Value;
 
         public static JsonSerializerOptions NewDefaultJsonSerializerOptions => new()
         {
