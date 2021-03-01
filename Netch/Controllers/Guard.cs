@@ -17,14 +17,14 @@ namespace Netch.Controllers
     {
         private readonly Timer _flushFileStreamTimer = new(300) {AutoReset = true};
 
+        private FileStream? _logFileStream;
+
+        private StreamWriter? _logStreamWriter;
+
         /// <summary>
         ///     日志文件(重定向输出文件)
         /// </summary>
         private string LogPath => Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
-
-        private FileStream? _logFileStream;
-
-        private StreamWriter? _logStreamWriter;
 
         /// <summary>
         ///     成功启动关键词
@@ -107,6 +107,9 @@ namespace Netch.Controllers
                     WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
+
+            if (!File.Exists(Instance.StartInfo.FileName))
+                throw new MessageException(i18N.Translate($"bin\\{MainFile} file not found!"));
         }
 
         /// <summary>
