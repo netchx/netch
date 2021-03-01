@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1"/>
-        <PackageReference Include="MSTest.TestAdapter" Version="2.1.2"/>
+        <PackageReference Include="MSTest.TestAdapter" Version="2.2.1"/>
         <PackageReference Include="MSTest.TestFramework" Version="2.1.2"/>
         <PackageReference Include="System.Text.Json" Version="5.0.1"/>
     </ItemGroup>
