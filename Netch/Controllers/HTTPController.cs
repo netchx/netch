@@ -1,11 +1,8 @@
-using System;
 using System.Threading.Tasks;
 using WindowsProxy;
-using Microsoft.Win32;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Servers.Trojan;
-using Netch.Utils;
 using Netch.Utils.HttpProxyHandler;
 
 namespace Netch.Controllers
@@ -14,8 +11,7 @@ namespace Netch.Controllers
     {
         public readonly PrivoxyController PrivoxyController = new();
 
-        private string prevBypass = "", prevHTTP = "", prevPAC = "";
-        private bool prevEnabled;
+        private ProxyStatus? _oldState;
 
         public string Name { get; } = "HTTP";
 
@@ -26,16 +22,13 @@ namespace Netch.Controllers
         /// <returns>是否启动成功</returns>
         public void Start(in Mode mode)
         {
-            RecordPrevious();
-
             PrivoxyController.Start(MainController.Server!);
             Global.Job.AddProcess(PrivoxyController.Instance!);
 
-            if (mode.Type == 3)
+            if (mode.Type is 3 or 5)
             {
                 if (MainController.Server is Socks5 or Trojan && mode.BypassChina)
                 {
-                    //启动PAC服务器
                     PACServerHandle.InitPACServer("127.0.0.1");
                 }
                 else
@@ -46,6 +39,7 @@ namespace Netch.Controllers
                         Bypass = string.Join(";", ProxyService.LanIp)
                     };
 
+                    _oldState = service.Query();
                     service.Global();
                 }
             }
@@ -61,67 +55,14 @@ namespace Netch.Controllers
                 Task.Run(PrivoxyController.Stop),
                 Task.Run(() =>
                 {
-                    using var service = new ProxyService();
-                    try
-                    {
-                        PACServerHandle.Stop();
-                        if (prevEnabled)
-                        {
-                            if (prevHTTP != "")
-                            {
-                                service.Server = prevHTTP;
-                                service.Bypass = prevBypass;
-                                service.Global();
-                            }
+                    PACServerHandle.Stop();
 
-                            if (prevPAC != "")
-                            {
-                                service.AutoConfigUrl = prevPAC;
-                                service.Pac();
-                            }
-                        }
-                        else
-                        {
-                            service.Direct();
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logging.Error($"{Name} 控制器出错:\n" + e);
-                    }
+                    using var service = new ProxyService();
+                    service.Set(_oldState!);
                 })
             };
 
             Task.WaitAll(tasks);
-        }
-
-        private void RecordPrevious()
-        {
-            try
-            {
-                var registry = Registry.CurrentUser.OpenSubKey("Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings");
-                if (registry == null)
-                    throw new Exception();
-
-                prevPAC = registry.GetValue("AutoConfigURL")?.ToString() ?? "";
-                prevHTTP = registry.GetValue("ProxyServer")?.ToString() ?? "";
-                prevBypass = registry.GetValue("ProxyOverride")?.ToString() ?? "";
-                prevEnabled = registry.GetValue("ProxyEnable")?.Equals(1) ?? false; // HTTP Proxy Enabled
-
-                if (prevHTTP == $"127.0.0.1:{Global.Settings.HTTPLocalPort}")
-                {
-                    prevEnabled = false;
-                    prevHTTP = "";
-                }
-
-                if (prevPAC != "")
-                    prevEnabled = true;
-            }
-            catch
-            {
-                prevEnabled = false;
-                prevPAC = prevHTTP = prevBypass = "";
-            }
         }
     }
 }
