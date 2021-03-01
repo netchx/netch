@@ -26,7 +26,7 @@ namespace Netch.Utils
 
         public override void Write(Utf8JsonWriter writer, Server value, JsonSerializerOptions options)
         {
-            JsonSerializer.Serialize(writer, value, options);
+            JsonSerializer.Serialize<object>(writer, value, options);
         }
     }
 }

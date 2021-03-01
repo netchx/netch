@@ -17,6 +17,12 @@ namespace Netch.Utils
         ///     设置
         /// </summary>
         public static readonly string SETTINGS_JSON = $"{DATA_DIR}\\settings.json";
+        private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+
+        static Configuration()
+        {
+            JsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
+        }
 
         /// <summary>
         ///     加载配置
@@ -41,9 +47,7 @@ namespace Netch.Utils
         {
             try
             {
-                var jsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
-                jsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
-                var settings = JsonSerializer.Deserialize<Setting>(text, jsonSerializerOptions)!;
+                var settings = JsonSerializer.Deserialize<Setting>(text, JsonSerializerOptions)!;
 
                 #region Check Profile
 
@@ -73,7 +77,7 @@ namespace Netch.Utils
             if (!Directory.Exists(DATA_DIR))
                 Directory.CreateDirectory(DATA_DIR);
 
-            File.WriteAllBytes(SETTINGS_JSON, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, Global.NewDefaultJsonSerializerOptions));
+            File.WriteAllBytes(SETTINGS_JSON, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, JsonSerializerOptions));
         }
     }
 }
