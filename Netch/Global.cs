@@ -32,7 +32,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        private static MainForm? _mainForm;
+        private static Lazy<MainForm> _mainForm = new(() => new MainForm());
 
         public static readonly Mutex Mutex = new(false, "Global\\Netch");
 
@@ -115,7 +115,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        public static MainForm MainForm => _mainForm ??= new MainForm();
+        public static MainForm MainForm => _mainForm.Value;
 
         public static JsonSerializerOptions NewDefaultJsonSerializerOptions => new()
         {
