@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
@@ -135,7 +134,7 @@ namespace Netch.Forms.Mode
                 NavigateToShortcut = true
             };
 
-            if (dialog.ShowDialog(Win32Native.GetForegroundWindow()) == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog(Handle) == CommonFileDialogResult.Ok)
             {
                 ScanDirectory(dialog.FileName);
                 MessageBoxX.Show(i18N.Translate("Scan completed"));
