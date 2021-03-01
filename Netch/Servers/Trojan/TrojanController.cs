@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Trojan.Models;
-using Newtonsoft.Json;
 
 namespace Netch.Servers.Trojan
 {
@@ -39,13 +39,7 @@ namespace Netch.Servers.Trojan
             if (!string.IsNullOrWhiteSpace(server.Host))
                 trojanConfig.ssl.sni = server.Host;
 
-            File.WriteAllText("data\\last.json",
-                JsonConvert.SerializeObject(trojanConfig,
-                    Formatting.Indented,
-                    new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }));
+            JsonSerializer.SerializeAsync(File.Create("data\\last.json"), trojanConfig, Global.NewDefaultJsonSerializerOptions);
 
             StartInstanceAuto("-c ..\\data\\last.json");
         }

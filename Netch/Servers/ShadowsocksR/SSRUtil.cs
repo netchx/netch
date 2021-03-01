@@ -6,7 +6,6 @@ using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.ShadowsocksR.Form;
 using Netch.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.ShadowsocksR
 {
@@ -22,10 +21,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public string[] UriScheme { get; } = {"ssr"};
 
-        public Server ParseJObject(in JObject j)
-        {
-            return j.ToObject<ShadowsocksR>();
-        }
+        public Type ServerType { get; } = typeof(ShadowsocksR);
 
         public void Edit(Server s)
         {

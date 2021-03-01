@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Netch.Models.GitHubRelease;
 using Netch.Utils;
-using Newtonsoft.Json;
 using static Netch.Updater.Updater;
 
 namespace Netch.Controllers
@@ -43,7 +43,7 @@ namespace Netch.Controllers
 
                 var json = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
 
-                var releases = JsonConvert.DeserializeObject<List<Release>>(json);
+                var releases = JsonSerializer.Deserialize<List<Release>>(json);
                 LatestRelease = VersionUtil.GetLatestRelease(releases, isPreRelease);
                 LatestVersionNumber = LatestRelease.tag_name;
                 LatestVersionUrl = LatestRelease.html_url;

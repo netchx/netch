@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Netch.Models;
 using Netch.Servers.V2ray.Models;
-using Newtonsoft.Json;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
 
 namespace Netch.Servers.V2ray.Utils
@@ -19,9 +19,7 @@ namespace Netch.Servers.V2ray.Utils
 
             outbound(server, mode, ref v2rayConfig);
 
-            return JsonConvert.SerializeObject(v2rayConfig,
-                Formatting.Indented,
-                new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
+            return JsonSerializer.Serialize(v2rayConfig, Global.NewDefaultJsonSerializerOptions);
         }
 
         private static void inbound(Server server, ref V2rayConfig v2rayConfig)

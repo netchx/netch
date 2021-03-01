@@ -1,12 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.V2ray;
 using Netch.Servers.V2ray.Models;
 using Netch.Servers.VMess.Form;
 using Netch.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.VMess
 {
@@ -22,10 +23,7 @@ namespace Netch.Servers.VMess
 
         public string[] UriScheme { get; } = {"vmess"};
 
-        public Server ParseJObject(in JObject j)
-        {
-            return j.ToObject<VMess>();
-        }
+        public Type ServerType { get; } = typeof(VMess);
 
         public void Edit(Server s)
         {
@@ -43,20 +41,24 @@ namespace Netch.Servers.VMess
             {
                 var server = (VMess) s;
 
-                var vmessJson = JsonConvert.SerializeObject(new
-                {
-                    v = "2",
-                    ps = server.Remark,
-                    add = server.Hostname,
-                    port = server.Port,
-                    id = server.UserID,
-                    aid = server.AlterID,
-                    net = server.TransferProtocol,
-                    type = server.FakeType,
-                    host = server.Host,
-                    path = server.Path,
-                    tls = server.TLSSecureType
-                });
+                var vmessJson = JsonSerializer.Serialize(new V2rayNSharing
+                    {
+                        v = "2",
+                        ps = server.Remark,
+                        add = server.Hostname,
+                        port = server.Port.ToString(),
+                        id = server.UserID,
+                        aid = server.AlterID.ToString(),
+                        net = server.TransferProtocol,
+                        type = server.FakeType,
+                        host = server.Host,
+                        path = server.Path,
+                        tls = server.TLSSecureType
+                    },
+                    new JsonSerializerOptions
+                    {
+                        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                    });
 
                 return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
             }
@@ -76,7 +78,7 @@ namespace Netch.Servers.VMess
             V2rayNSharing vmess;
             try
             {
-                vmess = JsonConvert.DeserializeObject<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text.Substring(8)));
+                vmess = JsonSerializer.Deserialize<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text.Substring(8)));
             }
             catch
             {
