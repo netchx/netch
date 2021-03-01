@@ -1,14 +1,14 @@
-﻿using Netch;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using Netch;
 
 namespace UnitTest
 {
     public class TestBase
     {
-        private readonly JsonSerializerSettings _serializerSettings = new()
+        private readonly JsonSerializerOptions _serializerSettings = new()
         {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
+            WriteIndented = true,
+            IgnoreNullValues = true
         };
 
         protected TestBase()
@@ -20,7 +20,7 @@ namespace UnitTest
 
         protected string JsonSerializerFormatted(object o)
         {
-            return JsonConvert.SerializeObject(o, _serializerSettings);
+            return JsonSerializer.Serialize(o, _serializerSettings);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using Netch.Controllers;
@@ -8,8 +9,6 @@ using Netch.Models;
 using Netch.Servers.Shadowsocks.Form;
 using Netch.Servers.Shadowsocks.Models.SSD;
 using Netch.Utils;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.Shadowsocks
 {
@@ -25,10 +24,7 @@ namespace Netch.Servers.Shadowsocks
 
         public string[] UriScheme { get; } = {"ss", "ssd"};
 
-        public Server ParseJObject(in JObject j)
-        {
-            return j.ToObject<Shadowsocks>();
-        }
+        public Type ServerType { get; } = typeof(Shadowsocks);
 
         public void Edit(Server s)
         {
@@ -80,7 +76,7 @@ namespace Netch.Servers.Shadowsocks
 
         public IEnumerable<Server> ParseSsdUri(string s)
         {
-            var json = JsonConvert.DeserializeObject<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)));
+            var json = JsonSerializer.Deserialize<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)));
 
             return json.servers.Select(server => new Shadowsocks
                 {

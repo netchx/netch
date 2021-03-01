@@ -5,7 +5,6 @@ using System.Web;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Trojan.Form;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.Trojan
 {
@@ -21,10 +20,7 @@ namespace Netch.Servers.Trojan
 
         public string[] UriScheme { get; } = {"trojan"};
 
-        public Server ParseJObject(in JObject j)
-        {
-            return j.ToObject<Trojan>();
-        }
+        public Type ServerType { get; } = typeof(Trojan);
 
         public void Edit(Server s)
         {

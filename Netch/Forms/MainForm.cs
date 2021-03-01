@@ -729,14 +729,16 @@ namespace Netch.Forms
         private void EditServerPictureBox_Click(object sender, EventArgs e)
         {
             // 当前ServerComboBox中至少有一项
-            if (ServerComboBox.SelectedIndex == -1)
+            if (!(ServerComboBox.SelectedItem is Server server))
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
+            if (!server.Valid())
+                return;
+
             Hide();
-            var server = Global.Settings.Server[ServerComboBox.SelectedIndex];
             ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
             LoadServers();
             Configuration.Save();
@@ -774,16 +776,18 @@ namespace Netch.Forms
         private void CopyLinkPictureBox_Click(object sender, EventArgs e)
         {
             // 当前ServerComboBox中至少有一项
-            if (ServerComboBox.SelectedIndex == -1)
+            if (!(ServerComboBox.SelectedItem is Server server))
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
+            if (!server.Valid())
+                return;
+
             try
             {
                 //听说巨硬BUG经常会炸，所以Catch一下 :D
-                var server = (Server) ServerComboBox.SelectedItem;
                 string text;
                 if (ModifierKeys == Keys.Control)
                     text = ShareLink.GetNetchLink(server);

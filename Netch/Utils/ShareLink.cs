@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Shadowsocks.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Utils
 {
@@ -33,7 +32,7 @@ namespace Netch.Utils
 
             try
             {
-                list.AddRange(JsonConvert.DeserializeObject<List<ShadowsocksConfig>>(text)
+                list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)
                     .Select(server => new Shadowsocks
                     {
                         Hostname = server.server,
@@ -45,7 +44,7 @@ namespace Netch.Utils
                         PluginOption = server.plugin_opts
                     }));
             }
-            catch (JsonReaderException)
+            catch (JsonException)
             {
                 foreach (var line in text.GetLines())
                     list.AddRange(ParseUri(line));
@@ -105,21 +104,28 @@ namespace Netch.Utils
 
         private static Server ParseNetchUri(string text)
         {
-            text = text.Substring(8);
+            text = URLSafeBase64Decode(text.Substring(8));
 
-            var jObject = (JObject) JsonConvert.DeserializeObject(URLSafeBase64Decode(text))!;
+            var NetchLink = JsonSerializer.Deserialize<JsonElement>(text);
 
-            var type = (string) jObject["Type"]!;
-            var s = ServerHelper.GetUtilByTypeName(type).ParseJObject(jObject);
-            return ServerHelper.GetUtilByTypeName(s.Type).CheckServer(s) ? s : throw new FormatException();
+            if (string.IsNullOrEmpty(NetchLink.GetProperty("Hostname").GetString()))
+                throw new FormatException();
+
+            if (!ushort.TryParse(NetchLink.GetProperty("Port").GetString(), out _))
+                throw new FormatException();
+
+            return JsonSerializer.Deserialize<Server>(text,
+                new JsonSerializerOptions
+                {
+                    Converters = {new ServerConverterWithTypeDiscriminator()}
+                })!;
         }
 
         public static string GetNetchLink(Server s)
         {
-            var server = (Server) s.Clone();
-            return "Netch://" +
-                   URLSafeBase64Encode(JsonConvert.SerializeObject(server,
-                       new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore}));
+            var jsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+            jsonSerializerOptions.WriteIndented = false;
+            return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
         }
 
         #region Utils

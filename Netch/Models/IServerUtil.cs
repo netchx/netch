@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Netch.Controllers;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Models
 {
@@ -28,7 +28,7 @@ namespace Netch.Models
         /// </summary>
         string[] UriScheme { get; }
 
-        Server ParseJObject(in JObject j);
+        public abstract Type ServerType { get; }
 
         public void Edit(Server s);
 

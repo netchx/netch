@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.V2ray;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Servers.VLESS
 {
@@ -18,10 +18,7 @@ namespace Netch.Servers.VLESS
 
         public string[] UriScheme { get; } = {"vless"};
 
-        public Server ParseJObject(in JObject j)
-        {
-            return j.ToObject<VLESS>();
-        }
+        public Type ServerType { get; } = typeof(VLESS);
 
         public void Edit(Server s)
         {

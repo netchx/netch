@@ -1,8 +1,8 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Netch.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Netch.Utils
 {
@@ -23,30 +23,9 @@ namespace Netch.Utils
         /// </summary>
         public static void Load()
         {
-            if (Directory.Exists(DATA_DIR) && File.Exists(SETTINGS_JSON))
+            if (File.Exists(SETTINGS_JSON))
             {
-                try
-                {
-                    var settingJObject = (JObject) JsonConvert.DeserializeObject(File.ReadAllText(SETTINGS_JSON))!;
-                    Global.Settings = settingJObject?.ToObject<Setting>() ?? new Setting();
-                    Global.Settings.Server.Clear();
-
-                    if (settingJObject?["Server"] != null)
-                        foreach (JObject server in settingJObject["Server"]!)
-                        {
-                            var serverResult = ServerHelper.ParseJObject(server);
-                            if (serverResult != null)
-                                Global.Settings.Server.Add(serverResult);
-                        }
-
-                    if (settingJObject?["Profiles"] != null && Global.Settings.Profiles.Any() &&
-                        settingJObject["Profiles"]!.First()?["Index"] == null)
-                        foreach (var profile in Global.Settings.Profiles)
-                            profile.Index = Global.Settings.Profiles.IndexOf(profile);
-                }
-                catch (JsonException)
-                {
-                }
+                Global.Settings = ParseSetting(File.ReadAllText(SETTINGS_JSON));
             }
             else
             {
@@ -58,6 +37,34 @@ namespace Netch.Utils
             }
         }
 
+        public static Setting ParseSetting(string text)
+        {
+            try
+            {
+                var jsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+                jsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
+                var settings = JsonSerializer.Deserialize<Setting>(text, jsonSerializerOptions)!;
+
+                #region Check Profile
+
+                foreach (var profile in settings.Profiles.Where(p => p.ServerRemark == string.Empty || p.ModeRemark == string.Empty)!)
+                    settings.Profiles.Remove(profile);
+
+                if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
+                    for (var i = 0; i < settings.Profiles.Count; i++)
+                        settings.Profiles[i].Index = i;
+
+                #endregion
+
+                return settings;
+            }
+            catch (Exception e)
+            {
+                Logging.Error(e.ToString());
+                return new Setting();
+            }
+        }
+
         /// <summary>
         ///     保存配置
         /// </summary>
@@ -66,13 +73,7 @@ namespace Netch.Utils
             if (!Directory.Exists(DATA_DIR))
                 Directory.CreateDirectory(DATA_DIR);
 
-            File.WriteAllText(SETTINGS_JSON,
-                JsonConvert.SerializeObject(Global.Settings,
-                    Formatting.Indented,
-                    new JsonSerializerSettings
-                    {
-                        NullValueHandling = NullValueHandling.Ignore
-                    }));
+            File.WriteAllBytes(SETTINGS_JSON, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, Global.NewDefaultJsonSerializerOptions));
         }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Netch.Utils;
-using Newtonsoft.Json;
 
 namespace Netch.Models
 {
@@ -41,7 +42,11 @@ namespace Netch.Models
         /// <summary>
         ///     代理类型
         /// </summary>
-        public virtual string Type { get; } = null!;
+        public virtual string Type { get; } = string.Empty;
+
+        [JsonExtensionData]
+        // ReSharper disable once CollectionNeverUpdated.Global
+        public Dictionary<string, object> ExtensionData { get; set; } = new();
 
         public object Clone()
         {
@@ -59,7 +64,17 @@ namespace Netch.Models
             if (Group.Equals("None") || Group.Equals(""))
                 Group = "NONE";
 
-            return $"[{ServerHelper.GetUtilByTypeName(Type)?.ShortName ?? "WTF"}][{Group}] {remark}";
+            string shortName;
+            if (Type == string.Empty)
+            {
+                shortName = "WTF";
+            }
+            else
+            {
+                shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
+            }
+
+            return $"[{shortName}][{Group}] {remark}";
         }
 
         /// <summary>
@@ -108,6 +123,19 @@ namespace Netch.Models
         public static string AutoResolveHostname(this Server server)
         {
             return Global.Settings.ResolveServerHostname ? DNS.Lookup(server.Hostname)!.ToString() : server.Hostname;
+        }
+
+        public static bool Valid(this Server server)
+        {
+            try
+            {
+                ServerHelper.GetTypeByTypeName(server.Type);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

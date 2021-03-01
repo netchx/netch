@@ -4,9 +4,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Windows.Forms;
 using Netch.Properties;
-using Newtonsoft.Json;
 
 namespace Netch.Utils
 {
@@ -57,7 +57,7 @@ namespace Netch.Utils
                     break;
             }
 
-            var dictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+            var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text);
 
             if (!dictionary.Any())
             {
