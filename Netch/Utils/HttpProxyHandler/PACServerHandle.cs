@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text;
-using WindowsProxy;
 
 namespace Netch.Utils.HttpProxyHandler
 {
@@ -16,36 +15,28 @@ namespace Netch.Utils.HttpProxyHandler
         private static readonly Hashtable httpWebServer = new();
         private static readonly Hashtable pacList = new();
 
-        public static void InitPACServer(string address)
+        public static string InitPACServer(string address)
         {
             try
             {
                 if (!pacList.ContainsKey(address))
                     pacList.Add(address, GetPacList(address));
 
-                var prefixes = string.Format("http://{0}:{1}/pac/", address, Global.Settings.Pac_Port);
+                var prefixes = $"http://{address}:{Global.Settings.Pac_Port}/pac/";
 
                 var ws = new HttpWebServer(SendResponse, prefixes);
                 ws.Run();
 
-                if (!httpWebServer.ContainsKey(address) && ws != null)
+                if (!httpWebServer.ContainsKey(address))
                     httpWebServer.Add(address, ws);
 
-                Global.Settings.Pac_Url = GetPacUrl();
-
-                using var service = new ProxyService
-                {
-                    AutoConfigUrl = Global.Settings.Pac_Url
-                };
-
-                service.Pac();
-
-                Logging.Info(service.Set(service.Query()) + "");
-                Logging.Info($"Webserver InitServer OK: {Global.Settings.Pac_Url}");
+                var pacUrl = GetPacUrl();
+                Logging.Info($"Webserver InitServer OK: {pacUrl}");
+                return pacUrl;
             }
             catch (Exception ex)
             {
-                Logging.Error("Webserver InitServer " + ex.Message);
+                throw new Exception("Webserver InitServer Error:" + ex.Message);
             }
         }
 

@@ -25,21 +25,22 @@ namespace Netch.Controllers
             PrivoxyController.Start(MainController.Server!);
             Global.Job.AddProcess(PrivoxyController.Instance!);
 
-            if (mode.Type is 3 or 5)
+            if (mode.Type is 3)
             {
+                using var service = new ProxyService();
+                _oldState = service.Query();
+
                 if (MainController.Server is Socks5 or Trojan && mode.BypassChina)
                 {
-                    PACServerHandle.InitPACServer("127.0.0.1");
+                    service.AutoConfigUrl = PACServerHandle.InitPACServer("127.0.0.1");
+
+                    service.Pac();
                 }
                 else
                 {
-                    using var service = new ProxyService
-                    {
-                        Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}",
-                        Bypass = string.Join(";", ProxyService.LanIp)
-                    };
+                    service.Server = $"127.0.0.1:{Global.Settings.HTTPLocalPort}";
+                    service.Bypass = string.Join(";", ProxyService.LanIp);
 
-                    _oldState = service.Query();
                     service.Global();
                 }
             }
@@ -57,8 +58,11 @@ namespace Netch.Controllers
                 {
                     PACServerHandle.Stop();
 
-                    using var service = new ProxyService();
-                    service.Set(_oldState!);
+                    if (_oldState != null)
+                    {
+                        using var service = new ProxyService();
+                        service.Set(_oldState!);
+                    }
                 })
             };
 

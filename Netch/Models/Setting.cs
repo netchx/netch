@@ -177,11 +177,6 @@ namespace Netch.Models
         public int Pac_Port { get; set; } = 2803;
 
         /// <summary>
-        ///     PAC URL
-        /// </summary>
-        public string Pac_Url { get; set; } = "";
-
-        /// <summary>
         ///     不代理TCP
         /// </summary>
         public bool ProcessNoProxyForTcp { get; set; } = false;
