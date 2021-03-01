@@ -4,7 +4,6 @@
     "Error": "错误",
 
     "If this is your first time using this software,\n please check https://netch.org to install supports first,\n or the program may report errors.": "如果你是第一次使用本软件，\n请务必前往 https://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！",
-    "Netch is already running": "Netch 已经在运行中",
     "Missing File or runtime components": "缺少文件或运行库",
     "Please extract all files then run the program!": "请先解压所有文件再执行程序！",
 
@@ -27,7 +26,6 @@
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
-    "Import servers error!": "未找到可导入的链接！",
     "Add [{0}] Server": "添加 [{0}] 服务器",
     "Netch is now minimized to the notification bar, double click this icon to restore.": "Netch 已最小化至通知栏，双击此图标恢复窗口",
     "New version available": "发现新版本",
@@ -74,11 +72,10 @@
     "Updating {0}": "正在更新 {0}",
     "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
     "Update servers error from {0}": "从 {0} 更新服务器失败",
-    "Delete the corresponding group of items in the server list?": "是否删除订阅对应服务器？",
     "Confirm deletion?": "确认删除？",
     "DeleteServer": "删除订阅节点",
+    "CopyLink": "复制链接",
     "Status": "状态",
-    "Remark": "备注",
     "Link": "链接",
     "Unselect": "取消选择",
 
@@ -117,13 +114,9 @@
     "Please select a mode first": "请先选择一个模式",
     "Please enter a profile name first": "请先为该配置设置一个名称",
     "No saved profile here. Save a profile first by Ctrl+Click on the button": "当前按钮下没有保存配置，请先使用 CTRL + 左键 点击该按钮保存一个配置",
-    "Remove this Profile?": "删除此配置？",
-    "Profile Removed!": "配置已删除！",
 
     "Used": "已使用",
-    "Status": "状态",
     "Testing": "测试中",
-    "Test done": "测试完成",
 
     "Remark": "备注",
     "Filename": "文件名",
@@ -142,20 +135,15 @@
     "Please enter a mode remark": "请输入模式的备注",
     "File already exists.\n Please Change the filename": "文件名已存在，请修改文件名",
     "Please enter a mode filename": "请输入模式的文件名",
-    
+
     "Proxy Rule IPs": "代理规则 IP",
     "Bypass Rule IPs": "绕过规则 IP",
-    
 
-    "Link": "链接",
-    "Use Selected Server To Update Subscription": "使用选中的服务器更新订阅",
     "Delete": "删除",
-    "CopyLink": "复制链接",
     "Delete or not ? Will clean up the corresponding group of items in the server list": "是否删除？将会清理服务器列表中对应组的项目",
     "Remark can not be empty": "备注不可为空",
     "Link can not be empty": "链接不可为空",
     "Link must start with http:// or https://": "链接必须以 http:// 或 https:// 开头",
-    "Please fill in alterID": "请填写额外ID",
 
     "Settings": "设置",
     "Start when opened": "打开软件时启动加速",
@@ -168,11 +156,9 @@
     "Use Custom DNS": "使用自定义 DNS",
     "Proxy DNS in Mode 2": "在模式 2 下代理 DNS",
     "Use Fake DNS": "使用 Fake DNS",
-    "Behavior": "行为",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",
     "Global Bypass IPs": "全局直连 IP",
-    "Port value illegal. Try again.": "端口值非法。请重试",
     "Check update when opened": "打开软件时检查更新",
     "Check Beta update": "检查 Beta 更新",
     "Update Servers when opened": "打开软件时更新服务器",
@@ -181,20 +167,12 @@
     "No Proxy for Udp": "不代理 UDP 流量",
     "No Proxy for Tcp": "不代理 TCP 流量",
     "ProfileCount": "快捷配置数量",
-    "ProfileCount value illegal. Try again.": "快捷配置数值非法。请重试",
-    "STUN_ServerPort value illegal. Try again.": "STUN 端口数值非法。请重试",
-    "Detection interval value illegal. Try again.": "检测间隔值非法。请重试",
-    "TUN/TAP driver is not detected. Is it installed now?": "未检测到 TUN/TAP 驱动，是否现在安装？",
-    "Failed to set the system proxy, it may be caused by the lack of dependent programs. Do you want to jump to Netch's official website to download dependent programs?": "设置系统代理失败，可能是缺少依赖导致，是否跳转 Netch 官网下载依赖程序？",
     "Delay test after start": "启动后延迟测试",
-    "Enable": "启用",
     "ServerPingType": "测速方式",
-    "Detection interval(sec)": "检测间隔（秒）",
+    "Detection Tick(sec)": "检测心跳（秒）",
     "STUN Server": "STUN 服务器",
-    "STUN Server Port": "STUN 服务器端口",
     "Custom ACL": "自定义 ACL 规则",
     "Language": "语言",
-    "Tap Network Sharing": "Tap 网络共享",
     "Resolve Server Hostname": "解析服务器主机名",
     "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
 
@@ -204,7 +182,6 @@
 
     "Show": "显示",
     "Exit": "退出",
-    "Unable to start? Click me to download": "无法启动？点我下载依赖",
 
     "The {0} port is in use.": "{0} 端口已被占用",
     "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
