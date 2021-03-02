@@ -9,23 +9,23 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove=".gitignore"/>
+        <None Remove=".gitignore" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Netch\Netch.csproj"/>
+        <ProjectReference Include="..\Netch\Netch.csproj" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
         <!--    NET Framework    -->
-        <Reference Include="System.Windows.Forms"/>
+        <Reference Include="System.Windows.Forms" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1"/>
-        <PackageReference Include="MSTest.TestAdapter" Version="2.1.2"/>
-        <PackageReference Include="MSTest.TestFramework" Version="2.1.2"/>
-        <PackageReference Include="System.Text.Json" Version="5.0.1"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.1" />
+        <PackageReference Include="MSTest.TestAdapter" Version="2.2.1" />
+        <PackageReference Include="MSTest.TestFramework" Version="2.2.1" />
+        <PackageReference Include="System.Text.Json" Version="5.0.1" />
     </ItemGroup>
 
 </Project>
