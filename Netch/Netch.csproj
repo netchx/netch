@@ -45,7 +45,7 @@
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
         <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
         <PackageReference Include="System.Reflection.Metadata" Version="5.0.0" />
-        <PackageReference Include="System.Text.Json" Version="5.0.1"/>
+        <PackageReference Include="System.Text.Json" Version="5.0.1" />
         <PackageReference Include="TaskScheduler" Version="2.9.1" />
         <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.3.4" />
         <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
