@@ -23,3 +23,13 @@ updates:
     labels:
       - "Automatic"
     open-pull-requests-limit: 99
+  - package-ecosystem: "gitsubmodule"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:15"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "Automatic"
+    open-pull-requests-limit: 99
