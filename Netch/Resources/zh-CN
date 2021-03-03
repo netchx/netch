@@ -154,7 +154,7 @@
     "Netmask": "子网掩码",
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
-    "Proxy DNS in Mode 2": "在模式 2 下代理 DNS",
+    "Proxy DNS in Proxy Rule IPs Mode": "在 代理规则IP 模式下代理 DNS",
     "Use Fake DNS": "使用 Fake DNS",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",

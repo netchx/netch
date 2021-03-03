@@ -595,12 +595,13 @@ namespace Netch.Forms
             // 
             // ProxyDNSCheckBox
             // 
+            this.ProxyDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.UseCustomDNSCheckBox, "Checked", true));;
             this.ProxyDNSCheckBox.AutoSize = true;
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
             this.ProxyDNSCheckBox.Size = new System.Drawing.Size(138, 16);
             this.ProxyDNSCheckBox.TabIndex = 9;
-            this.ProxyDNSCheckBox.Text = "Proxy DNS in Mode 2";
+            this.ProxyDNSCheckBox.Text = "Proxy DNS in Proxy Rule IPs Mode";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
             // 
             // UseFakeDNSCheckBox
