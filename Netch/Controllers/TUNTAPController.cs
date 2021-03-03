@@ -119,9 +119,7 @@ namespace Netch.Controllers
                         if (Global.Settings.TUNTAP.UseCustomDNS)
                             RouteAction(Action.Create, Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
                         else
-                            RouteAction(Action.Create,
-                                new[] {"1.1.1.1", "8.8.8.8", "9.9.9.9", "185.222.222.222"}.Select(ip => $"{ip}/32"),
-                                RouteType.TUNTAP);
+                            RouteAction(Action.Create, $"{Global.Settings.AioDNS.OtherDNS}/32", RouteType.TUNTAP);
                     }
 
                     break;
