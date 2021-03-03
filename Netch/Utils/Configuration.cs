@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Netch.Models;
 
 namespace Netch.Utils
@@ -22,6 +23,7 @@ namespace Netch.Utils
         static Configuration()
         {
             JsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
+            JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Netch.Utils;
 
 namespace Netch.Models
 {
@@ -179,12 +180,7 @@ namespace Netch.Models
         /// <summary>
         ///     不代理TCP
         /// </summary>
-        public bool ProcessNoProxyForTcp { get; set; } = false;
-
-        /// <summary>
-        ///     不代理UDP
-        /// </summary>
-        public bool ProcessNoProxyForUdp { get; set; } = false;
+        public PortType ProcessProxyProtocol { get; set; } = PortType.Both;
 
         /// <summary>
         ///     快捷配置数量

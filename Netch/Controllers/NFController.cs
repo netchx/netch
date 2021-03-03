@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.ServiceProcess;
 using System.Threading.Tasks;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
@@ -58,32 +57,9 @@ namespace Netch.Controllers
             aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
             aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
 
-            if (Global.Settings.ProcessNoProxyForUdp && Global.Settings.ProcessNoProxyForTcp)
-                MessageBoxX.Show("？");
-
-            //UDP
-            if (Global.Settings.ProcessNoProxyForUdp)
-            {
-                aio_dial((int) NameList.TYPE_FILTERUDP, "false");
-                SetServer(PortType.TCP);
-            }
-            else
-            {
-                aio_dial((int) NameList.TYPE_FILTERUDP, "true");
-                SetServer(PortType.Both);
-            }
-
-            //TCP
-            if (Global.Settings.ProcessNoProxyForTcp)
-            {
-                aio_dial((int) NameList.TYPE_FILTERTCP, "false");
-                SetServer(PortType.UDP);
-            }
-            else
-            {
-                aio_dial((int) NameList.TYPE_FILTERTCP, "true");
-                SetServer(PortType.Both);
-            }
+            aio_dial((int) NameList.TYPE_FILTERUDP, (Global.Settings.ProcessProxyProtocol != PortType.TCP).ToString().ToLower());
+            aio_dial((int) NameList.TYPE_FILTERTCP, (Global.Settings.ProcessProxyProtocol != PortType.UDP).ToString().ToLower());
+            SetServer(Global.Settings.ProcessProxyProtocol);
 
             if (!CheckRule(mode.FullRule, out var list))
                 throw new MessageException($"\"{string.Join("", list.Select(s => s + "\n"))}\" does not conform to C++ regular expression syntax");

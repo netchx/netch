@@ -90,9 +90,10 @@ namespace Netch.Forms
 
             BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
 
-            BindCheckBox(NoProxyForUdpCheckBox, s => Global.Settings.ProcessNoProxyForUdp = s, Global.Settings.ProcessNoProxyForUdp);
-
-            BindCheckBox(NoProxyForTcpCheckBox, s => Global.Settings.ProcessNoProxyForTcp = s, Global.Settings.ProcessNoProxyForTcp);
+            BindComboBox(ProcessProxyProtocolComboBox,
+                s => Global.Settings.ProcessProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
+                Enum.GetNames(typeof(PortType)).Cast<object>().ToArray(),
+                Global.Settings.ProcessProxyProtocol.ToString());
 
             #endregion
 
@@ -331,16 +332,11 @@ namespace Netch.Forms
             _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
         }
 
-        private void NoProxyForUdpCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void BindComboBox(ComboBox control, Action<object> save, object[] values, object value)
         {
-            if (NoProxyForUdpCheckBox.Checked)
-                NoProxyForTcpCheckBox.Checked = false;
-        }
-
-        private void NoProxyForTcpCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (NoProxyForTcpCheckBox.Checked)
-                NoProxyForUdpCheckBox.Checked = false;
+            control.Items.AddRange(values);
+            _saveActions.Add(control, c => save.Invoke(((ComboBox) c).SelectedItem));
+            Load += (_, _) => { control.SelectedItem = value; };
         }
     }
 }
