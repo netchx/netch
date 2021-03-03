@@ -595,7 +595,6 @@ namespace Netch.Forms
             // 
             // ProxyDNSCheckBox
             // 
-            this.ProxyDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.UseCustomDNSCheckBox, "Checked", true));;
             this.ProxyDNSCheckBox.AutoSize = true;
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";

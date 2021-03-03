@@ -206,10 +206,7 @@ namespace Netch.Forms
             if (UseCustomDNSCheckBox.Checked)
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DnsUtils.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";
             else
-            {
                 TUNTAPDNSTextBox.Text = "AioDNS";
-                ProxyDNSCheckBox.Checked = false;
-            }
         }
 
         private void InitSTUN()
