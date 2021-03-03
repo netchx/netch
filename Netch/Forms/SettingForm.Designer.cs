@@ -31,7 +31,6 @@ namespace Netch.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SettingForm));
             this.TabControl = new System.Windows.Forms.TabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
             this.ServerPingTypeLabel = new System.Windows.Forms.Label();
@@ -79,10 +78,10 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
-            new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
+            this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
             this.KCPGroupBox = new System.Windows.Forms.GroupBox();
             this.mtuLabel = new System.Windows.Forms.Label();
@@ -116,7 +115,6 @@ namespace Netch.Forms
             this.OtherDNSTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -596,9 +594,9 @@ namespace Netch.Forms
             // ProxyDNSCheckBox
             // 
             this.ProxyDNSCheckBox.AutoSize = true;
-            this.ProxyDNSCheckBox.Location = new System.Drawing.Point(261, 139);
+            this.ProxyDNSCheckBox.Location = new System.Drawing.Point(175, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
-            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(138, 16);
+            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(216, 16);
             this.ProxyDNSCheckBox.TabIndex = 9;
             this.ProxyDNSCheckBox.Text = "Proxy DNS in Proxy Rule IPs Mode";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
@@ -647,6 +645,16 @@ namespace Netch.Forms
             this.TLSAllowInsecureCheckBox.TabIndex = 0;
             this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
             this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // XrayConeCheckBox
+            // 
+            this.XrayConeCheckBox.AutoSize = true;
+            this.XrayConeCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.XrayConeCheckBox.Name = "XrayConeCheckBox";
+            this.XrayConeCheckBox.Size = new System.Drawing.Size(336, 16);
+            this.XrayConeCheckBox.TabIndex = 1;
+            this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+)";
+            this.XrayConeCheckBox.UseVisualStyleBackColor = true;
             // 
             // UseMuxCheckBox
             // 
@@ -965,7 +973,7 @@ namespace Netch.Forms
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles) ((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ControlButton.Location = new System.Drawing.Point(397, 363);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(75, 23);
@@ -986,16 +994,6 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 0;
-            // 
-            // XrayConeCheckBox
-            // 
-            this.XrayConeCheckBox.AutoSize = true;
-            this.XrayConeCheckBox.Location = new System.Drawing.Point(6, 15);
-            this.XrayConeCheckBox.Name = "XrayConeCheckBox";
-            this.XrayConeCheckBox.Size = new System.Drawing.Size(78, 16);
-            this.XrayConeCheckBox.TabIndex = 1;
-            this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+)";
-            this.XrayConeCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingForm
             // 
@@ -1032,6 +1030,7 @@ namespace Netch.Forms
             this.flowLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
         private System.Windows.Forms.CheckBox XrayConeCheckBox;
         private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
