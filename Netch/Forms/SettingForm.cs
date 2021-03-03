@@ -22,17 +22,7 @@ namespace Netch.Forms
             InitializeComponent();
             Icon = Resources.icon;
             i18N.TranslateForm(this);
-            InitValue();
-        }
 
-        private void SettingForm_Load(object sender, EventArgs e)
-        {
-            TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
-            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
-        }
-
-        private void InitValue()
-        {
             #region General
 
             BindTextBox<ushort>(Socks5PortTextBox,
@@ -72,13 +62,48 @@ namespace Netch.Forms
                 i => Global.Settings.StartedPingInterval = i,
                 Global.Settings.StartedPingInterval);
 
-            InitSTUN();
+            object[]? stuns;
+            try
+            {
+                stuns = File.ReadLines("bin\\stun.txt").Cast<object>().ToArray();
+            }
+            catch (Exception e)
+            {
+                Logging.Warning($"Load stun.txt failed: {e.Message}");
+                stuns = null;
+            }
+
+            BindComboBox(STUN_ServerComboBox,
+                s =>
+                {
+                    var split = s.SplitRemoveEmptyEntriesAndTrimEntries(':');
+                    if (!split.Any())
+                        return false;
+
+                    var port = split.ElementAtOrDefault(1);
+                    if (port != null)
+                        if (!ushort.TryParse(split[1], out _))
+                            return false;
+
+                    return true;
+                },
+                o =>
+                {
+                    var split = o.ToString().SplitRemoveEmptyEntriesAndTrimEntries(':');
+                    Global.Settings.STUN_Server = split[0];
+
+                    var port = split.ElementAtOrDefault(1);
+                    Global.Settings.STUN_Server_Port = port != null ? ushort.Parse(port) : 3478;
+                },
+                Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
+                stuns);
 
             BindTextBox<string>(AclAddrTextBox, s => true, s => Global.Settings.ACL = s, Global.Settings.ACL);
-            AclAddrTextBox.Text = Global.Settings.ACL;
 
-            LanguageComboBox.Items.AddRange(i18N.GetTranslateList().ToArray());
-            LanguageComboBox.SelectedItem = Global.Settings.Language;
+            BindListComboBox(LanguageComboBox,
+                o => Global.Settings.Language = o.ToString(),
+                i18N.GetTranslateList().Cast<object>().ToArray(),
+                Global.Settings.Language);
 
             #endregion
 
@@ -90,7 +115,7 @@ namespace Netch.Forms
 
             BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
 
-            BindComboBox(ProcessProxyProtocolComboBox,
+            BindListComboBox(ProcessProxyProtocolComboBox,
                 s => Global.Settings.ProcessProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
                 Enum.GetNames(typeof(PortType)).Cast<object>().ToArray(),
                 Global.Settings.ProcessProxyProtocol.ToString());
@@ -202,27 +227,18 @@ namespace Netch.Forms
             #endregion
         }
 
+        private void SettingForm_Load(object sender, EventArgs e)
+        {
+            TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
+            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
+        }
+
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
         {
             if (UseCustomDNSCheckBox.Checked)
                 TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DnsUtils.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
-        }
-
-        private void InitSTUN()
-        {
-            try
-            {
-                var stuns = File.ReadLines("bin\\stun.txt");
-                STUN_ServerComboBox.Items.AddRange(stuns.ToArray());
-            }
-            catch
-            {
-                // ignored
-            }
-
-            STUN_ServerComboBox.Text = $"{Global.Settings.STUN_Server}:{Global.Settings.STUN_Server_Port}";
         }
 
         private void GlobalBypassIPsButton_Click(object sender, EventArgs e)
@@ -238,43 +254,12 @@ namespace Netch.Forms
 
             #region Check
 
-            var flag = true;
-            foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
-            {
-                Utils.Utils.ChangeControlForeColor(pair.Key, Color.Red);
-                flag = false;
-            }
+            var checkNotPassControl = _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)).Select(pair => pair.Key).ToList();
+            foreach (Control control in checkNotPassControl)
+                Utils.Utils.ChangeControlForeColor(control, Color.Red);
 
-            if (!flag)
+            if (checkNotPassControl.Any())
                 return;
-
-            #endregion
-
-            #region CheckSTUN
-
-            var errFlag = false;
-            var stunServer = string.Empty;
-            ushort stunServerPort = 3478;
-
-            var stun = STUN_ServerComboBox.Text.Split(':');
-
-            if (stun.Any())
-            {
-                stunServer = stun[0];
-                if (stun.Length > 1)
-                    if (!ushort.TryParse(stun[1], out stunServerPort))
-                        errFlag = true;
-            }
-            else
-            {
-                errFlag = true;
-            }
-
-            if (errFlag)
-            {
-                Utils.Utils.ChangeControlForeColor(STUN_ServerComboBox, Color.Red);
-                return;
-            }
 
             #endregion
 
@@ -282,10 +267,6 @@ namespace Netch.Forms
 
             foreach (var pair in _saveActions)
                 pair.Value.Invoke(pair.Key);
-
-            Global.Settings.STUN_Server = stunServer;
-            Global.Settings.STUN_Server_Port = stunServerPort;
-            Global.Settings.Language = LanguageComboBox.Text;
 
             #endregion
 
@@ -295,6 +276,8 @@ namespace Netch.Forms
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
+
+        #region BindUtils
 
         private void BindTextBox(TextBox control, Func<string, bool> check, Action<string> save, object value)
         {
@@ -332,11 +315,27 @@ namespace Netch.Forms
             _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
         }
 
-        private void BindComboBox(ComboBox control, Action<object> save, object[] values, object value)
+        private void BindListComboBox(ComboBox control, Action<object> save, object[] values, object value, string propertyName = "SelectedItem")
         {
+            if (control.DropDownStyle != ComboBoxStyle.DropDownList)
+                throw new ArgumentOutOfRangeException();
+
             control.Items.AddRange(values);
             _saveActions.Add(control, c => save.Invoke(((ComboBox) c).SelectedItem));
             Load += (_, _) => { control.SelectedItem = value; };
         }
+
+        private void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)
+        {
+            if (values != null)
+                control.Items.AddRange(values);
+
+            _saveActions.Add(control, c => save.Invoke(((ComboBox) c).Text));
+            _checkActions.Add(control, check.Invoke);
+
+            Load += (_, _) => { control.Text = value; };
+        }
+
+        #endregion
     }
 }
