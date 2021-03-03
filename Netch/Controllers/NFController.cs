@@ -18,9 +18,11 @@ namespace Netch.Controllers
     {
         private static readonly ServiceController NFService = new("netfilter2");
 
-        private static readonly string BinDriver = string.Empty;
+        private static readonly string BinDriver;
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-        private static string _sysDns = string.Empty;
+
+        private static string? _sysDns;
+        private OutboundAdapter? _outbound;
 
         static NFController()
         {
@@ -39,8 +41,7 @@ namespace Netch.Controllers
                     fileName = "Win-7.sys";
                     break;
                 default:
-                    Logging.Error($"不支持的系统版本：{Environment.OSVersion.Version}");
-                    return;
+                    throw new MessageException($"不支持的系统版本：{Environment.OSVersion.Version}");
             }
 
             BinDriver = "bin\\" + fileName;
@@ -93,12 +94,13 @@ namespace Netch.Controllers
 
             if (Global.Settings.ModifySystemDNS)
             {
+                _outbound = new OutboundAdapter();
                 // 备份并替换系统 DNS
-                _sysDns = DNS.OutboundDNS;
+                _sysDns = _outbound.DNS;
                 if (string.IsNullOrWhiteSpace(Global.Settings.ModifiedDNS))
                     Global.Settings.ModifiedDNS = "1.1.1.1,8.8.8.8";
 
-                DNS.OutboundDNS = Global.Settings.ModifiedDNS;
+                _outbound.DNS = Global.Settings.ModifiedDNS;
             }
 
             if (!aio_init())
@@ -111,7 +113,7 @@ namespace Netch.Controllers
             {
                 if (Global.Settings.ModifySystemDNS)
                     //恢复系统DNS
-                    DNS.OutboundDNS = _sysDns;
+                    _outbound!.DNS = _sysDns!;
             });
 
             aio_free();

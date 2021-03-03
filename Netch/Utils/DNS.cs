@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Microsoft.Win32;
 
 namespace Netch.Utils
 {
@@ -13,27 +12,6 @@ namespace Netch.Utils
         ///     缓存
         /// </summary>
         public static Hashtable Cache = new();
-
-        /// <summary>
-        ///     出口网卡 DNS
-        ///     <para></para>
-        ///     依赖 <see cref="Global.Outbound.Adapter" />
-        /// </summary>
-        public static string OutboundDNS
-        {
-            get
-            {
-                try
-                {
-                    return (string) AdapterRegistry().GetValue("NameServer");
-                }
-                catch
-                {
-                    return string.Empty;
-                }
-            }
-            set => AdapterRegistry(true).SetValue("NameServer", value, RegistryValueKind.String);
-        }
 
         /// <summary>
         ///     查询
@@ -62,15 +40,6 @@ namespace Netch.Utils
             {
                 return null;
             }
-        }
-
-        private static RegistryKey AdapterRegistry(bool write = false)
-        {
-            if (Global.Outbound.Adapter == null)
-                Utils.SearchOutboundAdapter();
-
-            return Registry.LocalMachine.OpenSubKey($@"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\{Global.Outbound.Adapter!.Id}",
-                write)!;
         }
 
         public static IEnumerable<string> Split(string dns)

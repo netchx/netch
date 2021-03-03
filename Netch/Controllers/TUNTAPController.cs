@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
@@ -21,7 +19,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     服务器 IP 地址
         /// </summary>
-        private IPAddress? _serverAddresses;
+        private IPAddress _serverAddresses = null!;
 
         /// <summary>
         ///     本地 DNS 服务控制器
@@ -38,46 +36,34 @@ namespace Netch.Controllers
 
         public override string Name { get; } = "tun2socks";
 
+        private readonly OutboundAdapter _outbound = new();
+        private TapAdapter _tap = null!;
+
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
-            // 查询服务器 IP 地址
-            _serverAddresses = DNS.Lookup(server.Hostname)!;
+            _serverAddresses = DNS.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
-            // 查找出口适配器
-            Utils.Utils.SearchOutboundAdapter();
+            if (TUNTAP.GetComponentID() == null)
+                TUNTAP.AddTap();
 
-            // 查找并安装 TAP 适配器
-            if (string.IsNullOrEmpty(TUNTAP.GetComponentID()))
-                AddTap();
+            _tap = new TapAdapter();
 
-            SearchTapAdapter();
-
-            SetupRouteTable(mode);
-
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", Name));
-
-            string dns;
+            List<string> dns;
             if (Global.Settings.TUNTAP.UseCustomDNS)
             {
-                if (Global.Settings.TUNTAP.DNS.Any())
-                {
-                    dns = DNS.Join(Global.Settings.TUNTAP.DNS);
-                }
-                else
-                {
-                    Global.Settings.TUNTAP.DNS.Add("1.1.1.1");
-                    dns = "1.1.1.1";
-                }
+                dns = Global.Settings.TUNTAP.DNS.Any() ? Global.Settings.TUNTAP.DNS : Global.Settings.TUNTAP.DNS = new List<string> {"1.1.1.1"};
             }
             else
             {
                 MainController.PortCheck(53, "DNS");
-
                 DNSController.Start();
-
-                dns = "127.0.0.1";
+                dns = new List<string> {"127.0.0.1"};
             }
+
+            SetupRouteTable(mode);
+
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", Name));
 
             var argument = new StringBuilder();
             if (server is Socks5 socks5 && !socks5.Auth())
@@ -86,7 +72,7 @@ namespace Netch.Controllers
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
             argument.Append(
-                $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {dns} -tunName \"{TUNTAP.GetName(Global.TUNTAP.ComponentID)}\" ");
+                $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {DNS.Join(dns)} -tunName \"{TUNTAP.GetName(_tap.ComponentID)}\" ");
 
             if (Global.Settings.TUNTAP.UseFakeDNS && Global.Flags.SupportFakeDns)
                 argument.Append("-fakeDns ");
@@ -164,7 +150,7 @@ namespace Netch.Controllers
                     Process.Start(new ProcessStartInfo
                     {
                         FileName = "netsh",
-                        Arguments = $"interface ip set interface {Global.TUNTAP.Index} metric=0",
+                        Arguments = $"interface ip set interface {_tap.Index} metric=0",
                         WindowStyle = ProcessWindowStyle.Hidden,
                         UseShellExecute = true,
                         CreateNoWindow = true
@@ -218,45 +204,6 @@ namespace Netch.Controllers
             }
         }
 
-        /// <summary>
-        ///     搜索出口和TUNTAP适配器
-        /// </summary>
-        public static void SearchTapAdapter()
-        {
-            Global.TUNTAP.Adapter = null;
-            Global.TUNTAP.Index = -1;
-            Global.TUNTAP.ComponentID = TUNTAP.GetComponentID();
-
-            // 搜索 TUN/TAP 适配器的索引
-            if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID))
-            {
-                const string s = "TAP 适配器未安装";
-                Logging.Info(s);
-                throw new Exception(s);
-            }
-
-            // 根据 ComponentID 寻找 Tap适配器
-            var adapter = NetworkInterface.GetAllNetworkInterfaces().First(_ => _.Id == Global.TUNTAP.ComponentID);
-            Global.TUNTAP.Adapter = adapter;
-            Global.TUNTAP.Index = adapter.GetIPProperties().GetIPv4Properties().Index;
-            Logging.Info($"TAP 适配器：{adapter.Name} {adapter.Id} {adapter.Description}, index: {Global.TUNTAP.Index}");
-        }
-
-        private static bool AddTap()
-        {
-            TUNTAP.addtap();
-            // 给点时间，不然立马安装完毕就查找适配器可能会导致找不到适配器ID
-            Thread.Sleep(1000);
-            if (string.IsNullOrEmpty(Global.TUNTAP.ComponentID = TUNTAP.GetComponentID()))
-            {
-                const string s = "TAP 驱动安装失败，找不到 ComponentID 注册表项";
-                Logging.Error(s);
-                throw new Exception(s);
-            }
-
-            return true;
-        }
-
         private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0)
         {
             foreach (var address in ipNetworks)
@@ -265,54 +212,42 @@ namespace Netch.Controllers
 
         private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0)
         {
-            string gateway;
-            int index;
-            switch (routeType)
-            {
-                case RouteType.Outbound:
-                    gateway = Global.Outbound.Gateway!.ToString();
-                    index = Global.Outbound.Index;
-                    break;
-                case RouteType.TUNTAP:
-                    gateway = Global.Settings.TUNTAP.Gateway;
-                    index = Global.TUNTAP.Index;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null);
-            }
-
-            string network;
-            ushort cidr;
-            try
-            {
-                var s = ipNetwork.Split('/');
-                network = s[0];
-                cidr = ushort.Parse(s[1]);
-            }
-            catch
+            var s = ipNetwork.Split('/');
+            if (s.Length != 2)
             {
                 Logging.Warning($"Failed to parse rule {ipNetwork}");
                 return false;
             }
 
+            IAdapter adapter;
+            List<string> ipList;
+
+            switch (routeType)
+            {
+                case RouteType.TUNTAP:
+                    adapter = _tap;
+                    ipList = _proxyIPs;
+                    break;
+                case RouteType.Outbound:
+                    adapter = _outbound;
+                    ipList = _directIPs;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null);
+            }
+
+            string network = s[0];
+            var cidr = ushort.Parse(s[1]);
+            string gateway = adapter.Gateway.ToString();
+            var index = adapter.Index;
+
             bool result;
             switch (action)
             {
                 case Action.Create:
-                {
                     result = NativeMethods.CreateRoute(network, cidr, gateway, index, metric);
-                    switch (routeType)
-                    {
-                        case RouteType.Outbound:
-                            _directIPs.Add(ipNetwork);
-                            break;
-                        case RouteType.TUNTAP:
-                            _proxyIPs.Add(ipNetwork);
-                            break;
-                    }
-
+                    ipList.Add(ipNetwork);
                     break;
-                }
                 case Action.Delete:
                     result = NativeMethods.DeleteRoute(network, cidr, gateway, index, metric);
                     break;

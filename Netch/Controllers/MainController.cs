@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
@@ -62,16 +61,7 @@ namespace Netch.Controllers
             // 刷新DNS缓存
             NativeMethods.FlushDNSResolverCache();
 
-            try
-            {
-                WebUtil.BestLocalEndPoint(new IPEndPoint(0x72727272, 53));
-            }
-            catch (Exception)
-            {
-                throw new MessageException(i18N.Translate("No internet connection"));
-            }
-
-            if (Global.Settings.ResolveServerHostname && DNS.Lookup(server.Hostname) == null)
+            if (DNS.Lookup(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
             // 添加Netch到防火墙

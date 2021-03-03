@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading;
@@ -64,52 +60,6 @@ namespace Netch
             private static readonly Lazy<bool> LazySupportFakeDns = new(() => new TUNTAPController().TestFakeDNS());
 
             public static bool SupportFakeDns => LazySupportFakeDns.Value;
-        }
-
-        /// <summary>
-        ///     出口适配器
-        /// </summary>
-        public static class Outbound
-        {
-            /// <summary>
-            ///     索引
-            /// </summary>
-            public static int Index = -1;
-
-            /// <summary>
-            ///     网关
-            /// </summary>
-            public static IPAddress? Gateway;
-
-            public static NetworkInterface? Adapter;
-
-            /// <summary>
-            ///     地址
-            /// </summary>
-            public static IPAddress Address => Adapter!.GetIPProperties()
-                .UnicastAddresses.First(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                .Address;
-        }
-
-        /// <summary>
-        ///     TUN/TAP 适配器
-        /// </summary>
-        public static class TUNTAP
-        {
-            /// <summary>
-            ///     适配器
-            /// </summary>
-            public static NetworkInterface? Adapter;
-
-            /// <summary>
-            ///     索引
-            /// </summary>
-            public static int Index = -1;
-
-            /// <summary>
-            ///     组件 ID
-            /// </summary>
-            public static string ComponentID = string.Empty;
         }
 
         /// <summary>
