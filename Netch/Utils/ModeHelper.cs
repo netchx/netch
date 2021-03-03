@@ -165,6 +165,8 @@ namespace Netch.Utils
                     return new HTTPController();
                 case 4:
                     return null;
+                case 6:
+                    return new PcapController();
                 default:
                     Logging.Error("未知模式类型");
                     throw new MessageException("未知模式类型");

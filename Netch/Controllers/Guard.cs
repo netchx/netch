@@ -164,7 +164,7 @@ namespace Netch.Controllers
                 switch (State)
                 {
                     case State.Started:
-                        OnKeywordStarted();
+                        Task.Run(OnKeywordStarted);
                         return;
                     case State.Stopped:
                         Stop();
