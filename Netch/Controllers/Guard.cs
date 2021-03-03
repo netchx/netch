@@ -24,7 +24,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     日志文件(重定向输出文件)
         /// </summary>
-        private string LogPath => Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
+        protected string LogPath => Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
 
         /// <summary>
         ///     成功启动关键词
@@ -164,16 +164,32 @@ namespace Netch.Controllers
                 switch (State)
                 {
                     case State.Started:
+                        OnKeywordStarted();
                         return;
                     case State.Stopped:
                         Stop();
-                        Utils.Utils.Open(LogPath);
+                        OnKeywordStopped();
                         throw new MessageException($"{Name} 控制器启动失败");
                 }
             }
 
             Stop();
+            OnKeywordTimeout();
             throw new MessageException($"{Name} 控制器启动超时");
+        }
+
+        protected virtual void OnKeywordStarted()
+        {
+        }
+
+        protected virtual void OnKeywordTimeout()
+        {
+        }
+
+        protected virtual void OnKeywordStopped()
+        {
+            Utils.Utils.Open(LogPath);
+            throw new MessageException($"{Name} 控制器启动失败");
         }
 
         private void OnExited(object sender, EventArgs e)
@@ -181,7 +197,7 @@ namespace Netch.Controllers
             State = State.Stopped;
         }
 
-        protected void ReadOutput(TextReader reader)
+        protected virtual void ReadOutput(TextReader reader)
         {
             string? line;
             while ((line = reader.ReadLine()) != null)
