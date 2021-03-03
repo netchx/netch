@@ -414,7 +414,7 @@ namespace Netch.Forms
                 await Task.Run(() =>
                 {
                     NativeMethods.FlushDNSResolverCache();
-                    DNS.Cache.Clear();
+                    DnsUtils.ClearCache();
                 });
 
                 NotifyTip(i18N.Translate("DNS cache cleanup succeeded"));

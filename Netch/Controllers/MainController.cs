@@ -61,7 +61,7 @@ namespace Netch.Controllers
             // 刷新DNS缓存
             NativeMethods.FlushDNSResolverCache();
 
-            if (DNS.Lookup(server.Hostname) == null)
+            if (DnsUtils.Lookup(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
             // 添加Netch到防火墙

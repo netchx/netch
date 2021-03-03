@@ -42,7 +42,7 @@ namespace Netch.Controllers
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
-            _serverAddresses = DNS.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
+            _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
             if (TUNTAP.GetComponentID() == null)
                 TUNTAP.AddTap();
@@ -72,7 +72,7 @@ namespace Netch.Controllers
                 argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
 
             argument.Append(
-                $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {DNS.Join(dns)} -tunName \"{TUNTAP.GetName(_tap.ComponentID)}\" ");
+                $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {DnsUtils.Join(dns)} -tunName \"{TUNTAP.GetName(_tap.ComponentID)}\" ");
 
             if (Global.Settings.TUNTAP.UseFakeDNS && Global.Flags.SupportFakeDns)
                 argument.Append("-fakeDns ");

@@ -86,7 +86,7 @@ namespace Netch.Forms
 
             BindCheckBox(ModifySystemDNSCheckBox, b => Global.Settings.ModifySystemDNS = b, Global.Settings.ModifySystemDNS);
 
-            BindTextBox(ModifiedDNSTextBox, s => DNS.TrySplit(s, out _, 2), s => Global.Settings.ModifiedDNS = s, Global.Settings.ModifiedDNS);
+            BindTextBox(ModifiedDNSTextBox, s => DnsUtils.TrySplit(s, out _, 2), s => Global.Settings.ModifiedDNS = s, Global.Settings.ModifiedDNS);
 
             BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
 
@@ -116,13 +116,13 @@ namespace Netch.Forms
             BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
             BindTextBox(TUNTAPDNSTextBox,
-                s => !UseCustomDNSCheckBox.Checked || DNS.TrySplit(s, out _, 2),
+                s => !UseCustomDNSCheckBox.Checked || DnsUtils.TrySplit(s, out _, 2),
                 s =>
                 {
                     if (UseCustomDNSCheckBox.Checked)
-                        Global.Settings.TUNTAP.DNS = DNS.Split(s).ToList();
+                        Global.Settings.TUNTAP.DNS = DnsUtils.Split(s).ToList();
                 },
-                DNS.Join(Global.Settings.TUNTAP.DNS));
+                DnsUtils.Join(Global.Settings.TUNTAP.DNS));
 
             BindCheckBox(ProxyDNSCheckBox, b => Global.Settings.TUNTAP.ProxyDNS = b, Global.Settings.TUNTAP.ProxyDNS);
             BindCheckBox(UseFakeDNSCheckBox, b => Global.Settings.TUNTAP.UseFakeDNS = b, Global.Settings.TUNTAP.UseFakeDNS);
@@ -204,7 +204,7 @@ namespace Netch.Forms
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
         {
             if (UseCustomDNSCheckBox.Checked)
-                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DNS.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";
+                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS.Any() ? DnsUtils.Join(Global.Settings.TUNTAP.DNS) : "1.1.1.1";
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
         }

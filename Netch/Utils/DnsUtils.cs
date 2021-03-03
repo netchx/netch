@@ -6,12 +6,12 @@ using System.Net;
 
 namespace Netch.Utils
 {
-    public static class DNS
+    public static class DnsUtils
     {
         /// <summary>
         ///     缓存
         /// </summary>
-        public static Hashtable Cache = new();
+        private static readonly Hashtable Cache = new();
 
         /// <summary>
         ///     查询
@@ -40,6 +40,16 @@ namespace Netch.Utils
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        ///     查询
+        /// </summary>
+        /// <param name="hostname">主机名</param>
+        /// <returns></returns>
+        public static void ClearCache()
+        {
+            Cache.Clear();
         }
 
         public static IEnumerable<string> Split(string dns)

@@ -85,7 +85,7 @@ namespace Netch.Models
         {
             try
             {
-                var destination = DNS.Lookup(Hostname);
+                var destination = DnsUtils.Lookup(Hostname);
                 if (destination == null)
                     return Delay = -2;
 
@@ -122,7 +122,7 @@ namespace Netch.Models
     {
         public static string AutoResolveHostname(this Server server)
         {
-            return Global.Settings.ResolveServerHostname ? DNS.Lookup(server.Hostname)!.ToString() : server.Hostname;
+            return Global.Settings.ResolveServerHostname ? DnsUtils.Lookup(server.Hostname)!.ToString() : server.Hostname;
         }
 
         public static bool Valid(this Server server)
