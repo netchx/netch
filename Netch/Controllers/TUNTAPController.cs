@@ -109,27 +109,9 @@ namespace Netch.Controllers
             switch (mode.Type)
             {
                 case 1:
-                    // 代理规则
+                    // 代理规则 IP
                     Logging.Info("代理 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
-
-                    //处理 NAT 类型检测，由于协议的原因，无法仅通过域名确定需要代理的 IP，自己记录解析了返回的 IP，仅支持默认检测服务器
-                    if (Global.Settings.STUN_Server == "stun.stunprotocol.org")
-                        try
-                        {
-                            Logging.Info("代理 → STUN 服务器 IP");
-                            RouteAction(Action.Create,
-                                new[]
-                                {
-                                    Dns.GetHostAddresses(Global.Settings.STUN_Server)[0],
-                                    Dns.GetHostAddresses("stunresponse.coldthunder11.com")[0]
-                                }.Select(ip => $"{ip}/32"),
-                                RouteType.TUNTAP);
-                        }
-                        catch
-                        {
-                            Logging.Info("NAT 类型测试域名解析失败，将不会被添加到代理列表");
-                        }
 
                     if (Global.Settings.TUNTAP.ProxyDNS)
                     {
@@ -144,7 +126,7 @@ namespace Netch.Controllers
 
                     break;
                 case 2:
-                    // 绕过规则
+                    // 绕过规则 IP
 
                     // 将 TUN/TAP 网卡权重放到最高
                     Process.Start(new ProcessStartInfo
@@ -164,7 +146,7 @@ namespace Netch.Controllers
             #endregion
 
             Logging.Info("绕行 → 服务器 IP");
-            if (!IPAddress.IsLoopback(_serverAddresses!))
+            if (!IPAddress.IsLoopback(_serverAddresses))
                 RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
 
             Logging.Info("绕行 → 全局绕过 IP");
@@ -172,7 +154,6 @@ namespace Netch.Controllers
 
             if (mode.Type == 2)
             {
-                // 绕过规则
                 Logging.Info("代理 → 全局");
                 RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP);
             }

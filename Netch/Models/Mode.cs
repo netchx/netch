@@ -150,7 +150,7 @@ namespace Netch.Models
         /// 是否会转发 UDP
         public static bool TestNatRequired(this Mode mode)
         {
-            return mode.Type is 0 or 1 or 2;
+            return mode.Type is 0 or 2;
         }
 
         /// Socks5 分流是否能被有效实施
