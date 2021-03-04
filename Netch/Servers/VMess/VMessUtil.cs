@@ -75,15 +75,17 @@ namespace Netch.Servers.VMess
         {
             var data = new VMess();
 
-            V2rayNSharing vmess;
+            string s;
             try
             {
-                vmess = JsonSerializer.Deserialize<V2rayNSharing>(ShareLink.URLSafeBase64Decode(text.Substring(8)));
+                s = ShareLink.URLSafeBase64Decode(text.Substring(8));
             }
             catch
             {
                 return V2rayUtils.ParseVUri(text);
             }
+
+            V2rayNSharing vmess = JsonSerializer.Deserialize<V2rayNSharing>(s)!;
 
             data.Remark = vmess.ps;
             data.Hostname = vmess.add;

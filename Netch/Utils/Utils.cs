@@ -21,6 +21,8 @@ namespace Netch.Utils
     {
         public static bool Open(string path)
         {
+            if (Global.Testing)
+                return true;
             try
             {
                 Process.Start(new ProcessStartInfo
