@@ -46,8 +46,22 @@ namespace Netch.Utils
             }
             catch (JsonException)
             {
+                var errorFlag = false;
                 foreach (var line in text.GetLines())
-                    list.AddRange(ParseUri(line));
+                {
+                    try
+                    {
+                        list.AddRange(ParseUri(line));
+                    }
+                    catch (Exception e)
+                    {
+                        errorFlag = true;
+                        Logging.Error(e.ToString());
+                    }
+                }
+
+                if (errorFlag)
+                    Utils.Open(Logging.LogFile);
             }
             catch (Exception e)
             {
@@ -61,30 +75,22 @@ namespace Netch.Utils
         {
             var list = new List<Server>();
 
-            try
+            if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
             {
-                if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
-                {
-                    list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
-                }
-                else if (text.StartsWith("Netch://"))
-                {
-                    list.Add(ParseNetchUri(text));
-                }
-                else
-                {
-                    var scheme = GetUriScheme(text);
-                    var util = ServerHelper.GetUtilByUriScheme(scheme);
-                    if (util != null)
-                        list.AddRange(util.ParseUri(text));
-                    else
-                        Logging.Warning($"无法处理 {scheme} 协议订阅链接");
-                }
+                list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
             }
-            catch (Exception e)
+            else if (text.StartsWith("Netch://"))
             {
-                Logging.Error(e.ToString());
-                Utils.Open(Logging.LogFile);
+                list.Add(ParseNetchUri(text));
+            }
+            else
+            {
+                var scheme = GetUriScheme(text);
+                var util = ServerHelper.GetUtilByUriScheme(scheme);
+                if (util != null)
+                    list.AddRange(util.ParseUri(text));
+                else
+                    Logging.Warning($"无法处理 {scheme} 协议订阅链接");
             }
 
             foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))
