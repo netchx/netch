@@ -97,7 +97,7 @@ namespace Netch.Servers.VMess
 
             if (data.TransferProtocol == "quic")
             {
-                if (VMessGlobal.QUIC.Contains(vmess.host))
+                if (VMessGlobal.QUIC.Contains(vmess.host!))
                 {
                     data.QUICSecure = vmess.host;
                     data.QUICSecret = vmess.path;

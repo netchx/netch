@@ -57,7 +57,7 @@ namespace Netch.Utils
                     break;
             }
 
-            var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text);
+            var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text)!;
 
             if (!dictionary.Any())
             {

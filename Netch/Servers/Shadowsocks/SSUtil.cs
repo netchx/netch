@@ -76,7 +76,7 @@ namespace Netch.Servers.Shadowsocks
 
         public IEnumerable<Server> ParseSsdUri(string s)
         {
-            var json = JsonSerializer.Deserialize<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)));
+            var json = JsonSerializer.Deserialize<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)))!;
 
             return json.servers.Select(server => new Shadowsocks
                 {
