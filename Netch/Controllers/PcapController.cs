@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Netch.Forms;
 using Netch.Models;
 
 namespace Netch.Controllers
@@ -20,15 +22,31 @@ namespace Netch.Controllers
 
         protected override Encoding? InstanceOutputEncoding { get; } = Encoding.UTF8;
 
+        public PcapController()
+        {
+            RedirectToFile = false;
+        }
+
+        private LogForm? _form;
+
         public void Start(in Mode mode)
         {
+            Global.MainForm.BeginInvoke(new Action(() =>
+            {
+                _form = new LogForm(Global.MainForm);
+                _form.Show();
+            }));
+
             StartInstanceAuto($@"-i \Device\NPF_{_outbound.NetworkInterface.Id} {mode.FullRule.FirstOrDefault() ?? "-P n"}");
+        }
+
+        protected override void OnReadNewLine(string line)
+        {
+            Global.MainForm.BeginInvoke(new Action(() => { _form!.richTextBox1.AppendText(line + "\n"); }));
         }
 
         protected override void OnKeywordStarted()
         {
-            Thread.Sleep(300);
-            Utils.Utils.Open(LogPath);
         }
 
         protected override void OnKeywordStopped()
@@ -49,6 +67,8 @@ namespace Netch.Controllers
 
         public override void Stop()
         {
+            Global.MainForm.Invoke(new Action(() => { _form!.Close(); }));
+
             StopInstance();
         }
     }
