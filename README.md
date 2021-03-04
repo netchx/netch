@@ -67,5 +67,6 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [Privoxy](https://www.privoxy.org/)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
 - [NetFilter SDK](https://netfiltersdk.com/)
+- [pcap2socks](https://github.com/zhxie/pcap2socks)
 
 [![Stargazers over time](https://starchart.cc/NetchX/Netch.svg)](https://starchart.cc/NetchX/Netch)     

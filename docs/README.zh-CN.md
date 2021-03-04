@@ -75,3 +75,4 @@ Netch 支持多种语言，在启动时会根据系统语言选择自身语言�
 - [Privoxy](https://www.privoxy.org/)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
 - [NetFilter SDK](https://netfiltersdk.com/)
+- [pcap2socks](https://github.com/zhxie/pcap2socks)
