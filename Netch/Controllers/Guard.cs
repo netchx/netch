@@ -166,6 +166,7 @@ namespace Netch.Controllers
                         return;
                     case State.Stopped:
                         Stop();
+                        CloseLogFile();
                         OnKeywordStopped();
                         throw new MessageException($"{Name} 控制器启动失败");
                 }
@@ -180,6 +181,9 @@ namespace Netch.Controllers
 
         private void OpenLogFile()
         {
+            if (!RedirectToFile)
+                return;
+
             _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
             _logStreamWriter = new StreamWriter(_logFileStream);
 
@@ -201,8 +205,8 @@ namespace Netch.Controllers
                 return;
 
             _flushFileStreamTimer.Enabled = false;
-            _logStreamWriter!.Close();
-            _logFileStream!.Close();
+            _logStreamWriter?.Close();
+            _logFileStream?.Close();
             _logStreamWriter = _logStreamWriter = null;
         }
 
@@ -234,8 +238,8 @@ namespace Netch.Controllers
             string? line;
             while ((line = reader.ReadLine()) != null)
             {
-                OnReadNewLine(line);
                 WriteLog(line);
+                OnReadNewLine(line);
 
                 // State == State.Started if !StartedKeywords.Any() 
                 if (State == State.Starting)
@@ -247,8 +251,8 @@ namespace Netch.Controllers
                 }
             }
 
-            State = State.Stopped;
             CloseLogFile();
+            State = State.Stopped;
         }
 
         /// <summary>

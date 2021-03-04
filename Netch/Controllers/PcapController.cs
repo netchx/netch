@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Netch.Forms;
 using Netch.Models;
+using Netch.Servers.Socks5;
 
 namespace Netch.Controllers
 {
@@ -22,31 +23,37 @@ namespace Netch.Controllers
 
         protected override Encoding? InstanceOutputEncoding { get; } = Encoding.UTF8;
 
-        public PcapController()
-        {
-            RedirectToFile = false;
-        }
-
         private LogForm? _form;
 
         public void Start(in Mode mode)
         {
-            Global.MainForm.BeginInvoke(new Action(() =>
-            {
-                _form = new LogForm(Global.MainForm);
-                _form.Show();
-            }));
+            var server = MainController.Server!;
 
-            StartInstanceAuto($@"-i \Device\NPF_{_outbound.NetworkInterface.Id} {mode.FullRule.FirstOrDefault() ?? "-P n"}");
+            _form = new LogForm(Global.MainForm);
+            _form.CreateControl();
+
+            var argument = new StringBuilder($@"-i \Device\NPF_{_outbound.NetworkInterface.Id}");
+            if (server is Socks5 socks5 && !socks5.Auth())
+                argument.Append($" --destination  {server.AutoResolveHostname()}:{server.Port}");
+            else
+                argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
+
+            argument.Append($" {mode.FullRule.FirstOrDefault() ?? "-P n"}");
+            StartInstanceAuto(argument.ToString());
         }
 
         protected override void OnReadNewLine(string line)
         {
-            Global.MainForm.BeginInvoke(new Action(() => { _form!.richTextBox1.AppendText(line + "\n"); }));
+            Global.MainForm.BeginInvoke(new Action(() =>
+            {
+                if (!_form!.IsDisposed)
+                    _form!.richTextBox1.AppendText(line + "\n");
+            }));
         }
 
         protected override void OnKeywordStarted()
         {
+            Global.MainForm.BeginInvoke(new Action(() => { _form!.Show(); }));
         }
 
         protected override void OnKeywordStopped()
@@ -67,8 +74,7 @@ namespace Netch.Controllers
 
         public override void Stop()
         {
-            Global.MainForm.Invoke(new Action(() => { _form!.Close(); }));
-
+            _form!.Close();
             StopInstance();
         }
     }

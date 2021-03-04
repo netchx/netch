@@ -16,9 +16,9 @@ namespace Netch.Forms
             _parent = parent;
         }
 
-        protected override void OnShown(EventArgs e)
+        protected override void OnLoad(EventArgs e)
         {
-            base.OnShown(e);
+            base.OnLoad(e);
             Parent_Move(null!, null!);
         }
 
