@@ -1,9 +1,5 @@
 name: Netch CI
-on:
-  push:
-    branches-ignore:
-    - dependabot**
-  pull_request:
+on: [push, pull_request]
 jobs:
   build:
     name: Build
