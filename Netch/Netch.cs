@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms;
 using Netch.Utils;
+using Vanara.PInvoke;
+using static Vanara.PInvoke.User32;
 
 namespace Netch
 {
@@ -42,7 +46,7 @@ namespace Netch
             // 检查是否已经运行
             if (!Global.Mutex.WaitOne(0, false))
             {
-                // TODO Active previous instance Form
+                ShowOpened();
 
                 // 退出进程
                 Environment.Exit(1);
@@ -85,6 +89,56 @@ namespace Netch
         {
             Logging.Error(e.Exception.ToString());
             Utils.Utils.Open(Logging.LogFile);
+        }
+
+        private static void ShowOpened()
+        {
+            HWND GetWindowHandleByPidAndTitle(int process, string title)
+            {
+                var sb = new StringBuilder(256);
+                HWND pLast = IntPtr.Zero;
+                do
+                {
+                    pLast = FindWindowEx(HWND.NULL, pLast, null, null);
+                    GetWindowThreadProcessId(pLast, out var id);
+                    if (id != process)
+                        continue;
+
+                    if (GetWindowText(pLast, sb, sb.Capacity) <= 0)
+                        continue;
+
+                    if (sb.ToString().Equals(title))
+                        return pLast;
+                } while (pLast != IntPtr.Zero);
+
+                return HWND.NULL;
+            }
+
+            var self = Process.GetCurrentProcess();
+            var activeProcess = Process.GetProcessesByName("Netch").Single(p => p.Id != self.Id);
+            HWND handle = activeProcess.MainWindowHandle;
+            if (handle.IsNull)
+                handle = GetWindowHandleByPidAndTitle(activeProcess.Id, "Netch");
+
+            if (handle.IsNull)
+                return;
+
+            ShowWindow(handle, ShowWindowCommand.SW_RESTORE);
+            SetWindowPos(handle,
+                HWND.HWND_TOPMOST,
+                0,
+                0,
+                0,
+                0,
+                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
+
+            SetWindowPos(handle,
+                HWND.HWND_NOTOPMOST,
+                0,
+                0,
+                0,
+                0,
+                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
         }
     }
 }
