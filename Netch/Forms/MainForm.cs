@@ -104,10 +104,6 @@ namespace Netch.Forms
             // 加载快速配置
             LoadProfiles();
 
-            // 打开软件时启动加速，产生开始按钮点击事件
-            if (Global.Settings.StartWhenOpened)
-                ControlButton_Click(null, null);
-
             Task.Run(() =>
             {
                 // 检查更新
@@ -115,11 +111,15 @@ namespace Netch.Forms
                     CheckUpdate();
             });
 
-            Task.Run(async () =>
+            Task.Run(() =>
             {
                 // 检查订阅更新
                 if (Global.Settings.UpdateServersWhenOpened)
-                    await UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription);
+                    UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription).Wait();
+
+                // 打开软件时启动加速，产生开始按钮点击事件
+                if (Global.Settings.StartWhenOpened)
+                    ControlButton_Click(null, null);
             });
         }
 
