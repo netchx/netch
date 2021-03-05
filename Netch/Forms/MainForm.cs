@@ -343,7 +343,7 @@ namespace Netch.Forms
                         Type = 5
                     };
 
-                    await MainController.Start(server!, mode);
+                    await MainController.StartAsync(server!, mode);
                     proxyServer = $"http://127.0.0.1:{Global.Settings.HTTPLocalPort}";
                 }
 
@@ -361,14 +361,7 @@ namespace Netch.Forms
             finally
             {
                 if (useProxy)
-                    try
-                    {
-                        await MainController.Stop();
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    await MainController.StopAsync();
 
                 DisableItems(true);
             }
@@ -464,7 +457,7 @@ namespace Netch.Forms
                             Type = 5
                         };
 
-                        await MainController.Start(server, mode);
+                        await MainController.StartAsync(server, mode);
                     }
                 }
 
@@ -483,7 +476,7 @@ namespace Netch.Forms
             finally
             {
                 if (useProxy)
-                    await MainController.Stop();
+                    await MainController.StopAsync();
 
                 StatusText();
                 Enabled = true;
@@ -639,7 +632,7 @@ namespace Netch.Forms
             {
                 // 停止
                 State = State.Stopping;
-                await MainController.Stop();
+                await MainController.StopAsync();
                 State = State.Stopped;
                 return;
             }
@@ -666,7 +659,7 @@ namespace Netch.Forms
 
             try
             {
-                await MainController.Start(server, mode);
+                await MainController.StartAsync(server, mode);
             }
             catch (Exception exception)
             {
@@ -1407,7 +1400,7 @@ namespace Netch.Forms
                     File.Delete(file);
 
             if (!IsWaiting())
-                await MainController.Stop();
+                await MainController.StopAsync();
 
             Dispose();
             Environment.Exit(Environment.ExitCode);

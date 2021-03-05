@@ -49,7 +49,12 @@ namespace Netch.Controllers
         /// <param name="mode">模式</param>
         /// <returns>是否启动成功</returns>
         /// <exception cref="MessageException"></exception>
-        public static async Task Start(Server server, Mode mode)
+        public static async Task StartAsync(Server server, Mode mode)
+        {
+            await Task.Run(() => Start(server, mode));
+        }
+
+        public static void Start(Server server, Mode mode)
         {
             Logging.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
             Server = server;
@@ -71,23 +76,15 @@ namespace Netch.Controllers
             {
                 if (!ModeHelper.SkipServerController(server, mode))
                 {
-                    await Task.Run(() => StartServer(server, mode, out _serverController));
-
+                    StartServer(server, mode, out _serverController);
                     StatusPortInfoText.UpdateShareLan();
                 }
 
-                await Task.Run(() => StartMode(mode));
+                StartMode(mode);
             }
             catch (Exception e)
             {
-                try
-                {
-                    await Stop();
-                }
-                catch
-                {
-                    // ignored
-                }
+                StopAsync().Wait();
 
                 switch (e)
                 {
@@ -154,7 +151,7 @@ namespace Netch.Controllers
         /// <summary>
         ///     停止
         /// </summary>
-        public static async Task Stop()
+        public static async Task StopAsync()
         {
             if (_serverController == null && ModeController == null)
                 return;
@@ -169,7 +166,16 @@ namespace Netch.Controllers
                 Task.Run(() => ModeController?.Stop())
             };
 
-            await Task.WhenAll(tasks);
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch (Exception e)
+            {
+                Logging.Error(e.ToString());
+                Utils.Utils.Open(Logging.LogFile);
+            }
+
             ModeController = null;
             ServerController = null;
         }
