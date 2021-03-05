@@ -84,7 +84,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                StopAsync().Wait();
+                Stop();
 
                 switch (e)
                 {
@@ -148,10 +148,15 @@ namespace Netch.Controllers
                 Global.Job.AddProcess(guard.Instance!);
         }
 
+        public static async Task StopAsync()
+        {
+            await Task.Run(Stop);
+        }
+
         /// <summary>
         ///     停止
         /// </summary>
-        public static async Task StopAsync()
+        public static void Stop()
         {
             if (_serverController == null && ModeController == null)
                 return;
@@ -168,7 +173,7 @@ namespace Netch.Controllers
 
             try
             {
-                await Task.WhenAll(tasks);
+                Task.WaitAll(tasks);
             }
             catch (Exception e)
             {
