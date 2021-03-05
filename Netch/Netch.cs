@@ -123,22 +123,8 @@ namespace Netch
             if (handle.IsNull)
                 return;
 
-            ShowWindow(handle, ShowWindowCommand.SW_RESTORE);
-            SetWindowPos(handle,
-                HWND.HWND_TOPMOST,
-                0,
-                0,
-                0,
-                0,
-                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
-
-            SetWindowPos(handle,
-                HWND.HWND_NOTOPMOST,
-                0,
-                0,
-                0,
-                0,
-                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
+            ShowWindow(handle, ShowWindowCommand.SW_NORMAL);
+            SwitchToThisWindow(handle, true);
         }
     }
 }
