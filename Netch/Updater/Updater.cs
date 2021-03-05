@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Properties;
 using Netch.Utils;
@@ -121,40 +120,47 @@ namespace Netch.Updater
                 }
         }
 
-        public static async Task DownloadAndUpdate(string downloadPath,
+        public static void DownloadAndUpdate(string downloadPath,
             string targetPath,
-            DownloadProgressChangedEventHandler onDownloadProgressChanged)
+            DownloadProgressChangedEventHandler onDownloadProgressChanged,
+            string? keyword = null)
         {
-            var keyword = (string?) null;
-
             if (!UpdateChecker.GetFileNameAndHashFromMarkdownForm(UpdateChecker.LatestRelease.body, out var fileName, out var sha256, keyword))
-                throw new Exception(i18N.Translate("parse release note failed"));
+                throw new MessageException(i18N.Translate("parse release note failed"));
 
             var fileFullPath = Path.Combine(downloadPath, fileName);
             var updater = new Updater(fileFullPath, targetPath);
 
-            if (!(File.Exists(fileFullPath) && Utils.Utils.SHA256CheckSum(fileFullPath) == sha256))
+            if (File.Exists(fileFullPath))
             {
-                using WebClient client = new();
-                try
+                if (Utils.Utils.SHA256CheckSum(fileFullPath) == sha256)
                 {
-                    client.DownloadProgressChanged += onDownloadProgressChanged;
-                    await client.DownloadFileTaskAsync(new Uri(UpdateChecker.LatestRelease.assets[0].browser_download_url), fileFullPath);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(i18N.Translate("Download Update Failed", ": ") + e.Message);
-                }
-                finally
-                {
-                    client.DownloadProgressChanged -= onDownloadProgressChanged;
+                    updater.ApplyUpdate();
+                    return;
                 }
 
-                if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
-                    throw new Exception(i18N.Translate("The downloaded file has the wrong hash"));
+                File.Delete(fileFullPath);
             }
 
+            DownloadUpdate(onDownloadProgressChanged, fileFullPath, sha256);
             updater.ApplyUpdate();
+        }
+
+        private static void DownloadUpdate(DownloadProgressChangedEventHandler onDownloadProgressChanged, string fileFullPath, string sha256)
+        {
+            using WebClient client = new();
+            try
+            {
+                client.DownloadProgressChanged += onDownloadProgressChanged;
+                client.DownloadFile(new Uri(UpdateChecker.LatestRelease.assets[0].browser_download_url), fileFullPath);
+            }
+            finally
+            {
+                client.DownloadProgressChanged -= onDownloadProgressChanged;
+            }
+
+            if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
+                throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
         }
     }
 }

@@ -384,19 +384,25 @@ namespace Netch.Forms
             {
                 void OnNewVersionNotFound(object o, EventArgs args)
                 {
-                    UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
                     NotifyTip(i18N.Translate("Already latest version"));
                 }
 
                 void OnNewVersionFoundFailed(object o, EventArgs args)
                 {
-                    UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
                     NotifyTip(i18N.Translate("New version found failed"), info: false);
                 }
 
-                UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
-                UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
-                CheckUpdate();
+                try
+                {
+                    UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
+                    UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
+                    CheckUpdate();
+                }
+                finally
+                {
+                    UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
+                    UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
+                }
             });
         }
 
@@ -568,6 +574,47 @@ namespace Netch.Forms
         private void VersionLabel_Click(object sender, EventArgs e)
         {
             Utils.Utils.Open($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
+        }
+
+        private async void NewVersionLabel_Click(object sender, EventArgs e)
+        {
+            if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
+            {
+                Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
+                return;
+            }
+
+            if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
+                return;
+
+            NotifyTip(i18N.Translate("Start downloading new version"));
+            NewVersionLabel.Enabled = false;
+            NewVersionLabel.Text = "...";
+
+            try
+            {
+                await Task.Run(() =>
+                {
+                    Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
+                        Global.NetchDir,
+                        (_, args) => BeginInvoke(new Action(() => NewVersionLabel.Text = $"{args.ProgressPercentage}%")));
+                });
+            }
+            catch (Exception exception)
+            {
+                if (exception is not MessageException)
+                {
+                    Logging.Error($"更新失败: {exception}");
+                    Utils.Utils.Open(Logging.LogFile);
+                }
+
+                NotifyTip(exception.Message, info: false);
+            }
+            finally
+            {
+                NewVersionLabel.Visible = false;
+                NewVersionLabel.Enabled = true;
+            }
         }
 
         private void AboutToolStripButton_Click(object sender, EventArgs e)
@@ -1392,43 +1439,22 @@ namespace Netch.Forms
 
         private void CheckUpdate()
         {
-            UpdateChecker.NewVersionFound += (_, _) =>
-            {
-                NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
-                NewVersionLabel.Visible = true;
-            };
-
-            UpdateChecker.Check(Global.Settings.CheckBetaUpdate).Wait();
-        }
-
-        private async void NewVersionLabel_Click(object sender, EventArgs e)
-        {
-            if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
-            {
-                Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
-                return;
-            }
-
-            if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
-                return;
-
-            NotifyTip(i18N.Translate("Start downloading new version"));
-
-            NewVersionLabel.Enabled = false;
-            NewVersionLabel.Text = "...";
             try
             {
-                void OnDownloadProgressChanged(object o1, DownloadProgressChangedEventArgs args)
-                {
-                    BeginInvoke(new Action(() => { NewVersionLabel.Text = $"{args.ProgressPercentage}%"; }));
-                }
-
-                await Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"), Global.NetchDir, OnDownloadProgressChanged);
+                UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
+                UpdateChecker.Check(Global.Settings.CheckBetaUpdate).Wait();
             }
-            catch (Exception exception)
+            finally
             {
-                Logging.Error(exception.Message);
-                NotifyTip(exception.Message);
+                UpdateChecker.NewVersionFound -= OnUpdateCheckerOnNewVersionFound;
+            }
+
+            void OnUpdateCheckerOnNewVersionFound(object o, EventArgs eventArgs)
+            {
+                NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
+                NewVersionLabel.Text = i18N.Translate("New version available");
+                NewVersionLabel.Enabled = true;
+                NewVersionLabel.Visible = true;
             }
         }
 
