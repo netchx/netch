@@ -273,11 +273,6 @@ namespace Netch.Models
         public TUNTAPConfig TUNTAP { get; set; } = new();
 
         /// <summary>
-        ///     UDP Socket 占用端口
-        /// </summary>
-        public ushort UDPSocketPort { get; set; } = 18291;
-
-        /// <summary>
         ///     是否打开软件时更新订阅
         /// </summary>
         public bool UpdateServersWhenOpened { get; set; } = false;

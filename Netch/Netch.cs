@@ -42,8 +42,7 @@ namespace Netch
             // 检查是否已经运行
             if (!Global.Mutex.WaitOne(0, false))
             {
-                OnlyInstance.Send(OnlyInstance.Commands.Show);
-                Logging.Info("唤起单实例");
+                // TODO Active previous instance Form
 
                 // 退出进程
                 Environment.Exit(1);
@@ -72,11 +71,6 @@ namespace Netch
 
             Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
             Task.Run(() => { Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
-            Task.Run(() =>
-            {
-                Logging.Info("启动单实例");
-                OnlyInstance.Server();
-            });
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

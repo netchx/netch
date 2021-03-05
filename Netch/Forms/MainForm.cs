@@ -85,8 +85,6 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            OnlyInstance.Called += OnCalled;
-
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
@@ -1366,21 +1364,6 @@ namespace Netch.Forms
 
             Dispose();
             Environment.Exit(Environment.ExitCode);
-        }
-
-        private void OnCalled(object sender, OnlyInstance.Commands e)
-        {
-            switch (e)
-            {
-                case OnlyInstance.Commands.Show:
-                    NotifyIcon_MouseDoubleClick(null, null);
-                    break;
-                case OnlyInstance.Commands.Exit:
-                    Exit(true);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(e), e, null);
-            }
         }
 
         #region FormClosingButton
