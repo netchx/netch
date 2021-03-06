@@ -109,11 +109,17 @@ namespace Netch.Forms
 
             #region Process Mode
 
-            BindCheckBox(ModifySystemDNSCheckBox, b => Global.Settings.ModifySystemDNS = b, Global.Settings.ModifySystemDNS);
+            BindCheckBox(DNSRedirectorCheckBox, b => Global.Settings.RedirectDNS = b, Global.Settings.RedirectDNS);
 
-            BindTextBox(ModifiedDNSTextBox, s => DnsUtils.TrySplit(s, out _, 2), s => Global.Settings.ModifiedDNS = s, Global.Settings.ModifiedDNS);
+            BindTextBox(ModifiedDNSTextBox, s => DnsUtils.TrySplit(s, out _, 2), s => Global.Settings.RedirectDNSAddr = s, Global.Settings.RedirectDNSAddr);
+
+            BindCheckBox(ICMPRedirectorCheckBox, b => Global.Settings.RedirectICMP = b, Global.Settings.RedirectICMP);
+
+            BindTextBox(ModifiedICMPTextBox, s => DnsUtils.TrySplit(s, out _, 2), s => Global.Settings.RedirectICMPAddr = s, Global.Settings.RedirectICMPAddr);
 
             BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
+
+            BindCheckBox(ChildProcessHandleCheckBox, s => Global.Settings.ChildProcessHandle = s, Global.Settings.ChildProcessHandle);
 
             BindListComboBox(ProcessProxyProtocolComboBox,
                 s => Global.Settings.ProcessProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
