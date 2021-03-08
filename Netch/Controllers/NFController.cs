@@ -26,15 +26,11 @@ namespace Netch.Controllers
             switch ($"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor}")
             {
                 case "10.0":
-                    fileName = "Win-10.sys";
-                    break;
                 case "6.3":
                 case "6.2":
-                    fileName = "Win-8.sys";
-                    break;
                 case "6.1":
                 case "6.0":
-                    fileName = "Win-7.sys";
+                    fileName = "nfdriver.sys";
                     break;
                 default:
                     throw new MessageException($"不支持的系统版本：{Environment.OSVersion.Version}");
