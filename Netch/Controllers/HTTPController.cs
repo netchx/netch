@@ -38,7 +38,7 @@ namespace Netch.Controllers
                     Global.Settings.Pac_Port = PortHelper.GetAvailablePort();
                 }
 
-                pacUrl = PACServerHandle.InitPACServer("127.0.0.1");
+                pacUrl = PACServerHandle.InitPACServer();
             }
 
             if (mode.Type is 3)
@@ -76,7 +76,22 @@ namespace Netch.Controllers
                     if (_oldState != null)
                     {
                         using var service = new ProxyService();
-                        service.Set(_oldState!);
+                        try
+                        {
+                            if (_oldState.IsProxy && _oldState.ProxyServer == service.Query().ProxyServer ||
+                                _oldState.IsAutoProxyUrl && _oldState.AutoConfigUrl!.StartsWith(PACServerHandle.PacPrefix))
+                            {
+                                service.Direct();
+                                return;
+                            }
+
+                            service.Set(_oldState);
+                        }
+                        catch
+                        {
+                            service.Direct();
+                            throw;
+                        }
                     }
                 })
             };

@@ -14,15 +14,15 @@ namespace Netch.Utils.HttpProxyHandler
     {
         private static HttpWebServer? _httpWebServer;
         private static string? _pacContent;
+        public static readonly string PacPrefix= $"http://127.0.0.1:{Global.Settings.Pac_Port}/pac/";
 
-        public static string InitPACServer(string address)
+        public static string InitPACServer()
         {
             try
             {
-                _pacContent = GetPacList(address);
-                var prefixes = $"http://{address}:{Global.Settings.Pac_Port}/pac/";
+                _pacContent = GetPacList("127.0.0.1");
 
-                _httpWebServer = new HttpWebServer(SendResponse, prefixes);
+                _httpWebServer = new HttpWebServer(SendResponse, PacPrefix);
                 Task.Run(() => _httpWebServer.StartWaitingRequest());
 
                 var pacUrl = GetPacUrl();
@@ -77,7 +77,7 @@ namespace Netch.Utils.HttpProxyHandler
         /// <returns></returns>
         public static string GetPacUrl()
         {
-            return $"http://127.0.0.1:{Global.Settings.Pac_Port}/pac/?t={DateTime.Now:yyyyMMddHHmmssfff}";
+            return PacPrefix + $"?t={DateTime.Now:yyyyMMddHHmmssfff}";
         }
     }
 }
