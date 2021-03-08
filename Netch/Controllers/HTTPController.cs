@@ -76,22 +76,14 @@ namespace Netch.Controllers
                     if (_oldState != null)
                     {
                         using var service = new ProxyService();
-                        try
-                        {
-                            if (_oldState.IsProxy && _oldState.ProxyServer == service.Query().ProxyServer ||
-                                _oldState.IsAutoProxyUrl && _oldState.AutoConfigUrl!.StartsWith(PACServerHandle.PacPrefix))
-                            {
-                                service.Direct();
-                                return;
-                            }
-
-                            service.Set(_oldState);
-                        }
-                        catch
+                        if (_oldState.IsProxy && _oldState.ProxyServer == service.Query().ProxyServer ||
+                            _oldState.IsAutoProxyUrl && _oldState.AutoConfigUrl!.StartsWith(PACServerHandle.PacPrefix))
                         {
                             service.Direct();
-                            throw;
+                            return;
                         }
+
+                        service.Set(_oldState);
                     }
                 })
             };
