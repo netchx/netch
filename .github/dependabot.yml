@@ -26,8 +26,7 @@ updates:
   - package-ecosystem: "gitsubmodule"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "daily"
       time: "07:15"
       timezone: "Asia/Shanghai"
     labels:
