@@ -103,11 +103,6 @@ namespace Netch.Models
         public AioDNSConfig AioDNS { get; set; } = new();
 
         /// <summary>
-        ///     是否使用DLL启动Shadowsocks
-        /// </summary>
-        public bool BootShadowsocksFromDLL { get; set; } = true;
-
-        /// <summary>
         ///     全局绕过 IP 列表
         /// </summary>
         public List<string> BypassIPs { get; set; } = new();

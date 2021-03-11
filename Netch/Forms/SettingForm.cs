@@ -44,7 +44,6 @@ namespace Netch.Forms
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
                 Global.Settings.LocalAddress switch {"127.0.0.1" => false, "0.0.0.0" => true, _ => false});
 
-            BindCheckBox(BootShadowsocksFromDLLCheckBox, c => Global.Settings.BootShadowsocksFromDLL = c, Global.Settings.BootShadowsocksFromDLL);
             BindCheckBox(ResolveServerHostnameCheckBox, c => Global.Settings.ResolveServerHostname = c, Global.Settings.ResolveServerHostname);
 
             BindRadioBox(ICMPingRadioBtn, _ => { }, !Global.Settings.ServerTCPing);

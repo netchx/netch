@@ -57,9 +57,6 @@ namespace Netch.Utils
             {
                 case null:
                     break;
-                case SSController {DllFlag: true}:
-                    instances.Add(Process.GetCurrentProcess());
-                    break;
                 case Guard instanceController:
                     if (instanceController.Instance != null)
                         instances.Add(instanceController.Instance);

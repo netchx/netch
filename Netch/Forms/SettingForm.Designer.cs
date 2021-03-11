@@ -44,7 +44,6 @@ namespace Netch.Forms
             this.RedirectorLabel = new System.Windows.Forms.Label();
             this.RedirectorTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
-            this.BootShadowsocksFromDLLCheckBox = new System.Windows.Forms.CheckBox();
             this.ResolveServerHostnameCheckBox = new System.Windows.Forms.CheckBox();
             this.ProfileCountLabel = new System.Windows.Forms.Label();
             this.ProfileCountTextBox = new System.Windows.Forms.TextBox();
@@ -156,7 +155,6 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.TCPingRadioBtn);
             this.GeneralTabPage.Controls.Add(this.ICMPingRadioBtn);
             this.GeneralTabPage.Controls.Add(this.PortGroupBox);
-            this.GeneralTabPage.Controls.Add(this.BootShadowsocksFromDLLCheckBox);
             this.GeneralTabPage.Controls.Add(this.ResolveServerHostnameCheckBox);
             this.GeneralTabPage.Controls.Add(this.ProfileCountLabel);
             this.GeneralTabPage.Controls.Add(this.ProfileCountTextBox);
@@ -180,7 +178,7 @@ namespace Netch.Forms
             // ServerPingTypeLabel
             // 
             this.ServerPingTypeLabel.AutoSize = true;
-            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 66);
+            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 44);
             this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
             this.ServerPingTypeLabel.Size = new System.Drawing.Size(89, 12);
             this.ServerPingTypeLabel.TabIndex = 16;
@@ -189,7 +187,7 @@ namespace Netch.Forms
             // TCPingRadioBtn
             // 
             this.TCPingRadioBtn.AutoSize = true;
-            this.TCPingRadioBtn.Location = new System.Drawing.Point(332, 85);
+            this.TCPingRadioBtn.Location = new System.Drawing.Point(332, 63);
             this.TCPingRadioBtn.Name = "TCPingRadioBtn";
             this.TCPingRadioBtn.Size = new System.Drawing.Size(59, 16);
             this.TCPingRadioBtn.TabIndex = 15;
@@ -200,7 +198,7 @@ namespace Netch.Forms
             // ICMPingRadioBtn
             // 
             this.ICMPingRadioBtn.AutoSize = true;
-            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 85);
+            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 63);
             this.ICMPingRadioBtn.Name = "ICMPingRadioBtn";
             this.ICMPingRadioBtn.Size = new System.Drawing.Size(65, 16);
             this.ICMPingRadioBtn.TabIndex = 14;
@@ -286,20 +284,10 @@ namespace Netch.Forms
             this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.AllowDevicesCheckBox.UseVisualStyleBackColor = true;
             // 
-            // BootShadowsocksFromDLLCheckBox
-            // 
-            this.BootShadowsocksFromDLLCheckBox.AutoSize = true;
-            this.BootShadowsocksFromDLLCheckBox.Location = new System.Drawing.Point(267, 15);
-            this.BootShadowsocksFromDLLCheckBox.Name = "BootShadowsocksFromDLLCheckBox";
-            this.BootShadowsocksFromDLLCheckBox.Size = new System.Drawing.Size(60, 16);
-            this.BootShadowsocksFromDLLCheckBox.TabIndex = 1;
-            this.BootShadowsocksFromDLLCheckBox.Text = "SS DLL";
-            this.BootShadowsocksFromDLLCheckBox.UseVisualStyleBackColor = true;
-            // 
             // ResolveServerHostnameCheckBox
             // 
             this.ResolveServerHostnameCheckBox.AutoSize = true;
-            this.ResolveServerHostnameCheckBox.Location = new System.Drawing.Point(267, 37);
+            this.ResolveServerHostnameCheckBox.Location = new System.Drawing.Point(267, 15);
             this.ResolveServerHostnameCheckBox.Name = "ResolveServerHostnameCheckBox";
             this.ResolveServerHostnameCheckBox.Size = new System.Drawing.Size(162, 16);
             this.ResolveServerHostnameCheckBox.TabIndex = 2;
@@ -1106,7 +1094,6 @@ namespace Netch.Forms
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
         private System.Windows.Forms.CheckBox ResolveServerHostnameCheckBox;
-        private System.Windows.Forms.CheckBox BootShadowsocksFromDLLCheckBox;
         private System.Windows.Forms.GroupBox TUNTAPGroupBox;
         private System.Windows.Forms.CheckBox UseFakeDNSCheckBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
