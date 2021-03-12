@@ -665,7 +665,7 @@ namespace Netch.Forms
             {
                 State = State.Stopped;
                 StatusText(i18N.Translate("Start failed"));
-                MessageBoxX.Show(exception.Message);
+                MessageBoxX.Show(exception.Message, LogLevel.ERROR);
                 return;
             }
 
