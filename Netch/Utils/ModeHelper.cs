@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Netch.Controllers;
@@ -12,6 +11,7 @@ namespace Netch.Utils
     public static class ModeHelper
     {
         private const string MODE_DIR = "mode";
+        public const string DISABLE_MODE_DIRECTORY_FILENAME = "disabled";
 
         public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
 
@@ -25,44 +25,35 @@ namespace Netch.Utils
             return Path.Combine(ModeDirectory, relativeName);
         }
 
-        public static string GetFullPath(Mode mode)
-        {
-            return Path.Combine(ModeDirectory, mode.RelativePath);
-        }
-
         /// <summary>
-        ///     从模式文件夹读取模式并为 <see cref="Forms.MainForm.ModeComboBox" /> 绑定数据
+        ///     从模式文件夹读取模式
         /// </summary>
         public static void Load()
         {
             Global.Modes.Clear();
-
-            if (!Directory.Exists(MODE_DIR))
-                return;
-
-            var stack = new Stack<string>();
-            stack.Push(MODE_DIR);
-            while (stack.Count > 0)
-            {
-                var dirInfo = new DirectoryInfo(stack.Pop());
-                try
-                {
-                    foreach (var childDirInfo in dirInfo.GetDirectories())
-                        stack.Push(childDirInfo.FullName);
-
-                    if (File.Exists(Path.Combine(dirInfo.FullName, "disabled")))
-                        continue;
-
-                    foreach (var childFileInfo in dirInfo.GetFiles().Where(info => info.Name.EndsWith(".txt")))
-                        LoadModeFile(childFileInfo.FullName);
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
+            LoadModeDirectory(ModeDirectory);
 
             Sort();
+        }
+
+        private static void LoadModeDirectory(string modeDirectory)
+        {
+            try
+            {
+                foreach (var directory in Directory.GetDirectories(modeDirectory))
+                    LoadModeDirectory(directory);
+
+                // skip Directory with a disabled file in
+                if (File.Exists(Path.Combine(modeDirectory, DISABLE_MODE_DIRECTORY_FILENAME)))
+                    return;
+
+                foreach (var file in Directory.GetFiles(modeDirectory).Where(f => f.EndsWith(".txt")))
+                    LoadModeFile(file);
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private static void LoadModeFile(string fullName)
@@ -122,9 +113,11 @@ namespace Netch.Utils
 
         public static void Delete(Mode mode)
         {
-            var fullName = GetFullPath(mode);
-            if (File.Exists(fullName))
-                File.Delete(fullName);
+            if (mode.FullName == null)
+                throw new ArgumentException("FullName");
+
+            if (File.Exists(mode.FullName))
+                File.Delete(mode.FullName);
 
             Global.Modes.Remove(mode);
             Global.MainForm.LoadModes();

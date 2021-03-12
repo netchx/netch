@@ -129,7 +129,7 @@ namespace Netch.Updater
                 if (extendedKeepFolders.Any(p => file.StartsWith(p)))
                     continue;
 
-                if (Path.GetFileName(file) is "disabled")
+                if (Path.GetFileName(file) is ModeHelper.DISABLE_MODE_DIRECTORY_FILENAME)
                     continue;
 
                 removedFiles.Add(file);
