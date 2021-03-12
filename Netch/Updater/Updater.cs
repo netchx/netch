@@ -17,54 +17,38 @@ namespace Netch.Updater
         #region Download Update and apply update
 
         /// <summary>
-        ///     Download Update and apply update
+        ///     Download Update and apply update (all arguments are FullPath)
         /// </summary>
-        /// <param name="downloadFolder"></param>
-        /// <param name="installFolder"></param>
+        /// <param name="downloadDirectory"></param>
+        /// <param name="installDirectory"></param>
         /// <param name="onDownloadProgressChanged"></param>
         /// <param name="keyword"></param>
         /// <exception cref="MessageException"></exception>
-        public static void DownloadAndUpdate(string downloadFolder,
-            string installFolder,
+        public static void DownloadAndUpdate(string downloadDirectory,
+            string installDirectory,
             DownloadProgressChangedEventHandler onDownloadProgressChanged,
             string? keyword = null)
         {
             UpdateChecker.GetLatestUpdateFileNameAndHash(out var updateFileName, out var sha256, keyword);
 
-            var updateFileFullName = Path.Combine(downloadFolder, updateFileName);
-            var updater = new Updater(updateFileFullName, installFolder);
+            // update file Full Path
+            var updateFile = Path.Combine(downloadDirectory, updateFileName);
+            var updater = new Updater(updateFile, installDirectory);
 
-            if (File.Exists(updateFileFullName))
+            if (File.Exists(updateFile))
             {
-                if (Utils.Utils.SHA256CheckSum(updateFileFullName) == sha256)
+                if (Utils.Utils.SHA256CheckSum(updateFile) == sha256)
                 {
                     updater.ApplyUpdate();
                     return;
                 }
 
-                File.Delete(updateFileFullName);
+                File.Delete(updateFile);
             }
 
-            DownloadUpdate(onDownloadProgressChanged, updateFileFullName, sha256);
+            DownloadUpdateFile(onDownloadProgressChanged, updateFile, sha256);
             updater.ApplyUpdate();
         }
-
-        #endregion
-
-        private readonly string _installFolder;
-        private readonly string _tempFolder;
-        private readonly string _updateFile;
-
-        private Updater(string updateFile, string installFolder)
-        {
-            _installFolder = installFolder;
-            _tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(_tempFolder);
-
-            _updateFile = Path.GetFullPath(updateFile);
-        }
-
-        #region Download Update
 
         /// <summary>
         ///     Download Update File
@@ -73,7 +57,7 @@ namespace Netch.Updater
         /// <param name="fileFullPath"></param>
         /// <param name="sha256"></param>
         /// <exception cref="MessageException"></exception>
-        private static void DownloadUpdate(DownloadProgressChangedEventHandler onDownloadProgressChanged, string fileFullPath, string sha256)
+        private static void DownloadUpdateFile(DownloadProgressChangedEventHandler onDownloadProgressChanged, string fileFullPath, string sha256)
         {
             using WebClient client = new();
             try
@@ -92,14 +76,27 @@ namespace Netch.Updater
 
         #endregion
 
+        private readonly string _updateFile;
+        private readonly string _installDirectory;
+        private readonly string _tempDirectory;
+
+        private Updater(string updateFile, string installDirectory)
+        {
+            _updateFile = updateFile;
+            _installDirectory = installDirectory;
+            _tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+            Directory.CreateDirectory(_tempDirectory);
+        }
+
         #region Apply Update
 
-        private static readonly ImmutableArray<string> KeepFolders = new List<string> {"data", "mode\\Custom"}.ToImmutableArray();
+        private static readonly ImmutableArray<string> KeepDirectories = new List<string> {"data", "mode\\Custom"}.ToImmutableArray();
 
         private void ApplyUpdate()
         {
-            // extract Update file to {tempFolder}\extract
-            var extractPath = Path.Combine(_tempFolder, "extract");
+            // extract Update file to {tempDirectory}\extract
+            var extractPath = Path.Combine(_tempDirectory, "extract");
             int exitCode;
             if ((exitCode = Extract(extractPath, true)) != 0)
                 throw new Exception(i18N.Translate($"7za exit with code {exitCode}"));
@@ -107,8 +104,8 @@ namespace Netch.Updater
             // rename install directory files with .old suffix unless in keep folders
             MarkFilesOld();
 
-            // move {tempFolder}\extract\Netch to install folder
-            MoveAllFilesOver(Path.Combine(extractPath, "Netch"), _installFolder);
+            // move {tempDirectory}\extract\Netch to install folder
+            MoveAllFilesOver(Path.Combine(extractPath, "Netch"), _installDirectory);
 
             // save, release mutex, then exit
             Configuration.Save();
@@ -119,40 +116,31 @@ namespace Netch.Updater
 
         private void MarkFilesOld()
         {
-            // extend keepFolders relative path to fullpath
-            var extendedKeepFolders = KeepFolders.Select(d => Path.Combine(_installFolder, d)).ToImmutableArray();
+            // extend keepDirectories relative path to absolute path
+            var extendedKeepDirectories = KeepDirectories.Select(d => Path.Combine(_installDirectory, d)).ToImmutableArray();
 
             // weed out keep files
-            List<string> removedFiles = new();
-            foreach (var file in Directory.GetFiles(_installFolder, "*", SearchOption.AllDirectories))
+            List<string> filesToDelete = new();
+            foreach (var file in Directory.GetFiles(_installDirectory, "*", SearchOption.AllDirectories))
             {
-                if (extendedKeepFolders.Any(p => file.StartsWith(p)))
+                if (extendedKeepDirectories.Any(p => file.StartsWith(p)))
                     continue;
 
                 if (Path.GetFileName(file) is ModeHelper.DISABLE_MODE_DIRECTORY_FILENAME)
                     continue;
 
-                removedFiles.Add(file);
+                filesToDelete.Add(file);
             }
 
             // rename files
-            foreach (var file in removedFiles)
-            {
-                try
-                {
-                    File.Move(file, file + ".old");
-                }
-                catch
-                {
-                    throw new Exception("Updater wasn't able to rename file: " + file);
-                }
-            }
+            foreach (var file in filesToDelete)
+                File.Move(file, file + ".old");
         }
 
         private int Extract(string destDirName, bool overwrite)
         {
-            // release 7za.exe to {tempFolder}\7za.exe
-            var temp7za = Path.Combine(_tempFolder, "7za.exe");
+            // release 7za.exe to {tempDirectory}\7za.exe
+            var temp7za = Path.Combine(_tempDirectory, "7za.exe");
 
             if (!File.Exists(temp7za))
                 File.WriteAllBytes(temp7za, Resources._7za);
