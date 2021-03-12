@@ -50,6 +50,9 @@ namespace Netch.Utils
                     foreach (var childDirInfo in dirInfo.GetDirectories())
                         stack.Push(childDirInfo.FullName);
 
+                    if (File.Exists(Path.Combine(dirInfo.FullName, "disabled")))
+                        continue;
+
                     foreach (var childFileInfo in dirInfo.GetFiles().Where(info => info.Name.EndsWith(".txt")))
                         LoadModeFile(childFileInfo.FullName);
                 }
