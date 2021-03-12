@@ -30,7 +30,9 @@ namespace Netch
         /// </summary>
         private static readonly Lazy<MainForm> LazyMainForm = new(() => new MainForm());
 
-        public static readonly Mutex Mutex = new(false, "Global\\Netch");
+        private static readonly Lazy<Mutex> LazyMutex = new(() => new Mutex(false, "Global\\Netch"));
+
+        public static Mutex Mutex => LazyMutex.Value;
 
 #if DEBUG
         public static bool Testing = false;

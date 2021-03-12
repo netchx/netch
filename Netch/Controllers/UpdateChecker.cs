@@ -69,31 +69,25 @@ namespace Netch.Controllers
             }
         }
 
-        public static bool GetFileNameAndHashFromMarkdownForm(in string text, out string fileName, out string sha256, string? keyword = null)
+        public static void GetLatestUpdateFileNameAndHash(out string fileName, out string sha256, string? keyword = null)
         {
-            IEnumerable<Match> matches;
-            try
-            {
-                matches = Regex.Matches(text, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline).Cast<Match>().Skip(2);
-            }
-            catch (Exception e)
-            {
-                Logging.Error(e.ToString());
-                throw new Exception(i18N.Translate("Find update filename and hash failed"));
-            }
+            fileName = string.Empty;
+            sha256 = string.Empty;
+
+            var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline)
+                .Cast<Match>()
+                .Skip(2);
+            /*
+              Skip(2)
+              
+              | 文件名 | SHA256 |
+              | :- | :- |
+           */
 
             Match match = keyword == null ? matches.First() : matches.First(m => m.Groups["filename"].Value.Contains(keyword));
 
-            if (match != null)
-            {
-                fileName = match.Groups["filename"].Value;
-                sha256 = match.Groups["sha256"].Value;
-                return true;
-            }
-
-            fileName = string.Empty;
-            sha256 = string.Empty;
-            return false;
+            fileName = match.Groups["filename"].Value;
+            sha256 = match.Groups["sha256"].Value;
         }
     }
 }
