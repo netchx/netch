@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Properties;
 using Netch.Utils;
@@ -44,8 +43,6 @@ namespace Netch.Forms.Mode
             comboBox1.DataSource = _items;
             comboBox1.ValueMember = "Value";
             comboBox1.DisplayMember = "Text";
-
-            i18N.TranslateForm(this);
         }
 
         private void Route_Load(object sender, EventArgs e)
@@ -55,13 +52,13 @@ namespace Netch.Forms.Mode
                 Text = "Edit Route Table Rule";
 
                 RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-                FilenameTextBox.Enabled = UseCustomFilenameBox.Enabled = false;
-
                 RemarkTextBox.Text = _mode.Remark;
                 comboBox1.SelectedValue = _mode.Type; // ComboBox SelectedValue worked after ctor
                 FilenameTextBox.Text = _mode.RelativePath;
                 richTextBox1.Lines = _mode.Rule.ToArray();
             }
+
+            i18N.TranslateForm(this);
         }
 
         private void ControlButton_Click(object sender, EventArgs e)
@@ -91,7 +88,7 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                var relativePath = $"Custom\\{FilenameTextBox.Text}.txt";
+                var relativePath = FilenameTextBox.Text;
                 var fullName = ModeHelper.GetFullPath(relativePath);
                 if (File.Exists(fullName))
                 {
@@ -115,15 +112,12 @@ namespace Netch.Forms.Mode
             Close();
         }
 
-        private async void RemarkTextBox_TextChanged(object sender, EventArgs e)
+        private void RemarkTextBox_TextChanged(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+            BeginInvoke(new Action(() =>
             {
-                if (!UseCustomFilenameBox.Checked)
-                {
-                    FilenameTextBox.Text = ModeEditorUtils.ToSafeFileName(RemarkTextBox.Text);
-                }
-            });
+                FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
+            }));
         }
     }
 }

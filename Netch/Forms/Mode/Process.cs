@@ -31,17 +31,6 @@ namespace Netch.Forms.Mode
             CheckForIllegalCrossThreadCalls = false;
 
             _mode = mode;
-            if (mode != null)
-            {
-                Text = "Edit Process Mode";
-
-                RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-                FilenameTextBox.Enabled = UseCustomFilenameBox.Enabled = false;
-
-                RemarkTextBox.Text = mode.Remark;
-                FilenameTextBox.Text = mode.RelativePath;
-                RuleListBox.Items.AddRange(mode.Rule.ToArray());
-            }
         }
 
         /// <summary>
@@ -49,26 +38,18 @@ namespace Netch.Forms.Mode
         /// </summary>
         public bool Edited { get; private set; }
 
-        /// <summary>
-        ///     扫描目录
-        /// </summary>
-        /// <param name="DirName">路径</param>
-        public void ScanDirectory(string DirName)
-        {
-            try
-            {
-                RuleListBox.Items.AddRange(Directory.GetFiles(DirName, "*.exe", SearchOption.AllDirectories)
-                    .Select(f => Path.GetFileName(f))
-                    .ToArray());
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-        }
-
         public void ModeForm_Load(object sender, EventArgs e)
         {
+            if (_mode != null)
+            {
+                Text = "Edit Process Mode";
+
+                RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
+                RemarkTextBox.Text = _mode.Remark;
+                FilenameTextBox.Text = _mode.RelativePath;
+                RuleListBox.Items.AddRange(_mode.Rule.Cast<object>().ToArray());
+            }
+
             i18N.TranslateForm(this);
             i18N.Translate(contextMenuStrip);
         }
@@ -101,7 +82,7 @@ namespace Netch.Forms.Mode
             {
                 if (string.IsNullOrWhiteSpace(ProcessNameTextBox.Text))
                 {
-                    MessageBoxX.Show(i18N.Translate("Please enter an process name (xxx.exe)"));
+                    MessageBoxX.Show(i18N.Translate("rule can not be empty"));
                     return;
                 }
 
@@ -122,7 +103,7 @@ namespace Netch.Forms.Mode
             });
         }
 
-        private void ScanButton_Click(object sender, EventArgs e)
+        private void SelectButton_Click(object sender, EventArgs e)
         {
             var dialog = new CommonOpenFileDialog
             {
@@ -136,8 +117,11 @@ namespace Netch.Forms.Mode
 
             if (dialog.ShowDialog(Handle) == CommonFileDialogResult.Ok)
             {
-                ScanDirectory(dialog.FileName);
-                MessageBoxX.Show(i18N.Translate("Scan completed"));
+                var path = dialog.FileName;
+                if (!path.EndsWith(@"\"))
+                    path += @"\";
+
+                RuleListBox.Items.Add(path.ToRegexString());
             }
         }
 
@@ -174,7 +158,7 @@ namespace Netch.Forms.Mode
             }
             else
             {
-                var relativePath = $"Custom\\{FilenameTextBox.Text}.txt";
+                var relativePath = FilenameTextBox.Text;
                 var fullName = ModeHelper.GetFullPath(relativePath);
                 if (File.Exists(fullName))
                 {
@@ -199,15 +183,12 @@ namespace Netch.Forms.Mode
             Close();
         }
 
-        private async void RemarkTextBox_TextChanged(object sender, EventArgs e)
+        private void RemarkTextBox_TextChanged(object sender, EventArgs e)
         {
-            await Task.Run(() =>
+            BeginInvoke(new Action(() =>
             {
-                if (!UseCustomFilenameBox.Checked)
-                {
-                    FilenameTextBox.Text = ModeEditorUtils.ToSafeFileName(RemarkTextBox.Text);
-                }
-            });
+                FilenameTextBox.Text = FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
+            }));
         }
     }
 }

@@ -13,5 +13,15 @@ namespace Netch.Forms.Mode
 
             return fileName.ToString();
         }
+
+        public static string GetCustomModeRelativePath(string name)
+        {
+            if (name == string.Empty)
+                return string.Empty;
+
+            var safeFileName = ToSafeFileName(name);
+            var relativePath = $"Custom\\{safeFileName}.txt";
+            return relativePath;
+        }
     }
 }

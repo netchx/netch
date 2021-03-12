@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Netch.Controllers;
 using Netch.Utils;
 
 namespace Netch.Models
@@ -81,27 +82,18 @@ namespace Netch.Models
                         var mode = Global.Modes.FirstOrDefault(m => m!.FullName != null && m.RelativePath!.Equals(relativePath.ToString()));
 
                         if (mode == null)
-                        {
-                            Logging.Warning($"{relativePath} file included in {Remark} not found");
-                        }
-                        else if (mode == this)
-                        {
-                            Logging.Warning("Can't self-reference");
-                        }
-                        else
-                        {
-                            if (mode.Type != Type)
-                            {
-                                Logging.Warning($"{mode.Remark}'s mode is not as same as {Remark}'s mode");
-                            }
-                            else
-                            {
-                                if (mode.Rule.Any(rule => rule.StartsWith("#include")))
-                                    Logging.Warning("Cannot reference mode that reference other mode");
-                                else
-                                    result.AddRange(mode.FullRule);
-                            }
-                        }
+                            throw new MessageException($"{relativePath} file included in {Remark} not found");
+
+                        if (mode == this)
+                            throw new MessageException("Can't self-reference");
+
+                        if (mode.Type != Type)
+                            throw new MessageException($"{mode.Remark}'s mode is not as same as {Remark}'s mode");
+
+                        if (mode.Rule.Any(rule => rule.StartsWith("#include")))
+                            throw new Exception("Cannot reference mode that reference other mode");
+
+                        result.AddRange(mode.FullRule);
                     }
                     else
                     {
