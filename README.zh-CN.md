@@ -7,9 +7,9 @@
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-游戏加速工具
+[文档网站](https://netch.org/) [常见问题](https://netch.org/#/docs/zh-CN/faq)
 
-[网站](https://netch.org/)
+游戏加速工具
 
 ## TOC
 - [Netch](#Netch)
@@ -17,8 +17,6 @@
 	- [简介](#简介)
     - [赞助商](#赞助商)
 	- [捐赠](#捐赠)
-    - [新手入门](Quickstart.zh-CN.md)
-    - [进阶用法](Advanced_Usage.zh-CN.md)
 	- [依赖](#依赖)
     - [语言支持](#语言支持)
 
@@ -31,15 +29,12 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 - ShadowsocksR
 - Trojan
 - VMess
-- VLess
+- VLESS
 
 与此同时 Netch 避免了 SSTap 的 NAT 问题 ，检查 NAT 类型即可知道是否有 NAT 问题。使用 SSTap 加速部分 P2P 联机，对 NAT 类型有要求的游戏时，可能会因为 NAT 类型严格遇到无法加入联机，或者其他影响游戏体验的情况
 
-
-需要更多特性请移步魔改仓库 [Netch-ForOwnUse](https://github.com/AmazingDM/Netch-ForOwnUse)，
-
 ## 赞助商
-<a href="https://www.jetbrains.com/?from=Netch"><img src="../.github/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
+<a href="https://www.jetbrains.com/?from=Netch"><img src="images/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
 
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
@@ -48,16 +43,13 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 ## 捐赠
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
-## 新手入门
-[新手入门教程](Quickstart.zh-CN.md)
-
-## 进阶用法
-[进阶教程](Advanced_Usage.zh-CN.md)
 ## 依赖
 - [.NET Framework 4.8 (Windows 10 1903+ 已包含)](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
 
 ## 语言支持
-Netch 支持多种语言，在启动时会根据系统语言选择自身语言。如果需要手动切换语言，可以在启动时加入命令行参数，命令行参数为目前支持的语言代码，可以去 [NetchTranslation/i18n](https://github.com/NetchX/NetchTranslation/tree/master/i18n) 文件夹下查看外部支持的语言代码文件。Netch 目前内置 en-US，zh-CN，外置 zh-TW。欢迎大家为 [NetchTranslation](https://github.com/NetchX/NetchTranslation) 提供其他语言的翻译
+Netch 内置 en-US 和 zh-CN，外置 zh-TW 等，默认根据系统语言选择语言。
+
+[Netch 外置语言仓库](https://github.com/NetchX/NetchTranslation) ，欢迎提供其他语言的翻译
 
 ## 引用
 - [core](https://github.com/aiocloud/core)

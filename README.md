@@ -7,9 +7,9 @@
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-[中文说明](/docs/README.zh-CN.md)
+[文档网站](https://netch.org/) [常见问题](https://netch.org/#/docs/zh-CN/faq) 
 
-[常见问题](https://netch.org/#/docs/zh-CN/faq)
+[中文说明](README.zh-CN.md)
 
 Game network accelerator
 
@@ -31,12 +31,12 @@ Currently supports the following protocols
 - ShadowsocksR
 - Trojan
 - VMess
-- VLess
+- VLESS
 
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game
 
 ## Sponsor
-<a href="https://www.jetbrains.com/?from=Netch"><img src=".github/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
+<a href="https://www.jetbrains.com/?from=Netch"><img src="images/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
 
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
@@ -46,7 +46,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
 ## Screenshots
-![](docs/screenshots/main.png)
+![](images/screenshots/main.png)
 
 ## Requirements
 - [.NET Framework 4.8 (Included in Windows 10 1903+)](https://dotnet.microsoft.com/download/dotnet-framework/net48)
