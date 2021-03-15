@@ -15,7 +15,7 @@ namespace Netch.Servers.Shadowsocks
         /// <summary>
         ///     密码
         /// </summary>
-        public string? Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
         /// <summary>
         ///     插件

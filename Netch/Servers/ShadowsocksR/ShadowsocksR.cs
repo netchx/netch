@@ -20,7 +20,7 @@ namespace Netch.Servers.ShadowsocksR
         /// <summary>
         ///     混淆参数
         /// </summary>
-        public string? OBFSParam { get; set; }
+        public string OBFSParam { get; set; } = string.Empty;
 
         /// <summary>
         ///     密码
@@ -35,7 +35,7 @@ namespace Netch.Servers.ShadowsocksR
         /// <summary>
         ///     协议参数
         /// </summary>
-        public string? ProtocolParam { get; set; }
+        public string ProtocolParam { get; set; } = string.Empty;
     }
 
     public class SSRGlobal
