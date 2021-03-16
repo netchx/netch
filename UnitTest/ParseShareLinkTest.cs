@@ -10,10 +10,10 @@ using Netch.Utils;
 namespace UnitTest
 {
     [TestClass]
-    public class TestParseShareLink : TestBase
+    public class ParseShareLink : TestBase
     {
         [TestMethod]
-        public void TestServerFromSSR()
+        public void ParseSSR()
         {
             const string normalCase =
                 "ssr://MTI3LjAuMC4xOjEyMzQ6YXV0aF9hZXMxMjhfbWQ1OmFlcy0xMjgtY2ZiOnRsczEuMl90aWNrZXRfYXV0aDpZV0ZoWW1KaS8_b2Jmc3BhcmFtPVluSmxZV3QzWVRFeExtMXZaUQ";

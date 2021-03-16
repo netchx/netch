@@ -6,10 +6,10 @@ using Netch.Utils;
 namespace UnitTest
 {
     [TestClass]
-    public class FunctionTest : TestBase
+    public class Function : TestBase
     {
         [TestMethod]
-        public void TestLoadI18N()
+        public void LoadLanguage()
         {
             void TestLoad(string t)
             {
