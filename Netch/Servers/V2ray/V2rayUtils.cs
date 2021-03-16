@@ -77,9 +77,7 @@ namespace Netch.Servers.V2ray
             var parameter = new Dictionary<string, string>();
             // protocol-specific fields
             parameter.Add("type", server.TransferProtocol);
-            if (server.EncryptMethod == "none")
-                // VLESS outbounds[].settings.encryption，当前可选值只有 none
-                parameter.Add("encryption", server.EncryptMethod);
+            parameter.Add("encryption", server.EncryptMethod);
 
             // transport-specific fields
             switch (server.TransferProtocol)
