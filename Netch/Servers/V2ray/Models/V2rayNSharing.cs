@@ -13,7 +13,7 @@
         /// <summary>
         ///     额外 ID
         /// </summary>
-        public string aid { get; set; } = string.Empty;
+        public int aid { get; set; }
 
         /// <summary>
         ///     伪装域名（HTTP，WS）
@@ -38,7 +38,7 @@
         /// <summary>
         ///     端口
         /// </summary>
-        public string port { get; set; } = string.Empty;
+        public ushort port { get; set; }
 
         /// <summary>
         ///     备注
@@ -58,6 +58,6 @@
         /// <summary>
         ///     链接版本
         /// </summary>
-        public string v { get; set; } = string.Empty;
+        public int v { get; set; } = 2;
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.V2ray;
@@ -43,12 +44,12 @@ namespace Netch.Servers.VMess
 
                 var vmessJson = JsonSerializer.Serialize(new V2rayNSharing
                     {
-                        v = "2",
+                        v = 2,
                         ps = server.Remark,
                         add = server.Hostname,
-                        port = server.Port.ToString(),
+                        port = server.Port,
                         id = server.UserID,
-                        aid = server.AlterID.ToString(),
+                        aid = server.AlterID,
                         net = server.TransferProtocol,
                         type = server.FakeType,
                         host = server.Host,
@@ -85,13 +86,14 @@ namespace Netch.Servers.VMess
                 return V2rayUtils.ParseVUri(text);
             }
 
-            V2rayNSharing vmess = JsonSerializer.Deserialize<V2rayNSharing>(s)!;
+            V2rayNSharing vmess = JsonSerializer.Deserialize<V2rayNSharing>(s,
+                new JsonSerializerOptions {NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString})!;
 
             data.Remark = vmess.ps;
             data.Hostname = vmess.add;
-            data.Port = ushort.Parse(vmess.port);
+            data.Port = vmess.port;
             data.UserID = vmess.id;
-            data.AlterID = int.Parse(vmess.aid);
+            data.AlterID = vmess.aid;
             data.TransferProtocol = vmess.net;
             data.FakeType = vmess.type;
 
