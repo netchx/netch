@@ -8,24 +8,14 @@ namespace Netch.Servers.ShadowsocksR
         public override string Type { get; } = "SSR";
 
         /// <summary>
-        ///     加密方式
-        /// </summary>
-        public string EncryptMethod { get; set; } = SSRGlobal.EncryptMethods[0];
-
-        /// <summary>
-        ///     混淆
-        /// </summary>
-        public string OBFS { get; set; } = SSRGlobal.OBFSs[0];
-
-        /// <summary>
-        ///     混淆参数
-        /// </summary>
-        public string OBFSParam { get; set; } = string.Empty;
-
-        /// <summary>
         ///     密码
         /// </summary>
         public string Password { get; set; } = string.Empty;
+
+        /// <summary>
+        ///     加密方式
+        /// </summary>
+        public string EncryptMethod { get; set; } = SSRGlobal.EncryptMethods[0];
 
         /// <summary>
         ///     协议
@@ -35,7 +25,17 @@ namespace Netch.Servers.ShadowsocksR
         /// <summary>
         ///     协议参数
         /// </summary>
-        public string ProtocolParam { get; set; } = string.Empty;
+        public string? ProtocolParam { get; set; }
+
+        /// <summary>
+        ///     混淆
+        /// </summary>
+        public string OBFS { get; set; } = SSRGlobal.OBFSs[0];
+
+        /// <summary>
+        ///     混淆参数
+        /// </summary>
+        public string? OBFSParam { get; set; }
     }
 
     public class SSRGlobal

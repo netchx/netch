@@ -1,4 +1,5 @@
 ﻿using Netch.Forms;
+using Netch.Utils;
 
 namespace Netch.Servers.ShadowsocksR.Form
 {
@@ -8,7 +9,7 @@ namespace Netch.Servers.ShadowsocksR.Form
         {
             server ??= new ShadowsocksR();
             Server = server;
-            CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password);
+            CreateTextBox("Password", "Password", s => !s.IsNullOrWhiteSpace(), s => server.Password = s, server.Password);
             CreateComboBox("EncryptMethod", "Encrypt Method", SSRGlobal.EncryptMethods, s => server.EncryptMethod = s, server.EncryptMethod);
             CreateComboBox("Protocol", "Protocol", SSRGlobal.Protocols, s => server.Protocol = s, server.Protocol);
             CreateTextBox("ProtocolParam", "Protocol Param", s => true, s => server.ProtocolParam = s, server.ProtocolParam);
