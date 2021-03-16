@@ -24,31 +24,64 @@ namespace Netch.Servers.ShadowsocksR
         {
             var server = (ShadowsocksR) s;
 
-            #region Argument
-
-            var argument = new StringBuilder();
-            argument.Append($"-s {server.AutoResolveHostname()} -p {server.Port} -k \"{server.Password}\" -m {server.EncryptMethod} -t 120");
-            if (!string.IsNullOrEmpty(server.Protocol))
+            var command = new SSRParameter
             {
-                argument.Append($" -O {server.Protocol}");
-                if (!string.IsNullOrEmpty(server.ProtocolParam))
-                    argument.Append($" -G \"{server.ProtocolParam}\"");
-            }
+                s = server.AutoResolveHostname(),
+                p = server.Port.ToString(),
+                k = server.Password,
+                m = server.EncryptMethod,
+                t = "120",
+                O = server.Protocol,
+                G = server.ProtocolParam,
+                o = server.OBFS,
+                g = server.OBFSParam,
+                b = this.LocalAddress(),
+                l = this.Socks5LocalPort().ToString(),
+                u = true
+            };
 
-            if (!string.IsNullOrEmpty(server.OBFS))
-            {
-                argument.Append($" -o {server.OBFS}");
-                if (!string.IsNullOrEmpty(server.OBFSParam))
-                    argument.Append($" -g \"{server.OBFSParam}\"");
-            }
-
-            argument.Append($" -b {this.LocalAddress()} -l {this.Socks5LocalPort()} -u");
             if (mode.BypassChina)
-                argument.Append($" --acl \"{Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}\"");
+                command.acl = $"{Path.GetFullPath(File.Exists(Global.UserACL) ? Global.UserACL : Global.BuiltinACL)}";
 
-            #endregion
+            StartInstanceAuto(command.ToString());
+        }
 
-            StartInstanceAuto(argument.ToString());
+        [Verb]
+        class SSRParameter : ParameterBase
+        {
+            public string? s { get; set; }
+
+            public string? p { get; set; }
+
+            [Quote]
+            public string? k { get; set; }
+
+            public string? m { get; set; }
+
+            public string? t { get; set; }
+
+            [Optional]
+            public string? O { get; set; }
+
+            [Optional]
+            public string? G { get; set; }
+
+            [Optional]
+            public string? o { get; set; }
+
+            [Optional]
+            public string? g { get; set; }
+
+            public string? b { get; set; }
+
+            public string? l { get; set; }
+
+            public bool u { get; set; }
+
+            [Full]
+            [Quote]
+            [Optional]
+            public string? acl { get; set; }
         }
 
         public override void Stop()
