@@ -41,7 +41,18 @@ namespace Netch.Utils
         {
             var contents = $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}";
 #if DEBUG
-            Console.WriteLine(contents);
+            switch (logLevel)
+            {
+                case LogLevel.INFO:
+                case LogLevel.WARNING:
+                    Console.Write(contents);
+                    break;
+                case LogLevel.ERROR:
+                    Console.Error.Write(contents);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(logLevel), logLevel, null);
+            }
 #else
             lock (FileLock)
                 File.AppendAllText(LogFile, contents);
