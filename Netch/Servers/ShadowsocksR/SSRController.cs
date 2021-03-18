@@ -27,7 +27,7 @@ namespace Netch.Servers.ShadowsocksR
             var command = new SSRParameter
             {
                 s = server.AutoResolveHostname(),
-                p = server.Port.ToString(),
+                p = server.Port,
                 k = server.Password,
                 m = server.EncryptMethod,
                 t = "120",
@@ -36,7 +36,7 @@ namespace Netch.Servers.ShadowsocksR
                 o = server.OBFS,
                 g = server.OBFSParam,
                 b = this.LocalAddress(),
-                l = this.Socks5LocalPort().ToString(),
+                l = this.Socks5LocalPort(),
                 u = true
             };
 
@@ -51,7 +51,7 @@ namespace Netch.Servers.ShadowsocksR
         {
             public string? s { get; set; }
 
-            public string? p { get; set; }
+            public ushort? p { get; set; }
 
             [Quote]
             public string? k { get; set; }
@@ -74,7 +74,7 @@ namespace Netch.Servers.ShadowsocksR
 
             public string? b { get; set; }
 
-            public string? l { get; set; }
+            public ushort? l { get; set; }
 
             public bool u { get; set; }
 

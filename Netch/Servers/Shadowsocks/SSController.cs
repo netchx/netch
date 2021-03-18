@@ -27,9 +27,9 @@ namespace Netch.Servers.Shadowsocks
             var command = new SSParameter
             {
                 s = server.AutoResolveHostname(),
-                p = server.Port.ToString(),
+                p = server.Port,
                 b = this.LocalAddress(),
-                l = this.Socks5LocalPort().ToString(),
+                l = this.Socks5LocalPort(),
                 m = server.EncryptMethod,
                 k = server.Password,
                 u = true,
@@ -48,11 +48,11 @@ namespace Netch.Servers.Shadowsocks
         {
             public string? s { get; set; }
 
-            public string? p { get; set; }
+            public ushort? p { get; set; }
 
             public string? b { get; set; }
 
-            public string? l { get; set; }
+            public ushort? l { get; set; }
 
             public string? m { get; set; }
 
