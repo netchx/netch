@@ -47,7 +47,7 @@ namespace Netch.Controllers
             Global.MainForm.BeginInvoke(new Action(() =>
             {
                 if (!_form!.IsDisposed)
-                    _form!.richTextBox1.AppendText(line + "\n");
+                    _form.richTextBox1.AppendText(line + "\n");
             }));
         }
 

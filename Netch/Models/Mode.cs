@@ -79,7 +79,7 @@ namespace Netch.Models
                         relativePath.Replace(">", "");
                         relativePath.Replace(".h", ".txt");
 
-                        var mode = Global.Modes.FirstOrDefault(m => m!.FullName != null && m.RelativePath!.Equals(relativePath.ToString()));
+                        var mode = Global.Modes.FirstOrDefault(m => m.FullName != null && m.RelativePath!.Equals(relativePath.ToString()));
 
                         if (mode == null)
                             throw new MessageException($"{relativePath} file included in {Remark} not found");
