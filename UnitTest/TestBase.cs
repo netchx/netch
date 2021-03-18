@@ -1,14 +1,6 @@
-﻿using Netch;
-
-namespace UnitTest
+﻿namespace UnitTest
 {
     public class TestBase
     {
-        protected TestBase()
-        {
-#if DEBUG
-            Global.Testing = true;
-#endif
-        }
     }
 }

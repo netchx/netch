@@ -21,8 +21,6 @@ namespace Netch.Utils
     {
         public static bool Open(string path)
         {
-            if (Global.Testing)
-                return true;
             try
             {
                 Process.Start(new ProcessStartInfo
@@ -138,7 +136,6 @@ namespace Netch.Utils
         {
             return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
         }
-
 
         public static void DrawCenterComboBox(object sender, DrawItemEventArgs e)
         {

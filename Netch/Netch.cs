@@ -22,9 +22,12 @@ namespace Netch
         [STAThread]
         public static void Main(string[] args)
         {
+#if DEBUG
+            AttachConsole();
+#else
             if (args.Contains("-console"))
-                if (!NativeMethods.AttachConsole(-1))
-                    NativeMethods.AllocConsole();
+                AttachConsole();
+#endif
 
             // 设置当前目录
             Directory.SetCurrentDirectory(Global.NetchDir);
@@ -83,6 +86,12 @@ namespace Netch
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
+        }
+
+        private static void AttachConsole()
+        {
+            if (!NativeMethods.AttachConsole(-1))
+                NativeMethods.AllocConsole();
         }
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)

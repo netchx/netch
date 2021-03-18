@@ -34,12 +34,6 @@ namespace Netch
 
         public static Mutex Mutex => LazyMutex.Value;
 
-#if DEBUG
-        public static bool Testing = false;
-#else
-        public const bool Testing = false;
-#endif
-
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>
