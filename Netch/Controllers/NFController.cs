@@ -35,8 +35,9 @@ namespace Netch.Controllers
             aio_dial((int) NameList.TYPE_FILTERTCP, (Global.Settings.ProcessProxyProtocol != PortType.UDP).ToString().ToLower());
             SetServer(Global.Settings.ProcessProxyProtocol);
 
-            if (!CheckRule(mode.FullRule, out var list))
-                throw new MessageException($"\"{string.Join("", list.Select(s => s + "\n"))}\" does not conform to C++ regular expression syntax");
+            var result = CheckRuleMessageResult(mode.FullRule);
+            if (result != null)
+                throw new MessageException(result);
 
             SetName(mode);
 
@@ -69,6 +70,14 @@ namespace Netch.Controllers
             incompatibleRule = rules.Where(r => !CheckCppRegex(r, false));
             aio_dial((int) NameList.TYPE_CLRNAME, "");
             return !incompatibleRule.Any();
+        }
+
+        public static string? CheckRuleMessageResult(IEnumerable<string> rules)
+        {
+            if (CheckRule(rules, out var list))
+                return null;
+
+            return ($"{string.Join("\n", list)}\nAbove rules does not conform to C++ regular expression syntax");
         }
 
         /// <summary>
