@@ -42,6 +42,7 @@ namespace Netch.Forms.Mode
             this.ProcessGroupBox = new System.Windows.Forms.GroupBox();
             this.ProcessNameTextBox = new System.Windows.Forms.TextBox();
             this.AddButton = new System.Windows.Forms.Button();
+            this.ScanButton = new System.Windows.Forms.Button();
             this.SelectButton = new System.Windows.Forms.Button();
             this.contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.DeleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,6 +62,7 @@ namespace Netch.Forms.Mode
             this.ConfigurationGroupBox.Controls.Add(this.containerControl1);
             this.ConfigurationGroupBox.Controls.Add(this.ProcessGroupBox);
             this.ConfigurationGroupBox.Controls.Add(this.SelectButton);
+            this.ConfigurationGroupBox.Controls.Add(this.ScanButton);
             this.ConfigurationGroupBox.Location = new System.Drawing.Point(12, 12);
             this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
             this.ConfigurationGroupBox.Size = new System.Drawing.Size(340, 344);
@@ -149,6 +151,16 @@ namespace Netch.Forms.Mode
             this.AddButton.UseVisualStyleBackColor = true;
             this.AddButton.Click += new System.EventHandler(this.AddButton_Click);
             // 
+            // ScanButton
+            // 
+            this.ScanButton.Location = new System.Drawing.Point(87, 315);
+            this.ScanButton.Name = "ScanButton";
+            this.ScanButton.Size = new System.Drawing.Size(75, 23);
+            this.ScanButton.TabIndex = 7;
+            this.ScanButton.Text = "Scan";
+            this.ScanButton.UseVisualStyleBackColor = true;
+            this.ScanButton.Click += new System.EventHandler(this.ScanButton_Click);
+            // 
             // SelectButton
             // 
             this.SelectButton.Location = new System.Drawing.Point(6, 315);
@@ -210,6 +222,7 @@ namespace Netch.Forms.Mode
 
         #endregion
 
+        private System.Windows.Forms.Button ScanButton;
         private System.Windows.Forms.ContainerControl containerControl1;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem DeleteToolStripMenuItem;

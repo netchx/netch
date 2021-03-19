@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Netch.Controllers;
+using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
 
@@ -108,7 +110,7 @@ namespace Netch.Forms.Mode
             var dialog = new CommonOpenFileDialog
             {
                 IsFolderPicker = true,
-                Multiselect = false,
+                Multiselect = true,
                 Title = i18N.Translate("Select a folder"),
                 AddToMostRecentlyUsedList = false,
                 EnsurePathExists = true,
@@ -117,12 +119,20 @@ namespace Netch.Forms.Mode
 
             if (dialog.ShowDialog(Handle) == CommonFileDialogResult.Ok)
             {
-                var path = dialog.FileName;
-                if (!path.EndsWith(@"\"))
-                    path += @"\";
+                foreach (string p in dialog.FileNames)
+                {
+                    string path = p;
+                    if (!path.EndsWith(@"\"))
+                        path += @"\";
 
-                RuleListBox.Items.Add(path.ToRegexString());
+                    RuleAdd($"^{path.ToRegexString()}");
+                }
             }
+        }
+
+        private void RuleAdd(string value)
+        {
+            RuleListBox.Items.Add(value);
         }
 
         public void ControlButton_Click(object sender, EventArgs e)
@@ -189,6 +199,50 @@ namespace Netch.Forms.Mode
             {
                 FilenameTextBox.Text = FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
             }));
+        }
+
+        private void ScanButton_Click(object sender, EventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog
+            {
+                IsFolderPicker = true,
+                Multiselect = false,
+                Title = i18N.Translate("Select a folder"),
+                AddToMostRecentlyUsedList = false,
+                EnsurePathExists = true,
+                NavigateToShortcut = true
+            };
+
+            if (dialog.ShowDialog(Handle) == CommonFileDialogResult.Ok)
+            {
+                var path = dialog.FileName;
+                var list = new List<string>();
+                const uint maxCount = 50;
+                try
+                {
+                    ScanDirectory(path, list);
+                }
+                catch
+                {
+                    MessageBoxX.Show(i18N.Translate($"The number of executable files in the \"{path}\" directory is greater than {maxCount}"),
+                        LogLevel.WARNING);
+
+                    return;
+                }
+
+                RuleListBox.Items.AddRange(list.Cast<object>().ToArray());
+            }
+        }
+
+        private void ScanDirectory(string directory, List<string> list, uint maxCount = 30)
+        {
+            foreach (string dir in Directory.GetDirectories(directory))
+                ScanDirectory(dir, list, maxCount);
+
+            list.AddRange(Directory.GetFiles(directory).Select(Path.GetFileName).Where(s => s.EndsWith(".exe")).Select(s => s.ToRegexString()));
+
+            if (maxCount != 0 && list.Count > maxCount)
+                throw new Exception("The number of filter results is greater than maxCount");
         }
     }
 }
