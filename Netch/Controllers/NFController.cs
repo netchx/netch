@@ -17,27 +17,8 @@ namespace Netch.Controllers
     {
         private static readonly ServiceController NFService = new("netfilter2");
 
-        private static readonly string BinDriver;
+        private const string BinDriver = "bin\\nfdriver.sys";
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
-
-        static NFController()
-        {
-            string fileName;
-            switch ($"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor}")
-            {
-                case "10.0":
-                case "6.3":
-                case "6.2":
-                case "6.1":
-                case "6.0":
-                    fileName = "nfdriver.sys";
-                    break;
-                default:
-                    throw new MessageException($"不支持的系统版本：{Environment.OSVersion.Version}");
-            }
-
-            BinDriver = "bin\\" + fileName;
-        }
 
         public string Name { get; } = "Redirector";
 
