@@ -121,7 +121,6 @@ namespace Netch.Forms.Mode
                 _mode.Rule.AddRange(RuleRichTextBox.Lines);
 
                 _mode.WriteFile();
-                Global.MainForm.LoadModes();
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }
             else
@@ -144,7 +143,6 @@ namespace Netch.Forms.Mode
                 mode.Rule.AddRange(RuleRichTextBox.Lines);
 
                 mode.WriteFile();
-                ModeHelper.Add(mode);
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
 

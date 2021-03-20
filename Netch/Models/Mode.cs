@@ -10,12 +10,41 @@ namespace Netch.Models
 {
     public class Mode
     {
-        public readonly string? FullName;
+        private readonly Lazy<List<string>> _lazyRule;
+
+        public string? FullName { get; private set; }
+
+        public Mode(string? fullName = default)
+        {
+            _lazyRule = new Lazy<List<string>>(ReadRules);
+            if (fullName == null)
+                return;
+
+            FullName = fullName;
+            if (!File.Exists(FullName))
+                return;
+
+            var text = File.ReadLines(FullName).First();
+
+            // load head
+            if (text.First() != '#')
+                throw new Exception($"mode {FullName} head not found at Line 0");
+
+            var split = text.Substring(1).SplitTrimEntries(',');
+            Remark = split[0];
+
+            var typeResult = int.TryParse(split.ElementAtOrDefault(1), out var type);
+            Type = typeResult ? type : 0;
+            // TODO throw NotSupportedModeTypeException
+
+            var bypassChinaResult = int.TryParse(split.ElementAtOrDefault(2), out var bypassChina);
+            BypassChina = this.ClientRouting() && bypassChinaResult && bypassChina == 1;
+        }
 
         /// <summary>
         ///     规则
         /// </summary>
-        public readonly List<string> Rule = new();
+        public List<string> Rule => _lazyRule.Value;
 
         /// <summary>
         ///     绕过中国（0. 不绕过 1. 绕过）
@@ -44,15 +73,6 @@ namespace Netch.Models
         ///     <para />
         /// </summary>
         public int Type { get; set; } = 0;
-
-        public Mode(string fullName)
-        {
-            FullName = fullName;
-        }
-
-        public Mode()
-        {
-        }
 
         /// <summary>
         ///     文件相对路径(必须是存在的文件)
@@ -103,6 +123,14 @@ namespace Netch.Models
 
                 return result;
             }
+        }
+
+        private List<string> ReadRules()
+        {
+            if (FullName == null || !File.Exists(FullName))
+                return new List<string>();
+
+            return File.ReadLines(FullName!).Skip(1).ToList();
         }
 
         public void WriteFile(string? fullName = null)

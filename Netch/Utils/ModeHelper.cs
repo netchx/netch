@@ -15,6 +15,29 @@ namespace Netch.Utils
 
         public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
 
+        private static readonly FileSystemWatcher FileSystemWatcher;
+
+        static ModeHelper()
+        {
+            FileSystemWatcher = new FileSystemWatcher(ModeDirectory)
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+                IncludeSubdirectories = true,
+                EnableRaisingEvents = true
+            };
+
+            FileSystemWatcher.Changed += OnModeChanged;
+            FileSystemWatcher.Created += OnModeChanged;
+            FileSystemWatcher.Deleted += OnModeChanged;
+            FileSystemWatcher.Renamed += OnModeChanged;
+        }
+
+        private static void OnModeChanged(object sender, FileSystemEventArgs e)
+        {
+            Load();
+            Global.MainForm.LoadModes();
+        }
+
         public static string GetRelativePath(string fullName)
         {
             return fullName.Substring(ModeDirectory.Length);
@@ -48,7 +71,14 @@ namespace Netch.Utils
                     return;
 
                 foreach (var file in Directory.GetFiles(modeDirectory).Where(f => f.EndsWith(".txt")))
-                    LoadModeFile(file);
+                    try
+                    {
+                        Global.Modes.Add(new Mode(file));
+                    }
+                    catch (Exception)
+                    {
+                        // ignored
+                    }
             }
             catch
             {
@@ -56,71 +86,17 @@ namespace Netch.Utils
             }
         }
 
-        private static void LoadModeFile(string fullName)
-        {
-            var mode = new Mode(fullName);
-
-            var content = File.ReadAllLines(fullName);
-            if (content.Length == 0)
-                return;
-
-            for (var i = 0; i < content.Length; i++)
-            {
-                var text = content[i].Trim();
-
-                if (i == 0)
-                {
-                    if (text.First() != '#')
-                        return;
-
-                    try
-                    {
-                        var splited = text.Substring(1).SplitTrimEntries(',');
-
-                        mode.Remark = splited[0];
-
-                        var typeResult = int.TryParse(splited.ElementAtOrDefault(1), out var type);
-                        mode.Type = typeResult ? type : 0;
-
-                        var bypassChinaResult = int.TryParse(splited.ElementAtOrDefault(2), out var bypassChina);
-                        mode.BypassChina = mode.ClientRouting() && bypassChinaResult && bypassChina == 1;
-                    }
-                    catch
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    mode.Rule.Add(text);
-                }
-            }
-
-            Global.Modes.Add(mode);
-        }
-
         private static void Sort()
         {
             Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
         }
 
-        public static void Add(Mode mode)
-        {
-            Global.Modes.Add(mode);
-            Sort();
-            Global.MainForm.LoadModes();
-        }
-
         public static void Delete(Mode mode)
         {
             if (mode.FullName == null)
-                throw new ArgumentException("FullName");
+                throw new ArgumentException(nameof(mode.FullName));
 
-            if (File.Exists(mode.FullName))
-                File.Delete(mode.FullName);
-
-            Global.Modes.Remove(mode);
-            Global.MainForm.LoadModes();
+            File.Delete(mode.FullName);
         }
 
         public static bool SkipServerController(Server server, Mode mode)

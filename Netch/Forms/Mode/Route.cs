@@ -83,7 +83,6 @@ namespace Netch.Forms.Mode
                 _mode.Type = (int) comboBox1.SelectedValue;
 
                 _mode.WriteFile();
-                Global.MainForm.LoadModes();
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }
             else
@@ -105,7 +104,6 @@ namespace Netch.Forms.Mode
                 mode.Rule.AddRange(richTextBox1.Lines);
 
                 mode.WriteFile();
-                ModeHelper.Add(mode);
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
 
