@@ -49,7 +49,7 @@ namespace Netch.Controllers
             if (Global.Settings.RedirectICMP)
                 aio_dial((int) NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMPAddr);
 
-            aio_dial((int) NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString());
+            aio_dial((int) NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString().ToLower());
 
             if (!aio_init())
                 throw new MessageException("Redirector Start failed, run Netch with \"-console\" argument");
