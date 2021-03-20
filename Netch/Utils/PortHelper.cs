@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Netch.Models;
+using static Vanara.PInvoke.IpHlpApi;
+using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Utils
 {
@@ -24,6 +26,18 @@ namespace Netch.Utils
             {
                 Logging.Error("获取保留端口失败: " + e);
             }
+        }
+
+        public static Process? GetProcessByUsedTcpPort(ushort port)
+        {
+            if (port == 0)
+                throw new ArgumentOutOfRangeException();
+
+            var row = GetTcpTable2().SingleOrDefault(r => ntohs((ushort) r.dwLocalPort) == port);
+            if (row.dwOwningPid == 0)
+                return null;
+
+            return Process.GetProcessById((int) row.dwOwningPid);
         }
 
         private static void GetReservedPortRange(PortType portType, ref List<Range> targetList)

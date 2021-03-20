@@ -137,17 +137,15 @@ namespace Netch.Utils
                    };
         }
 
-        public static IModeController? GetModeControllerByType(int type, out ushort? port, out string portName, out PortType portType)
+        public static IModeController? GetModeControllerByType(int type, out ushort? port, out string portName)
         {
             port = null;
             portName = string.Empty;
-            portType = PortType.Both;
             switch (type)
             {
                 case 0:
                     port = Global.Settings.RedirectorTCPPort;
                     portName = "Redirector TCP";
-                    portType = PortType.TCP;
                     return new NFController();
                 case 1:
                 case 2:
@@ -156,7 +154,6 @@ namespace Netch.Utils
                 case 5:
                     port = Global.Settings.HTTPLocalPort;
                     portName = "HTTP";
-                    portType = PortType.TCP;
                     StatusPortInfoText.HttpPort = (ushort) port;
                     return new HTTPController();
                 case 4:
