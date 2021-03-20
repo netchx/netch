@@ -43,11 +43,8 @@ namespace Netch.Controllers
 
             #endregion
 
-            if (Global.Settings.RedirectDNS)
-                aio_dial((int) NameList.TYPE_REDIRCTOR_DNS, Global.Settings.RedirectDNSAddr);
-
-            if (Global.Settings.RedirectICMP)
-                aio_dial((int) NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMPAddr);
+            aio_dial((int)NameList.TYPE_REDIRCTOR_DNS, Global.Settings.RedirectDNS ? Global.Settings.RedirectDNSAddr : "");
+            aio_dial((int)NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMP ? Global.Settings.RedirectICMPAddr : "");
 
             aio_dial((int) NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString().ToLower());
 
