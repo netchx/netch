@@ -24,7 +24,6 @@ namespace Netch.Controllers
         public void Start(in Mode mode)
         {
             PrivoxyController.Start(MainController.Server!);
-            Global.Job.AddProcess(PrivoxyController.Instance!);
             string? pacUrl = null;
 
             if (MainController.Server is Socks5 or Trojan && mode.BypassChina || (Global.Settings.AlwaysStartPACServer ?? false))

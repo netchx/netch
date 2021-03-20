@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
@@ -110,12 +109,6 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
 
             controller.Start(in server, mode);
-            if (controller is Guard {Instance: { }} guard)
-                Task.Run(() =>
-                {
-                    Thread.Sleep(1000);
-                    Global.Job.AddProcess(guard.Instance!);
-                });
 
             if (server is Socks5 socks5)
             {
@@ -141,8 +134,6 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 
             ModeController.Start(mode);
-            if (ModeController is Guard {Instance: { }} guard)
-                Global.Job.AddProcess(guard.Instance!);
         }
 
         public static async Task StopAsync()

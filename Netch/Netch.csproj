@@ -58,7 +58,6 @@
         <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
         <PackageReference Include="Vanara.PInvoke.User32" Version="3.3.5" />
         <PackageReference Include="WindowsFirewallHelper" Version="2.0.4.70-beta2" />
-        <PackageReference Include="WindowsJobAPI" Version="5.0.1" />
         <PackageReference Include="WindowsProxy" Version="5.0.3" />
     </ItemGroup>
 
