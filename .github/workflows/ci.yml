@@ -1,0 +1,30 @@
+name: Netch CI
+on: 
+  push:
+    branches-ignore:
+      dependabot/**
+  pull_request:
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Build Solution
+      shell: pwsh
+      run: .\BUILD.ps1
+
+    - name: Upload Artifact
+      continue-on-error: true
+      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: Netch
+        path: Netch\bin\x64\Release

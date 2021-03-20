@@ -1,5 +1,8 @@
-name: Netch CI
-on: [push, pull_request]
+name: Netch Release
+on:
+  push:
+    tags:
+    - '*.*'
 jobs:
   build:
     name: Build
@@ -17,14 +20,6 @@ jobs:
       shell: pwsh
       run: .\BUILD.ps1
 
-    - name: Upload Artifact
-      continue-on-error: true
-      if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: Netch
-        path: Netch\bin\x64\Release
-
     - name: Package
       if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
       shell: pwsh
@@ -39,10 +34,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-      if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
       with:
-        name: ${{ env.GITHUB_TAG_NAME }}
-        prerelease: true
+        prerelease: ${{ contains(github.ref, '-') }}
         draft: false
         files: |
           C:\builtfiles\Netch.7z
