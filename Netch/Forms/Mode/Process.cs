@@ -200,7 +200,7 @@ namespace Netch.Forms.Mode
             list.AddRange(Directory.GetFiles(directory).Select(Path.GetFileName).Where(s => s.EndsWith(".exe")).Select(s => s.ToRegexString()));
 
             if (maxCount != 0 && list.Count > maxCount)
-                throw new Exception("The number of filter results is greater than maxCount");
+                throw new Exception("The number of results is greater than maxCount");
         }
 
         private void ValidationButton_Click(object sender, EventArgs e)
