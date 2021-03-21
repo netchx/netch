@@ -95,6 +95,17 @@ namespace Netch.Updater
 
         private void ApplyUpdate()
         {
+            // Pre Update
+            try
+            {
+                // Backup Configuration file
+                File.Copy(Configuration.SettingFileFullName, Configuration.SettingFileFullName + ".bak", true);
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+
             // extract Update file to {tempDirectory}\extract
             var extractPath = Path.Combine(_tempDirectory, "extract");
             int exitCode;
@@ -126,7 +137,7 @@ namespace Netch.Updater
                 if (extendedKeepDirectories.Any(p => file.StartsWith(p)))
                     continue;
 
-                if (Path.GetFileName(file) is ModeHelper.DISABLE_MODE_DIRECTORY_FILENAME)
+                if (Path.GetFileName(file) is ModeHelper.DisableModeDirectoryFileName)
                     continue;
 
                 filesToDelete.Add(file);

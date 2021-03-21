@@ -12,12 +12,10 @@ namespace Netch.Utils
         /// <summary>
         ///     数据目录
         /// </summary>
-        public const string DATA_DIR = "data";
+        public static string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
 
-        /// <summary>
-        ///     设置
-        /// </summary>
-        public static readonly string SETTINGS_JSON = $"{DATA_DIR}\\settings.json";
+        public static string SettingFileFullName => $"{DataDirectoryFullName}\\settings.json";
+
         private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
 
         static Configuration()
@@ -31,11 +29,11 @@ namespace Netch.Utils
         /// </summary>
         public static void Load()
         {
-            if (File.Exists(SETTINGS_JSON))
+            if (File.Exists(SettingFileFullName))
             {
                 try
                 {
-                    using var fileStream = File.OpenRead(SETTINGS_JSON);
+                    using var fileStream = File.OpenRead(SettingFileFullName);
                     var settings = JsonSerializer.DeserializeAsync<Setting>(fileStream, JsonSerializerOptions).Result!;
 
                     CheckSetting(settings);
@@ -71,10 +69,10 @@ namespace Netch.Utils
         /// </summary>
         public static void Save()
         {
-            if (!Directory.Exists(DATA_DIR))
-                Directory.CreateDirectory(DATA_DIR);
+            if (!Directory.Exists(DataDirectoryFullName))
+                Directory.CreateDirectory(DataDirectoryFullName);
 
-            File.WriteAllBytes(SETTINGS_JSON, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, JsonSerializerOptions));
+            File.WriteAllBytes(SettingFileFullName, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, JsonSerializerOptions));
         }
     }
 }

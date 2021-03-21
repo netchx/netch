@@ -10,16 +10,15 @@ namespace Netch.Utils
 {
     public static class ModeHelper
     {
-        private const string MODE_DIR = "mode";
-        public const string DISABLE_MODE_DIRECTORY_FILENAME = "disabled";
+        public const string DisableModeDirectoryFileName = "disabled";
 
-        public static readonly string ModeDirectory = Path.Combine(Global.NetchDir, $"{MODE_DIR}\\");
+        public static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
 
         private static readonly FileSystemWatcher FileSystemWatcher;
 
         static ModeHelper()
         {
-            FileSystemWatcher = new FileSystemWatcher(ModeDirectory)
+            FileSystemWatcher = new FileSystemWatcher(ModeDirectoryFullName)
             {
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
                 IncludeSubdirectories = true,
@@ -40,12 +39,16 @@ namespace Netch.Utils
 
         public static string GetRelativePath(string fullName)
         {
-            return fullName.Substring(ModeDirectory.Length);
+            var length = ModeDirectoryFullName.Length;
+            if (!ModeDirectoryFullName.EndsWith("\\"))
+                length++;
+
+            return fullName.Substring(length);
         }
 
         public static string GetFullPath(string relativeName)
         {
-            return Path.Combine(ModeDirectory, relativeName);
+            return Path.Combine(ModeDirectoryFullName, relativeName);
         }
 
         /// <summary>
@@ -54,7 +57,7 @@ namespace Netch.Utils
         public static void Load()
         {
             Global.Modes.Clear();
-            LoadModeDirectory(ModeDirectory);
+            LoadModeDirectory(ModeDirectoryFullName);
 
             Sort();
         }
@@ -67,7 +70,7 @@ namespace Netch.Utils
                     LoadModeDirectory(directory);
 
                 // skip Directory with a disabled file in
-                if (File.Exists(Path.Combine(modeDirectory, DISABLE_MODE_DIRECTORY_FILENAME)))
+                if (File.Exists(Path.Combine(modeDirectory, DisableModeDirectoryFileName)))
                     return;
 
                 foreach (var file in Directory.GetFiles(modeDirectory).Where(f => f.EndsWith(".txt")))
