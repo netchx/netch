@@ -20,6 +20,7 @@ namespace Netch.Utils
             }
             catch
             {
+                // Unsupported Server Type
                 return JsonSerializer.Deserialize<Server>(jsonElement.GetRawText(), new JsonSerializerOptions())!;
             }
         }

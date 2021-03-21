@@ -30,7 +30,6 @@ namespace Netch.Forms
 
         private readonly Dictionary<string, object> _mainFormText = new();
 
-        private bool _comboBoxInitialized;
         private bool _textRecorded;
 
         public MainForm()
@@ -85,6 +84,8 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            Netch.TimePoint("MainForm ctor (Pre MainForm Load)");
+
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
@@ -93,7 +94,6 @@ namespace Netch.Forms
 
             ModeHelper.Load();
             LoadModes();
-            _comboBoxInitialized = true;
 
             // 加载翻译
             TranslateControls();
@@ -121,6 +121,8 @@ namespace Netch.Forms
                 if (Global.Settings.StartWhenOpened)
                     ControlButton_Click(null, null);
             });
+
+            Netch.TimePoint("Post Form Load", false);
         }
 
         private void RecordSize()
@@ -735,13 +737,9 @@ namespace Netch.Forms
 
         private void LoadServers()
         {
-            var comboBoxInitialized = _comboBoxInitialized;
-            _comboBoxInitialized = false;
-
             ServerComboBox.Items.Clear();
             ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
             SelectLastServer();
-            _comboBoxInitialized = comboBoxInitialized;
         }
 
         public void SelectLastServer()
@@ -756,11 +754,8 @@ namespace Netch.Forms
             // 如果当前 ServerComboBox 中没元素，不做处理
         }
 
-        private void ServerComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        private void ServerComboBox_SelectionChangeCommitted(object sender, EventArgs o)
         {
-            if (!_comboBoxInitialized)
-                return;
-
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
 
@@ -859,14 +854,10 @@ namespace Netch.Forms
 
         public void LoadModes()
         {
-            var comboBoxInitialized = _comboBoxInitialized;
-            _comboBoxInitialized = false;
-
             ModeComboBox.Items.Clear();
-            ModeComboBox.Items.AddRange(Global.Modes.ToArray());
+            ModeComboBox.Items.AddRange(Global.Modes.Cast<object>().ToArray());
             ModeComboBox.Tag = null;
             SelectLastMode();
-            _comboBoxInitialized = comboBoxInitialized;
         }
 
         public void SelectLastMode()
@@ -881,11 +872,8 @@ namespace Netch.Forms
             // 如果当前 ModeComboBox 中没元素，不做处理
         }
 
-        private void ModeComboBox_SelectedIndexChanged(object sender, EventArgs o)
+        private void ModeComboBox_SelectionChangeCommitted(object sender, EventArgs o)
         {
-            if (!_comboBoxInitialized)
-                return;
-
             try
             {
                 Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
