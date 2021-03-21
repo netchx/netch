@@ -33,43 +33,37 @@ namespace Netch.Utils
         {
             if (File.Exists(SETTINGS_JSON))
             {
-                Global.Settings = ParseSetting(File.ReadAllText(SETTINGS_JSON));
+                try
+                {
+                    using var fileStream = File.OpenRead(SETTINGS_JSON);
+                    var settings = JsonSerializer.DeserializeAsync<Setting>(fileStream, JsonSerializerOptions).Result!;
+
+                    CheckSetting(settings);
+
+                    Global.Settings = settings;
+                }
+                catch (Exception e)
+                {
+                    Logging.Error(e.ToString());
+                    Utils.Open(Logging.LogFile);
+                    Environment.Exit(-1);
+                    Global.Settings = null!;
+                }
             }
             else
             {
-                // 弹出提示
-                i18N.Load("System");
-
-                // 创建 data 文件夹并保存默认设置
+                // 保存默认设置
                 Save();
             }
         }
 
-        public static Setting ParseSetting(string text)
+        private static void CheckSetting(Setting settings)
         {
-            try
-            {
-                var settings = JsonSerializer.Deserialize<Setting>(text, JsonSerializerOptions)!;
+            settings.Profiles.RemoveAll(p => p.ServerRemark == string.Empty || p.ModeRemark == string.Empty);
 
-                #region Check Profile
-
-                settings.Profiles.RemoveAll(p => p.ServerRemark == string.Empty || p.ModeRemark == string.Empty);
-
-                if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
-                    for (var i = 0; i < settings.Profiles.Count; i++)
-                        settings.Profiles[i].Index = i;
-
-                #endregion
-
-                return settings;
-            }
-            catch (Exception e)
-            {
-                Logging.Error(e.ToString());
-                Utils.Open(Logging.LogFile);
-                Environment.Exit(-1);
-                return null!;
-            }
+            if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
+                for (var i = 0; i < settings.Profiles.Count; i++)
+                    settings.Profiles[i].Index = i;
         }
 
         /// <summary>
