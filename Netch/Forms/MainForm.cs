@@ -579,7 +579,8 @@ namespace Netch.Forms
                 return;
             }
 
-            if (MessageBoxX.Show(i18N.Translate("Download and install now?"), confirm: true) != DialogResult.OK)
+            if (MessageBoxX.Show(i18N.Translate($"Download and install now?\n\n{UpdateChecker.GetLatestReleaseContent()}"), confirm: true) !=
+                DialogResult.OK)
                 return;
 
             NotifyTip(i18N.Translate("Start downloading new version"));

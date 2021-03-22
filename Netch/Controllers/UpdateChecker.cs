@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -88,6 +89,20 @@ namespace Netch.Controllers
 
             fileName = match.Groups["filename"].Value;
             sha256 = match.Groups["sha256"].Value;
+        }
+
+        public static string GetLatestReleaseContent()
+        {
+            var sb = new StringBuilder();
+            foreach (string l in LatestRelease.body.GetLines(false).SkipWhile(l => l.FirstOrDefault() != '#'))
+            {
+                if (l.Contains("校验和"))
+                    break;
+
+                sb.AppendLine(l);
+            }
+
+            return sb.ToString();
         }
     }
 }
