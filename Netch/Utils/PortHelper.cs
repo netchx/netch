@@ -28,16 +28,14 @@ namespace Netch.Utils
             }
         }
 
-        public static Process? GetProcessByUsedTcpPort(ushort port)
+        public static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port)
         {
             if (port == 0)
                 throw new ArgumentOutOfRangeException();
 
-            var row = GetTcpTable2().SingleOrDefault(r => ntohs((ushort) r.dwLocalPort) == port);
-            if (row.dwOwningPid == 0)
-                return null;
+            var row = GetTcpTable2().Where(r => ntohs((ushort) r.dwLocalPort) == port);
 
-            return Process.GetProcessById((int) row.dwOwningPid);
+            return row.Select(r => Process.GetProcessById((int) r.dwOwningPid));
         }
 
         private static void GetReservedPortRange(PortType portType, ref List<Range> targetList)

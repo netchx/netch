@@ -191,8 +191,7 @@ namespace Netch.Controllers
 
         public static void TryReleaseTcpPort(ushort port, string portName)
         {
-            Process? p;
-            if ((p = PortHelper.GetProcessByUsedTcpPort(port)) != null)
+            foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
             {
                 if (p.MainModule!.FileName.StartsWith(Global.NetchDir))
                 {
