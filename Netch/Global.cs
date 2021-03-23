@@ -33,6 +33,8 @@ namespace Netch
 
         public static Mutex Mutex => LazyMutex.Value;
 
+        public static LogStopwatch LogStopwatch = null!;
+
         /// <summary>
         ///     用于读取和写入的配置
         /// </summary>
