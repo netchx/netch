@@ -266,25 +266,6 @@ namespace Netch.Forms
             Show();
         }
 
-        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            try
-            {
-                ModeHelper.Load();
-                LoadModes();
-                NotifyTip(i18N.Translate("Modes have been reload"));
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-            finally
-            {
-                Enabled = true;
-            }
-        }
-
         #endregion
 
         #region Subscription
@@ -1126,8 +1107,7 @@ namespace Netch.Forms
                     // 启动需要禁用的控件
                     UninstallServiceToolStripMenuItem.Enabled = UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled =
                         updatePACToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled = UninstallTapDriverToolStripMenuItem.Enabled =
-                                ReloadModesToolStripMenuItem.Enabled = enabled;
+                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled = UninstallTapDriverToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
