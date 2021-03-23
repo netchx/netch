@@ -193,7 +193,17 @@ namespace Netch.Controllers
         {
             foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
             {
-                if (p.MainModule!.FileName.StartsWith(Global.NetchDir))
+                try
+                {
+                    _ = p.MainModule!.FileName;
+                }
+                catch (Exception e)
+                {
+                    Logging.Warning(e.ToString());
+                    continue;
+                }
+
+                if (p.MainModule.FileName.StartsWith(Global.NetchDir))
                 {
                     p.Kill();
                     p.WaitForExit();

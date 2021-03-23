@@ -33,7 +33,7 @@ namespace Netch.Utils
             if (port == 0)
                 throw new ArgumentOutOfRangeException();
 
-            var row = GetTcpTable2().Where(r => ntohs((ushort) r.dwLocalPort) == port);
+            var row = GetTcpTable2().Where(r => ntohs((ushort) r.dwLocalPort) == port).Where(r => r.dwOwningPid is not (0 or 4));
 
             return row.Select(r => Process.GetProcessById((int) r.dwOwningPid));
         }
