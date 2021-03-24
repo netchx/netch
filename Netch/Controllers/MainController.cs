@@ -193,9 +193,10 @@ namespace Netch.Controllers
         {
             foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
             {
+                string fileName;
                 try
                 {
-                    _ = p.MainModule!.FileName;
+                    fileName = p.MainModule!.FileName;
                 }
                 catch (Exception e)
                 {
@@ -203,16 +204,14 @@ namespace Netch.Controllers
                     continue;
                 }
 
-                if (p.MainModule.FileName.StartsWith(Global.NetchDir))
+                if (fileName.StartsWith(Global.NetchDir))
                 {
                     p.Kill();
                     p.WaitForExit();
                 }
                 else
                 {
-                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.",
-                        $"{portName} ({port})",
-                        $"({p.Id}){p.MainModule.FileName}"));
+                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.", $"{portName} ({port})", $"({p.Id}){fileName}"));
                 }
             }
 
