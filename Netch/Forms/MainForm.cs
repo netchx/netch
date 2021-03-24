@@ -1462,8 +1462,14 @@ namespace Netch.Forms
 
         #region NotifyIcon
 
-        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
+        public void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => ShowMainFormToolStripButton_Click(sender, e)));
+                return;
+            }
+
             if (WindowState == FormWindowState.Minimized)
             {
                 Visible = true;

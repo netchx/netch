@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,8 +9,6 @@ using Netch.Controllers;
 using Netch.Forms;
 using Netch.Models;
 using Netch.Utils;
-using Vanara.PInvoke;
-using static Vanara.PInvoke.User32;
 
 namespace Netch
 {
@@ -50,14 +47,16 @@ namespace Netch
             Configuration.Load();
 
             Global.LogStopwatch.Log("Load Configuration");
-            // 检查是否已经运行
-            if (!Global.Mutex.WaitOne(0, false))
-            {
-                ShowOpened();
 
-                // 退出进程
-                Environment.Exit(1);
+            if (!Global.SingleInstance.IsFirstInstance)
+            {
+                Global.SingleInstance.PassArgumentsToFirstInstance(args.Append(Global.ParameterShow));
+                Environment.Exit(0);
+                return;
             }
+
+            Global.SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
+            Global.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间
             if (Directory.Exists("logging"))
@@ -106,40 +105,12 @@ namespace Netch
             Utils.Utils.Open(Logging.LogFile);
         }
 
-        private static void ShowOpened()
+        private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)
         {
-            HWND GetWindowHandleByPidAndTitle(int process, string title)
+            if (args.Contains(Global.ParameterShow))
             {
-                var sb = new StringBuilder(256);
-                HWND pLast = IntPtr.Zero;
-                do
-                {
-                    pLast = FindWindowEx(HWND.NULL, pLast, null, null);
-                    GetWindowThreadProcessId(pLast, out var id);
-                    if (id != process)
-                        continue;
-
-                    if (GetWindowText(pLast, sb, sb.Capacity) <= 0)
-                        continue;
-
-                    if (sb.ToString().Equals(title))
-                        return pLast;
-                } while (pLast != IntPtr.Zero);
-
-                return HWND.NULL;
+                Global.MainForm.ShowMainFormToolStripButton_Click(null!, null!);
             }
-
-            var self = Process.GetCurrentProcess();
-            var activeProcess = Process.GetProcessesByName("Netch").Single(p => p.Id != self.Id);
-            HWND handle = activeProcess.MainWindowHandle;
-            if (handle.IsNull)
-                handle = GetWindowHandleByPidAndTitle(activeProcess.Id, "Netch");
-
-            if (handle.IsNull)
-                return;
-
-            ShowWindow(handle, ShowWindowCommand.SW_NORMAL);
-            SwitchToThisWindow(handle, true);
         }
     }
 }

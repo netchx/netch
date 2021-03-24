@@ -43,6 +43,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="HMBSbige.SingleInstance" Version="5.0.0" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.66" GeneratePathProperty="true" />
         <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
