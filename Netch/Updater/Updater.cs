@@ -120,7 +120,7 @@ namespace Netch.Updater
 
             // save, release mutex, then exit
             Configuration.Save();
-            Global.MainForm.Invoke(new Action(() => { Global.SingleInstance.Dispose(); }));
+            Global.MainForm.Invoke(new Action(() => { Netch.SingleInstance.Dispose(); }));
             Process.Start(Global.NetchExecutable);
             Global.MainForm.Exit(true, false);
         }

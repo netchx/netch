@@ -45,7 +45,7 @@ namespace Netch.Utils
         /// </summary>
         public static void NetTraffic()
         {
-            if (!Global.Flags.IsWindows10Upper)
+            if (!Flags.IsWindows10Upper)
                 return;
 
             var counterLock = new object();

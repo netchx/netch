@@ -161,7 +161,7 @@ namespace Netch.Models
         /// <returns>模式文件字符串</returns>
         public string ToFileString()
         {
-            return $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}{Global.EOF}{string.Join(Global.EOF, Rule)}";
+            return $"# {Remark}, {Type}, {(BypassChina ? 1 : 0)}{Constants.EOF}{string.Join(Constants.EOF, Rule)}";
         }
     }
 

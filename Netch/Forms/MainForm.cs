@@ -84,8 +84,6 @@ namespace Netch.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            Global.LogStopwatch.Log("MainForm ctor (Pre MainForm Load)");
-
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
@@ -121,8 +119,6 @@ namespace Netch.Forms
                 if (Global.Settings.StartWhenOpened)
                     ControlButton_Click(null, null);
             });
-
-            Global.LogStopwatch.Log("Post Form Load", true);
         }
 
         private void RecordSize()
@@ -448,7 +444,7 @@ namespace Netch.Forms
                 if (useProxy)
                     req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
 
-                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, Global.UserACL));
+                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, Constants.UserACL));
                 NotifyTip(i18N.Translate("ACL updated successfully"));
             }
             catch (Exception e)
@@ -1238,7 +1234,7 @@ namespace Netch.Forms
         {
             if (natType > 0 && natType < 5)
             {
-                NatTypeStatusLightLabel.Visible = Global.Flags.IsWindows10Upper;
+                NatTypeStatusLightLabel.Visible = Flags.IsWindows10Upper;
                 var c = natType switch
                         {
                             1 => Color.LimeGreen,

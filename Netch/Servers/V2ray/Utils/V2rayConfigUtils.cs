@@ -73,7 +73,7 @@ namespace Netch.Servers.V2ray.Utils
                             break;
                         case 1:
                         case 2:
-                            if (Global.Flags.SupportFakeDns && Global.Settings.TUNTAP.UseFakeDNS)
+                            if (Flags.SupportFakeDns && Global.Settings.TUNTAP.UseFakeDNS)
                                 directRuleObject.domain.Add("geosite:cn");
                             else
                                 directRuleObject.ip.Add("geoip:cn");

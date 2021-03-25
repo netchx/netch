@@ -74,7 +74,7 @@ namespace Netch.Controllers
             argument.Append(
                 $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {DnsUtils.Join(dns)} -tunName \"{TUNTAP.GetName(_tap.ComponentID)}\" ");
 
-            if (Global.Settings.TUNTAP.UseFakeDNS && Global.Flags.SupportFakeDns)
+            if (Global.Settings.TUNTAP.UseFakeDNS && Flags.SupportFakeDns)
                 argument.Append("-fakeDns ");
 
             StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);

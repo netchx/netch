@@ -235,7 +235,7 @@ namespace Netch.Forms
         private void SettingForm_Load(object sender, EventArgs e)
         {
             TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
-            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Global.Flags.SupportFakeDns)));
+            Task.Run(() => BeginInvoke(new Action(() => UseFakeDNSCheckBox.Visible = Flags.SupportFakeDns)));
         }
 
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)

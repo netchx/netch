@@ -39,7 +39,7 @@ namespace Netch.Utils
 
         private static void Write(string text, LogLevel logLevel)
         {
-            var contents = $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Global.EOF}";
+            var contents = $@"[{DateTime.Now}][{logLevel.ToString()}] {text}{Constants.EOF}";
 #if DEBUG
             switch (logLevel)
             {
