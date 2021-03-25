@@ -1383,7 +1383,8 @@ namespace Netch.Forms
                 if (File.Exists(file))
                     File.Delete(file);
 
-            Stop();
+            if (IsWaiting())
+                await StopAsyncCore();
 
             Dispose();
             Environment.Exit(Environment.ExitCode);
@@ -1419,6 +1420,8 @@ namespace Netch.Forms
             {
                 UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
                 UpdateChecker.Check(Global.Settings.CheckBetaUpdate).Wait();
+                if (Flags.AlwaysShowNewVersionFound)
+                    OnUpdateCheckerOnNewVersionFound(null!, null!);
             }
             finally
             {

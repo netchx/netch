@@ -24,10 +24,12 @@ namespace Netch
 #if DEBUG
             AttachConsole();
 #else
-            if (args.Contains("-console"))
+            if (args.Contains(Constants.Parameter.Console))
                 AttachConsole();
 #endif
 
+            if (args.Contains(Constants.Parameter.ForceUpdate))
+                Flags.AlwaysShowNewVersionFound = true;
 
             // 设置当前目录
             Directory.SetCurrentDirectory(Global.NetchDir);
@@ -48,7 +50,7 @@ namespace Netch
 
             if (!SingleInstance.IsFirstInstance)
             {
-                SingleInstance.PassArgumentsToFirstInstance(args.Append(Constants.ParameterShow));
+                SingleInstance.PassArgumentsToFirstInstance(args.Append(Constants.Parameter.Show));
                 Environment.Exit(0);
                 return;
             }
@@ -103,7 +105,7 @@ namespace Netch
 
         private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)
         {
-            if (args.Contains(Constants.ParameterShow))
+            if (args.Contains(Constants.Parameter.Show))
             {
                 Global.MainForm.ShowMainFormToolStripButton_Click(null!, null!);
             }

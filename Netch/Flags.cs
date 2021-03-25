@@ -10,5 +10,7 @@ namespace Netch
         private static readonly Lazy<bool> LazySupportFakeDns = new(() => new TUNTAPController().TestFakeDNS());
 
         public static bool SupportFakeDns => LazySupportFakeDns.Value;
+
+        public static bool AlwaysShowNewVersionFound { get; set; }
     }
 }
