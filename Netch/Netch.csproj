@@ -125,7 +125,7 @@
         </VisualStudio>
     </ProjectExtensions>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="set TargetFramework=$(TargetFramework)&#xD;&#xA;set Configuration=$(Configuration)&#xD;&#xA;set ILMergeConsolePath=$(ILMergeConsolePath)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;$(ProjectDir)PostBuild.bat" />
+        <Exec Command="set TargetFramework=$(TargetFramework)&#xD;&#xA;set Configuration=$(Configuration)&#xD;&#xA;set ILMergeConsolePath=$(ILMergeConsolePath)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;call $(ProjectDir)PostBuild.bat" />
     </Target>
 
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
