@@ -222,5 +222,38 @@ namespace Netch.Utils
                     break;
             }
         }
+
+        public static async Task ProcessRunHiddenAsync(string fileName, string? arguments = null, bool print = true)
+        {
+            var p = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = fileName,
+                    Arguments = arguments,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    Verb = "runas",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                }
+            };
+
+#if DEBUG
+            Console.WriteLine($"{fileName} {arguments}");
+#endif
+
+            p.Start();
+            var output = await p.StandardOutput.ReadToEndAsync();
+            var error = await p.StandardError.ReadToEndAsync();
+            if (print)
+            {
+                Console.Write(output);
+                Console.Write(error);
+            }
+
+            p.WaitForExit();
+        }
     }
 }

@@ -42,7 +42,6 @@ namespace Netch.Forms
             #region i18N Translations
 
             _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] {"Uninstall {0}", "NF Service"});
-            _mainFormText.Add(UninstallTapDriverToolStripMenuItem.Name, new[] {"Uninstall {0}", "TUN/TAP driver"});
 
             #endregion
 
@@ -500,26 +499,6 @@ namespace Netch.Forms
                     if (NFController.UninstallDriver())
                         NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
                 });
-            }
-            finally
-            {
-                StatusText();
-                Enabled = true;
-            }
-        }
-
-        private async void UninstallTapDriverToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Enabled = false;
-            StatusText(i18N.TranslateFormat("Uninstalling {0}", "TUN/TAP driver"));
-            try
-            {
-                await Task.Run(TUNTAP.deltapall);
-                NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "TUN/TAP driver"));
-            }
-            catch (Exception exception)
-            {
-                Logging.Error($"卸载 TUN/TAP 适配器失败: {exception}");
             }
             finally
             {
@@ -1101,7 +1080,7 @@ namespace Netch.Forms
                     // 启动需要禁用的控件
                     UninstallServiceToolStripMenuItem.Enabled = UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled =
                         updatePACToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled = UninstallTapDriverToolStripMenuItem.Enabled = enabled;
+                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled  = enabled;
                 }
 
                 _state = value;

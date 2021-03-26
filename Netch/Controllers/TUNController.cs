@@ -4,14 +4,18 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using Vanara.PInvoke;
+using static Vanara.PInvoke.IpHlpApi;
+using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Controllers
 {
-    public class TUNTAPController : Guard, IModeController
+    public class TUNController : Guard, IModeController
     {
         private readonly List<string> _directIPs = new();
 
@@ -26,9 +30,9 @@ namespace Netch.Controllers
         /// </summary>
         public DNSController DNSController = new();
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"Running"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"Started"};
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"failed", "invalid vconfig file"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new List<string>();
 
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 
@@ -36,67 +40,41 @@ namespace Netch.Controllers
 
         public override string Name { get; } = "tun2socks";
 
-        private readonly OutboundAdapter _outbound = new();
-        private TapAdapter _tap = null!;
+        private readonly OutboundAdapter _outboundAdapter = new();
+        private IAdapter _tunAdapter = null!;
 
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
             _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
-            if (TUNTAP.GetComponentID() == null)
-                TUNTAP.AddTap();
+            var parameter = new WinTun2socksParameter();
 
-            _tap = new TapAdapter();
-
-            List<string> dns;
-            if (Global.Settings.TUNTAP.UseCustomDNS)
+            if (server is Socks5 socks5)
             {
-                dns = Global.Settings.TUNTAP.DNS.Any() ? Global.Settings.TUNTAP.DNS : Global.Settings.TUNTAP.DNS = new List<string> {"1.1.1.1"};
+                parameter.hostname = $"{server.AutoResolveHostname()}:{server.Port}";
+                if (socks5.Auth())
+                {
+                    parameter.username = socks5.Username!;
+                    parameter.password = socks5.Password!;
+                }
             }
             else
-            {
-                MainController.PortCheck(53, "DNS");
-                DNSController.Start();
-                dns = new List<string> {"127.0.0.1"};
-            }
+                parameter.hostname = $"127.0.0.1:{Global.Settings.Socks5LocalPort}";
 
-            var parameter = new Tun2SocksParameter
-            {
-                tunAddr = Global.Settings.TUNTAP.Address,
-                tunMask = Global.Settings.TUNTAP.Netmask,
-                tunGw = Global.Settings.TUNTAP.Gateway,
-                tunDns = DnsUtils.Join(dns),
-                tunName = TUNTAP.GetName(_tap.ComponentID),
-                fakeDns = Global.Settings.TUNTAP.UseFakeDNS && Flags.SupportFakeDns
-            };
+            MainFile = "tun2socks.exe";
+            StartInstanceAuto(parameter.ToString());
+            _tunAdapter = new TunAdapter();
 
-            if (server is Socks5 socks5 && !socks5.Auth())
-                parameter.proxyServer = $"{server.AutoResolveHostname()}:{server.Port}";
-            else
-                parameter.proxyServer = $"127.0.0.1:{Global.Settings.Socks5LocalPort}";
+            /*
+            InitializeUnicastIpAddressEntry(out var addr_row);
+            CreateUnicastIpAddressEntry(ref addr_row);
+            */
 
-            StartInstanceAuto(parameter.ToString(), ProcessPriorityClass.RealTime);
+            Utils.Utils.ProcessRunHiddenAsync("netsh", "interface ipv4 add address aioCloud 100.64.0.100 255.255.255.0").Wait();
+            Utils.Utils.ProcessRunHiddenAsync("route", "print -4", false).Wait();
 
             SetupRouteTable(mode);
-        }
-
-        [Verb]
-        public class Tun2SocksParameter : ParameterBase
-        {
-            public string proxyServer { get; set; }
-
-            public string tunAddr { get; set; }
-
-            public string tunMask { get; set; }
-
-            public string tunGw { get; set; }
-
-            public string tunDns { get; set; }
-
-            public string tunName { get; set; }
-
-            public bool fakeDns { get; set; }
         }
 
         /// <summary>
@@ -123,6 +101,13 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
             Logging.Info("设置路由规则");
 
+            Logging.Info("绕行 → 服务器 IP");
+            if (!IPAddress.IsLoopback(_serverAddresses))
+                RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
+
+            Logging.Info("绕行 → 全局绕过 IP");
+            RouteAction(Action.Create, Global.Settings.BypassIPs, RouteType.Outbound);
+
             #region Rule IPs
 
             switch (mode.Type)
@@ -132,11 +117,11 @@ namespace Netch.Controllers
                     Logging.Info("代理 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
 
-                    if (Global.Settings.TUNTAP.ProxyDNS)
+                    if (Global.Settings.WinTUN.ProxyDNS)
                     {
                         Logging.Info("代理 → 自定义 DNS");
-                        if (Global.Settings.TUNTAP.UseCustomDNS)
-                            RouteAction(Action.Create, Global.Settings.TUNTAP.DNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
+                        if (Global.Settings.WinTUN.UseCustomDNS)
+                            RouteAction(Action.Create, Global.Settings.WinTUN.DNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
                         else
                             RouteAction(Action.Create, $"{Global.Settings.AioDNS.OtherDNS}/32", RouteType.TUNTAP);
                     }
@@ -145,9 +130,6 @@ namespace Netch.Controllers
                 case 2:
                     // 绕过规则 IP
 
-                    // 将 TUN/TAP 网卡权重放到最高
-                    SetInterface(RouteType.TUNTAP, 0);
-
                     Logging.Info("绕行 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
                     break;
@@ -155,41 +137,23 @@ namespace Netch.Controllers
 
             #endregion
 
-            Logging.Info("绕行 → 服务器 IP");
-            if (!IPAddress.IsLoopback(_serverAddresses))
-                RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
-
-            Logging.Info("绕行 → 全局绕过 IP");
-            RouteAction(Action.Create, Global.Settings.BypassIPs, RouteType.Outbound);
-
             if (mode.Type == 2)
             {
                 Logging.Info("代理 → 全局");
+                SetInterface(RouteType.TUNTAP, 0);
                 RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP);
             }
         }
 
         private void SetInterface(RouteType routeType, int? metric = null)
         {
-            IAdapter adapter = routeType switch
-                               {
-                                   RouteType.Outbound => _outbound,
-                                   RouteType.TUNTAP => _tap,
-                                   _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-                               };
+            var adapter = routeType == RouteType.Outbound ? _outboundAdapter : _tunAdapter;
 
-            var arguments = $"interface ip set interface {adapter.Index} ";
+            var arguments = $"interface ip set interface {adapter.InterfaceIndex} ";
             if (metric != null)
                 arguments += $"metric={metric} ";
 
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "netsh",
-                Arguments = arguments,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = true,
-                CreateNoWindow = true
-            });
+            Utils.Utils.ProcessRunHiddenAsync("netsh", arguments).Wait();
         }
 
         /// <summary>
@@ -197,10 +161,16 @@ namespace Netch.Controllers
         /// </summary>
         private bool ClearRouteTable()
         {
+            var mode = MainController.Mode!;
             RouteAction(Action.Delete, _directIPs, RouteType.Outbound);
             RouteAction(Action.Delete, _proxyIPs, RouteType.TUNTAP);
             _directIPs.Clear();
             _proxyIPs.Clear();
+            if (mode.Type == 2)
+            {
+                SetInterface(RouteType.Outbound);
+            }
+
             return true;
         }
 
@@ -217,6 +187,8 @@ namespace Netch.Controllers
                 return false;
             }
         }
+
+        #region Package
 
         private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0)
         {
@@ -239,11 +211,11 @@ namespace Netch.Controllers
             switch (routeType)
             {
                 case RouteType.TUNTAP:
-                    adapter = _tap;
+                    adapter = _tunAdapter;
                     ipList = _proxyIPs;
                     break;
                 case RouteType.Outbound:
-                    adapter = _outbound;
+                    adapter = _outboundAdapter;
                     ipList = _directIPs;
                     break;
                 default:
@@ -253,13 +225,16 @@ namespace Netch.Controllers
             string network = s[0];
             var cidr = ushort.Parse(s[1]);
             string gateway = adapter.Gateway.ToString();
-            var index = adapter.Index;
+            var index = adapter.InterfaceIndex;
 
             bool result;
             switch (action)
             {
                 case Action.Create:
                     result = NativeMethods.CreateRoute(network, cidr, gateway, index, metric);
+#if DEBUG
+                    Console.WriteLine($"CreateRoute(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
+#endif
                     ipList.Add(ipNetwork);
                     break;
                 case Action.Delete:
@@ -286,5 +261,46 @@ namespace Netch.Controllers
             Create,
             Delete
         }
+
+        [Verb]
+        public class Tap2SocksParameter : ParameterBase
+        {
+            public string? proxyServer { get; set; }
+
+            public string? tunAddr { get; set; }
+
+            public string? tunMask { get; set; }
+
+            public string? tunGw { get; set; }
+
+            public string? tunDns { get; set; }
+
+            public string? tunName { get; set; }
+
+            public bool fakeDns { get; set; }
+        }
+
+        [Verb]
+        class WinTun2socksParameter : ParameterBase
+        {
+            public string? bind { get; set; } = "10.0.0.100";
+
+            [Quote]
+            public string? list { get; set; } = "disabled";
+
+            public string? hostname { get; set; }
+
+            [Optional]
+            public string? username { get; set; }
+
+            [Optional]
+            public string? password { get; set; }
+
+            public string? dns { get; set; } = "1.1.1.1:53";
+
+            public int? mtu { get; set; } = 1500;
+        }
+
+        #endregion
     }
 }

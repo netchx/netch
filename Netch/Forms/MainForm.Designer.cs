@@ -46,7 +46,6 @@
             this.updateACLWithProxyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.updatePACToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UninstallTapDriverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -208,7 +207,6 @@
             this.updateACLWithProxyToolStripMenuItem,
             this.updatePACToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem,
-            this.UninstallTapDriverToolStripMenuItem,
             this.removeNetchFirewallRulesToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
@@ -256,13 +254,6 @@
             this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall NF Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
-            // 
-            // UninstallTapDriverToolStripMenuItem
-            // 
-            this.UninstallTapDriverToolStripMenuItem.Name = "UninstallTapDriverToolStripMenuItem";
-            this.UninstallTapDriverToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.UninstallTapDriverToolStripMenuItem.Text = "Uninstall TUN/TAP driver";
-            this.UninstallTapDriverToolStripMenuItem.Click += new System.EventHandler(this.UninstallTapDriverToolStripMenuItem_Click);
             // 
             // removeNetchFirewallRulesToolStripMenuItem
             // 
@@ -801,7 +792,6 @@
         private System.Windows.Forms.Label ProfileLabel;
         private System.Windows.Forms.TextBox ProfileNameText;
         private System.Windows.Forms.TableLayoutPanel ProfileTable;
-        private System.Windows.Forms.ToolStripMenuItem UninstallTapDriverToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem CheckForUpdatesToolStripMenuItem;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.Label ServerLabel;

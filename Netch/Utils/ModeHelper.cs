@@ -109,16 +109,21 @@ namespace Netch.Utils
 
         public static bool SkipServerController(Server server, Mode mode)
         {
-            return mode.Type switch
-                   {
-                       0 => server switch
-                            {
-                                Socks5 => true,
-                                Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
-                                _ => false
-                            },
-                       _ => false
-                   };
+            switch (mode.Type)
+            {
+                case 0:
+                    return server switch
+                           {
+                               Socks5 => true,
+                               Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
+                               _ => false
+                           };
+                case 1:
+                case 2:
+                    return server is Socks5 ;
+                default:
+                    return false;
+            }
         }
 
         public static IModeController? GetModeControllerByType(int type, out ushort? port, out string portName)
@@ -133,7 +138,7 @@ namespace Netch.Utils
                     return new NFController();
                 case 1:
                 case 2:
-                    return new TUNTAPController();
+                    return new TUNController();
                 case 3:
                 case 5:
                     port = Global.Settings.HTTPLocalPort;

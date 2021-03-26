@@ -81,7 +81,6 @@ namespace Netch.Forms
             this.TUNTAPDNSTextBox = new System.Windows.Forms.TextBox();
             this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
-            this.UseFakeDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
             this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
@@ -544,13 +543,13 @@ namespace Netch.Forms
             this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSTextBox);
             this.TUNTAPGroupBox.Controls.Add(this.UseCustomDNSCheckBox);
             this.TUNTAPGroupBox.Controls.Add(this.ProxyDNSCheckBox);
-            this.TUNTAPGroupBox.Controls.Add(this.UseFakeDNSCheckBox);
             this.TUNTAPGroupBox.Location = new System.Drawing.Point(6, 6);
             this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
-            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 187);
+            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 175);
             this.TUNTAPGroupBox.TabIndex = 0;
             this.TUNTAPGroupBox.TabStop = false;
             this.TUNTAPGroupBox.Text = "TUN/TAP";
+            this.TUNTAPGroupBox.Visible = false;
             // 
             // TUNTAPAddressLabel
             // 
@@ -641,17 +640,6 @@ namespace Netch.Forms
             this.ProxyDNSCheckBox.TabIndex = 9;
             this.ProxyDNSCheckBox.Text = "Proxy DNS in Proxy Rule IPs Mode";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // UseFakeDNSCheckBox
-            // 
-            this.UseFakeDNSCheckBox.AutoSize = true;
-            this.UseFakeDNSCheckBox.Location = new System.Drawing.Point(10, 160);
-            this.UseFakeDNSCheckBox.Name = "UseFakeDNSCheckBox";
-            this.UseFakeDNSCheckBox.Size = new System.Drawing.Size(96, 16);
-            this.UseFakeDNSCheckBox.TabIndex = 10;
-            this.UseFakeDNSCheckBox.Text = "Use Fake DNS";
-            this.UseFakeDNSCheckBox.UseVisualStyleBackColor = true;
-            this.UseFakeDNSCheckBox.Visible = false;
             // 
             // GlobalBypassIPsButton
             // 
@@ -1095,7 +1083,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox Socks5PortTextBox;
         private System.Windows.Forms.CheckBox ResolveServerHostnameCheckBox;
         private System.Windows.Forms.GroupBox TUNTAPGroupBox;
-        private System.Windows.Forms.CheckBox UseFakeDNSCheckBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
         private System.Windows.Forms.CheckBox UseCustomDNSCheckBox;
         private System.Windows.Forms.Label TUNTAPDNSLabel;

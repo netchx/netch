@@ -3,13 +3,14 @@ using System.Net.NetworkInformation;
 
 namespace Netch.Models
 {
-    public interface  IAdapter
+    public interface IAdapter
     {
-        public abstract int Index { get; }
+        string AdapterId { get; }
 
-        public abstract IPAddress Gateway { get; }
+        int InterfaceIndex { get; }
 
-        public abstract NetworkInterface NetworkInterface { get; }
+        IPAddress Gateway { get; }
 
+        NetworkInterface NetworkInterface { get; }
     }
 }
