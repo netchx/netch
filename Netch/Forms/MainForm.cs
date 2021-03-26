@@ -611,9 +611,7 @@ namespace Netch.Forms
             if (!IsWaiting())
             {
                 // 停止
-                State = State.Stopping;
-                await MainController.StopAsync();
-                State = State.Stopped;
+                await StopAsyncCore();
                 return;
             }
 
@@ -1155,6 +1153,27 @@ namespace Netch.Forms
             }
         }
 
+        private async Task StopAsyncCore()
+        {
+            State = State.Stopping;
+            await MainController.StopAsync();
+            State = State.Stopped;
+        }
+
+        public void Stop()
+        {
+            if (IsWaiting())
+                return;
+
+            if (InvokeRequired)
+            {
+                Invoke(new Action(Stop));
+                return;
+            }
+
+            StopAsyncCore().Wait();
+        }
+
         private bool IsWaiting()
         {
             return State == State.Waiting || State == State.Stopped;
@@ -1364,8 +1383,7 @@ namespace Netch.Forms
                 if (File.Exists(file))
                     File.Delete(file);
 
-            if (!IsWaiting())
-                await MainController.StopAsync();
+            Stop();
 
             Dispose();
             Environment.Exit(Environment.ExitCode);
@@ -1498,7 +1516,7 @@ namespace Netch.Forms
 
         public void NotifyTip(string text, int timeout = 0, bool info = true)
         {
-            // 会阻塞线程 timeout 秒
+            // 会阻塞线程 timeout 秒(?)
             NotifyIcon.ShowBalloonTip(timeout, UpdateChecker.Name, text, info ? ToolTipIcon.Info : ToolTipIcon.Error);
         }
 
