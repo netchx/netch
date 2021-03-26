@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -66,14 +67,7 @@ namespace Netch.Controllers
             StartInstanceAuto(parameter.ToString());
             _tunAdapter = new TunAdapter();
 
-            /*
-            InitializeUnicastIpAddressEntry(out var addr_row);
-            CreateUnicastIpAddressEntry(ref addr_row);
-            */
-
-            Utils.Utils.ProcessRunHiddenAsync("netsh", "interface ipv4 add address aioCloud 100.64.0.100 255.255.255.0").Wait();
-            Utils.Utils.ProcessRunHiddenAsync("route", "print -4", false).Wait();
-
+            NativeMethods.CreateUnicastIP((int)AddressFamily.InterNetwork, "100.64.0.100", 24, _tunAdapter.InterfaceIndex);
             SetupRouteTable(mode);
         }
 
@@ -232,14 +226,14 @@ namespace Netch.Controllers
             {
                 case Action.Create:
 
-                    result = NativeMethods.CreateRoute((int) ADDRESS_FAMILY.AF_INET, network, cidr, gateway, index, metric);
+                    result = NativeMethods.CreateRoute((int)AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
 #if DEBUG
                     Console.WriteLine($"CreateRoute(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
 #endif
                     ipList.Add(ipNetwork);
                     break;
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute((int) ADDRESS_FAMILY.AF_INET, network, cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute((int)AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
