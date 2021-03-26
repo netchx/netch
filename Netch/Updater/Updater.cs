@@ -8,9 +8,7 @@ using System.Net;
 using System.Text;
 using System.Windows.Threading;
 using Netch.Controllers;
-using Netch.Forms;
 using Netch.Properties;
-using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Updater
