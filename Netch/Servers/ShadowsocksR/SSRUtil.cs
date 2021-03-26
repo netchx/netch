@@ -40,7 +40,7 @@ namespace Netch.Servers.ShadowsocksR
             // https://github.com/shadowsocksr-backup/shadowsocks-rss/wiki/SSR-QRcode-scheme
             // ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
             var paraStr =
-                $"/?obfsparam={ShareLink.URLSafeBase64Encode(server.OBFSParam)}&protoparam={ShareLink.URLSafeBase64Encode(server.ProtocolParam)}&remarks={ShareLink.URLSafeBase64Encode(server.Remark)}";
+                $"/?obfsparam={ShareLink.URLSafeBase64Encode(server.OBFSParam ?? "")}&protoparam={ShareLink.URLSafeBase64Encode(server.ProtocolParam ?? "")}&remarks={ShareLink.URLSafeBase64Encode(server.Remark)}";
 
             return "ssr://" +
                    ShareLink.URLSafeBase64Encode(
