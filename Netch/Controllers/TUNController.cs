@@ -231,14 +231,15 @@ namespace Netch.Controllers
             switch (action)
             {
                 case Action.Create:
-                    result = NativeMethods.CreateRoute(network, cidr, gateway, index, metric);
+
+                    result = NativeMethods.CreateRoute((int) ADDRESS_FAMILY.AF_INET, network, cidr, gateway, index, metric);
 #if DEBUG
                     Console.WriteLine($"CreateRoute(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
 #endif
                     ipList.Add(ipNetwork);
                     break;
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute(network, cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute((int) ADDRESS_FAMILY.AF_INET, network, cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
