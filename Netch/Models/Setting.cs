@@ -77,7 +77,7 @@ namespace Netch.Models
 
         public string Protocol { get; set; } = "tcp";
 
-        public string RulePath { get; set; } = "bin\\china_site_list";
+        public string RulePath { get; set; } = "bin\\aiodns.conf";
     }
 
     /// <summary>
