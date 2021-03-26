@@ -11,12 +11,13 @@ using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using Vanara.PInvoke;
+using static Netch.Controllers.TUNInterop;
 using static Vanara.PInvoke.IpHlpApi;
 using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Controllers
 {
-    public class TUNController : Guard, IModeController
+    public class TUNController : IModeController
     {
         private readonly List<string> _directIPs = new();
 
@@ -29,56 +30,95 @@ namespace Netch.Controllers
         /// <summary>
         ///     本地 DNS 服务控制器
         /// </summary>
-        public DNSController DNSController = new();
+        public readonly DNSController DNSController = new();
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"Started"};
-
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new List<string>();
-
-        public override string MainFile { get; protected set; } = "tun2socks.exe";
-
-        protected override Encoding InstanceOutputEncoding { get; } = Encoding.UTF8;
-
-        public override string Name { get; } = "tun2socks";
+        public string Name { get; } = "tun2socks";
 
         private readonly OutboundAdapter _outboundAdapter = new();
         private IAdapter _tunAdapter = null!;
+        private readonly TUNInterop _tunInterop = new();
 
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
             _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
-            var parameter = new WinTun2socksParameter();
+            _tunInterop.Dial(NameList.TYPE_ADAPMTU, "1500");
+            _tunInterop.Dial(NameList.TYPE_BYPBIND, "10.0.0.100");
+            _tunInterop.Dial(NameList.TYPE_BYPLIST, "disabled");
+
+
+            #region Server
+
+            _tunInterop.Dial(NameList.TYPE_TCPREST, "");
+            _tunInterop.Dial(NameList.TYPE_TCPTYPE, "Socks5");
+
+            _tunInterop.Dial(NameList.TYPE_UDPREST, "");
+            _tunInterop.Dial(NameList.TYPE_UDPTYPE, "Socks5");
 
             if (server is Socks5 socks5)
             {
-                parameter.hostname = $"{server.AutoResolveHostname()}:{server.Port}";
+                _tunInterop.Dial(NameList.TYPE_TCPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
+
+                _tunInterop.Dial(NameList.TYPE_UDPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
+
                 if (socks5.Auth())
                 {
-                    parameter.username = socks5.Username!;
-                    parameter.password = socks5.Password!;
+                    _tunInterop.Dial(NameList.TYPE_TCPUSER, socks5.Username!);
+                    _tunInterop.Dial(NameList.TYPE_TCPPASS, socks5.Password!);
+
+                    _tunInterop.Dial(NameList.TYPE_UDPUSER, socks5.Username!);
+                    _tunInterop.Dial(NameList.TYPE_UDPPASS, socks5.Password!);
                 }
             }
             else
-                parameter.hostname = $"127.0.0.1:{Global.Settings.Socks5LocalPort}";
+            {
+                _tunInterop.Dial(NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
-            MainFile = "tun2socks.exe";
-            StartInstanceAuto(parameter.ToString());
+                _tunInterop.Dial(NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+            }
+
+            #endregion
+
+            #region DNS
+
+            List<string> dns;
+            if (Global.Settings.WinTUN.UseCustomDNS)
+            {
+                dns = Global.Settings.WinTUN.DNS.Any() ? Global.Settings.WinTUN.DNS : Global.Settings.WinTUN.DNS = new List<string> {"1.1.1.1"};
+            }
+            else
+            {
+                MainController.PortCheck(53, "DNS");
+                DNSController.Start();
+                dns = new List<string> {"127.0.0.1"};
+            }
+
+            _tunInterop.Dial(NameList.TYPE_DNSADDR, DnsUtils.Join(dns));
+
+            #endregion
+
+            Console.WriteLine("tun2socks init");
+            _tunInterop.Init();
+
             _tunAdapter = new TunAdapter();
 
-            NativeMethods.CreateUnicastIP((int)AddressFamily.InterNetwork, Global.Settings.WinTUN.Address, 24, _tunAdapter.InterfaceIndex);
+            NativeMethods.CreateUnicastIP((int) AddressFamily.InterNetwork, Global.Settings.WinTUN.Address, 24, _tunAdapter.InterfaceIndex);
             SetupRouteTable(mode);
         }
 
         /// <summary>
         ///     TUN/TAP停止
         /// </summary>
-        public override void Stop()
+        public void Stop()
         {
             var tasks = new[]
             {
-                Task.Run(StopInstance),
+                Task.Run(() =>
+                {
+                    _tunInterop.Free();
+                    // _tunInterop.Unload();
+                }),
                 Task.Run(ClearRouteTable),
                 Task.Run(DNSController.Stop)
             };
@@ -168,20 +208,6 @@ namespace Netch.Controllers
             return true;
         }
 
-        public bool TestFakeDNS()
-        {
-            try
-            {
-                InitInstance("-h");
-                Instance!.Start();
-                return Instance.StandardError.ReadToEnd().Contains("-fakeDns");
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         #region Package
 
         private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0)
@@ -225,22 +251,19 @@ namespace Netch.Controllers
             switch (action)
             {
                 case Action.Create:
-
-                    result = NativeMethods.CreateRoute((int)AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
-#if DEBUG
-                    Console.WriteLine($"CreateRoute(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
-#endif
+                    result = NativeMethods.CreateRoute((int) AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
                     ipList.Add(ipNetwork);
                     break;
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute((int)AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute((int) AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
             }
 
+            Logging.Debug($"{action}Route(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
             if (!result)
-                Logging.Warning($"Failed to {action} Route on {routeType} Adapter: {ipNetwork} metric {metric}");
+                Logging.Warning($"Failed to invoke {action}Route(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
 
             return result;
         }
@@ -255,45 +278,6 @@ namespace Netch.Controllers
         {
             Create,
             Delete
-        }
-
-        [Verb]
-        public class Tap2SocksParameter : ParameterBase
-        {
-            public string? proxyServer { get; set; }
-
-            public string? tunAddr { get; set; }
-
-            public string? tunMask { get; set; }
-
-            public string? tunGw { get; set; }
-
-            public string? tunDns { get; set; }
-
-            public string? tunName { get; set; }
-
-            public bool fakeDns { get; set; }
-        }
-
-        [Verb]
-        class WinTun2socksParameter : ParameterBase
-        {
-            public string? bind { get; set; } = "10.0.0.100";
-
-            [Quote]
-            public string? list { get; set; } = "disabled";
-
-            public string? hostname { get; set; }
-
-            [Optional]
-            public string? username { get; set; }
-
-            [Optional]
-            public string? password { get; set; }
-
-            public string? dns { get; set; } = "1.1.1.1:53";
-
-            public int? mtu { get; set; } = 1500;
         }
 
         #endregion
