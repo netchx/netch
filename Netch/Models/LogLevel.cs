@@ -4,6 +4,7 @@ namespace Netch.Models
     {
         INFO,
         WARNING,
-        ERROR
+        ERROR,
+        DEBUG
     }
 }
