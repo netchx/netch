@@ -74,7 +74,6 @@ namespace Netch.Servers.V2ray.Utils
                         case 1:
                         case 2:
                             // directRuleObject.ip.Add("geoip:cn");
-
                             break;
                         default:
                             directRuleObject.domain.Add("geosite:cn");

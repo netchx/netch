@@ -112,7 +112,7 @@ namespace Netch.Forms
             {
                 // 检查订阅更新
                 if (Global.Settings.UpdateServersWhenOpened)
-                    UpdateServersFromSubscribe(Global.Settings.UseProxyToUpdateSubscription).Wait();
+                    UpdateServersFromSubscribe().Wait();
 
                 // 打开软件时启动加速，产生开始按钮点击事件
                 if (Global.Settings.StartWhenOpened)
@@ -275,31 +275,14 @@ namespace Netch.Forms
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Global.Settings.UseProxyToUpdateSubscription = false;
             await UpdateServersFromSubscribe();
         }
 
-        private async void UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Global.Settings.UseProxyToUpdateSubscription = true;
-            await UpdateServersFromSubscribe(true);
-        }
-
-        private async Task UpdateServersFromSubscribe(bool useProxy = false)
+        private async Task UpdateServersFromSubscribe()
         {
             void DisableItems(bool v)
             {
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
-            }
-
-            var server = ServerComboBox.SelectedItem as Server;
-            if (useProxy)
-            {
-                if (server == null)
-                {
-                    MessageBoxX.Show(i18N.Translate("Please select a server first"));
-                    return;
-                }
             }
 
             if (Global.Settings.SubscribeLink.Count <= 0)
@@ -310,22 +293,10 @@ namespace Netch.Forms
 
             StatusText(i18N.Translate("Starting update subscription"));
             DisableItems(false);
+
             try
             {
-                string? proxyServer = null;
-                if (useProxy)
-                {
-                    var mode = new Models.Mode
-                    {
-                        Remark = "ProxyUpdate",
-                        Type = 5
-                    };
-
-                    await MainController.StartAsync(server!, mode);
-                    proxyServer = $"http://127.0.0.1:{Global.Settings.HTTPLocalPort}";
-                }
-
-                await Subscription.UpdateServersAsync(proxyServer);
+                await Subscription.UpdateServersAsync();
 
                 LoadServers();
                 Configuration.Save();
@@ -338,9 +309,6 @@ namespace Netch.Forms
             }
             finally
             {
-                if (useProxy)
-                    await MainController.StopAsync();
-
                 DisableItems(true);
             }
         }
@@ -404,45 +372,18 @@ namespace Netch.Forms
             }
         }
 
-        private void updateACLWithProxyToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            UpdateACL(true);
-        }
-
         private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            UpdateACL(false);
+            UpdateACL();
         }
 
-        private async void UpdateACL(bool useProxy)
+        private async void UpdateACL()
         {
             Enabled = false;
             StatusText(i18N.TranslateFormat("Updating {0}", "ACL"));
             try
             {
-                if (useProxy)
-                {
-                    if (!(ServerComboBox.SelectedItem is Server server))
-                    {
-                        MessageBoxX.Show(i18N.Translate("Please select a server first"));
-                        return;
-                    }
-                    else
-                    {
-                        var mode = new Models.Mode
-                        {
-                            Remark = "ProxyUpdate",
-                            Type = 5
-                        };
-
-                        await MainController.StartAsync(server, mode);
-                    }
-                }
-
                 var req = WebUtil.CreateRequest(Global.Settings.ACL);
-                if (useProxy)
-                    req.Proxy = new WebProxy($"http://127.0.0.1:{Global.Settings.HTTPLocalPort}");
-
                 await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, Constants.UserACL));
                 NotifyTip(i18N.Translate("ACL updated successfully"));
             }
@@ -450,36 +391,6 @@ namespace Netch.Forms
             {
                 NotifyTip(i18N.Translate("ACL update failed") + "\n" + e.Message, info: false);
                 Logging.Error("更新 ACL 失败！" + e);
-            }
-            finally
-            {
-                if (useProxy)
-                    await MainController.StopAsync();
-
-                StatusText();
-                Enabled = true;
-            }
-        }
-
-        private async void updatePACToolStripMenuItem_Click(object sender, EventArgs eventArgs)
-        {
-            Enabled = false;
-
-            StatusText(i18N.TranslateFormat("Updating {0}", "PAC"));
-            try
-            {
-                var req = WebUtil.CreateRequest(Global.Settings.PAC);
-
-                var pac = Path.Combine(Global.NetchDir, "bin\\pac.txt");
-
-                await WebUtil.DownloadFileAsync(req, pac);
-
-                NotifyTip(i18N.Translate("PAC updated successfully"));
-            }
-            catch (Exception e)
-            {
-                NotifyTip(i18N.Translate("PAC update failed") + "\n" + e.Message, info: false);
-                Logging.Error("更新 PAC 失败！" + e);
             }
             finally
             {
@@ -1078,9 +989,8 @@ namespace Netch.Forms
                         EditServerPictureBox.Enabled = DeleteModePictureBox.Enabled = DeleteServerPictureBox.Enabled = enabled;
 
                     // 启动需要禁用的控件
-                    UninstallServiceToolStripMenuItem.Enabled = UpdateACLToolStripMenuItem.Enabled = updateACLWithProxyToolStripMenuItem.Enabled =
-                        updatePACToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled =
-                            UpdateServersFromSubscribeLinksWithProxyToolStripMenuItem.Enabled  = enabled;
+                    UninstallServiceToolStripMenuItem.Enabled =
+                        UpdateACLToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;

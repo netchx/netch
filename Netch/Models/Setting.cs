@@ -282,11 +282,6 @@ namespace Netch.Models
         /// </summary>
         public bool UpdateServersWhenOpened { get; set; } = false;
 
-        /// <summary>
-        ///     使用代理更新订阅
-        /// </summary>
-        public bool UseProxyToUpdateSubscription { get; set; } = false;
-
         public V2rayConfig V2RayConfig { get; set; } = new();
 
         public bool? AlwaysStartPACServer { get; set; }

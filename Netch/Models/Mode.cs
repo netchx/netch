@@ -14,7 +14,7 @@ namespace Netch.Models
 
         public string? FullName { get; private set; }
 
-        public Mode(string? fullName = default)
+        public Mode(string? fullName)
         {
             _lazyRule = new Lazy<List<string>>(ReadRules);
             if (fullName == null)
@@ -35,7 +35,8 @@ namespace Netch.Models
 
             var typeResult = int.TryParse(split.ElementAtOrDefault(1), out var type);
             Type = typeResult ? type : 0;
-            // TODO throw NotSupportedModeTypeException
+            if (!ModeHelper.ModeTypes.Contains(Type))
+                throw new NotSupportedException($"not support mode \"[{Type}]{Remark}\".");
 
             var bypassChinaResult = int.TryParse(split.ElementAtOrDefault(2), out var bypassChina);
             BypassChina = this.ClientRouting() && bypassChinaResult && bypassChina == 1;

@@ -59,9 +59,6 @@ namespace Netch.Controllers
             Server = server;
             Mode = mode;
 
-            if (server is Socks5 && mode.Type == 4)
-                throw new MessageException("Already Socks5 Server");
-
             // 刷新DNS缓存
             NativeMethods.FlushDNSResolverCache();
 
@@ -124,9 +121,6 @@ namespace Netch.Controllers
         private static void StartMode(Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
-
-            if (ModeController == null)
-                return;
 
             if (port != null)
                 TryReleaseTcpPort((ushort) port, portName);

@@ -83,9 +83,9 @@ namespace Netch.Utils
                     {
                         Global.Modes.Add(new Mode(file));
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        // ignored
+                        Logging.Warning($"Load mode \"{file}\" failed: {e.Message}");
                     }
             }
             catch
@@ -120,13 +120,15 @@ namespace Netch.Utils
                            };
                 case 1:
                 case 2:
-                    return server is Socks5 ;
+                    return server is Socks5;
                 default:
                     return false;
             }
         }
 
-        public static IModeController? GetModeControllerByType(int type, out ushort? port, out string portName)
+        public static readonly int[] ModeTypes = {0, 1, 2, 6};
+
+        public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName)
         {
             port = null;
             portName = string.Empty;
@@ -139,14 +141,6 @@ namespace Netch.Utils
                 case 1:
                 case 2:
                     return new TUNController();
-                case 3:
-                case 5:
-                    port = Global.Settings.HTTPLocalPort;
-                    portName = "HTTP";
-                    StatusPortInfoText.HttpPort = (ushort) port;
-                    return new HTTPController();
-                case 4:
-                    return null;
                 case 6:
                     return new PcapController();
                 default:
