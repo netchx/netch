@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Netch.Controllers;
 using Netch.Forms;
 using Netch.Utils;
+using static Vanara.PInvoke.Kernel32;
 
 namespace Netch
 {
@@ -33,9 +34,9 @@ namespace Netch
 
             // 设置当前目录
             Directory.SetCurrentDirectory(Global.NetchDir);
-            Environment.SetEnvironmentVariable("PATH",
-                Environment.GetEnvironmentVariable("PATH", EnvironmentVariableTarget.Process) + ";" + Path.Combine(Global.NetchDir, "bin"),
-                EnvironmentVariableTarget.Process);
+            var binPath = Path.Combine(Global.NetchDir, "bin");
+            Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
+            AddDllDirectory(binPath);
 
             Updater.Updater.CleanOld(Global.NetchDir);
 
