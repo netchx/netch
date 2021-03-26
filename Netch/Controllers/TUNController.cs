@@ -67,7 +67,7 @@ namespace Netch.Controllers
             StartInstanceAuto(parameter.ToString());
             _tunAdapter = new TunAdapter();
 
-            NativeMethods.CreateUnicastIP((int)AddressFamily.InterNetwork, "100.64.0.100", 24, _tunAdapter.InterfaceIndex);
+            NativeMethods.CreateUnicastIP((int)AddressFamily.InterNetwork, Global.Settings.WinTUN.Address, 24, _tunAdapter.InterfaceIndex);
             SetupRouteTable(mode);
         }
 
