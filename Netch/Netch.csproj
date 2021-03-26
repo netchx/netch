@@ -83,10 +83,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Visible="false" Include="..\binaries\**" LinkBase="bin" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
-        <None Remove="..\binaries\.git" />
         <None Visible="false" Include="..\translations\i18n\**" LinkBase="i18n" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
         <None Visible="false" Include="..\modes\mode\**" LinkBase="mode" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="bin\**" />
+      <EmbeddedResource Remove="bin\**" />
+      <None Remove="bin\**" />
+      <Page Remove="bin\**" />
     </ItemGroup>
 
     <ItemGroup>
