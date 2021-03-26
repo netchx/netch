@@ -30,12 +30,12 @@ namespace Netch.Controllers
         /// <summary>
         ///     成功启动关键词
         /// </summary>
-        protected virtual IEnumerable<string> StartedKeywords { get; } = new List<string>();
+        protected virtual IEnumerable<string> StartedKeywords { get; set; } = new List<string>();
 
         /// <summary>
         ///     启动失败关键词
         /// </summary>
-        protected virtual IEnumerable<string> StoppedKeywords { get; } = new List<string>();
+        protected virtual IEnumerable<string> StoppedKeywords { get; set; } = new List<string>();
 
         public abstract string Name { get; }
 

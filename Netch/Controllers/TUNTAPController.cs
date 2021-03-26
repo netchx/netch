@@ -26,9 +26,9 @@ namespace Netch.Controllers
         /// </summary>
         public DNSController DNSController = new();
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"Running"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"Running"};
 
-        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"failed", "invalid vconfig file"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"failed", "invalid vconfig file"};
 
         public override string MainFile { get; protected set; } = "tun2socks.exe";
 

@@ -17,7 +17,7 @@ namespace Netch.Controllers
 
         public override string MainFile { get; protected set; } = "pcap2socks.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"└"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"└"};
 
         private readonly OutboundAdapter _outbound = new();
 

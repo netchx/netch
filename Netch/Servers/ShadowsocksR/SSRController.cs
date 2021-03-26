@@ -10,9 +10,9 @@ namespace Netch.Servers.ShadowsocksR
     {
         public override string MainFile { get; protected set; } = "ShadowsocksR.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"listening at"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"listening at"};
 
-        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"Invalid config path", "usage"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"Invalid config path", "usage"};
 
         public override string Name { get; } = "ShadowsocksR";
 

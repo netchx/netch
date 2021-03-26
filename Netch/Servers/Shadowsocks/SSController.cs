@@ -10,9 +10,9 @@ namespace Netch.Servers.Shadowsocks
     {
         public override string MainFile { get; protected set; } = "Shadowsocks.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"listening at"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"listening at"};
 
-        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"Invalid config path", "usage", "plugin service exit unexpectedly"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"Invalid config path", "usage", "plugin service exit unexpectedly"};
 
         public override string Name { get; } = "Shadowsocks";
 

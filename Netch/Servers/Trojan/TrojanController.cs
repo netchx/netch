@@ -11,9 +11,9 @@ namespace Netch.Servers.Trojan
     {
         public override string MainFile { get; protected set; } = "Trojan.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] {"started"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"started"};
 
-        protected override IEnumerable<string> StoppedKeywords { get; } = new[] {"exiting"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"exiting"};
 
         public override string Name { get; } = "Trojan";
 
