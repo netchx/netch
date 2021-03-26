@@ -61,23 +61,42 @@ namespace Netch.Controllers
                 dns = new List<string> {"127.0.0.1"};
             }
 
-            SetupRouteTable(mode);
+            var parameter = new Tun2SocksParameter
+            {
+                tunAddr = Global.Settings.TUNTAP.Address,
+                tunMask = Global.Settings.TUNTAP.Netmask,
+                tunGw = Global.Settings.TUNTAP.Gateway,
+                tunDns = DnsUtils.Join(dns),
+                tunName = TUNTAP.GetName(_tap.ComponentID),
+                fakeDns = Global.Settings.TUNTAP.UseFakeDNS && Flags.SupportFakeDns
+            };
 
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", Name));
-
-            var argument = new StringBuilder();
             if (server is Socks5 socks5 && !socks5.Auth())
-                argument.Append($"-proxyServer {server.AutoResolveHostname()}:{server.Port} ");
+                parameter.proxyServer = $"{server.AutoResolveHostname()}:{server.Port}";
             else
-                argument.Append($"-proxyServer 127.0.0.1:{Global.Settings.Socks5LocalPort} ");
+                parameter.proxyServer = $"127.0.0.1:{Global.Settings.Socks5LocalPort}";
 
-            argument.Append(
-                $"-tunAddr {Global.Settings.TUNTAP.Address} -tunMask {Global.Settings.TUNTAP.Netmask} -tunGw {Global.Settings.TUNTAP.Gateway} -tunDns {DnsUtils.Join(dns)} -tunName \"{TUNTAP.GetName(_tap.ComponentID)}\" ");
+            StartInstanceAuto(parameter.ToString(), ProcessPriorityClass.RealTime);
 
-            if (Global.Settings.TUNTAP.UseFakeDNS && Flags.SupportFakeDns)
-                argument.Append("-fakeDns ");
+            SetupRouteTable(mode);
+        }
 
-            StartInstanceAuto(argument.ToString(), ProcessPriorityClass.RealTime);
+        [Verb]
+        public class Tun2SocksParameter : ParameterBase
+        {
+            public string proxyServer { get; set; }
+
+            public string tunAddr { get; set; }
+
+            public string tunMask { get; set; }
+
+            public string tunGw { get; set; }
+
+            public string tunDns { get; set; }
+
+            public string tunName { get; set; }
+
+            public bool fakeDns { get; set; }
         }
 
         /// <summary>
@@ -127,14 +146,7 @@ namespace Netch.Controllers
                     // 绕过规则 IP
 
                     // 将 TUN/TAP 网卡权重放到最高
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = "netsh",
-                        Arguments = $"interface ip set interface {_tap.Index} metric=0",
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        UseShellExecute = true,
-                        CreateNoWindow = true
-                    });
+                    SetInterface(RouteType.TUNTAP, 0);
 
                     Logging.Info("绕行 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
@@ -155,6 +167,29 @@ namespace Netch.Controllers
                 Logging.Info("代理 → 全局");
                 RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP);
             }
+        }
+
+        private void SetInterface(RouteType routeType, int? metric = null)
+        {
+            IAdapter adapter = routeType switch
+                               {
+                                   RouteType.Outbound => _outbound,
+                                   RouteType.TUNTAP => _tap,
+                                   _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+                               };
+
+            var arguments = $"interface ip set interface {adapter.Index} ";
+            if (metric != null)
+                arguments += $"metric={metric} ";
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "netsh",
+                Arguments = arguments,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                UseShellExecute = true,
+                CreateNoWindow = true
+            });
         }
 
         /// <summary>
