@@ -148,7 +148,7 @@ namespace Netch.Forms
             BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
             BindTextBox(TUNTAPDNSTextBox,
-                s => !UseCustomDNSCheckBox.Checked || s.IsNullOrWhiteSpace(),
+                _ => true,
                 s =>
                 {
                     if (UseCustomDNSCheckBox.Checked)
