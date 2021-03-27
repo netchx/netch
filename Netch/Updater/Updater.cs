@@ -93,7 +93,7 @@ namespace Netch.Updater
 
         #region Apply Update
 
-        private static readonly ImmutableArray<string> KeepDirectories = new List<string> {"data", "mode\\Custom"}.ToImmutableArray();
+        private static readonly ImmutableArray<string> KeepDirectories = new List<string> {"data", "mode\\Custom", "logging"}.ToImmutableArray();
 
         private void ApplyUpdate()
         {
