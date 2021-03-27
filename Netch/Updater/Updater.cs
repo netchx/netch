@@ -157,7 +157,15 @@ namespace Netch.Updater
 
             // rename files
             foreach (var file in filesToDelete)
-                File.Move(file, file + ".old");
+                try
+                {
+                    File.Move(file, file + ".old");
+                }
+                catch
+                {
+                    Logging.Error($"failed to rename file \"{file}\"");
+                    throw;
+                }
         }
 
         private int Extract(string destDirName, bool overwrite)
