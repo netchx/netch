@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Netch.Models;
@@ -210,17 +209,6 @@ namespace Netch.Controllers
             }
 
             PortCheck(port, portName, PortType.TCP);
-        }
-    }
-
-    public class MessageException : Exception
-    {
-        public MessageException()
-        {
-        }
-
-        public MessageException(string message) : base(message)
-        {
         }
     }
 }

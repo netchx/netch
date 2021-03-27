@@ -6,7 +6,6 @@ using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
 using Netch.Models;
-using Netch.Servers.Shadowsocks;
 
 namespace Netch.Utils
 {

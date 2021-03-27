@@ -1,20 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
-using Vanara.PInvoke;
 using static Netch.Controllers.TUNInterop;
-using static Vanara.PInvoke.IpHlpApi;
-using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Controllers
 {

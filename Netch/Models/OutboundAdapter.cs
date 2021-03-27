@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using Microsoft.Win32;
-using Netch.Controllers;
 using Netch.Utils;
 using Vanara.PInvoke;
 
