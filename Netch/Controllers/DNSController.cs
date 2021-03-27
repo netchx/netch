@@ -25,7 +25,6 @@ namespace Netch.Controllers
             aiodns_dial((int) NameList.TYPE_LIST, Encoding.UTF8.GetBytes(Path.GetFullPath(Global.Settings.AioDNS.RulePath)));
             aiodns_dial((int) NameList.TYPE_CDNS, Encoding.UTF8.GetBytes($"{Global.Settings.AioDNS.ChinaDNS}"));
             aiodns_dial((int) NameList.TYPE_ODNS, Encoding.UTF8.GetBytes($"{Global.Settings.AioDNS.OtherDNS}"));
-            aiodns_dial((int) NameList.TYPE_METH, Encoding.UTF8.GetBytes(Global.Settings.AioDNS.Protocol));
 
             if (!aiodns_init())
                 throw new Exception("AioDNS start failed");
@@ -42,14 +41,13 @@ namespace Netch.Controllers
         [DllImport("aiodns.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern void aiodns_free();
 
-        private enum NameList
+        public enum NameList
         {
             TYPE_REST,
             TYPE_ADDR,
             TYPE_LIST,
             TYPE_CDNS,
-            TYPE_ODNS,
-            TYPE_METH
+            TYPE_ODNS
         }
 
         #endregion

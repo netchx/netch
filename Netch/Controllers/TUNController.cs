@@ -133,11 +133,7 @@ namespace Netch.Controllers
         {
             var tasks = new[]
             {
-                Task.Run(() =>
-                {
-                    Free();
-                    // _tunInterop.Unload();
-                }),
+                Task.Run(Free),
                 Task.Run(ClearRouteTable),
                 Task.Run(DNSController.Stop)
             };
@@ -266,7 +262,9 @@ namespace Netch.Controllers
             {
                 case Action.Create:
                     result = NativeMethods.CreateRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
-                    ipList.Add(ipNetwork);
+                    if (result && record)
+                        ipList.Add(ipNetwork);
+
                     break;
                 case Action.Delete:
                     result = NativeMethods.DeleteRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
@@ -277,7 +275,9 @@ namespace Netch.Controllers
 
             Logging.Debug($"{action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
             if (!result)
+            {
                 Logging.Warning($"Failed to invoke {action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
+            }
 
             return result;
         }
