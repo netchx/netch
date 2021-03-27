@@ -60,12 +60,12 @@ namespace Netch.Utils
 
         public static string[] SplitRemoveEmptyEntriesAndTrimEntries(this string value, params char[] separator)
         {
-            return value.Split(separator).Select(s => s.Trim()).Where(s => s != string.Empty).ToArray();
+            return value.Split(separator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
         public static string[] SplitTrimEntries(this string value, params char[] separator)
         {
-            return value.Split(separator).Select(s => s.Trim()).ToArray();
+            return value.Split(separator, StringSplitOptions.TrimEntries);
         }
 
         public static string[] SplitRemoveEmptyEntries(this string value, params char[] separator)
