@@ -35,18 +35,18 @@ namespace Netch.Controllers
             TYPE_UDPOBPA
         }
 
-        public bool Dial(NameList name, string value)
+        public static bool Dial(NameList name, string value)
         {
             Logging.Debug($"Dial {name} {value}");
             return tun_dial(name, Encoding.UTF8.GetBytes(value));
         }
 
-        public bool Init()
+        public static bool Init()
         {
             return tun_init();
         }
 
-        public bool Free()
+        public static bool Free()
         {
             return tun_free();
         }

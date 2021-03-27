@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,60 +23,54 @@ namespace Netch.Controllers
         private readonly List<string> _directIPs = new();
 
         private readonly List<string> _proxyIPs = new();
-        /// <summary>
-        ///     服务器 IP 地址
-        /// </summary>
-        private IPAddress _serverAddresses = null!;
 
-        /// <summary>
-        ///     本地 DNS 服务控制器
-        /// </summary>
         public readonly DNSController DNSController = new();
 
         public string Name { get; } = "tun2socks";
 
         private readonly OutboundAdapter _outboundAdapter = new();
         private IAdapter _tunAdapter = null!;
-        private readonly TUNInterop _tunInterop = new();
+        private IPAddress _serverAddresses = null!;
 
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
             _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
-            _tunInterop.Dial(NameList.TYPE_ADAPMTU, "1500");
-            _tunInterop.Dial(NameList.TYPE_BYPBIND, "10.0.0.100");
-            _tunInterop.Dial(NameList.TYPE_BYPLIST, "disabled");
+            CheckDriver();
 
+            Dial(NameList.TYPE_ADAPMTU, "1500");
+            Dial(NameList.TYPE_BYPBIND, _outboundAdapter.Address.ToString());
+            Dial(NameList.TYPE_BYPLIST, "disabled");
 
             #region Server
 
-            _tunInterop.Dial(NameList.TYPE_TCPREST, "");
-            _tunInterop.Dial(NameList.TYPE_TCPTYPE, "Socks5");
+            Dial(NameList.TYPE_TCPREST, "");
+            Dial(NameList.TYPE_TCPTYPE, "Socks5");
 
-            _tunInterop.Dial(NameList.TYPE_UDPREST, "");
-            _tunInterop.Dial(NameList.TYPE_UDPTYPE, "Socks5");
+            Dial(NameList.TYPE_UDPREST, "");
+            Dial(NameList.TYPE_UDPTYPE, "Socks5");
 
             if (server is Socks5 socks5)
             {
-                _tunInterop.Dial(NameList.TYPE_TCPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
+                Dial(NameList.TYPE_TCPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
 
-                _tunInterop.Dial(NameList.TYPE_UDPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
+                Dial(NameList.TYPE_UDPHOST, $"{server.AutoResolveHostname()}:{server.Port}");
 
                 if (socks5.Auth())
                 {
-                    _tunInterop.Dial(NameList.TYPE_TCPUSER, socks5.Username!);
-                    _tunInterop.Dial(NameList.TYPE_TCPPASS, socks5.Password!);
+                    Dial(NameList.TYPE_TCPUSER, socks5.Username!);
+                    Dial(NameList.TYPE_TCPPASS, socks5.Password!);
 
-                    _tunInterop.Dial(NameList.TYPE_UDPUSER, socks5.Username!);
-                    _tunInterop.Dial(NameList.TYPE_UDPPASS, socks5.Password!);
+                    Dial(NameList.TYPE_UDPUSER, socks5.Username!);
+                    Dial(NameList.TYPE_UDPPASS, socks5.Password!);
                 }
             }
             else
             {
-                _tunInterop.Dial(NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                Dial(NameList.TYPE_TCPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
-                _tunInterop.Dial(NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                Dial(NameList.TYPE_UDPHOST, $"127.0.0.1:{Global.Settings.Socks5LocalPort}");
             }
 
             #endregion
@@ -94,17 +89,44 @@ namespace Netch.Controllers
                 dns = new List<string> {"127.0.0.1"};
             }
 
-            _tunInterop.Dial(NameList.TYPE_DNSADDR, DnsUtils.Join(dns));
+            Dial(NameList.TYPE_DNSADDR, DnsUtils.Join(dns));
 
             #endregion
 
-            Console.WriteLine("tun2socks init");
-            _tunInterop.Init();
+            Logging.Debug("tun2socks init");
+            Init();
 
             _tunAdapter = new TunAdapter();
 
-            NativeMethods.CreateUnicastIP((int) AddressFamily.InterNetwork, Global.Settings.WinTUN.Address, 24, _tunAdapter.InterfaceIndex);
+            NativeMethods.CreateUnicastIP((int) AddressFamily.InterNetwork,
+                Global.Settings.WinTUN.Address,
+                Utils.Utils.SubnetToCidr(Global.Settings.WinTUN.Netmask),
+                _tunAdapter.InterfaceIndex);
+
             SetupRouteTable(mode);
+        }
+
+        private readonly string BinDriver = Path.Combine(Global.NetchDir, @"bin\wintun.dll");
+        private readonly string SysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
+
+        private void CheckDriver()
+        {
+            var binHash = Utils.Utils.SHA256CheckSum(BinDriver);
+            var sysHash = Utils.Utils.SHA256CheckSum(SysDriver);
+            Logging.Info(binHash);
+            Logging.Info(sysHash);
+            if (binHash == sysHash)
+                return;
+
+            try
+            {
+                File.Copy(BinDriver, SysDriver, true);
+            }
+            catch (Exception e)
+            {
+                Logging.Error(e.ToString());
+                throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
+            }
         }
 
         /// <summary>
@@ -116,7 +138,7 @@ namespace Netch.Controllers
             {
                 Task.Run(() =>
                 {
-                    _tunInterop.Free();
+                    Free();
                     // _tunInterop.Unload();
                 }),
                 Task.Run(ClearRouteTable),
@@ -210,14 +232,64 @@ namespace Netch.Controllers
 
         #region Package
 
-        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0)
+        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0, bool record = true)
         {
             foreach (var address in ipNetworks)
                 RouteAction(action, address, routeType, metric);
         }
 
-        private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0)
+        private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0, bool record = true)
         {
+            #region
+
+            if (!TryParseIPNetwork(ipNetwork, out var ip, out var cidr))
+                return false;
+
+            IAdapter adapter = routeType switch
+                               {
+                                   RouteType.Outbound => _outboundAdapter,
+                                   RouteType.TUNTAP => _tunAdapter,
+                                   _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+                               };
+
+            List<string> ipList = routeType switch
+                                  {
+                                      RouteType.Outbound => _directIPs,
+                                      RouteType.TUNTAP => _proxyIPs,
+                                      _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+                                  };
+
+            string gateway = adapter.Gateway.ToString();
+            var index = adapter.InterfaceIndex;
+
+            #endregion
+
+            bool result;
+            switch (action)
+            {
+                case Action.Create:
+                    result = NativeMethods.CreateRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
+                    ipList.Add(ipNetwork);
+                    break;
+                case Action.Delete:
+                    result = NativeMethods.DeleteRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(action), action, null);
+            }
+
+            Logging.Debug($"{action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
+            if (!result)
+                Logging.Warning($"Failed to invoke {action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
+
+            return result;
+        }
+
+        bool TryParseIPNetwork(string ipNetwork, out string ip, out int cidr)
+        {
+            ip = null!;
+            cidr = 0;
+
             var s = ipNetwork.Split('/');
             if (s.Length != 2)
             {
@@ -225,47 +297,9 @@ namespace Netch.Controllers
                 return false;
             }
 
-            IAdapter adapter;
-            List<string> ipList;
-
-            switch (routeType)
-            {
-                case RouteType.TUNTAP:
-                    adapter = _tunAdapter;
-                    ipList = _proxyIPs;
-                    break;
-                case RouteType.Outbound:
-                    adapter = _outboundAdapter;
-                    ipList = _directIPs;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null);
-            }
-
-            string network = s[0];
-            var cidr = ushort.Parse(s[1]);
-            string gateway = adapter.Gateway.ToString();
-            var index = adapter.InterfaceIndex;
-
-            bool result;
-            switch (action)
-            {
-                case Action.Create:
-                    result = NativeMethods.CreateRoute((int) AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
-                    ipList.Add(ipNetwork);
-                    break;
-                case Action.Delete:
-                    result = NativeMethods.DeleteRoute((int) AddressFamily.InterNetwork, network, cidr, gateway, index, metric);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(action), action, null);
-            }
-
-            Logging.Debug($"{action}Route(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
-            if (!result)
-                Logging.Warning($"Failed to invoke {action}Route(\"{network}\", {cidr}, \"{gateway}\", {index}, {metric})");
-
-            return result;
+            ip = s[0];
+            cidr = int.Parse(s[1]);
+            return true;
         }
 
         private enum RouteType

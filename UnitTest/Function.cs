@@ -28,5 +28,17 @@ namespace UnitTest
             TestLoad("");
             TestLoad("-");
         }
+
+        [TestMethod]
+        public void TestMaskToCidr()
+        {
+            Assert.AreEqual(Utils.SubnetToCidr("0.0.0.0"), 0);
+            Assert.AreEqual(Utils.SubnetToCidr("248.0.0.0"), 5);
+            Assert.AreEqual(Utils.SubnetToCidr("255.0.0.0"), 8);
+            Assert.AreEqual(Utils.SubnetToCidr("255.255.0.0"), 16);
+            Assert.AreEqual(Utils.SubnetToCidr("255.255.248.0"), 21);
+            Assert.AreEqual(Utils.SubnetToCidr("255.255.255.0"), 24);
+            Assert.AreEqual(Utils.SubnetToCidr("255.255.255.255"), 32);
+        }
     }
 }

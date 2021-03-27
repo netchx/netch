@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
 using Netch.Models;
+using Range = Netch.Models.Range;
 
 namespace Netch.Utils
 {

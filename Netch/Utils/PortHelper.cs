@@ -6,6 +6,7 @@ using System.Net.NetworkInformation;
 using Netch.Models;
 using static Vanara.PInvoke.IpHlpApi;
 using static Vanara.PInvoke.Ws2_32;
+using Range = Netch.Models.Range;
 
 namespace Netch.Utils
 {

@@ -253,5 +253,16 @@ namespace Netch.Utils
 
             p.WaitForExit();
         }
+
+        public static int SubnetToCidr(string value)
+        {
+            var subnet = IPAddress.Parse(value);
+            return SubnetToCidr(subnet);
+        }
+
+        public static int SubnetToCidr(IPAddress subnet)
+        {
+            return subnet.GetAddressBytes().Sum(b => Convert.ToString(b, 2).Count(c => c == '1'));
+        }
     }
 }
