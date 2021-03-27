@@ -77,19 +77,16 @@ namespace Netch.Controllers
 
             #region DNS
 
-            List<string> dns;
-            if (Global.Settings.WinTUN.UseCustomDNS)
+            if (Global.Settings.TUNTAP.UseCustomDNS)
             {
-                dns = Global.Settings.WinTUN.DNS.Any() ? Global.Settings.WinTUN.DNS : Global.Settings.WinTUN.DNS = new List<string> {"1.1.1.1"};
+                Dial(NameList.TYPE_DNSADDR, Global.Settings.TUNTAP.HijackDNS);
             }
             else
             {
-                MainController.PortCheck(53, "DNS");
+                MainController.PortCheck(Global.Settings.AioDNS.ListenPort, "DNS");
                 DNSController.Start();
-                dns = new List<string> {"127.0.0.1"};
+                Dial(NameList.TYPE_DNSADDR, $"127.0.0.1:{Global.Settings.AioDNS.ListenPort}");
             }
-
-            Dial(NameList.TYPE_DNSADDR, DnsUtils.Join(dns));
 
             #endregion
 
@@ -99,8 +96,8 @@ namespace Netch.Controllers
             _tunAdapter = new TunAdapter();
 
             NativeMethods.CreateUnicastIP((int) AddressFamily.InterNetwork,
-                Global.Settings.WinTUN.Address,
-                Utils.Utils.SubnetToCidr(Global.Settings.WinTUN.Netmask),
+                Global.Settings.TUNTAP.Address,
+                Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
                 _tunAdapter.InterfaceIndex);
 
             SetupRouteTable(mode);
@@ -173,11 +170,11 @@ namespace Netch.Controllers
                     Logging.Info("代理 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
 
-                    if (Global.Settings.WinTUN.ProxyDNS)
+                    if (Global.Settings.TUNTAP.ProxyDNS)
                     {
                         Logging.Info("代理 → 自定义 DNS");
-                        if (Global.Settings.WinTUN.UseCustomDNS)
-                            RouteAction(Action.Create, Global.Settings.WinTUN.DNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
+                        if (Global.Settings.TUNTAP.UseCustomDNS)
+                            RouteAction(Action.Create, Global.Settings.TUNTAP.HijackDNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
                         else
                             RouteAction(Action.Create, $"{Global.Settings.AioDNS.OtherDNS}/32", RouteType.TUNTAP);
                     }

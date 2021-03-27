@@ -62,6 +62,9 @@ namespace Netch.Utils
             if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
                 for (var i = 0; i < settings.Profiles.Count; i++)
                     settings.Profiles[i].Index = i;
+
+            settings.AioDNS.ChinaDNS = Utils.HostAppendPort(settings.AioDNS.ChinaDNS);
+            settings.AioDNS.OtherDNS = Utils.HostAppendPort(settings.AioDNS.OtherDNS);
         }
 
         /// <summary>

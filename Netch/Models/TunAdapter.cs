@@ -15,7 +15,7 @@ namespace Netch.Models
             AdapterId = AdapterUtils.GetAdapterId(ComponentIdWintun) ?? throw new Exception("wintun adapter not found");
             NetworkInterface = NetworkInterface.GetAllNetworkInterfaces().First(i => i.Id == AdapterId);
             InterfaceIndex = NetworkInterface.GetIPProperties().GetIPv4Properties().Index;
-            Gateway = IPAddress.Parse(Global.Settings.WinTUN.Gateway);
+            Gateway = IPAddress.Parse(Global.Settings.TUNTAP.Gateway);
 
             Logging.Info($"WinTUN 适配器：{NetworkInterface.Name} {NetworkInterface.Id} {NetworkInterface.Description}, index: {InterfaceIndex}");
         }

@@ -135,31 +135,31 @@ namespace Netch.Forms
 
             BindTextBox(TUNTAPAddressTextBox,
                 s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.WinTUN.Address = s,
-                Global.Settings.WinTUN.Address);
+                s => Global.Settings.TUNTAP.Address = s,
+                Global.Settings.TUNTAP.Address);
 
             BindTextBox(TUNTAPNetmaskTextBox,
                 s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.WinTUN.Netmask = s,
-                Global.Settings.WinTUN.Netmask);
+                s => Global.Settings.TUNTAP.Netmask = s,
+                Global.Settings.TUNTAP.Netmask);
 
             BindTextBox(TUNTAPGatewayTextBox,
                 s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.WinTUN.Gateway = s,
-                Global.Settings.WinTUN.Gateway);
+                s => Global.Settings.TUNTAP.Gateway = s,
+                Global.Settings.TUNTAP.Gateway);
 
-            BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.WinTUN.UseCustomDNS = b; }, Global.Settings.WinTUN.UseCustomDNS);
+            BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
             BindTextBox(TUNTAPDNSTextBox,
-                s => !UseCustomDNSCheckBox.Checked || DnsUtils.TrySplit(s, out _, 2),
+                s => !UseCustomDNSCheckBox.Checked || s.IsNullOrWhiteSpace(),
                 s =>
                 {
                     if (UseCustomDNSCheckBox.Checked)
-                        Global.Settings.WinTUN.DNS = DnsUtils.Split(s).ToList();
+                        Global.Settings.TUNTAP.HijackDNS = s;
                 },
-                DnsUtils.Join(Global.Settings.WinTUN.DNS));
+                Global.Settings.TUNTAP.HijackDNS);
 
-            BindCheckBox(ProxyDNSCheckBox, b => Global.Settings.WinTUN.ProxyDNS = b, Global.Settings.WinTUN.ProxyDNS);
+            BindCheckBox(ProxyDNSCheckBox, b => Global.Settings.TUNTAP.ProxyDNS = b, Global.Settings.TUNTAP.ProxyDNS);
 
             #endregion
 
@@ -220,17 +220,11 @@ namespace Netch.Forms
 
             #region AioDNS
 
-            BindTextBox(AioDNSRulePathTextBox, s => true, s => Global.Settings.AioDNS.RulePath = s, Global.Settings.AioDNS.RulePath);
+            BindTextBox(AioDNSRulePathTextBox, _ => true, s => Global.Settings.AioDNS.RulePath = s, Global.Settings.AioDNS.RulePath);
 
-            BindTextBox(ChinaDNSTextBox,
-                s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.AioDNS.ChinaDNS = s,
-                Global.Settings.AioDNS.ChinaDNS);
+            BindTextBox(ChinaDNSTextBox, _ => true, s => Global.Settings.AioDNS.ChinaDNS = s, Global.Settings.AioDNS.ChinaDNS);
 
-            BindTextBox(OtherDNSTextBox,
-                s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.AioDNS.OtherDNS = s,
-                Global.Settings.AioDNS.OtherDNS);
+            BindTextBox(OtherDNSTextBox, _ => true, s => Global.Settings.AioDNS.OtherDNS = s, Global.Settings.AioDNS.OtherDNS);
 
             #endregion
         }
@@ -243,7 +237,7 @@ namespace Netch.Forms
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
         {
             if (UseCustomDNSCheckBox.Checked)
-                TUNTAPDNSTextBox.Text = Global.Settings.WinTUN.DNS.Any() ? DnsUtils.Join(Global.Settings.WinTUN.DNS) : "1.1.1.1";
+                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.HijackDNS;
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
         }
