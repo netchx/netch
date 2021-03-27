@@ -104,8 +104,8 @@ namespace Netch.Controllers
         {
             var binHash = Utils.Utils.SHA256CheckSum(BinDriver);
             var sysHash = Utils.Utils.SHA256CheckSum(SysDriver);
-            Logging.Info(binHash);
-            Logging.Info(sysHash);
+            Logging.Info("自带 wintun.dll Hash: " + binHash);
+            Logging.Info("系统 wintun.dll Hash: " + sysHash);
             if (binHash == sysHash)
                 return;
 
