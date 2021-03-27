@@ -87,7 +87,6 @@
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
         </EmbeddedResource>
-        <EmbeddedResource Remove="Forms\LogForm.resx" />
     </ItemGroup>
 
     <ItemGroup>

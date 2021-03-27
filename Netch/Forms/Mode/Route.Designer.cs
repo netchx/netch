@@ -72,7 +72,7 @@ namespace Netch.Forms.Mode
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(84, 49);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(138, 20);
+            this.comboBox1.Size = new System.Drawing.Size(138, 25);
             this.comboBox1.TabIndex = 11;
             // 
             // FilenameLabel
@@ -80,7 +80,7 @@ namespace Netch.Forms.Mode
             this.FilenameLabel.AutoSize = true;
             this.FilenameLabel.Location = new System.Drawing.Point(12, 79);
             this.FilenameLabel.Name = "FilenameLabel";
-            this.FilenameLabel.Size = new System.Drawing.Size(53, 12);
+            this.FilenameLabel.Size = new System.Drawing.Size(59, 17);
             this.FilenameLabel.TabIndex = 6;
             this.FilenameLabel.Text = "Filename";
             // 
@@ -89,7 +89,7 @@ namespace Netch.Forms.Mode
             this.FilenameTextBox.Location = new System.Drawing.Point(84, 76);
             this.FilenameTextBox.Name = "FilenameTextBox";
             this.FilenameTextBox.ReadOnly = true;
-            this.FilenameTextBox.Size = new System.Drawing.Size(250, 21);
+            this.FilenameTextBox.Size = new System.Drawing.Size(250, 23);
             this.FilenameTextBox.TabIndex = 5;
             // 
             // ActionLabel
@@ -97,7 +97,7 @@ namespace Netch.Forms.Mode
             this.ActionLabel.AutoSize = true;
             this.ActionLabel.Location = new System.Drawing.Point(12, 52);
             this.ActionLabel.Name = "ActionLabel";
-            this.ActionLabel.Size = new System.Drawing.Size(41, 12);
+            this.ActionLabel.Size = new System.Drawing.Size(44, 17);
             this.ActionLabel.TabIndex = 0;
             this.ActionLabel.Text = "Action";
             // 
@@ -105,7 +105,7 @@ namespace Netch.Forms.Mode
             // 
             this.RemarkTextBox.Location = new System.Drawing.Point(84, 22);
             this.RemarkTextBox.Name = "RemarkTextBox";
-            this.RemarkTextBox.Size = new System.Drawing.Size(250, 21);
+            this.RemarkTextBox.Size = new System.Drawing.Size(250, 23);
             this.RemarkTextBox.TabIndex = 1;
             this.RemarkTextBox.TextChanged += new System.EventHandler(this.RemarkTextBox_TextChanged);
             // 
@@ -114,7 +114,7 @@ namespace Netch.Forms.Mode
             this.RemarkLabel.AutoSize = true;
             this.RemarkLabel.Location = new System.Drawing.Point(12, 25);
             this.RemarkLabel.Name = "RemarkLabel";
-            this.RemarkLabel.Size = new System.Drawing.Size(41, 12);
+            this.RemarkLabel.Size = new System.Drawing.Size(53, 17);
             this.RemarkLabel.TabIndex = 0;
             this.RemarkLabel.Text = "Remark";
             // 
@@ -161,7 +161,7 @@ namespace Netch.Forms.Mode
             // 
             // Route
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(356, 419);
             this.Controls.Add(this.ConfigurationGroupBox);
