@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.ServiceProcess;
-using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using nfapinet;
+using static Netch.Controllers.RedirectorInterop;
 
 namespace Netch.Controllers
 {
@@ -26,29 +25,29 @@ namespace Netch.Controllers
         {
             CheckDriver();
 
-            aio_dial((int) NameList.TYPE_FILTERLOOPBACK, "false");
-            aio_dial((int) NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
+            Dial(NameList.TYPE_FILTERLOOPBACK, "false");
+            Dial(NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
 
             // Server
-            aio_dial((int) NameList.TYPE_FILTERUDP, (Global.Settings.ProcessProxyProtocol != PortType.TCP).ToString().ToLower());
-            aio_dial((int) NameList.TYPE_FILTERTCP, (Global.Settings.ProcessProxyProtocol != PortType.UDP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.ProcessProxyProtocol != PortType.TCP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.ProcessProxyProtocol != PortType.UDP).ToString().ToLower());
             dial_Server(Global.Settings.ProcessProxyProtocol);
 
             // Mode Rule
             dial_Name(mode);
 
             // Features
-            aio_dial((int) NameList.TYPE_REDIRCTOR_DNS, Global.Settings.RedirectDNS ? Global.Settings.RedirectDNSAddr : "");
-            aio_dial((int) NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMP ? Global.Settings.RedirectICMPAddr : "");
-            aio_dial((int) NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString().ToLower());
+            Dial(NameList.TYPE_REDIRCTOR_DNS, Global.Settings.RedirectDNS ? Global.Settings.RedirectDNSAddr : "");
+            Dial(NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMP ? Global.Settings.RedirectICMPAddr : "");
+            Dial(NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString().ToLower());
 
-            if (!aio_init())
+            if (!Init())
                 throw new MessageException("Redirector Start failed, run Netch with \"-console\" argument");
         }
 
         public void Stop()
         {
-            aio_free();
+            Free();
         }
 
         #region CheckRule
@@ -63,14 +62,14 @@ namespace Netch.Controllers
             try
             {
                 if (r.StartsWith("!"))
-                    return aio_dial((int) NameList.TYPE_ADDNAME, r.Substring(1));
+                    return Dial(NameList.TYPE_ADDNAME, r.Substring(1));
 
-                return aio_dial((int) NameList.TYPE_ADDNAME, r);
+                return Dial(NameList.TYPE_ADDNAME, r);
             }
             finally
             {
                 if (clear)
-                    aio_dial((int) NameList.TYPE_CLRNAME, "");
+                    Dial(NameList.TYPE_CLRNAME, "");
             }
         }
 
@@ -82,7 +81,7 @@ namespace Netch.Controllers
         public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
         {
             results = rules.Where(r => !CheckCppRegex(r, false));
-            aio_dial((int) NameList.TYPE_CLRNAME, "");
+            Dial(NameList.TYPE_CLRNAME, "");
             return !results.Any();
         }
 
@@ -121,52 +120,52 @@ namespace Netch.Controllers
 
             if (server is Socks5 socks5)
             {
-                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
-                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
-                aio_dial((int) NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
-                aio_dial((int) NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
-                aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
+                Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
+                Dial(NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                Dial(NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
+                Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
+                Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
             }
             else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS)
             {
-                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
-                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");
-                aio_dial((int) NameList.TYPE_TCPMETH + offset, shadowsocks.EncryptMethod);
-                aio_dial((int) NameList.TYPE_TCPPASS + offset, shadowsocks.Password);
+                Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
+                Dial(NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");
+                Dial(NameList.TYPE_TCPMETH + offset, shadowsocks.EncryptMethod);
+                Dial(NameList.TYPE_TCPPASS + offset, shadowsocks.Password);
             }
             else
             {
-                aio_dial((int) NameList.TYPE_TCPTYPE + offset, "Socks5");
-                aio_dial((int) NameList.TYPE_TCPHOST + offset, $"127.0.0.1:{controller.Socks5LocalPort()}");
-                aio_dial((int) NameList.TYPE_TCPUSER + offset, string.Empty);
-                aio_dial((int) NameList.TYPE_TCPPASS + offset, string.Empty);
-                aio_dial((int) NameList.TYPE_TCPMETH + offset, string.Empty);
+                Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
+                Dial(NameList.TYPE_TCPHOST + offset, $"127.0.0.1:{controller.Socks5LocalPort()}");
+                Dial(NameList.TYPE_TCPUSER + offset, string.Empty);
+                Dial(NameList.TYPE_TCPPASS + offset, string.Empty);
+                Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
             }
         }
 
         private void dial_Name(Mode mode)
         {
-            aio_dial((int) NameList.TYPE_CLRNAME, "");
+            Dial(NameList.TYPE_CLRNAME, "");
             var list = new List<string>();
             foreach (var s in mode.FullRule)
             {
                 if (s.StartsWith("!"))
                 {
-                    if (!aio_dial((int) NameList.TYPE_BYPNAME, s.Substring(1)))
+                    if (!Dial(NameList.TYPE_BYPNAME, s.Substring(1)))
                         list.Add(s);
 
                     continue;
                 }
 
-                if (!aio_dial((int) NameList.TYPE_ADDNAME, s))
+                if (!Dial(NameList.TYPE_ADDNAME, s))
                     list.Add(s);
             }
 
             if (list.Any())
                 throw new MessageException(GenerateInvalidRulesMessage(list));
 
-            aio_dial((int) NameList.TYPE_ADDNAME, @"NTT\.exe");
-            aio_dial((int) NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
+            Dial(NameList.TYPE_ADDNAME, @"NTT\.exe");
+            Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
         }
 
         #region DriverUtil
@@ -216,7 +215,7 @@ namespace Netch.Controllers
         ///     安装 NF 驱动
         /// </summary>
         /// <returns>驱动是否安装成功</returns>
-        public static void InstallDriver()
+        private static void InstallDriver()
         {
             Logging.Info("安装 NF 驱动");
 
@@ -274,62 +273,6 @@ namespace Netch.Controllers
             File.Delete(SystemDriver);
 
             return true;
-        }
-
-        #endregion
-
-        #region NativeMethods
-
-        private const int UdpNameListOffset = (int) NameList.TYPE_UDPTYPE - (int) NameList.TYPE_TCPTYPE;
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool aio_dial(int name, [MarshalAs(UnmanagedType.LPWStr)] string value);
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool aio_init();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        private static extern bool aio_free();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        private static extern ulong aio_getUP();
-
-        [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
-        private static extern ulong aio_getDL();
-
-        public enum NameList
-        {
-            //bool
-            TYPE_FILTERLOOPBACK,
-            TYPE_FILTERTCP,
-            TYPE_FILTERUDP,
-            TYPE_FILTERIP,
-            TYPE_FILTERCHILDPROC, //子进程捕获
-
-            TYPE_TCPLISN,
-            TYPE_TCPTYPE,
-            TYPE_TCPHOST,
-            TYPE_TCPUSER,
-            TYPE_TCPPASS,
-            TYPE_TCPMETH,
-
-            TYPE_UDPTYPE,
-            TYPE_UDPHOST,
-            TYPE_UDPUSER,
-            TYPE_UDPPASS,
-            TYPE_UDPMETH,
-
-            TYPE_ADDNAME,
-            TYPE_ADDFIP,
-
-            TYPE_BYPNAME,
-
-            TYPE_CLRNAME,
-            TYPE_CLRFIP,
-
-            //str addr x.x.x.x only ipv4
-            TYPE_REDIRCTOR_DNS,
-            TYPE_REDIRCTOR_ICMP
         }
 
         #endregion

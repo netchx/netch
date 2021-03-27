@@ -197,7 +197,7 @@ namespace Netch.Controllers
             {
                 Logging.Info("代理 → 全局");
                 SetInterface(RouteType.TUNTAP, 0);
-                RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP);
+                RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP, record: false);
             }
         }
 
