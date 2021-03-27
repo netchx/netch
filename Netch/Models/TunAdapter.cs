@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
-using Netch.Controllers;
 using Netch.Interops;
 using Netch.Utils;
 
@@ -19,7 +17,6 @@ namespace Netch.Models
             Logging.Info($"WinTUN 适配器：{NetworkInterface.Name} {NetworkInterface.Id} {NetworkInterface.Description}, index: {InterfaceIndex}");
         }
 
-        public string AdapterId => throw new NotImplementedException();
 
         public int InterfaceIndex { get; }
 

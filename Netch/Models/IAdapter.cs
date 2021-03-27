@@ -5,8 +5,6 @@ namespace Netch.Models
 {
     public interface IAdapter
     {
-        string AdapterId { get; }
-
         int InterfaceIndex { get; }
 
         IPAddress Gateway { get; }
