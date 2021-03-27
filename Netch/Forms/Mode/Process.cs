@@ -149,7 +149,7 @@ namespace Netch.Forms.Mode
             Close();
         }
 
-        private void RemarkTextBox_TextChanged(object sender, EventArgs e)
+        private void RemarkTextBox_TextChanged(object? sender, EventArgs? e)
         {
             BeginInvoke(new Action(() =>
             {
@@ -195,7 +195,8 @@ namespace Netch.Forms.Mode
             foreach (string dir in Directory.GetDirectories(directory))
                 ScanDirectory(dir, list, maxCount);
 
-            list.AddRange(Directory.GetFiles(directory).Select(Path.GetFileName).Where(s => s.EndsWith(".exe")).Select(s => s.ToRegexString()));
+            list.AddRange(
+                Directory.GetFiles(directory).Select(s => Path.GetFileName(s)).Where(s => s.EndsWith(".exe")).Select(s => s.ToRegexString()));
 
             if (maxCount != 0 && list.Count > maxCount)
                 throw new Exception("The number of results is greater than maxCount");

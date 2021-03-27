@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -234,8 +235,12 @@ namespace Netch.Forms
             }
         }
 
-        private void AddServerToolStripMenuItem_Click(object sender, EventArgs e)
+        private void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
         {
+            if (sender == null)
+                throw new ArgumentNullException(nameof(sender));
+
+            // TODO get Util from Tag
             var s = ((ToolStripMenuItem) sender).Text;
 
             var start = s.IndexOf("[", StringComparison.Ordinal) + 1;
@@ -321,12 +326,12 @@ namespace Netch.Forms
         {
             Task.Run(() =>
             {
-                void OnNewVersionNotFound(object o, EventArgs args)
+                void OnNewVersionNotFound(object? o, EventArgs? args)
                 {
                     NotifyTip(i18N.Translate("Already latest version"));
                 }
 
-                void OnNewVersionFoundFailed(object o, EventArgs args)
+                void OnNewVersionFoundFailed(object? o, EventArgs? args)
                 {
                     NotifyTip(i18N.Translate("New version found failed"), info: false);
                 }
@@ -661,7 +666,7 @@ namespace Netch.Forms
                 ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
                 _ = Task.Run(ServerHelper.DelayTestHelper.TestAllDelay);
 
-                void OnTestDelayFinished(object o1, EventArgs e1)
+                void OnTestDelayFinished(object? o1, EventArgs? e1)
                 {
                     Refresh();
 
@@ -900,8 +905,11 @@ namespace Netch.Forms
             return profile;
         }
 
-        private async void ProfileButton_Click(object sender, EventArgs e)
+        private async void ProfileButton_Click([NotNull] object? sender, EventArgs? e)
         {
+            if (sender == null)
+                throw new ArgumentNullException(nameof(sender));
+
             var profileButton = (Button) sender;
             var profile = (Profile?) profileButton.Tag;
             var index = ProfileTable.Controls.IndexOf(profileButton);
@@ -1317,7 +1325,7 @@ namespace Netch.Forms
                 UpdateChecker.NewVersionFound -= OnUpdateCheckerOnNewVersionFound;
             }
 
-            void OnUpdateCheckerOnNewVersionFound(object o, EventArgs eventArgs)
+            void OnUpdateCheckerOnNewVersionFound(object? o, EventArgs? eventArgs)
             {
                 NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
                 NewVersionLabel.Text = i18N.Translate("New version available");

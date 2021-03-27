@@ -16,8 +16,11 @@ namespace Netch.Models.GitHubRelease
             Suffix = suffix;
         }
 
-        public static SuffixVersion Parse(string input)
+        public static SuffixVersion Parse(string? input)
         {
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
+
             var split = input.Split('-');
             var dotNetVersion = Version.Parse(split[0]);
             var preRelease = split.ElementAtOrDefault(1) ?? string.Empty;
@@ -39,7 +42,7 @@ namespace Netch.Models.GitHubRelease
             }
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             if (obj is not SuffixVersion version)
                 throw new ArgumentOutOfRangeException();

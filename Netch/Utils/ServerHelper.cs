@@ -17,7 +17,7 @@ namespace Netch.Utils
                 .GetExportedTypes()
                 .Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
 
-            ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)).OrderBy(util => util.Priority);
+            ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)!).OrderBy(util => util.Priority);
         }
 
         public static Type GetTypeByTypeName(string typeName)

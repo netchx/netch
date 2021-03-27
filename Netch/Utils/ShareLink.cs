@@ -32,7 +32,7 @@ namespace Netch.Utils
 
             try
             {
-                list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)
+                list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!
                     .Select(server => new Shadowsocks
                     {
                         Hostname = server.server,

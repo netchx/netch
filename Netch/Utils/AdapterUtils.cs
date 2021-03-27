@@ -17,9 +17,7 @@ namespace Netch.Utils
         /// <returns>适配器名称</returns>
         public static string GetName(string componentId)
         {
-            var registry = Registry.LocalMachine.OpenSubKey($"{NETWORK_KEY}\\{componentId}\\Connection");
-
-            return registry.GetValue("Name", "").ToString();
+            return Registry.LocalMachine.OpenSubKey($"{NETWORK_KEY}\\{componentId}\\Connection")?.GetValue("Name")?.ToString() ?? "";
         }
 
         public static string? GetAdapterId(params string[] componentIds)

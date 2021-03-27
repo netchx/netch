@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Forms;
+using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
 
@@ -8,26 +9,7 @@ namespace Netch.Forms.Mode
 {
     public partial class Route : Form
     {
-        class Item
-        {
-            private string _text;
-
-            public Item(int value, string text)
-            {
-                _text = text;
-                Value = value;
-            }
-
-            public string Text
-            {
-                get => i18N.Translate(_text);
-                set => _text = value;
-            }
-
-            public int Value { get; set; }
-        }
-
-        private readonly Item[] _items = {new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs")};
+        private readonly TagItem<int>[] _items = {new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs")};
 
         private readonly Models.Mode? _mode;
 
@@ -41,8 +23,8 @@ namespace Netch.Forms.Mode
             InitializeComponent();
             Icon = Resources.icon;
             comboBox1.DataSource = _items;
-            comboBox1.ValueMember = "Value";
-            comboBox1.DisplayMember = "Text";
+            comboBox1.ValueMember = nameof(TagItem<int>.Value);
+            comboBox1.DisplayMember = nameof(TagItem<int>.Text);
         }
 
         private void Route_Load(object sender, EventArgs e)
@@ -110,12 +92,9 @@ namespace Netch.Forms.Mode
             Close();
         }
 
-        private void RemarkTextBox_TextChanged(object sender, EventArgs e)
+        private void RemarkTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            BeginInvoke(new Action(() =>
-            {
-                FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
-            }));
+            BeginInvoke(new Action(() => { FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text); }));
         }
     }
 }

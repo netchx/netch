@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -116,7 +117,10 @@ namespace Netch.Utils
 
         public static string GetFileVersion(string file)
         {
-            return File.Exists(file) ? FileVersionInfo.GetVersionInfo(file).FileVersion : string.Empty;
+            if (File.Exists(file))
+                return FileVersionInfo.GetVersionInfo(file).FileVersion ?? "";
+
+            return "";
         }
 
         public static void DrawCenterComboBox(object sender, DrawItemEventArgs e)
@@ -223,7 +227,7 @@ namespace Netch.Utils
             }
         }
 
-        public static async Task ProcessRunHiddenAsync(string fileName, string? arguments = null, bool print = true)
+        public static async Task ProcessRunHiddenAsync(string fileName, string arguments = "", bool print = true)
         {
             var p = new Process
             {

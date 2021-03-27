@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
 
@@ -99,10 +100,7 @@ namespace Netch.Forms
 
             BindTextBox<string>(AclAddrTextBox, s => true, s => Global.Settings.ACL = s, Global.Settings.ACL);
 
-            BindListComboBox(LanguageComboBox,
-                o => Global.Settings.Language = o.ToString(),
-                i18N.GetTranslateList().Cast<object>().ToArray(),
-                Global.Settings.Language);
+            BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
 
             #endregion
 
@@ -128,7 +126,7 @@ namespace Netch.Forms
 
             BindListComboBox(ProcessProxyProtocolComboBox,
                 s => Global.Settings.ProcessProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
-                Enum.GetNames(typeof(PortType)).Cast<object>().ToArray(),
+                Enum.GetNames(typeof(PortType)),
                 Global.Settings.ProcessProxyProtocol.ToString());
 
             #endregion
@@ -324,14 +322,19 @@ namespace Netch.Forms
             _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
         }
 
-        private void BindListComboBox(ComboBox control, Action<object> save, object[] values, object value, string propertyName = "SelectedItem")
+        private void BindListComboBox<T>(ComboBox comboBox, Action<T> save, IEnumerable<T> values, T value) where T : notnull
         {
-            if (control.DropDownStyle != ComboBoxStyle.DropDownList)
+            if (comboBox.DropDownStyle != ComboBoxStyle.DropDownList)
                 throw new ArgumentOutOfRangeException();
 
-            control.Items.AddRange(values);
-            _saveActions.Add(control, c => save.Invoke(((ComboBox) c).SelectedItem));
-            Load += (_, _) => { control.SelectedItem = value; };
+            var tagItems = values.Select(o => new TagItem<T>(o, o.ToString()!)).ToArray();
+            comboBox.Items.AddRange(tagItems.Cast<object>().ToArray());
+
+            comboBox.ValueMember = nameof(TagItem<T>.Value);
+            comboBox.DisplayMember = nameof(TagItem<T>.Text);
+
+            _saveActions.Add(comboBox, c => save.Invoke(((TagItem<T>) ((ComboBox) c).SelectedItem).Value));
+            Load += (_, _) => { comboBox.SelectedItem = tagItems.SingleOrDefault(t => t.Value.Equals(value)); };
         }
 
         private void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)

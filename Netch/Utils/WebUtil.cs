@@ -1,6 +1,5 @@
 using System.IO;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,13 +29,6 @@ namespace Netch.Utils
             return req;
         }
 
-        public static IPEndPoint BestLocalEndPoint(IPEndPoint remoteIPEndPoint)
-        {
-            var testSocket = new Socket(remoteIPEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            testSocket.Connect(remoteIPEndPoint);
-            return (IPEndPoint) testSocket.LocalEndPoint;
-        }
-
         /// <summary>
         ///     异步下载
         /// </summary>
@@ -44,9 +36,9 @@ namespace Netch.Utils
         /// <returns></returns>
         public static async Task<byte[]> DownloadBytesAsync(HttpWebRequest req)
         {
-            using var webResponse = (HttpWebResponse) await req.GetResponseAsync();
-            using var memoryStream = new MemoryStream();
-            using var input = webResponse.GetResponseStream();
+            using var webResponse = req.GetResponseAsync();
+            await using var memoryStream = new MemoryStream();
+            await using var input = webResponse.Result.GetResponseStream();
 
             await input.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
@@ -77,7 +69,7 @@ namespace Netch.Utils
         public static async Task<string> DownloadStringAsync(HttpWebRequest req, string encoding = "UTF-8")
         {
             using var webResponse = await req.GetResponseAsync();
-            using var responseStream = webResponse.GetResponseStream();
+            await using var responseStream = webResponse.GetResponseStream();
             using var streamReader = new StreamReader(responseStream, Encoding.GetEncoding(encoding));
 
             return await streamReader.ReadToEndAsync();
@@ -92,8 +84,8 @@ namespace Netch.Utils
         public static async Task DownloadFileAsync(HttpWebRequest req, string fileFullPath)
         {
             using var webResponse = (HttpWebResponse) await req.GetResponseAsync();
-            using var input = webResponse.GetResponseStream();
-            using var fileStream = File.OpenWrite(fileFullPath);
+            await using var input = webResponse.GetResponseStream();
+            await using var fileStream = File.OpenWrite(fileFullPath);
 
             await input.CopyToAsync(fileStream);
             fileStream.Flush();

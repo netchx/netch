@@ -16,13 +16,13 @@ namespace Netch.Forms
             _parent = parent;
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad(EventArgs? e)
         {
             base.OnLoad(e);
             Parent_Move(null!, null!);
         }
 
-        private void Parent_Move(object sender, EventArgs e)
+        private void Parent_Move(object? sender, EventArgs? e)
         {
             var cl = Location;
             var fl = _parent.Location;
@@ -32,7 +32,7 @@ namespace Netch.Forms
             Location = cl;
         }
 
-        private void Parent_Activated(object sender, EventArgs e)
+        private void Parent_Activated(object? sender, EventArgs? e)
         {
             SetWindowPos(Handle,
                 HWND.HWND_TOPMOST,
@@ -51,7 +51,7 @@ namespace Netch.Forms
                 SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
         }
 
-        private void richTextBox1_TextChanged(object sender, System.EventArgs e)
+        private void richTextBox1_TextChanged(object? sender, EventArgs? e)
         {
             if (!checkBox1.Checked)
                 return;
@@ -60,19 +60,19 @@ namespace Netch.Forms
             richTextBox1.ScrollToCaret();
         }
 
-        private void Notifycation_Load(object sender, EventArgs e)
+        private void Notifycation_Load(object? sender, EventArgs? e)
         {
             _parent.LocationChanged += Parent_Move;
             _parent.SizeChanged += Parent_Move;
             _parent.Activated += Parent_Activated;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosing(CancelEventArgs? e)
         {
             _parent.Activated -= Parent_Activated;
             _parent.LocationChanged -= Parent_Move;
             _parent.SizeChanged -= Parent_Move;
-            base.OnClosing(e);
+            base.OnClosing(e!);
         }
     }
 }
