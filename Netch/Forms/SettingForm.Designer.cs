@@ -63,8 +63,8 @@ namespace Netch.Forms
             this.ICMPHijackHostTextBox = new System.Windows.Forms.TextBox();
             this.RedirectorSSCheckBox = new System.Windows.Forms.CheckBox();
             this.ChildProcessHandleCheckBox = new System.Windows.Forms.CheckBox();
-            this.TAPTabPage = new System.Windows.Forms.TabPage();
-            this.TUNTAPGroupBox = new System.Windows.Forms.GroupBox();
+            this.WinTUNTabPage = new System.Windows.Forms.TabPage();
+            this.WinTUNGroupBox = new System.Windows.Forms.GroupBox();
             this.TUNTAPAddressLabel = new System.Windows.Forms.Label();
             this.TUNTAPAddressTextBox = new System.Windows.Forms.TextBox();
             this.TUNTAPNetmaskLabel = new System.Windows.Forms.Label();
@@ -117,8 +117,8 @@ namespace Netch.Forms
             this.PortGroupBox.SuspendLayout();
             this.NFTabPage.SuspendLayout();
             this.groupBox1.SuspendLayout();
-            this.TAPTabPage.SuspendLayout();
-            this.TUNTAPGroupBox.SuspendLayout();
+            this.WinTUNTabPage.SuspendLayout();
+            this.WinTUNGroupBox.SuspendLayout();
             this.v2rayTabPage.SuspendLayout();
             this.KCPGroupBox.SuspendLayout();
             this.OtherTabPage.SuspendLayout();
@@ -131,7 +131,7 @@ namespace Netch.Forms
             this.TabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.TabControl.Controls.Add(this.GeneralTabPage);
             this.TabControl.Controls.Add(this.NFTabPage);
-            this.TabControl.Controls.Add(this.TAPTabPage);
+            this.TabControl.Controls.Add(this.WinTUNTabPage);
             this.TabControl.Controls.Add(this.v2rayTabPage);
             this.TabControl.Controls.Add(this.OtherTabPage);
             this.TabControl.Controls.Add(this.AioDNSTabPage);
@@ -458,35 +458,35 @@ namespace Netch.Forms
             this.ChildProcessHandleCheckBox.Text = "Child Process Handle";
             this.ChildProcessHandleCheckBox.UseVisualStyleBackColor = true;
             // 
-            // TAPTabPage
+            // WinTUNTabPage
             // 
-            this.TAPTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.TAPTabPage.Controls.Add(this.TUNTAPGroupBox);
-            this.TAPTabPage.Controls.Add(this.GlobalBypassIPsButton);
-            this.TAPTabPage.Location = new System.Drawing.Point(4, 29);
-            this.TAPTabPage.Name = "TAPTabPage";
-            this.TAPTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.TAPTabPage.Size = new System.Drawing.Size(461, 321);
-            this.TAPTabPage.TabIndex = 2;
-            this.TAPTabPage.Text = "TUN";
+            this.WinTUNTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.WinTUNTabPage.Controls.Add(this.WinTUNGroupBox);
+            this.WinTUNTabPage.Controls.Add(this.GlobalBypassIPsButton);
+            this.WinTUNTabPage.Location = new System.Drawing.Point(4, 29);
+            this.WinTUNTabPage.Name = "WinTUNTabPage";
+            this.WinTUNTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.WinTUNTabPage.Size = new System.Drawing.Size(461, 321);
+            this.WinTUNTabPage.TabIndex = 2;
+            this.WinTUNTabPage.Text = "WinTUN";
             // 
-            // TUNTAPGroupBox
+            // WinTUNGroupBox
             // 
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressLabel);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPNetmaskLabel);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPNetmaskTextBox);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPGatewayLabel);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPGatewayTextBox);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSLabel);
-            this.TUNTAPGroupBox.Controls.Add(this.TUNTAPDNSTextBox);
-            this.TUNTAPGroupBox.Controls.Add(this.UseCustomDNSCheckBox);
-            this.TUNTAPGroupBox.Controls.Add(this.ProxyDNSCheckBox);
-            this.TUNTAPGroupBox.Location = new System.Drawing.Point(6, 6);
-            this.TUNTAPGroupBox.Name = "TUNTAPGroupBox";
-            this.TUNTAPGroupBox.Size = new System.Drawing.Size(420, 175);
-            this.TUNTAPGroupBox.TabIndex = 0;
-            this.TUNTAPGroupBox.TabStop = false;
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPAddressLabel);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPNetmaskLabel);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPNetmaskTextBox);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPGatewayLabel);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPGatewayTextBox);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPDNSLabel);
+            this.WinTUNGroupBox.Controls.Add(this.TUNTAPDNSTextBox);
+            this.WinTUNGroupBox.Controls.Add(this.UseCustomDNSCheckBox);
+            this.WinTUNGroupBox.Controls.Add(this.ProxyDNSCheckBox);
+            this.WinTUNGroupBox.Location = new System.Drawing.Point(6, 6);
+            this.WinTUNGroupBox.Name = "WinTUNGroupBox";
+            this.WinTUNGroupBox.Size = new System.Drawing.Size(420, 175);
+            this.WinTUNGroupBox.TabIndex = 0;
+            this.WinTUNGroupBox.TabStop = false;
             // 
             // TUNTAPAddressLabel
             // 
@@ -984,9 +984,9 @@ namespace Netch.Forms
             this.NFTabPage.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
-            this.TAPTabPage.ResumeLayout(false);
-            this.TUNTAPGroupBox.ResumeLayout(false);
-            this.TUNTAPGroupBox.PerformLayout();
+            this.WinTUNTabPage.ResumeLayout(false);
+            this.WinTUNGroupBox.ResumeLayout(false);
+            this.WinTUNGroupBox.PerformLayout();
             this.v2rayTabPage.ResumeLayout(false);
             this.v2rayTabPage.PerformLayout();
             this.KCPGroupBox.ResumeLayout(false);
@@ -1008,7 +1008,7 @@ namespace Netch.Forms
         private System.Windows.Forms.TabControl TabControl;
         private System.Windows.Forms.TabPage GeneralTabPage;
         private System.Windows.Forms.TabPage NFTabPage;
-        private System.Windows.Forms.TabPage TAPTabPage;
+        private System.Windows.Forms.TabPage WinTUNTabPage;
         private System.Windows.Forms.TabPage v2rayTabPage;
         private System.Windows.Forms.GroupBox PortGroupBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
@@ -1017,7 +1017,7 @@ namespace Netch.Forms
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
         private System.Windows.Forms.CheckBox ResolveServerHostnameCheckBox;
-        private System.Windows.Forms.GroupBox TUNTAPGroupBox;
+        private System.Windows.Forms.GroupBox WinTUNGroupBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
         private System.Windows.Forms.CheckBox UseCustomDNSCheckBox;
         private System.Windows.Forms.Label TUNTAPDNSLabel;
