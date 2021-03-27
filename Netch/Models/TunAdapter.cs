@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using Netch.Controllers;
+using Netch.Interops;
 using Netch.Utils;
 
 namespace Netch.Models

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
-using static Netch.Controllers.TUNInterop;
+using static Netch.Interops.TUNInterop;
 
 namespace Netch.Controllers
 {

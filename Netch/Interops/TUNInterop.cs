@@ -2,9 +2,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Netch.Utils;
 
-namespace Netch.Controllers
+namespace Netch.Interops
 {
-    public class TUNInterop
+    public static class TUNInterop
     {
         public enum NameList
         {

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Netch.Utils;
 
-namespace Netch.Controllers
+namespace Netch.Interops
 {
     public static class RedirectorInterop
     {

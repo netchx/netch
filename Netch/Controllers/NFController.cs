@@ -8,7 +8,7 @@ using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using nfapinet;
-using static Netch.Controllers.RedirectorInterop;
+using static Netch.Interops.RedirectorInterop;
 
 namespace Netch.Controllers
 {

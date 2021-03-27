@@ -23,10 +23,10 @@ namespace Netch
         public static void Main(string[] args)
         {
 #if DEBUG
-            AttachConsole();
+            AttachAllocConsole();
 #else
             if (args.Contains(Constants.Parameter.Console))
-                AttachConsole();
+                AttachAllocConsole();
 #endif
 
             if (args.Contains(Constants.Parameter.ForceUpdate))
@@ -93,10 +93,10 @@ namespace Netch
             Application.Run(Global.MainForm);
         }
 
-        private static void AttachConsole()
+        private static void AttachAllocConsole()
         {
-            if (!NativeMethods.AttachConsole(-1))
-                NativeMethods.AllocConsole();
+            if (!AttachConsole(ATTACH_PARENT_PROCESS))
+                AllocConsole();
         }
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
