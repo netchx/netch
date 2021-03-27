@@ -75,11 +75,6 @@ namespace Netch.Models
 
         public string OtherDNS { get; set; } = "tcp://1.1.1.1:53";
 
-        /// <summary>
-        ///     Query package protocol (AioDNS both listen tcp and udp protocol)
-        /// </summary>
-        public string Protocol { get; set; } = "tcp";
-
         public ushort ListenPort { get; set; } = 53;
 
         public string RulePath { get; set; } = "bin\\aiodns.conf";
