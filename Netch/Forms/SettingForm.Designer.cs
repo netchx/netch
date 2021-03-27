@@ -583,7 +583,6 @@ namespace Netch.Forms
             this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 21);
             this.TUNTAPNetmaskTextBox.TabIndex = 3;
             this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.TUNTAPNetmaskTextBox.Visible = false;
             // 
             // TUNTAPGatewayLabel
             // 
