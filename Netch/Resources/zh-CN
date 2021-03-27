@@ -3,7 +3,6 @@
     "Information": "信息",
     "Error": "错误",
 
-    "If this is your first time using this software,\n please check https://netch.org to install supports first,\n or the program may report errors.": "如果你是第一次使用本软件，\n请务必前往 https://netch.org 安装程序所需依赖，\n否则程序将无法正常运行！",
     "Missing File or runtime components": "缺少文件或运行库",
     "Please extract all files then run the program!": "请先解压所有文件再执行程序！",
 
@@ -20,7 +19,6 @@
     "SetupBypass": "设置绕行规则",
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",
-    "Starting update ACL": "正在更新 ACL",
     "Subscription updated": "订阅更新完毕",
     "Register driver": "正在注册驱动",
 
@@ -67,7 +65,6 @@
     "Subscribe": "订阅",
     "Manage Subscribe Links": "管理订阅链接",
     "Update Servers From Subscribe Links": "从订阅链接更新服务器",
-    "Update Servers From Subscribe Links With Proxy": "使用代理从订阅链接更新服务器",
     "No subscription link": "没有任何一条订阅链接",
     "Updating {0}": "正在更新 {0}",
     "Update {1} server(s) from {0}": "从 {0} 更新 {1} 个服务器",
@@ -85,20 +82,9 @@
     "Uninstall {0}": "卸载 {0}",
     "Uninstalling {0}": "正在卸载 {0} 中",
     "{0} has been uninstalled": "{0} 已卸载",
-    "Reload Modes": "重载模式",
-    "Modes have been reload": "模式已重载",
     "Clean DNS Cache": "清理 DNS 缓存",
     "DNS cache cleanup succeeded": "DNS 缓存清理成功",
     "Remove Netch Firewall Rules": "移除 Netch 防火墙规则",
-
-    "Update PAC": "更新 PAC",
-    "PAC updated successfully": "PAC 更新成功",
-    "PAC update failed": "PAC 更新失败",
-
-    "Update ACL": "更新 ACL 规则",
-    "Update ACL with proxy": "使用代理更新 ACL 规则",
-    "ACL updated successfully": "ACL 更新成功",
-    "ACL update failed": "ACL 更新失败",
 
     "Open Directory": "打开目录",
 
@@ -155,25 +141,21 @@
     "Gateway": "网关",
     "Use Custom DNS": "使用自定义 DNS",
     "Proxy DNS in Proxy Rule IPs Mode": "在 代理规则IP 模式下代理 DNS",
-    "Use Fake DNS": "使用 Fake DNS",
     "Exit when closed": "关闭时退出",
     "Stop when exited": "退出时停止",
     "Global Bypass IPs": "全局直连 IP",
     "Check update when opened": "打开软件时检查更新",
     "Check Beta update": "检查 Beta 更新",
     "Update Servers when opened": "打开软件时更新服务器",
-    "SS DLL": "SS DLL",
-    "Modify System DNS": "修改系统 DNS",
     "Proxy Protocol": "代理协议",
-    "DNS Redirector": "DNS转发",
-    "ICMP Redirector": "ICMP转发",
+    "Handle process's DNS Hijack": "被代理进程 DNS 劫持",
+    "Global ICMP Hijack": "全局 ICMP 劫持",
     "Child Process Handle": "子进程代理",
     "ProfileCount": "快捷配置数量",
     "Delay test after start": "启动后延迟测试",
     "ServerPingType": "测速方式",
     "Detection Tick(sec)": "检测心跳（秒）",
     "STUN Server": "STUN 服务器",
-    "Custom ACL": "自定义 ACL 规则",
     "Language": "语言",
     "Resolve Server Hostname": "解析服务器主机名",
     "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
@@ -186,12 +168,5 @@
     "Exit": "退出",
 
     "The {0} port is in use.": "{0} 端口已被占用",
-    "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
-
-    "[Web Proxy] Bypass LAN": "[网页代理] 绕过局域网",
-    "[Non Web Proxy] Bypass LAN": "[不设置代理] 绕过局域网",
-    "[TUN/TAP] Bypass LAN": "[TUN/TAP] 绕过局域网",
-    "[Web Proxy] Bypass LAN and China": "[网页代理] 绕过局域网和中国大陆",
-    "[Non Web Proxy] Bypass LAN and China": "[不设置代理] 绕过局域网和中国大陆",
-    "[TUN/TAP] Bypass LAN and China": "[TUN/TAP] 绕过局域网和中国大陆"
+    "The {0} port is reserved by system.": "{0} 端口是系统保留端口"
 }
