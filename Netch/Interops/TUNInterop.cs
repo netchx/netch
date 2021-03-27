@@ -62,7 +62,7 @@ namespace Netch.Interops
         private static extern bool tun_free();
 
         [DllImport(tun2socks_bin, CallingConvention = CallingConvention.Cdecl)]
-        private static extern ulong tun_luid();
+        public static extern ulong tun_luid();
 
         [DllImport(tun2socks_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong tun_getUP();

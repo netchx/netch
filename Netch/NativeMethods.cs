@@ -41,6 +41,9 @@ namespace Netch
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl, EntryPoint = "DeleteRoute")]
         public static extern bool DeleteRoute(int inet, string address, int cidr, string gateway, int index, int metric = 0);
 
+        [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ulong ConvertLuidToIndex(ulong luid);
+
         [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
         public static extern uint FlushDNSResolverCache();
     }
