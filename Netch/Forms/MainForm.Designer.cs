@@ -56,7 +56,7 @@
             this.ModeLabel = new System.Windows.Forms.Label();
             this.ServerLabel = new System.Windows.Forms.Label();
             this.ProfileNameText = new System.Windows.Forms.TextBox();
-            this.ModeComboBox = new System.Windows.Forms.SearchComboBox();
+            this.ModeComboBox = new System.Windows.Forms.ComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.EditServerPictureBox = new System.Windows.Forms.PictureBox();
@@ -371,9 +371,9 @@
             // 
             // ModeComboBox
             // 
-            this.ModeComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
             this.ModeComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ModeComboBox.FormattingEnabled = true;
             this.ModeComboBox.IntegralHeight = false;
             this.ModeComboBox.Location = new System.Drawing.Point(54, 33);
@@ -752,7 +752,7 @@
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
         private System.Windows.Forms.MenuStrip MenuStrip;
-        private System.Windows.Forms.SearchComboBox ModeComboBox;
+        private System.Windows.Forms.ComboBox ModeComboBox;
         private System.Windows.Forms.Label ModeLabel;
         private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem HelpToolStripMenuItem;

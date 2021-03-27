@@ -49,18 +49,6 @@ namespace Netch.Forms
             // 监听电源事件
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
 
-            ModeComboBox.KeyUp += (_, args) =>
-            {
-                switch (args.KeyData)
-                {
-                    case Keys.Escape:
-                    {
-                        SelectLastMode();
-                        return;
-                    }
-                }
-            };
-
             CheckForIllegalCrossThreadCalls = false;
         }
 
@@ -525,9 +513,6 @@ namespace Netch.Forms
                 return;
             }
 
-            // 清除模式搜索框文本选择
-            ModeComboBox.Select(0, 0);
-
             State = State.Starting;
 
             try
@@ -875,7 +860,6 @@ namespace Netch.Forms
         private void ActiveProfile(Profile profile)
         {
             ProfileNameText.Text = profile.ProfileName;
-            ModeComboBox.ResetCompletionList();
 
             var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
             var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(profile.ModeRemark));

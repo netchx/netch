@@ -77,7 +77,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Interop.nfapinet\Interop.nfapinet.csproj" />
-        <ProjectReference Include="..\SearchComboBox\SearchComboBox.csproj" />
     </ItemGroup>
 
     <ItemGroup>
