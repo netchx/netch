@@ -204,7 +204,7 @@ namespace Netch.Forms.Mode
 
         private void ValidationButton_Click(object sender, EventArgs e)
         {
-            if (NFController.CheckRules(Rules, out var results))
+            if (!NFController.CheckRules(Rules, out var results))
                 MessageBoxX.Show(NFController.GenerateInvalidRulesMessage(results), LogLevel.WARNING);
             else
                 MessageBoxX.Show("Fine");

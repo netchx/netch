@@ -146,23 +146,23 @@ namespace Netch.Controllers
         private void dial_Name(Mode mode)
         {
             Dial(NameList.TYPE_CLRNAME, "");
-            var list = new List<string>();
+            var invalidList = new List<string>();
             foreach (var s in mode.FullRule)
             {
                 if (s.StartsWith("!"))
                 {
                     if (!Dial(NameList.TYPE_BYPNAME, s.Substring(1)))
-                        list.Add(s);
+                        invalidList.Add(s);
 
                     continue;
                 }
 
                 if (!Dial(NameList.TYPE_ADDNAME, s))
-                    list.Add(s);
+                    invalidList.Add(s);
             }
 
-            if (list.Any())
-                throw new MessageException(GenerateInvalidRulesMessage(list));
+            if (invalidList.Any())
+                throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
             Dial(NameList.TYPE_ADDNAME, @"NTT\.exe");
             Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
