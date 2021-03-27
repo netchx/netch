@@ -7,12 +7,13 @@ namespace Netch.Interops
     {
         public enum NameList
         {
-            //bool
-            TYPE_FILTERLOOPBACK,
-            TYPE_FILTERTCP,
-            TYPE_FILTERUDP,
-            TYPE_FILTERIP,
-            TYPE_FILTERCHILDPROC, //子进程捕获
+            TYPE_FILTLOP,
+            TYPE_FILTTCP,
+            TYPE_FILTUDP,
+            TYPE_CLRNAME,
+            TYPE_ADDNAME,
+            TYPE_BYPNAME,
+            TYPE_DNSHOST,
 
             TYPE_TCPLISN,
             TYPE_TCPTYPE,
@@ -20,24 +21,21 @@ namespace Netch.Interops
             TYPE_TCPUSER,
             TYPE_TCPPASS,
             TYPE_TCPMETH,
+            TYPE_TCPPROT,
+            TYPE_TCPPRPA,
+            TYPE_TCPOBFS,
+            TYPE_TCPOBPA,
 
+            TYPE_UDPLISN,
             TYPE_UDPTYPE,
             TYPE_UDPHOST,
             TYPE_UDPUSER,
             TYPE_UDPPASS,
             TYPE_UDPMETH,
-
-            TYPE_ADDNAME,
-            TYPE_ADDFIP,
-
-            TYPE_BYPNAME,
-
-            TYPE_CLRNAME,
-            TYPE_CLRFIP,
-
-            //str addr x.x.x.x only ipv4
-            TYPE_REDIRCTOR_DNS,
-            TYPE_REDIRCTOR_ICMP
+            TYPE_UDPPROT,
+            TYPE_UDPPRPA,
+            TYPE_UDPOBFS,
+            TYPE_UDPOBPA
         }
 
         public static bool Dial(NameList name, string value)
@@ -56,7 +54,7 @@ namespace Netch.Interops
             return aio_free();
         }
 
-        public const int UdpNameListOffset = (int) NameList.TYPE_UDPTYPE - (int) NameList.TYPE_TCPTYPE;
+        public const int UdpNameListOffset = (int) NameList.TYPE_UDPLISN - (int) NameList.TYPE_TCPLISN;
 
         private const string Redirector_bin = "Redirector.bin";
 

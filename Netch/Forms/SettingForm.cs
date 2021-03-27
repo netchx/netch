@@ -26,19 +26,14 @@ namespace Netch.Forms
             #region General
 
             BindTextBox<ushort>(Socks5PortTextBox,
-                p => p.ToString() != HTTPPortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
+                p => p.ToString() != HTTPPortTextBox.Text,
                 p => Global.Settings.Socks5LocalPort = p,
                 Global.Settings.Socks5LocalPort);
 
             BindTextBox<ushort>(HTTPPortTextBox,
-                p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != RedirectorTextBox.Text,
+                p => p.ToString() != Socks5PortTextBox.Text,
                 p => Global.Settings.HTTPLocalPort = p,
                 Global.Settings.HTTPLocalPort);
-
-            BindTextBox<ushort>(RedirectorTextBox,
-                p => p.ToString() != Socks5PortTextBox.Text && p.ToString() != HTTPPortTextBox.Text,
-                p => Global.Settings.RedirectorTCPPort = p,
-                Global.Settings.RedirectorTCPPort);
 
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
@@ -103,28 +98,27 @@ namespace Netch.Forms
 
             #region Process Mode
 
-            BindCheckBox(DNSRedirectorCheckBox, b => Global.Settings.RedirectDNS = b, Global.Settings.RedirectDNS);
+            BindCheckBox(DNSHijackCheckBox, b => Global.Settings.Redirector.DNSHijack = b, Global.Settings.Redirector.DNSHijack);
 
-            BindTextBox(RDRDNSTextBox,
-                s => DnsUtils.TrySplit(s, out _, 2),
-                s => Global.Settings.RedirectDNSAddr = s,
-                Global.Settings.RedirectDNSAddr);
+            BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHijackHost = s, Global.Settings.Redirector.DNSHijackHost);
 
-            BindCheckBox(ICMPRedirectorCheckBox, b => Global.Settings.RedirectICMP = b, Global.Settings.RedirectICMP);
+            BindCheckBox(ICMPHijackCheckBox, b => Global.Settings.Redirector.ICMPHijack = b, Global.Settings.Redirector.ICMPHijack);
 
-            BindTextBox(ModifiedICMPTextBox,
-                s => DnsUtils.TrySplit(s, out _, 2),
-                s => Global.Settings.RedirectICMPAddr = s,
-                Global.Settings.RedirectICMPAddr);
+            BindTextBox(ICMPHijackHostTextBox,
+                s => IPAddress.TryParse(s, out _),
+                s => Global.Settings.Redirector.ICMPHost = s,
+                Global.Settings.Redirector.ICMPHost);
 
-            BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.RedirectorSS = s, Global.Settings.RedirectorSS);
+            BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.Redirector.RedirectorSS = s, Global.Settings.Redirector.RedirectorSS);
 
-            BindCheckBox(ChildProcessHandleCheckBox, s => Global.Settings.ChildProcessHandle = s, Global.Settings.ChildProcessHandle);
+            BindCheckBox(ChildProcessHandleCheckBox,
+                s => Global.Settings.Redirector.ChildProcessHandle = s,
+                Global.Settings.Redirector.ChildProcessHandle);
 
             BindListComboBox(ProcessProxyProtocolComboBox,
-                s => Global.Settings.ProcessProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
+                s => Global.Settings.Redirector.ProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
                 Enum.GetNames(typeof(PortType)),
-                Global.Settings.ProcessProxyProtocol.ToString());
+                Global.Settings.Redirector.ProxyProtocol.ToString());
 
             #endregion
 

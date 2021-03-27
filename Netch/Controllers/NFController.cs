@@ -25,21 +25,21 @@ namespace Netch.Controllers
         {
             CheckDriver();
 
-            Dial(NameList.TYPE_FILTERLOOPBACK, "false");
-            Dial(NameList.TYPE_TCPLISN, Global.Settings.RedirectorTCPPort.ToString());
+            Dial(NameList.TYPE_FILTLOP, "false");
+            var p = PortHelper.GetAvailablePort();
+            Dial(NameList.TYPE_TCPLISN, p.ToString());
+            Dial(NameList.TYPE_UDPLISN, p.ToString());
 
             // Server
-            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.ProcessProxyProtocol != PortType.TCP).ToString().ToLower());
-            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.ProcessProxyProtocol != PortType.UDP).ToString().ToLower());
-            dial_Server(Global.Settings.ProcessProxyProtocol);
+            Dial(NameList.TYPE_FILTUDP, (Global.Settings.Redirector.ProxyProtocol != PortType.TCP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTTCP, (Global.Settings.Redirector.ProxyProtocol != PortType.UDP).ToString().ToLower());
+            dial_Server(Global.Settings.Redirector.ProxyProtocol);
 
             // Mode Rule
             dial_Name(mode);
 
             // Features
-            Dial(NameList.TYPE_REDIRCTOR_DNS, Global.Settings.RedirectDNS ? Global.Settings.RedirectDNSAddr : "");
-            Dial(NameList.TYPE_REDIRCTOR_ICMP, Global.Settings.RedirectICMP ? Global.Settings.RedirectICMPAddr : "");
-            Dial(NameList.TYPE_FILTERCHILDPROC, Global.Settings.ChildProcessHandle.ToString().ToLower());
+            Dial(NameList.TYPE_DNSHOST, Global.Settings.Redirector.DNSHijack ? Global.Settings.Redirector.DNSHijackHost : "");
 
             if (!Init())
                 throw new MessageException("Redirector Start failed, run Netch with \"-console\" argument");
@@ -126,7 +126,7 @@ namespace Netch.Controllers
                 Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS)
+            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
                 Dial(NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");

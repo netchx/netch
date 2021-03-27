@@ -115,7 +115,7 @@ namespace Netch.Utils
                     return server switch
                            {
                                Socks5 => true,
-                               Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.RedirectorSS => true,
+                               Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS => true,
                                _ => false
                            };
                 case 1:
@@ -135,8 +135,6 @@ namespace Netch.Utils
             switch (type)
             {
                 case 0:
-                    port = Global.Settings.RedirectorTCPPort;
-                    portName = "Redirector TCP";
                     return new NFController();
                 case 1:
                 case 2:

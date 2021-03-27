@@ -149,7 +149,7 @@ namespace Netch.Controllers
                 RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
 
             Logging.Info("绕行 → 全局绕过 IP");
-            RouteAction(Action.Create, Global.Settings.BypassIPs, RouteType.Outbound);
+            RouteAction(Action.Create, Global.Settings.TUNTAP.BypassIPs, RouteType.Outbound);
 
             #region Rule IPs
 

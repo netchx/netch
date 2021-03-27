@@ -37,6 +37,11 @@ namespace Netch.Models
         ///     使用自定义 DNS 设置
         /// </summary>
         public bool UseCustomDNS { get; set; } = true;
+
+        /// <summary>
+        ///     全局绕过 IP 列表
+        /// </summary>
+        public List<string> BypassIPs { get; set; } = new();
     }
 
     public class KcpConfig
@@ -80,22 +85,51 @@ namespace Netch.Models
         public string RulePath { get; set; } = "bin\\aiodns.conf";
     }
 
+    public class RedirectorConfig
+    {
+        /// <summary>
+        ///     不代理TCP
+        /// </summary>
+        public PortType ProxyProtocol { get; set; } = PortType.Both;
+
+        /// <summary>
+        ///     是否开启DNS转发
+        /// </summary>
+        public bool DNSHijack { get; set; } = true;
+
+        /// <summary>
+        ///     转发DNS地址
+        /// </summary>
+        public string DNSHijackHost { get; set; } = "1.1.1.1:53";
+
+        public string ICMPHost { get; set; } = "1.2.4.8";
+
+        public bool ICMPHijack { get; set; } = false;
+
+        /// <summary>
+        ///     是否使用RDR内置SS
+        /// </summary>
+        public bool RedirectorSS { get; set; } = false;
+
+        /// <summary>
+        ///     是否代理子进程
+        /// </summary>
+        public bool ChildProcessHandle { get; set; } = false;
+    }
+
     /// <summary>
     ///     用于读取和写入的配置的类
     /// </summary>
     public class Setting
     {
+        public RedirectorConfig Redirector { get; set; } = new();
+
         /// <summary>
         ///     服务器列表
         /// </summary>
         public List<Server> Server { get; set; } = new();
 
         public AioDNSConfig AioDNS { get; set; } = new();
-
-        /// <summary>
-        ///     全局绕过 IP 列表
-        /// </summary>
-        public List<string> BypassIPs { get; set; } = new();
 
         /// <summary>
         ///     是否检查 Beta 更新
@@ -143,31 +177,6 @@ namespace Netch.Models
         public int ModeComboBoxSelectedIndex { get; set; } = -1;
 
         /// <summary>
-        ///     转发DNS地址
-        /// </summary>
-        public string RedirectDNSAddr { get; set; } = "1.1.1.1";
-
-        /// <summary>
-        ///     是否开启DNS转发
-        /// </summary>
-        public bool RedirectDNS { get; set; } = true;
-
-        /// <summary>
-        ///     转发ICMP地址
-        /// </summary>
-        public string RedirectICMPAddr { get; set; } = "1.2.4.8";
-
-        /// <summary>
-        ///     是否开启ICMP转发
-        /// </summary>
-        public bool RedirectICMP { get; set; } = false;
-
-        /// <summary>
-        ///     不代理TCP
-        /// </summary>
-        public PortType ProcessProxyProtocol { get; set; } = PortType.Both;
-
-        /// <summary>
         ///     快捷配置数量
         /// </summary>
         public int ProfileCount { get; set; } = 4;
@@ -181,21 +190,6 @@ namespace Netch.Models
         ///     配置最大列数
         /// </summary>
         public byte ProfileTableColumnCount { get; set; } = 5;
-
-        /// <summary>
-        ///     是否使用RDR内置SS
-        /// </summary>
-        public bool RedirectorSS { get; set; } = true;
-
-        /// <summary>
-        ///     是否代理子进程
-        /// </summary>
-        public bool ChildProcessHandle { get; set; } = false;
-
-        /// <summary>
-        ///     Redirector TCP 占用端口
-        /// </summary>
-        public ushort RedirectorTCPPort { get; set; } = 3901;
 
         /// <summary>
         ///     网页请求超时 毫秒
