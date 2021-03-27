@@ -90,11 +90,6 @@ namespace Netch.Models
         /// </summary>
         public List<Server> Server { get; set; } = new();
 
-        /// <summary>
-        ///     ACL规则
-        /// </summary>
-        public string ACL { get; set; } = "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/banAD.acl";
-
         public AioDNSConfig AioDNS { get; set; } = new();
 
         /// <summary>

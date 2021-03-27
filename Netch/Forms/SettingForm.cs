@@ -98,8 +98,6 @@ namespace Netch.Forms
                 Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
                 stuns);
 
-            BindTextBox<string>(AclAddrTextBox, s => true, s => Global.Settings.ACL = s, Global.Settings.ACL);
-
             BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
 
             #endregion

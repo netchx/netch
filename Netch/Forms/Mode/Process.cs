@@ -135,7 +135,6 @@ namespace Netch.Forms.Mode
 
                 var mode = new Models.Mode(fullName)
                 {
-                    BypassChina = false,
                     Type = 0,
                     Remark = RemarkTextBox.Text
                 };

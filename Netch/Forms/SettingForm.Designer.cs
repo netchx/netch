@@ -53,8 +53,6 @@ namespace Netch.Forms
             this.StartedPingIntervalTextBox = new System.Windows.Forms.TextBox();
             this.STUNServerLabel = new System.Windows.Forms.Label();
             this.STUN_ServerComboBox = new System.Windows.Forms.ComboBox();
-            this.AclLabel = new System.Windows.Forms.Label();
-            this.AclAddrTextBox = new System.Windows.Forms.TextBox();
             this.LanguageLabel = new System.Windows.Forms.Label();
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
             this.NFTabPage = new System.Windows.Forms.TabPage();
@@ -161,8 +159,6 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.StartedPingIntervalTextBox);
             this.GeneralTabPage.Controls.Add(this.STUNServerLabel);
             this.GeneralTabPage.Controls.Add(this.STUN_ServerComboBox);
-            this.GeneralTabPage.Controls.Add(this.AclLabel);
-            this.GeneralTabPage.Controls.Add(this.AclAddrTextBox);
             this.GeneralTabPage.Controls.Add(this.LanguageLabel);
             this.GeneralTabPage.Controls.Add(this.LanguageComboBox);
             this.GeneralTabPage.Location = new System.Drawing.Point(4, 29);
@@ -359,27 +355,10 @@ namespace Netch.Forms
             this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 25);
             this.STUN_ServerComboBox.TabIndex = 12;
             // 
-            // AclLabel
-            // 
-            this.AclLabel.AutoSize = true;
-            this.AclLabel.Location = new System.Drawing.Point(12, 248);
-            this.AclLabel.Name = "AclLabel";
-            this.AclLabel.Size = new System.Drawing.Size(78, 17);
-            this.AclLabel.TabIndex = 13;
-            this.AclLabel.Text = "Custom ACL";
-            // 
-            // AclAddrTextBox
-            // 
-            this.AclAddrTextBox.Location = new System.Drawing.Point(120, 245);
-            this.AclAddrTextBox.Name = "AclAddrTextBox";
-            this.AclAddrTextBox.Size = new System.Drawing.Size(314, 23);
-            this.AclAddrTextBox.TabIndex = 14;
-            this.AclAddrTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // LanguageLabel
             // 
             this.LanguageLabel.AutoSize = true;
-            this.LanguageLabel.Location = new System.Drawing.Point(12, 277);
+            this.LanguageLabel.Location = new System.Drawing.Point(17, 254);
             this.LanguageLabel.Name = "LanguageLabel";
             this.LanguageLabel.Size = new System.Drawing.Size(65, 17);
             this.LanguageLabel.TabIndex = 15;
@@ -389,7 +368,7 @@ namespace Netch.Forms
             // 
             this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.LanguageComboBox.FormattingEnabled = true;
-            this.LanguageComboBox.Location = new System.Drawing.Point(120, 274);
+            this.LanguageComboBox.Location = new System.Drawing.Point(120, 251);
             this.LanguageComboBox.Name = "LanguageComboBox";
             this.LanguageComboBox.Size = new System.Drawing.Size(121, 25);
             this.LanguageComboBox.TabIndex = 16;
@@ -1084,8 +1063,6 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox ExitWhenClosedCheckBox;
         private System.Windows.Forms.Label LanguageLabel;
         private System.Windows.Forms.ComboBox LanguageComboBox;
-        private System.Windows.Forms.TextBox AclAddrTextBox;
-        private System.Windows.Forms.Label AclLabel;
         private System.Windows.Forms.Label DetectionTickLabel;
         private System.Windows.Forms.TextBox DetectionTickTextBox;
         private System.Windows.Forms.Label StartedPingLabel;

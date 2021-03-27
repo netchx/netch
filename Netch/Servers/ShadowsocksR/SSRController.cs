@@ -40,9 +40,6 @@ namespace Netch.Servers.ShadowsocksR
                 u = true
             };
 
-            if (mode.BypassChina)
-                command.acl = $"{Path.GetFullPath(File.Exists(Constants.UserACL) ? Constants.UserACL : Constants.BuiltinACL)}";
-
             StartInstanceAuto(command.ToString());
         }
 

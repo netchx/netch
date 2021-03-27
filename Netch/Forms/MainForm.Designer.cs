@@ -84,7 +84,6 @@
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtomControlContainerControl = new System.Windows.Forms.ContainerControl();
-            this.UpdateACLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
@@ -192,7 +191,6 @@
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.OpenDirectoryToolStripMenuItem,
             this.CleanDNSCacheToolStripMenuItem,
-            this.UpdateACLToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem,
             this.removeNetchFirewallRulesToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
@@ -679,13 +677,6 @@
             this.ButtomControlContainerControl.TabStop = false;
             this.ButtomControlContainerControl.Text = "groupBox1";
             // 
-            // UpdateACLToolStripMenuItem
-            // 
-            this.UpdateACLToolStripMenuItem.Name = "UpdateACLToolStripMenuItem";
-            this.UpdateACLToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.UpdateACLToolStripMenuItem.Text = "Update ACL";
-            this.UpdateACLToolStripMenuItem.Click += new System.EventHandler(this.updateACLToolStripMenuItem_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -696,7 +687,7 @@
             this.Controls.Add(this.MenuStrip);
             this.Controls.Add(this.StatusStrip);
             this.Controls.Add(this.flowLayoutPanel1);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
@@ -791,6 +782,5 @@
 
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.ContainerControl ButtomControlContainerControl;
-        private System.Windows.Forms.ToolStripMenuItem UpdateACLToolStripMenuItem;
     }
 }

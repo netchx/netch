@@ -65,21 +65,6 @@ namespace Netch.Servers.V2ray.Utils
                     outboundTag = "block"
                 };
 
-                if (mode.BypassChina)
-                    switch (mode.Type)
-                    {
-                        case 0:
-                            directRuleObject.ip.Add("geoip:cn");
-                            break;
-                        case 1:
-                        case 2:
-                            // directRuleObject.ip.Add("geoip:cn");
-                            break;
-                        default:
-                            directRuleObject.domain.Add("geosite:cn");
-                            break;
-                    }
-
                 if (mode.Type is 0 or 1 or 2)
                     blockRuleObject.ip.Add("geoip:private");
 

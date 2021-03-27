@@ -3,8 +3,6 @@
     public static class Constants
     {
         public const string EOF = "\r\n";
-        public const string UserACL = "data\\user.acl";
-        public const string BuiltinACL = "bin\\default.acl";
 
         public static class Parameter
         {

@@ -365,33 +365,6 @@ namespace Netch.Forms
             }
         }
 
-        private void updateACLToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            UpdateACL();
-        }
-
-        private async void UpdateACL()
-        {
-            Enabled = false;
-            StatusText(i18N.TranslateFormat("Updating {0}", "ACL"));
-            try
-            {
-                var req = WebUtil.CreateRequest(Global.Settings.ACL);
-                await WebUtil.DownloadFileAsync(req, Path.Combine(Global.NetchDir, Constants.UserACL));
-                NotifyTip(i18N.Translate("ACL updated successfully"));
-            }
-            catch (Exception e)
-            {
-                NotifyTip(i18N.Translate("ACL update failed") + "\n" + e.Message, info: false);
-                Logging.Error("更新 ACL 失败！" + e);
-            }
-            finally
-            {
-                StatusText();
-                Enabled = true;
-            }
-        }
-
         private async void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
@@ -981,8 +954,7 @@ namespace Netch.Forms
                         EditServerPictureBox.Enabled = DeleteModePictureBox.Enabled = DeleteServerPictureBox.Enabled = enabled;
 
                     // 启动需要禁用的控件
-                    UninstallServiceToolStripMenuItem.Enabled =
-                        UpdateACLToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = enabled;
+                    UninstallServiceToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
