@@ -11,6 +11,8 @@
         <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
         <Platforms>x64</Platforms>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <LangVersion>latest</LangVersion>
         <IsPackable>false</IsPackable>
         <Nullable>enable</Nullable>
@@ -37,10 +39,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove=".gitignore" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="HMBSbige.SingleInstance" Version="5.0.0" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.66" GeneratePathProperty="true" />
@@ -62,8 +60,19 @@
         <ProjectReference Include="..\Interop.nfapinet\Interop.nfapinet.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>false</SelfContained>
+        <PublishTrimmed>false</PublishTrimmed>
+        <PublishReadyToRun>false</PublishReadyToRun>
+    </PropertyGroup>
+
     <ItemGroup>
+        <None Remove=".gitignore" />
         <None Visible="false" Include="..\binaries\**" LinkBase="bin" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
+        <None Update="..\binaries\NTT.exe">
+            <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        </None>
         <None Remove="..\binaries\.git" />
         <None Visible="false" Include="..\translations\i18n\**" LinkBase="i18n" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
         <None Visible="false" Include="..\modes\mode\**" LinkBase="mode" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
@@ -96,14 +105,12 @@
             <LastGenOutput>Settings.Designer.cs</LastGenOutput>
         </None>
     </ItemGroup>
+
     <ProjectExtensions>
         <VisualStudio>
             <UserProperties />
         </VisualStudio>
     </ProjectExtensions>
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="set TargetFramework=$(TargetFramework)&#xD;&#xA;set Configuration=$(Configuration)&#xD;&#xA;set ILMergeConsolePath=$(ILMergeConsolePath)&#xD;&#xA;set TargetDir=$(TargetDir)&#xD;&#xA;set SolutionDir=$(SolutionDir)&#xD;&#xA;call $(ProjectDir)PostBuild.bat" />
-    </Target>
 
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
         <ItemGroup>
