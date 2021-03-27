@@ -49,7 +49,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 ![](images/screenshots/main.png)
 
 ## Requirements
-- [.NET Framework 4.8 (Included in Windows 10 1903+)](https://dotnet.microsoft.com/download/dotnet-framework/net48)
+- [.NET 5](https://dotnet.microsoft.com/download/dotnet/5.0/runtime)
 
 ## Quote
 - [core](https://github.com/aiocloud/core)

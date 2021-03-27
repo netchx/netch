@@ -44,7 +44,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
 ## 依赖
-- [.NET Framework 4.8 (Windows 10 1903+ 已包含)](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-offline-installer)
+- [.NET 5](https://dotnet.microsoft.com/download/dotnet/5.0/runtime)
 
 ## 语言支持
 Netch 内置 en-US 和 zh-CN，外置 zh-TW 等，默认根据系统语言选择语言。
