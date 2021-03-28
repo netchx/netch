@@ -2,37 +2,35 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net5.0-windows7</TargetFramework>
         <UseWindowsForms>true</UseWindowsForms>
         <UseWPF>true</UseWPF>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <StartupObject>Netch.Netch</StartupObject>
         <ApplicationManifest>App.manifest</ApplicationManifest>
         <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
-        <Platforms>x64</Platforms>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-        <LangVersion>latest</LangVersion>
         <IsPackable>false</IsPackable>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <AnalysisMode>Default</AnalysisMode>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <TargetFramework>net5.0-windows</TargetFramework>
+        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>x64</Platforms>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <OutputPath>bin\x64\Debug\</OutputPath>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <WarningsAsErrors />
-        <NoWarn />
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <NoWarn />
-        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-        <WarningsAsErrors />
         <OutputPath>bin\x64\Release\</OutputPath>
         <DebugType>none</DebugType>
         <DebugSymbols>false</DebugSymbols>
@@ -59,13 +57,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Interop.nfapinet\Interop.nfapinet.csproj" />
     </ItemGroup>
-
-    <PropertyGroup>
-        <PublishSingleFile>true</PublishSingleFile>
-        <SelfContained>false</SelfContained>
-        <PublishTrimmed>false</PublishTrimmed>
-        <PublishReadyToRun>false</PublishReadyToRun>
-    </PropertyGroup>
 
     <ItemGroup>
         <None Remove=".gitignore" />
@@ -105,12 +96,6 @@
             <LastGenOutput>Settings.Designer.cs</LastGenOutput>
         </None>
     </ItemGroup>
-
-    <ProjectExtensions>
-        <VisualStudio>
-            <UserProperties />
-        </VisualStudio>
-    </ProjectExtensions>
 
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
         <ItemGroup>

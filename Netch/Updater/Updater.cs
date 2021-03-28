@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Windows.Threading;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Properties;
@@ -97,7 +96,6 @@ namespace Netch.Updater
 
         private void ApplyUpdate()
         {
-            var dispatcher = Dispatcher.CurrentDispatcher;
             var mainForm = Global.MainForm;
 
             #region PreUpdate
@@ -132,7 +130,7 @@ namespace Netch.Updater
             MoveAllFilesOver(Path.Combine(extractPath, "Netch"), _installDirectory);
 
             // release mutex, exit
-            dispatcher.Invoke(Netch.SingleInstance.Dispose);
+            mainForm.Invoke(new Action(Netch.SingleInstance.Dispose));
             Process.Start(Global.NetchExecutable);
             Environment.Exit(0);
         }
