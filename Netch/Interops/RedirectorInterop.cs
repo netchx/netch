@@ -7,12 +7,15 @@ namespace Netch.Interops
     {
         public enum NameList
         {
-            TYPE_FILTLOP,
-            TYPE_FILTTCP,
-            TYPE_FILTUDP,
+            TYPE_FILTERLOOPBACK,
+            TYPE_FILTERICMP,
+            TYPE_FILTERTCP,
+            TYPE_FILTERUDP,
+
             TYPE_CLRNAME,
             TYPE_ADDNAME,
             TYPE_BYPNAME,
+
             TYPE_DNSHOST,
 
             TYPE_TCPLISN,

@@ -25,14 +25,15 @@ namespace Netch.Controllers
         {
             CheckDriver();
 
-            Dial(NameList.TYPE_FILTLOP, "false");
+            Dial(NameList.TYPE_FILTERLOOPBACK, "false");
+            Dial(NameList.TYPE_FILTERICMP, "true");
             var p = PortHelper.GetAvailablePort();
             Dial(NameList.TYPE_TCPLISN, p.ToString());
             Dial(NameList.TYPE_UDPLISN, p.ToString());
 
             // Server
-            Dial(NameList.TYPE_FILTUDP, (Global.Settings.Redirector.ProxyProtocol != PortType.TCP).ToString().ToLower());
-            Dial(NameList.TYPE_FILTTCP, (Global.Settings.Redirector.ProxyProtocol != PortType.UDP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.Redirector.ProxyProtocol != PortType.TCP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.Redirector.ProxyProtocol != PortType.UDP).ToString().ToLower());
             dial_Server(Global.Settings.Redirector.ProxyProtocol);
 
             // Mode Rule
