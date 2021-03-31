@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build
     runs-on: windows-latest
+    env:
+      OutputPath: Netch\bin\Publish\Debug
     steps:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
@@ -19,7 +21,7 @@ jobs:
 
     - name: Build Solution
       shell: pwsh
-      run: .\BUILD.ps1
+      run: .\BUILD.ps1 Debug -o ${{ env.OutputPath }}
 
     - name: Upload Artifact
       continue-on-error: true
@@ -27,4 +29,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: Netch
-        path: Netch\bin\x64\Release
+        path: ${{ env.OutputPath }}

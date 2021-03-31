@@ -18,7 +18,7 @@ jobs:
 
     - name: Build Solution
       shell: pwsh
-      run: .\PUBLISH.ps1
+      run: .\BUILD.ps1
 
     - name: Package
       if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
