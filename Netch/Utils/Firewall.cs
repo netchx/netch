@@ -17,7 +17,7 @@ namespace Netch.Utils
         {
             if (!FirewallWAS.IsSupported)
             {
-                Logging.Warning("不支持防火墙");
+                Global.Logger.Warning("不支持防火墙");
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Logging.Warning("添加防火墙规则错误(如已关闭防火墙则可无视此错误)\n" + e);
+                Global.Logger.Warning("添加防火墙规则错误(如已关闭防火墙则可无视此错误)\n" + e);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Logging.Warning("清除防火墙规则错误\n" + e);
+                Global.Logger.Warning("清除防火墙规则错误\n" + e);
             }
         }
 

@@ -4,7 +4,9 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows.Forms;
 using Netch.Forms;
+using Netch.Interfaces;
 using Netch.Models;
+using Netch.Models.Loggers;
 
 namespace Netch
 {
@@ -25,6 +27,22 @@ namespace Netch
         /// </summary>
         public static readonly List<Mode> Modes = new();
 
+        public static readonly string NetchDir;
+        public static readonly string NetchExecutable;
+
+        static Global()
+        {
+            NetchExecutable = Application.ExecutablePath;
+            NetchDir = Application.StartupPath;
+#if DEBUG
+            Logger = new ConsoleLogger();
+#else
+            Logger = new FileLogger();
+#endif
+        }
+
+        public static ILogger Logger { get; }
+
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
@@ -36,8 +54,5 @@ namespace Netch
             IgnoreNullValues = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
-
-        public static readonly string NetchDir = Application.StartupPath;
-        public static readonly string NetchExecutable = Application.ExecutablePath;
     }
 }

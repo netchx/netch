@@ -161,7 +161,7 @@ namespace Netch.Updater
                 }
                 catch
                 {
-                    Logging.Error($"failed to rename file \"{file}\"");
+                    Global.Logger.Error($"failed to rename file \"{file}\"");
                     throw;
                 }
         }

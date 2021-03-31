@@ -53,7 +53,7 @@ namespace Netch.Utils
             catch (Exception e)
             {
                 Global.MainForm.NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                Logging.Error(e.ToString());
+                Global.Logger.Error(e.ToString());
             }
         }
     }

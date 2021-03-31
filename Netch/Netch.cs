@@ -80,8 +80,8 @@ namespace Netch
                 Environment.Exit(2);
             }
 
-            Logging.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-            Task.Run(() => { Logging.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
+            Global.Logger.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
+            Task.Run(() => { Global.Logger.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -101,8 +101,8 @@ namespace Netch
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
         {
-            Logging.Error(e.Exception.ToString());
-            Utils.Utils.Open(Logging.LogFile);
+            Global.Logger.Error(e.Exception.ToString());
+            Global.Logger.ShowLog();
         }
 
         private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)

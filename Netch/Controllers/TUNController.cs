@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using Vanara.PInvoke;
 using static Netch.Interops.TUNInterop;
+using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Controllers
 {
@@ -84,7 +86,7 @@ namespace Netch.Controllers
 
             #endregion
 
-            Logging.Debug("tun2socks init");
+            Global.Logger.Debug("tun2socks init");
             Init();
 
             _tunAdapter = new TunAdapter();
@@ -104,8 +106,8 @@ namespace Netch.Controllers
         {
             var binHash = Utils.Utils.SHA256CheckSum(BinDriver);
             var sysHash = Utils.Utils.SHA256CheckSum(SysDriver);
-            Logging.Info("自带 wintun.dll Hash: " + binHash);
-            Logging.Info("系统 wintun.dll Hash: " + sysHash);
+            Global.Logger.Info("自带 wintun.dll Hash: " + binHash);
+            Global.Logger.Info("系统 wintun.dll Hash: " + sysHash);
             if (binHash == sysHash)
                 return;
 
@@ -115,7 +117,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Logging.Error(e.ToString());
+                Global.Logger.Error(e.ToString());
                 throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
             }
         }
@@ -142,13 +144,13 @@ namespace Netch.Controllers
         private void SetupRouteTable(Mode mode)
         {
             Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
-            Logging.Info("设置路由规则");
+            Global.Logger.Info("设置路由规则");
 
-            Logging.Info("绕行 → 服务器 IP");
+            Global.Logger.Info("绕行 → 服务器 IP");
             if (!IPAddress.IsLoopback(_serverAddresses))
                 RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
 
-            Logging.Info("绕行 → 全局绕过 IP");
+            Global.Logger.Info("绕行 → 全局绕过 IP");
             RouteAction(Action.Create, Global.Settings.TUNTAP.BypassIPs, RouteType.Outbound);
 
             #region Rule IPs
@@ -157,12 +159,12 @@ namespace Netch.Controllers
             {
                 case 1:
                     // 代理规则 IP
-                    Logging.Info("代理 → 规则 IP");
+                    Global.Logger.Info("代理 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
 
                     if (Global.Settings.TUNTAP.ProxyDNS)
                     {
-                        Logging.Info("代理 → 自定义 DNS");
+                        Global.Logger.Info("代理 → 自定义 DNS");
                         if (Global.Settings.TUNTAP.UseCustomDNS)
                             RouteAction(Action.Create, Global.Settings.TUNTAP.HijackDNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
                         else
@@ -173,7 +175,7 @@ namespace Netch.Controllers
                 case 2:
                     // 绕过规则 IP
 
-                    Logging.Info("绕行 → 规则 IP");
+                    Global.Logger.Info("绕行 → 规则 IP");
                     RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
                     break;
             }
@@ -182,7 +184,7 @@ namespace Netch.Controllers
 
             if (mode.Type == 2)
             {
-                Logging.Info("代理 → 全局");
+                Global.Logger.Info("代理 → 全局");
                 SetInterface(RouteType.TUNTAP, 0);
                 RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP, record: false);
             }
@@ -267,11 +269,9 @@ namespace Netch.Controllers
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
             }
 
-            Logging.Debug($"{action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
+            Global.Logger.Debug($"{action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
             if (!result)
-            {
-                Logging.Warning($"Failed to invoke {action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
-            }
+                Global.Logger.Warning($"Failed to invoke {action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
 
             return result;
         }
@@ -284,7 +284,7 @@ namespace Netch.Controllers
             var s = ipNetwork.Split('/');
             if (s.Length != 2)
             {
-                Logging.Warning($"Failed to parse rule {ipNetwork}");
+                Global.Logger.Warning($"Failed to parse rule {ipNetwork}");
                 return false;
             }
 

@@ -78,7 +78,7 @@ namespace Netch.Utils
 
             var processList = instances.Select(instance => instance.Id).ToList();
 
-            Logging.Info("流量统计进程:" + string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
+            Global.Logger.Info("流量统计进程:" + string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
 
             received = 0;
 

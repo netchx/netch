@@ -47,24 +47,24 @@ namespace Netch.Controllers
 
                 var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
                 LatestRelease = VersionUtil.GetLatestRelease(releases, isPreRelease);
-                Logging.Info($"Github 最新发布版本: {LatestRelease.tag_name}");
+                Global.Logger.Info($"Github 最新发布版本: {LatestRelease.tag_name}");
                 if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
                 {
-                    Logging.Info("发现新版本");
+                    Global.Logger.Info("发现新版本");
                     NewVersionFound?.Invoke(null, new EventArgs());
                 }
                 else
                 {
-                    Logging.Info("目前是最新版本");
+                    Global.Logger.Info("目前是最新版本");
                     NewVersionNotFound?.Invoke(null, new EventArgs());
                 }
             }
             catch (Exception e)
             {
                 if (e is WebException)
-                    Logging.Warning($"获取新版本失败: {e.Message}");
+                    Global.Logger.Warning($"获取新版本失败: {e.Message}");
                 else
-                    Logging.Warning(e.ToString());
+                    Global.Logger.Warning(e.ToString());
 
                 NewVersionFoundFailed?.Invoke(null, new EventArgs());
             }

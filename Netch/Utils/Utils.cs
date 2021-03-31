@@ -243,7 +243,7 @@ namespace Netch.Utils
                 }
             };
 
-            Logging.Debug($"{fileName} {arguments}");
+            Global.Logger.Debug($"{fileName} {arguments}");
 
             p.Start();
             var output = await p.StandardOutput.ReadToEndAsync();

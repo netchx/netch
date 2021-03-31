@@ -84,7 +84,7 @@ namespace Netch.Controllers
             }
             catch (Win32Exception e)
             {
-                Logging.Error($"停止 {MainFile} 错误：\n" + e);
+                Global.Logger.Error($"停止 {MainFile} 错误：\n" + e);
             }
             catch
             {
@@ -268,7 +268,7 @@ namespace Netch.Controllers
             }
             catch (Exception exception)
             {
-                Logging.Warning($"写入 {Name} 日志错误：\n" + exception.Message);
+                Global.Logger.Warning($"写入 {Name} 日志错误：\n" + exception.Message);
             }
         }
     }

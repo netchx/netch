@@ -146,19 +146,19 @@ namespace Netch.Servers.ShadowsocksR
             var server = (ShadowsocksR) s;
             if (!SSRGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
-                Logging.Error($"不支持的 SSR 加密方式：{server.EncryptMethod}");
+                Global.Logger.Error($"不支持的 SSR 加密方式：{server.EncryptMethod}");
                 return false;
             }
 
             if (!SSRGlobal.Protocols.Contains(server.Protocol))
             {
-                Logging.Error($"不支持的 SSR 协议：{server.Protocol}");
+                Global.Logger.Error($"不支持的 SSR 协议：{server.Protocol}");
                 return false;
             }
 
             if (!SSRGlobal.OBFSs.Contains(server.OBFS))
             {
-                Logging.Error($"不支持的 SSR 混淆：{server.OBFS}");
+                Global.Logger.Error($"不支持的 SSR 混淆：{server.OBFS}");
                 return false;
             }
 

@@ -25,8 +25,8 @@ namespace Netch.Models
             InterfaceIndex = (int) pRoute.dwForwardIfIndex;
             Gateway = new IPAddress(pRoute.dwForwardNextHop.S_un_b);
 
-            Logging.Info($"出口 网关 地址：{Gateway}");
-            Logging.Info($"出口适配器：{NetworkInterface.Name} {NetworkInterface.Id} {NetworkInterface.Description}, index: {InterfaceIndex}");
+            Global.Logger.Info($"出口 网关 地址：{Gateway}");
+            Global.Logger.Info($"出口适配器：{NetworkInterface.Name} {NetworkInterface.Id} {NetworkInterface.Description}, index: {InterfaceIndex}");
         }
 
         public IPAddress Address { get; }

@@ -85,7 +85,7 @@ namespace Netch.Utils
                     }
                     catch (Exception e)
                     {
-                        Logging.Warning($"Load mode \"{file}\" failed: {e.Message}");
+                        Global.Logger.Warning($"Load mode \"{file}\" failed: {e.Message}");
                     }
             }
             catch
@@ -142,7 +142,7 @@ namespace Netch.Utils
                 case 6:
                     return new PcapController();
                 default:
-                    Logging.Error("未知模式类型");
+                    Global.Logger.Error("未知模式类型");
                     throw new MessageException("未知模式类型");
             }
         }

@@ -41,7 +41,7 @@ namespace Netch.Utils
             {
                 var oldLangCode = LangCode;
                 LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
-                Logging.Info($"找不到语言 {oldLangCode}, 使用 {LangCode}");
+                Global.Logger.Info($"找不到语言 {oldLangCode}, 使用 {LangCode}");
             }
 
             switch (LangCode)
@@ -61,7 +61,7 @@ namespace Netch.Utils
 
             if (!dictionary.Any())
             {
-                Logging.Error($"{LangCode} 语言文件错误");
+                Global.Logger.Error($"{LangCode} 语言文件错误");
                 return;
             }
 

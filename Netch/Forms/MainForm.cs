@@ -297,7 +297,7 @@ namespace Netch.Forms
             catch (Exception e)
             {
                 NotifyTip(i18N.Translate("update servers failed") + "\n" + e.Message, info: false);
-                Logging.Error("更新服务器 失败！" + e);
+                Global.Logger.Error("更新服务器 失败！" + e);
             }
             finally
             {
@@ -432,8 +432,8 @@ namespace Netch.Forms
             {
                 if (exception is not MessageException)
                 {
-                    Logging.Error($"更新失败: {exception}");
-                    Utils.Utils.Open(Logging.LogFile);
+                    Global.Logger.Error($"更新失败: {exception}");
+                    Global.Logger.ShowLog();
                 }
 
                 NotifyTip(exception.Message, info: false);
@@ -1178,7 +1178,7 @@ namespace Netch.Forms
                     if (!IsWaiting())
                     {
                         _resumeFlag = true;
-                        Logging.Info("操作系统即将挂起，自动停止");
+                        Global.Logger.Info("操作系统即将挂起，自动停止");
                         ControlButton_Click(null, null);
                     }
 
@@ -1187,7 +1187,7 @@ namespace Netch.Forms
                     if (_resumeFlag)
                     {
                         _resumeFlag = false;
-                        Logging.Info("操作系统即将从挂起状态继续，自动重启");
+                        Global.Logger.Info("操作系统即将从挂起状态继续，自动重启");
                         ControlButton_Click(null, null);
                     }
 

@@ -63,7 +63,7 @@ namespace Netch.Forms
             }
             catch (Exception e)
             {
-                Logging.Warning($"Load stun.txt failed: {e.Message}");
+                Global.Logger.Warning($"Load stun.txt failed: {e.Message}");
                 stuns = null;
             }
 

@@ -42,8 +42,8 @@ namespace Netch.Utils
                 }
                 catch (Exception e)
                 {
-                    Logging.Error(e.ToString());
-                    Utils.Open(Logging.LogFile);
+                    Global.Logger.Error(e.ToString());
+                    Global.Logger.ShowLog();
                     Environment.Exit(-1);
                     Global.Settings = null!;
                 }
