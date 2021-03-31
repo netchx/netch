@@ -1,6 +1,6 @@
 [submodule "binaries"]
 	path = binaries
-	url = https://github.com/NetchX/NetchBinaries
+	url = https://github.com/NetchX/data
 [submodule "modes"]
 	path = modes
 	url = https://github.com/NetchX/NetchMode
