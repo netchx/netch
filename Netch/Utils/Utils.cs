@@ -106,7 +106,7 @@ namespace Netch.Utils
             {
                 var sha256 = SHA256.Create();
                 using var fileStream = File.OpenRead(filePath);
-                return sha256.ComputeHash(fileStream).Aggregate(string.Empty, (current, b) => current + b.ToString("x2"));
+                return string.Concat(sha256.ComputeHash(fileStream).Select(b => b.ToString("x2")));
             }
             catch
             {
