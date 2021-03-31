@@ -56,6 +56,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - [aiodns](https://github.com/aiocloud/aiodns)
 - [tun2socks](https://github.com/aiocloud/tun2socks)
 - [Redirector](https://github.com/aiocloud/Redirector)
+- [RouteHelper](https://github.com/aiocloud/RouteHelper)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
 - [NetFilter SDK](https://netfiltersdk.com)
 - [pcap2socks](https://github.com/zhxie/pcap2socks)
