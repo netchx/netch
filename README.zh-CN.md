@@ -56,6 +56,7 @@ Netch 内置 en-US 和 zh-CN，外置 zh-TW 等，默认根据系统语言选择
 - [aiodns](https://github.com/aiocloud/aiodns)
 - [tun2socks](https://github.com/aiocloud/tun2socks)
 - [Redirector](https://github.com/aiocloud/Redirector)
+- [RouteHelper](https://github.com/aiocloud/RouteHelper)
 - [NatTypeTester](https://github.com/HMBSbige/NatTypeTester)
 - [NetFilter SDK](https://netfiltersdk.com)
 - [pcap2socks](https://github.com/zhxie/pcap2socks)
