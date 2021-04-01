@@ -6,7 +6,7 @@ issue_body: true
 body:
   - type: markdown
     attributes:
-      value: Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.
+      value: "**Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.**"
   - type: textarea
     id: error
     attributes:
