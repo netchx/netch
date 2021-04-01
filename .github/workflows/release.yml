@@ -2,7 +2,8 @@ name: Netch CI
 on:
   push:
     tags:
-    - '*.*'
+      - '*.*.*'
+
 jobs:
   build:
     name: Build
@@ -18,26 +19,26 @@ jobs:
 
     - name: Build
       shell: pwsh
-      run: .\BUILD.ps1
+      run: |
+        .\build.ps1 -Configuration Release -OutputPath release
 
     - name: Package
       shell: pwsh
       run: |
-        New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
-        7z a -mx9 C:\builtfiles\Netch.7z .\Netch\bin\Publish\
-        7z rn C:\builtfiles\Netch.7z Publish Netch
-        echo "Netch_SHA256=$(.\sha256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Netch_EXE_SHA256=$(.\sha256.ps1 Netch\bin\Publish\Netch.exe)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        7z a -mx9 Netch.7z release
+        7z rn Netch.7z release Netch
+
+        echo "NETCH_SHA256=$(.\sha256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
 
     - name: Release
       uses: softprops/action-gh-release@v1
       env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         prerelease: ${{ contains(github.ref, '-') }}
         draft: false
         files: |
-          C:\builtfiles\Netch.7z
+          Netch.7z
         body: |
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
 
