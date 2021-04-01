@@ -42,13 +42,14 @@ jobs:
           Copy-Item -Recurse -Force .\NetchMode-master\mode\*        .\mode
           Copy-Item -Recurse -Force .\NetchTranslation-master\i18n\* .\i18n
 
-
           Remove-Item -Recurse -Force NetchData-master
           Remove-Item -Recurse -Force NetchMode-master
           Remove-Item -Recurse -Force NetchTranslation-master
           Remove-Item -Force data.zip
           Remove-Item -Force mode.zip
           Remove-Item -Force i18n.zip
+
+          Get-Item *
 
       - name: Build
         shell: pwsh
