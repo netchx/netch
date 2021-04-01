@@ -17,10 +17,11 @@ Game network accelerator
 - [Netch](#netch)
 	- [TOC](#toc)
 	- [Description](#description)
-    - [Sponsor](#sponsor)
+	- [Sponsor](#sponsor)
 	- [Donate](#donate)
 	- [Screenshots](#screenshots)
 	- [Requirements](#requirements)
+	- [Quote](#quote)
 
 ## Description
 Netch is an open source game network accelerator. Unlike SSTap, which needs to add rules to function as a blacklist proxy, Netch is more similar to SocksCap64, which can scan the game directory to get their process names specifically and forward their network traffic through the proxy server
@@ -36,7 +37,7 @@ Currently supports the following protocols
 As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an NATTypeTester to test out what your NAT type is. When using SSTap to speed up some P2P gaming connections or the game is required for that kind of open NAT type, you may experience some bad situations such as unable to join the game
 
 ## Sponsor
-<a href="https://www.jetbrains.com/?from=Netch"><img src="images/jetbrains-variant-4.svg" alt="JetBrains" width="200"/></a>
+<a href="https://www.jetbrains.com/?from=Netch"><img src="jetbrains.svg" alt="JetBrains" width="200"/></a>
 
 - [RabbitHosts](https://rabbithosts.com/cart.php)
 - [ManSora](https://www.mansora.co/cart.php)
