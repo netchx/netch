@@ -32,6 +32,8 @@ jobs:
           Expand-Archive -Force -Path mode.zip -DestinationPath .
           Expand-Archive -Force -Path i18n.zip -DestinationPath .
 
+          Get-Item *
+
           Remove-Item -Force README.md
           Remove-Item -Force data.zip
           Remove-Item -Force mode.zip
