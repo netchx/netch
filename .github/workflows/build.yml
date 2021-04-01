@@ -24,9 +24,9 @@ jobs:
           New-Item -ItemType Directory -Name release
           Set-Location release
 
-          Invoke-WebRequest -Uri $NetchDataURL -OutFile data.zip
-          Invoke-WebRequest -Uri $NetchModeURL -OutFile mode.zip
-          Invoke-WebRequest -Uri $NetchI18NURL -OutFile i18n.zip
+          Invoke-WebRequest -Uri ${{ env.NetchDataURL }} -OutFile data.zip
+          Invoke-WebRequest -Uri ${{ env.NetchModeURL }} -OutFile mode.zip
+          Invoke-WebRequest -Uri ${{ env.NetchI18NURL }} -OutFile i18n.zip
 
           Expand-Archive -Force -Path data.zip -DestinationPath bin
           Expand-Archive -Force -Path mode.zip -DestinationPath .
