@@ -1,0 +1,55 @@
+name: Bug report
+description: "Create a report to help us improve"
+title: ""
+labels: 需要核实
+issue_body: true
+body:
+  - type: markdown
+    attributes:
+      value: Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.
+  - type: textarea
+    id: error
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To Reproduce
+      placeholder: |
+        Steps to reproduce the behavior:
+        1. Open Netch
+        2. ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: captcha
+    attributes:
+      label: CAPTCHA
+      description: Please confirm the options below.
+      options:
+        - label: I am human
+          required: true
+  - type: textarea
+    id: log
+    attributes:
+      render: shell
+      label: Log
+      description: Attaching any log files in the folder `Netch\logging` is strongly recommended.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS: [e.g. Windows 10 Pro 64-bit 1903]
+        - Netch Version: [e.g. 1.0.0-STABLE.x64]
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        In the text box below, you can attach any relevant screenshots and files.
