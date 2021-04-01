@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Netch.Models.GitHubRelease
 {
@@ -8,28 +9,53 @@ namespace Netch.Models.GitHubRelease
     {
         public Version Version { get; }
 
-        public string Suffix { get; }
+        public string? Suffix { get; }
 
-        public SuffixVersion(Version version, string suffix)
+        public int SuffixNum { get; }
+
+        private SuffixVersion(Version version)
+        {
+            Version = version;
+            Suffix = null;
+            SuffixNum = 0;
+        }
+
+        private SuffixVersion(Version version, string suffix, int suffixNum)
         {
             Version = version;
             Suffix = suffix;
+            SuffixNum = suffixNum;
         }
 
-        public static SuffixVersion Parse(string? input)
+        public static SuffixVersion Parse(string? value)
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
 
-            var split = input.Split('-');
-            var dotNetVersion = Version.Parse(split[0]);
-            var preRelease = split.ElementAtOrDefault(1) ?? string.Empty;
+            var strings = value.Split('-');
 
-            return new SuffixVersion(dotNetVersion, preRelease);
+            var version = Version.Parse(strings[0]);
+            var suffix = strings.ElementAtOrDefault(1)?.Trim();
+            switch (suffix)
+            {
+                case null:
+                    return new SuffixVersion(version);
+                case "":
+                    throw new Exception("suffix WhiteSpace");
+                default:
+                {
+                    var match = Regex.Match(suffix, @"(?<suffix>\D+)(?<num>\d+)");
+                    if (!match.Success)
+                        throw new Exception();
+
+                    return new SuffixVersion(version, match.Groups["suffix"].Value, int.Parse(match.Groups["num"].Value));
+                }
+            }
         }
 
-        public static bool TryParse(string input, out SuffixVersion result)
+        public static bool TryParse(string? input, out SuffixVersion result)
         {
+            result = default;
             try
             {
                 result = Parse(input);
@@ -37,7 +63,6 @@ namespace Netch.Models.GitHubRelease
             }
             catch (Exception)
             {
-                result = default;
                 return false;
             }
         }
@@ -62,21 +87,22 @@ namespace Netch.Models.GitHubRelease
             if (versionComparison != 0)
                 return versionComparison;
 
-            if (Suffix == string.Empty)
-                return other.Suffix == string.Empty ? 0 : 1;
-
-            if (other.Suffix == string.Empty)
-                return -1;
+            var suffixExistComparison = (Suffix != null ? 1 : 0) - (other.Suffix != null ? 1 : 0);
+            if (suffixExistComparison != 0)
+                return suffixExistComparison;
 
             var suffixComparison = string.Compare(Suffix, other.Suffix, StringComparison.OrdinalIgnoreCase);
-            return suffixComparison;
+            if (suffixComparison != 0)
+                return suffixComparison;
+
+            return SuffixNum - other.SuffixNum;
         }
 
         public override string ToString()
         {
             var s = Version.ToString();
-            if (Suffix != string.Empty)
-                s += $"-{Suffix}";
+            if (Suffix != null)
+                s += $"-{Suffix}{SuffixNum}";
 
             return s;
         }
