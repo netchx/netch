@@ -1,9 +1,11 @@
+param([string]$OutputPath)
+
 $NetchDataURL="https://github.com/NetchX/NetchData/archive/refs/heads/master.zip"
 $NetchModeURL="https://github.com/NetchX/NetchMode/archive/refs/heads/master.zip"
 $NetchI18NURL="https://github.com/NetchX/NetchTranslation/archive/refs/heads/master.zip"
 
-New-Item -ItemType Directory -Name release | Out-Null
-Set-Location release
+New-Item -ItemType Directory -Name $OutputPath | Out-Null
+Set-Location $OutputPath
 
 Invoke-WebRequest -Uri $NetchDataURL -OutFile data.zip
 Invoke-WebRequest -Uri $NetchModeURL -OutFile mode.zip

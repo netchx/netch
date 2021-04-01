@@ -14,13 +14,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Download
-        shell: pwsh
-        run: .\download.ps1
-
       - name: Build
         shell: pwsh
-        run: .\build.ps1 Release -o release
+        run: |
+          .\build.ps1 -Configuration Release -OutputPath release
 
       - name: Upload
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}

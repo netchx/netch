@@ -1,15 +1,13 @@
 param (
-	[Alias('c')]
 	[Parameter()]
 	[ValidateSet('Debug', 'Release')]
 	[string]
 	$Configuration = 'Release',
 
-	[Alias('o')]
 	[Parameter()]
 	[ValidateNotNullOrEmpty()]
 	[string]
-	$OutputPath = 'Netch\bin\Publish\',
+	$OutputPath = 'release',
 
 	[Parameter()]
 	[bool]
@@ -17,13 +15,16 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $False
+	$PublishReadyToRun = $False,
+
+	[Parameter()]
+	[bool]
+	$PublishSingleFile = $True,
 )
 
-$PublishSingleFile = $True
+.\download.ps1 $OutputPath
 
 Write-Host "Building $Configuration to $OutputPath"
-
 dotnet publish `
 	-c $Configuration `
 	-r "win-x64" `
@@ -35,6 +36,5 @@ dotnet publish `
 	-o $OutputPath `
 	Netch\Netch.csproj
 
-if ($LASTEXITCODE) { exit $LASTEXITCODE } 
-
-Write-Host 'Build done'
+if ($lastExitCode) { exit $lastExitCode } 
+exit 0
