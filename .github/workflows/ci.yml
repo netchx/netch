@@ -18,6 +18,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: true
+        fetch-depth: 1
+
+    - name: Binaries Repo LFS Pull
+      working-directory: binaries
+      run: git lfs pull
 
     - name: Build Solution
       shell: pwsh
