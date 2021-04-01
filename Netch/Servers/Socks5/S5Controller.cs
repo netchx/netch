@@ -9,7 +9,7 @@ namespace Netch.Servers.Socks5
 
         public override void Start(in Server s, in Mode mode)
         {
-            var server = (Socks5) s;
+            var server = (Socks5)s;
             if (server.Auth())
                 base.Start(s, mode);
         }

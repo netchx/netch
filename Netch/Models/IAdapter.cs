@@ -5,7 +5,7 @@ namespace Netch.Models
 {
     public interface IAdapter
     {
-        int InterfaceIndex { get; }
+        ulong InterfaceIndex { get; }
 
         IPAddress Gateway { get; }
 

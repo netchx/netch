@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Netch.Utils;
 
 namespace Netch.Models
 {

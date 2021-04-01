@@ -1,3 +1,6 @@
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -5,9 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -37,7 +37,7 @@ namespace Netch.Forms
 
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
-                Global.Settings.LocalAddress switch {"127.0.0.1" => false, "0.0.0.0" => true, _ => false});
+                Global.Settings.LocalAddress switch { "127.0.0.1" => false, "0.0.0.0" => true, _ => false });
 
             BindCheckBox(ResolveServerHostnameCheckBox, c => Global.Settings.ResolveServerHostname = c, Global.Settings.ResolveServerHostname);
 
@@ -116,7 +116,7 @@ namespace Netch.Forms
                 Global.Settings.Redirector.ChildProcessHandle);
 
             BindListComboBox(ProcessProxyProtocolComboBox,
-                s => Global.Settings.Redirector.ProxyProtocol = (PortType) Enum.Parse(typeof(PortType), s.ToString(), false),
+                s => Global.Settings.Redirector.ProxyProtocol = (PortType)Enum.Parse(typeof(PortType), s.ToString(), false),
                 Enum.GetNames(typeof(PortType)),
                 Global.Settings.Redirector.ProxyProtocol.ToString());
 
@@ -284,7 +284,7 @@ namespace Netch.Forms
                 {
                     try
                     {
-                        return check.Invoke((T) Convert.ChangeType(s, typeof(T)));
+                        return check.Invoke((T)Convert.ChangeType(s, typeof(T)));
                     }
                     catch
                     {
@@ -292,19 +292,19 @@ namespace Netch.Forms
                     }
                 });
 
-            _saveActions.Add(control, c => save.Invoke((T) Convert.ChangeType(((TextBox) c).Text, typeof(T))));
+            _saveActions.Add(control, c => save.Invoke((T)Convert.ChangeType(((TextBox)c).Text, typeof(T))));
         }
 
         private void BindCheckBox(CheckBox control, Action<bool> save, bool value)
         {
             control.Checked = value;
-            _saveActions.Add(control, c => save.Invoke(((CheckBox) c).Checked));
+            _saveActions.Add(control, c => save.Invoke(((CheckBox)c).Checked));
         }
 
         private void BindRadioBox(RadioButton control, Action<bool> save, bool value)
         {
             control.Checked = value;
-            _saveActions.Add(control, c => save.Invoke(((RadioButton) c).Checked));
+            _saveActions.Add(control, c => save.Invoke(((RadioButton)c).Checked));
         }
 
         private void BindListComboBox<T>(ComboBox comboBox, Action<T> save, IEnumerable<T> values, T value) where T : notnull
@@ -318,7 +318,7 @@ namespace Netch.Forms
             comboBox.ValueMember = nameof(TagItem<T>.Value);
             comboBox.DisplayMember = nameof(TagItem<T>.Text);
 
-            _saveActions.Add(comboBox, c => save.Invoke(((TagItem<T>) ((ComboBox) c).SelectedItem).Value));
+            _saveActions.Add(comboBox, c => save.Invoke(((TagItem<T>)((ComboBox)c).SelectedItem).Value));
             Load += (_, _) => { comboBox.SelectedItem = tagItems.SingleOrDefault(t => t.Value.Equals(value)); };
         }
 
@@ -327,7 +327,7 @@ namespace Netch.Forms
             if (values != null)
                 control.Items.AddRange(values);
 
-            _saveActions.Add(control, c => save.Invoke(((ComboBox) c).Text));
+            _saveActions.Add(control, c => save.Invoke(((ComboBox)c).Text));
             _checkActions.Add(control, check.Invoke);
 
             Load += (_, _) => { control.Text = value; };

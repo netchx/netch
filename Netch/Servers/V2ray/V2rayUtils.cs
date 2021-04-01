@@ -1,10 +1,10 @@
+using Netch.Models;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using Netch.Models;
-using Netch.Utils;
 
 namespace Netch.Servers.V2ray
 {
@@ -13,7 +13,7 @@ namespace Netch.Servers.V2ray
         public static IEnumerable<Server> ParseVUri(string text)
         {
             var scheme = ShareLink.GetUriScheme(text).ToLower();
-            var server = scheme switch {"vmess" => new VMess.VMess(), "vless" => new VLESS.VLESS(), _ => throw new ArgumentOutOfRangeException()};
+            var server = scheme switch { "vmess" => new VMess.VMess(), "vless" => new VLESS.VLESS(), _ => throw new ArgumentOutOfRangeException() };
             if (text.Contains("#"))
             {
                 server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
@@ -25,7 +25,7 @@ namespace Netch.Servers.V2ray
                 var parameter = HttpUtility.ParseQueryString(text.Split('?')[1]);
                 text = text.Substring(0, text.IndexOf("?", StringComparison.Ordinal));
                 server.TransferProtocol = parameter.Get("type") ?? "tcp";
-                server.EncryptMethod = parameter.Get("encryption") ?? scheme switch {"vless" => "none", _ => "auto"};
+                server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
                 switch (server.TransferProtocol)
                 {
                     case "tcp":
@@ -54,7 +54,7 @@ namespace Netch.Servers.V2ray
                 {
                     server.Host = parameter.Get("sni") ?? "";
                     if (server.TLSSecureType == "xtls")
-                        ((VLESS.VLESS) server).Flow = parameter.Get("flow") ?? "";
+                        ((VLESS.VLESS)server).Flow = parameter.Get("flow") ?? "";
                 }
             }
 
@@ -67,13 +67,13 @@ namespace Netch.Servers.V2ray
             server.Hostname = match.Groups["server"].Value;
             server.Port = ushort.Parse(match.Groups["port"].Value);
 
-            return new[] {server};
+            return new[] { server };
         }
 
         public static string GetVShareLink(Server s, string scheme = "vmess")
         {
             // https://github.com/XTLS/Xray-core/issues/91
-            var server = (VMess.VMess) s;
+            var server = (VMess.VMess)s;
             var parameter = new Dictionary<string, string>();
             // protocol-specific fields
             parameter.Add("type", server.TransferProtocol);
@@ -127,7 +127,7 @@ namespace Netch.Servers.V2ray
 
                 if (server.TLSSecureType == "xtls")
                 {
-                    var flow = ((VLESS.VLESS) server).Flow;
+                    var flow = ((VLESS.VLESS)server).Flow;
                     if (!flow.IsNullOrWhiteSpace())
                         parameter.Add("flow", flow!.Replace("-udp443", ""));
                 }

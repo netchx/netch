@@ -1,10 +1,10 @@
-using System;
-using System.IO;
-using System.Linq;
 using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace Netch.Utils
 {
@@ -113,11 +113,11 @@ namespace Netch.Utils
             {
                 case 0:
                     return server switch
-                           {
-                               Socks5 => true,
-                               Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS => true,
-                               _ => false
-                           };
+                    {
+                        Socks5 => true,
+                        Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS => true,
+                        _ => false
+                    };
                 case 1:
                 case 2:
                     return server is Socks5;
@@ -126,7 +126,7 @@ namespace Netch.Utils
             }
         }
 
-        public static readonly int[] ModeTypes = {0, 1, 2, 6};
+        public static readonly int[] ModeTypes = { 0, 1, 2, 6 };
 
         public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName)
         {

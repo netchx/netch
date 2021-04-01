@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Netch.Controllers;
+using Netch.Models;
+using Netch.Servers.Shadowsocks.Form;
+using Netch.Servers.Shadowsocks.Models.SSD;
+using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
-using Netch.Controllers;
-using Netch.Models;
-using Netch.Servers.Shadowsocks.Form;
-using Netch.Servers.Shadowsocks.Models.SSD;
-using Netch.Utils;
 
 namespace Netch.Servers.Shadowsocks
 {
@@ -22,13 +22,13 @@ namespace Netch.Servers.Shadowsocks
 
         public string ShortName { get; } = "SS";
 
-        public string[] UriScheme { get; } = {"ss", "ssd"};
+        public string[] UriScheme { get; } = { "ss", "ssd" };
 
         public Type ServerType { get; } = typeof(Shadowsocks);
 
         public void Edit(Server s)
         {
-            new ShadowsocksForm((Shadowsocks) s).ShowDialog();
+            new ShadowsocksForm((Shadowsocks)s).ShowDialog();
         }
 
         public void Create()
@@ -38,7 +38,7 @@ namespace Netch.Servers.Shadowsocks
 
         public string GetShareLink(Server s)
         {
-            var server = (Shadowsocks) s;
+            var server = (Shadowsocks)s;
             // ss://method:password@server:port#Remark
             return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") + "#" +
                    HttpUtility.UrlEncode(server.Remark);
@@ -52,7 +52,7 @@ namespace Netch.Servers.Shadowsocks
         public IEnumerable<Server> ParseUri(string text)
         {
             if (text.StartsWith("ss://"))
-                return new[] {ParseSsUri(text)};
+                return new[] { ParseSsUri(text) };
 
             if (text.StartsWith("ssd://"))
                 return ParseSsdUri(text);
@@ -62,7 +62,7 @@ namespace Netch.Servers.Shadowsocks
 
         public bool CheckServer(Server s)
         {
-            var server = (Shadowsocks) s;
+            var server = (Shadowsocks)s;
             if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
                 Global.Logger.Error($"不支持的 SS 加密方式：{server.EncryptMethod}");
@@ -79,17 +79,17 @@ namespace Netch.Servers.Shadowsocks
             var json = JsonSerializer.Deserialize<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)))!;
 
             return json.servers.Select(server => new Shadowsocks
-                {
-                    Remark = server.remarks,
-                    Hostname = server.server,
-                    Port = server.port != 0 ? server.port : json.port,
-                    Password = server.password ?? json.password,
-                    EncryptMethod = server.encryption ?? json.encryption,
-                    Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin,
-                    PluginOption = string.IsNullOrEmpty(json.plugin_options)
+            {
+                Remark = server.remarks,
+                Hostname = server.server,
+                Port = server.port != 0 ? server.port : json.port,
+                Password = server.password ?? json.password,
+                EncryptMethod = server.encryption ?? json.encryption,
+                Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin,
+                PluginOption = string.IsNullOrEmpty(json.plugin_options)
                         ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options
                         : json.plugin_options
-                })
+            })
                 .Where(CheckServer);
         }
 

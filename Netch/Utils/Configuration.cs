@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Netch.Models;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Netch.Models;
 
 namespace Netch.Utils
 {

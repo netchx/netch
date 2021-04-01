@@ -1,5 +1,5 @@
-﻿using System;
-using Netch.Interfaces;
+﻿using Netch.Interfaces;
+using System;
 
 namespace Netch.Models.Loggers
 {

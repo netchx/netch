@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Netch.Utils;
+﻿using Netch.Utils;
+using System.Collections.Generic;
 
 namespace Netch.Models
 {
@@ -265,7 +265,7 @@ namespace Netch.Models
 
         public Setting Clone()
         {
-            return (Setting) MemberwiseClone();
+            return (Setting)MemberwiseClone();
         }
 
         public void Set(Setting value)

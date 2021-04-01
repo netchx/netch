@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Netch.Controllers;
+﻿using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.ShadowsocksR.Form;
 using Netch.Utils;
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Netch.Servers.ShadowsocksR
 {
@@ -19,13 +19,13 @@ namespace Netch.Servers.ShadowsocksR
 
         public string ShortName { get; } = "SR";
 
-        public string[] UriScheme { get; } = {"ssr"};
+        public string[] UriScheme { get; } = { "ssr" };
 
         public Type ServerType { get; } = typeof(ShadowsocksR);
 
         public void Edit(Server s)
         {
-            new ShadowsocksRForm((ShadowsocksR) s).ShowDialog();
+            new ShadowsocksRForm((ShadowsocksR)s).ShowDialog();
         }
 
         public void Create()
@@ -35,7 +35,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public string GetShareLink(Server s)
         {
-            var server = (ShadowsocksR) s;
+            var server = (ShadowsocksR)s;
 
             // https://github.com/shadowsocksr-backup/shadowsocks-rss/wiki/SSR-QRcode-scheme
             // ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
@@ -143,7 +143,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public bool CheckServer(Server s)
         {
-            var server = (ShadowsocksR) s;
+            var server = (ShadowsocksR)s;
             if (!SSRGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
                 Global.Logger.Error($"不支持的 SSR 加密方式：{server.EncryptMethod}");

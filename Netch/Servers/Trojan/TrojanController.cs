@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using Netch.Controllers;
+﻿using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Trojan.Models;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace Netch.Servers.Trojan
 {
@@ -11,9 +11,9 @@ namespace Netch.Servers.Trojan
     {
         public override string MainFile { get; protected set; } = "Trojan.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"started"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "started" };
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"exiting"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] { "exiting" };
 
         public override string Name { get; } = "Trojan";
 
@@ -23,7 +23,7 @@ namespace Netch.Servers.Trojan
 
         public void Start(in Server s, in Mode mode)
         {
-            var server = (Trojan) s;
+            var server = (Trojan)s;
             var trojanConfig = new TrojanConfig
             {
                 local_addr = this.LocalAddress(),

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Netch.Models;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Netch.Models;
 
 namespace Netch.Utils
 {
@@ -16,7 +16,7 @@ namespace Netch.Utils
             try
             {
                 var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
-                return (Server) JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
+                return (Server)JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
             }
             catch
             {

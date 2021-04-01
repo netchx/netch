@@ -33,9 +33,9 @@ namespace Netch.Utils
             if (port == 0)
                 throw new ArgumentOutOfRangeException();
 
-            var row = GetTcpTable2().Where(r => ntohs((ushort) r.dwLocalPort) == port).Where(r => r.dwOwningPid is not (0 or 4));
+            var row = GetTcpTable2().Where(r => ntohs((ushort)r.dwLocalPort) == port).Where(r => r.dwOwningPid is not (0 or 4));
 
-            return row.Select(r => Process.GetProcessById((int) r.dwOwningPid));
+            return row.Select(r => Process.GetProcessById((int)r.dwOwningPid));
         }
 
         private static void GetReservedPortRange(PortType portType, ref List<Range> targetList)
@@ -143,7 +143,7 @@ namespace Netch.Utils
             var random = new Random();
             for (ushort i = 0; i < 55535; i++)
             {
-                var p = (ushort) random.Next(10000, 65535);
+                var p = (ushort)random.Next(10000, 65535);
                 try
                 {
                     CheckPort(p, portType);

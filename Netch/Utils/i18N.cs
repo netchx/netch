@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Netch.Properties;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -6,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Windows.Forms;
-using Netch.Properties;
 
 namespace Netch.Utils
 {
@@ -99,14 +99,14 @@ namespace Netch.Utils
         {
             for (var i = 0; i < args.Length; i++)
                 if (args[i] is string)
-                    args[i] = Translate((string) args[i]);
+                    args[i] = Translate((string)args[i]);
 
             return string.Format(Translate(format), args);
         }
 
         public static List<string> GetTranslateList()
         {
-            var translateFile = new List<string> {"System", "zh-CN", "en-US"};
+            var translateFile = new List<string> { "System", "zh-CN", "en-US" };
 
             if (!Directory.Exists("i18n"))
                 return translateFile;

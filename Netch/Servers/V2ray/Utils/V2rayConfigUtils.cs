@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Netch.Models;
+using Netch.Servers.V2ray.Models;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Netch.Models;
-using Netch.Servers.V2ray.Models;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
 
 namespace Netch.Servers.V2ray.Utils
@@ -109,8 +109,8 @@ namespace Netch.Servers.V2ray.Utils
                 switch (server)
                 {
                     case Socks5.Socks5 socks5:
-                    {
-                        outbound.settings.servers = new List<ServersItem>
+                        {
+                            outbound.settings.servers = new List<ServersItem>
                         {
                             new()
                             {
@@ -130,80 +130,80 @@ namespace Netch.Servers.V2ray.Utils
                             }
                         };
 
-                        outbound.mux.enabled = false;
-                        outbound.mux.concurrency = -1;
-                        outbound.protocol = "socks";
-                        break;
-                    }
-                    case VLESS.VLESS vless:
-                    {
-                        var vnextItem = new VnextItem
-                        {
-                            users = new List<UsersItem>(),
-                            address = server.AutoResolveHostname(),
-                            port = server.Port
-                        };
-
-                        outbound.settings.vnext = new List<VnextItem> {vnextItem};
-
-                        var usersItem = new UsersItem
-                        {
-                            id = vless.UserID,
-                            alterId = 0,
-                            flow = string.Empty,
-                            encryption = vless.EncryptMethod
-                        };
-
-                        vnextItem.users.Add(usersItem);
-
-                        var streamSettings = outbound.streamSettings;
-                        boundStreamSettings(vless, ref streamSettings);
-
-                        if (vless.TLSSecureType == "xtls")
-                        {
-                            usersItem.flow = string.IsNullOrEmpty(vless.Flow) ? "xtls-rprx-origin" : vless.Flow;
-
                             outbound.mux.enabled = false;
                             outbound.mux.concurrency = -1;
+                            outbound.protocol = "socks";
+                            break;
                         }
-                        else
+                    case VLESS.VLESS vless:
                         {
-                            outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                            outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
-                        }
+                            var vnextItem = new VnextItem
+                            {
+                                users = new List<UsersItem>(),
+                                address = server.AutoResolveHostname(),
+                                port = server.Port
+                            };
 
-                        outbound.protocol = "vless";
-                        outbound.settings.servers = null;
-                        break;
-                    }
+                            outbound.settings.vnext = new List<VnextItem> { vnextItem };
+
+                            var usersItem = new UsersItem
+                            {
+                                id = vless.UserID,
+                                alterId = 0,
+                                flow = string.Empty,
+                                encryption = vless.EncryptMethod
+                            };
+
+                            vnextItem.users.Add(usersItem);
+
+                            var streamSettings = outbound.streamSettings;
+                            boundStreamSettings(vless, ref streamSettings);
+
+                            if (vless.TLSSecureType == "xtls")
+                            {
+                                usersItem.flow = string.IsNullOrEmpty(vless.Flow) ? "xtls-rprx-origin" : vless.Flow;
+
+                                outbound.mux.enabled = false;
+                                outbound.mux.concurrency = -1;
+                            }
+                            else
+                            {
+                                outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                                outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
+                            }
+
+                            outbound.protocol = "vless";
+                            outbound.settings.servers = null;
+                            break;
+                        }
                     case VMess.VMess vmess:
-                    {
-                        var vnextItem = new VnextItem
                         {
-                            users = new List<UsersItem>(),
-                            address = server.AutoResolveHostname(),
-                            port = server.Port
-                        };
+                            var vnextItem = new VnextItem
+                            {
+                                users = new List<UsersItem>(),
+                                address = server.AutoResolveHostname(),
+                                port = server.Port
+                            };
 
-                        outbound.settings.vnext = new List<VnextItem> {vnextItem};
+                            outbound.settings.vnext = new List<VnextItem> { vnextItem };
 
-                        var usersItem = new UsersItem
-                        {
-                            id = vmess.UserID,
-                            alterId = vmess.AlterID,
-                            security = vmess.EncryptMethod
-                        };
+                            var usersItem = new UsersItem
+                            {
+                                id = vmess.UserID,
+                                alterId = vmess.AlterID,
+                                security = vmess.EncryptMethod
+                            };
 
-                        vnextItem.users.Add(usersItem);
+                            vnextItem.users.Add(usersItem);
 
-                        var streamSettings = outbound.streamSettings;
-                        boundStreamSettings(vmess, ref streamSettings);
+                            var streamSettings = outbound.streamSettings;
+                            boundStreamSettings(vmess, ref streamSettings);
 
-                        outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                        outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
-                        outbound.protocol = "vmess";
-                        break;
-                    }
+                            outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
+                            outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
+                            outbound.protocol = "vmess";
+                            break;
+                        }
                 }
 
                 v2rayConfig.outbounds.AddRange(new[]
@@ -274,7 +274,7 @@ namespace Netch.Servers.V2ray.Utils
                     case "ws":
                         var wsSettings = new WsSettings
                         {
-                            headers = !string.IsNullOrWhiteSpace(server.Host) ? new Headers {Host = server.Host} : null,
+                            headers = !string.IsNullOrWhiteSpace(server.Host) ? new Headers { Host = server.Host } : null,
                             path = !string.IsNullOrWhiteSpace(server.Path) ? server.Path : null
                         };
 

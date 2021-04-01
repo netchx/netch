@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using Netch.Controllers;
 using Netch.Models;
+using System.Collections.Generic;
 
 namespace Netch.Servers.ShadowsocksR
 {
@@ -8,9 +8,9 @@ namespace Netch.Servers.ShadowsocksR
     {
         public override string MainFile { get; protected set; } = "ShadowsocksR.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"listening at"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "listening at" };
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] {"Invalid config path", "usage"};
+        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] { "Invalid config path", "usage" };
 
         public override string Name { get; } = "ShadowsocksR";
 
@@ -20,7 +20,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public void Start(in Server s, in Mode mode)
         {
-            var server = (ShadowsocksR) s;
+            var server = (ShadowsocksR)s;
 
             var command = new SSRParameter
             {

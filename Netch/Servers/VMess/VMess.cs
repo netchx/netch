@@ -1,5 +1,5 @@
-using System.Collections.Generic;
 using Netch.Models;
+using System.Collections.Generic;
 
 namespace Netch.Servers.VMess
 {

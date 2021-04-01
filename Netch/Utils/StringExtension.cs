@@ -48,7 +48,7 @@ namespace Netch.Utils
             var sb = new StringBuilder();
             foreach (var t in value)
             {
-                var escapeCharacters = new[] {'\\', '*', '+', '?', '|', '{', '}', '[', ']', '(', ')', '^', '$', '.'};
+                var escapeCharacters = new[] { '\\', '*', '+', '?', '|', '{', '}', '[', ']', '(', ')', '^', '$', '.' };
                 if (escapeCharacters.Any(s => s == t))
                     sb.Append('\\');
 

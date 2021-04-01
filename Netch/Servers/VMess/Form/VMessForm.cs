@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Netch.Forms;
+﻿using Netch.Forms;
+using System.Collections.Generic;
 
 namespace Netch.Servers.VMess.Form
 {
@@ -25,8 +25,8 @@ namespace Netch.Servers.VMess.Form
             CreateTextBox("QUICSecret", "QUIC Secret", s => true, s => server.QUICSecret = s, server.QUICSecret);
             CreateComboBox("UseMux",
                 "Use Mux",
-                new List<string> {"", "true", "false"},
-                s => server.UseMux = s switch {"" => null, "true" => true, "false" => false, _ => null},
+                new List<string> { "", "true", "false" },
+                s => server.UseMux = s switch { "" => null, "true" => true, "false" => false, _ => null },
                 server.UseMux?.ToString().ToLower() ?? "");
 
             CreateComboBox("TLSSecure", "TLS Secure", VMessGlobal.TLSSecure, s => server.TLSSecureType = s, server.TLSSecureType);

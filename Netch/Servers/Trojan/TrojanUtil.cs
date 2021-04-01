@@ -1,10 +1,10 @@
+using Netch.Controllers;
+using Netch.Models;
+using Netch.Servers.Trojan.Form;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web;
-using Netch.Controllers;
-using Netch.Models;
-using Netch.Servers.Trojan.Form;
 
 namespace Netch.Servers.Trojan
 {
@@ -18,13 +18,13 @@ namespace Netch.Servers.Trojan
 
         public string ShortName { get; } = "TR";
 
-        public string[] UriScheme { get; } = {"trojan"};
+        public string[] UriScheme { get; } = { "trojan" };
 
         public Type ServerType { get; } = typeof(Trojan);
 
         public void Edit(Server s)
         {
-            new TrojanForm((Trojan) s).ShowDialog();
+            new TrojanForm((Trojan)s).ShowDialog();
         }
 
         public void Create()
@@ -34,7 +34,7 @@ namespace Netch.Servers.Trojan
 
         public string GetShareLink(Server s)
         {
-            var server = (Trojan) s;
+            var server = (Trojan)s;
             return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
         }
 
@@ -79,7 +79,7 @@ namespace Netch.Servers.Trojan
             data.Hostname = match.Groups["server"].Value;
             data.Port = ushort.Parse(match.Groups["port"].Value);
 
-            return new[] {data};
+            return new[] { data };
         }
 
         public bool CheckServer(Server s)

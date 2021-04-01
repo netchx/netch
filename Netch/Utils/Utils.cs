@@ -1,3 +1,5 @@
+using MaxMind.GeoIP2;
+using Microsoft.Win32.TaskScheduler;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,8 +13,6 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using MaxMind.GeoIP2;
-using Microsoft.Win32.TaskScheduler;
 using Task = System.Threading.Tasks.Task;
 
 namespace Netch.Utils
@@ -219,8 +219,8 @@ namespace Netch.Utils
             {
                 case TextBox _:
                 case ComboBox _:
-                    if (((Control) component).ForeColor != color)
-                        ((Control) component).ForeColor = color;
+                    if (((Control)component).ForeColor != color)
+                        ((Control)component).ForeColor = color;
 
                     break;
             }

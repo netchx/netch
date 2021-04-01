@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Forms;
-using Netch.Models;
+﻿using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
+using System;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace Netch.Forms
 {

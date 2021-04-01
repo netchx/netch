@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Netch.Properties;
+using Netch.Utils;
+using System;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using Netch.Properties;
-using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -54,7 +54,7 @@ namespace Netch.Forms
         {
             Global.Settings.TUNTAP.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
-                Global.Settings.TUNTAP.BypassIPs.Add((string) ip);
+                Global.Settings.TUNTAP.BypassIPs.Add((string)ip);
 
             Configuration.Save();
             MessageBoxX.Show(i18N.Translate("Saved"));

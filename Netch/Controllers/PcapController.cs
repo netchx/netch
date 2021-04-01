@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Netch.Forms;
+using Netch.Models;
+using Netch.Servers.Socks5;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Netch.Forms;
-using Netch.Models;
-using Netch.Servers.Socks5;
 
 namespace Netch.Controllers
 {
@@ -17,7 +17,7 @@ namespace Netch.Controllers
 
         public override string MainFile { get; protected set; } = "pcap2socks.exe";
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] {"└"};
+        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "└" };
 
         private readonly OutboundAdapter _outbound = new();
 

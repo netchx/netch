@@ -1,7 +1,7 @@
-﻿using System;
-using System.Windows.Forms;
-using Netch.Models;
+﻿using Netch.Models;
 using Netch.Utils;
+using System;
+using System.Windows.Forms;
 
 namespace Netch.Forms
 {
@@ -23,20 +23,20 @@ namespace Netch.Forms
             MessageBoxIcon msgIcon;
             if (string.IsNullOrWhiteSpace(title))
                 title = level switch
-                        {
-                            LogLevel.INFO => "Information",
-                            LogLevel.WARNING => "Warning",
-                            LogLevel.ERROR => "Error",
-                            _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
-                        };
+                {
+                    LogLevel.INFO => "Information",
+                    LogLevel.WARNING => "Warning",
+                    LogLevel.ERROR => "Error",
+                    _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+                };
 
             msgIcon = level switch
-                      {
-                          LogLevel.INFO => MessageBoxIcon.Information,
-                          LogLevel.WARNING => MessageBoxIcon.Warning,
-                          LogLevel.ERROR => MessageBoxIcon.Exclamation,
-                          _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
-                      };
+            {
+                LogLevel.INFO => MessageBoxIcon.Information,
+                LogLevel.WARNING => MessageBoxIcon.Warning,
+                LogLevel.ERROR => MessageBoxIcon.Exclamation,
+                _ => throw new ArgumentOutOfRangeException(nameof(level), level, null)
+            };
 
             return MessageBox.Show(owner, text, i18N.Translate(title), confirm ? MessageBoxButtons.OKCancel : MessageBoxButtons.OK, msgIcon);
         }

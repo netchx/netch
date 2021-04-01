@@ -1,3 +1,5 @@
+using Netch.Models;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,15 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Netch.Models;
-using Netch.Utils;
 using Timer = System.Timers.Timer;
 
 namespace Netch.Controllers
 {
     public abstract class Guard
     {
-        private readonly Timer _flushFileStreamTimer = new(300) {AutoReset = true};
+        private readonly Timer _flushFileStreamTimer = new(300) { AutoReset = true };
 
         private FileStream? _logFileStream;
 

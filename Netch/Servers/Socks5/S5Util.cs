@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Netch.Controllers;
+﻿using Netch.Controllers;
 using Netch.Models;
 using Netch.Servers.Socks5.Form;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Netch.Servers.Socks5
 {
@@ -23,7 +23,7 @@ namespace Netch.Servers.Socks5
 
         public void Edit(Server s)
         {
-            new Socks5Form((Socks5) s).ShowDialog();
+            new Socks5Form((Socks5)s).ShowDialog();
         }
 
         public void Create()
@@ -33,7 +33,7 @@ namespace Netch.Servers.Socks5
 
         public string GetShareLink(Server s)
         {
-            var server = (Socks5) s;
+            var server = (Socks5)s;
             // https://t.me/socks?server=1.1.1.1&port=443
             return $"https://t.me/socks?server={server.Hostname}&port={server.Port}" +
                    $"{(!string.IsNullOrWhiteSpace(server.Username) ? $"&user={server.Username}" : "")}" +
@@ -68,7 +68,7 @@ namespace Netch.Servers.Socks5
             if (dict.ContainsKey("pass") && !string.IsNullOrWhiteSpace(dict["pass"]))
                 data.Password = dict["pass"];
 
-            return new[] {data};
+            return new[] { data };
         }
 
         public bool CheckServer(Server s)

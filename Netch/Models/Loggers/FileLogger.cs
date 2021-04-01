@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Netch.Interfaces;
+using System;
 using System.IO;
-using Netch.Interfaces;
 
 namespace Netch.Models.Loggers
 {
     public class FileLogger : ILogger
     {
-        public string LogFile { get; set; }= Path.Combine(Global.NetchDir, "logging\\application.log");
+        public string LogFile { get; set; } = Path.Combine(Global.NetchDir, "logging\\application.log");
 
         private readonly object _fileLock = new();
 

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using Netch.Controllers;
+using Netch.Forms;
+using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Netch.Controllers;
-using Netch.Forms;
-using Netch.Utils;
 using static Vanara.PInvoke.Kernel32;
 
 namespace Netch
@@ -41,7 +41,7 @@ namespace Netch
             Updater.Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
-            var directories = new[] {"mode\\Custom", "data", "i18n", "logging"};
+            var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };
             foreach (var item in directories)
                 if (!Directory.Exists(item))
                     Directory.CreateDirectory(item);

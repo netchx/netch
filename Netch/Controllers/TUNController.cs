@@ -1,16 +1,14 @@
-﻿using System;
+﻿using Netch.Models;
+using Netch.Servers.Socks5;
+using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Netch.Models;
-using Netch.Servers.Socks5;
-using Netch.Utils;
-using Vanara.PInvoke;
 using static Netch.Interops.TUNInterop;
-using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Controllers
 {
@@ -91,9 +89,9 @@ namespace Netch.Controllers
 
             _tunAdapter = new TunAdapter();
 
-            NativeMethods.CreateUnicastIP((int) AddressFamily.InterNetwork,
+            NativeMethods.CreateUnicastIP(AddressFamily.InterNetwork,
                 Global.Settings.TUNTAP.Address,
-                Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
+                (byte)Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
                 _tunAdapter.InterfaceIndex);
 
             SetupRouteTable(mode);
@@ -235,18 +233,18 @@ namespace Netch.Controllers
                 return false;
 
             IAdapter adapter = routeType switch
-                               {
-                                   RouteType.Outbound => _outboundAdapter,
-                                   RouteType.TUNTAP => _tunAdapter,
-                                   _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-                               };
+            {
+                RouteType.Outbound => _outboundAdapter,
+                RouteType.TUNTAP => _tunAdapter,
+                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+            };
 
             List<string> ipList = routeType switch
-                                  {
-                                      RouteType.Outbound => _directIPs,
-                                      RouteType.TUNTAP => _proxyIPs,
-                                      _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-                                  };
+            {
+                RouteType.Outbound => _directIPs,
+                RouteType.TUNTAP => _proxyIPs,
+                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+            };
 
             string gateway = adapter.Gateway.ToString();
             var index = adapter.InterfaceIndex;
@@ -257,13 +255,13 @@ namespace Netch.Controllers
             switch (action)
             {
                 case Action.Create:
-                    result = NativeMethods.CreateRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
+                    result = NativeMethods.CreateRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
                     if (result && record)
                         ipList.Add(ipNetwork);
 
                     break;
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute((int) AddressFamily.InterNetwork, ip, cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);

@@ -1,6 +1,6 @@
+using Netch.Utils;
 using System.Collections.Generic;
 using System.Linq;
-using Netch.Utils;
 
 namespace Netch.Models
 {

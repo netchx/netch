@@ -1,10 +1,10 @@
+using Netch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
-using Netch.Models;
 using Range = Netch.Models.Range;
 
 namespace Netch.Utils
@@ -17,7 +17,7 @@ namespace Netch.Utils
                 .GetExportedTypes()
                 .Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
 
-            ServerUtils = serversUtilsTypes.Select(t => (IServerUtil) Activator.CreateInstance(t)!).OrderBy(util => util.Priority);
+            ServerUtils = serversUtilsTypes.Select(t => (IServerUtil)Activator.CreateInstance(t)!).OrderBy(util => util.Priority);
         }
 
         public static Type GetTypeByTypeName(string typeName)
@@ -57,7 +57,7 @@ namespace Netch.Utils
                 }
             }
 
-            public static int Interval => (int) (Timer.Interval / 1000);
+            public static int Interval => (int)(Timer.Interval / 1000);
 
             private static bool ValueIsEnabled(int value)
             {
@@ -74,7 +74,7 @@ namespace Netch.Utils
                 try
                 {
                     _mux = true;
-                    Parallel.ForEach(Global.Settings.Server, new ParallelOptions {MaxDegreeOfParallelism = 16}, server => { server.Test(); });
+                    Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server => { server.Test(); });
                     _mux = false;
                     TestDelayFinished?.Invoke(null, new EventArgs());
                 }

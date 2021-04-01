@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Diagnostics.Tracing.Parsers;
+﻿using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Netch.Controllers;
 using Netch.Models;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Netch.Utils
 {
@@ -14,7 +14,7 @@ namespace Netch.Utils
         public static ulong received;
         public static TraceEventSession? tSession;
 
-        private static readonly string[] Suffix = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"};
+        private static readonly string[] Suffix = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
 
         /// <summary>
         ///     计算流量
@@ -98,7 +98,7 @@ namespace Netch.Utils
                 {
                     if (processList.Contains(data.ProcessID))
                         lock (counterLock)
-                            received += (ulong) data.size;
+                            received += (ulong)data.size;
 
                     // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                 };
@@ -107,7 +107,7 @@ namespace Netch.Utils
                 {
                     if (processList.Contains(data.ProcessID))
                         lock (counterLock)
-                            received += (ulong) data.size;
+                            received += (ulong)data.size;
 
                     // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
                 };

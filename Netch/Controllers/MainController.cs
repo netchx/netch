@@ -1,9 +1,9 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Netch.Controllers
 {
@@ -58,13 +58,13 @@ namespace Netch.Controllers
             Server = server;
             Mode = mode;
 
-            // 刷新DNS缓存
-            NativeMethods.FlushDNSResolverCache();
+            // 刷新 DNS 缓存
+            NativeMethods.RefreshDNSCache();
 
             if (DnsUtils.Lookup(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
-            // 添加Netch到防火墙
+            // 添加 Netch 到防火墙
             Firewall.AddNetchFwRules();
 
             try
@@ -122,7 +122,7 @@ namespace Netch.Controllers
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
 
             if (port != null)
-                TryReleaseTcpPort((ushort) port, portName);
+                TryReleaseTcpPort((ushort)port, portName);
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 

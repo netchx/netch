@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Netch.Properties;
+using Netch.Utils;
+using System;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Netch.Properties;
-using Netch.Utils;
 
 namespace Netch.Forms
 {

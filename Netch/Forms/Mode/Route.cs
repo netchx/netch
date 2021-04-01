@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Windows.Forms;
-using Netch.Models;
+﻿using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
+using System;
+using System.IO;
+using System.Windows.Forms;
 
 namespace Netch.Forms.Mode
 {
     public partial class Route : Form
     {
-        private readonly TagItem<int>[] _items = {new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs")};
+        private readonly TagItem<int>[] _items = { new(1, "Proxy Rule IPs"), new(2, "Bypass Rule IPs") };
 
         private readonly Models.Mode? _mode;
 
@@ -62,7 +62,7 @@ namespace Netch.Forms.Mode
                 _mode.Remark = RemarkTextBox.Text;
                 _mode.Rule.Clear();
                 _mode.Rule.AddRange(richTextBox1.Lines);
-                _mode.Type = (int) comboBox1.SelectedValue;
+                _mode.Type = (int)comboBox1.SelectedValue;
 
                 _mode.WriteFile();
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
@@ -79,7 +79,7 @@ namespace Netch.Forms.Mode
 
                 var mode = new Models.Mode(fullName)
                 {
-                    Type = (int) comboBox1.SelectedValue,
+                    Type = (int)comboBox1.SelectedValue,
                     Remark = RemarkTextBox.Text
                 };
 
