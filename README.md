@@ -47,7 +47,7 @@ As well, Netch avoid the restricted NAT problem caused by SSTap. You can use an 
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
 ## Screenshots
-![](images/screenshots/main.png)
+![](screenshots/main.png)
 
 ## Requirements
 - [.NET 5](https://dotnet.microsoft.com/download/dotnet/5.0/runtime)
