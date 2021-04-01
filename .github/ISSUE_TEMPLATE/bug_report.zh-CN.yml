@@ -23,6 +23,7 @@ body:
       required: true
   - type: checkboxes
     attributes:
+      label: 验证
       description: 请确认下面选项
       options:
         - label: 我是人类
