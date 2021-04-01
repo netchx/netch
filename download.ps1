@@ -4,6 +4,7 @@ $NetchDataURL="https://github.com/NetchX/NetchData/archive/refs/heads/master.zip
 $NetchModeURL="https://github.com/NetchX/NetchMode/archive/refs/heads/master.zip"
 $NetchI18NURL="https://github.com/NetchX/NetchTranslation/archive/refs/heads/master.zip"
 
+$last=$(Get-Location)
 New-Item -ItemType Directory -Name $OutputPath | Out-Null
 Set-Location $OutputPath
 
@@ -31,4 +32,5 @@ Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
 Get-Item *
+Set-Location $last
 exit 0
