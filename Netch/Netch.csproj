@@ -55,10 +55,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Interop.nfapinet\Interop.nfapinet.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Remove=".gitignore" />
         <None Visible="false" Include="..\binaries\**" LinkBase="bin" CopyToPublishDirectory="PreserveNewest" CopyToOutputDirectory="PreserveNewest" />
         <None Update="..\binaries\NTT.exe">

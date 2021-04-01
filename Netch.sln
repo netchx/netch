@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch", "Netch\Netch.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTest.csproj", "{53397641-35CA-4336-8E22-2CE12EF476AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interop.nfapinet", "Interop.nfapinet\Interop.nfapinet.csproj", "{2C968ADF-4822-46A9-A7D9-D05A61CB14DE}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -22,10 +20,6 @@ Global
 		{53397641-35CA-4336-8E22-2CE12EF476AC}.Debug|x64.ActiveCfg = Debug|x64
 		{53397641-35CA-4336-8E22-2CE12EF476AC}.Debug|x64.Build.0 = Debug|x64
 		{53397641-35CA-4336-8E22-2CE12EF476AC}.Release|x64.ActiveCfg = Release|x64
-		{2C968ADF-4822-46A9-A7D9-D05A61CB14DE}.Debug|x64.ActiveCfg = Debug|x64
-		{2C968ADF-4822-46A9-A7D9-D05A61CB14DE}.Debug|x64.Build.0 = Debug|x64
-		{2C968ADF-4822-46A9-A7D9-D05A61CB14DE}.Release|x64.ActiveCfg = Release|x64
-		{2C968ADF-4822-46A9-A7D9-D05A61CB14DE}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
