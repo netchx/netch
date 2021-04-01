@@ -21,7 +21,7 @@ jobs:
 
     - name: Build Solution
       shell: pwsh
-      run: .\BUILD.ps1 Debug -o ${{ env.OutputPath }}
+      run: .\BUILD.ps1 Release -o ${{ env.OutputPath }}
 
     - name: Upload Artifact
       continue-on-error: true
