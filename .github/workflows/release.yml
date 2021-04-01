@@ -1,4 +1,4 @@
-name: Netch Release
+name: Netch CI
 on:
   push:
     tags:
@@ -8,20 +8,15 @@ jobs:
     name: Build
     runs-on: windows-latest
     steps:
-    - name: Setup MSBuild
+    - name: MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        submodules: true
         fetch-depth: 1
 
-    - name: Binaries Repo LFS Pull
-      working-directory: binaries
-      run: git lfs pull
-
-    - name: Build Solution
+    - name: Build
       shell: pwsh
       run: .\BUILD.ps1
 
@@ -31,8 +26,8 @@ jobs:
         New-Item -ItemType Directory -Path C:\builtfiles -Force > $null
         7z a -mx9 C:\builtfiles\Netch.7z .\Netch\bin\Publish\
         7z rn C:\builtfiles\Netch.7z Publish Netch
-        echo "Netch_SHA256=$(.\GetSHA256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Netch_EXE_SHA256=$(.\GetSHA256.ps1 Netch\bin\Publish\Netch.exe)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "Netch_SHA256=$(.\sha256.ps1 C:\builtfiles\Netch.7z)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        echo "Netch_EXE_SHA256=$(.\sha256.ps1 Netch\bin\Publish\Netch.exe)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: Release
       uses: softprops/action-gh-release@v1

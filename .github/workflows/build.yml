@@ -1,0 +1,49 @@
+name: Netch CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    env:
+      NetchDataURL: https://github.com/NetchX/NetchData/archive/refs/heads/master.zip
+      NetchModeURL: https://github.com/NetchX/NetchMode/archive/refs/heads/master.zip
+      NetchI18NURL: https://github.com/NetchX/NetchTranslation/archive/refs/heads/master.zip
+    steps:
+      - name: MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Submodule
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Name release
+          Set-Location release
+
+          Invoke-WebRequest -Uri $NetchDataURL -OutFile data.zip
+          Invoke-WebRequest -Uri $NetchModeURL -OutFile mode.zip
+          Invoke-WebRequest -Uri $NetchI18NURL -OutFile i18n.zip
+
+          Expand-Archive -Force -Path data.zip -DestinationPath bin
+          Expand-Archive -Force -Path mode.zip -DestinationPath .
+          Expand-Archive -Force -Path i18n.zip -DestinationPath .
+
+          Remove-Item -Force README.md
+          Remove-Item -Force data.zip
+          Remove-Item -Force mode.zip
+          Remove-Item -Force i18n.zip
+
+      - name: Build
+        shell: pwsh
+        run: .\build.ps1 Release -o release
+
+      - name: Upload
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: Netch
+          path: release
