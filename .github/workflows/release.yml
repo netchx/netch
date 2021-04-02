@@ -1,4 +1,4 @@
-name: Netch CI
+name: Netch Release CI
 on:
   push:
     tags:
