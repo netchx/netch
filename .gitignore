@@ -1,3 +1,5 @@
 /.vs
+/.vscode
 /.idea
 /release
+/DataCache
