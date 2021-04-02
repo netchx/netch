@@ -51,23 +51,26 @@ function DownloadAndExtract {
 
     $fileName = "$repo-$sha"
     $filePath = "$CachePath\$fileName.zip"
-
+    $cacheExtractPath = "$CachePath\$fileName"
+    
     if ( -Not (Test-Path $filePath) ) {
-        Remove-Item -Recurse -Force $CachePath\$Repo*
+        Remove-Item -Recurse -Force $CachePath\$Repo* | Out-Null
         Invoke-WebRequest -Uri $archiveUrl -OutFile $filePath
     }
 
-    $cacheExtractPath = "$CachePath\$fileName"
     if ( -Not (Test-Path $cacheExtractPath) ) {
         Expand-Archive -Force -Path $filePath -DestinationPath $CachePath
     }
 
-    Copy-Item -Recurse -Path "$cacheExtractPath\$ReleativePath" $TargetPath
+    New-Item -Force -ItemType Directory -Path $TargetPath | Out-Null
+    Copy-Item -Recurse -Force "$cacheExtractPath\$ReleativePath\*" $TargetPath
 }
 
-DownloadAndExtract -Owner "NetchX" -Repo "NetchData" -CachePath $CachePath -ReleativePath "\" -TargetPath $OutputPath\bin\
-DownloadAndExtract -Owner "NetchX" -Repo "NetchMode" -CachePath $CachePath -ReleativePath "mode" -TargetPath $OutputPath
-DownloadAndExtract -Owner "NetchX" -Repo "NetchI18N" -CachePath $CachePath -ReleativePath "i18n" -TargetPath $OutputPath
+New-Item -Force -ItemType Directory -Path $OutputPath, $CachePath | Out-Null
+
+DownloadAndExtract -Owner "NetchX" -Repo "NetchData" -CachePath $CachePath -TargetPath $OutputPath\bin
+DownloadAndExtract -Owner "NetchX" -Repo "NetchMode" -CachePath $CachePath -ReleativePath "mode" -TargetPath $OutputPath\mode
+DownloadAndExtract -Owner "NetchX" -Repo "NetchI18N" -CachePath $CachePath -ReleativePath "i18n" -TargetPath $OutputPath\i18n
 
 Get-Item $OutputPath
 
