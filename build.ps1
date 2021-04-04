@@ -22,7 +22,7 @@ param (
 	$PublishSingleFile = $True
 )
 
-.\download.ps1 $OutputPath
+.\scripts\download.ps1 $OutputPath
 
 if ( -Not $? ) {
 	Exit 1
