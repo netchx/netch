@@ -1,82 +1,36 @@
-param(
-    [Parameter()]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $OutputPath = "release",
+param([string]$OutputPath)
 
-    [Parameter()]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $CachePath = "DataCache"
-)
+$NetchDataURL="https://github.com/NetchX/NetchData/archive/refs/heads/master.zip"
+$NetchModeURL="https://github.com/NetchX/NetchMode/archive/refs/heads/master.zip"
+$NetchI18NURL="https://github.com/NetchX/NetchTranslation/archive/refs/heads/master.zip"
 
-function DownloadAndExtract {
-    param (
+$last=$(Get-Location)
+New-Item -ItemType Directory -Name $OutputPath | Out-Null
+Set-Location $OutputPath
 
-        # NetchX
-        [Parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $Owner,
+Invoke-WebRequest -Uri $NetchDataURL -OutFile data.zip
+Invoke-WebRequest -Uri $NetchModeURL -OutFile mode.zip
+Invoke-WebRequest -Uri $NetchI18NURL -OutFile i18n.zip
 
-        # NetchMode
-        [Parameter(Mandatory = $True)]
-        [string]
-        [ValidateNotNullOrEmpty()]
-        $Repo,
+Expand-Archive -Force -Path data.zip -DestinationPath .
+Expand-Archive -Force -Path mode.zip -DestinationPath .
+Expand-Archive -Force -Path i18n.zip -DestinationPath .
 
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $ref = "heads/master",
+New-Item -ItemType Directory -Name bin  | Out-Null
+New-Item -ItemType Directory -Name mode | Out-Null
+New-Item -ItemType Directory -Name i18n | Out-Null
 
-        [Parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $CachePath,
-        
-        [Parameter()]
-        [ValidateNotNull()]
-        [string]
-        $ReleativePath = "",
+Copy-Item -Recurse -Force .\NetchData-master\*             .\bin
+Copy-Item -Recurse -Force .\NetchMode-master\mode\*        .\mode
+Copy-Item -Recurse -Force .\NetchTranslation-master\i18n\* .\i18n
 
-        [Parameter(Mandatory = $True)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $TargetPath
-    )
-    $json = Invoke-RestMethod "https://api.github.com/repos/$Owner/$Repo/git/refs/$ref"
+Remove-Item -Recurse -Force NetchData-master
+Remove-Item -Recurse -Force NetchMode-master
+Remove-Item -Recurse -Force NetchTranslation-master
+Remove-Item -Force data.zip
+Remove-Item -Force mode.zip
+Remove-Item -Force i18n.zip
 
-	if ( -Not $? ) {
-		Exit 1;
-	}
-
-    $sha = $json.object.sha
-    $archiveUrl = "https://github.com/$Owner/$Repo/archive/$sha.zip"
-
-    $fileName = "$repo-$sha"
-    $filePath = "$CachePath\$fileName.zip"
-    $cacheExtractPath = "$CachePath\$fileName"
-    
-    if ( -Not (Test-Path $filePath) ) {
-        Remove-Item -Recurse -Force $CachePath\$Repo* | Out-Null
-        Invoke-WebRequest -Uri $archiveUrl -OutFile $filePath
-    }
-
-    if ( -Not (Test-Path $cacheExtractPath) ) {
-        Expand-Archive -Force -Path $filePath -DestinationPath $CachePath
-    }
-
-    New-Item -Force -ItemType Directory -Path $TargetPath | Out-Null
-    Copy-Item -Recurse -Force "$cacheExtractPath\$ReleativePath\*" $TargetPath
-}
-
-New-Item -Force -ItemType Directory -Path $OutputPath, $CachePath | Out-Null
-
-DownloadAndExtract -Owner "NetchX" -Repo "NetchData" -CachePath $CachePath -TargetPath $OutputPath\bin
-DownloadAndExtract -Owner "NetchX" -Repo "NetchMode" -CachePath $CachePath -ReleativePath "mode" -TargetPath $OutputPath\mode
-DownloadAndExtract -Owner "NetchX" -Repo "NetchI18N" -CachePath $CachePath -ReleativePath "i18n" -TargetPath $OutputPath\i18n
-
-Get-Item $OutputPath
-
-exit 0;
+Get-Item *
+Set-Location $last
+exit 0

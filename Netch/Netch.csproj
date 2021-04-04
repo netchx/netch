@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <UseWindowsForms>true</UseWindowsForms>
@@ -100,9 +99,4 @@
             <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\TraceReloggerLib.dll" />
         </ItemGroup>
     </Target>
-
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="powershell.exe ..\download.ps1 $(OutDir) ..\DataCache" />
-    </Target>
-
 </Project>
