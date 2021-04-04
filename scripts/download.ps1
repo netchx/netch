@@ -32,7 +32,7 @@ Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
 ..\scripts\downloads\cloak.ps1     -OutputPath bin
-..\scripts\downlaods\xray-core.ps1 -OutputPath bin
+..\scripts\downloads\xray-core.ps1 -OutputPath bin
 
 Get-Item *
 Set-Location $last
