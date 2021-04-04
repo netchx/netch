@@ -24,6 +24,10 @@ param (
 
 .\download.ps1 $OutputPath
 
+if ( -Not $? ) {
+	Exit 1
+}
+
 Write-Host "Building $Configuration to $OutputPath"
 dotnet publish `
 	-c $Configuration `

@@ -46,6 +46,11 @@ function DownloadAndExtract {
         $TargetPath
     )
     $json = Invoke-RestMethod "https://api.github.com/repos/$Owner/$Repo/git/refs/$ref"
+
+	if ( -Not $? ) {
+		Exit 1;
+	}
+
     $sha = $json.object.sha
     $archiveUrl = "https://github.com/$Owner/$Repo/archive/$sha.zip"
 
