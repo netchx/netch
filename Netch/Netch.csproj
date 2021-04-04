@@ -101,4 +101,8 @@
         </ItemGroup>
     </Target>
 
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="powershell.exe ..\download.ps1 $(OutDir) ..\DataCache" />
+    </Target>
+
 </Project>
