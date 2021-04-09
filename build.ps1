@@ -19,7 +19,7 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishSingleFile = $True
+	$PublishSingleFile = $False
 )
 
 .\scripts\download.ps1 $OutputPath
