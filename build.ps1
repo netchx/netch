@@ -11,7 +11,7 @@ param (
 
 	[Parameter()]
 	[bool]
-	$SelfContained = $True,
+	$SelfContained = $False,
 
 	[Parameter()]
 	[bool]
@@ -19,7 +19,7 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishSingleFile = $False
+	$PublishSingleFile = $True
 )
 
 .\scripts\download.ps1 $OutputPath
