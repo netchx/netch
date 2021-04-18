@@ -1,13 +1,15 @@
 # Netch
-[![Group](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/Netch_Discuss_Group)
-[![Channel](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/Netch)
+[![Group](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
+[![Channel](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel)
 [![Platform](https://img.shields.io/badge/platform-windows-orange.svg)](https://github.com/NetchX/Netch)
 [![Version](https://img.shields.io/github/v/release/NetchX/Netch)](https://github.com/NetchX/Netch/releases)
 [![Downloads](https://img.shields.io/github/downloads/NetchX/Netch/total.svg)](https://github.com/NetchX/Netch/releases)
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-[文档网站](https://netch.org/) [常见问题](https://netch.org/#/docs/zh-CN/faq) 
+[文档网站](https://netch.org)
+
+[常见问题](https://netch.org/#/docs/zh-CN/faq) 
 
 [中文说明](README.zh-CN.md)
 

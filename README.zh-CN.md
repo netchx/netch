@@ -1,13 +1,15 @@
 # Netch
-[![群组](https://img.shields.io/badge/Telegram-群组-green)](https://t.me/Netch_Discuss_Group)
-[![频道](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/Netch)
+[![群组](https://img.shields.io/badge/Telegram-群组-green)](https://t.me/netch_group)
+[![频道](https://img.shields.io/badge/Telegram-频道-blue)](https://t.me/netch_channel)
 [![平台](https://img.shields.io/badge/平台-windows-orange.svg)](https://github.com/NetchX/Netch)
 [![版本](https://img.shields.io/github/v/release/NetchX/Netch)](https://github.com/NetchX/Netch/releases)
 [![下载](https://img.shields.io/github/downloads/NetchX/Netch/total.svg)](https://github.com/NetchX/Netch/releases)
 [![Netch CI](https://github.com/NetchX/Netch/workflows/Netch%20CI/badge.svg)](https://github.com/NetchX/Netch/actions)
 [![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
-[文档网站](https://netch.org/) [常见问题](https://netch.org/#/docs/zh-CN/faq)
+[文档网站](https://netch.org)
+
+[常见问题](https://netch.org/#/docs/zh-CN/faq)
 
 游戏加速工具
 
