@@ -1,11 +1,7 @@
 name: Bug report
-description: "Create a report to help us improve"
+description: Create a report to help us improve
 labels: 需要核实
-issue_body: true
 body:
-  - type: markdown
-    attributes:
-      value: "**Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.**"
   - type: textarea
     id: error
     attributes:
@@ -29,7 +25,7 @@ body:
       label: CAPTCHA
       description: Please confirm the options below.
       options:
-        - label: I am human
+        - label: Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.
           required: true
   - type: textarea
     id: log
@@ -43,12 +39,14 @@ body:
     id: environment
     attributes:
       label: Environment
+      render: txt
       placeholder: |
         - OS: [e.g. Windows 10 Pro 64-bit 1903]
         - Netch Version: [e.g. 1.0.0-STABLE.x64]
     validations:
       required: true
-  - type: markdown
+  - type: textarea
     attributes:
-      value: |
+      label: Additional information
+      description: >
         In the text box below, you can attach any relevant screenshots and files.
