@@ -14,7 +14,6 @@ body:
     attributes:
       label: To Reproduce
       placeholder: |
-        Steps to reproduce the behavior:
         1. Open Netch
         2. ...
     validations:
@@ -30,7 +29,6 @@ body:
   - type: textarea
     id: log
     attributes:
-      render: shell
       label: Log
       description: Attaching any log files in the folder `Netch\logging` is strongly recommended.
     validations:
@@ -49,4 +47,4 @@ body:
     attributes:
       label: Additional information
       description: >
-        In the text box below, you can attach any relevant screenshots and files.
+        If you have any additional information for us, use the field below.

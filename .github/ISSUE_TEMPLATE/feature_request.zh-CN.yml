@@ -1,15 +1,19 @@
 name: 功能请求
-description: "建议这个项目的想法"
+description: 建议这个项目的想法
 labels: 需要核实
-issue_body: true
 body:
-  - type: markdown
+  - type: checkboxes
+    id: captcha
     attributes:
-      value: "**确保你已经看过 readme，也搜索并阅读过和你遇到的情况相关的问题。否则会被认为是重复的并被立刻关闭。**"
+      label: 验证
+      description: 请确认下面选项
+      options:
+        - label: 确保你已经看过 readme，也搜索并阅读过和你遇到的情况相关的问题。否则会被认为是重复的并被立刻关闭。
+          required: true
   - type: textarea
     id: description
     attributes:
-      label: "功能描述"
+      label: 功能描述
       description: 简明扼要地描述需要的功能
     validations:
       required: true

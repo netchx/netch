@@ -1,22 +1,18 @@
 name: 错误报告
-description: "创建错误报告以帮助我们改进"
+description: 创建错误报告以帮助我们改进
 labels: 需要核实
-issue_body: true
 body:
-  - type: markdown
-    attributes:
-      value: "**确保你已经看过 readme，也搜索并阅读过和你遇到的情况相关的问题。否则会被认为是重复的并被立刻关闭。**"
   - type: textarea
     id: error
     attributes:
-      label: "错误描述"
+      label: 错误描述
       description: 对错误的清晰简洁描述
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: "复现步骤"
+      label: 复现步骤
       placeholder: |
         1. 打开 Netch 软件
         2. ...
@@ -28,12 +24,11 @@ body:
       label: 验证
       description: 请确认下面选项
       options:
-        - label: 我是人类
+        - label: 确保你已经看过 readme，也搜索并阅读过和你遇到的情况相关的问题。否则会被认为是重复的并被立刻关闭。
           required: true
   - type: textarea
     id: log
     attributes:
-      render: shell
       label: 日志
       description: 强烈建议附上任何在 `Netch\logging` 文件夹下面的日志
     validations:
@@ -42,12 +37,14 @@ body:
     id: environment
     attributes:
       label: 操作环境
+      render: txt
       placeholder: |
         操作系统：[Windows 10 专业版 64 位 1903]
         软件版本：[1.0.0-STABLE 64 位]
     validations:
       required: true
-  - type: markdown
+  - type: textarea
     attributes:
-      value: |
+      label: 额外信息
+      description: >
         下面的文本框中你可以附上跟 issue 相关的截图、文件

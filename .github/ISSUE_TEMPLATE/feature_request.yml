@@ -1,15 +1,19 @@
 name: request
-description: "Suggest an idea for this project"
+description: Suggest an idea for this project
 labels: 需要核实
-issue_body: true
 body:
-  - type: markdown
+  - type: checkboxes
+    id: captcha
     attributes:
-      value: "**Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.**"
+      label: CAPTCHA
+      description: Please confirm the options below.
+      options:
+        - label: Make sure you have read the readme, searched and read the issues related to yours. Otherwise it will be considered as a duplicate which will be closed immediately.
+          required: true
   - type: textarea
     id: description
     attributes:
-      label: "Describe the feature you want"
+      label: Describe the feature you want
       description: A clear and concise description of what you want to happen.
     validations:
       required: true
