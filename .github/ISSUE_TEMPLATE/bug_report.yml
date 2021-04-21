@@ -1,6 +1,5 @@
 name: Bug report
 description: "Create a report to help us improve"
-title: ""
 labels: 需要核实
 issue_body: true
 body:

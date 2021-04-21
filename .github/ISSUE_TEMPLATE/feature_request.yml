@@ -1,6 +1,5 @@
 name: request
 description: "Suggest an idea for this project"
-title: ""
 labels: 需要核实
 issue_body: true
 body:
