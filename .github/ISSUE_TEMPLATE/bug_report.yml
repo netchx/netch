@@ -44,6 +44,7 @@ body:
     validations:
       required: true
   - type: textarea
+    id: info
     attributes:
       label: Additional information
       description: >
