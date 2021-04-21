@@ -26,6 +26,8 @@ namespace Netch.Controllers
         private IAdapter _tunAdapter = null!;
         private IPAddress _serverAddresses = null!;
 
+        private const string DummyDns = "6.6.6.6";
+
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
@@ -88,10 +90,17 @@ namespace Netch.Controllers
             Init();
 
             _tunAdapter = new TunAdapter();
+            switch (mode.Type)
+            {
+                case 1 when Global.Settings.TUNTAP.ProxyDNS:
+                case 2:
+                    _tunAdapter.NetworkInterface.SetDns(DummyDns);
+                    break;
+            }
 
             NativeMethods.CreateUnicastIP(AddressFamily.InterNetwork,
                 Global.Settings.TUNTAP.Address,
-                (byte)Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
+                (byte) Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
                 _tunAdapter.InterfaceIndex);
 
             SetupRouteTable(mode);
@@ -162,11 +171,15 @@ namespace Netch.Controllers
 
                     if (Global.Settings.TUNTAP.ProxyDNS)
                     {
-                        Global.Logger.Info("代理 → 自定义 DNS");
-                        if (Global.Settings.TUNTAP.UseCustomDNS)
-                            RouteAction(Action.Create, Global.Settings.TUNTAP.HijackDNS.Select(ip => $"{ip}/32"), RouteType.TUNTAP);
-                        else
-                            RouteAction(Action.Create, $"{Global.Settings.AioDNS.OtherDNS}/32", RouteType.TUNTAP);
+                        Global.Logger.Info("代理 → 占位 DNS");
+                        RouteAction(Action.Create, $"{DummyDns}/32", RouteType.TUNTAP);
+
+                        if (!Global.Settings.TUNTAP.UseCustomDNS)
+                        {
+                            Global.Logger.Info("代理 → AioDNS OtherDNS");
+                            var otherDns = Global.Settings.AioDNS.OtherDNS;
+                            RouteAction(Action.Create, $"{otherDns[..otherDns.IndexOf(':')]}/32", RouteType.TUNTAP);
+                        }
                     }
 
                     break;
@@ -233,18 +246,18 @@ namespace Netch.Controllers
                 return false;
 
             IAdapter adapter = routeType switch
-            {
-                RouteType.Outbound => _outboundAdapter,
-                RouteType.TUNTAP => _tunAdapter,
-                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-            };
+                               {
+                                   RouteType.Outbound => _outboundAdapter,
+                                   RouteType.TUNTAP => _tunAdapter,
+                                   _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+                               };
 
             List<string> ipList = routeType switch
-            {
-                RouteType.Outbound => _directIPs,
-                RouteType.TUNTAP => _proxyIPs,
-                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-            };
+                                  {
+                                      RouteType.Outbound => _directIPs,
+                                      RouteType.TUNTAP => _proxyIPs,
+                                      _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
+                                  };
 
             string gateway = adapter.Gateway.ToString();
             var index = adapter.InterfaceIndex;
@@ -255,13 +268,13 @@ namespace Netch.Controllers
             switch (action)
             {
                 case Action.Create:
-                    result = NativeMethods.CreateRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
-                    if (result && record)
+                    result = NativeMethods.CreateRoute(AddressFamily.InterNetwork, ip, (byte) cidr, gateway, index, metric);
+                    if (record)
                         ipList.Add(ipNetwork);
 
                     break;
                 case Action.Delete:
-                    result = NativeMethods.DeleteRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
+                    result = NativeMethods.DeleteRoute(AddressFamily.InterNetwork, ip, (byte) cidr, gateway, index, metric);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(action), action, null);
