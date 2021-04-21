@@ -44,6 +44,7 @@ Netch 是一款 Windows 平台的开源游戏加速工具，Netch 可以实现�
 - [NyanCat](https://nyancat.info/register)
 
 ## 捐赠
+- ETH *0x23dac0a93bcd71fec7a95833ad030338f167f185*
 - XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
 
 ## 依赖
