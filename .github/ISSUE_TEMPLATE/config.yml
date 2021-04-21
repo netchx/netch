@@ -1,8 +1,9 @@
 blank_issues_enabled: false
 contact_links:
   - name: Telegram Channel
-    url: https://t.me/Netch
+    url: https://t.me/netch_channel
     about: Telegram Channel
+
   - name: Telegram Group
-    url: https://t.me/Netch_Discuss_Group
+    url: https://t.me/netch_group
     about: Telegram Group
