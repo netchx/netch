@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/NetchX/Netch/blob/master/Netch/Resources/Netch.png?raw=true" height="80" width="80" /></p>
+<p align="center"><img src="https://github.com/NetchX/Netch/blob/master/Netch/Resources/Netch.png?raw=true" /></p>
 
 <div align="center">
 
