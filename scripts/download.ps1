@@ -31,8 +31,8 @@ Remove-Item -Force data.zip
 Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
-..\scripts\downloads\cloak.ps1     -OutputPath bin
-..\scripts\downloads\xray-core.ps1 -OutputPath bin
+..\scripts\download\cloak.ps1     -OutputPath bin
+..\scripts\download\xray-core.ps1 -OutputPath bin
 
 Get-Item *
 Set-Location $last
