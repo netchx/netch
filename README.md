@@ -22,7 +22,7 @@ The following is the plan for version 2.0
 - WebMode - Simple web proxy mode
 
 ### Protocols
-- [Socks5 with Authorization](https://www.wikiwand.com/en/SOCKS)
+- [Socks5](https://www.wikiwand.com/en/SOCKS)
 - [Shadowsocks](https://github.com/shadowsocks/shadowsocks-libev)
 - [ShadowsocksR](https://github.com/shadowsocksrr/shadowsocksr-libev)
 - [Trojan](https://trojan-gfw.github.io/trojan/)
