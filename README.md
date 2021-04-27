@@ -12,7 +12,7 @@ A simple proxy client like SSTap
 </div>
 
 ## Features
-The following is the plan for version 2.0
+Some features may not be implemented in version 1.0
 
 ### Modes
 - ProcessMode - Use Netfilter driver to intercept process traffic
@@ -29,12 +29,22 @@ The following is the plan for version 2.0
 - [VMess](https://github.com/v2fly/v2ray-core)
 - [VLess](https://github.com/xtls/xray-core)
 
+### Others
+Following features may limited by your server
+
+- UDP NAT FullCone
+- .NET 5.0
+
 ## Sponsor
 <a href="https://www.jetbrains.com/?from=Netch"><img src="jetbrains.svg" alt="JetBrains" width="200"/></a>
 
 - [NeroCloud](https://nerocloud.io)
 
-## Credits
+## Donate
+- XMR *48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx*
+- ETH *0x23dac0a93bcd71fec7a95833ad030338f167f185*
+
+## Credit
 - [WinTUN](https://www.wintun.net)
 - [NetFilter](https://netfiltersdk.com)
 - [aioCloud](https://github.com/aiocloud)
@@ -44,5 +54,5 @@ The following is the plan for version 2.0
 - [V2Ray](https://github.com/v2fly/v2ray-core)
 - [XRay](https://github.com/xtls/xray-core)
 
-## Stargazers
+## Stars
 [![](https://starchart.cc/NetchX/Netch.svg)](https://starchart.cc/NetchX/Netch)
