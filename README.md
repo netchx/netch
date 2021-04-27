@@ -18,8 +18,8 @@ The following is the plan for version 2.0
 - ProcessMode - Use Netfilter driver to intercept process traffic
 - ShareMode - Share your network based on WinPcap / Npcap
 - TunMode - Use WinTUN driver to create virtual adapter
-- WmpMode - Simple proxy forwarding (OBS Streaming)
-- WebMode - Simple web proxy mode
+- WebMode - Web proxy mode
+- WmpMode - Proxy forwarding (OBS Streaming)
 
 ### Protocols
 - [Socks5](https://www.wikiwand.com/en/SOCKS)
