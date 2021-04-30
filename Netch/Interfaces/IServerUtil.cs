@@ -28,7 +28,7 @@ namespace Netch.Interfaces
         /// </summary>
         string[] UriScheme { get; }
 
-        public abstract Type ServerType { get; }
+        public Type ServerType { get; }
 
         public void Edit(Server s);
 
@@ -36,9 +36,9 @@ namespace Netch.Interfaces
 
         string GetShareLink(Server s);
 
-        public abstract IServerController GetController();
+        public IServerController GetController();
 
-        public abstract IEnumerable<Server> ParseUri(string text);
+        public IEnumerable<Server> ParseUri(string text);
 
         bool CheckServer(Server s);
     }

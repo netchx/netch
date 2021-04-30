@@ -1398,38 +1398,38 @@ namespace Netch.Forms
             switch (cbx.Items[e.Index])
             {
                 case Server item:
-                    {
-                        // 计算延迟底色
-                        var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+                {
+                    // 计算延迟底色
+                    var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
 
-                        // 绘制延迟底色
-                        e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                    // 绘制延迟底色
+                    e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                        // 绘制延迟字符串
-                        TextRenderer.DrawText(e.Graphics,
-                            item.Delay.ToString(),
-                            cbx.Font,
-                            new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                            Color.Black,
-                            TextFormatFlags.Left);
+                    // 绘制延迟字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Delay.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
 
-                        break;
-                    }
+                    break;
+                }
                 case Models.Mode item:
-                    {
-                        // 绘制 模式Box 底色
-                        e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                {
+                    // 绘制 模式Box 底色
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                        // 绘制 模式行数 字符串
-                        TextRenderer.DrawText(e.Graphics,
-                            item.Rule.Count.ToString(),
-                            cbx.Font,
-                            new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                            Color.Black,
-                            TextFormatFlags.Left);
+                    // 绘制 模式行数 字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Rule.Count.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
 
-                        break;
-                    }
+                    break;
+                }
             }
         }
 

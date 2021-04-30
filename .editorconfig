@@ -12,6 +12,7 @@ tab_width = 4
 # Microsoft .NET properties
 csharp_new_line_before_members_in_object_initializers = false
 csharp_preferred_modifier_order = public, private, protected, internal, new, abstract, virtual, sealed, override, static, readonly, extern, unsafe, volatile, async:suggestion
+csharp_space_after_cast = false
 csharp_style_var_elsewhere = true:suggestion
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
@@ -27,7 +28,7 @@ dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
 
 # ReSharper properties
-resharper_align_multiline_switch_expression = true
+resharper_align_multiline_switch_expression = false
 resharper_align_multline_type_parameter_constrains = true
 resharper_blank_lines_after_block_statements = 0
 resharper_blank_lines_after_multiline_statements = 1
@@ -73,7 +74,7 @@ resharper_place_simple_initializer_on_single_line = true
 resharper_place_simple_switch_expression_on_single_line = true
 resharper_show_autodetect_configure_formatting_tip = false
 resharper_space_around_arrow_op = true
-resharper_space_within_single_line_array_initializer_braces = false
+resharper_space_within_single_line_array_initializer_braces = true
 resharper_use_indent_from_vs = false
 resharper_wrap_array_initializer_style = wrap_if_long
 resharper_wrap_before_arrow_with_expressions = true
