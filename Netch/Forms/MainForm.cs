@@ -1235,7 +1235,7 @@ namespace Netch.Forms
                 if (File.Exists(file))
                     File.Delete(file);
 
-            if (IsWaiting())
+            if (!IsWaiting())
                 await StopAsyncCore();
 
             Dispose();
