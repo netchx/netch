@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Interfaces;
 
 namespace Netch.Forms
 {
@@ -60,7 +61,8 @@ namespace Netch.Forms
                 {
                     Name = $"Add{fullName}ServerToolStripMenuItem",
                     Size = new Size(259, 22),
-                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName)
+                    Text = i18N.TranslateFormat("Add [{0}] Server", fullName),
+                    Tag = serversUtil
                 };
 
                 _mainFormText.Add(control.Name, new[] { "Add [{0}] Server", fullName });
@@ -227,15 +229,10 @@ namespace Netch.Forms
             if (sender == null)
                 throw new ArgumentNullException(nameof(sender));
 
-            // TODO get Util from Tag
-            var s = ((ToolStripMenuItem)sender).Text;
-
-            var start = s.IndexOf("[", StringComparison.Ordinal) + 1;
-            var end = s.IndexOf("]", start, StringComparison.Ordinal);
-            var result = s.Substring(start, end - start);
+            var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
 
             Hide();
-            ServerHelper.GetUtilByFullName(result).Create();
+            util.Create();
 
             LoadServers();
             Configuration.Save();
