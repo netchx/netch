@@ -5,6 +5,32 @@ using System.Net.NetworkInformation;
 
 namespace Netch.Utils
 {
+    public static class NetworkInterfaceUtils
+    {
+        /// <summary>
+        /// </summary>
+        /// <param name="interfaceIndex"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <returns></returns>
+        public static NetworkInterface Get(int interfaceIndex)
+        {
+            return NetworkInterface.GetAllNetworkInterfaces()
+                .First(n =>
+                {
+                    var ipProperties = n.GetIPProperties();
+                    int index;
+                    if (n.Supports(NetworkInterfaceComponent.IPv4))
+                        index = ipProperties.GetIPv4Properties().Index;
+                    else if (n.Supports(NetworkInterfaceComponent.IPv6))
+                        index = ipProperties.GetIPv6Properties().Index;
+                    else
+                        return false;
+
+                    return index == interfaceIndex;
+                });
+        }
+    }
+
     public static class NetworkInterfaceExtension
     {
         public static void SetDns(this NetworkInterface ni, string primaryDns, string? secondDns = null)
@@ -25,7 +51,7 @@ namespace Netch.Utils
 
             var mo = mos.First(m => m["Description"].ToString() == ni.Description);
 
-            var dns = new[] {primaryDns};
+            var dns = new[] { primaryDns };
             if (secondDns != null)
                 dns = dns.Append(secondDns).ToArray();
 
