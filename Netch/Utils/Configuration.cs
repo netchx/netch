@@ -75,7 +75,8 @@ namespace Netch.Utils
             if (!Directory.Exists(DataDirectoryFullName))
                 Directory.CreateDirectory(DataDirectoryFullName);
 
-            File.WriteAllBytes(SettingFileFullName, JsonSerializer.SerializeToUtf8Bytes(Global.Settings, JsonSerializerOptions));
+            using var fileStream = File.Create(SettingFileFullName);
+            JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).Wait();
         }
     }
 }
