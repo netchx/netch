@@ -1,13 +1,15 @@
-﻿using Netch.Forms;
-using Netch.Models;
-using Netch.Servers.Socks5;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Netch.Forms;
+using Netch.Interfaces;
+using Netch.Models;
+using Netch.Models.Adapter;
+using Netch.Servers.Socks5;
 
 namespace Netch.Controllers
 {

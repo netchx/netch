@@ -1,15 +1,16 @@
-﻿using Netch.Interops;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
+using Netch.Interfaces;
+using Netch.Interops;
 
-namespace Netch.Models
+namespace Netch.Models.Adapter
 {
     public class TunAdapter : IAdapter
     {
         public TunAdapter()
         {
-            InterfaceIndex = NativeMethods.ConvertLuidToIndex(TUNInterop.tun_luid());
+            InterfaceIndex = RouteHelper.ConvertLuidToIndex(tun2socks.tun_luid());
             NetworkInterface = NetworkInterface.GetAllNetworkInterfaces().First(i => i.GetIPProperties().GetIPv4Properties().Index == (int)InterfaceIndex);
             Gateway = IPAddress.Parse(Global.Settings.TUNTAP.Gateway);
 

@@ -1,9 +1,10 @@
-using Netch.Models;
-using Netch.Servers.Socks5;
-using Netch.Utils;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Netch.Interfaces;
+using Netch.Models;
+using Netch.Servers.Socks5;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Netch.Interops
 {
-    public static class TUNInterop
+    public static class tun2socks
     {
         public enum NameList
         {

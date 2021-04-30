@@ -1,5 +1,3 @@
-using MaxMind.GeoIP2;
-using Microsoft.Win32.TaskScheduler;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -13,6 +11,8 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using MaxMind.GeoIP2;
+using Microsoft.Win32.TaskScheduler;
 using Task = System.Threading.Tasks.Task;
 
 namespace Netch.Utils
@@ -254,7 +254,7 @@ namespace Netch.Utils
                 Console.Write(error);
             }
 
-            p.WaitForExit();
+            await p.WaitForExitAsync();
         }
 
         public static int SubnetToCidr(string value)

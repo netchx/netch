@@ -1,4 +1,4 @@
-﻿namespace Netch.Controllers
+﻿namespace Netch.Interfaces
 {
     public interface IController
     {

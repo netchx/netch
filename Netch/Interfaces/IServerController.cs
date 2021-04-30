@@ -1,6 +1,6 @@
 ﻿using Netch.Models;
 
-namespace Netch.Controllers
+namespace Netch.Interfaces
 {
     public interface IServerController : IController
     {

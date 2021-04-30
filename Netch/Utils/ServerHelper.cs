@@ -1,11 +1,11 @@
-using Netch.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Timers;
-using Range = Netch.Models.Range;
+using Netch.Interfaces;
+using Netch.Models;
 
 namespace Netch.Utils
 {
@@ -32,7 +32,7 @@ namespace Netch.Utils
             private static readonly Timer Timer;
             private static bool _mux;
 
-            public static readonly Range Range = new(0, int.MaxValue / 1000);
+            public static readonly NumberRange Range = new(0, int.MaxValue / 1000);
 
             static DelayTestHelper()
             {

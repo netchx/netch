@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Netch.Interops
 {
-    public static class AioDNSInterops
+    public static class AioDNS
     {
         private const string aiodns_bin = "aiodns.bin";
 

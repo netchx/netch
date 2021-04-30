@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.NetworkInformation;
 
-namespace Netch.Models
+namespace Netch.Interfaces
 {
     public interface IAdapter
     {

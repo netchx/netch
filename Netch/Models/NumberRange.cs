@@ -1,12 +1,12 @@
 namespace Netch.Models
 {
-    public readonly struct Range
+    public readonly struct NumberRange
     {
         public int Start { get; }
 
         public int End { get; }
 
-        public Range(int start, int end)
+        public NumberRange(int start, int end)
         {
             Start = start;
             End = end;
