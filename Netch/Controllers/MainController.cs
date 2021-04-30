@@ -187,16 +187,9 @@ namespace Netch.Controllers
         {
             foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
             {
-                string fileName;
-                try
-                {
-                    fileName = p.MainModule?.FileName ?? throw new Exception(); // TODO what's this exception?
-                }
-                catch (Exception e)
-                {
-                    Global.Logger.Warning(e.ToString());
+                var fileName = p.MainModule?.FileName;
+                if (fileName == null)
                     continue;
-                }
 
                 if (fileName.StartsWith(Global.NetchDir))
                 {
