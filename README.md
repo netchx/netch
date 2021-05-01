@@ -17,9 +17,10 @@ Some features may not be implemented in version 1.0
 ### Modes
 - ProcessMode - Use Netfilter driver to intercept process traffic
 - ShareMode - Share your network based on WinPcap / Npcap
+- TapMode - Use TAP-Windows driver to create virtual adapter
 - TunMode - Use WinTUN driver to create virtual adapter
 - WebMode - Web proxy mode
-- WmpMode - Proxy forwarding (OBS Streaming)
+- WmpMode - Proxy forwarding (eg. OBS Streaming)
 
 ### Protocols
 - [Socks5](https://www.wikiwand.com/en/SOCKS)
@@ -30,9 +31,7 @@ Some features may not be implemented in version 1.0
 - [VLess](https://github.com/xtls/xray-core)
 
 ### Others
-Following features may limited by your server
-
-- UDP NAT FullCone
+- UDP NAT FullCone (May limited by your server)
 - .NET 5.0
 
 ## Sponsor
