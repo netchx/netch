@@ -89,7 +89,8 @@ namespace Netch.Controllers
             #endregion
 
             Global.Logger.Debug("tun2socks init");
-            Init();
+            if (!Init())
+                throw new MessageException("tun2socks start failed, reboot your system and start again.");
 
             _tunAdapter = new TunAdapter();
             switch (mode.Type)
