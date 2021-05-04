@@ -199,15 +199,22 @@ namespace Netch.Controllers
             _logStreamWriter!.WriteLine(line);
         }
 
+        private readonly object LogStreamLock = new();
         private void CloseLogFile()
         {
             if (!RedirectToFile)
                 return;
 
-            _flushFileStreamTimer.Enabled = false;
-            _logStreamWriter?.Close();
-            _logFileStream?.Close();
-            _logStreamWriter = _logStreamWriter = null;
+            if (_logFileStream == null)
+                return;
+
+            lock (LogStreamLock)
+            {
+                _flushFileStreamTimer.Enabled = false;
+                _logStreamWriter?.Close();
+                _logFileStream?.Close();
+                _logStreamWriter = _logStreamWriter = null;
+            }
         }
 
         #endregion
