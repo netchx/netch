@@ -205,11 +205,11 @@ namespace Netch.Controllers
             if (!RedirectToFile)
                 return;
 
-            if (_logFileStream == null)
-                return;
-
             lock (LogStreamLock)
             {
+                if (_logFileStream == null)
+                    return;
+
                 _flushFileStreamTimer.Enabled = false;
                 _logStreamWriter?.Close();
                 _logFileStream?.Close();
