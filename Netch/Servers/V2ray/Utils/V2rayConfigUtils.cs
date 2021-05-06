@@ -3,6 +3,7 @@ using Netch.Servers.V2ray.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Netch.Enums;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
 
 namespace Netch.Servers.V2ray.Utils
@@ -65,7 +66,7 @@ namespace Netch.Servers.V2ray.Utils
                     outboundTag = "block"
                 };
 
-                if (mode.Type is 0 or 1 or 2)
+                if (mode.Type is ModeType.Process or ModeType.ProxyRuleIPs or ModeType.BypassRuleIPs)
                     blockRuleObject.ip.Add("geoip:private");
 
                 static bool CheckRuleItem(ref RulesItem rulesItem)

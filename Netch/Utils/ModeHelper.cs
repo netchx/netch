@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Netch.Controllers;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
@@ -112,35 +113,33 @@ namespace Netch.Utils
         {
             switch (mode.Type)
             {
-                case 0:
+                case ModeType.Process:
                     return server switch
                     {
                         Socks5 => true,
                         Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS => true,
                         _ => false
                     };
-                case 1:
-                case 2:
+                case ModeType.ProxyRuleIPs:
+                case ModeType.BypassRuleIPs:
                     return server is Socks5;
                 default:
                     return false;
             }
         }
 
-        public static readonly int[] ModeTypes = { 0, 1, 2, 6 };
-
-        public static IModeController GetModeControllerByType(int type, out ushort? port, out string portName)
+        public static IModeController GetModeControllerByType(ModeType type, out ushort? port, out string portName)
         {
             port = null;
             portName = string.Empty;
             switch (type)
             {
-                case 0:
+                case ModeType.Process:
                     return new NFController();
-                case 1:
-                case 2:
+                case ModeType.ProxyRuleIPs:
+                case ModeType.BypassRuleIPs:
                     return new TUNController();
-                case 6:
+                case ModeType.Pcap2Socks:
                     return new PcapController();
                 default:
                     Global.Logger.Error("未知模式类型");

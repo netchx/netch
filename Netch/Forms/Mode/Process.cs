@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using Netch.Enums;
 
 namespace Netch.Forms.Mode
 {
@@ -24,7 +25,7 @@ namespace Netch.Forms.Mode
         /// <param name="mode">模式</param>
         public Process(Models.Mode? mode = null)
         {
-            if (mode != null && mode.Type is not 0)
+            if (mode != null && mode.Type is not ModeType.Process)
                 throw new ArgumentOutOfRangeException();
 
             InitializeComponent();
@@ -62,7 +63,7 @@ namespace Netch.Forms.Mode
                 RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
                 RemarkTextBox.Text = _mode.Remark;
                 FilenameTextBox.Text = _mode.RelativePath;
-                RuleAddRange(_mode.Rule);
+                RuleAddRange(_mode.Content);
             }
 
             i18N.TranslateForm(this);
@@ -116,8 +117,8 @@ namespace Netch.Forms.Mode
             if (_mode != null)
             {
                 _mode.Remark = RemarkTextBox.Text;
-                _mode.Rule.Clear();
-                _mode.Rule.AddRange(RuleRichTextBox.Lines);
+                _mode.Content.Clear();
+                _mode.Content.AddRange(RuleRichTextBox.Lines);
 
                 _mode.WriteFile();
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
@@ -134,11 +135,11 @@ namespace Netch.Forms.Mode
 
                 var mode = new Models.Mode(fullName)
                 {
-                    Type = 0,
+                    Type = ModeType.Process,
                     Remark = RemarkTextBox.Text
                 };
 
-                mode.Rule.AddRange(RuleRichTextBox.Lines);
+                mode.Content.AddRange(RuleRichTextBox.Lines);
 
                 mode.WriteFile();
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));

@@ -40,7 +40,7 @@ namespace Netch.Controllers
             else
                 argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
-            argument.Append($" {mode.FullRule.FirstOrDefault() ?? "-P n"}");
+            argument.Append($" {mode.GetRules().FirstOrDefault() ?? "-P n"}");
             StartInstanceAuto(argument.ToString());
         }
 

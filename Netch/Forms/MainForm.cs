@@ -14,6 +14,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Enums;
 using Netch.Interfaces;
 
 namespace Netch.Forms
@@ -727,13 +728,13 @@ namespace Netch.Forms
 
             switch (mode.Type)
             {
-                case 0:
+                case ModeType.Process:
                     Hide();
                     new Process(mode).ShowDialog();
                     Show();
                     break;
-                case 1:
-                case 2:
+                case ModeType.ProxyRuleIPs:
+                case ModeType.BypassRuleIPs:
                     Hide();
                     new Route(mode).ShowDialog();
                     Show();
@@ -1422,7 +1423,7 @@ namespace Netch.Forms
 
                     // 绘制 模式行数 字符串
                     TextRenderer.DrawText(e.Graphics,
-                        item.Rule.Count.ToString(),
+                        item.Content.Count.ToString(),
                         cbx.Font,
                         new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
                         Color.Black,

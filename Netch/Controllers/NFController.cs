@@ -149,7 +149,7 @@ namespace Netch.Controllers
         {
             Dial(NameList.TYPE_CLRNAME, "");
             var invalidList = new List<string>();
-            foreach (var s in mode.FullRule)
+            foreach (var s in mode.GetRules())
             {
                 if (s.StartsWith("!"))
                 {

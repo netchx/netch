@@ -55,7 +55,7 @@ namespace Netch.Controllers
 
         public static void Start(Server server, Mode mode)
         {
-            Global.Logger.Info($"启动主控制器: {server.Type} [{mode.Type}]{mode.Remark}");
+            Global.Logger.Info($"启动主控制器: {server.Type} [{(int)mode.Type}]{mode.Remark}");
             Server = server;
             Mode = mode;
 

@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Interops;
 using Netch.Models;
@@ -95,8 +96,8 @@ namespace Netch.Controllers
             _tunAdapter = new TunAdapter();
             switch (mode.Type)
             {
-                case 1 when Global.Settings.TUNTAP.ProxyDNS:
-                case 2:
+                case ModeType.ProxyRuleIPs when Global.Settings.TUNTAP.ProxyDNS:
+                case ModeType.BypassRuleIPs:
                     _tunAdapter.NetworkInterface.SetDns(DummyDns);
                     break;
             }
@@ -167,10 +168,10 @@ namespace Netch.Controllers
 
             switch (mode.Type)
             {
-                case 1:
+                case ModeType.ProxyRuleIPs:
                     // 代理规则 IP
                     Global.Logger.Info("代理 → 规则 IP");
-                    RouteAction(Action.Create, mode.FullRule, RouteType.TUNTAP);
+                    RouteAction(Action.Create, mode.GetRules(), RouteType.TUNTAP);
 
                     if (Global.Settings.TUNTAP.ProxyDNS)
                     {
@@ -186,17 +187,17 @@ namespace Netch.Controllers
                     }
 
                     break;
-                case 2:
+                case ModeType.BypassRuleIPs:
                     // 绕过规则 IP
 
                     Global.Logger.Info("绕行 → 规则 IP");
-                    RouteAction(Action.Create, mode.FullRule, RouteType.Outbound);
+                    RouteAction(Action.Create, mode.GetRules(), RouteType.Outbound);
                     break;
             }
 
             #endregion
 
-            if (mode.Type == 2)
+            if (mode.Type == ModeType.BypassRuleIPs)
             {
                 Global.Logger.Info("代理 → 全局");
                 SetInterface(RouteType.TUNTAP, 0);
@@ -225,7 +226,7 @@ namespace Netch.Controllers
             RouteAction(Action.Delete, _proxyIPs, RouteType.TUNTAP);
             _directIPs.Clear();
             _proxyIPs.Clear();
-            if (mode.Type == 2)
+            if (mode.Type == ModeType.BypassRuleIPs)
             {
                 SetInterface(RouteType.Outbound);
             }
