@@ -21,13 +21,6 @@ namespace Netch.Forms
 {
     public partial class MainForm : Form
     {
-        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Hide();
-            new Route().ShowDialog();
-            Show();
-        }
-
         #region Start
 
         private readonly Dictionary<string, object> _mainFormText = new();
@@ -248,6 +241,13 @@ namespace Netch.Forms
         {
             Hide();
             new Process().ShowDialog();
+            Show();
+        }
+
+        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Hide();
+            new Route().ShowDialog();
             Show();
         }
 
