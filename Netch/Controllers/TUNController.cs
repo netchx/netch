@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Netch.Enums;
 using Netch.Interfaces;
-using Netch.Interops;
 using Netch.Models;
-using Netch.Models.Adapter;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using static Netch.Interops.tun2socks;
@@ -17,29 +14,32 @@ namespace Netch.Controllers
 {
     public class TUNController : IModeController
     {
-        private readonly List<string> _directIPs = new();
-
-        private readonly List<string> _proxyIPs = new();
-
-        public readonly DNSController DNSController = new();
-
-        public string Name { get; } = "tun2socks";
-
-        private readonly OutboundAdapter _outboundAdapter = new();
-        private IAdapter _tunAdapter = null!;
-        private IPAddress _serverAddresses = null!;
+        public string Name => "tun2socks";
 
         private const string DummyDns = "6.6.6.6";
 
+        private readonly DNSController _aioDnsController = new();
+
+        private NetRoute _outbound;
+
+        private NetRoute _tun;
+
+        private IPAddress _serverAddresses = null!;
+
+        private Mode _mode = null!;
+
         public void Start(in Mode mode)
         {
+            _mode = mode;
             var server = MainController.Server!;
             _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
+            IPAddress address;
+            (_outbound, address) = NetRoute.GetBestRouteTemplate();
             CheckDriver();
 
             Dial(NameList.TYPE_ADAPMTU, "1500");
-            Dial(NameList.TYPE_BYPBIND, _outboundAdapter.Address.ToString());
+            Dial(NameList.TYPE_BYPBIND, address.ToString());
             Dial(NameList.TYPE_BYPLIST, "disabled");
 
             #region Server
@@ -83,40 +83,115 @@ namespace Netch.Controllers
             else
             {
                 MainController.PortCheck(Global.Settings.AioDNS.ListenPort, "DNS");
-                DNSController.Start();
+                _aioDnsController.Start();
                 Dial(NameList.TYPE_DNSADDR, $"127.0.0.1:{Global.Settings.AioDNS.ListenPort}");
             }
 
             #endregion
 
-            Global.Logger.Debug("tun2socks init");
             if (!Init())
                 throw new MessageException("tun2socks start failed, reboot your system and start again.");
 
-            _tunAdapter = new TunAdapter();
-            switch (mode.Type)
-            {
-                case ModeType.ProxyRuleIPs when Global.Settings.TUNTAP.ProxyDNS:
-                case ModeType.BypassRuleIPs:
-                    _tunAdapter.NetworkInterface.SetDns(DummyDns);
-                    break;
-            }
+            var tunIndex = (int)Interops.RouteHelper.ConvertLuidToIndex(tun_luid());
+            _tun = NetRoute.TemplateBuilder(Global.Settings.TUNTAP.Gateway, tunIndex);
 
-            RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
+            Interops.RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 Global.Settings.TUNTAP.Address,
                 (byte)Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
-                _tunAdapter.InterfaceIndex);
+                (ulong)tunIndex);
 
             SetupRouteTable(mode);
         }
 
-        private readonly string BinDriver = Path.Combine(Global.NetchDir, @"bin\wintun.dll");
-        private readonly string SysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
+        #region Route
+
+        private void SetupRouteTable(Mode mode)
+        {
+            Global.MainForm.StatusText(i18N.Translate("Setup Route Table Rule"));
+            Global.Logger.Info("设置路由规则");
+
+            if (!IPAddress.IsLoopback(_serverAddresses))
+                // Server Address
+                RouteUtils.CreateRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
+
+            // Global Bypass IPs
+            foreach (var ip in Global.Settings.TUNTAP.BypassIPs)
+                RouteUtils.CreateRouteFill(_outbound, ip);
+
+            var tunNetworkInterface = NetworkInterfaceUtils.Get(_tun.InterfaceIndex);
+            switch (mode.Type)
+            {
+                case ModeType.ProxyRuleIPs:
+                    // rules
+                    RouteUtils.CreateRouteFill(_tun, mode.GetRules());
+
+                    if (Global.Settings.TUNTAP.ProxyDNS)
+                    {
+                        tunNetworkInterface.SetDns(DummyDns);
+                        // proxy dummy dns
+                        RouteUtils.CreateRoute(_tun.FillTemplate(DummyDns, 32));
+
+                        if (!Global.Settings.TUNTAP.UseCustomDNS)
+                            // proxy AioDNS other dns
+                            RouteUtils.CreateRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
+                    }
+
+                    break;
+                case ModeType.BypassRuleIPs:
+                    RouteUtils.CreateRouteFill(_outbound, mode.GetRules());
+
+                    tunNetworkInterface.SetDns(DummyDns);
+
+                    if (!Global.Settings.TUNTAP.UseCustomDNS)
+                        // bypass AioDNS other dns
+                        RouteUtils.CreateRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
+
+                    NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0);
+                    RouteUtils.CreateRoute(_tun.FillTemplate("0.0.0.0", 0));
+                    break;
+            }
+        }
+
+        private bool ClearRouteTable()
+        {
+            if (!IPAddress.IsLoopback(_serverAddresses))
+                RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
+
+            foreach (var ip in Global.Settings.TUNTAP.BypassIPs)
+                RouteUtils.DeleteRouteFill(_outbound, ip);
+
+            switch (_mode.Type)
+            {
+                case ModeType.BypassRuleIPs:
+                    RouteUtils.DeleteRouteFill(_outbound, _mode.GetRules());
+                    NetworkInterfaceUtils.SetInterfaceMetric(_outbound.InterfaceIndex);
+                    break;
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        public void Stop()
+        {
+            var tasks = new[]
+            {
+                Task.Run(Free),
+                Task.Run(ClearRouteTable),
+                Task.Run(_aioDnsController.Stop)
+            };
+
+            Task.WaitAll(tasks);
+        }
 
         private void CheckDriver()
         {
-            var binHash = Utils.Utils.SHA256CheckSum(BinDriver);
-            var sysHash = Utils.Utils.SHA256CheckSum(SysDriver);
+            string binDriver = Path.Combine(Global.NetchDir, @"bin\wintun.dll");
+            string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
+
+            var binHash = Utils.Utils.SHA256CheckSum(binDriver);
+            var sysHash = Utils.Utils.SHA256CheckSum(sysDriver);
             Global.Logger.Info("自带 wintun.dll Hash: " + binHash);
             Global.Logger.Info("系统 wintun.dll Hash: " + sysHash);
             if (binHash == sysHash)
@@ -124,7 +199,8 @@ namespace Netch.Controllers
 
             try
             {
-                File.Copy(BinDriver, SysDriver, true);
+                Global.Logger.Info("Copy wintun.dll to System Directory");
+                File.Copy(binDriver, sysDriver, true);
             }
             catch (Exception e)
             {
@@ -132,194 +208,5 @@ namespace Netch.Controllers
                 throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
             }
         }
-
-        /// <summary>
-        ///     TUN/TAP停止
-        /// </summary>
-        public void Stop()
-        {
-            var tasks = new[]
-            {
-                Task.Run(Free),
-                Task.Run(ClearRouteTable),
-                Task.Run(DNSController.Stop)
-            };
-
-            Task.WaitAll(tasks);
-        }
-
-        /// <summary>
-        ///     设置绕行规则
-        /// </summary>
-        /// <returns>是否设置成功</returns>
-        private void SetupRouteTable(Mode mode)
-        {
-            Global.MainForm.StatusText(i18N.Translate("SetupBypass"));
-            Global.Logger.Info("设置路由规则");
-
-            Global.Logger.Info("绕行 → 服务器 IP");
-            if (!IPAddress.IsLoopback(_serverAddresses))
-                RouteAction(Action.Create, $"{_serverAddresses}/32", RouteType.Outbound);
-
-            Global.Logger.Info("绕行 → 全局绕过 IP");
-            RouteAction(Action.Create, Global.Settings.TUNTAP.BypassIPs, RouteType.Outbound);
-
-            #region Rule IPs
-
-            switch (mode.Type)
-            {
-                case ModeType.ProxyRuleIPs:
-                    // 代理规则 IP
-                    Global.Logger.Info("代理 → 规则 IP");
-                    RouteAction(Action.Create, mode.GetRules(), RouteType.TUNTAP);
-
-                    if (Global.Settings.TUNTAP.ProxyDNS)
-                    {
-                        Global.Logger.Info("代理 → 占位 DNS");
-                        RouteAction(Action.Create, $"{DummyDns}/32", RouteType.TUNTAP);
-
-                        if (!Global.Settings.TUNTAP.UseCustomDNS)
-                        {
-                            Global.Logger.Info("代理 → AioDNS OtherDNS");
-                            var otherDns = Global.Settings.AioDNS.OtherDNS;
-                            RouteAction(Action.Create, $"{otherDns[..otherDns.IndexOf(':')]}/32", RouteType.TUNTAP);
-                        }
-                    }
-
-                    break;
-                case ModeType.BypassRuleIPs:
-                    // 绕过规则 IP
-
-                    Global.Logger.Info("绕行 → 规则 IP");
-                    RouteAction(Action.Create, mode.GetRules(), RouteType.Outbound);
-                    break;
-            }
-
-            #endregion
-
-            if (mode.Type == ModeType.BypassRuleIPs)
-            {
-                Global.Logger.Info("代理 → 全局");
-                SetInterface(RouteType.TUNTAP, 0);
-                RouteAction(Action.Create, "0.0.0.0/0", RouteType.TUNTAP, record: false);
-            }
-        }
-
-        private void SetInterface(RouteType routeType, int? metric = null)
-        {
-            var adapter = routeType == RouteType.Outbound ? _outboundAdapter : _tunAdapter;
-
-            var arguments = $"interface ip set interface {adapter.InterfaceIndex} ";
-            if (metric != null)
-                arguments += $"metric={metric} ";
-
-            Utils.Utils.ProcessRunHiddenAsync("netsh", arguments).Wait();
-        }
-
-        /// <summary>
-        ///     清除绕行规则
-        /// </summary>
-        private bool ClearRouteTable()
-        {
-            var mode = MainController.Mode!;
-            RouteAction(Action.Delete, _directIPs, RouteType.Outbound);
-            RouteAction(Action.Delete, _proxyIPs, RouteType.TUNTAP);
-            _directIPs.Clear();
-            _proxyIPs.Clear();
-            if (mode.Type == ModeType.BypassRuleIPs)
-            {
-                SetInterface(RouteType.Outbound);
-            }
-
-            return true;
-        }
-
-        #region Package
-
-        private void RouteAction(Action action, in IEnumerable<string> ipNetworks, RouteType routeType, int metric = 0, bool record = true)
-        {
-            foreach (var address in ipNetworks)
-                RouteAction(action, address, routeType, metric);
-        }
-
-        private bool RouteAction(Action action, in string ipNetwork, RouteType routeType, int metric = 0, bool record = true)
-        {
-            #region
-
-            if (!TryParseIPNetwork(ipNetwork, out var ip, out var cidr))
-                return false;
-
-            IAdapter adapter = routeType switch
-            {
-                RouteType.Outbound => _outboundAdapter,
-                RouteType.TUNTAP => _tunAdapter,
-                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-            };
-
-            List<string> ipList = routeType switch
-            {
-                RouteType.Outbound => _directIPs,
-                RouteType.TUNTAP => _proxyIPs,
-                _ => throw new ArgumentOutOfRangeException(nameof(routeType), routeType, null)
-            };
-
-            string gateway = adapter.Gateway.ToString();
-            var index = adapter.InterfaceIndex;
-
-            #endregion
-
-            bool result;
-            switch (action)
-            {
-                case Action.Create:
-                    result = RouteHelper.CreateRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
-                    if (record)
-                        ipList.Add(ipNetwork);
-
-                    break;
-                case Action.Delete:
-                    result = RouteHelper.DeleteRoute(AddressFamily.InterNetwork, ip, (byte)cidr, gateway, index, metric);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(action), action, null);
-            }
-
-            Global.Logger.Debug($"{action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
-            if (!result)
-                Global.Logger.Warning($"Failed to invoke {action}Route(\"{ip}\", {cidr}, \"{gateway}\", {index}, {metric})");
-
-            return result;
-        }
-
-        bool TryParseIPNetwork(string ipNetwork, out string ip, out int cidr)
-        {
-            ip = null!;
-            cidr = 0;
-
-            var s = ipNetwork.Split('/');
-            if (s.Length != 2)
-            {
-                Global.Logger.Warning($"Failed to parse rule {ipNetwork}");
-                return false;
-            }
-
-            ip = s[0];
-            cidr = int.Parse(s[1]);
-            return true;
-        }
-
-        private enum RouteType
-        {
-            Outbound,
-            TUNTAP
-        }
-
-        private enum Action
-        {
-            Create,
-            Delete
-        }
-
-        #endregion
     }
 }

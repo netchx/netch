@@ -1,12 +1,31 @@
 ﻿using System;
 using System.Linq;
 using System.Management;
+using System.Net;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using Netch.Models;
+using Vanara.PInvoke;
 
 namespace Netch.Utils
 {
     public static class NetworkInterfaceUtils
     {
+        public static NetworkInterface GetBest(AddressFamily addressFamily = AddressFamily.InterNetwork)
+        {
+            var ipAddress = addressFamily switch
+            {
+                AddressFamily.InterNetwork => "114.114.114.114",
+                AddressFamily.InterNetworkV6 => throw new NotImplementedException(),
+                _ => throw new ArgumentOutOfRangeException(nameof(addressFamily), addressFamily, null)
+            };
+
+            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)
+                throw new MessageException("GetBestRoute 搜索失败");
+
+            return Get((int)route.dwForwardIfIndex);
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="interfaceIndex"></param>
@@ -14,25 +33,38 @@ namespace Netch.Utils
         /// <returns></returns>
         public static NetworkInterface Get(int interfaceIndex)
         {
-            return NetworkInterface.GetAllNetworkInterfaces()
-                .First(n =>
-                {
-                    var ipProperties = n.GetIPProperties();
-                    int index;
-                    if (n.Supports(NetworkInterfaceComponent.IPv4))
-                        index = ipProperties.GetIPv4Properties().Index;
-                    else if (n.Supports(NetworkInterfaceComponent.IPv6))
-                        index = ipProperties.GetIPv6Properties().Index;
-                    else
-                        return false;
+            return NetworkInterface.GetAllNetworkInterfaces().First(n => n.GetIndex() == interfaceIndex);
+        }
 
-                    return index == interfaceIndex;
-                });
+        public static NetworkInterface Get(string description)
+        {
+            return NetworkInterface.GetAllNetworkInterfaces().First(n => n.Description == description);
+        }
+
+        public static void SetInterfaceMetric(int interfaceIndex, int? metric = null)
+        {
+            var arguments = $"interface ip set interface {interfaceIndex} ";
+            if (metric != null)
+                arguments += $"metric={metric} ";
+
+            Utils.ProcessRunHiddenAsync("netsh", arguments).Wait();
         }
     }
 
     public static class NetworkInterfaceExtension
     {
+        public static int GetIndex(this NetworkInterface ni)
+        {
+            var ipProperties = ni.GetIPProperties();
+            if (ni.Supports(NetworkInterfaceComponent.IPv4))
+                return ipProperties.GetIPv4Properties().Index;
+
+            if (ni.Supports(NetworkInterfaceComponent.IPv6))
+                return ipProperties.GetIPv6Properties().Index;
+
+            throw new Exception();
+        }
+
         public static void SetDns(this NetworkInterface ni, string primaryDns, string? secondDns = null)
         {
             void VerifyDns(ref string s)

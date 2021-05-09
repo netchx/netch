@@ -275,5 +275,15 @@ namespace Netch.Utils
 
             return host;
         }
+
+        public static string GetHostFromUri(string str)
+        {
+            var startIndex = str.LastIndexOf('/');
+            if (startIndex != -1)
+                str = str[(startIndex + 1)..];
+
+            var endIndex = str.IndexOf(':');
+            return endIndex == -1 ? str : str[..endIndex];
+        }
     }
 }

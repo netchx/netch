@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Models.Adapter;
 using Netch.Servers.Socks5;
+using Netch.Utils;
 
 namespace Netch.Controllers
 {
@@ -20,8 +20,6 @@ namespace Netch.Controllers
         public override string MainFile { get; protected set; } = "pcap2socks.exe";
 
         protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "└" };
-
-        private readonly OutboundAdapter _outbound = new();
 
         protected override Encoding? InstanceOutputEncoding { get; } = Encoding.UTF8;
 
@@ -34,7 +32,9 @@ namespace Netch.Controllers
             _form = new LogForm(Global.MainForm);
             _form.CreateControl();
 
-            var argument = new StringBuilder($@"-i \Device\NPF_{_outbound.NetworkInterface.Id}");
+            var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
+
+            var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
             if (server is Socks5 socks5 && !socks5.Auth())
                 argument.Append($" --destination  {server.AutoResolveHostname()}:{server.Port}");
             else

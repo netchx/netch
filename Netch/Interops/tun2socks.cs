@@ -41,6 +41,7 @@ namespace Netch.Interops
 
         public static bool Init()
         {
+            Global.Logger.Debug("tun2socks init");
             return tun_init();
         }
 
