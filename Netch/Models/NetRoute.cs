@@ -38,12 +38,13 @@ namespace Netch.Models
 
         public NetRoute FillTemplate(string network, byte cidr, int? metric = null)
         {
-            Network = network;
-            Cidr = cidr;
+            var o = (NetRoute)MemberwiseClone();
+            o.Network = network;
+            o.Cidr = cidr;
             if (metric != null)
-                Metric = (int)metric;
+                o.Metric = (int)metric;
 
-            return this;
+            return o;
         }
     }
 }
