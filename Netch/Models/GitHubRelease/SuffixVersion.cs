@@ -87,7 +87,7 @@ namespace Netch.Models.GitHubRelease
             if (versionComparison != 0)
                 return versionComparison;
 
-            var suffixExistComparison = (Suffix != null ? 1 : 0) - (other.Suffix != null ? 1 : 0);
+            var suffixExistComparison = (Suffix == null ? 1 : 0) - (other.Suffix == null ? 1 : 0);
             if (suffixExistComparison != 0)
                 return suffixExistComparison;
 
