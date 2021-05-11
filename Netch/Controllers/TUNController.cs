@@ -8,6 +8,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using Netch.Interops;
 using static Netch.Interops.tun2socks;
 
 namespace Netch.Controllers
@@ -92,10 +93,10 @@ namespace Netch.Controllers
             if (!Init())
                 throw new MessageException("tun2socks start failed, reboot your system and start again.");
 
-            var tunIndex = (int)Interops.RouteHelper.ConvertLuidToIndex(tun_luid());
+            var tunIndex = (int)RouteHelper.ConvertLuidToIndex(tun_luid());
             _tun = NetRoute.TemplateBuilder(Global.Settings.TUNTAP.Gateway, tunIndex);
 
-            Interops.RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
+            RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 Global.Settings.TUNTAP.Address,
                 (byte)Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
                 (ulong)tunIndex);
@@ -110,13 +111,12 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.Translate("Setup Route Table Rule"));
             Global.Logger.Info("设置路由规则");
 
+            // Server Address
             if (!IPAddress.IsLoopback(_serverAddresses))
-                // Server Address
                 RouteUtils.CreateRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
 
             // Global Bypass IPs
-            foreach (var ip in Global.Settings.TUNTAP.BypassIPs)
-                RouteUtils.CreateRouteFill(_outbound, ip);
+            RouteUtils.CreateRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
 
             var tunNetworkInterface = NetworkInterfaceUtils.Get(_tun.InterfaceIndex);
             switch (mode.Type)
@@ -152,13 +152,12 @@ namespace Netch.Controllers
             }
         }
 
-        private bool ClearRouteTable()
+        private void ClearRouteTable()
         {
             if (!IPAddress.IsLoopback(_serverAddresses))
                 RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
 
-            foreach (var ip in Global.Settings.TUNTAP.BypassIPs)
-                RouteUtils.DeleteRouteFill(_outbound, ip);
+            RouteUtils.DeleteRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
 
             switch (_mode.Type)
             {
@@ -167,8 +166,6 @@ namespace Netch.Controllers
                     NetworkInterfaceUtils.SetInterfaceMetric(_outbound.InterfaceIndex);
                     break;
             }
-
-            return true;
         }
 
         #endregion
