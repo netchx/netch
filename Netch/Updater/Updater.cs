@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Netch.Updater
 {
@@ -25,7 +26,7 @@ namespace Netch.Updater
         /// <param name="onDownloadProgressChanged"></param>
         /// <param name="keyword"></param>
         /// <exception cref="MessageException"></exception>
-        public static void DownloadAndUpdate(string downloadDirectory,
+        public static async Task DownloadAndUpdate(string downloadDirectory,
             string installDirectory,
             DownloadProgressChangedEventHandler onDownloadProgressChanged,
             string? keyword = null)
@@ -40,7 +41,7 @@ namespace Netch.Updater
             {
                 if (Utils.Utils.SHA256CheckSum(updateFile) == sha256)
                 {
-                    updater.ApplyUpdate();
+                    await updater.ApplyUpdate();
                     return;
                 }
 
@@ -48,7 +49,7 @@ namespace Netch.Updater
             }
 
             DownloadUpdateFile(onDownloadProgressChanged, updateFile, sha256);
-            updater.ApplyUpdate();
+            await updater.ApplyUpdate();
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Netch.Updater
 
         private static readonly ImmutableArray<string> KeepDirectories = new List<string> { "data", "mode\\Custom", "logging" }.ToImmutableArray();
 
-        private void ApplyUpdate()
+        private async Task ApplyUpdate()
         {
             var mainForm = Global.MainForm;
 
@@ -102,7 +103,7 @@ namespace Netch.Updater
 
             ModeHelper.SuspendWatcher = true;
             // Stop and Save
-            mainForm.Stop();
+            await mainForm.Stop();
             Configuration.Save();
 
             // Backup Configuration file

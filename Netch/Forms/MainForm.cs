@@ -42,8 +42,6 @@ namespace Netch.Forms
 
             // 监听电源事件
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
-
-            CheckForIllegalCrossThreadCalls = false;
         }
 
         private void AddAddServerToolStripMenuItems()
@@ -85,23 +83,23 @@ namespace Netch.Forms
             // 加载快速配置
             LoadProfiles();
 
-            Task.Run(() =>
+            BeginInvoke(new Action(async () =>
             {
                 // 检查更新
                 if (Global.Settings.CheckUpdateWhenOpened)
-                    CheckUpdate();
-            });
+                    await CheckUpdate();
+            }));
 
-            Task.Run(() =>
+            BeginInvoke(new Action(async () =>
             {
                 // 检查订阅更新
                 if (Global.Settings.UpdateServersWhenOpened)
-                    UpdateServersFromSubscribe().Wait();
+                    await UpdateServersFromSubscribe();
 
                 // 打开软件时启动加速，产生开始按钮点击事件
                 if (Global.Settings.StartWhenOpened)
                     ControlButton_Click(null, null);
-            });
+            }));
         }
 
         private void RecordSize()
@@ -307,32 +305,29 @@ namespace Netch.Forms
 
         #region Options
 
-        private void CheckForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void CheckForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Task.Run(() =>
+            void OnNewVersionNotFound(object? o, EventArgs? args)
             {
-                void OnNewVersionNotFound(object? o, EventArgs? args)
-                {
-                    NotifyTip(i18N.Translate("Already latest version"));
-                }
+                NotifyTip(i18N.Translate("Already latest version"));
+            }
 
-                void OnNewVersionFoundFailed(object? o, EventArgs? args)
-                {
-                    NotifyTip(i18N.Translate("New version found failed"), info: false);
-                }
+            void OnNewVersionFoundFailed(object? o, EventArgs? args)
+            {
+                NotifyTip(i18N.Translate("New version found failed"), info: false);
+            }
 
-                try
-                {
-                    UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
-                    UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
-                    CheckUpdate();
-                }
-                finally
-                {
-                    UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
-                    UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
-                }
-            });
+            try
+            {
+                UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
+                UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
+                await CheckUpdate();
+            }
+            finally
+            {
+                UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
+                UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
+            }
         }
 
         private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -368,11 +363,10 @@ namespace Netch.Forms
             StatusText(i18N.TranslateFormat("Uninstalling {0}", "NF Service"));
             try
             {
-                await Task.Run(() =>
-                {
-                    if (NFController.UninstallDriver())
-                        NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
-                });
+                var task = Task.Run(NFController.UninstallDriver);
+
+                if (await task)
+                    NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
             }
             finally
             {
@@ -419,12 +413,9 @@ namespace Netch.Forms
 
             try
             {
-                await Task.Run(() =>
-                {
-                    Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
-                        Global.NetchDir,
-                        (_, args) => BeginInvoke(new Action(() => NewVersionLabel.Text = $"{args.ProgressPercentage}%")));
-                });
+                await Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
+                    Global.NetchDir,
+                    (_, args) => BeginInvoke(new Action(() => NewVersionLabel.Text = $"{args.ProgressPercentage}%")));
             }
             catch (Exception exception)
             {
@@ -463,21 +454,20 @@ namespace Netch.Forms
         {
             if (!IsWaiting())
             {
-                // 停止
-                await StopAsyncCore();
+                await StopCore();
                 return;
             }
 
             Configuration.Save();
 
             // 服务器、模式 需选择
-            if (!(ServerComboBox.SelectedItem is Server server))
+            if (ServerComboBox.SelectedItem is not Server server)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
 
-            if (!(ModeComboBox.SelectedItem is Models.Mode mode))
+            if (ModeComboBox.SelectedItem is not Models.Mode mode)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                 return;
@@ -510,10 +500,7 @@ namespace Netch.Forms
             {
                 while (State == State.Started)
                 {
-                    bool StartedPingEnabled()
-                    {
-                        return Global.Settings.StartedPingInterval >= 0;
-                    }
+                    bool StartedPingEnabled() => Global.Settings.StartedPingInterval >= 0;
 
                     if (StartedPingEnabled())
                     {
@@ -564,11 +551,11 @@ namespace Netch.Forms
         private void LoadServers()
         {
             ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Settings.Server.ToArray());
+            ServerComboBox.Items.AddRange(Global.Settings.Server.Cast<object>().ToArray());
             SelectLastServer();
         }
 
-        public void SelectLastServer()
+        private void SelectLastServer()
         {
             // 如果值合法，选中该位置
             if (Global.Settings.ServerComboBoxSelectedIndex > 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
@@ -606,15 +593,20 @@ namespace Netch.Forms
 
         private void SpeedPictureBox_Click(object sender, EventArgs e)
         {
+            void Enable()
+            {
+                ServerComboBox.Refresh();
+                Enabled = true;
+                StatusText();
+            }
+
             Enabled = false;
             StatusText(i18N.Translate("Testing"));
 
             if (!IsWaiting() || ModifierKeys == Keys.Control)
             {
                 (ServerComboBox.SelectedItem as Server)?.Test();
-                ServerComboBox.Refresh();
-                Enabled = true;
-                StatusText();
+                Enable();
             }
             else
             {
@@ -623,11 +615,8 @@ namespace Netch.Forms
 
                 void OnTestDelayFinished(object? o1, EventArgs? e1)
                 {
-                    Refresh();
-
                     ServerHelper.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
-                    Enabled = true;
-                    StatusText();
+                    Enable();
                 }
             }
         }
@@ -686,7 +675,7 @@ namespace Netch.Forms
             SelectLastMode();
         }
 
-        public void SelectLastMode()
+        private void SelectLastMode()
         {
             // 如果值合法，选中该位置
             if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
@@ -1003,25 +992,19 @@ namespace Netch.Forms
             }
         }
 
-        private async Task StopAsyncCore()
-        {
-            State = State.Stopping;
-            await MainController.StopAsync();
-            State = State.Stopped;
-        }
-
-        public void Stop()
+        public async Task Stop()
         {
             if (IsWaiting())
                 return;
 
-            if (InvokeRequired)
-            {
-                Invoke(new Action(Stop));
-                return;
-            }
+            await StopCore();
+        }
 
-            StopAsyncCore().Wait();
+        private async Task StopCore()
+        {
+            State = State.Stopping;
+            await MainController.StopAsync();
+            State = State.Stopped;
         }
 
         private bool IsWaiting()
@@ -1121,28 +1104,30 @@ namespace Netch.Forms
             }
         }
 
-        private void NatTypeStatusLabel_Click(object sender, EventArgs e)
+        private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
-            if (_state == State.Started && NttTested)
-                NatTest();
+            if (_state == State.Started && !Monitor.IsEntered(_natTestLock))
+                await NatTest();
         }
 
-        private static bool NttTested;
+        private readonly object _natTestLock = new();
 
         /// <summary>
         ///     测试 NAT
         /// </summary>
-        public void NatTest()
+        private async Task NatTest()
         {
             if (!MainController.Mode!.TestNatRequired())
                 return;
 
-            NttTested = false;
-            Task.Run(() =>
+            if (!Monitor.TryEnter(_natTestLock))
+                return;
+
+            try
             {
                 NatTypeStatusText(i18N.Translate("Starting NatTester"));
 
-                var (result, localEnd, publicEnd) = MainController.NTTController.Start().Result;
+                var (result, _, publicEnd) = await MainController.NTTController.Start();
 
                 if (!string.IsNullOrEmpty(publicEnd))
                 {
@@ -1153,9 +1138,11 @@ namespace Netch.Forms
                 {
                     NatTypeStatusText(result ?? "Error");
                 }
-
-                NttTested = true;
-            });
+            }
+            finally
+            {
+                Monitor.Exit(_natTestLock);
+            }
         }
 
         #endregion
@@ -1233,8 +1220,7 @@ namespace Netch.Forms
                 if (File.Exists(file))
                     File.Delete(file);
 
-            if (!IsWaiting())
-                await StopAsyncCore();
+            await Stop();
 
             Dispose();
             Environment.Exit(Environment.ExitCode);
@@ -1264,12 +1250,12 @@ namespace Netch.Forms
 
         #region Updater
 
-        private void CheckUpdate()
+        private async Task CheckUpdate()
         {
             try
             {
                 UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
-                UpdateChecker.Check(Global.Settings.CheckBetaUpdate).Wait();
+                await UpdateChecker.Check(Global.Settings.CheckBetaUpdate);
                 if (Flags.AlwaysShowNewVersionFound)
                     OnUpdateCheckerOnNewVersionFound(null!, null!);
             }
@@ -1384,7 +1370,7 @@ namespace Netch.Forms
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
         {
-            if (!(sender is ComboBox cbx))
+            if (sender is not ComboBox cbx)
                 return;
 
             // 绘制背景颜色

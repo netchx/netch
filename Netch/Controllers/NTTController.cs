@@ -22,7 +22,7 @@ namespace Netch.Controllers
         ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
-        public async Task<(string?, string?, string?)> Start()
+        public async Task<(string? result, string? localEnd, string? publicEnd)> Start()
         {
             string? localEnd = null, publicEnd = null, result = null, bindingTest = null;
 
