@@ -500,18 +500,17 @@ namespace Netch.Forms
             {
                 while (State == State.Started)
                 {
-                    bool StartedPingEnabled() => Global.Settings.StartedPingInterval >= 0;
-
-                    if (StartedPingEnabled())
+                    if (Global.Settings.StartedPingInterval >= 0)
                     {
                         server.Test();
                         ServerComboBox.Refresh();
-                    }
 
-                    if (StartedPingEnabled())
                         Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
+                    }
                     else
+                    {
                         Thread.Sleep(5000);
+                    }
                 }
             });
         }
