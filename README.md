@@ -12,7 +12,7 @@ A simple proxy client like SSTap
 </div>
 
 ## Features
-Some features may not be implemented in version 1.0
+Some features may not be implemented in version 1
 
 ### Modes
 - ProcessMode - Use Netfilter driver to intercept process traffic
@@ -28,11 +28,11 @@ Some features may not be implemented in version 1.0
 - [ShadowsocksR](https://github.com/shadowsocksrr/shadowsocksr-libev)
 - [Trojan](https://trojan-gfw.github.io/trojan/)
 - [VMess](https://github.com/v2fly/v2ray-core)
-- [VLess](https://github.com/xtls/xray-core)
+- [VLESS](https://github.com/xtls/xray-core)
 
 ### Others
 - UDP NAT FullCone (May limited by your server)
-- .NET 5.0
+- .NET 5.0 x64
 
 ## Sponsor
 <a href="https://www.jetbrains.com/?from=Netch"><img src="jetbrains.svg" alt="JetBrains" width="200"/></a>
@@ -44,6 +44,7 @@ Some features may not be implemented in version 1.0
 - ETH *0x23dac0a93bcd71fec7a95833ad030338f167f185*
 
 ## Credit
+- [TAP-Windows](https://github.com/OpenVPN/tap-windows6)
 - [WinTUN](https://www.wintun.net)
 - [NetFilter](https://netfiltersdk.com)
 - [aioCloud](https://github.com/aiocloud)
@@ -52,6 +53,3 @@ Some features may not be implemented in version 1.0
 - [Trojan](https://github.com/trojan-gfw/trojan)
 - [V2Ray](https://github.com/v2fly/v2ray-core)
 - [XRay](https://github.com/xtls/xray-core)
-
-## Stars
-[![](https://starchart.cc/NetchX/Netch.svg)](https://starchart.cc/NetchX/Netch)
