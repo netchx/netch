@@ -1,7 +1,3 @@
-using Netch.Controllers;
-using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,8 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Netch.Controllers;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 
-namespace Netch.Updater
+namespace Netch.Services
 {
     public class Updater
     {

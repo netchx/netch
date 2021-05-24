@@ -1,6 +1,7 @@
 ﻿using Netch.Controllers;
 using Netch.Forms;
 using Netch.Utils;
+using Netch.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,7 +39,7 @@ namespace Netch
             Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
             AddDllDirectory(binPath);
 
-            Updater.Updater.CleanOld(Global.NetchDir);
+            Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
             var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };

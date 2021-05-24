@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Netch.Enums;
 using Netch.Interfaces;
+using Netch.Services;
 
 namespace Netch.Forms
 {
@@ -413,7 +414,7 @@ namespace Netch.Forms
 
             try
             {
-                await Updater.Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
+                await Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
                     Global.NetchDir,
                     (_, args) => BeginInvoke(new Action(() => NewVersionLabel.Text = $"{args.ProgressPercentage}%")));
             }
