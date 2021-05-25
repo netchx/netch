@@ -38,7 +38,7 @@
     <ItemGroup>
         <PackageReference Include="HMBSbige.SingleInstance" Version="5.0.0" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.68" GeneratePathProperty="true" />
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.69" GeneratePathProperty="true" />
         <PackageReference Include="Nullable.Extended.Analyzer" Version="1.2.4089">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
