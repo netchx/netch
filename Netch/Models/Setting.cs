@@ -82,7 +82,7 @@ namespace Netch.Models
 
         public ushort ListenPort { get; set; } = 53;
 
-        public string RulePath { get; set; } = "bin\\aiodns.conf";
+        public string RulePath { get; } = "bin\\aiodns.conf";
     }
 
     public class RedirectorConfig
