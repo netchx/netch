@@ -42,7 +42,7 @@ namespace Netch.Interops
 
         public static bool Dial(NameList name, string value)
         {
-            Global.Logger.Debug($"Dial {name} {value}");
+            Global.Logger.Debug($"[Redirector] Dial {name}: {value}");
             return aio_dial(name, value);
         }
 

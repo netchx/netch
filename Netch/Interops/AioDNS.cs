@@ -9,6 +9,7 @@ namespace Netch.Interops
 
         public static bool Dial(NameList name, string value)
         {
+            Global.Logger.Debug($"[aiodns] Dial {name}: {value}");
             return aiodns_dial(name, Encoding.UTF8.GetBytes(value));
         }
 

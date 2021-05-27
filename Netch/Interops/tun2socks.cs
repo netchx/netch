@@ -35,13 +35,13 @@ namespace Netch.Interops
 
         public static bool Dial(NameList name, string value)
         {
-            Global.Logger.Debug($"Dial {name} {value}");
+            Global.Logger.Debug($"[tun2socks] Dial {name}: {value}");
             return tun_dial(name, Encoding.UTF8.GetBytes(value));
         }
 
         public static bool Init()
         {
-            Global.Logger.Debug("tun2socks init");
+            Global.Logger.Debug($"[tun2socks] init");
             return tun_init();
         }
 
