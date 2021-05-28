@@ -31,6 +31,7 @@ Remove-Item -Force data.zip
 Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
+..\scripts\download\aiodns.ps1    -OutputPath bin
 ..\scripts\download\cloak.ps1     -OutputPath bin
 ..\scripts\download\xray-core.ps1 -OutputPath bin
 
