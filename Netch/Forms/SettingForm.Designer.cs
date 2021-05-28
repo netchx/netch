@@ -897,11 +897,11 @@ namespace Netch.Forms
             // 
             // AioDNSListenPortTextBox
             // 
-            this.AioDNSListenPortTextBox.Enabled = false;
             this.AioDNSListenPortTextBox.Location = new System.Drawing.Point(150, 100);
             this.AioDNSListenPortTextBox.Name = "AioDNSListenPortTextBox";
             this.AioDNSListenPortTextBox.Size = new System.Drawing.Size(80, 23);
             this.AioDNSListenPortTextBox.TabIndex = 1;
+            this.AioDNSListenPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ChinaDNSLabel
             // 
