@@ -13,12 +13,7 @@ namespace Netch.Utils
         /// </summary>
         private static readonly Hashtable Cache = new();
 
-        /// <summary>
-        ///     查询
-        /// </summary>
-        /// <param name="hostname">主机名</param>
-        /// <returns></returns>
-        public static IPAddress? Lookup(string hostname)
+        public static IPAddress? Lookup(string hostname, int timeout = 3000)
         {
             try
             {
@@ -26,7 +21,7 @@ namespace Netch.Utils
                     return Cache[hostname] as IPAddress;
 
                 var task = Dns.GetHostAddressesAsync(hostname);
-                if (!task.Wait(1000))
+                if (!task.Wait(timeout))
                     return null;
 
                 if (task.Result.Length == 0)
