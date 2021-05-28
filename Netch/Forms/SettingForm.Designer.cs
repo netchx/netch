@@ -104,8 +104,8 @@ namespace Netch.Forms
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.UpdateServersWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.AioDNSTabPage = new System.Windows.Forms.TabPage();
-            this.AioDNSRuleRuleLabel = new System.Windows.Forms.Label();
-            this.AioDNSRulePathTextBox = new System.Windows.Forms.TextBox();
+            this.AioDNSListenPortLabel = new System.Windows.Forms.Label();
+            this.AioDNSListenPortTextBox = new System.Windows.Forms.TextBox();
             this.ChinaDNSLabel = new System.Windows.Forms.Label();
             this.ChinaDNSTextBox = new System.Windows.Forms.TextBox();
             this.OtherDNSLabel = new System.Windows.Forms.Label();
@@ -175,7 +175,7 @@ namespace Netch.Forms
             this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Location = new System.Drawing.Point(8, 6);
             this.PortGroupBox.Name = "PortGroupBox";
-            this.PortGroupBox.Size = new System.Drawing.Size(241, 140);
+            this.PortGroupBox.Size = new System.Drawing.Size(241, 115);
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
@@ -217,7 +217,7 @@ namespace Netch.Forms
             // AllowDevicesCheckBox
             // 
             this.AllowDevicesCheckBox.AutoSize = true;
-            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 107);
+            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 84);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
             this.AllowDevicesCheckBox.Size = new System.Drawing.Size(206, 21);
             this.AllowDevicesCheckBox.TabIndex = 6;
@@ -240,9 +240,9 @@ namespace Netch.Forms
             this.ServerPingTypeLabel.AutoSize = true;
             this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 44);
             this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
-            this.ServerPingTypeLabel.Size = new System.Drawing.Size(98, 17);
+            this.ServerPingTypeLabel.Size = new System.Drawing.Size(86, 17);
             this.ServerPingTypeLabel.TabIndex = 2;
-            this.ServerPingTypeLabel.Text = "ServerPingType";
+            this.ServerPingTypeLabel.Text = "Ping Protocol";
             // 
             // ICMPingRadioBtn
             // 
@@ -269,24 +269,24 @@ namespace Netch.Forms
             // ProfileCountLabel
             // 
             this.ProfileCountLabel.AutoSize = true;
-            this.ProfileCountLabel.Location = new System.Drawing.Point(12, 160);
+            this.ProfileCountLabel.Location = new System.Drawing.Point(15, 140);
             this.ProfileCountLabel.Name = "ProfileCountLabel";
-            this.ProfileCountLabel.Size = new System.Drawing.Size(79, 17);
+            this.ProfileCountLabel.Size = new System.Drawing.Size(83, 17);
             this.ProfileCountLabel.TabIndex = 5;
-            this.ProfileCountLabel.Text = "ProfileCount";
+            this.ProfileCountLabel.Text = "Profile Count";
             // 
             // ProfileCountTextBox
             // 
-            this.ProfileCountTextBox.Location = new System.Drawing.Point(120, 157);
+            this.ProfileCountTextBox.Location = new System.Drawing.Point(182, 137);
             this.ProfileCountTextBox.Name = "ProfileCountTextBox";
-            this.ProfileCountTextBox.Size = new System.Drawing.Size(90, 23);
+            this.ProfileCountTextBox.Size = new System.Drawing.Size(70, 23);
             this.ProfileCountTextBox.TabIndex = 6;
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // DetectionTickLabel
             // 
             this.DetectionTickLabel.AutoSize = true;
-            this.DetectionTickLabel.Location = new System.Drawing.Point(225, 160);
+            this.DetectionTickLabel.Location = new System.Drawing.Point(15, 170);
             this.DetectionTickLabel.Name = "DetectionTickLabel";
             this.DetectionTickLabel.Size = new System.Drawing.Size(117, 17);
             this.DetectionTickLabel.TabIndex = 7;
@@ -294,33 +294,33 @@ namespace Netch.Forms
             // 
             // DetectionTickTextBox
             // 
-            this.DetectionTickTextBox.Location = new System.Drawing.Point(366, 157);
+            this.DetectionTickTextBox.Location = new System.Drawing.Point(182, 167);
             this.DetectionTickTextBox.Name = "DetectionTickTextBox";
-            this.DetectionTickTextBox.Size = new System.Drawing.Size(68, 23);
+            this.DetectionTickTextBox.Size = new System.Drawing.Size(70, 23);
             this.DetectionTickTextBox.TabIndex = 8;
             this.DetectionTickTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // StartedPingLabel
             // 
             this.StartedPingLabel.AutoSize = true;
-            this.StartedPingLabel.Location = new System.Drawing.Point(12, 187);
+            this.StartedPingLabel.Location = new System.Drawing.Point(15, 200);
             this.StartedPingLabel.Name = "StartedPingLabel";
-            this.StartedPingLabel.Size = new System.Drawing.Size(126, 17);
+            this.StartedPingLabel.Size = new System.Drawing.Size(153, 17);
             this.StartedPingLabel.TabIndex = 9;
-            this.StartedPingLabel.Text = "Delay test after start";
+            this.StartedPingLabel.Text = "Delay test after start(sec)";
             // 
             // StartedPingIntervalTextBox
             // 
-            this.StartedPingIntervalTextBox.Location = new System.Drawing.Point(177, 184);
+            this.StartedPingIntervalTextBox.Location = new System.Drawing.Point(182, 197);
             this.StartedPingIntervalTextBox.Name = "StartedPingIntervalTextBox";
-            this.StartedPingIntervalTextBox.Size = new System.Drawing.Size(68, 23);
+            this.StartedPingIntervalTextBox.Size = new System.Drawing.Size(70, 23);
             this.StartedPingIntervalTextBox.TabIndex = 10;
             this.StartedPingIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // STUNServerLabel
             // 
             this.STUNServerLabel.AutoSize = true;
-            this.STUNServerLabel.Location = new System.Drawing.Point(12, 216);
+            this.STUNServerLabel.Location = new System.Drawing.Point(15, 230);
             this.STUNServerLabel.Name = "STUNServerLabel";
             this.STUNServerLabel.Size = new System.Drawing.Size(82, 17);
             this.STUNServerLabel.TabIndex = 11;
@@ -329,15 +329,15 @@ namespace Netch.Forms
             // STUN_ServerComboBox
             // 
             this.STUN_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.STUN_ServerComboBox.Location = new System.Drawing.Point(120, 213);
+            this.STUN_ServerComboBox.Location = new System.Drawing.Point(182, 227);
             this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
-            this.STUN_ServerComboBox.Size = new System.Drawing.Size(314, 25);
+            this.STUN_ServerComboBox.Size = new System.Drawing.Size(264, 25);
             this.STUN_ServerComboBox.TabIndex = 12;
             // 
             // LanguageLabel
             // 
             this.LanguageLabel.AutoSize = true;
-            this.LanguageLabel.Location = new System.Drawing.Point(12, 254);
+            this.LanguageLabel.Location = new System.Drawing.Point(15, 260);
             this.LanguageLabel.Name = "LanguageLabel";
             this.LanguageLabel.Size = new System.Drawing.Size(65, 17);
             this.LanguageLabel.TabIndex = 15;
@@ -347,9 +347,9 @@ namespace Netch.Forms
             // 
             this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.LanguageComboBox.FormattingEnabled = true;
-            this.LanguageComboBox.Location = new System.Drawing.Point(120, 251);
+            this.LanguageComboBox.Location = new System.Drawing.Point(182, 257);
             this.LanguageComboBox.Name = "LanguageComboBox";
-            this.LanguageComboBox.Size = new System.Drawing.Size(121, 25);
+            this.LanguageComboBox.Size = new System.Drawing.Size(110, 25);
             this.LanguageComboBox.TabIndex = 16;
             // 
             // NFTabPage
@@ -872,8 +872,8 @@ namespace Netch.Forms
             // 
             // AioDNSTabPage
             // 
-            this.AioDNSTabPage.Controls.Add(this.AioDNSRuleRuleLabel);
-            this.AioDNSTabPage.Controls.Add(this.AioDNSRulePathTextBox);
+            this.AioDNSTabPage.Controls.Add(this.AioDNSListenPortLabel);
+            this.AioDNSTabPage.Controls.Add(this.AioDNSListenPortTextBox);
             this.AioDNSTabPage.Controls.Add(this.ChinaDNSLabel);
             this.AioDNSTabPage.Controls.Add(this.ChinaDNSTextBox);
             this.AioDNSTabPage.Controls.Add(this.OtherDNSLabel);
@@ -886,27 +886,27 @@ namespace Netch.Forms
             this.AioDNSTabPage.Text = "AioDNS";
             this.AioDNSTabPage.UseVisualStyleBackColor = true;
             // 
-            // AioDNSRuleRuleLabel
+            // AioDNSListenPortLabel
             // 
-            this.AioDNSRuleRuleLabel.AutoSize = true;
-            this.AioDNSRuleRuleLabel.Location = new System.Drawing.Point(16, 30);
-            this.AioDNSRuleRuleLabel.Name = "AioDNSRuleRuleLabel";
-            this.AioDNSRuleRuleLabel.Size = new System.Drawing.Size(56, 17);
-            this.AioDNSRuleRuleLabel.TabIndex = 0;
-            this.AioDNSRuleRuleLabel.Text = "Rule File";
+            this.AioDNSListenPortLabel.AutoSize = true;
+            this.AioDNSListenPortLabel.Location = new System.Drawing.Point(15, 103);
+            this.AioDNSListenPortLabel.Name = "AioDNSListenPortLabel";
+            this.AioDNSListenPortLabel.Size = new System.Drawing.Size(69, 17);
+            this.AioDNSListenPortLabel.TabIndex = 0;
+            this.AioDNSListenPortLabel.Text = "Listen Port";
             // 
-            // AioDNSRulePathTextBox
+            // AioDNSListenPortTextBox
             // 
-            this.AioDNSRulePathTextBox.Enabled = false;
-            this.AioDNSRulePathTextBox.Location = new System.Drawing.Point(150, 30);
-            this.AioDNSRulePathTextBox.Name = "AioDNSRulePathTextBox";
-            this.AioDNSRulePathTextBox.Size = new System.Drawing.Size(201, 23);
-            this.AioDNSRulePathTextBox.TabIndex = 1;
+            this.AioDNSListenPortTextBox.Enabled = false;
+            this.AioDNSListenPortTextBox.Location = new System.Drawing.Point(150, 100);
+            this.AioDNSListenPortTextBox.Name = "AioDNSListenPortTextBox";
+            this.AioDNSListenPortTextBox.Size = new System.Drawing.Size(80, 23);
+            this.AioDNSListenPortTextBox.TabIndex = 1;
             // 
             // ChinaDNSLabel
             // 
             this.ChinaDNSLabel.AutoSize = true;
-            this.ChinaDNSLabel.Location = new System.Drawing.Point(16, 70);
+            this.ChinaDNSLabel.Location = new System.Drawing.Point(15, 23);
             this.ChinaDNSLabel.Name = "ChinaDNSLabel";
             this.ChinaDNSLabel.Size = new System.Drawing.Size(70, 17);
             this.ChinaDNSLabel.TabIndex = 2;
@@ -914,7 +914,7 @@ namespace Netch.Forms
             // 
             // ChinaDNSTextBox
             // 
-            this.ChinaDNSTextBox.Location = new System.Drawing.Point(150, 70);
+            this.ChinaDNSTextBox.Location = new System.Drawing.Point(150, 20);
             this.ChinaDNSTextBox.Name = "ChinaDNSTextBox";
             this.ChinaDNSTextBox.Size = new System.Drawing.Size(201, 23);
             this.ChinaDNSTextBox.TabIndex = 3;
@@ -923,7 +923,7 @@ namespace Netch.Forms
             // OtherDNSLabel
             // 
             this.OtherDNSLabel.AutoSize = true;
-            this.OtherDNSLabel.Location = new System.Drawing.Point(16, 110);
+            this.OtherDNSLabel.Location = new System.Drawing.Point(15, 63);
             this.OtherDNSLabel.Name = "OtherDNSLabel";
             this.OtherDNSLabel.Size = new System.Drawing.Size(71, 17);
             this.OtherDNSLabel.TabIndex = 4;
@@ -931,7 +931,7 @@ namespace Netch.Forms
             // 
             // OtherDNSTextBox
             // 
-            this.OtherDNSTextBox.Location = new System.Drawing.Point(150, 110);
+            this.OtherDNSTextBox.Location = new System.Drawing.Point(150, 60);
             this.OtherDNSTextBox.Name = "OtherDNSTextBox";
             this.OtherDNSTextBox.Size = new System.Drawing.Size(201, 23);
             this.OtherDNSTextBox.TabIndex = 5;
@@ -1067,8 +1067,8 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox ttiTextBox;
         private System.Windows.Forms.CheckBox UseMuxCheckBox;
         private System.Windows.Forms.TabPage AioDNSTabPage;
-        private System.Windows.Forms.Label AioDNSRuleRuleLabel;
-        private System.Windows.Forms.TextBox AioDNSRulePathTextBox;
+        private System.Windows.Forms.Label AioDNSListenPortLabel;
+        private System.Windows.Forms.TextBox AioDNSListenPortTextBox;
         private System.Windows.Forms.Label OtherDNSLabel;
         private System.Windows.Forms.Label ChinaDNSLabel;
         private System.Windows.Forms.TextBox OtherDNSTextBox;

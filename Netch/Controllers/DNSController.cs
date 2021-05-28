@@ -9,6 +9,8 @@ namespace Netch.Controllers
     {
         public string Name { get; } = "DNS Service";
 
+        private const string RulePath = "bin\\aiodns.conf";
+
         public void Stop()
         {
             Free();
@@ -22,7 +24,7 @@ namespace Netch.Controllers
         {
             Dial(NameList.TYPE_REST, "");
             Dial(NameList.TYPE_ADDR, $"{Global.Settings.LocalAddress}:{Global.Settings.AioDNS.ListenPort}");
-            Dial(NameList.TYPE_LIST, Path.GetFullPath(Global.Settings.AioDNS.RulePath));
+            Dial(NameList.TYPE_LIST, Path.GetFullPath(RulePath));
             Dial(NameList.TYPE_CDNS, $"{Global.Settings.AioDNS.ChinaDNS}");
             Dial(NameList.TYPE_ODNS, $"{Global.Settings.AioDNS.OtherDNS}");
 

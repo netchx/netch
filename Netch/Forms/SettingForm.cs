@@ -211,11 +211,14 @@ namespace Netch.Forms
 
             #region AioDNS
 
-            BindTextBox(AioDNSRulePathTextBox, _ => true, s => { /*Global.Settings.AioDNS.RulePath = s;*/ }, Global.Settings.AioDNS.RulePath);
-
             BindTextBox(ChinaDNSTextBox, _ => true, s => Global.Settings.AioDNS.ChinaDNS = s, Global.Settings.AioDNS.ChinaDNS);
 
             BindTextBox(OtherDNSTextBox, _ => true, s => Global.Settings.AioDNS.OtherDNS = s, Global.Settings.AioDNS.OtherDNS);
+
+            BindTextBox(AioDNSListenPortTextBox,
+                s => ushort.TryParse(s, out _),
+                s => Global.Settings.AioDNS.ListenPort = ushort.Parse(s),
+                Global.Settings.AioDNS.ListenPort);
 
             #endregion
         }
