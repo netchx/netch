@@ -1110,7 +1110,7 @@ namespace Netch.Forms
                 await NatTest();
         }
 
-        private readonly object _natTestLock = new();
+        private bool _natTestLock = true;
 
         /// <summary>
         ///     测试 NAT
@@ -1120,13 +1120,16 @@ namespace Netch.Forms
             if (!MainController.Mode!.TestNatRequired())
                 return;
 
-            if (!Monitor.TryEnter(_natTestLock))
+            if (!_natTestLock)
                 return;
+
+            _natTestLock = false;
 
             try
             {
                 NatTypeStatusText(i18N.Translate("Starting NatTester"));
 
+                // Monitor.TryEnter() Monitor.Exit() (a.k.a. lock) not work with async/await
                 var (result, _, publicEnd) = await MainController.NTTController.Start();
 
                 if (!string.IsNullOrEmpty(publicEnd))
@@ -1141,7 +1144,7 @@ namespace Netch.Forms
             }
             finally
             {
-                Monitor.Exit(_natTestLock);
+                _natTestLock = true;
             }
         }
 

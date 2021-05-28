@@ -36,7 +36,7 @@ namespace Netch.Controllers
 
                 try
                 {
-                    File.WriteAllText(Path.Combine(Global.NetchDir, $"logging\\{Name}.log"), $"{output}\r\n{error}");
+                    await File.WriteAllTextAsync(Path.Combine(Global.NetchDir, $"logging\\{Name}.log"), $"{output}\r\n{error}");
                 }
                 catch (Exception e)
                 {
