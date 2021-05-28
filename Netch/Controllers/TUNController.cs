@@ -144,7 +144,7 @@ namespace Netch.Controllers
 
                     if (!Global.Settings.TUNTAP.UseCustomDNS)
                         // bypass AioDNS other dns
-                        RouteUtils.CreateRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
+                        RouteUtils.CreateRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
 
                     NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0);
                     RouteUtils.CreateRoute(_tun.FillTemplate("0.0.0.0", 0));
