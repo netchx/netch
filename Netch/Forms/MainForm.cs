@@ -1135,7 +1135,7 @@ namespace Netch.Forms
 
             try
             {
-                NatTypeStatusText(i18N.Translate("Starting NatTester"));
+                NatTypeStatusText(i18N.Translate("Testing NAT"));
 
                 // Monitor.TryEnter() Monitor.Exit() (a.k.a. lock) not work with async/await
                 var (result, _, publicEnd) = await MainController.NTTController.Start();

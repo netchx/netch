@@ -15,8 +15,8 @@
     "Stopping": "正在停止中",
     "Stopped": "已停止",
     "Starting {0}": "正在启动 {0}",
-    "Starting NatTester": "正在启动 NAT 测试",
-    "SetupBypass": "设置绕行规则",
+    "Testing NAT": "正在测试 NAT",
+    "Setup Route Table Rule": "配置路由规则",
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",
     "Subscription updated": "订阅更新完毕",
@@ -87,6 +87,7 @@
     "Remove Netch Firewall Rules": "移除 Netch 防火墙规则",
 
     "Open Directory": "打开目录",
+    "Show/Hide Console": "显示/隐藏控制台",
 
     "About": "关于",
     "FAQ": "常见问题",
