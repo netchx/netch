@@ -201,6 +201,9 @@ namespace Netch.Utils
 
                 td.Settings.ExecutionTimeLimit = TimeSpan.Zero;
                 td.Settings.DisallowStartIfOnBatteries = false;
+                td.Settings.StopIfGoingOnBatteries = false;
+                td.Settings.IdleSettings.StopOnIdleEnd = false;
+                td.Settings.IdleSettings.RestartOnIdle = false;
                 td.Settings.RunOnlyIfIdle = false;
                 td.Settings.Compatibility = TaskCompatibility.V2_1;
 
