@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Services;
+using Vanara.PInvoke;
 
 namespace Netch.Forms
 {
@@ -379,6 +380,13 @@ namespace Netch.Forms
         private void RemoveNetchFirewallRulesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Firewall.RemoveNetchFwRules();
+        }
+
+        private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var windowStyles = (User32.WindowStyles)User32.GetWindowLong(Netch.ConsoleHwnd, User32.WindowLongFlags.GWL_STYLE);
+            var visible = windowStyles.HasFlag(User32.WindowStyles.WS_VISIBLE);
+            User32.ShowWindow(Netch.ConsoleHwnd, visible ? ShowWindowCommand.SW_HIDE : ShowWindowCommand.SW_SHOW);
         }
 
         #endregion

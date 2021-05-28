@@ -43,6 +43,7 @@
             this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.removeNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ShowHideConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -190,6 +191,7 @@
             // 
             this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.OpenDirectoryToolStripMenuItem,
+            this.ShowHideConsoleToolStripMenuItem,
             this.CleanDNSCacheToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem,
             this.removeNetchFirewallRulesToolStripMenuItem});
@@ -225,6 +227,13 @@
             this.removeNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.removeNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
             this.removeNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
+            // 
+            // ShowHideConsoleToolStripMenuItem
+            // 
+            this.ShowHideConsoleToolStripMenuItem.Name = "ShowHideConsoleToolStripMenuItem";
+            this.ShowHideConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
+            this.ShowHideConsoleToolStripMenuItem.Text = "Show/Hide Console";
+            this.ShowHideConsoleToolStripMenuItem.Click += new System.EventHandler(this.ShowHideConsoleToolStripMenuItem_Click);
             // 
             // HelpToolStripMenuItem
             // 
@@ -782,5 +791,6 @@
 
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.ContainerControl ButtomControlContainerControl;
+        private System.Windows.Forms.ToolStripMenuItem ShowHideConsoleToolStripMenuItem;
     }
 }

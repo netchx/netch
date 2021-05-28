@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Vanara.PInvoke;
 using static Vanara.PInvoke.Kernel32;
 
 namespace Netch
@@ -17,17 +18,17 @@ namespace Netch
     {
         public static readonly SingleInstance.SingleInstance SingleInstance = new($"Global\\{nameof(Netch)}");
 
+        public static HWND ConsoleHwnd { get; private set; }
+
         /// <summary>
         ///     应用程序的主入口点
         /// </summary>
         [STAThread]
         public static void Main(string[] args)
         {
-#if DEBUG
-            AttachAllocConsole();
-#else
-            if (args.Contains(Constants.Parameter.Console))
-                AttachAllocConsole();
+            ConsoleHwnd = GetConsoleWindow();
+#if RELEASE
+            User32.ShowWindow(ConsoleHwnd, ShowWindowCommand.SW_HIDE);
 #endif
 
             if (args.Contains(Constants.Parameter.ForceUpdate))
@@ -92,12 +93,6 @@ namespace Netch
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
-        }
-
-        private static void AttachAllocConsole()
-        {
-            if (!AttachConsole(ATTACH_PARENT_PROCESS))
-                AllocConsole();
         }
 
         public static void Application_OnException(object sender, ThreadExceptionEventArgs e)

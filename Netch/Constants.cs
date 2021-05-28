@@ -8,7 +8,6 @@
         {
             public const string Show = "-show";
             public const string ForceUpdate = "-forceUpdate";
-            public const string Console = "-console";
         }
     }
 }
