@@ -7,6 +7,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -87,7 +88,7 @@ namespace Netch.Utils
                     }
                     catch (Exception e)
                     {
-                        Global.Logger.Warning($"Load mode \"{file}\" failed: {e.Message}");
+                        Log.Warning(e, "Load mode \"{FileName}\" failed", file);
                     }
             }
             catch
@@ -142,7 +143,7 @@ namespace Netch.Utils
                 case ModeType.Pcap2Socks:
                     return new PcapController();
                 default:
-                    Global.Logger.Error("未知模式类型");
+                    Log.Error("未知模式类型");
                     throw new MessageException("未知模式类型");
             }
         }

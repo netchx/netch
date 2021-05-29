@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using Serilog;
 
 namespace Netch.Interops
 {
@@ -35,13 +36,13 @@ namespace Netch.Interops
 
         public static bool Dial(NameList name, string value)
         {
-            Global.Logger.Debug($"[tun2socks] Dial {name}: {value}");
+            Log.Debug( $"[tun2socks] Dial {name}: {value}");
             return tun_dial(name, Encoding.UTF8.GetBytes(value));
         }
 
         public static bool Init()
         {
-            Global.Logger.Debug($"[tun2socks] init");
+            Log.Debug("[tun2socks] init");
             return tun_init();
         }
 

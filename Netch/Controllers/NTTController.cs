@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Netch.Interfaces;
 using Netch.Utils;
+using Serilog;
 
 namespace Netch.Controllers
 {
@@ -40,7 +41,7 @@ namespace Netch.Controllers
                 }
                 catch (Exception e)
                 {
-                    Global.Logger.Warning($"写入 {Name} 日志错误：\n" + e.Message);
+                    Log.Warning(e, "写入 {Name} 日志错误", Name);
                 }
 
                 if (output.IsNullOrWhiteSpace())
@@ -87,7 +88,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Global.Logger.Error($"{Name} 控制器出错:\n" + e);
+                Log.Error(e, "{Name} 控制器启动异常", Name);
                 try
                 {
                     Stop();

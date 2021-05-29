@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 using Netch.Interops;
 using Netch.Models;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -18,7 +19,7 @@ namespace Netch.Utils
         {
             if (!TryParseIPNetwork(rule, out var network, out var cidr))
             {
-                Global.Logger.Warning($"invalid rule {rule}");
+                Log.Warning("invalid rule {Rule}", rule);
                 return false;
             }
 
@@ -40,7 +41,7 @@ namespace Netch.Utils
         {
             if (!TryParseIPNetwork(rule, out var network, out var cidr))
             {
-                Global.Logger.Warning($"invalid rule {rule}");
+                Log.Warning("invalid rule {Rule}",rule);
                 return false;
             }
 

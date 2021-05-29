@@ -9,6 +9,7 @@ using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
 using Netch.Interops;
+using Serilog;
 using static Netch.Interops.tun2socks;
 
 namespace Netch.Controllers
@@ -109,7 +110,7 @@ namespace Netch.Controllers
         private void SetupRouteTable(Mode mode)
         {
             Global.MainForm.StatusText(i18N.Translate("Setup Route Table Rule"));
-            Global.Logger.Info("设置路由规则");
+            Log.Information("设置路由规则");
 
             // Server Address
             if (!IPAddress.IsLoopback(_serverAddresses))
@@ -189,19 +190,19 @@ namespace Netch.Controllers
 
             var binHash = Utils.Utils.SHA256CheckSum(binDriver);
             var sysHash = Utils.Utils.SHA256CheckSum(sysDriver);
-            Global.Logger.Info("自带 wintun.dll Hash: " + binHash);
-            Global.Logger.Info("系统 wintun.dll Hash: " + sysHash);
+            Log.Information("自带 wintun.dll Hash: {Hash}", binHash);
+            Log.Information("系统 wintun.dll Hash: {Hash}", sysHash);
             if (binHash == sysHash)
                 return;
 
             try
             {
-                Global.Logger.Info("Copy wintun.dll to System Directory");
+                Log.Information("Copy wintun.dll to System Directory");
                 File.Copy(binDriver, sysDriver, true);
             }
             catch (Exception e)
             {
-                Global.Logger.Error(e.ToString());
+                Log.Error(e,"复制 wintun.dll 异常");
                 throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
             }
         }

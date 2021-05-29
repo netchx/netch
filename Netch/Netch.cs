@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Serilog;
+using Serilog.Events;
 using Vanara.PInvoke;
 using static Vanara.PInvoke.Kernel32;
 
@@ -73,6 +75,8 @@ namespace Netch
                     dir.Delete(true);
             }
 
+            CreateLogger();
+
             // 加载语言
             i18N.Load(Global.Settings.Language);
 
@@ -82,12 +86,13 @@ namespace Netch
                 Environment.Exit(2);
             }
 
-            Global.Logger.Info($"版本: {UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-            Task.Run(() => { Global.Logger.Info($"主程序 SHA256: {Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
+            Log.Information("版本: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
+            Task.Run(() => { Log.Information("主程序 SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += Application_OnException;
+            Application.ApplicationExit += Application_OnExit;
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
@@ -95,10 +100,32 @@ namespace Netch
             Application.Run(Global.MainForm);
         }
 
-        public static void Application_OnException(object sender, ThreadExceptionEventArgs e)
+        public static void CreateLogger()
         {
-            Global.Logger.Error(e.Exception.ToString());
-            Global.Logger.ShowLog();
+            Log.Logger = new LoggerConfiguration()
+#if DEBUG
+                .MinimumLevel.Debug()
+                .WriteTo.Async(c => c.Debug(outputTemplate: Constants.OutputTemplate))
+                .WriteTo.Async(c => c.Console(outputTemplate: Constants.OutputTemplate))
+#else
+                .MinimumLevel.Information()
+                .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
+                    outputTemplate: Constants.OutputTemplate,
+                    rollOnFileSizeLimit: false))
+#endif
+                .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .CreateLogger();
+        }
+
+        private static void Application_OnException(object sender, ThreadExceptionEventArgs e)
+        {
+            Log.Error(e.Exception, "未处理异常");
+        }
+
+        private static void Application_OnExit(object? sender, EventArgs eventArgs)
+        {
+            Log.CloseAndFlush();
         }
 
         private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)

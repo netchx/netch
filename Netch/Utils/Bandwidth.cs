@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -78,7 +79,7 @@ namespace Netch.Utils
 
             var processList = instances.Select(instance => instance.Id).ToList();
 
-            Global.Logger.Info("流量统计进程:" + string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray()));
+            Log.Information("流量统计进程: {Processes}",  $"{string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray())}");
 
             received = 0;
 

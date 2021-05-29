@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -53,7 +54,7 @@ namespace Netch.Utils
             catch (Exception e)
             {
                 Global.MainForm.NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                Global.Logger.Error(e.ToString());
+                Log.Warning(e, "更新服务器失败");
             }
         }
     }

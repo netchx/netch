@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Netch.Controllers
 {
@@ -47,24 +48,24 @@ namespace Netch.Controllers
 
                 var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
                 LatestRelease = GetLatestRelease(releases, isPreRelease);
-                Global.Logger.Info($"Github 最新发布版本: {LatestRelease.tag_name}");
+                Log.Information("Github 最新发布版本: {Version}", LatestRelease.tag_name);
                 if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
                 {
-                    Global.Logger.Info("发现新版本");
+                    Log.Information("发现新版本");
                     NewVersionFound?.Invoke(null, new EventArgs());
                 }
                 else
                 {
-                    Global.Logger.Info("目前是最新版本");
+                    Log.Information("目前是最新版本");
                     NewVersionNotFound?.Invoke(null, new EventArgs());
                 }
             }
             catch (Exception e)
             {
                 if (e is WebException)
-                    Global.Logger.Warning($"获取新版本失败: {e.Message}");
+                    Log.Warning(e, "获取新版本失败");
                 else
-                    Global.Logger.Warning(e.ToString());
+                    Log.Error(e, "获取新版本异常");
 
                 NewVersionFoundFailed?.Invoke(null, new EventArgs());
             }
@@ -76,7 +77,6 @@ namespace Netch.Controllers
             sha256 = string.Empty;
 
             var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline)
-                .Cast<Match>()
                 .Skip(2);
             /*
               Skip(2)
@@ -105,7 +105,7 @@ namespace Netch.Controllers
             return sb.ToString();
         }
 
-        public static Release GetLatestRelease(IEnumerable<Release> releases, bool isPreRelease)
+        private static Release GetLatestRelease(IEnumerable<Release> releases, bool isPreRelease)
         {
             if (!isPreRelease)
                 releases = releases.Where(release => !release.prerelease);

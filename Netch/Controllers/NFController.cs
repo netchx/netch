@@ -9,6 +9,7 @@ using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using Serilog;
 using static Netch.Interops.Redirector;
 
 namespace Netch.Controllers
@@ -177,8 +178,8 @@ namespace Netch.Controllers
             var binFileVersion = Utils.Utils.GetFileVersion(BinDriver);
             var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
 
-            Global.Logger.Info("内置驱动版本: " + binFileVersion);
-            Global.Logger.Info("系统驱动版本: " + systemFileVersion);
+            Log.Information("内置驱动版本: " + binFileVersion);
+            Log.Information("系统驱动版本: " + systemFileVersion);
 
             if (!File.Exists(SystemDriver))
             {
@@ -208,7 +209,7 @@ namespace Netch.Controllers
             if (!reinstall)
                 return;
 
-            Global.Logger.Info("更新驱动");
+            Log.Information("更新驱动");
             UninstallDriver();
             InstallDriver();
         }
@@ -219,7 +220,7 @@ namespace Netch.Controllers
         /// <returns>驱动是否安装成功</returns>
         private static void InstallDriver()
         {
-            Global.Logger.Info("安装 NF 驱动");
+            Log.Information("安装 NF 驱动");
 
             if (!File.Exists(BinDriver))
                 throw new MessageException(i18N.Translate("builtin driver files missing, can't install NF driver"));
@@ -230,7 +231,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Global.Logger.Error("驱动复制失败\n" + e);
+                Log.Error(e,"驱动复制失败\n");
                 throw new MessageException($"Copy NF driver file failed\n{e.Message}");
             }
 
@@ -239,11 +240,11 @@ namespace Netch.Controllers
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
             {
-                Global.Logger.Info("驱动安装成功");
+                Log.Information("驱动安装成功");
             }
             else
             {
-                Global.Logger.Error($"注册驱动失败，返回值：{result}");
+                Log.Error("注册驱动失败: {Result}",result);
                 throw new MessageException($"Register NF driver failed\n{result}");
             }
         }
@@ -254,7 +255,7 @@ namespace Netch.Controllers
         /// <returns>是否成功卸载</returns>
         public static bool UninstallDriver()
         {
-            Global.Logger.Info("卸载 NF 驱动");
+            Log.Information("卸载 NF 驱动");
             try
             {
                 if (NFService.Status == ServiceControllerStatus.Running)

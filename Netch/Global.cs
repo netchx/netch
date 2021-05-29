@@ -1,7 +1,5 @@
 using Netch.Forms;
-using Netch.Interfaces;
 using Netch.Models;
-using Netch.Models.Loggers;
 using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
@@ -34,14 +32,7 @@ namespace Netch
         {
             NetchExecutable = Application.ExecutablePath;
             NetchDir = Application.StartupPath;
-#if DEBUG
-            Logger = new ConsoleLogger();
-#else
-            Logger = new FileLogger();
-#endif
         }
-
-        public static ILogger Logger { get; }
 
         /// <summary>
         ///     主窗体的静态实例

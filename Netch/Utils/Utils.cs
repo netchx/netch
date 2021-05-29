@@ -13,13 +13,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MaxMind.GeoIP2;
 using Microsoft.Win32.TaskScheduler;
+using Serilog;
 using Task = System.Threading.Tasks.Task;
 
 namespace Netch.Utils
 {
     public static class Utils
     {
-        public static bool Open(string path)
+        public static void Open(string path)
         {
             try
             {
@@ -29,12 +30,10 @@ namespace Netch.Utils
                     Arguments = path,
                     UseShellExecute = true
                 });
-
-                return true;
             }
-            catch
+            catch (Exception e)
             {
-                return false;
+                Log.Warning(e, "打开 {Uri} 失败", path);
             }
         }
 
@@ -246,7 +245,7 @@ namespace Netch.Utils
                 }
             };
 
-            Global.Logger.Debug($"{fileName} {arguments}");
+            Log.Debug($"{fileName} {arguments}");
 
             p.Start();
             var output = await p.StandardOutput.ReadToEndAsync();

@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Serilog;
 
 namespace Netch.Interops
 {
@@ -42,7 +43,7 @@ namespace Netch.Interops
 
         public static bool Dial(NameList name, string value)
         {
-            Global.Logger.Debug($"[Redirector] Dial {name}: {value}");
+            Log.Debug($"[Redirector] Dial {name}: {value}");
             return aio_dial(name, value);
         }
 

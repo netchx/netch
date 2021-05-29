@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using WindowsFirewallHelper;
 using WindowsFirewallHelper.FirewallRules;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -17,7 +18,7 @@ namespace Netch.Utils
         {
             if (!FirewallWAS.IsSupported)
             {
-                Global.Logger.Warning("不支持防火墙");
+                Log.Warning("不支持防火墙");
                 return;
             }
 
@@ -37,7 +38,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Global.Logger.Warning("添加防火墙规则错误(如已关闭防火墙则可无视此错误)\n" + e);
+                Log.Warning(e, "添加防火墙规则错误");
             }
         }
 
@@ -57,7 +58,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Global.Logger.Warning("清除防火墙规则错误\n" + e);
+                Log.Warning(e, "清除防火墙规则错误");
             }
         }
 

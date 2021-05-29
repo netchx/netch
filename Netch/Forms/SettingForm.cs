@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using Serilog;
 
 namespace Netch.Forms
 {
@@ -63,7 +64,7 @@ namespace Netch.Forms
             }
             catch (Exception e)
             {
-                Global.Logger.Warning($"Load stun.txt failed: {e.Message}");
+                Log.Warning(e,"Load stun.txt failed");
                 stuns = null;
             }
 

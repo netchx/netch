@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -42,8 +43,7 @@ namespace Netch.Utils
                 }
                 catch (Exception e)
                 {
-                    Global.Logger.Error(e.ToString());
-                    Global.Logger.ShowLog();
+                    Log.Error(e,"加载配置异常");
                     Environment.Exit(-1);
                     Global.Settings = null!;
                 }

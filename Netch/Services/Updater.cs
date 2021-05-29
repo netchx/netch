@@ -11,6 +11,7 @@ using Netch.Controllers;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
+using Serilog;
 
 namespace Netch.Services
 {
@@ -160,9 +161,9 @@ namespace Netch.Services
                 {
                     File.Move(file, file + ".old");
                 }
-                catch
+                catch(Exception e)
                 {
-                    Global.Logger.Error($"failed to rename file \"{file}\"");
+                    Log.Error(e,"failed to rename file \"{File}\"",file);
                     throw;
                 }
         }

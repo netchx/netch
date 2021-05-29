@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using Netch.Models;
+using Serilog;
 using static Vanara.PInvoke.IpHlpApi;
 using static Vanara.PInvoke.Ws2_32;
 
@@ -24,7 +25,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Global.Logger.Error("获取保留端口失败: " + e);
+                Log.Error(e,"获取保留端口错误");
             }
         }
 

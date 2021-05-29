@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 using Timer = System.Timers.Timer;
 
 namespace Netch.Controllers
@@ -84,7 +85,7 @@ namespace Netch.Controllers
             }
             catch (Win32Exception e)
             {
-                Global.Logger.Error($"停止 {MainFile} 错误：\n" + e);
+                Log.Error(e, "停止 {MainFile} 异常", MainFile);
             }
             catch
             {
@@ -199,13 +200,13 @@ namespace Netch.Controllers
             _logStreamWriter!.WriteLine(line);
         }
 
-        private readonly object LogStreamLock = new();
+        private readonly object _logStreamLock = new();
         private void CloseLogFile()
         {
             if (!RedirectToFile)
                 return;
 
-            lock (LogStreamLock)
+            lock (_logStreamLock)
             {
                 if (_logFileStream == null)
                     return;
@@ -273,9 +274,9 @@ namespace Netch.Controllers
             {
                 _logStreamWriter!.Flush();
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Global.Logger.Warning($"写入 {Name} 日志错误：\n" + exception.Message);
+                Log.Warning(ex, "写入 {Name} 日志异常", Name);
             }
         }
     }

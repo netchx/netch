@@ -6,6 +6,7 @@ using Netch.Models;
 using Netch.Servers.Shadowsocks;
 using Netch.Servers.ShadowsocksR.Form;
 using Netch.Utils;
+using Serilog;
 
 namespace Netch.Servers.ShadowsocksR
 {
@@ -146,19 +147,19 @@ namespace Netch.Servers.ShadowsocksR
             var server = (ShadowsocksR)s;
             if (!SSRGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
-                Global.Logger.Error($"不支持的 SSR 加密方式：{server.EncryptMethod}");
+                Log.Error("不支持的 SSR 加密方式：{Method}", server.EncryptMethod);
                 return false;
             }
 
             if (!SSRGlobal.Protocols.Contains(server.Protocol))
             {
-                Global.Logger.Error($"不支持的 SSR 协议：{server.Protocol}");
+                Log.Error("不支持的 SSR 协议：{Protocol}", server.Protocol);
                 return false;
             }
 
             if (!SSRGlobal.OBFSs.Contains(server.OBFS))
             {
-                Global.Logger.Error($"不支持的 SSR 混淆：{server.OBFS}");
+                Log.Error("不支持的 SSR 混淆：{Obfs}", server.OBFS);
                 return false;
             }
 

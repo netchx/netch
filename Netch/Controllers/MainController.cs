@@ -5,6 +5,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
+using Serilog;
 
 namespace Netch.Controllers
 {
@@ -55,7 +56,7 @@ namespace Netch.Controllers
 
         public static void Start(Server server, Mode mode)
         {
-            Global.Logger.Info($"启动主控制器: {server.Type} [{(int)mode.Type}]{mode.Remark}");
+            Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
             Server = server;
             Mode = mode;
 
@@ -90,8 +91,7 @@ namespace Netch.Controllers
                     case MessageException:
                         throw;
                     default:
-                        Global.Logger.Error(e.ToString());
-                        Global.Logger.ShowLog();
+                        Log.Error(e, "主控制器启动未处理异常");
                         throw new MessageException($"未处理异常\n{e.Message}");
                 }
             }
@@ -159,8 +159,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Global.Logger.Error(e.ToString());
-                Global.Logger.ShowLog();
+                Log.Error(e, "主控制器停止未处理异常");
             }
 
             ModeController = null;

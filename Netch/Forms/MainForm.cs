@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Services;
+using Serilog;
 using Vanara.PInvoke;
 
 namespace Netch.Forms
@@ -295,7 +296,7 @@ namespace Netch.Forms
             catch (Exception e)
             {
                 NotifyTip(i18N.Translate("update servers failed") + "\n" + e.Message, info: false);
-                Global.Logger.Error("更新服务器 失败！" + e);
+                Log.Error("更新服务器 失败！" + e);
             }
             finally
             {
@@ -430,8 +431,7 @@ namespace Netch.Forms
             {
                 if (exception is not MessageException)
                 {
-                    Global.Logger.Error($"更新失败: {exception}");
-                    Global.Logger.ShowLog();
+                    Log.Error(exception, "更新失败");
                 }
 
                 NotifyTip(exception.Message, info: false);
@@ -1174,7 +1174,7 @@ namespace Netch.Forms
                     if (!IsWaiting())
                     {
                         _resumeFlag = true;
-                        Global.Logger.Info("操作系统即将挂起，自动停止");
+                        Log.Information("操作系统即将挂起，自动停止");
                         ControlButton_Click(null, null);
                     }
 
@@ -1183,7 +1183,7 @@ namespace Netch.Forms
                     if (_resumeFlag)
                     {
                         _resumeFlag = false;
-                        Global.Logger.Info("操作系统即将从挂起状态继续，自动重启");
+                        Log.Information("操作系统即将从挂起状态继续，自动重启");
                         ControlButton_Click(null, null);
                     }
 

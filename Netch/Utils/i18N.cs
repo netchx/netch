@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Windows.Forms;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -41,7 +42,7 @@ namespace Netch.Utils
             {
                 var oldLangCode = LangCode;
                 LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
-                Global.Logger.Info($"找不到语言 {oldLangCode}, 使用 {LangCode}");
+                Log.Information("找不到语言 {OldLangCode}, 使用 {LangCode}",oldLangCode,LangCode);
             }
 
             switch (LangCode)
@@ -61,7 +62,7 @@ namespace Netch.Utils
 
             if (!dictionary.Any())
             {
-                Global.Logger.Error($"{LangCode} 语言文件错误");
+                Log.Error("{LangCode} 语言文件错误", LangCode);
                 return;
             }
 

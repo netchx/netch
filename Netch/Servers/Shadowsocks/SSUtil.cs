@@ -9,6 +9,7 @@ using Netch.Models;
 using Netch.Servers.Shadowsocks.Form;
 using Netch.Servers.Shadowsocks.Models.SSD;
 using Netch.Utils;
+using Serilog;
 
 namespace Netch.Servers.Shadowsocks
 {
@@ -65,10 +66,8 @@ namespace Netch.Servers.Shadowsocks
             var server = (Shadowsocks)s;
             if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
-                Global.Logger.Error($"不支持的 SS 加密方式：{server.EncryptMethod}");
-                {
-                    return false;
-                }
+                Log.Warning("不支持的 SS 加密方式：{Method}", server.EncryptMethod);
+                return false;
             }
 
             return true;
@@ -79,17 +78,17 @@ namespace Netch.Servers.Shadowsocks
             var json = JsonSerializer.Deserialize<Main>(ShareLink.URLSafeBase64Decode(s.Substring(6)))!;
 
             return json.servers.Select(server => new Shadowsocks
-            {
-                Remark = server.remarks,
-                Hostname = server.server,
-                Port = server.port != 0 ? server.port : json.port,
-                Password = server.password ?? json.password,
-                EncryptMethod = server.encryption ?? json.encryption,
-                Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin,
-                PluginOption = string.IsNullOrEmpty(json.plugin_options)
+                {
+                    Remark = server.remarks,
+                    Hostname = server.server,
+                    Port = server.port != 0 ? server.port : json.port,
+                    Password = server.password ?? json.password,
+                    EncryptMethod = server.encryption ?? json.encryption,
+                    Plugin = string.IsNullOrEmpty(json.plugin) ? string.IsNullOrEmpty(server.plugin) ? null : server.plugin : json.plugin,
+                    PluginOption = string.IsNullOrEmpty(json.plugin_options)
                         ? string.IsNullOrEmpty(server.plugin_options) ? null : server.plugin_options
                         : json.plugin_options
-            })
+                })
                 .Where(CheckServer);
         }
 

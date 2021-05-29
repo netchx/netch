@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -45,7 +46,6 @@ namespace Netch.Utils
             }
             catch (JsonException)
             {
-                var errorFlag = false;
                 foreach (var line in text.GetLines())
                 {
                     try
@@ -54,17 +54,13 @@ namespace Netch.Utils
                     }
                     catch (Exception e)
                     {
-                        errorFlag = true;
-                        Global.Logger.Error(e.ToString());
+                        Log.Error(e, "从分享链接导入服务器异常");
                     }
                 }
-
-                if (errorFlag)
-                    Global.Logger.ShowLog();
             }
             catch (Exception e)
             {
-                Global.Logger.Error(e.ToString());
+                Log.Error(e, "从分享链接导入服务器异常");
             }
 
             return list;
@@ -89,7 +85,7 @@ namespace Netch.Utils
                 if (util != null)
                     list.AddRange(util.ParseUri(text));
                 else
-                    Global.Logger.Warning($"无法处理 {scheme} 协议订阅链接");
+                    Log.Warning("无法处理 {Scheme} 协议订阅链接", scheme);
             }
 
             foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))
