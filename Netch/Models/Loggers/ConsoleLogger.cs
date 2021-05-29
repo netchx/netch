@@ -1,5 +1,6 @@
 ﻿using Netch.Interfaces;
 using System;
+using Vanara.PInvoke;
 
 namespace Netch.Models.Loggers
 {
@@ -47,6 +48,7 @@ namespace Netch.Models.Loggers
 
         public void ShowLog()
         {
+            User32.ShowWindow(Netch.ConsoleHwnd, ShowWindowCommand.SW_SHOW);
         }
     }
 }
