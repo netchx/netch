@@ -68,10 +68,10 @@ namespace Netch.Servers.V2ray.Utils
 
                 if (mode.Type is ModeType.Process or ModeType.ProxyRuleIPs or ModeType.BypassRuleIPs)
                 {
+                    blockRuleObject.ip.Add("0.0.0.0/8");
                     blockRuleObject.ip.Add("224.0.0.0/4");
-                    blockRuleObject.ip.Add("240.0.0.0/4");
                     blockRuleObject.ip.Add("255.255.255.255/32");
-                    blockRuleObject.ip.Add("fc00::/7");
+                    blockRuleObject.ip.Add("fc00::/8");
                 }
 
                 static bool CheckRuleItem(ref RulesItem rulesItem)
