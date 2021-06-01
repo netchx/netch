@@ -1,7 +1,6 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <DisableWinExeOutputInference>true</DisableWinExeOutputInference>
+        <OutputType>WinExe</OutputType>
         <UseWindowsForms>true</UseWindowsForms>
         <UseWPF>true</UseWPF>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>

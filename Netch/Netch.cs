@@ -12,7 +12,6 @@ using System.Windows.Forms;
 using Serilog;
 using Serilog.Events;
 using Vanara.PInvoke;
-using static Vanara.PInvoke.Kernel32;
 
 namespace Netch
 {
@@ -28,11 +27,6 @@ namespace Netch
         [STAThread]
         public static void Main(string[] args)
         {
-            ConsoleHwnd = GetConsoleWindow();
-#if RELEASE
-            User32.ShowWindow(ConsoleHwnd, ShowWindowCommand.SW_HIDE);
-#endif
-
             if (args.Contains(Constants.Parameter.ForceUpdate))
                 Flags.AlwaysShowNewVersionFound = true;
 
@@ -40,7 +34,6 @@ namespace Netch
             Directory.SetCurrentDirectory(Global.NetchDir);
             var binPath = Path.Combine(Global.NetchDir, "bin");
             Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
-            AddDllDirectory(binPath);
 
             Updater.CleanOld(Global.NetchDir);
 
@@ -75,6 +68,8 @@ namespace Netch
                     dir.Delete(true);
             }
 
+            InitConsole();
+
             CreateLogger();
 
             // 加载语言
@@ -100,19 +95,29 @@ namespace Netch
             Application.Run(Global.MainForm);
         }
 
+        private static void InitConsole()
+        {
+            Kernel32.AllocConsole();
+
+            ConsoleHwnd = Kernel32.GetConsoleWindow();
+#if RELEASE
+            User32.ShowWindow(ConsoleHwnd, ShowWindowCommand.SW_HIDE);
+#endif
+        }
+
         public static void CreateLogger()
         {
             Log.Logger = new LoggerConfiguration()
 #if DEBUG
                 .MinimumLevel.Debug()
                 .WriteTo.Async(c => c.Debug(outputTemplate: Constants.OutputTemplate))
-                .WriteTo.Async(c => c.Console(outputTemplate: Constants.OutputTemplate))
 #else
                 .MinimumLevel.Information()
                 .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
                     outputTemplate: Constants.OutputTemplate,
                     rollOnFileSizeLimit: false))
 #endif
+                .WriteTo.Async(c => c.Console(outputTemplate: Constants.OutputTemplate))
                 .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .CreateLogger();
