@@ -54,7 +54,6 @@ namespace Netch
             }
 
             SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
-            SingleInstance.ListenForArgumentsFromSuccessiveInstances();
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间
             if (Directory.Exists("logging"))

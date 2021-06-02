@@ -103,6 +103,8 @@ namespace Netch.Forms
                 if (Global.Settings.StartWhenOpened)
                     ControlButton_Click(null, null);
             }));
+
+            Netch.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
         }
 
         private void RecordSize()
