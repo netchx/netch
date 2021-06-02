@@ -1225,11 +1225,9 @@ namespace Netch.Forms
             Hide();
 
             if (saveConfiguration)
-            {
                 Configuration.Save();
-            }
 
-            foreach (var file in new[] { "data\\last.json", "data\\privoxy.conf" })
+            foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
                 if (File.Exists(file))
                     File.Delete(file);
 

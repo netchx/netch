@@ -40,7 +40,7 @@ namespace Netch.Servers.Trojan
             if (!string.IsNullOrWhiteSpace(server.Host))
                 trojanConfig.ssl.sni = server.Host;
 
-            File.WriteAllBytes("data\\last.json", JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
+            File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
             StartInstanceAuto("-c ..\\data\\last.json");
         }

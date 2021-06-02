@@ -23,7 +23,7 @@ namespace Netch.Servers.V2ray
 
         public virtual void Start(in Server s, in Mode mode)
         {
-            File.WriteAllText("data\\last.json", V2rayConfigUtils.GenerateClientConfig(s, mode));
+            File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s, mode));
             StartInstanceAuto("-config ..\\data\\last.json");
         }
 

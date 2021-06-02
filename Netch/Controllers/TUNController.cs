@@ -36,8 +36,7 @@ namespace Netch.Controllers
             var server = MainController.Server!;
             _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
 
-            IPAddress address;
-            (_outbound, address) = NetRoute.GetBestRouteTemplate();
+            _outbound = NetRoute.GetBestRouteTemplate(out var address);
             CheckDriver();
 
             Dial(NameList.TYPE_ADAPMTU, "1500");
@@ -202,7 +201,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Log.Error(e,"复制 wintun.dll 异常");
+                Log.Error(e, "复制 wintun.dll 异常");
                 throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
             }
         }

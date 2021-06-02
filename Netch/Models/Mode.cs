@@ -48,7 +48,6 @@ namespace Netch.Models
 
         public IEnumerable<string> GetRules()
         {
-            var result = new List<string>();
             foreach (var s in Content)
             {
                 if (string.IsNullOrWhiteSpace(s))
@@ -76,15 +75,14 @@ namespace Netch.Models
                     if (mode.Content.Any(rule => rule.StartsWith(include)))
                         throw new Exception("Cannot reference mode that reference other mode");
 
-                    result.AddRange(mode.GetRules());
+                    foreach (var rule in mode.GetRules())
+                        yield return rule;
                 }
                 else
                 {
-                    result.Add(s);
+                    yield return s;
                 }
             }
-
-            return result;
         }
 
         private static (string, ModeType) ReadHead(string fileName)
