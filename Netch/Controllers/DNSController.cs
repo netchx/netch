@@ -29,7 +29,7 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_ODNS, $"{Global.Settings.AioDNS.OtherDNS}");
 
             if (!Init())
-                throw new Exception("AioDNS start failed");
+                throw new Exception("AioDNS start failed.");
         }
     }
 }
