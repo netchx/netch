@@ -75,7 +75,7 @@ namespace Netch.Servers.Trojan
             if (!match.Success)
                 throw new FormatException();
 
-            data.Password = match.Groups["psk"].Value;
+            data.Password = HttpUtility.UrlDecode(match.Groups["psk"].Value);
             data.Hostname = match.Groups["server"].Value;
             data.Port = ushort.Parse(match.Groups["port"].Value);
 
