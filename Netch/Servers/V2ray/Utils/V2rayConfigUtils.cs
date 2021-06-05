@@ -146,7 +146,7 @@ namespace Netch.Servers.V2ray.Utils
                             var vnextItem = new VnextItem
                             {
                                 users = new List<UsersItem>(),
-                                address = server.AutoResolveHostname(),
+                                address = server.Hostname,
                                 port = server.Port
                             };
 
@@ -187,7 +187,7 @@ namespace Netch.Servers.V2ray.Utils
                             var vnextItem = new VnextItem
                             {
                                 users = new List<UsersItem>(),
-                                address = server.AutoResolveHostname(),
+                                address = server.Hostname,
                                 port = server.Port
                             };
 
