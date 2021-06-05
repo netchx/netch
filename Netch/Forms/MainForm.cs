@@ -71,11 +71,15 @@ namespace Netch.Forms
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
-            LoadServers();
+            // Bind Server
+            ServerComboBox.DataSource = Global.Settings.Server;
+            SelectLastServer();
             ServerHelper.DelayTestHelper.UpdateInterval();
 
+            // Load and Bind Mode
             ModeHelper.Load();
-            LoadModes();
+            ModeComboBox.DataSource = Global.Modes;
+            SelectLastMode();
 
             // 加载翻译
             TranslateControls();
@@ -207,7 +211,7 @@ namespace Netch.Forms
 
         #region Server
 
-        private void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var texts = Clipboard.GetText();
             if (!string.IsNullOrWhiteSpace(texts))
@@ -216,12 +220,11 @@ namespace Netch.Forms
                 Global.Settings.Server.AddRange(servers);
                 NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
-                LoadServers();
-                Configuration.Save();
+                await Configuration.SaveAsync();
             }
         }
 
-        private void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
+        private async void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
         {
             if (sender == null)
                 throw new ArgumentNullException(nameof(sender));
@@ -231,8 +234,7 @@ namespace Netch.Forms
             Hide();
             util.Create();
 
-            LoadServers();
-            Configuration.Save();
+            await Configuration.SaveAsync();
             Show();
         }
 
@@ -262,7 +264,6 @@ namespace Netch.Forms
         {
             Hide();
             new SubscribeForm().ShowDialog();
-            LoadServers();
             Show();
         }
 
@@ -291,8 +292,7 @@ namespace Netch.Forms
             {
                 await Subscription.UpdateServersAsync();
 
-                LoadServers();
-                Configuration.Save();
+                await Configuration.SaveAsync();
                 StatusText(i18N.Translate("Subscription updated"));
             }
             catch (Exception e)
@@ -433,7 +433,7 @@ namespace Netch.Forms
             {
                 if (exception is not MessageException)
                 {
-                    Log.Error(exception, "更新失败");
+                    Log.Error(exception, "更新未处理异常");
                 }
 
                 NotifyTip(exception.Message, info: false);
@@ -469,7 +469,7 @@ namespace Netch.Forms
                 return;
             }
 
-            Configuration.Save();
+            await Configuration.SaveAsync();
 
             // 服务器、模式 需选择
             if (ServerComboBox.SelectedItem is not Server server)
@@ -541,7 +541,6 @@ namespace Netch.Forms
             {
                 i18N.Load(Global.Settings.Language);
                 TranslateControls();
-                LoadModes();
                 LoadProfiles();
             }
 
@@ -557,13 +556,6 @@ namespace Netch.Forms
         #endregion
 
         #region Server
-
-        private void LoadServers()
-        {
-            ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Settings.Server.Cast<object>().ToArray());
-            SelectLastServer();
-        }
 
         private void SelectLastServer()
         {
@@ -582,7 +574,7 @@ namespace Netch.Forms
             Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
 
-        private void EditServerPictureBox_Click(object sender, EventArgs e)
+        private async void EditServerPictureBox_Click(object sender, EventArgs e)
         {
             // 当前ServerComboBox中至少有一项
             if (!(ServerComboBox.SelectedItem is Server server))
@@ -596,8 +588,7 @@ namespace Netch.Forms
 
             Hide();
             ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
-            LoadServers();
-            Configuration.Save();
+            await Configuration.SaveAsync();
             Show();
         }
 
@@ -670,20 +661,11 @@ namespace Netch.Forms
             }
 
             Global.Settings.Server.Remove(server);
-            LoadServers();
         }
 
         #endregion
 
         #region Mode
-
-        public void LoadModes()
-        {
-            ModeComboBox.Items.Clear();
-            ModeComboBox.Items.AddRange(Global.Modes.Cast<object>().ToArray());
-            ModeComboBox.Tag = null;
-            SelectLastMode();
-        }
 
         private void SelectLastMode()
         {
@@ -1225,7 +1207,7 @@ namespace Netch.Forms
             Hide();
 
             if (saveConfiguration)
-                Configuration.Save();
+                await Configuration.SaveAsync();
 
             foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
                 if (File.Exists(file))

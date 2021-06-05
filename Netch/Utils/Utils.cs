@@ -228,37 +228,6 @@ namespace Netch.Utils
             }
         }
 
-        public static async Task ProcessRunHiddenAsync(string fileName, string arguments = "", bool print = true)
-        {
-            var p = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = fileName,
-                    Arguments = arguments,
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    Verb = "runas",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-
-            Log.Debug($"{fileName} {arguments}");
-
-            p.Start();
-            var output = await p.StandardOutput.ReadToEndAsync();
-            var error = await p.StandardError.ReadToEndAsync();
-            if (print)
-            {
-                Console.Write(output);
-                Console.Write(error);
-            }
-
-            await p.WaitForExitAsync();
-        }
-
         public static int SubnetToCidr(string value)
         {
             var subnet = IPAddress.Parse(value);

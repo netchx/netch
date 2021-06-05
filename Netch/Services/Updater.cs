@@ -94,8 +94,6 @@ namespace Netch.Services
 
         #region Apply Update
 
-        private static readonly ImmutableArray<string> KeepDirectories = new List<string> { "data", "mode\\Custom", "logging" }.ToImmutableArray();
-
         private async Task ApplyUpdate()
         {
             var mainForm = Global.MainForm;
@@ -105,17 +103,7 @@ namespace Netch.Services
             ModeHelper.SuspendWatcher = true;
             // Stop and Save
             await mainForm.Stop();
-            Configuration.Save();
-
-            // Backup Configuration file
-            try
-            {
-                File.Copy(Configuration.SettingFileFullName, Configuration.SettingFileFullName + ".bak", true);
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+            await Configuration.SaveAsync();
 
             #endregion
 
@@ -123,13 +111,22 @@ namespace Netch.Services
             var extractPath = Path.Combine(_tempDirectory, "extract");
             int exitCode;
             if ((exitCode = Extract(extractPath, true)) != 0)
-                throw new Exception(i18N.Translate($"7za exit with code {exitCode}"));
+                throw new MessageException(i18N.Translate($"7za unexpectedly exited. ({exitCode})"));
+
+            var updateDirectory = Path.Combine(extractPath, "Netch");
+            if (!Directory.Exists(updateDirectory))
+                throw new MessageException(i18N.Translate("Update file top-level directory not exist"));
+
+            var updateMainProgramFilePath = Path.Combine(updateDirectory, "Netch.exe");
+            if (!File.Exists(updateMainProgramFilePath))
+                throw new MessageException(i18N.Translate($"Update file main program not exist"));
+
 
             // rename install directory files with .old suffix unless in keep folders
             MarkFilesOld();
 
             // move {tempDirectory}\extract\Netch to install folder
-            MoveAllFilesOver(Path.Combine(extractPath, "Netch"), _installDirectory);
+            MoveAllFilesOver(updateDirectory, _installDirectory);
 
             // release mutex, exit
             mainForm.Invoke(new Action(Netch.SingleInstance.Dispose));
@@ -139,33 +136,30 @@ namespace Netch.Services
 
         private void MarkFilesOld()
         {
-            // extend keepDirectories relative path to absolute path
-            var extendedKeepDirectories = KeepDirectories.Select(d => Path.Combine(_installDirectory, d)).ToImmutableArray();
+            var keepDirs = new[] { "data", "mode\\Custom", "logging" };
 
-            // weed out keep files
-            List<string> filesToDelete = new();
+            var keepDirFullPath = keepDirs.Select(d => Path.Combine(_installDirectory, d)).ToImmutableList();
+
             foreach (var file in Directory.GetFiles(_installDirectory, "*", SearchOption.AllDirectories))
             {
-                if (extendedKeepDirectories.Any(p => file.StartsWith(p)))
+                // skip keep files
+                if (keepDirFullPath.Any(p => file.StartsWith(p)))
                     continue;
 
+                // skip disable state files
                 if (Path.GetFileName(file) is ModeHelper.DisableModeDirectoryFileName)
                     continue;
 
-                filesToDelete.Add(file);
-            }
-
-            // rename files
-            foreach (var file in filesToDelete)
                 try
                 {
                     File.Move(file, file + ".old");
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    Log.Error(e,"failed to rename file \"{File}\"",file);
+                    Log.Error(e, "failed to rename file \"{File}\"", file);
                     throw;
                 }
+            }
         }
 
         private int Extract(string destDirName, bool overwrite)
@@ -182,12 +176,9 @@ namespace Netch.Services
             if (overwrite)
                 argument.Append(" -y");
 
-            var process = Process.Start(new ProcessStartInfo
+            var process = Process.Start(new ProcessStartInfo(temp7za, argument.ToString())
             {
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = temp7za,
-                Arguments = argument.ToString()
+                UseShellExecute = false
             })!;
 
             process.WaitForExit();

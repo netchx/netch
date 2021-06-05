@@ -44,7 +44,7 @@ namespace Netch
                     Directory.CreateDirectory(item);
 
             // 加载配置
-            Configuration.Load();
+            Configuration.LoadAsync().Wait();
 
             if (!SingleInstance.IsFirstInstance)
             {

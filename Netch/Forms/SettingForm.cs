@@ -244,7 +244,7 @@ namespace Netch.Forms
             Show();
         }
 
-        private void ControlButton_Click(object sender, EventArgs e)
+        private async void ControlButton_Click(object sender, EventArgs e)
         {
             Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
 
@@ -268,7 +268,7 @@ namespace Netch.Forms
 
             Utils.Utils.RegisterNetchStartupItem();
 
-            Configuration.Save();
+            await Configuration.SaveAsync();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 using Serilog;
 
 namespace Netch.Utils
@@ -15,7 +16,13 @@ namespace Netch.Utils
         /// </summary>
         public static string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
 
-        public static string SettingFileFullName => $"{DataDirectoryFullName}\\settings.json";
+        public static string FileFullName => Path.Combine(DataDirectoryFullName, FileName);
+
+        private static string BackupFileFullName => Path.Combine(DataDirectoryFullName, BackupFileName);
+
+        private const string FileName = "settings.json";
+
+        private const string BackupFileName = "settings.json.bak";
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
 
@@ -25,33 +32,44 @@ namespace Netch.Utils
             JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
-        /// <summary>
-        ///     加载配置
-        /// </summary>
-        public static void Load()
+        public static async Task LoadAsync()
         {
-            if (File.Exists(SettingFileFullName))
+            try
             {
-                try
+                if (!File.Exists(FileFullName))
                 {
-                    using var fileStream = File.OpenRead(SettingFileFullName);
-                    var settings = JsonSerializer.DeserializeAsync<Setting>(fileStream, JsonSerializerOptions).Result!;
-
-                    CheckSetting(settings);
-
-                    Global.Settings = settings;
+                    await SaveAsync();
+                    return;
                 }
-                catch (Exception e)
-                {
-                    Log.Error(e,"加载配置异常");
-                    Environment.Exit(-1);
-                    Global.Settings = null!;
-                }
+
+                if (await LoadAsyncCore(FileFullName))
+                    return;
+
+                Log.Information("尝试加载备份配置文件 {FileName}", BackupFileFullName);
+                await LoadAsyncCore(BackupFileFullName);
             }
-            else
+            catch (Exception e)
             {
-                // 保存默认设置
-                Save();
+                Log.Error(e, "加载配置异常");
+                Environment.Exit(-1);
+            }
+        }
+
+        private static async ValueTask<bool> LoadAsyncCore(string filename)
+        {
+            try
+            {
+                await using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+                var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions))!;
+
+                CheckSetting(settings);
+                Global.Settings = settings;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, @"从 {FileName} 加载配置异常", filename);
+                return false;
             }
         }
 
@@ -70,13 +88,26 @@ namespace Netch.Utils
         /// <summary>
         ///     保存配置
         /// </summary>
-        public static void Save()
+        public static async Task SaveAsync()
         {
-            if (!Directory.Exists(DataDirectoryFullName))
-                Directory.CreateDirectory(DataDirectoryFullName);
+            try
+            {
+                if (!Directory.Exists(DataDirectoryFullName))
+                    Directory.CreateDirectory(DataDirectoryFullName);
 
-            using var fileStream = File.Create(SettingFileFullName);
-            JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).Wait();
+                var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
+
+                await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                {
+                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions);
+                }
+
+                File.Replace(tempFile, FileFullName, BackupFileFullName);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "保存配置异常");
+            }
         }
     }
 }

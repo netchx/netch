@@ -57,9 +57,9 @@ namespace Netch.Forms
             Global.Settings.SubscribeLink[index].Enable = SubscribeLinkListView.Items[index].Checked;
         }
 
-        private void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
+        private async void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Configuration.Save();
+            await Configuration.SaveAsync();
         }
 
         #endregion

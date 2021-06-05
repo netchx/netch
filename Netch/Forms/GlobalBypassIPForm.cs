@@ -50,13 +50,13 @@ namespace Netch.Forms
                 MessageBoxX.Show(i18N.Translate("Please select an IP"));
         }
 
-        private void ControlButton_Click(object sender, EventArgs e)
+        private async void ControlButton_Click(object sender, EventArgs e)
         {
             Global.Settings.TUNTAP.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
                 Global.Settings.TUNTAP.BypassIPs.Add((string)ip);
 
-            Configuration.Save();
+            await Configuration.SaveAsync();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }

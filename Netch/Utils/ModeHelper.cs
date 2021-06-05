@@ -42,7 +42,6 @@ namespace Netch.Utils
                 return;
 
             Load();
-            Global.MainForm.LoadModes();
         }
 
         public static string GetRelativePath(string fullName)

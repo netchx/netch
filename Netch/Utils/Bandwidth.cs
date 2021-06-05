@@ -5,6 +5,7 @@ using Netch.Models;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
 
@@ -79,7 +80,8 @@ namespace Netch.Utils
 
             var processList = instances.Select(instance => instance.Id).ToList();
 
-            Log.Information("流量统计进程: {Processes}",  $"{string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray())}");
+            Log.Information("流量统计进程: {Processes}",
+                $"{string.Join(",", instances.Select(instance => $"({instance.Id})" + instance.ProcessName).ToArray())}");
 
             received = 0;
 
@@ -118,7 +120,7 @@ namespace Netch.Utils
 
             while (Global.MainForm.State != State.Stopped)
             {
-                Task.Delay(1000).Wait();
+                Thread.Sleep(1000);
                 lock (counterLock)
                     Global.MainForm.OnBandwidthUpdated(received);
             }

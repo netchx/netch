@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Netch.Models;
 using Vanara.PInvoke;
 
@@ -47,7 +49,11 @@ namespace Netch.Utils
             if (metric != null)
                 arguments += $"metric={metric} ";
 
-            Utils.ProcessRunHiddenAsync("netsh", arguments).Wait();
+            Process.Start(new ProcessStartInfo("netsh.exe", arguments)
+            {
+                UseShellExecute = false,
+                Verb = "runas"
+            })!.WaitForExit();
         }
     }
 
