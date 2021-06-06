@@ -1,50 +1,44 @@
-﻿using Netch.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using Netch.Enums;
+using Netch.Utils;
 
 namespace Netch.Models
 {
     public class Mode
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fullName">Mode File FullPath</param>
-        /// <exception cref="FormatException"></exception>
-        /// <exception cref="NotSupportedException"></exception>
+        private List<string>? _content;
+
         public Mode(string? fullName)
         {
             FullName = fullName;
             if (FullName == null || !File.Exists(FullName))
                 return;
 
-            (Remark, Type) = ReadHead(FullName);
+            Load();
         }
 
         public string? FullName { get; }
 
-        /// <summary>
-        ///     规则
-        /// </summary>
         public List<string> Content => _content ??= ReadContent();
 
-        private List<string>? _content;
-
-        /// <summary>
-        ///     备注
-        /// </summary>
         public string Remark { get; set; } = "";
 
         public ModeType Type { get; set; } = ModeType.Process;
 
-        /// <summary>
-        ///     文件相对路径(必须是存在的文件)
-        /// </summary>
         public string? RelativePath => FullName == null ? null : ModeHelper.GetRelativePath(FullName);
+
+        private void Load()
+        {
+            if (FullName == null)
+                return;
+
+            (Remark, Type) = ReadHead(FullName);
+            _content = null;
+        }
 
         public IEnumerable<string> GetRules()
         {
@@ -91,13 +85,15 @@ namespace Netch.Models
             if (text.First() != '#')
                 throw new FormatException($"{fileName} head not found at Line 0");
 
-            var split = text[1..].SplitTrimEntries(',');
+            var strings = text[1..].SplitTrimEntries(',');
 
-            var typeNumber = int.TryParse(split.ElementAtOrDefault(1), out var type) ? type : 0;
+            var remark = strings[0];
+            var typeNumber = int.TryParse(strings.ElementAtOrDefault(1), out var type) ? type : 0;
+
             if (!Enum.GetValues(typeof(ModeType)).Cast<int>().Contains(typeNumber))
                 throw new NotSupportedException($"Not support mode \"{typeNumber}\".");
 
-            return (split[0], (ModeType)typeNumber);
+            return (remark, (ModeType)typeNumber);
         }
 
         private List<string> ReadContent()
@@ -106,11 +102,6 @@ namespace Netch.Models
                 return new List<string>();
 
             return File.ReadLines(FullName).Skip(1).ToList();
-        }
-
-        public void ResetContent()
-        {
-            _content = null;
         }
 
         public void WriteFile()
@@ -124,10 +115,6 @@ namespace Netch.Models
             File.WriteAllText(FullName!, content);
         }
 
-        /// <summary>
-        ///     获取备注
-        /// </summary>
-        /// <returns>备注</returns>
         public override string ToString()
         {
             return $"[{(int)Type + 1}] {i18N.Translate(Remark)}";
@@ -139,7 +126,8 @@ namespace Netch.Models
         /// 是否会转发 UDP
         public static bool TestNatRequired(this Mode mode)
         {
-            return mode.Type is ModeType.Process or ModeType.BypassRuleIPs;
+            return mode.Type is ModeType.Process && Global.Settings.Redirector.ProxyProtocol.HasFlag(PortType.UDP) ||
+                   mode.Type is ModeType.BypassRuleIPs;
         }
     }
 }

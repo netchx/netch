@@ -25,7 +25,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Error(e,"获取保留端口错误");
+                Log.Error(e, "获取保留端口错误");
             }
         }
 
@@ -163,11 +163,12 @@ namespace Netch.Utils
     /// <summary>
     ///     检查端口类型
     /// </summary>
+    [Flags]
     public enum PortType
     {
-        TCP,
-        UDP,
-        Both
+        TCP = 0x01,
+        UDP = 0x10,
+        Both = TCP | UDP
     }
 
     public class PortInUseException : Exception
