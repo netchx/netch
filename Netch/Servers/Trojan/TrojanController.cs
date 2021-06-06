@@ -29,7 +29,7 @@ namespace Netch.Servers.Trojan
             {
                 local_addr = this.LocalAddress(),
                 local_port = this.Socks5LocalPort(),
-                remote_addr = server.Hostname,
+                remote_addr = server.AutoResolveHostname(),
                 remote_port = server.Port,
                 password = new List<string>
                 {
@@ -37,8 +37,11 @@ namespace Netch.Servers.Trojan
                 }
             };
 
+
             if (!string.IsNullOrWhiteSpace(server.Host))
                 trojanConfig.ssl.sni = server.Host;
+            else if (Global.Settings.ResolveServerHostname)
+                trojanConfig.ssl.sni = server.Hostname;
 
             File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
