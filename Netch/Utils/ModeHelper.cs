@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Interfaces;
@@ -15,33 +16,49 @@ namespace Netch.Utils
     {
         public const string DisableModeDirectoryFileName = "disabled";
 
+        private static FileSystemWatcher _fileSystemWatcher = null!;
+
         public static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
 
-        private static readonly FileSystemWatcher FileSystemWatcher;
-
-        public static bool SuspendWatcher { get; set; } = false;
-
-        static ModeHelper()
+        public static bool SuspendWatcher
         {
-            FileSystemWatcher = new FileSystemWatcher(ModeDirectoryFullName)
+            get => _fileSystemWatcher.EnableRaisingEvents;
+            set => _fileSystemWatcher.EnableRaisingEvents = value;
+        }
+
+        public static void InitWatcher()
+        {
+            _fileSystemWatcher = new FileSystemWatcher(ModeDirectoryFullName)
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.FileName,
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName,
                 IncludeSubdirectories = true,
                 EnableRaisingEvents = true
             };
 
-            FileSystemWatcher.Changed += OnModeChanged;
-            FileSystemWatcher.Created += OnModeChanged;
-            FileSystemWatcher.Deleted += OnModeChanged;
-            FileSystemWatcher.Renamed += OnModeChanged;
+            var created = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Created += h,
+                    h => _fileSystemWatcher.Created -= h)
+                .Select(x => x.EventArgs);
+
+            var changed = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Changed += h,
+                    h => _fileSystemWatcher.Changed -= h)
+                .Select(x => x.EventArgs);
+
+            var deleted = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Deleted += h,
+                    h => _fileSystemWatcher.Deleted -= h)
+                .Select(x => x.EventArgs);
+
+            var renamed = Observable.FromEventPattern<RenamedEventHandler, RenamedEventArgs>(h => _fileSystemWatcher.Renamed += h,
+                    h => _fileSystemWatcher.Renamed -= h)
+                .Select(x => x.EventArgs);
+
+            var o = Observable.Merge(created, deleted, renamed, changed);
+            o.Throttle(TimeSpan.FromSeconds(3)).Select(_ => true).Subscribe(OnNext, exception => Log.Error(exception, "FileSystemWatcherError"));
         }
 
-        private static void OnModeChanged(object sender, FileSystemEventArgs e)
+        private static void OnNext(bool obj)
         {
-            if (SuspendWatcher)
-                return;
-
             Load();
+            Global.MainForm.LoadModes();
         }
 
         public static string GetRelativePath(string fullName)
@@ -58,23 +75,19 @@ namespace Netch.Utils
             return Path.Combine(ModeDirectoryFullName, relativeName);
         }
 
-        /// <summary>
-        ///     从模式文件夹读取模式
-        /// </summary>
         public static void Load()
         {
             Global.Modes.Clear();
-            LoadModeDirectory(ModeDirectoryFullName);
-
+            LoadCore(ModeDirectoryFullName);
             Sort();
         }
 
-        private static void LoadModeDirectory(string modeDirectory)
+        private static void LoadCore(string modeDirectory)
         {
             try
             {
                 foreach (var directory in Directory.GetDirectories(modeDirectory))
-                    LoadModeDirectory(directory);
+                    LoadCore(directory);
 
                 // skip Directory with a disabled file in
                 if (File.Exists(Path.Combine(modeDirectory, DisableModeDirectoryFileName)))

@@ -75,6 +75,7 @@ namespace Netch.Forms
             SelectLastServer();
             ServerHelper.DelayTestHelper.UpdateInterval();
 
+            ModeHelper.InitWatcher();
             ModeHelper.Load();
             LoadModes();
             SelectLastMode();
@@ -677,6 +678,12 @@ namespace Netch.Forms
 
         public void LoadModes()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(LoadModes));
+                return;
+            }
+
             ModeComboBox.Items.Clear();
             ModeComboBox.Items.AddRange(Global.Modes.Cast<object>().ToArray());
             ModeComboBox.Tag = null;
