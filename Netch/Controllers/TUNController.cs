@@ -26,7 +26,7 @@ namespace Netch.Controllers
 
         private NetRoute _tun;
 
-        private IPAddress _serverAddresses = null!;
+        private IPAddress? _serverRemoteAddress;
 
         private Mode _mode = null!;
 
@@ -34,7 +34,10 @@ namespace Netch.Controllers
         {
             _mode = mode;
             var server = MainController.Server!;
-            _serverAddresses = DnsUtils.Lookup(server.Hostname)!; // server address have been cached when MainController.Start
+            _serverRemoteAddress = DnsUtils.Lookup(server.Hostname);
+
+            if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
+                _serverRemoteAddress = null;
 
             _outbound = NetRoute.GetBestRouteTemplate(out var address);
             CheckDriver();
@@ -112,8 +115,8 @@ namespace Netch.Controllers
             Log.Information("设置路由规则");
 
             // Server Address
-            if (!IPAddress.IsLoopback(_serverAddresses))
-                RouteUtils.CreateRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
+            if (_serverRemoteAddress != null)
+                RouteUtils.CreateRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
 
             // Global Bypass IPs
             RouteUtils.CreateRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
@@ -154,8 +157,8 @@ namespace Netch.Controllers
 
         private void ClearRouteTable()
         {
-            if (!IPAddress.IsLoopback(_serverAddresses))
-                RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverAddresses.ToString(), 32));
+            if (_serverRemoteAddress != null)
+                RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
 
             RouteUtils.DeleteRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
 

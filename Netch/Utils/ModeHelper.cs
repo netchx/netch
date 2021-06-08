@@ -52,10 +52,10 @@ namespace Netch.Utils
                 .Select(x => x.EventArgs);
 
             var o = Observable.Merge(created, deleted, renamed, changed);
-            o.Throttle(TimeSpan.FromSeconds(3)).Select(_ => true).Subscribe(OnNext, exception => Log.Error(exception, "FileSystemWatcherError"));
+            o.Throttle(TimeSpan.FromSeconds(3)).Subscribe(_ => OnModeChange(), exception => Log.Error(exception, "FileSystemWatcherError"));
         }
 
-        private static void OnNext(bool obj)
+        private static void OnModeChange()
         {
             Load();
             Global.MainForm.LoadModes();
