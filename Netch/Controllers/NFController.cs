@@ -34,9 +34,9 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_UDPLISN, p.ToString());
 
             // Server
-            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.Redirector.ProxyProtocol != PortType.TCP).ToString().ToLower());
-            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.Redirector.ProxyProtocol != PortType.UDP).ToString().ToLower());
-            dial_Server(Global.Settings.Redirector.ProxyProtocol);
+            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.Redirector.FilterProtocol != PortType.TCP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.Redirector.FilterProtocol != PortType.UDP).ToString().ToLower());
+            dial_Server(Global.Settings.Redirector.FilterProtocol);
 
             // Mode Rule
             dial_Name(mode);

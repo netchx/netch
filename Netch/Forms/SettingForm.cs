@@ -64,7 +64,7 @@ namespace Netch.Forms
             }
             catch (Exception e)
             {
-                Log.Warning(e,"Load stun.txt failed");
+                Log.Warning(e, "Load stun.txt failed");
                 stuns = null;
             }
 
@@ -99,27 +99,24 @@ namespace Netch.Forms
 
             #region Process Mode
 
+            BindListComboBox(ProcessFilterProtocolComboBox,
+                s => Global.Settings.Redirector.FilterProtocol = (PortType)Enum.Parse(typeof(PortType), s.ToString(), false),
+                Enum.GetNames(typeof(PortType)),
+                Global.Settings.Redirector.FilterProtocol.ToString());
+
             BindCheckBox(DNSHijackCheckBox, b => Global.Settings.Redirector.DNSHijack = b, Global.Settings.Redirector.DNSHijack);
 
             BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHijackHost = s, Global.Settings.Redirector.DNSHijackHost);
 
-            BindCheckBox(ICMPHijackCheckBox, b => Global.Settings.Redirector.ICMPHijack = b, Global.Settings.Redirector.ICMPHijack);
+            BindCheckBox(FilterICMPCheckBox, b => Global.Settings.Redirector.FilterICMP = b, Global.Settings.Redirector.FilterICMP);
 
-            BindTextBox(ICMPHijackHostTextBox,
-                s => IPAddress.TryParse(s, out _),
-                s => Global.Settings.Redirector.ICMPHost = s,
-                Global.Settings.Redirector.ICMPHost);
+            BindTextBox(ICMPDelayTextBox, s => int.TryParse(s, out _), s => { }, Global.Settings.Redirector.ICMPDelay);
 
             BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.Redirector.RedirectorSS = s, Global.Settings.Redirector.RedirectorSS);
 
             BindCheckBox(ChildProcessHandleCheckBox,
                 s => Global.Settings.Redirector.ChildProcessHandle = s,
                 Global.Settings.Redirector.ChildProcessHandle);
-
-            BindListComboBox(ProcessProxyProtocolComboBox,
-                s => Global.Settings.Redirector.ProxyProtocol = (PortType)Enum.Parse(typeof(PortType), s.ToString(), false),
-                Enum.GetNames(typeof(PortType)),
-                Global.Settings.Redirector.ProxyProtocol.ToString());
 
             #endregion
 

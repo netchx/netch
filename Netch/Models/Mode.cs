@@ -126,7 +126,7 @@ namespace Netch.Models
         /// 是否会转发 UDP
         public static bool TestNatRequired(this Mode mode)
         {
-            return mode.Type is ModeType.Process && Global.Settings.Redirector.ProxyProtocol.HasFlag(PortType.UDP) ||
+            return mode.Type is ModeType.Process && Global.Settings.Redirector.FilterProtocol.HasFlag(PortType.UDP) ||
                    mode.Type is ModeType.BypassRuleIPs;
         }
     }

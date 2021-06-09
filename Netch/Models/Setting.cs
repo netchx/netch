@@ -1,5 +1,6 @@
 ﻿using Netch.Utils;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Netch.Models
 {
@@ -88,7 +89,7 @@ namespace Netch.Models
         /// <summary>
         ///     不代理TCP
         /// </summary>
-        public PortType ProxyProtocol { get; set; } = PortType.Both;
+        public PortType FilterProtocol { get; set; } = PortType.Both;
 
         /// <summary>
         ///     是否开启DNS转发
@@ -100,9 +101,10 @@ namespace Netch.Models
         /// </summary>
         public string DNSHijackHost { get; set; } = "1.1.1.1:53";
 
-        public string ICMPHost { get; set; } = "1.2.4.8";
+        [JsonIgnore]
+        public int ICMPDelay { get; } = 0;
 
-        public bool ICMPHijack { get; set; } = false;
+        public bool FilterICMP { get; set; } = false;
 
         /// <summary>
         ///     是否使用RDR内置SS
