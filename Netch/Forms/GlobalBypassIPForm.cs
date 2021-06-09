@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
@@ -10,8 +11,12 @@ namespace Netch.Forms
 {
     public partial class GlobalBypassIPForm : Form
     {
-        public GlobalBypassIPForm()
+        private readonly Setting _setting;
+
+        public GlobalBypassIPForm(Setting setting)
         {
+            _setting = setting;
+
             InitializeComponent();
             Icon = Resources.icon;
         }
@@ -20,7 +25,7 @@ namespace Netch.Forms
         {
             i18N.TranslateForm(this);
 
-            IPListBox.Items.AddRange(Global.Settings.TUNTAP.BypassIPs.Cast<object>().ToArray());
+            IPListBox.Items.AddRange(_setting.TUNTAP.BypassIPs.Cast<object>().ToArray());
 
             for (var i = 32; i >= 1; i--)
                 PrefixComboBox.Items.Add(i);
@@ -51,13 +56,12 @@ namespace Netch.Forms
                 MessageBoxX.Show(i18N.Translate("Please select an IP"));
         }
 
-        private async void ControlButton_Click(object sender, EventArgs e)
+        private void ControlButton_Click(object sender, EventArgs e)
         {
-            Global.Settings.TUNTAP.BypassIPs.Clear();
+            _setting.TUNTAP.BypassIPs.Clear();
             foreach (var ip in IPListBox.Items)
-                Global.Settings.TUNTAP.BypassIPs.Add((string)ip);
+                _setting.TUNTAP.BypassIPs.Add((string)ip);
 
-            await Configuration.SaveAsync();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }

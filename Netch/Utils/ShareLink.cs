@@ -123,7 +123,7 @@ namespace Netch.Utils
 
         public static string GetNetchLink(Server s)
         {
-            var jsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+            var jsonSerializerOptions = Constants.DefaultJsonSerializerOptions;
             jsonSerializerOptions.WriteIndented = false;
             return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
         }

@@ -1,4 +1,7 @@
-﻿namespace Netch
+﻿using System.Text.Encodings.Web;
+using System.Text.Json;
+
+namespace Netch
 {
     public static class Constants
     {
@@ -13,5 +16,12 @@
             public const string Show = "-show";
             public const string ForceUpdate = "-forceUpdate";
         }
+
+        public static JsonSerializerOptions DefaultJsonSerializerOptions => new()
+        {
+            WriteIndented = true,
+            IgnoreNullValues = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
     }
 }

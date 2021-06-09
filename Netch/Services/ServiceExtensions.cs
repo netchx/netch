@@ -10,12 +10,18 @@ namespace Netch.Services
         public static IServiceCollection AddViews(this IServiceCollection services)
         {
             services.TryAddSingleton<MainForm>();
+            services.TryAddTransient<SettingForm>();
+            services.TryAddTransient<SubscribeForm>();
+            services.TryAddTransient<GlobalBypassIPForm>();
+
             return services;
         }
 
         public static IServiceCollection AddSetting(this IServiceCollection services)
         {
+            services.TryAddSingleton<Configuration>();
             services.TryAddSingleton<Setting>();
+
             return services;
         }
 

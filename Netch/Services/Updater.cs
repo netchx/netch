@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Netch.Controllers;
+using Netch.Forms;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
@@ -18,8 +19,10 @@ namespace Netch.Services
     {
         private readonly string _installDirectory;
         private readonly string _tempDirectory;
-
         private readonly string _updateFile;
+
+        private readonly MainForm _mainForm;
+        private readonly Configuration _configuration;
 
         private Updater(string updateFile, string installDirectory)
         {
@@ -27,36 +30,14 @@ namespace Netch.Services
             _installDirectory = installDirectory;
             _tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
+            _configuration = DI.GetRequiredService<Configuration>();
+            _mainForm = DI.GetRequiredService<MainForm>();
+
             Directory.CreateDirectory(_tempDirectory);
         }
 
-        #region Clean files marked as old when start
-
-        public static void CleanOld(string targetPath)
-        {
-            foreach (var f in Directory.GetFiles(targetPath, "*.old", SearchOption.AllDirectories))
-                try
-                {
-                    File.Delete(f);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-        }
-
-        #endregion
-
         #region Download Update and apply update
 
-        /// <summary>
-        ///     Download Update and apply update (all arguments are FullPath)
-        /// </summary>
-        /// <param name="downloadDirectory"></param>
-        /// <param name="installDirectory"></param>
-        /// <param name="onDownloadProgressChanged"></param>
-        /// <param name="keyword"></param>
-        /// <exception cref="MessageException"></exception>
         public static async Task DownloadAndUpdate(string downloadDirectory,
             string installDirectory,
             DownloadProgressChangedEventHandler onDownloadProgressChanged,
@@ -83,13 +64,6 @@ namespace Netch.Services
             await updater.ApplyUpdate();
         }
 
-        /// <summary>
-        ///     Download Update File
-        /// </summary>
-        /// <param name="onDownloadProgressChanged"></param>
-        /// <param name="fileFullPath"></param>
-        /// <param name="sha256"></param>
-        /// <exception cref="MessageException"></exception>
         private static void DownloadUpdateFile(DownloadProgressChangedEventHandler onDownloadProgressChanged, string fileFullPath, string sha256)
         {
             using WebClient client = new();
@@ -113,21 +87,19 @@ namespace Netch.Services
 
         private async Task ApplyUpdate()
         {
-            var mainForm = Global.MainForm;
-
             #region PreUpdate
 
             ModeHelper.SuspendWatcher = true;
             // Stop and Save
-            await mainForm.Stop();
-            await Configuration.SaveAsync();
+            await _mainForm.Stop();
+            await _configuration.SaveAsync();
 
             #endregion
 
             // extract Update file to {tempDirectory}\extract
             var extractPath = Path.Combine(_tempDirectory, "extract");
             int exitCode;
-            if ((exitCode = Extract(extractPath, true)) != 0)
+            if ((exitCode = Extract(_tempDirectory, _updateFile, extractPath, true)) != 0)
                 throw new MessageException(i18N.Translate($"7za unexpectedly exited. ({exitCode})"));
 
             var updateDirectory = Path.Combine(extractPath, "Netch");
@@ -140,24 +112,28 @@ namespace Netch.Services
 
 
             // rename install directory files with .old suffix unless in keep folders
-            MarkFilesOld();
+            MarkFilesOld(_installDirectory);
 
             // move {tempDirectory}\extract\Netch to install folder
             MoveAllFilesOver(updateDirectory, _installDirectory);
 
             // release mutex, exit
-            mainForm.Invoke(new Action(Netch.SingleInstance.Dispose));
+            _mainForm.Invoke(new Action(Netch.SingleInstance.Dispose));
             Process.Start(Global.NetchExecutable);
             Environment.Exit(0);
         }
 
-        private void MarkFilesOld()
+        #endregion
+
+        #region Others
+
+        private static void MarkFilesOld(string directory)
         {
             var keepDirs = new[] { "data", "mode\\Custom", "logging" };
 
-            var keepDirFullPath = keepDirs.Select(d => Path.Combine(_installDirectory, d)).ToImmutableList();
+            var keepDirFullPath = keepDirs.Select(d => Path.Combine(directory, d)).ToImmutableList();
 
-            foreach (var file in Directory.GetFiles(_installDirectory, "*", SearchOption.AllDirectories))
+            foreach (var file in Directory.GetFiles(directory, "*", SearchOption.AllDirectories))
             {
                 // skip keep files
                 if (keepDirFullPath.Any(p => file.StartsWith(p)))
@@ -179,17 +155,30 @@ namespace Netch.Services
             }
         }
 
-        private int Extract(string destDirName, bool overwrite)
+        public static void CleanOld(string targetPath)
+        {
+            foreach (var f in Directory.GetFiles(targetPath, "*.old", SearchOption.AllDirectories))
+                try
+                {
+                    File.Delete(f);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+        }
+
+        private static int Extract(string tempDirectory, string file, string destDirName, bool overwrite)
         {
             // release 7za.exe to {tempDirectory}\7za.exe
-            var temp7za = Path.Combine(_tempDirectory, "7za.exe");
+            var temp7za = Path.Combine(tempDirectory, "7za.exe");
 
             if (!File.Exists(temp7za))
                 File.WriteAllBytes(temp7za, Resources._7za);
 
             // run 7za
             var argument = new StringBuilder();
-            argument.Append($" x \"{_updateFile}\" -o\"{destDirName}\"");
+            argument.Append($" x \"{file}\" -o\"{destDirName}\"");
             if (overwrite)
                 argument.Append(" -y");
 

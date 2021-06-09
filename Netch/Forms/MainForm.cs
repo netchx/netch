@@ -24,14 +24,20 @@ namespace Netch.Forms
 {
     public partial class MainForm : Form
     {
+        private readonly Setting _setting;
+        private readonly Configuration _configuration;
+
         #region Start
 
         private readonly Dictionary<string, object> _mainFormText = new();
 
         private bool _textRecorded;
 
-        public MainForm()
+        public MainForm(Setting setting, Configuration configuration)
         {
+            _setting = setting;
+            _configuration = configuration;
+
             InitializeComponent();
             NotifyIcon.Icon = Icon = Resources.icon;
 
@@ -92,18 +98,18 @@ namespace Netch.Forms
             BeginInvoke(new Action(async () =>
             {
                 // 检查更新
-                if (Global.Settings.CheckUpdateWhenOpened)
+                if (_setting.CheckUpdateWhenOpened)
                     await CheckUpdate();
             }));
 
             BeginInvoke(new Action(async () =>
             {
                 // 检查订阅更新
-                if (Global.Settings.UpdateServersWhenOpened)
+                if (_setting.UpdateServersWhenOpened)
                     await UpdateServersFromSubscribe();
 
                 // 打开软件时启动加速，产生开始按钮点击事件
-                if (Global.Settings.StartWhenOpened)
+                if (_setting.StartWhenOpened)
                     ControlButton_Click(null, null);
             }));
 
@@ -216,11 +222,11 @@ namespace Netch.Forms
             if (!string.IsNullOrWhiteSpace(texts))
             {
                 var servers = ShareLink.ParseText(texts);
-                Global.Settings.Server.AddRange(servers);
+                _setting.Server.AddRange(servers);
                 NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
                 LoadServers();
-                await Configuration.SaveAsync();
+                await _configuration.SaveAsync();
             }
         }
 
@@ -235,7 +241,7 @@ namespace Netch.Forms
             util.Create();
 
             LoadServers();
-            await Configuration.SaveAsync();
+            await _configuration.SaveAsync();
             Show();
         }
 
@@ -261,10 +267,11 @@ namespace Netch.Forms
 
         #region Subscription
 
-        private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Hide();
-            new SubscribeForm().ShowDialog();
+            
+            DI.GetRequiredService<SubscribeForm>().ShowDialog();
             LoadServers();
             Show();
         }
@@ -281,7 +288,7 @@ namespace Netch.Forms
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
             }
 
-            if (Global.Settings.SubscribeLink.Count <= 0)
+            if (_setting.SubscribeLink.Count <= 0)
             {
                 MessageBoxX.Show(i18N.Translate("No subscription link"));
                 return;
@@ -295,7 +302,7 @@ namespace Netch.Forms
                 await Subscription.UpdateServersAsync();
 
                 LoadServers();
-                await Configuration.SaveAsync();
+                await _configuration.SaveAsync();
                 StatusText(i18N.Translate("Subscription updated"));
             }
             catch (Exception e)
@@ -470,7 +477,7 @@ namespace Netch.Forms
                 return;
             }
 
-            await Configuration.SaveAsync();
+            await _configuration.SaveAsync();
 
             // 服务器、模式 需选择
             if (ServerComboBox.SelectedItem is not Server server)
@@ -504,19 +511,19 @@ namespace Netch.Forms
             _ = Task.Run(Bandwidth.NetTraffic);
             _ = Task.Run(NatTest);
 
-            if (Global.Settings.MinimizeWhenStarted)
+            if (_setting.MinimizeWhenStarted)
                 Minimize();
 
             // 自动检测延迟
             _ = Task.Run(() =>
             {
                 while (State == State.Started)
-                    if (Global.Settings.StartedPingInterval >= 0)
+                    if (_setting.StartedPingInterval >= 0)
                     {
                         server.Test();
                         ServerComboBox.Refresh();
 
-                        Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
+                        Thread.Sleep(_setting.StartedPingInterval * 1000);
                     }
                     else
                     {
@@ -531,23 +538,25 @@ namespace Netch.Forms
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
-            var oldSettings = Global.Settings.Clone();
+            var oldSettings = _setting.Clone();
 
             Hide();
-            new SettingForm().ShowDialog();
+            var settingForm = DI.GetRequiredService<SettingForm>();
 
-            if (oldSettings.Language != Global.Settings.Language)
+            settingForm.ShowDialog();
+
+            if (oldSettings.Language != _setting.Language)
             {
-                i18N.Load(Global.Settings.Language);
+                i18N.Load(_setting.Language);
                 TranslateControls();
                 LoadModes();
                 LoadProfiles();
             }
 
-            if (oldSettings.DetectionTick != Global.Settings.DetectionTick)
+            if (oldSettings.DetectionTick != _setting.DetectionTick)
                 ServerHelper.DelayTestHelper.UpdateInterval();
 
-            if (oldSettings.ProfileCount != Global.Settings.ProfileCount)
+            if (oldSettings.ProfileCount != _setting.ProfileCount)
                 LoadProfiles();
 
             Show();
@@ -560,15 +569,15 @@ namespace Netch.Forms
         private void LoadServers()
         {
             ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(Global.Settings.Server.Cast<object>().ToArray());
+            ServerComboBox.Items.AddRange(_setting.Server.Cast<object>().ToArray());
             SelectLastServer();
         }
 
         private void SelectLastServer()
         {
             // 如果值合法，选中该位置
-            if (Global.Settings.ServerComboBoxSelectedIndex > 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
-                ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
+            if (_setting.ServerComboBoxSelectedIndex > 0 && _setting.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
+                ServerComboBox.SelectedIndex = _setting.ServerComboBoxSelectedIndex;
             // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
             else if (ServerComboBox.Items.Count > 0)
                 ServerComboBox.SelectedIndex = 0;
@@ -578,7 +587,7 @@ namespace Netch.Forms
 
         private void ServerComboBox_SelectionChangeCommitted(object sender, EventArgs o)
         {
-            Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+            _setting.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
         }
 
         private async void EditServerPictureBox_Click(object sender, EventArgs e)
@@ -596,7 +605,7 @@ namespace Netch.Forms
             Hide();
             ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
             LoadServers();
-            await Configuration.SaveAsync();
+            await _configuration.SaveAsync();
             Show();
         }
 
@@ -668,7 +677,7 @@ namespace Netch.Forms
                 return;
             }
 
-            Global.Settings.Server.Remove(server);
+            _setting.Server.Remove(server);
             LoadServers();
         }
 
@@ -693,8 +702,8 @@ namespace Netch.Forms
         private void SelectLastMode()
         {
             // 如果值合法，选中该位置
-            if (Global.Settings.ModeComboBoxSelectedIndex > 0 && Global.Settings.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
-                ModeComboBox.SelectedIndex = Global.Settings.ModeComboBoxSelectedIndex;
+            if (_setting.ModeComboBoxSelectedIndex > 0 && _setting.ModeComboBoxSelectedIndex < ModeComboBox.Items.Count)
+                ModeComboBox.SelectedIndex = _setting.ModeComboBoxSelectedIndex;
             // 如果值非法，且当前 ModeComboBox 中有元素，选择第一个位置
             else if (ModeComboBox.Items.Count > 0)
                 ModeComboBox.SelectedIndex = 0;
@@ -706,11 +715,11 @@ namespace Netch.Forms
         {
             try
             {
-                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
+                _setting.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
             }
             catch
             {
-                Global.Settings.ModeComboBoxSelectedIndex = 0;
+                _setting.ModeComboBoxSelectedIndex = 0;
             }
         }
 
@@ -781,7 +790,7 @@ namespace Netch.Forms
             ProfileTable.ColumnStyles.Clear();
             ProfileTable.RowStyles.Clear();
 
-            var profileCount = Global.Settings.ProfileCount;
+            var profileCount = _setting.ProfileCount;
             if (profileCount == 0)
             {
                 // Hide Profile GroupBox, Change window size
@@ -795,17 +804,17 @@ namespace Netch.Forms
             {
                 // Load Profiles
 
-                if (Global.Settings.ProfileTableColumnCount == 0)
-                    Global.Settings.ProfileTableColumnCount = 5;
+                if (_setting.ProfileTableColumnCount == 0)
+                    _setting.ProfileTableColumnCount = 5;
 
-                var columnCount = Global.Settings.ProfileTableColumnCount;
+                var columnCount = _setting.ProfileTableColumnCount;
 
                 ProfileTable.ColumnCount = profileCount >= columnCount ? columnCount : profileCount;
                 ProfileTable.RowCount = (int)Math.Ceiling(profileCount / (float)columnCount);
 
                 for (var i = 0; i < profileCount; ++i)
                 {
-                    var profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == i);
+                    var profile = _setting.Profiles.SingleOrDefault(p => p.Index == i);
                     var b = new Button
                     {
                         Dock = DockStyle.Fill,
@@ -855,11 +864,11 @@ namespace Netch.Forms
             var name = ProfileNameText.Text;
 
             Profile? profile;
-            if ((profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == index)) != null)
-                Global.Settings.Profiles.Remove(profile);
+            if ((profile = _setting.Profiles.SingleOrDefault(p => p.Index == index)) != null)
+                _setting.Profiles.Remove(profile);
 
             profile = new Profile(server, mode, name, index);
-            Global.Settings.Profiles.Add(profile);
+            _setting.Profiles.Add(profile);
             return profile;
         }
 
@@ -902,7 +911,7 @@ namespace Netch.Forms
                     if (profile == null)
                         return;
 
-                    Global.Settings.Profiles.Remove(profile);
+                    _setting.Profiles.Remove(profile);
                     profileButton.Tag = null;
                     profileButton.Text = i18N.Translate("None");
                     return;
@@ -1217,7 +1226,7 @@ namespace Netch.Forms
 
         public async void Exit(bool forceExit = false, bool saveConfiguration = true)
         {
-            if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
+            if (!IsWaiting() && !_setting.StopWhenExited && !forceExit)
             {
                 MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
@@ -1230,7 +1239,7 @@ namespace Netch.Forms
             Hide();
 
             if (saveConfiguration)
-                await Configuration.SaveAsync();
+                await _configuration.SaveAsync();
 
             foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
                 if (File.Exists(file))
@@ -1254,7 +1263,7 @@ namespace Netch.Forms
                 e.Cancel = true; // 取消关闭窗体 
 
                 // 如果未勾选关闭窗口时退出，隐藏至右下角托盘图标
-                if (!Global.Settings.ExitWhenClosed)
+                if (!_setting.ExitWhenClosed)
                     Minimize();
                 // 如果勾选了关闭时退出，自动点击退出按钮
                 else
@@ -1271,7 +1280,7 @@ namespace Netch.Forms
             try
             {
                 UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
-                await UpdateChecker.Check(Global.Settings.CheckBetaUpdate);
+                await UpdateChecker.Check(_setting.CheckBetaUpdate);
                 if (Flags.AlwaysShowNewVersionFound)
                     OnUpdateCheckerOnNewVersionFound(null!, null!);
             }

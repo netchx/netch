@@ -20,7 +20,7 @@ namespace Netch.Servers.V2ray.Utils
 
             outbound(server, mode, ref v2rayConfig);
 
-            return JsonSerializer.Serialize(v2rayConfig, Global.NewDefaultJsonSerializerOptions);
+            return JsonSerializer.Serialize(v2rayConfig, Constants.DefaultJsonSerializerOptions);
         }
 
         private static void inbound(Server server, ref V2rayConfig v2rayConfig)

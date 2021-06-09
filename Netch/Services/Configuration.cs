@@ -10,30 +10,34 @@ using Serilog;
 
 namespace Netch.Services
 {
-    public static class Configuration
+    public class Configuration
     {
         private const string FileName = "settings.json";
 
         private const string BackupFileName = "settings.json.bak";
 
-        private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+        private readonly JsonSerializerOptions _jsonSerializerOptions = Constants.DefaultJsonSerializerOptions;
 
-        static Configuration()
+        private readonly Setting _setting;
+
+        public Configuration(Setting setting)
         {
-            JsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
-            JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            _setting = setting;
+
+            _jsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
+            _jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
 
         /// <summary>
         ///     数据目录
         /// </summary>
-        public static string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
+        public string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
 
-        public static string FileFullName => Path.Combine(DataDirectoryFullName, FileName);
+        public string FileFullName => Path.Combine(DataDirectoryFullName, FileName);
 
-        private static string BackupFileFullName => Path.Combine(DataDirectoryFullName, BackupFileName);
+        private string BackupFileFullName => Path.Combine(DataDirectoryFullName, BackupFileName);
 
-        public static async Task LoadAsync()
+        public async Task LoadAsync()
         {
             try
             {
@@ -56,15 +60,15 @@ namespace Netch.Services
             }
         }
 
-        private static async ValueTask<bool> LoadAsyncCore(string filename)
+        private async ValueTask<bool> LoadAsyncCore(string filename)
         {
             try
             {
                 await using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-                var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions))!;
+                var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, _jsonSerializerOptions))!;
 
                 CheckSetting(settings);
-                Global.Settings = settings;
+                _setting.Set(settings);
                 return true;
             }
             catch (Exception e)
@@ -74,7 +78,7 @@ namespace Netch.Services
             }
         }
 
-        private static void CheckSetting(Setting settings)
+        private void CheckSetting(Setting settings)
         {
             settings.Profiles.RemoveAll(p => p.ServerRemark == string.Empty || p.ModeRemark == string.Empty);
 
@@ -89,7 +93,7 @@ namespace Netch.Services
         /// <summary>
         ///     保存配置
         /// </summary>
-        public static async Task SaveAsync()
+        public async Task SaveAsync()
         {
             try
             {
@@ -100,7 +104,7 @@ namespace Netch.Services
 
                 await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 {
-                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions);
+                    await JsonSerializer.SerializeAsync(fileStream, _setting, _jsonSerializerOptions);
                 }
 
                 File.Replace(tempFile, FileFullName, BackupFileFullName);

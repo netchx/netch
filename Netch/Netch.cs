@@ -42,8 +42,10 @@ namespace Netch
                 if (!Directory.Exists(item))
                     Directory.CreateDirectory(item);
 
-            // 加载配置
-            Configuration.LoadAsync().Wait();
+            DI.Register();
+
+            var configuration = DI.GetRequiredService<Configuration>();
+            configuration.LoadAsync().Wait();
 
             if (!SingleInstance.IsFirstInstance)
             {
@@ -54,7 +56,6 @@ namespace Netch
             SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
 
             InitConsole();
-            DI.Register();
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间
             if (Directory.Exists("logging"))
@@ -90,7 +91,7 @@ namespace Netch
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(Global.MainForm);
+            Application.Run(DI.GetRequiredService<MainForm>());
         }
 
         private static void InitConsole()
