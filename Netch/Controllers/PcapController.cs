@@ -15,7 +15,7 @@ namespace Netch.Controllers
 {
     public class PcapController : Guard, IModeController
     {
-        public override string Name { get; } = "pcap2socks";
+        private LogForm? _form;
 
         public override string MainFile { get; protected set; } = "pcap2socks.exe";
 
@@ -23,7 +23,7 @@ namespace Netch.Controllers
 
         protected override Encoding? InstanceOutputEncoding { get; } = Encoding.UTF8;
 
-        private LogForm? _form;
+        public override string Name { get; } = "pcap2socks";
 
         public void Start(in Mode mode)
         {
@@ -42,6 +42,12 @@ namespace Netch.Controllers
 
             argument.Append($" {mode.GetRules().FirstOrDefault() ?? "-P n"}");
             StartInstanceAuto(argument.ToString());
+        }
+
+        public override void Stop()
+        {
+            _form!.Close();
+            StopInstance();
         }
 
         protected override void OnReadNewLine(string line)
@@ -65,19 +71,13 @@ namespace Netch.Controllers
                 Task.Run(() =>
                 {
                     Thread.Sleep(1000);
-                    Utils.Utils.Open("https://github.com/zhxie/pcap2socks#dependencies");
+                    Misc.Open("https://github.com/zhxie/pcap2socks#dependencies");
                 });
 
                 throw new MessageException("Pleases install pcap2socks's dependency");
             }
 
-            Utils.Utils.Open(LogPath);
-        }
-
-        public override void Stop()
-        {
-            _form!.Close();
-            StopInstance();
+            Misc.Open(LogPath);
         }
     }
 }

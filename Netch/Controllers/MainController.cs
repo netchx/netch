@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Socks5;
+using Netch.Services;
 using Netch.Utils;
 using Serilog;
 

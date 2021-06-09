@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Sockets;
+using System.Net;
 using Netch.Interops;
 using Netch.Models;
 using Serilog;
@@ -28,7 +28,18 @@ namespace Netch.Utils
 
         public static bool CreateRoute(NetRoute o)
         {
-            return RouteHelper.CreateRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
+            if (o.Network.AddressFamily != o.Gateway.AddressFamily)
+            {
+                Log.Warning("Address({Address}) and Gateway({Gateway}) Address Family Different", o.Network, o.Gateway);
+                return false;
+            }
+
+            return RouteHelper.CreateRoute(o.Network.AddressFamily,
+                o.Network.ToString(),
+                o.Cidr,
+                o.Gateway.ToString(),
+                (ulong)o.InterfaceIndex,
+                o.Metric);
         }
 
         public static void DeleteRouteFill(NetRoute template, IEnumerable<string> rules, int? metric = null)
@@ -41,7 +52,7 @@ namespace Netch.Utils
         {
             if (!TryParseIPNetwork(rule, out var network, out var cidr))
             {
-                Log.Warning("invalid rule {Rule}",rule);
+                Log.Warning("invalid rule {Rule}", rule);
                 return false;
             }
 
@@ -50,10 +61,15 @@ namespace Netch.Utils
 
         public static bool DeleteRoute(NetRoute o)
         {
-            return RouteHelper.DeleteRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
+            return RouteHelper.DeleteRoute(o.Network.AddressFamily,
+                o.Network.ToString(),
+                o.Cidr,
+                o.Gateway.ToString(),
+                (ulong)o.InterfaceIndex,
+                o.Metric);
         }
 
-        public static bool TryParseIPNetwork(string ipNetwork, [NotNullWhen(true)] out string? ip, out int cidr)
+        public static bool TryParseIPNetwork(string ipNetwork, [NotNullWhen(true)] out IPAddress? ip, out int cidr)
         {
             ip = null;
             cidr = 0;
@@ -62,7 +78,7 @@ namespace Netch.Utils
             if (s.Length != 2)
                 return false;
 
-            ip = s[0];
+            ip = IPAddress.Parse(s[0]);
             cidr = int.Parse(s[1]);
             return true;
         }

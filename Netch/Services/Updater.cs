@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
@@ -17,6 +16,37 @@ namespace Netch.Services
 {
     public class Updater
     {
+        private readonly string _installDirectory;
+        private readonly string _tempDirectory;
+
+        private readonly string _updateFile;
+
+        private Updater(string updateFile, string installDirectory)
+        {
+            _updateFile = updateFile;
+            _installDirectory = installDirectory;
+            _tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+
+            Directory.CreateDirectory(_tempDirectory);
+        }
+
+        #region Clean files marked as old when start
+
+        public static void CleanOld(string targetPath)
+        {
+            foreach (var f in Directory.GetFiles(targetPath, "*.old", SearchOption.AllDirectories))
+                try
+                {
+                    File.Delete(f);
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+        }
+
+        #endregion
+
         #region Download Update and apply update
 
         /// <summary>
@@ -40,7 +70,7 @@ namespace Netch.Services
 
             if (File.Exists(updateFile))
             {
-                if (Utils.Utils.SHA256CheckSum(updateFile) == sha256)
+                if (Misc.Sha256CheckSum(updateFile) == sha256)
                 {
                     await updater.ApplyUpdate();
                     return;
@@ -73,24 +103,11 @@ namespace Netch.Services
                 client.DownloadProgressChanged -= onDownloadProgressChanged;
             }
 
-            if (Utils.Utils.SHA256CheckSum(fileFullPath) != sha256)
+            if (Misc.Sha256CheckSum(fileFullPath) != sha256)
                 throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
         }
 
         #endregion
-
-        private readonly string _updateFile;
-        private readonly string _installDirectory;
-        private readonly string _tempDirectory;
-
-        private Updater(string updateFile, string installDirectory)
-        {
-            _updateFile = updateFile;
-            _installDirectory = installDirectory;
-            _tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-
-            Directory.CreateDirectory(_tempDirectory);
-        }
 
         #region Apply Update
 
@@ -119,7 +136,7 @@ namespace Netch.Services
 
             var updateMainProgramFilePath = Path.Combine(updateDirectory, "Netch.exe");
             if (!File.Exists(updateMainProgramFilePath))
-                throw new MessageException(i18N.Translate($"Update file main program not exist"));
+                throw new MessageException(i18N.Translate("Update file main program not exist"));
 
 
             // rename install directory files with .old suffix unless in keep folders
@@ -203,23 +220,6 @@ namespace Netch.Services
                 File.Delete(destFile);
                 File.Move(file, destFile);
             }
-        }
-
-        #endregion
-
-        #region Clean files marked as old when start
-
-        public static void CleanOld(string targetPath)
-        {
-            foreach (var f in Directory.GetFiles(targetPath, "*.old", SearchOption.AllDirectories))
-                try
-                {
-                    File.Delete(f);
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
         }
 
         #endregion

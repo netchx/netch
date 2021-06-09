@@ -1,5 +1,4 @@
-﻿using Netch.Properties;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,23 +6,23 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Windows.Forms;
+using Netch.Properties;
 using Serilog;
 
 namespace Netch.Utils
 {
     public static class i18N
     {
+        /// <summary>
+        ///     数据
+        /// </summary>
+        public static Hashtable Data = new();
 #if NET
         static i18N()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 #endif
-
-        /// <summary>
-        ///     数据
-        /// </summary>
-        public static Hashtable Data = new();
 
         public static string LangCode { get; private set; } = "en-US";
 
@@ -42,7 +41,7 @@ namespace Netch.Utils
             {
                 var oldLangCode = LangCode;
                 LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
-                Log.Information("找不到语言 {OldLangCode}, 使用 {LangCode}",oldLangCode,LangCode);
+                Log.Information("找不到语言 {OldLangCode}, 使用 {LangCode}", oldLangCode, LangCode);
             }
 
             switch (LangCode)
@@ -118,7 +117,7 @@ namespace Netch.Utils
 
         public static void TranslateForm(in Control c)
         {
-            Utils.ComponentIterator(c,
+            Misc.ComponentIterator(c,
                 component =>
                 {
                     switch (component)

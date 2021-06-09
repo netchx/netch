@@ -1,14 +1,14 @@
-﻿using Netch.Controllers;
-using Netch.Forms;
-using Netch.Utils;
-using Netch.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
+using Netch.Forms;
+using Netch.Services;
+using Netch.Utils;
 using Serilog;
 using Vanara.PInvoke;
 
@@ -80,7 +80,7 @@ namespace Netch
             }
 
             Log.Information("版本: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-            Task.Run(() => { Log.Information("主程序 SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
+            Task.Run(() => { Log.Information("主程序 SHA256: {Hash}", $"{Misc.Sha256CheckSum(Global.NetchExecutable)}"); });
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -116,9 +116,7 @@ namespace Netch
         private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)
         {
             if (args.Contains(Constants.Parameter.Show))
-            {
                 Global.MainForm.ShowMainFormToolStripButton_Click(null!, null!);
-            }
         }
     }
 }

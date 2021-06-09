@@ -5,10 +5,10 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Netch.Enums;
 using Netch.Interfaces;
+using Netch.Interops;
 using Netch.Models;
 using Netch.Servers.Socks5;
 using Netch.Utils;
-using Netch.Interops;
 using Serilog;
 using static Netch.Interops.tun2socks;
 
@@ -16,19 +16,19 @@ namespace Netch.Controllers
 {
     public class TUNController : IModeController
     {
-        public string Name => "tun2socks";
-
         private const string DummyDns = "6.6.6.6";
 
         private readonly DNSController _aioDnsController = new();
 
-        private NetRoute _outbound;
+        private Mode _mode = null!;
 
-        private NetRoute _tun;
+        private NetRoute _outbound;
 
         private IPAddress? _serverRemoteAddress;
 
-        private Mode _mode = null!;
+        private NetRoute _tun;
+
+        public string Name => "tun2socks";
 
         public void Start(in Mode mode)
         {
@@ -97,14 +97,50 @@ namespace Netch.Controllers
                 throw new MessageException("tun2socks start failed.");
 
             var tunIndex = (int)RouteHelper.ConvertLuidToIndex(tun_luid());
-            _tun = NetRoute.TemplateBuilder(Global.Settings.TUNTAP.Gateway, tunIndex);
+            _tun = NetRoute.TemplateBuilder(IPAddress.Parse(Global.Settings.TUNTAP.Gateway), tunIndex);
 
             RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 Global.Settings.TUNTAP.Address,
-                (byte)Utils.Utils.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
+                (byte)Misc.SubnetToCidr(Global.Settings.TUNTAP.Netmask),
                 (ulong)tunIndex);
 
             SetupRouteTable(mode);
+        }
+
+        public void Stop()
+        {
+            var tasks = new[]
+            {
+                Task.Run(Free),
+                Task.Run(ClearRouteTable),
+                Task.Run(_aioDnsController.Stop)
+            };
+
+            Task.WaitAll(tasks);
+        }
+
+        private void CheckDriver()
+        {
+            string binDriver = Path.Combine(Global.NetchDir, @"bin\wintun.dll");
+            string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
+
+            var binHash = Misc.Sha256CheckSum(binDriver);
+            var sysHash = Misc.Sha256CheckSum(sysDriver);
+            Log.Information("自带 wintun.dll Hash: {Hash}", binHash);
+            Log.Information("系统 wintun.dll Hash: {Hash}", sysHash);
+            if (binHash == sysHash)
+                return;
+
+            try
+            {
+                Log.Information("Copy wintun.dll to System Directory");
+                File.Copy(binDriver, sysDriver, true);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "复制 wintun.dll 异常");
+                throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
+            }
         }
 
         #region Route
@@ -136,7 +172,7 @@ namespace Netch.Controllers
 
                         if (!Global.Settings.TUNTAP.UseCustomDNS)
                             // proxy AioDNS other dns
-                            RouteUtils.CreateRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
+                            RouteUtils.CreateRoute(_tun.FillTemplate(Misc.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
                     }
 
                     break;
@@ -147,7 +183,7 @@ namespace Netch.Controllers
 
                     if (!Global.Settings.TUNTAP.UseCustomDNS)
                         // bypass AioDNS other dns
-                        RouteUtils.CreateRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
+                        RouteUtils.CreateRoute(_outbound.FillTemplate(Misc.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
 
                     NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0);
                     RouteUtils.CreateRoute(_tun.FillTemplate("0.0.0.0", 0));
@@ -172,41 +208,5 @@ namespace Netch.Controllers
         }
 
         #endregion
-
-        public void Stop()
-        {
-            var tasks = new[]
-            {
-                Task.Run(Free),
-                Task.Run(ClearRouteTable),
-                Task.Run(_aioDnsController.Stop)
-            };
-
-            Task.WaitAll(tasks);
-        }
-
-        private void CheckDriver()
-        {
-            string binDriver = Path.Combine(Global.NetchDir, @"bin\wintun.dll");
-            string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
-
-            var binHash = Utils.Utils.SHA256CheckSum(binDriver);
-            var sysHash = Utils.Utils.SHA256CheckSum(sysDriver);
-            Log.Information("自带 wintun.dll Hash: {Hash}", binHash);
-            Log.Information("系统 wintun.dll Hash: {Hash}", sysHash);
-            if (binHash == sysHash)
-                return;
-
-            try
-            {
-                Log.Information("Copy wintun.dll to System Directory");
-                File.Copy(binDriver, sysDriver, true);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "复制 wintun.dll 异常");
-                throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
-            }
-        }
     }
 }

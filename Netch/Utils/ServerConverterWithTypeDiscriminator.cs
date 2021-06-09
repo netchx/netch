@@ -1,13 +1,17 @@
-﻿using Netch.Models;
-using System;
+﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Netch.Models;
+using Netch.Services;
 
 namespace Netch.Utils
 {
     public class ServerConverterWithTypeDiscriminator : JsonConverter<Server>
     {
-        public override bool CanConvert(Type typeToConvert) => typeToConvert == typeof(Server);
+        public override bool CanConvert(Type typeToConvert)
+        {
+            return typeToConvert == typeof(Server);
+        }
 
         public override Server Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

@@ -1,12 +1,13 @@
-﻿using Netch.Models;
-using Netch.Servers.Shadowsocks;
-using Netch.Servers.Shadowsocks.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Netch.Models;
+using Netch.Servers.Shadowsocks;
+using Netch.Servers.Shadowsocks.Models;
+using Netch.Services;
 using Serilog;
 
 namespace Netch.Utils
@@ -47,7 +48,6 @@ namespace Netch.Utils
             catch (JsonException)
             {
                 foreach (var line in text.GetLines())
-                {
                     try
                     {
                         list.AddRange(ParseUri(line));
@@ -56,7 +56,6 @@ namespace Netch.Utils
                     {
                         Log.Error(e, "从分享链接导入服务器异常");
                     }
-                }
             }
             catch (Exception e)
             {

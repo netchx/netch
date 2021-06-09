@@ -6,7 +6,7 @@ namespace Netch.Models
 {
     public struct NetRoute
     {
-        public static NetRoute TemplateBuilder(string gateway, int interfaceIndex, int metric = 0)
+        public static NetRoute TemplateBuilder(IPAddress gateway, int interfaceIndex, int metric = 0)
         {
             return new()
             {
@@ -23,20 +23,25 @@ namespace Netch.Models
 
             address = new IPAddress(route.dwForwardNextHop.S_addr);
             var gateway = new IPAddress(route.dwForwardNextHop.S_un_b);
-            return TemplateBuilder(gateway.ToString(), (int)route.dwForwardIfIndex);
+            return TemplateBuilder(gateway, (int)route.dwForwardIfIndex);
         }
 
         public int InterfaceIndex;
 
-        public string Gateway;
+        public IPAddress Gateway;
 
-        public string Network;
+        public IPAddress Network;
 
         public byte Cidr;
 
         public int Metric;
 
         public NetRoute FillTemplate(string network, byte cidr, int? metric = null)
+        {
+            return FillTemplate(IPAddress.Parse(network), cidr, metric);
+        }
+
+        public NetRoute FillTemplate(IPAddress network, byte cidr, int? metric = null)
         {
             var o = (NetRoute)MemberwiseClone();
             o.Network = network;

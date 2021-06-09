@@ -1,25 +1,17 @@
-﻿using Netch.Models;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Netch.Models;
+using Netch.Utils;
 using Serilog;
 
-namespace Netch.Utils
+namespace Netch.Services
 {
     public static class Configuration
     {
-        /// <summary>
-        ///     数据目录
-        /// </summary>
-        public static string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
-
-        public static string FileFullName => Path.Combine(DataDirectoryFullName, FileName);
-
-        private static string BackupFileFullName => Path.Combine(DataDirectoryFullName, BackupFileName);
-
         private const string FileName = "settings.json";
 
         private const string BackupFileName = "settings.json.bak";
@@ -31,6 +23,15 @@ namespace Netch.Utils
             JsonSerializerOptions.Converters.Add(new ServerConverterWithTypeDiscriminator());
             JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         }
+
+        /// <summary>
+        ///     数据目录
+        /// </summary>
+        public static string DataDirectoryFullName => Path.Combine(Global.NetchDir, "data");
+
+        public static string FileFullName => Path.Combine(DataDirectoryFullName, FileName);
+
+        private static string BackupFileFullName => Path.Combine(DataDirectoryFullName, BackupFileName);
 
         public static async Task LoadAsync()
         {
@@ -81,8 +82,8 @@ namespace Netch.Utils
                 for (var i = 0; i < settings.Profiles.Count; i++)
                     settings.Profiles[i].Index = i;
 
-            settings.AioDNS.ChinaDNS = Utils.HostAppendPort(settings.AioDNS.ChinaDNS);
-            settings.AioDNS.OtherDNS = Utils.HostAppendPort(settings.AioDNS.OtherDNS);
+            settings.AioDNS.ChinaDNS = Misc.HostAppendPort(settings.AioDNS.ChinaDNS);
+            settings.AioDNS.OtherDNS = Misc.HostAppendPort(settings.AioDNS.OtherDNS);
         }
 
         /// <summary>
