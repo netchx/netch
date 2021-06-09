@@ -752,7 +752,7 @@
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
         private System.Windows.Forms.MenuStrip MenuStrip;
-        private System.Windows.Forms.ComboBox ModeComboBox;
+        public System.Windows.Forms.ComboBox ModeComboBox;
         private System.Windows.Forms.Label ModeLabel;
         private System.Windows.Forms.ToolStripMenuItem ModeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem HelpToolStripMenuItem;

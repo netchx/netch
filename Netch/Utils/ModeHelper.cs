@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using Netch.Controllers;
 using Netch.Enums;
+using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Shadowsocks;
@@ -119,7 +120,11 @@ namespace Netch.Utils
             if (mode.FullName == null)
                 throw new ArgumentException(nameof(mode.FullName));
 
-            File.Delete(mode.FullName);
+            Global.MainForm.ModeComboBox.Items.Remove(mode);
+            Global.Modes.Remove(mode);
+
+            if (File.Exists(mode.FullName))
+                File.Delete(mode.FullName);
         }
 
         public static bool SkipServerController(Server server, Mode mode)
