@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Serilog;
-using Serilog.Events;
 using Vanara.PInvoke;
 
 namespace Netch
@@ -50,10 +49,12 @@ namespace Netch
             {
                 SingleInstance.PassArgumentsToFirstInstance(args.Append(Constants.Parameter.Show));
                 Environment.Exit(0);
-                return;
             }
 
             SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
+
+            InitConsole();
+            DI.Register();
 
             // 清理上一次的日志文件，防止淤积占用磁盘空间
             if (Directory.Exists("logging"))
@@ -67,9 +68,7 @@ namespace Netch
                     dir.Delete(true);
             }
 
-            InitConsole();
-
-            CreateLogger();
+            DI.CreateLogger();
 
             // 加载语言
             i18N.Load(Global.Settings.Language);
@@ -102,24 +101,6 @@ namespace Netch
 #if RELEASE
             User32.ShowWindow(ConsoleHwnd, ShowWindowCommand.SW_HIDE);
 #endif
-        }
-
-        public static void CreateLogger()
-        {
-            Log.Logger = new LoggerConfiguration()
-#if DEBUG
-                .MinimumLevel.Debug()
-                .WriteTo.Async(c => c.Debug(outputTemplate: Constants.OutputTemplate))
-#else
-                .MinimumLevel.Information()
-                .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
-                    outputTemplate: Constants.OutputTemplate,
-                    rollOnFileSizeLimit: false))
-#endif
-                .WriteTo.Async(c => c.Console(outputTemplate: Constants.OutputTemplate))
-                .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .CreateLogger();
         }
 
         private static void Application_OnException(object sender, ThreadExceptionEventArgs e)
