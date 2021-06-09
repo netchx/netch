@@ -5,21 +5,25 @@ using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 
+#if !DEBUG
+using System.IO;
+#endif
+
 namespace Netch.Services
 {
-	public static class DI
-	{
+    public static class DI
+    {
         public static T GetRequiredService<T>()
-		{
-			var service = Locator.Current.GetService<T>();
+        {
+            var service = Locator.Current.GetService<T>();
 
-			if (service is null)
-			{
-				throw new InvalidOperationException($@"No service for type {typeof(T)} has been registered.");
-			}
+            if (service is null)
+            {
+                throw new InvalidOperationException($@"No service for type {typeof(T)} has been registered.");
+            }
 
-			return service;
-		}
+            return service;
+        }
 
         public static void CreateLogger()
         {
@@ -39,26 +43,22 @@ namespace Netch.Services
                 .CreateLogger();
         }
 
-		public static void Register()
-		{
-			var services = new ServiceCollection();
+        public static void Register()
+        {
+            var services = new ServiceCollection();
 
-			services.UseMicrosoftDependencyResolver();
-			Locator.CurrentMutable.InitializeSplat();
-			// Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.WinForms);
+            services.UseMicrosoftDependencyResolver();
+            Locator.CurrentMutable.InitializeSplat();
+            // Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.WinForms);
 
-			ConfigureServices(services);
-		}
+            ConfigureServices(services);
+        }
 
-		private static IServiceCollection ConfigureServices(IServiceCollection services)
-		{
-			services.AddViews()
-					.AddSetting()
-					.AddDynamicData()
-					.AddStartupService()
-					.AddLogging(c => c.AddSerilog());
+        private static IServiceCollection ConfigureServices(IServiceCollection services)
+        {
+            services.AddViews().AddSetting().AddDynamicData().AddStartupService().AddLogging(c => c.AddSerilog());
 
-			return services;
-		}
-	}
+            return services;
+        }
+    }
 }
