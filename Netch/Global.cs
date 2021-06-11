@@ -12,8 +12,6 @@ namespace Netch
         private static readonly Lazy<MainForm> LazyMainForm = new(DI.GetRequiredService<MainForm>);
         private static readonly Lazy<Setting> LazySetting = new(DI.GetRequiredService<Setting>);
 
-        public static readonly List<Mode> Modes = new();
-
         public static Setting Settings => LazySetting.Value;
 
         public static MainForm MainForm => LazyMainForm.Value;

@@ -4,6 +4,7 @@ using Serilog.Events;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
+using ReactiveUI;
 
 #if !DEBUG
 using System.IO;
@@ -49,14 +50,14 @@ namespace Netch.Services
 
             services.UseMicrosoftDependencyResolver();
             Locator.CurrentMutable.InitializeSplat();
-            // Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.WinForms);
+            // Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.Winforms);
 
             ConfigureServices(services);
         }
 
         private static IServiceCollection ConfigureServices(IServiceCollection services)
         {
-            services.AddViews().AddSetting().AddDynamicData().AddStartupService().AddLogging(c => c.AddSerilog());
+            services.AddViews().AddViewModels().AddSetting().AddDynamicData().AddStartupService().AddServices().AddLogging(c => c.AddSerilog());
 
             return services;
         }

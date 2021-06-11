@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,20 +13,21 @@ using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Forms.Mode;
-using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
+using Netch.ViewModels;
+using ReactiveUI;
 using Serilog;
-using Vanara.PInvoke;
 
 namespace Netch.Forms
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, IViewFor<MainWindowViewModel>
     {
         private readonly Setting _setting;
         private readonly Configuration _configuration;
+        private readonly ModeService _modeService;
 
         #region Start
 
@@ -33,15 +35,53 @@ namespace Netch.Forms
 
         private bool _textRecorded;
 
-        public MainForm(Setting setting, Configuration configuration)
+        public MainForm(Setting setting, Configuration configuration, ModeService modeService)
         {
-            _setting = setting;
-            _configuration = configuration;
-
             InitializeComponent();
             NotifyIcon.Icon = Icon = Resources.icon;
+            
+            ViewModel = DI.GetRequiredService<MainWindowViewModel>();
 
-            AddAddServerToolStripMenuItems();
+            var items = AddAddServerToolStripMenuItems().ToArray();
+
+            foreach (var item in items)
+            {
+                item.Events().Click.Subscribe(_ => ViewModel.CreateServerCommand.Execute(item));
+            }
+
+            _setting = setting;
+            _configuration = configuration;
+            _modeService = modeService;
+
+            this.WhenActivated(d =>
+            {
+                this.Bind(ViewModel, vm => vm.ServerList, v => v.ServerComboBox.DataSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.ModeList, v => v.ModeComboBox.DataSource).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.ImportServerFromClipBoardCommand, v => v.ImportServersFromClipboardToolStripMenuItem)
+                    .DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.CleanDnsCommand, v => v.CleanDNSCacheToolStripMenuItem).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.UpdateServersFromSubscribeCommand, v => v.UpdateServersFromSubscribeLinksToolStripMenuItem)
+                    .DisposeWith(d);
+
+
+                this.BindCommand(ViewModel, vm => vm.CreateProcessModeCommand, v => v.CreateProcessModeToolStripMenuItem).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.CreateRouteTableModeCommand, v => v.CreateRouteTableRuleToolStripMenuItem).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.ManageSubscribeLinksCommand, v => v.ManageSubscribeLinksToolStripMenuItem).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.OpenDirectoryCommand, v => v.OpenDirectoryToolStripMenuItem).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.RemoveNetchFirewallRulesCommand, v => v.removeNetchFirewallRulesToolStripMenuItem)
+                    .DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.ShowHideConsoleCommand, v => v.ShowHideConsoleToolStripMenuItem).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.OpenFaqPageCommand, v => v.fAQToolStripMenuItem).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.OpenReleasesPageCommand, v => v.VersionLabel).DisposeWith(d);
+            });
+
 
             #region i18N Translations
 
@@ -53,7 +93,7 @@ namespace Netch.Forms
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
         }
 
-        private void AddAddServerToolStripMenuItems()
+        private IEnumerable<ToolStripMenuItem> AddAddServerToolStripMenuItems()
         {
             foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
             {
@@ -67,8 +107,8 @@ namespace Netch.Forms
                 };
 
                 _mainFormText.Add(control.Name, new[] { "Add [{0}] Server", fullName });
-                control.Click += AddServerToolStripMenuItem_Click;
                 ServerToolStripMenuItem.DropDownItems.Add(control);
+                yield return control;
             }
         }
 
@@ -81,8 +121,8 @@ namespace Netch.Forms
             SelectLastServer();
             ServerHelper.DelayTestHelper.UpdateInterval();
 
-            ModeHelper.InitWatcher();
-            ModeHelper.Load();
+            _modeService.InitWatcher();
+            _modeService.Load();
             LoadModes();
             SelectLastMode();
 
@@ -105,8 +145,10 @@ namespace Netch.Forms
             BeginInvoke(new Action(async () =>
             {
                 // 检查订阅更新
+                /* TODO
                 if (_setting.UpdateServersWhenOpened)
                     await UpdateServersFromSubscribe();
+                    */
 
                 // 打开软件时启动加速，产生开始按钮点击事件
                 if (_setting.StartWhenOpened)
@@ -214,106 +256,11 @@ namespace Netch.Forms
 
         #region MenuStrip
 
-        #region Server
-
-        private async void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var texts = Clipboard.GetText();
-            if (!string.IsNullOrWhiteSpace(texts))
-            {
-                var servers = ShareLink.ParseText(texts);
-                _setting.Server.AddRange(servers);
-                NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
-
-                LoadServers();
-                await _configuration.SaveAsync();
-            }
-        }
-
-        private async void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
-        {
-            if (sender == null)
-                throw new ArgumentNullException(nameof(sender));
-
-            var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
-
-            Hide();
-            util.Create();
-
-            LoadServers();
-            await _configuration.SaveAsync();
-            Show();
-        }
-
-        #endregion
-
-        #region Mode
-
-        private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
-        {
-            Hide();
-            new Process().ShowDialog();
-            Show();
-        }
-
-        private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Hide();
-            new Route().ShowDialog();
-            Show();
-        }
-
-        #endregion
-
         #region Subscription
 
-        private async void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
+        public void ServerControls(bool v)
         {
-            Hide();
-            
-            DI.GetRequiredService<SubscribeForm>().ShowDialog();
-            LoadServers();
-            Show();
-        }
-
-        private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            await UpdateServersFromSubscribe();
-        }
-
-        private async Task UpdateServersFromSubscribe()
-        {
-            void DisableItems(bool v)
-            {
-                MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
-            }
-
-            if (_setting.SubscribeLink.Count <= 0)
-            {
-                MessageBoxX.Show(i18N.Translate("No subscription link"));
-                return;
-            }
-
-            StatusText(i18N.Translate("Starting update subscription"));
-            DisableItems(false);
-
-            try
-            {
-                await Subscription.UpdateServersAsync();
-
-                LoadServers();
-                await _configuration.SaveAsync();
-                StatusText(i18N.Translate("Subscription updated"));
-            }
-            catch (Exception e)
-            {
-                NotifyTip(i18N.Translate("update servers failed") + "\n" + e.Message, info: false);
-                Log.Error("更新服务器 失败！" + e);
-            }
-            finally
-            {
-                DisableItems(true);
-            }
+            MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
         }
 
         #endregion
@@ -345,33 +292,6 @@ namespace Netch.Forms
             }
         }
 
-        private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Misc.Open(".\\");
-        }
-
-        private async void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                await Task.Run(() =>
-                {
-                    NativeMethods.RefreshDNSCache();
-                    DnsUtils.ClearCache();
-                });
-
-                NotifyTip(i18N.Translate("DNS cache cleanup succeeded"));
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
-            finally
-            {
-                StatusText();
-            }
-        }
-
         private async void UninstallServiceToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Enabled = false;
@@ -390,18 +310,6 @@ namespace Netch.Forms
             }
         }
 
-        private void RemoveNetchFirewallRulesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Firewall.RemoveNetchFwRules();
-        }
-
-        private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var windowStyles = (User32.WindowStyles)User32.GetWindowLong(Netch.ConsoleHwnd, User32.WindowLongFlags.GWL_STYLE);
-            var visible = windowStyles.HasFlag(User32.WindowStyles.WS_VISIBLE);
-            User32.ShowWindow(Netch.ConsoleHwnd, visible ? ShowWindowCommand.SW_HIDE : ShowWindowCommand.SW_SHOWNOACTIVATE);
-        }
-
         #endregion
 
         /// <summary>
@@ -410,11 +318,6 @@ namespace Netch.Forms
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Exit(true);
-        }
-
-        private void VersionLabel_Click(object sender, EventArgs e)
-        {
-            Misc.Open($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
         }
 
         private async void NewVersionLabel_Click(object sender, EventArgs e)
@@ -458,11 +361,6 @@ namespace Netch.Forms
             Hide();
             new AboutForm().ShowDialog();
             Show();
-        }
-
-        private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Misc.Open("https://netch.org/#/docs/zh-CN/faq");
         }
 
         #endregion
@@ -566,10 +464,8 @@ namespace Netch.Forms
 
         #region Server
 
-        private void LoadServers()
+        public void LoadServers()
         {
-            ServerComboBox.Items.Clear();
-            ServerComboBox.Items.AddRange(_setting.Server.Cast<object>().ToArray());
             SelectLastServer();
         }
 
@@ -693,9 +589,6 @@ namespace Netch.Forms
                 return;
             }
 
-            ModeComboBox.Items.Clear();
-            ModeComboBox.Items.AddRange(Global.Modes.Cast<object>().ToArray());
-            ModeComboBox.Tag = null;
             SelectLastMode();
         }
 
@@ -715,7 +608,7 @@ namespace Netch.Forms
         {
             try
             {
-                _setting.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
+                _setting.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
             }
             catch
             {
@@ -735,7 +628,7 @@ namespace Netch.Forms
             var mode = (Models.Mode)ModeComboBox.SelectedItem;
             if (ModifierKeys == Keys.Control)
             {
-                Misc.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                Misc.Open(ModeService.GetFullPath(mode.RelativePath!));
                 return;
             }
 
@@ -753,7 +646,7 @@ namespace Netch.Forms
                     Show();
                     break;
                 default:
-                    Misc.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                    Misc.Open(ModeService.GetFullPath(mode.RelativePath!));
                     break;
             }
         }
@@ -767,7 +660,7 @@ namespace Netch.Forms
                 return;
             }
 
-            ModeHelper.Delete((Models.Mode)ModeComboBox.SelectedItem);
+            _modeService.Delete((Models.Mode)ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 
@@ -1448,5 +1341,13 @@ namespace Netch.Forms
         #endregion
 
         #endregion
+
+        object? IViewFor.ViewModel
+        {
+            get => ViewModel;
+            set => ViewModel = (MainWindowViewModel?)value;
+        }
+
+        public MainWindowViewModel? ViewModel { get; set; }
     }
 }

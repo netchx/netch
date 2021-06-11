@@ -84,8 +84,10 @@ namespace Netch
             Task.Run(() => { Log.Information("主程序 SHA256: {Hash}", $"{Misc.Sha256CheckSum(Global.NetchExecutable)}"); });
 
             // 绑定错误捕获
+#if !DEBUG
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += Application_OnException;
+#endif
             Application.ApplicationExit += Application_OnExit;
 
             Application.SetHighDpiMode(HighDpiMode.SystemAware);

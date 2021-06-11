@@ -73,7 +73,7 @@ namespace Netch.Forms.Mode
             else
             {
                 var relativePath = FilenameTextBox.Text;
-                var fullName = ModeHelper.GetFullPath(relativePath);
+                var fullName = ModeService.GetFullPath(relativePath);
                 if (File.Exists(fullName))
                 {
                     MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));

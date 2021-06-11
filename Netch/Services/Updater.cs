@@ -23,6 +23,7 @@ namespace Netch.Services
 
         private readonly MainForm _mainForm;
         private readonly Configuration _configuration;
+        private readonly ModeService _modeService;
 
         private Updater(string updateFile, string installDirectory)
         {
@@ -32,6 +33,7 @@ namespace Netch.Services
 
             _configuration = DI.GetRequiredService<Configuration>();
             _mainForm = DI.GetRequiredService<MainForm>();
+            _modeService = DI.GetRequiredService<ModeService>();
 
             Directory.CreateDirectory(_tempDirectory);
         }
@@ -89,7 +91,7 @@ namespace Netch.Services
         {
             #region PreUpdate
 
-            ModeHelper.SuspendWatcher = true;
+            _modeService.SuspendWatcher = true;
             // Stop and Save
             await _mainForm.Stop();
             await _configuration.SaveAsync();
@@ -140,7 +142,7 @@ namespace Netch.Services
                     continue;
 
                 // skip disable state files
-                if (Path.GetFileName(file) is ModeHelper.DisableModeDirectoryFileName)
+                if (Path.GetFileName(file) is ModeService.DisableModeDirectoryFileName)
                     continue;
 
                 try

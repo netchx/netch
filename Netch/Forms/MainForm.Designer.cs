@@ -137,7 +137,6 @@
             this.ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
             this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
             this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
-            this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
             // 
             // ModeToolStripMenuItem
             // 
@@ -154,14 +153,12 @@
             this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
             this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
-            this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
             // 
             // CreateRouteTableRuleToolStripMenuItem
             // 
             this.CreateRouteTableRuleToolStripMenuItem.Name = "CreateRouteTableRuleToolStripMenuItem";
             this.CreateRouteTableRuleToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
-            this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.createRouteTableModeToolStripMenuItem_Click);
             // 
             // SubscribeToolStripMenuItem
             // 
@@ -178,14 +175,12 @@
             this.ManageSubscribeLinksToolStripMenuItem.Name = "ManageSubscribeLinksToolStripMenuItem";
             this.ManageSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
             this.ManageSubscribeLinksToolStripMenuItem.Text = "Manage Subscribe Links";
-            this.ManageSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.ManageSubscribeLinksToolStripMenuItem_Click);
             // 
             // UpdateServersFromSubscribeLinksToolStripMenuItem
             // 
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Name = "UpdateServersFromSubscribeLinksToolStripMenuItem";
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
             this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
             // 
             // OptionsToolStripMenuItem
             // 
@@ -205,21 +200,18 @@
             this.OpenDirectoryToolStripMenuItem.Name = "OpenDirectoryToolStripMenuItem";
             this.OpenDirectoryToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.OpenDirectoryToolStripMenuItem.Text = "Open Directory";
-            this.OpenDirectoryToolStripMenuItem.Click += new System.EventHandler(this.OpenDirectoryToolStripMenuItem_Click);
             // 
             // ShowHideConsoleToolStripMenuItem
             // 
             this.ShowHideConsoleToolStripMenuItem.Name = "ShowHideConsoleToolStripMenuItem";
             this.ShowHideConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.ShowHideConsoleToolStripMenuItem.Text = "Show/Hide Console";
-            this.ShowHideConsoleToolStripMenuItem.Click += new System.EventHandler(this.ShowHideConsoleToolStripMenuItem_Click);
             // 
             // CleanDNSCacheToolStripMenuItem
             // 
             this.CleanDNSCacheToolStripMenuItem.Name = "CleanDNSCacheToolStripMenuItem";
             this.CleanDNSCacheToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.CleanDNSCacheToolStripMenuItem.Text = "Clean DNS Cache";
-            this.CleanDNSCacheToolStripMenuItem.Click += new System.EventHandler(this.CleanDNSCacheToolStripMenuItem_Click);
             // 
             // UninstallServiceToolStripMenuItem
             // 
@@ -233,7 +225,6 @@
             this.removeNetchFirewallRulesToolStripMenuItem.Name = "removeNetchFirewallRulesToolStripMenuItem";
             this.removeNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
             this.removeNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
-            this.removeNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
             // 
             // HelpToolStripMenuItem
             // 
@@ -257,7 +248,6 @@
             this.fAQToolStripMenuItem.Name = "fAQToolStripMenuItem";
             this.fAQToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
             this.fAQToolStripMenuItem.Text = "FAQ";
-            this.fAQToolStripMenuItem.Click += new System.EventHandler(this.fAQToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
@@ -300,7 +290,6 @@
             this.VersionLabel.Name = "VersionLabel";
             this.VersionLabel.Size = new System.Drawing.Size(26, 19);
             this.VersionLabel.Text = "xxx";
-            this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
             // 
             // ConfigurationGroupBox
             // 

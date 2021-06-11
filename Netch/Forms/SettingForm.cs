@@ -21,10 +21,10 @@ namespace Netch.Forms
 
         private readonly Dictionary<Control, Action<Control>> _saveActions = new();
 
-        public SettingForm(Setting setting, Configuration configuration)
+        public SettingForm()
         {
-            _setting = setting;
-            _configuration = configuration;
+            _setting = DI.GetRequiredService<Setting>();
+            _configuration = DI.GetRequiredService<Configuration>();
 
             InitializeComponent();
             Icon = Resources.icon;

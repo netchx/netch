@@ -43,6 +43,9 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="ReactiveUI" Version="13.3.2" />
+        <PackageReference Include="ReactiveUI.Events.Winforms" Version="13.3.2" />
+        <PackageReference Include="ReactiveUI.WinForms" Version="13.3.2" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />

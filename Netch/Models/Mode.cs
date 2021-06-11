@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DynamicData;
 using Netch.Enums;
 using Netch.Services;
 using Netch.Utils;
@@ -30,9 +31,9 @@ namespace Netch.Models
 
         public ModeType Type { get; set; } = ModeType.Process;
 
-        public string? RelativePath => FullName == null ? null : ModeHelper.GetRelativePath(FullName);
+        public string? RelativePath => FullName == null ? null : ModeService.GetRelativePath(FullName);
 
-        private void Load()
+        public void Load()
         {
             if (FullName == null)
                 return;
@@ -58,8 +59,13 @@ namespace Netch.Models
                     relativePath.Replace("<", "").Replace(">", "");
                     relativePath.Replace(".h", ".txt");
 
-                    var mode = Global.Modes.FirstOrDefault(m => m.RelativePath?.Equals(relativePath.ToString()) ?? false) ??
-                               throw new MessageException($"{relativePath} file included in {Remark} not found");
+                    var modeLookup = DI.GetRequiredService<SourceCache<Mode, string>>().Lookup(ModeService.GetFullPath(relativePath.ToString()));
+                    Mode mode;
+
+                    if (modeLookup.HasValue)
+                        mode = modeLookup.Value;
+                    else
+                        throw new MessageException($"{relativePath} file included in {Remark} not found");
 
                     if (mode == this)
                         throw new MessageException("Can't self-reference");

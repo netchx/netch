@@ -72,7 +72,7 @@ namespace Netch.Controllers
 
             try
             {
-                if (!ModeHelper.SkipServerController(server, mode))
+                if (!ModeService.SkipServerController(server, mode))
                 {
                     StartServer(server, mode, out _serverController);
                     StatusPortInfoText.UpdateShareLan();
@@ -121,7 +121,7 @@ namespace Netch.Controllers
 
         private static void StartMode(Mode mode)
         {
-            ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
+            ModeController = ModeService.GetModeControllerByType(mode.Type, out var port, out var portName);
 
             if (port != null)
                 TryReleaseTcpPort((ushort)port, portName);

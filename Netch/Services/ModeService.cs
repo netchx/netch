@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
+using DynamicData;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Interfaces;
@@ -12,21 +14,32 @@ using Serilog;
 
 namespace Netch.Services
 {
-    public static class ModeHelper
+    public class ModeService
     {
         public const string DisableModeDirectoryFileName = "disabled";
 
-        private static FileSystemWatcher _fileSystemWatcher = null!;
+        private readonly SourceCache<Mode, string> _modeList;
+        private readonly Setting _setting;
 
-        public static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
+        private FileSystemWatcher _fileSystemWatcher = null!;
 
-        public static bool SuspendWatcher
+        public ModeService(Setting setting, SourceCache<Mode, string> modeList)
+        {
+            _setting = setting;
+            _modeList = modeList;
+
+            Load();
+        }
+
+        private static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
+
+        public bool SuspendWatcher
         {
             get => _fileSystemWatcher.EnableRaisingEvents;
             set => _fileSystemWatcher.EnableRaisingEvents = value;
         }
 
-        public static void InitWatcher()
+        public void InitWatcher()
         {
             _fileSystemWatcher = new FileSystemWatcher(ModeDirectoryFullName)
             {
@@ -35,30 +48,18 @@ namespace Netch.Services
                 EnableRaisingEvents = true
             };
 
-            var created = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Created += h,
-                    h => _fileSystemWatcher.Created -= h)
-                .Select(x => x.EventArgs);
-
-            var changed = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Changed += h,
-                    h => _fileSystemWatcher.Changed -= h)
-                .Select(x => x.EventArgs);
-
-            var deleted = Observable.FromEventPattern<FileSystemEventHandler, FileSystemEventArgs>(h => _fileSystemWatcher.Deleted += h,
-                    h => _fileSystemWatcher.Deleted -= h)
-                .Select(x => x.EventArgs);
-
-            var renamed = Observable.FromEventPattern<RenamedEventHandler, RenamedEventArgs>(h => _fileSystemWatcher.Renamed += h,
-                    h => _fileSystemWatcher.Renamed -= h)
-                .Select(x => x.EventArgs);
-
-            var o = Observable.Merge(created, deleted, renamed, changed);
-            o.Throttle(TimeSpan.FromSeconds(3)).Subscribe(_ => OnModeChange(), exception => Log.Error(exception, "FileSystemWatcherError"));
+            var ow = new ObservableFileSystemWatcher(_fileSystemWatcher);
+            Observable.Merge(ow.Changed, ow.Created, ow.Deleted, ow.Renamed).Throttle(TimeSpan.FromSeconds(1)).Subscribe(x => Load());
         }
 
-        private static void OnModeChange()
+        public void AddMode(Mode mode)
         {
-            Load();
-            Global.MainForm.LoadModes();
+            _modeList.AddOrUpdate(mode);
+        }
+
+        public void UpdateMode(Mode mode)
+        {
+            _modeList.AddOrUpdate(mode);
         }
 
         public static string GetRelativePath(string fullName)
@@ -75,14 +76,30 @@ namespace Netch.Services
             return Path.Combine(ModeDirectoryFullName, relativeName);
         }
 
-        public static void Load()
+        public void Load()
         {
-            Global.Modes.Clear();
+            _modeList.Clear();
             LoadCore(ModeDirectoryFullName);
             Sort();
         }
 
-        private static void LoadCore(string modeDirectory)
+        private void Sort()
+        {
+            // _modeList.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
+        }
+
+        public void Delete(Mode mode)
+        {
+            if (mode.FullName == null)
+                throw new ArgumentException(nameof(mode.FullName));
+
+            _modeList.Remove(mode);
+
+            if (File.Exists(mode.FullName))
+                File.Delete(mode.FullName);
+        }
+
+        private void LoadCore(string modeDirectory)
         {
             try
             {
@@ -96,7 +113,7 @@ namespace Netch.Services
                 foreach (var file in Directory.GetFiles(modeDirectory).Where(f => f.EndsWith(".txt")))
                     try
                     {
-                        Global.Modes.Add(new Mode(file));
+                        AddMode(new Mode(file));
                     }
                     catch (Exception e)
                     {
@@ -107,23 +124,6 @@ namespace Netch.Services
             {
                 // ignored
             }
-        }
-
-        private static void Sort()
-        {
-            Global.Modes.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
-        }
-
-        public static void Delete(Mode mode)
-        {
-            if (mode.FullName == null)
-                throw new ArgumentException(nameof(mode.FullName));
-
-            Global.MainForm.ModeComboBox.Items.Remove(mode);
-            Global.Modes.Remove(mode);
-
-            if (File.Exists(mode.FullName))
-                File.Delete(mode.FullName);
         }
 
         public static bool SkipServerController(Server server, Mode mode)
@@ -161,6 +161,22 @@ namespace Netch.Services
                 default:
                     Log.Error("未知模式类型");
                     throw new MessageException("未知模式类型");
+            }
+        }
+
+        private class SuspendWatcherD : IDisposable
+        {
+            private readonly ModeService _modeService;
+
+            public SuspendWatcherD()
+            {
+                _modeService = DI.GetRequiredService<ModeService>();
+                _modeService.SuspendWatcher = true;
+            }
+
+            public void Dispose()
+            {
+                _modeService.SuspendWatcher = false;
             }
         }
     }
