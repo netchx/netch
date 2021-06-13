@@ -151,8 +151,8 @@ namespace Netch.Forms
                     }
                 }
 
-                Misc.ComponentIterator(this, RecordText);
-                Misc.ComponentIterator(NotifyMenu, RecordText);
+                Utils.Utils.ComponentIterator(this, RecordText);
+                Utils.Utils.ComponentIterator(NotifyMenu, RecordText);
                 _textRecorded = true;
             }
 
@@ -192,8 +192,8 @@ namespace Netch.Forms
                 }
             }
 
-            Misc.ComponentIterator(this, TranslateText);
-            Misc.ComponentIterator(NotifyMenu, TranslateText);
+            Utils.Utils.ComponentIterator(this, TranslateText);
+            Utils.Utils.ComponentIterator(NotifyMenu, TranslateText);
 
             #endregion
 
@@ -340,7 +340,7 @@ namespace Netch.Forms
 
         private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Misc.Open(".\\");
+            Utils.Utils.Open(".\\");
         }
 
         private async void CleanDNSCacheToolStripMenuItem_Click(object sender, EventArgs e)
@@ -407,14 +407,14 @@ namespace Netch.Forms
 
         private void VersionLabel_Click(object sender, EventArgs e)
         {
-            Misc.Open($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
+            Utils.Utils.Open($"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases");
         }
 
         private async void NewVersionLabel_Click(object sender, EventArgs e)
         {
             if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
             {
-                Misc.Open(UpdateChecker.LatestVersionUrl!);
+                Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
                 return;
             }
 
@@ -455,7 +455,7 @@ namespace Netch.Forms
 
         private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Misc.Open("https://netch.org/#/docs/zh-CN/faq");
+            Utils.Utils.Open("https://netch.org/#/docs/zh-CN/faq");
         }
 
         #endregion
@@ -726,7 +726,7 @@ namespace Netch.Forms
             var mode = (Models.Mode)ModeComboBox.SelectedItem;
             if (ModifierKeys == Keys.Control)
             {
-                Misc.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath!));
                 return;
             }
 
@@ -744,7 +744,7 @@ namespace Netch.Forms
                     Show();
                     break;
                 default:
-                    Misc.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                    Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath!));
                     break;
             }
         }
@@ -1149,7 +1149,7 @@ namespace Netch.Forms
 
                 if (!string.IsNullOrEmpty(publicEnd))
                 {
-                    var country = Misc.GetCityCode(publicEnd!);
+                    var country = Utils.Utils.GetCityCode(publicEnd!);
                     NatTypeStatusText(result, country);
                 }
                 else

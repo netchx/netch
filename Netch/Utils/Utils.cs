@@ -18,7 +18,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Netch.Utils
 {
-    public static class Misc
+    public static class Utils
     {
         public static void Open(string path)
         {
@@ -43,7 +43,7 @@ namespace Netch.Utils
 
             var stopwatch = Stopwatch.StartNew();
 
-            var task = client.ConnectAsync(ip, port, ct).AsTask();
+            var task = client.ConnectAsync(ip, port);
 
             var resTask = await Task.WhenAny(task, Task.Delay(timeout, ct));
 
@@ -57,33 +57,33 @@ namespace Netch.Utils
             return timeout;
         }
 
-        public static async Task<int> ICMPingAsync(IPAddress ip, int timeout = 1000)
+        public static int ICMPing(IPAddress ip, int timeout = 1000)
         {
-            var reply = await new Ping().SendPingAsync(ip, timeout);
+            var reply = new Ping().Send(ip, timeout);
 
-            if (reply.Status == IPStatus.Success)
+            if (reply?.Status == IPStatus.Success)
                 return Convert.ToInt32(reply.RoundtripTime);
 
             return timeout;
         }
 
-        public static string GetCityCode(string hostname)
+        public static string GetCityCode(string Hostname)
         {
-            if (hostname.Contains(":"))
-                hostname = hostname.Split(':')[0];
+            if (Hostname.Contains(":"))
+                Hostname = Hostname.Split(':')[0];
 
             string? country = null;
             try
             {
                 var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
 
-                if (IPAddress.TryParse(hostname, out _))
+                if (IPAddress.TryParse(Hostname, out _))
                 {
-                    country = databaseReader.Country(hostname).Country.IsoCode;
+                    country = databaseReader.Country(Hostname).Country.IsoCode;
                 }
                 else
                 {
-                    var dnsResult = DnsUtils.Lookup(hostname);
+                    var dnsResult = DnsUtils.Lookup(Hostname);
 
                     if (dnsResult != null)
                         country = databaseReader.Country(dnsResult).Country.IsoCode;
@@ -99,7 +99,7 @@ namespace Netch.Utils
             return country;
         }
 
-        public static string Sha256CheckSum(string filePath)
+        public static string SHA256CheckSum(string filePath)
         {
             try
             {

@@ -8,7 +8,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Timer = System.Timers.Timer;
 
-namespace Netch.Services
+namespace Netch.Utils
 {
     public static class ServerHelper
     {

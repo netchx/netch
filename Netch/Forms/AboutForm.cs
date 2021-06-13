@@ -1,7 +1,8 @@
-﻿using System;
-using System.Windows.Forms;
-using Netch.Properties;
+﻿using Netch.Properties;
 using Netch.Utils;
+using System;
+using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace Netch.Forms
 {
@@ -20,17 +21,17 @@ namespace Netch.Forms
 
         private void NetchPictureBox_Click(object sender, EventArgs e)
         {
-            Misc.Open("https://github.com/NetchX/Netch");
+            Utils.Utils.Open("https://github.com/NetchX/Netch");
         }
 
         private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Misc.Open("https://t.me/Netch");
+            Utils.Utils.Open("https://t.me/Netch");
         }
 
         private void SponsorPictureBox_Click(object sender, EventArgs e)
         {
-            Misc.Open("https://www.mansora.co");
+            Utils.Utils.Open("https://www.mansora.co");
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿#nullable disable
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -21,11 +21,11 @@ namespace Netch.Forms
 
         private readonly Dictionary<Control, Action<object>> _saveActions = new();
 
-        private readonly IContainer components = null;
-
         private int _controlLines = 2;
         private Label AddressLabel;
         protected TextBox AddressTextBox;
+
+        private readonly IContainer components = null;
 
         private GroupBox ConfigurationGroupBox;
         private Label PortLabel;
@@ -130,7 +130,7 @@ namespace Netch.Forms
 
             comboBox.Items.AddRange(values.ToArray());
             comboBox.SelectedIndex = values.IndexOf(value);
-            comboBox.DrawItem += Misc.DrawCenterComboBox;
+            comboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
             _saveActions.Add(comboBox, o => save.Invoke((string)o));
             ConfigurationGroupBox.Controls.AddRange(new Control[]
             {
@@ -184,12 +184,12 @@ namespace Netch.Forms
 
         private void ControlButton_Click(object sender, EventArgs e)
         {
-            Misc.ComponentIterator(this, component => Misc.ChangeControlForeColor(component, Color.Black));
+            Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
 
             var flag = true;
             foreach (var pair in _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)))
             {
-                Misc.ChangeControlForeColor(pair.Key, Color.Red);
+                Utils.Utils.ChangeControlForeColor(pair.Key, Color.Red);
                 flag = false;
             }
 

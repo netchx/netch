@@ -1,15 +1,14 @@
-﻿using System;
+﻿using Microsoft.WindowsAPICodePack.Dialogs;
+using Netch.Controllers;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using Microsoft.WindowsAPICodePack.Dialogs;
-using Netch.Controllers;
 using Netch.Enums;
-using Netch.Models;
-using Netch.Properties;
-using Netch.Services;
-using Netch.Utils;
 
 namespace Netch.Forms.Mode
 {
@@ -35,6 +34,25 @@ namespace Netch.Forms.Mode
 
             _mode = mode;
         }
+
+        #region Model
+
+        public IEnumerable<string> Rules => RuleRichTextBox.Lines;
+
+        private void RuleAdd(string value)
+        {
+            RuleRichTextBox.AppendText($"{value}\n");
+        }
+
+        private void RuleAddRange(IEnumerable<string> value)
+        {
+            foreach (string s in value)
+            {
+                RuleAdd(s);
+            }
+        }
+
+        #endregion
 
         public void ModeForm_Load(object sender, EventArgs e)
         {
@@ -64,6 +82,7 @@ namespace Netch.Forms.Mode
             };
 
             if (dialog.ShowDialog(Handle) == CommonFileDialogResult.Ok)
+            {
                 foreach (string p in dialog.FileNames)
                 {
                     string path = p;
@@ -72,6 +91,7 @@ namespace Netch.Forms.Mode
 
                     RuleAdd($"^{path.ToRegexString()}");
                 }
+            }
         }
 
         public void ControlButton_Click(object sender, EventArgs e)
@@ -188,22 +208,5 @@ namespace Netch.Forms.Mode
             else
                 MessageBoxX.Show("Fine");
         }
-
-        #region Model
-
-        public IEnumerable<string> Rules => RuleRichTextBox.Lines;
-
-        private void RuleAdd(string value)
-        {
-            RuleRichTextBox.AppendText($"{value}\n");
-        }
-
-        private void RuleAddRange(IEnumerable<string> value)
-        {
-            foreach (string s in value)
-                RuleAdd(s);
-        }
-
-        #endregion
     }
 }

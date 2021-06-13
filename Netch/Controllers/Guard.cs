@@ -1,3 +1,5 @@
+using Netch.Models;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,8 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Netch.Models;
-using Netch.Utils;
 using Serilog;
 using Timer = System.Timers.Timer;
 
@@ -178,6 +178,69 @@ namespace Netch.Controllers
             throw new MessageException($"{Name} 控制器启动超时");
         }
 
+        #region FileStream
+
+        private void OpenLogFile()
+        {
+            if (!RedirectToFile)
+                return;
+
+            _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+            _logStreamWriter = new StreamWriter(_logFileStream);
+
+            _flushFileStreamTimer.Elapsed += FlushFileStreamTimerEvent;
+            _flushFileStreamTimer.Enabled = true;
+        }
+
+        private void WriteLog(string line)
+        {
+            if (!RedirectToFile)
+                return;
+
+            _logStreamWriter!.WriteLine(line);
+        }
+
+        private readonly object _logStreamLock = new();
+        private void CloseLogFile()
+        {
+            if (!RedirectToFile)
+                return;
+
+            lock (_logStreamLock)
+            {
+                if (_logFileStream == null)
+                    return;
+
+                _flushFileStreamTimer.Enabled = false;
+                _logStreamWriter?.Close();
+                _logFileStream?.Close();
+                _logStreamWriter = _logStreamWriter = null;
+            }
+        }
+
+        #endregion
+
+        #region virtual
+
+        protected virtual void OnReadNewLine(string line)
+        {
+        }
+
+        protected virtual void OnKeywordStarted()
+        {
+        }
+
+        protected virtual void OnKeywordStopped()
+        {
+            Utils.Utils.Open(LogPath);
+        }
+
+        protected virtual void OnKeywordTimeout()
+        {
+        }
+
+        #endregion
+
         protected void ReadOutput(TextReader reader)
         {
             string? line;
@@ -216,69 +279,5 @@ namespace Netch.Controllers
                 Log.Warning(ex, "写入 {Name} 日志异常", Name);
             }
         }
-
-        #region FileStream
-
-        private void OpenLogFile()
-        {
-            if (!RedirectToFile)
-                return;
-
-            _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
-            _logStreamWriter = new StreamWriter(_logFileStream);
-
-            _flushFileStreamTimer.Elapsed += FlushFileStreamTimerEvent;
-            _flushFileStreamTimer.Enabled = true;
-        }
-
-        private void WriteLog(string line)
-        {
-            if (!RedirectToFile)
-                return;
-
-            _logStreamWriter!.WriteLine(line);
-        }
-
-        private readonly object _logStreamLock = new();
-
-        private void CloseLogFile()
-        {
-            if (!RedirectToFile)
-                return;
-
-            lock (_logStreamLock)
-            {
-                if (_logFileStream == null)
-                    return;
-
-                _flushFileStreamTimer.Enabled = false;
-                _logStreamWriter?.Close();
-                _logFileStream?.Close();
-                _logStreamWriter = _logStreamWriter = null;
-            }
-        }
-
-        #endregion
-
-        #region virtual
-
-        protected virtual void OnReadNewLine(string line)
-        {
-        }
-
-        protected virtual void OnKeywordStarted()
-        {
-        }
-
-        protected virtual void OnKeywordStopped()
-        {
-            Misc.Open(LogPath);
-        }
-
-        protected virtual void OnKeywordTimeout()
-        {
-        }
-
-        #endregion
     }
 }

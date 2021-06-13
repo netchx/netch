@@ -1,3 +1,6 @@
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -5,10 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using Netch.Models;
-using Netch.Properties;
-using Netch.Services;
-using Netch.Utils;
 using Serilog;
 
 namespace Netch.Forms
@@ -244,13 +243,13 @@ namespace Netch.Forms
 
         private async void ControlButton_Click(object sender, EventArgs e)
         {
-            Misc.ComponentIterator(this, component => Misc.ChangeControlForeColor(component, Color.Black));
+            Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
 
             #region Check
 
             var checkNotPassControl = _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)).Select(pair => pair.Key).ToList();
             foreach (Control control in checkNotPassControl)
-                Misc.ChangeControlForeColor(control, Color.Red);
+                Utils.Utils.ChangeControlForeColor(control, Color.Red);
 
             if (checkNotPassControl.Any())
                 return;
@@ -264,7 +263,7 @@ namespace Netch.Forms
 
             #endregion
 
-            Misc.RegisterNetchStartupItem();
+            Utils.Utils.RegisterNetchStartupItem();
 
             await Configuration.SaveAsync();
             MessageBoxX.Show(i18N.Translate("Saved"));

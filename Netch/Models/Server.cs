@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Netch.Utils;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Netch.Services;
-using Netch.Utils;
 
 namespace Netch.Models
 {
@@ -67,9 +66,13 @@ namespace Netch.Models
 
             string shortName;
             if (Type == string.Empty)
+            {
                 shortName = "WTF";
+            }
             else
+            {
                 shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
+            }
 
             return $"[{shortName}][{Group}] {remark}";
         }
@@ -93,8 +96,8 @@ namespace Netch.Models
                         try
                         {
                             return Global.Settings.ServerTCPing
-                                ? await Misc.TCPingAsync(destination, Port)
-                                : await Misc.ICMPingAsync(destination, Port);
+                                ? await Utils.Utils.TCPingAsync(destination, Port)
+                                : Utils.Utils.ICMPing(destination, Port);
                         }
                         catch (Exception)
                         {
