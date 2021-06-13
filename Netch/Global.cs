@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows.Forms;
-using Netch.Services;
 
 namespace Netch
 {
@@ -14,7 +13,7 @@ namespace Netch
         /// <summary>
         ///     主窗体的静态实例
         /// </summary>
-        private static readonly Lazy<MainForm> LazyMainForm = new(DI.GetRequiredService<MainForm>);
+        private static readonly Lazy<MainForm> LazyMainForm = new(() => new MainForm());
 
         /// <summary>
         ///     用于读取和写入的配置
