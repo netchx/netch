@@ -69,7 +69,7 @@ namespace Netch.Models
             if (Type == string.Empty)
                 shortName = "WTF";
             else
-                shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
+                shortName = ServerService.GetUtilByTypeName(Type).ShortName;
 
             return $"[{shortName}][{Group}] {remark}";
         }
@@ -126,7 +126,7 @@ namespace Netch.Models
         {
             try
             {
-                ServerHelper.GetTypeByTypeName(server.Type);
+                ServerService.GetTypeByTypeName(server.Type);
                 return true;
             }
             catch

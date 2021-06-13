@@ -50,7 +50,7 @@ namespace Netch.Services
 
             services.UseMicrosoftDependencyResolver();
             Locator.CurrentMutable.InitializeSplat();
-            // Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.Winforms);
+            Locator.CurrentMutable.InitializeReactiveUI(RegistrationNamespace.Winforms);
 
             ConfigureServices(services);
         }

@@ -15,37 +15,29 @@ namespace Netch.Forms.Mode
 {
     public partial class Process : Form
     {
-        /// <summary>
-        ///     被编辑的模式
-        /// </summary>
-        private readonly Models.Mode? _mode;
+        public Models.Mode? Mode { get; }
 
-        /// <summary>
-        ///     编辑模式
-        /// </summary>
-        /// <param name="mode">模式</param>
         public Process(Models.Mode? mode = null)
         {
-            if (mode != null && mode.Type is not ModeType.Process)
+            if (mode is { Type: not ModeType.Process })
                 throw new ArgumentOutOfRangeException();
+
+            Mode = mode;
 
             InitializeComponent();
             Icon = Resources.icon;
-            CheckForIllegalCrossThreadCalls = false;
-
-            _mode = mode;
         }
 
         public void ModeForm_Load(object sender, EventArgs e)
         {
-            if (_mode != null)
+            if (Mode != null)
             {
                 Text = "Edit Process Mode";
 
                 RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
-                RemarkTextBox.Text = _mode.Remark;
-                FilenameTextBox.Text = _mode.RelativePath;
-                RuleAddRange(_mode.Content);
+                RemarkTextBox.Text = Mode.Remark;
+                FilenameTextBox.Text = Mode.RelativePath;
+                RuleAddRange(Mode.Content);
             }
 
             i18N.TranslateForm(this);
@@ -94,13 +86,15 @@ namespace Netch.Forms.Mode
                 return;
             }
 
-            if (_mode != null)
-            {
-                _mode.Remark = RemarkTextBox.Text;
-                _mode.Content.Clear();
-                _mode.Content.AddRange(RuleRichTextBox.Lines);
+            var modeService = DI.GetRequiredService<ModeService>();
 
-                _mode.WriteFile();
+            if (Mode != null)
+            {
+                Mode.Remark = RemarkTextBox.Text;
+                Mode.Content.Clear();
+                Mode.Content.AddRange(RuleRichTextBox.Lines);
+
+                modeService.UpdateMode(Mode);
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
             }
             else
@@ -121,7 +115,8 @@ namespace Netch.Forms.Mode
 
                 mode.Content.AddRange(RuleRichTextBox.Lines);
 
-                mode.WriteFile();
+                modeService.CreateMode(mode);
+
                 MessageBoxX.Show(i18N.Translate("Mode added successfully"));
             }
 

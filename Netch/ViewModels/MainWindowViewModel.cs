@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DynamicData;
@@ -15,56 +17,88 @@ using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
 using ReactiveUI;
+using ReactiveUI.Fody.Helpers;
 using Serilog;
 using Vanara.PInvoke;
 using Clipboard = System.Windows.Clipboard;
 
 namespace Netch.ViewModels
 {
-    public class MainWindowViewModel
+    public class MainWindowViewModel : ReactiveObject
     {
-        private readonly Setting _setting;
-        private readonly Configuration _configuration;
-        private readonly SourceList<Server> _serverList;
-        private readonly SourceCache<Mode, string> _modeList;
+        private readonly IConfigService _configService;
+        private readonly SourceCache<Mode, string> _modeCache;
+        private readonly ServerService _serverService;
         private readonly ModeService _modeService;
+        private readonly SourceList<Server> _serverList;
+        private readonly Setting _setting;
 
-        public readonly ReadOnlyObservableCollection<Server> ServerList;
-        public readonly ReadOnlyObservableCollection<Mode> ModeList;
+        #region Commands
 
-        private MainForm _mainForm => DI.GetRequiredService<MainForm>();
+        public ReactiveCommand<Unit, Unit> CleanDnsCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> ImportServerFromClipBoardCommand;
-        public readonly ReactiveCommand<object?, Unit> CreateServerCommand;
+        public ReactiveCommand<Unit, Unit> CreateProcessModeCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> CreateProcessModeCommand;
-        public readonly ReactiveCommand<Unit, Unit> CreateRouteTableModeCommand;
+        public ReactiveCommand<Unit, Unit> CreateRouteTableModeCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> ManageSubscribeLinksCommand;
-        public readonly ReactiveCommand<Unit, Unit> UpdateServersFromSubscribeCommand;
+        public ReactiveCommand<IServerUtil, Unit> CreateServerCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> OpenDirectoryCommand;
-        public readonly ReactiveCommand<Unit, Unit> CleanDnsCommand;
-        public readonly ReactiveCommand<Unit, Unit> RemoveNetchFirewallRulesCommand;
-        public readonly ReactiveCommand<Unit, Unit> ShowHideConsoleCommand;
+        public ReactiveCommand<Unit, Unit> ImportServerFromClipBoardCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> OpenFaqPageCommand;
+        public ReactiveCommand<Unit, Unit> ManageSubscribeLinksCommand { get; }
 
-        public readonly ReactiveCommand<Unit, Unit> OpenReleasesPageCommand;
+        public ReactiveCommand<Unit, Unit> OpenDirectoryCommand { get; }
 
-        public MainWindowViewModel(Setting setting, Configuration configuration, SourceList<Server> serverList, SourceCache<Mode, string> modeList,ModeService modeService)
+        public ReactiveCommand<Unit, Unit> OpenFaqPageCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> OpenReleasesPageCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> RemoveNetchFirewallRulesCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> ShowHideConsoleCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> UpdateServersFromSubscribeCommand { get; }
+
+        public ReactiveCommand<Server, Unit> DeleteServerCommand { get; }
+
+        #endregion
+
+        public BindingList<Server> ServerList { get; } = new();
+
+        public BindingList<Mode> ModeCache { get; } = new();
+
+        public MainWindowViewModel(Setting setting,
+            IConfigService configService,
+            SourceList<Server> serverList,
+            SourceCache<Mode, string> modeCache,
+            ServerService serverService,
+            ModeService modeService)
         {
             _setting = setting;
-            _configuration = configuration;
+            _configService = configService;
             _serverList = serverList;
-            _modeList = modeList;
+            _modeCache = modeCache;
+            _serverService = serverService;
             _modeService = modeService;
+
+            _serverList.Connect()
+                // .ObserveOn(SynchronizationContext.Current)
+                .Bind(ServerList)
+                // .DisposeMany()
+                .Subscribe();
+
+            _modeCache.Connect()
+                // .ObserveOn(SynchronizationContext.Current)
+                .Sort(Comparer<Mode>.Create((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal)))
+                .Bind(ModeCache)
+                // .DisposeMany()
+                .Subscribe();
 
             ImportServerFromClipBoardCommand = ReactiveCommand.CreateFromTask(ImportServerFromClipBoard);
             CleanDnsCommand = ReactiveCommand.CreateFromTask(CleanDns);
             UpdateServersFromSubscribeCommand = ReactiveCommand.CreateFromTask(UpdateServersFromSubscribe);
 
-            CreateServerCommand = ReactiveCommand.CreateFromTask<object?>(CreateServer);
+            CreateServerCommand = ReactiveCommand.CreateFromTask<IServerUtil>(CreateServer);
 
             CreateProcessModeCommand = ReactiveCommand.Create(CreateProcessMode);
             CreateRouteTableModeCommand = ReactiveCommand.Create(CreateRouteTableMode);
@@ -78,22 +112,12 @@ namespace Netch.ViewModels
             OpenFaqPageCommand = ReactiveCommand.Create(OpenFaqPage);
 
             OpenReleasesPageCommand = ReactiveCommand.Create(OpenReleasesPage);
-
-            _serverList.AddRange(_setting.Server);
-            
-            serverList.Connect()
-                // .ObserveOnDispatcher()
-                .Bind(out ServerList)
-                .DisposeMany()
-                .Subscribe();
-
-            modeList.Connect()
-                .Sort(Comparer<Mode>.Create((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal)))
-                // .ObserveOnDispatcher()
-                .Bind(out ModeList)
-                .DisposeMany()
-                .Subscribe();
+            DeleteServerCommand = ReactiveCommand.Create<Server>(DeleteServer);
         }
+
+        private MainForm _mainForm => DI.GetRequiredService<MainForm>();
+
+        [Reactive] public State State { get; set; }
 
         private async Task ImportServerFromClipBoard()
         {
@@ -104,8 +128,8 @@ namespace Netch.ViewModels
                 _setting.Server.AddRange(servers);
                 _mainForm.NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
-                _mainForm.LoadServers();
-                await _configuration.SaveAsync();
+                _mainForm.SelectLastServer();
+                await _configService.SaveAsync();
             }
         }
 
@@ -135,8 +159,8 @@ namespace Netch.ViewModels
             {
                 await Subscription.UpdateServersAsync();
 
-                _mainForm.LoadServers();
-                await _configuration.SaveAsync();
+                _mainForm.SelectLastServer();
+                await _configService.SaveAsync();
                 _mainForm.StatusText(i18N.Translate("Subscription updated"));
             }
             catch (Exception e)
@@ -150,24 +174,21 @@ namespace Netch.ViewModels
             }
         }
 
-        private async Task CreateServer(object? sender)
+        private async Task CreateServer(IServerUtil util)
         {
-            if (sender == null)
-                throw new ArgumentNullException(nameof(sender));
-
-            var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
-
             _mainForm.Hide();
             util.Create();
 
-            await _configuration.SaveAsync();
+            await _configService.SaveAsync();
             _mainForm.Show();
         }
 
         private void CreateProcessMode()
         {
             _mainForm.Hide();
-            new Process().ShowDialog();
+            var form = new Process();
+            form.ShowDialog();
+
             _mainForm.Show();
         }
 
@@ -199,7 +220,7 @@ namespace Netch.ViewModels
 
         private void ShowHideConsole()
         {
-            var windowStyles = (User32.WindowStyles)User32.GetWindowLong(Netch.ConsoleHwnd, User32.WindowLongFlags.GWL_STYLE);
+            var windowStyles = (User32.WindowStyles) User32.GetWindowLong(Netch.ConsoleHwnd, User32.WindowLongFlags.GWL_STYLE);
             var visible = windowStyles.HasFlag(User32.WindowStyles.WS_VISIBLE);
             User32.ShowWindow(Netch.ConsoleHwnd, visible ? ShowWindowCommand.SW_HIDE : ShowWindowCommand.SW_SHOWNOACTIVATE);
         }
@@ -212,6 +233,11 @@ namespace Netch.ViewModels
         private void OpenFaqPage()
         {
             Misc.Open("https://netch.org/#/docs/zh-CN/faq");
+        }
+
+        private void DeleteServer(Server server)
+        {
+            _serverService.RemoveServer(server);
         }
     }
 }

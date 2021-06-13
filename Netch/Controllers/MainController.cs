@@ -100,7 +100,7 @@ namespace Netch.Controllers
 
         private static void StartServer(Server server, Mode mode, out IServerController controller)
         {
-            controller = ServerHelper.GetUtilByTypeName(server.Type).GetController();
+            controller = ServerService.GetUtilByTypeName(server.Type).GetController();
 
             TryReleaseTcpPort(controller.Socks5LocalPort(), "Socks5");
 

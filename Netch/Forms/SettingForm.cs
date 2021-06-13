@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
@@ -16,15 +17,15 @@ namespace Netch.Forms
     public partial class SettingForm : Form
     {
         private readonly Setting _setting;
-        private readonly Configuration _configuration;
+        private readonly IConfigService _configService;
         private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();
 
         private readonly Dictionary<Control, Action<Control>> _saveActions = new();
 
-        public SettingForm()
+        public SettingForm(Setting setting, IConfigService configService)
         {
-            _setting = DI.GetRequiredService<Setting>();
-            _configuration = DI.GetRequiredService<Configuration>();
+            _setting = setting;
+            _configService = configService;
 
             InitializeComponent();
             Icon = Resources.icon;
@@ -55,7 +56,7 @@ namespace Netch.Forms
             BindTextBox<int>(ProfileCountTextBox, i => i > -1, i => _setting.ProfileCount = i, _setting.ProfileCount);
 
             BindTextBox<int>(DetectionTickTextBox,
-                i => ServerHelper.DelayTestHelper.Range.InRange(i),
+                i => ServerService.DelayTestHelper.Range.InRange(i),
                 i => _setting.DetectionTick = i,
                 _setting.DetectionTick);
 
@@ -256,7 +257,7 @@ namespace Netch.Forms
 
             Misc.RegisterNetchStartupItem();
 
-            await _configuration.SaveAsync();
+            await _configService.SaveAsync();
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }

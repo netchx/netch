@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -18,20 +17,21 @@ namespace Netch.Services
     {
         public const string DisableModeDirectoryFileName = "disabled";
 
-        private readonly SourceCache<Mode, string> _modeList;
+        private readonly SourceCache<Mode, string> _modeCache;
         private readonly Setting _setting;
 
-        private FileSystemWatcher _fileSystemWatcher = null!;
-
-        public ModeService(Setting setting, SourceCache<Mode, string> modeList)
+        public ModeService(Setting setting, SourceCache<Mode, string> modeCache)
         {
             _setting = setting;
-            _modeList = modeList;
+            _modeCache = modeCache;
 
+            InitWatcher();
             Load();
         }
 
-        private static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
+        #region FileSystemWatcher
+
+        private FileSystemWatcher _fileSystemWatcher = null!;
 
         public bool SuspendWatcher
         {
@@ -49,54 +49,48 @@ namespace Netch.Services
             };
 
             var ow = new ObservableFileSystemWatcher(_fileSystemWatcher);
-            Observable.Merge(ow.Changed, ow.Created, ow.Deleted, ow.Renamed).Throttle(TimeSpan.FromSeconds(1)).Subscribe(x => Load());
+            Observable.Merge(ow.Changed, ow.Created, ow.Deleted, ow.Renamed)
+                //
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(x => Load());
         }
 
-        public void AddMode(Mode mode)
+        #endregion
+
+        private void AddMode(Mode mode)
         {
-            _modeList.AddOrUpdate(mode);
+            _modeCache.AddOrUpdate(mode);
         }
 
         public void UpdateMode(Mode mode)
         {
-            _modeList.AddOrUpdate(mode);
+            _modeCache.AddOrUpdate(mode);
+            try
+            {
+                SuspendWatcher = true;
+                mode.WriteFile();
+            }
+            finally
+            {
+                SuspendWatcher = false;
+            }
         }
 
-        public static string GetRelativePath(string fullName)
-        {
-            var length = ModeDirectoryFullName.Length;
-            if (!ModeDirectoryFullName.EndsWith("\\"))
-                length++;
-
-            return fullName.Substring(length);
-        }
-
-        public static string GetFullPath(string relativeName)
-        {
-            return Path.Combine(ModeDirectoryFullName, relativeName);
-        }
-
-        public void Load()
-        {
-            _modeList.Clear();
-            LoadCore(ModeDirectoryFullName);
-            Sort();
-        }
-
-        private void Sort()
-        {
-            // _modeList.Sort((a, b) => string.Compare(a.Remark, b.Remark, StringComparison.Ordinal));
-        }
-
-        public void Delete(Mode mode)
+        public void DeleteMode(Mode mode)
         {
             if (mode.FullName == null)
                 throw new ArgumentException(nameof(mode.FullName));
 
-            _modeList.Remove(mode);
+            _modeCache.Remove(mode);
 
             if (File.Exists(mode.FullName))
                 File.Delete(mode.FullName);
+        }
+
+        public void Load()
+        {
+            _modeCache.Clear();
+            LoadCore(ModeDirectoryFullName);
         }
 
         private void LoadCore(string modeDirectory)
@@ -124,6 +118,24 @@ namespace Netch.Services
             {
                 // ignored
             }
+        }
+
+        #region Statics
+
+        private static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
+
+        public static string GetRelativePath(string fullName)
+        {
+            var length = ModeDirectoryFullName.Length;
+            if (!ModeDirectoryFullName.EndsWith("\\"))
+                length++;
+
+            return fullName.Substring(length);
+        }
+
+        public static string GetFullPath(string relativeName)
+        {
+            return Path.Combine(ModeDirectoryFullName, relativeName);
         }
 
         public static bool SkipServerController(Server server, Mode mode)
@@ -164,19 +176,19 @@ namespace Netch.Services
             }
         }
 
-        private class SuspendWatcherD : IDisposable
+        #endregion
+
+        public void CreateMode(Mode mode)
         {
-            private readonly ModeService _modeService;
-
-            public SuspendWatcherD()
+            try
             {
-                _modeService = DI.GetRequiredService<ModeService>();
-                _modeService.SuspendWatcher = true;
+                SuspendWatcher = true;
+                AddMode(mode);
+                mode.WriteFile();
             }
-
-            public void Dispose()
+            finally
             {
-                _modeService.SuspendWatcher = false;
+                SuspendWatcher = false;
             }
         }
     }

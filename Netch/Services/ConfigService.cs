@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.Utils;
 using Serilog;
 
 namespace Netch.Services
 {
-    public class Configuration
+    public class ConfigService : IConfigService
     {
         private const string FileName = "settings.json";
 
@@ -20,7 +21,7 @@ namespace Netch.Services
 
         private readonly Setting _setting;
 
-        public Configuration(Setting setting)
+        public ConfigService(Setting setting)
         {
             _setting = setting;
 
@@ -106,6 +107,9 @@ namespace Netch.Services
                 {
                     await JsonSerializer.SerializeAsync(fileStream, _setting, _jsonSerializerOptions);
                 }
+
+                if (!File.Exists(FileFullName))
+                    await File.Create(FileFullName).DisposeAsync();
 
                 File.Replace(tempFile, FileFullName, BackupFileFullName);
             }

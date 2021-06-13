@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
@@ -11,12 +12,12 @@ namespace Netch.Forms
     public partial class SubscribeForm : Form
     {
         private readonly Setting _setting;
-        private readonly Configuration _configuration;
+        private readonly IConfigService _configService;
 
-        public SubscribeForm(Setting setting, Configuration configuration)
+        public SubscribeForm(Setting setting, IConfigService configService)
         {
             _setting = setting;
-            _configuration = configuration;
+            _configService = configService;
 
             InitializeComponent();
             Icon = Resources.icon;
@@ -66,7 +67,7 @@ namespace Netch.Forms
 
         private async void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            await _configuration.SaveAsync();
+            await _configService.SaveAsync();
         }
 
         #endregion

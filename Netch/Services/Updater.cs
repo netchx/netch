@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Forms;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
@@ -22,7 +23,7 @@ namespace Netch.Services
         private readonly string _updateFile;
 
         private readonly MainForm _mainForm;
-        private readonly Configuration _configuration;
+        private readonly IConfigService _configuration;
         private readonly ModeService _modeService;
 
         private Updater(string updateFile, string installDirectory)
@@ -31,7 +32,7 @@ namespace Netch.Services
             _installDirectory = installDirectory;
             _tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-            _configuration = DI.GetRequiredService<Configuration>();
+            _configuration = DI.GetRequiredService<IConfigService>();
             _mainForm = DI.GetRequiredService<MainForm>();
             _modeService = DI.GetRequiredService<ModeService>();
 

@@ -6,13 +6,16 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DynamicData.Binding;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Forms.Mode;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
@@ -26,7 +29,7 @@ namespace Netch.Forms
     public partial class MainForm : Form, IViewFor<MainWindowViewModel>
     {
         private readonly Setting _setting;
-        private readonly Configuration _configuration;
+        private readonly IConfigService _configService;
         private readonly ModeService _modeService;
 
         #region Start
@@ -35,28 +38,28 @@ namespace Netch.Forms
 
         private bool _textRecorded;
 
-        public MainForm(Setting setting, Configuration configuration, ModeService modeService)
+        public MainForm(MainWindowViewModel viewModel, Setting setting, IConfigService configService, ModeService modeService)
         {
             InitializeComponent();
             NotifyIcon.Icon = Icon = Resources.icon;
-            
-            ViewModel = DI.GetRequiredService<MainWindowViewModel>();
+
+            ViewModel = viewModel;
 
             var items = AddAddServerToolStripMenuItems().ToArray();
 
             foreach (var item in items)
             {
-                item.Events().Click.Subscribe(_ => ViewModel.CreateServerCommand.Execute(item));
+                item.Events().Click.Subscribe(_ => ViewModel.CreateServerCommand.Execute((IServerUtil) (item.Tag)));
             }
 
             _setting = setting;
-            _configuration = configuration;
+            _configService = configService;
             _modeService = modeService;
 
             this.WhenActivated(d =>
             {
                 this.Bind(ViewModel, vm => vm.ServerList, v => v.ServerComboBox.DataSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.ModeList, v => v.ModeComboBox.DataSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.ModeCache, v => v.ModeComboBox.DataSource).DisposeWith(d);
 
                 this.BindCommand(ViewModel, vm => vm.ImportServerFromClipBoardCommand, v => v.ImportServersFromClipboardToolStripMenuItem)
                     .DisposeWith(d);
@@ -80,12 +83,26 @@ namespace Netch.Forms
                 this.BindCommand(ViewModel, vm => vm.OpenFaqPageCommand, v => v.fAQToolStripMenuItem).DisposeWith(d);
 
                 this.BindCommand(ViewModel, vm => vm.OpenReleasesPageCommand, v => v.VersionLabel).DisposeWith(d);
+
+                this.OneWayBind(ViewModel, vm => vm.State, v => v.State).DisposeWith(d);
+
+                this.OneWayBind(ViewModel,
+                        vm => vm.ServerList,
+                        v => v.DeleteServerPictureBox.Enabled,
+                        list => !list.Any())
+                    .DisposeWith(d);
+
+                var o = ServerComboBox.Events()
+                    .SelectionChangeCommitted.Where(_ => ServerComboBox.SelectedIndex >= 0)
+                    .Select(_ => (Server) ServerComboBox.SelectedItem);
+
+                this.BindCommand(ViewModel, vm => vm.DeleteServerCommand, v => v.DeleteServerPictureBox, o).DisposeWith(d);
             });
 
 
             #region i18N Translations
 
-            _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] { "Uninstall {0}", "NF Service" });
+            _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] {"Uninstall {0}", "NF Service"});
 
             #endregion
 
@@ -95,7 +112,7 @@ namespace Netch.Forms
 
         private IEnumerable<ToolStripMenuItem> AddAddServerToolStripMenuItems()
         {
-            foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
+            foreach (var serversUtil in ServerService.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
             {
                 var fullName = serversUtil.FullName;
                 var control = new ToolStripMenuItem
@@ -106,7 +123,7 @@ namespace Netch.Forms
                     Tag = serversUtil
                 };
 
-                _mainFormText.Add(control.Name, new[] { "Add [{0}] Server", fullName });
+                _mainFormText.Add(control.Name, new[] {"Add [{0}] Server", fullName});
                 ServerToolStripMenuItem.DropDownItems.Add(control);
                 yield return control;
             }
@@ -117,13 +134,8 @@ namespace Netch.Forms
             // 计算 ComboBox绘制 目标宽度
             RecordSize();
 
-            LoadServers();
             SelectLastServer();
-            ServerHelper.DelayTestHelper.UpdateInterval();
-
-            _modeService.InitWatcher();
-            _modeService.Load();
-            LoadModes();
+            ServerService.DelayTestHelper.UpdateInterval();
             SelectLastMode();
 
             // 加载翻译
@@ -234,7 +246,7 @@ namespace Netch.Forms
                         return string.Empty;
 
                     if (value is object[] values)
-                        return i18N.TranslateFormat((string)values.First(), values.Skip(1).ToArray());
+                        return i18N.TranslateFormat((string) values.First(), values.Skip(1).ToArray());
 
                     return i18N.Translate(value);
                 }
@@ -259,6 +271,11 @@ namespace Netch.Forms
         #region Subscription
 
         public void ServerControls(bool v)
+        {
+            MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
+        }
+
+        public void ModeControls(bool v)
         {
             MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
         }
@@ -375,7 +392,7 @@ namespace Netch.Forms
                 return;
             }
 
-            await _configuration.SaveAsync();
+            await _configService.SaveAsync();
 
             // 服务器、模式 需选择
             if (ServerComboBox.SelectedItem is not Server server)
@@ -447,12 +464,12 @@ namespace Netch.Forms
             {
                 i18N.Load(_setting.Language);
                 TranslateControls();
-                LoadModes();
+                SelectLastMode();
                 LoadProfiles();
             }
 
             if (oldSettings.DetectionTick != _setting.DetectionTick)
-                ServerHelper.DelayTestHelper.UpdateInterval();
+                ServerService.DelayTestHelper.UpdateInterval();
 
             if (oldSettings.ProfileCount != _setting.ProfileCount)
                 LoadProfiles();
@@ -464,12 +481,7 @@ namespace Netch.Forms
 
         #region Server
 
-        public void LoadServers()
-        {
-            SelectLastServer();
-        }
-
-        private void SelectLastServer()
+        public void SelectLastServer()
         {
             // 如果值合法，选中该位置
             if (_setting.ServerComboBoxSelectedIndex > 0 && _setting.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
@@ -499,9 +511,9 @@ namespace Netch.Forms
                 return;
 
             Hide();
-            ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
-            LoadServers();
-            await _configuration.SaveAsync();
+            ServerService.GetUtilByTypeName(server.Type).Edit(server);
+            SelectLastServer();
+            await _configService.SaveAsync();
             Show();
         }
 
@@ -524,12 +536,12 @@ namespace Netch.Forms
             }
             else
             {
-                ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
-                _ = Task.Run(ServerHelper.DelayTestHelper.TestAllDelay);
+                ServerService.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
+                _ = Task.Run(ServerService.DelayTestHelper.TestAllDelay);
 
                 void OnTestDelayFinished(object? o1, EventArgs? e1)
                 {
-                    ServerHelper.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
+                    ServerService.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
                     Enable();
                 }
             }
@@ -566,31 +578,21 @@ namespace Netch.Forms
 
         private void DeleteServerPictureBox_Click(object sender, EventArgs e)
         {
-            // 当前 ServerComboBox 中至少有一项
-            if (!(ServerComboBox.SelectedItem is Server server))
-            {
-                MessageBoxX.Show(i18N.Translate("Please select a server first"));
-                return;
-            }
-
-            _setting.Server.Remove(server);
-            LoadServers();
+            /*
+             
+                        // 当前 ServerComboBox 中至少有一项
+                        if (!(ServerComboBox.SelectedItem is Server server))
+                        {
+                            MessageBoxX.Show(i18N.Translate("Please select a server first"));
+                            return;
+                        }
+            
+                        SelectLastServer();*/
         }
 
         #endregion
 
         #region Mode
-
-        public void LoadModes()
-        {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(LoadModes));
-                return;
-            }
-
-            SelectLastMode();
-        }
 
         private void SelectLastMode()
         {
@@ -608,7 +610,7 @@ namespace Netch.Forms
         {
             try
             {
-                _setting.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
+                _setting.ModeComboBoxSelectedIndex = ModeComboBox.Items.IndexOf((Models.Mode) ModeComboBox.SelectedItem);
             }
             catch
             {
@@ -625,7 +627,7 @@ namespace Netch.Forms
                 return;
             }
 
-            var mode = (Models.Mode)ModeComboBox.SelectedItem;
+            var mode = (Models.Mode) ModeComboBox.SelectedItem;
             if (ModifierKeys == Keys.Control)
             {
                 Misc.Open(ModeService.GetFullPath(mode.RelativePath!));
@@ -660,7 +662,7 @@ namespace Netch.Forms
                 return;
             }
 
-            _modeService.Delete((Models.Mode)ModeComboBox.SelectedItem);
+            _modeService.DeleteMode((Models.Mode) ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 
@@ -677,7 +679,7 @@ namespace Netch.Forms
         {
             // Clear
             foreach (var button in ProfileTable.Controls)
-                ((Button)button).Dispose();
+                ((Button) button).Dispose();
 
             ProfileTable.Controls.Clear();
             ProfileTable.ColumnStyles.Clear();
@@ -703,7 +705,7 @@ namespace Netch.Forms
                 var columnCount = _setting.ProfileTableColumnCount;
 
                 ProfileTable.ColumnCount = profileCount >= columnCount ? columnCount : profileCount;
-                ProfileTable.RowCount = (int)Math.Ceiling(profileCount / (float)columnCount);
+                ProfileTable.RowCount = (int) Math.Ceiling(profileCount / (float) columnCount);
 
                 for (var i = 0; i < profileCount; ++i)
                 {
@@ -752,8 +754,8 @@ namespace Netch.Forms
 
         private Profile CreateProfileAtIndex(int index)
         {
-            var server = (Server)ServerComboBox.SelectedItem;
-            var mode = (Models.Mode)ModeComboBox.SelectedItem;
+            var server = (Server) ServerComboBox.SelectedItem;
+            var mode = (Models.Mode) ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 
             Profile? profile;
@@ -770,8 +772,8 @@ namespace Netch.Forms
             if (sender == null)
                 throw new ArgumentNullException(nameof(sender));
 
-            var profileButton = (Button)sender;
-            var profile = (Profile?)profileButton.Tag;
+            var profileButton = (Button) sender;
+            var profile = (Profile?) profileButton.Tag;
             var index = ProfileTable.Controls.IndexOf(profileButton);
 
             switch (ModifierKeys)
@@ -862,7 +864,7 @@ namespace Netch.Forms
 
                 _state = value;
 
-                ServerHelper.DelayTestHelper.Enabled = IsWaiting(_state);
+                ServerService.DelayTestHelper.Enabled = IsWaiting(_state);
 
                 StatusText();
                 switch (value)
@@ -1132,9 +1134,9 @@ namespace Netch.Forms
             Hide();
 
             if (saveConfiguration)
-                await _configuration.SaveAsync();
+                await _configService.SaveAsync();
 
-            foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
+            foreach (var file in new[] {Constants.TempConfig, Constants.TempRouteFile})
                 if (File.Exists(file))
                     File.Delete(file);
 
@@ -1305,7 +1307,7 @@ namespace Netch.Forms
                 case Server item:
                 {
                     // 计算延迟底色
-                    var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+                    var numBoxBackBrush = item.Delay switch {> 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray};
 
                     // 绘制延迟底色
                     e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
@@ -1345,7 +1347,7 @@ namespace Netch.Forms
         object? IViewFor.ViewModel
         {
             get => ViewModel;
-            set => ViewModel = (MainWindowViewModel?)value;
+            set => ViewModel = (MainWindowViewModel?) value;
         }
 
         public MainWindowViewModel? ViewModel { get; set; }

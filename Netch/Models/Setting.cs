@@ -122,10 +122,6 @@ namespace Netch.Models
     /// </summary>
     public class Setting
     {
-        public Setting()
-        {
-            
-        }
         public RedirectorConfig Redirector { get; set; } = new();
 
         /// <summary>

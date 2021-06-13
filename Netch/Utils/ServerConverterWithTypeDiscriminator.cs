@@ -19,7 +19,7 @@ namespace Netch.Utils
 
             try
             {
-                var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
+                var type = ServerService.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
                 return (Server)JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
             }
             catch

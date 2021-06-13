@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Netch.Models;
 using Netch.Properties;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Forms
@@ -208,7 +209,10 @@ namespace Netch.Forms
                 }
 
             if (Global.Settings.Server.IndexOf(Server) == -1)
-                Global.Settings.Server.Add(Server);
+            {
+                var serverService = DI.GetRequiredService<ServerService>();
+                serverService.AddServer(Server);
+            }
 
             MessageBoxX.Show(i18N.Translate("Saved"));
 

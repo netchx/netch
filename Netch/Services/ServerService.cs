@@ -4,15 +4,41 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DynamicData;
 using Netch.Interfaces;
 using Netch.Models;
 using Timer = System.Timers.Timer;
 
 namespace Netch.Services
 {
-    public static class ServerHelper
+    public class ServerService
     {
-        static ServerHelper()
+        private readonly SourceList<Server> _serverList;
+        private readonly Setting _setting;
+
+        public ServerService(SourceList<Server> serverList, Setting setting)
+        {
+            _serverList = serverList;
+            _setting = setting;
+
+            _serverList.AddRange(_setting.Server);
+        }
+
+        public void AddServer(Server server)
+        {
+            _serverList.Add(server);
+            _setting.Server.Add(server);
+        }
+
+        public void RemoveServer(Server server)
+        {
+            _serverList.Remove(server);
+            _setting.Server.Remove(server);
+        }
+
+        #region Static
+
+        static ServerService()
         {
             var serversUtilsTypes = Assembly.GetExecutingAssembly()
                 .GetExportedTypes()
@@ -126,6 +152,8 @@ namespace Netch.Services
         {
             return ServerUtils.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(typeName)));
         }
+
+        #endregion
 
         #endregion
     }

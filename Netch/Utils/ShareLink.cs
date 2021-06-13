@@ -16,7 +16,7 @@ namespace Netch.Utils
     {
         public static string GetShareLink(Server server)
         {
-            return ServerHelper.GetUtilByTypeName(server.Type).GetShareLink(server);
+            return ServerService.GetUtilByTypeName(server.Type).GetShareLink(server);
         }
 
         public static List<Server> ParseText(string text)
@@ -71,7 +71,7 @@ namespace Netch.Utils
 
             if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
             {
-                list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
+                list.AddRange(ServerService.GetUtilByTypeName("Socks5").ParseUri(text));
             }
             else if (text.StartsWith("Netch://"))
             {
@@ -80,7 +80,7 @@ namespace Netch.Utils
             else
             {
                 var scheme = GetUriScheme(text);
-                var util = ServerHelper.GetUtilByUriScheme(scheme);
+                var util = ServerService.GetUtilByUriScheme(scheme);
                 if (util != null)
                     list.AddRange(util.ParseUri(text));
                 else

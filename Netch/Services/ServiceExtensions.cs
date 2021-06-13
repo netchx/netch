@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Netch.Forms;
+using Netch.Interfaces;
 using Netch.Models;
 using Netch.ViewModels;
 
@@ -28,7 +29,7 @@ namespace Netch.Services
 
         public static IServiceCollection AddSetting(this IServiceCollection services)
         {
-            services.TryAddSingleton<Configuration>();
+            services.TryAddSingleton<IConfigService, ConfigService>();
             services.TryAddSingleton<Setting>();
 
             return services;
@@ -44,6 +45,7 @@ namespace Netch.Services
 
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
+            services.TryAddSingleton<ServerService>();
             services.TryAddSingleton<ModeService>();
 
             return services;
