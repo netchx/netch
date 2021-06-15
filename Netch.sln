@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch", "Netch\Netch.csproj", "{A193DF89-ADCF-4DB4-B75C-729C8BA8A9F3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{09222C6B-2FFB-4DA7-BC75-CB0A80086711}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A193DF89-ADCF-4DB4-B75C-729C8BA8A9F3}.Debug|x64.ActiveCfg = Debug|x64
+		{A193DF89-ADCF-4DB4-B75C-729C8BA8A9F3}.Debug|x64.Build.0 = Debug|x64
+		{A193DF89-ADCF-4DB4-B75C-729C8BA8A9F3}.Release|x64.ActiveCfg = Release|x64
+		{A193DF89-ADCF-4DB4-B75C-729C8BA8A9F3}.Release|x64.Build.0 = Release|x64
+		{09222C6B-2FFB-4DA7-BC75-CB0A80086711}.Debug|x64.ActiveCfg = Debug|x64
+		{09222C6B-2FFB-4DA7-BC75-CB0A80086711}.Debug|x64.Build.0 = Debug|x64
+		{09222C6B-2FFB-4DA7-BC75-CB0A80086711}.Release|x64.ActiveCfg = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1E271FD7-9623-47D5-B3AF-309BC23CB48E}
+	EndGlobalSection
+EndGlobal

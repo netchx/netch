@@ -1,0 +1,26 @@
+name: Netch Build CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Clone
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Build
+        shell: pwsh
+        run: |
+          .\build.ps1 -Configuration Release -OutputPath release
+
+      - name: Upload
+        uses: actions/upload-artifact@v2
+        with:
+          name: Netch
+          path: release
