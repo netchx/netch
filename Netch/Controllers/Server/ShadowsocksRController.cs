@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Netch.Controllers.Server
 {
-    public class SRController : Interface.IController
+    public class ShadowsocksRController : Interface.IController
     {
         private Tools.Guard Guard = new()
         {

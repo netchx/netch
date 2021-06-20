@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Netch.Controllers.Mode
 {
-    public class ProcessController : Interface.IController
+    public class RedirectorController : Interface.IController
     {
         private enum NameList : int
         {

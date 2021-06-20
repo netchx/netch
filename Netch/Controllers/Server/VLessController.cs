@@ -1,6 +1,6 @@
 ﻿namespace Netch.Controllers.Server
 {
-    public class TRController : Interface.IController
+    public class VLessController : Interface.IController
     {
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {

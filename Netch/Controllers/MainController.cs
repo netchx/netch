@@ -31,20 +31,20 @@ namespace Netch.Controllers
                             }
                         }
 
-                        this.NodeController = new Server.SSController();
+                        this.NodeController = new Server.ShadowsocksController();
                     }
                     break;
                 case Models.Server.ServerType.ShadowsocksR:
-                    this.NodeController = new Server.SRController();
+                    this.NodeController = new Server.ShadowsocksRController();
                     break;
                 case Models.Server.ServerType.Trojan:
-                    this.NodeController = new Server.TRController();
+                    this.NodeController = new Server.TrojanController();
                     break;
                 case Models.Server.ServerType.VLess:
-                    this.NodeController = new Server.VLController();
+                    this.NodeController = new Server.VLessController();
                     break;
                 case Models.Server.ServerType.VMess:
-                    this.NodeController = new Server.VMController();
+                    this.NodeController = new Server.VMessController();
                     break;
                 default:
                     Global.Logger.Error($"未知的节点类型：{s.Type}");
@@ -63,7 +63,7 @@ namespace Netch.Controllers
             switch (m.Type)
             {
                 case Models.Mode.ModeType.ProcessMode:
-                    this.ModeController = new Mode.ProcessController();
+                    this.ModeController = new Mode.RedirectorController();
                     break;
                 case Models.Mode.ModeType.ShareMode:
                     this.ModeController = new Mode.ShareController();

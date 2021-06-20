@@ -1,6 +1,6 @@
 ﻿namespace Netch.Controllers.Server
 {
-    public class VMController : Interface.IController
+    public class TrojanController : Interface.IController
     {
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {
