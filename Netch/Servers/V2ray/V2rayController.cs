@@ -9,13 +9,17 @@ namespace Netch.Servers.V2ray
 {
     public class V2rayController : Guard, IServerController
     {
-        public override string MainFile { get; protected set; } = "xray.exe";
+        public V2rayController() : base("xray.exe")
+        {
+            if (!Global.Settings.V2RayConfig.XrayCone)
+                Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+        }
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "started" };
+        protected override IEnumerable<string> StartedKeywords => new[] { "started" };
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] { "config file not readable", "failed to" };
+        protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
 
-        public override string Name { get; } = "Xray";
+        public override string Name => "Xray";
 
         public ushort? Socks5LocalPort { get; set; }
 
@@ -24,19 +28,7 @@ namespace Netch.Servers.V2ray
         public virtual void Start(in Server s, in Mode mode)
         {
             File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s, mode));
-            StartInstanceAuto("-config ..\\data\\last.json");
-        }
-
-        public override void Stop()
-        {
-            StopInstance();
-        }
-
-        protected override void InitInstance(string argument)
-        {
-            base.InitInstance(argument);
-            if (!Global.Settings.V2RayConfig.XrayCone)
-                Instance!.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+            StartGuard("-config ..\\data\\last.json");
         }
     }
 }

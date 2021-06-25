@@ -10,14 +10,11 @@ namespace Netch.Controllers
 {
     public class NTTController : Guard, IController
     {
-        public override string MainFile { get; protected set; } = "NTT.exe";
-
-        public override string Name { get; } = "NTT";
-
-        public override void Stop()
+        public NTTController() : base("NTT.exe")
         {
-            StopInstance();
         }
+
+        public override string Name => "NTT";
 
         /// <summary>
         ///     启动 NatTypeTester
@@ -29,8 +26,8 @@ namespace Netch.Controllers
 
             try
             {
-                InitInstance($" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}");
-                Instance!.Start();
+                Instance.StartInfo.Arguments = $" {Global.Settings.STUN_Server} {Global.Settings.STUN_Server_Port}";
+                Instance.Start();
 
                 var output = await Instance.StandardOutput.ReadToEndAsync();
                 var error = await Instance.StandardError.ReadToEndAsync();
@@ -47,8 +44,7 @@ namespace Netch.Controllers
                 if (output.IsNullOrWhiteSpace())
                     if (!error.IsNullOrWhiteSpace())
                     {
-                        error = error.Trim();
-                        var errorFirst = error.Substring(0, error.IndexOf('\n')).Trim();
+                        var errorFirst = error.GetLines().First();
                         return (errorFirst.SplitTrimEntries(':').Last(), null, null);
                     }
 

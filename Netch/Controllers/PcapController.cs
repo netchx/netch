@@ -15,22 +15,26 @@ namespace Netch.Controllers
 {
     public class PcapController : Guard, IModeController
     {
-        public override string Name { get; } = "pcap2socks";
+        public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)
+        {
+            _form = new LogForm(Global.MainForm);
+            _form.CreateControl();
+        }
 
-        public override string MainFile { get; protected set; } = "pcap2socks.exe";
+        ~PcapController()
+        {
+            _form.Dispose();
+        }
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "└" };
+        public override string Name => "pcap2socks";
 
-        protected override Encoding? InstanceOutputEncoding { get; } = Encoding.UTF8;
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] { "└" };
 
-        private LogForm? _form;
+        private readonly LogForm _form;
 
         public void Start(in Mode mode)
         {
             var server = MainController.Server!;
-
-            _form = new LogForm(Global.MainForm);
-            _form.CreateControl();
 
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
@@ -41,26 +45,22 @@ namespace Netch.Controllers
                 argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
             argument.Append($" {mode.GetRules().FirstOrDefault() ?? "-P n"}");
-            StartInstanceAuto(argument.ToString());
+            StartGuard(argument.ToString());
         }
 
         protected override void OnReadNewLine(string line)
         {
-            Global.MainForm.BeginInvoke(new Action(() =>
-            {
-                if (!_form!.IsDisposed)
-                    _form.richTextBox1.AppendText(line + "\n");
-            }));
+            Global.MainForm.BeginInvoke(new Action(() => _form.richTextBox1.AppendText(line + "\n")));
         }
 
-        protected override void OnKeywordStarted()
+        protected override void OnStarted()
         {
-            Global.MainForm.BeginInvoke(new Action(() => { _form!.Show(); }));
+            Global.MainForm.BeginInvoke(new Action(() => _form.Show()));
         }
 
-        protected override void OnKeywordStopped()
+        protected override void OnStartFailed()
         {
-            if (File.ReadAllText(LogPath).Length == 0)
+            if (new FileInfo(LogPath).Length == 0)
             {
                 Task.Run(() =>
                 {
@@ -76,8 +76,8 @@ namespace Netch.Controllers
 
         public override void Stop()
         {
-            _form!.Close();
-            StopInstance();
+            _form.Close();
+            StopGuard();
         }
     }
 }

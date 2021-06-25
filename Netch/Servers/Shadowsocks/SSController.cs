@@ -7,13 +7,15 @@ namespace Netch.Servers.Shadowsocks
 {
     public class SSController : Guard, IServerController
     {
-        public override string MainFile { get; protected set; } = "Shadowsocks.exe";
+        public SSController() : base("Shadowsocks.exe")
+        {
+        }
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "listening at" };
+        protected override IEnumerable<string> StartedKeywords => new[] { "listening at" };
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] { "Invalid config path", "usage", "plugin service exit unexpectedly" };
+        protected override IEnumerable<string> FailedKeywords => new[] { "Invalid config path", "usage", "plugin service exit unexpectedly" };
 
-        public override string Name { get; } = "Shadowsocks";
+        public override string Name => "Shadowsocks";
 
         public ushort? Socks5LocalPort { get; set; }
 
@@ -36,7 +38,7 @@ namespace Netch.Servers.Shadowsocks
                 plugin_opts = server.PluginOption
             };
 
-            StartInstanceAuto(command.ToString());
+            StartGuard(command.ToString());
         }
 
         [Verb]
@@ -69,11 +71,6 @@ namespace Netch.Servers.Shadowsocks
             [Quote]
             [Optional]
             public string? acl { get; set; }
-        }
-
-        public override void Stop()
-        {
-            StopInstance();
         }
     }
 }

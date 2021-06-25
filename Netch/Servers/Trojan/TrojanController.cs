@@ -10,13 +10,15 @@ namespace Netch.Servers.Trojan
 {
     public class TrojanController : Guard, IServerController
     {
-        public override string MainFile { get; protected set; } = "Trojan.exe";
+        public TrojanController() : base("Trojan.exe")
+        {
+        }
 
-        protected override IEnumerable<string> StartedKeywords { get; set; } = new[] { "started" };
+        protected override IEnumerable<string> StartedKeywords => new[] { "started" };
 
-        protected override IEnumerable<string> StoppedKeywords { get; set; } = new[] { "exiting" };
+        protected override IEnumerable<string> FailedKeywords => new[] { "exiting" };
 
-        public override string Name { get; } = "Trojan";
+        public override string Name => "Trojan";
 
         public ushort? Socks5LocalPort { get; set; }
 
@@ -45,12 +47,7 @@ namespace Netch.Servers.Trojan
 
             File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
-            StartInstanceAuto("-c ..\\data\\last.json");
-        }
-
-        public override void Stop()
-        {
-            StopInstance();
+            StartGuard("-c ..\\data\\last.json");
         }
     }
 }
