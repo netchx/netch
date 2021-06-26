@@ -59,12 +59,15 @@ namespace Netch.Utils
         {
             try
             {
-                await using var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-                var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions))!;
+                var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+                await using (fs.ConfigureAwait(false))
+                {
+                    var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions).ConfigureAwait(false))!;
 
-                CheckSetting(settings);
-                Global.Settings = settings;
-                return true;
+                    CheckSetting(settings);
+                    Global.Settings = settings;
+                    return true;
+                }
             }
             catch (Exception e)
             {
@@ -96,10 +99,10 @@ namespace Netch.Utils
                     Directory.CreateDirectory(DataDirectoryFullName);
 
                 var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
-
-                await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+                await using (fileStream.ConfigureAwait(false))
                 {
-                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions);
+                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).ConfigureAwait(false);
                 }
 
                 File.Replace(tempFile, FileFullName, BackupFileFullName);

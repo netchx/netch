@@ -501,14 +501,14 @@ namespace Netch.Forms
 
             State = State.Started;
 
-            _ = Task.Run(Bandwidth.NetTraffic);
-            _ = Task.Run(NatTest);
+            Task.Run(Bandwidth.NetTraffic).Forget();
+            Task.Run(NatTest).Forget();
 
             if (Global.Settings.MinimizeWhenStarted)
                 Minimize();
 
             // 自动检测延迟
-            _ = Task.Run(() =>
+            Task.Run(() =>
             {
                 while (State == State.Started)
                     if (Global.Settings.StartedPingInterval >= 0)
@@ -522,7 +522,7 @@ namespace Netch.Forms
                     {
                         Thread.Sleep(5000);
                     }
-            });
+            }).Forget();
         }
 
         #endregion
@@ -620,7 +620,7 @@ namespace Netch.Forms
             else
             {
                 ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
-                _ = Task.Run(ServerHelper.DelayTestHelper.TestAllDelay);
+                Task.Run(ServerHelper.DelayTestHelper.TestAllDelay).Forget();
 
                 void OnTestDelayFinished(object? o1, EventArgs? e1)
                 {

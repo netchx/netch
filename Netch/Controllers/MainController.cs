@@ -13,7 +13,6 @@ namespace Netch.Controllers
     {
         public static Mode? Mode;
 
-        /// TCP or Both Server
         public static Server? Server;
 
         private static Server? _udpServer;
@@ -51,11 +50,6 @@ namespace Netch.Controllers
         /// <exception cref="MessageException"></exception>
         public static async Task StartAsync(Server server, Mode mode)
         {
-            await Task.Run(() => Start(server, mode));
-        }
-
-        public static void Start(Server server, Mode mode)
-        {
             Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
             Server = server;
             Mode = mode;
@@ -81,7 +75,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Stop();
+                await StopAsync();
 
                 switch (e)
                 {
@@ -132,20 +126,12 @@ namespace Netch.Controllers
 
         public static async Task StopAsync()
         {
-            await Task.Run(Stop);
-        }
-
-        /// <summary>
-        ///     停止
-        /// </summary>
-        public static void Stop()
-        {
             if (_serverController == null && ModeController == null)
                 return;
 
             StatusPortInfoText.Reset();
 
-            _ = Task.Run(() => NTTController.Stop());
+            Task.Run(() => NTTController.Stop()).Forget();
 
             var tasks = new[]
             {
@@ -155,7 +141,7 @@ namespace Netch.Controllers
 
             try
             {
-                Task.WaitAll(tasks);
+                await Task.WhenAll(tasks);
             }
             catch (Exception e)
             {
