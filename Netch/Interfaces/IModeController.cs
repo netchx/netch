@@ -4,6 +4,6 @@ namespace Netch.Interfaces
 {
     public interface IModeController : IController
     {
-        public void Start(in Mode mode);
+        public void Start(Server server, Mode mode);
     }
 }

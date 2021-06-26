@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Socks5;
 using Netch.Utils;
 using Serilog;
 
@@ -11,47 +10,17 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static Mode? Mode;
-
-        public static Server? Server;
-
-        private static Server? _udpServer;
+        public static Mode? Mode { get; private set; }
 
         public static readonly NTTController NTTController = new();
-        private static IServerController? _serverController;
-        private static IServerController? _udpServerController;
 
-        public static IServerController? ServerController
-        {
-            get => _serverController;
-            private set => _serverController = value;
-        }
-
-        public static IServerController? UdpServerController
-        {
-            get => _udpServerController ?? _serverController;
-            set => _udpServerController = value;
-        }
-
-        public static Server? UdpServer
-        {
-            get => _udpServer ?? Server;
-            set => _udpServer = value;
-        }
+        public static IServerController? ServerController { get; private set; }
 
         public static IModeController? ModeController { get; private set; }
 
-        /// <summary>
-        ///     启动
-        /// </summary>
-        /// <param name="server">服务器</param>
-        /// <param name="mode">模式</param>
-        /// <returns>是否启动成功</returns>
-        /// <exception cref="MessageException"></exception>
         public static async Task StartAsync(Server server, Mode mode)
         {
             Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
-            Server = server;
             Mode = mode;
 
             // 刷新 DNS 缓存
@@ -66,12 +35,9 @@ namespace Netch.Controllers
             try
             {
                 if (!ModeHelper.SkipServerController(server, mode))
-                {
-                    StartServer(server, mode, out _serverController);
-                    StatusPortInfoText.UpdateShareLan();
-                }
+                    server = StartServer(server);
 
-                StartMode(mode);
+                StartMode(server, mode);
             }
             catch (Exception e)
             {
@@ -91,28 +57,23 @@ namespace Netch.Controllers
             }
         }
 
-        private static void StartServer(Server server, Mode mode, out IServerController controller)
+        private static Server StartServer(Server server)
         {
-            controller = ServerHelper.GetUtilByTypeName(server.Type).GetController();
+            ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
-            TryReleaseTcpPort(controller.Socks5LocalPort(), "Socks5");
+            TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
 
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", controller.Name));
+            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
-            controller.Start(in server, mode);
+            var socks5 = ServerController.Start(server);
 
-            if (server is Socks5 socks5)
-            {
-                if (socks5.Auth())
-                    StatusPortInfoText.Socks5Port = controller.Socks5LocalPort();
-            }
-            else
-            {
-                StatusPortInfoText.Socks5Port = controller.Socks5LocalPort();
-            }
+            StatusPortInfoText.Socks5Port = socks5.Port;
+            StatusPortInfoText.UpdateShareLan();
+
+            return socks5;
         }
 
-        private static void StartMode(Mode mode)
+        private static void StartMode(Server server, Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
 
@@ -121,12 +82,12 @@ namespace Netch.Controllers
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 
-            ModeController.Start(mode);
+            ModeController.Start(server, mode);
         }
 
         public static async Task StopAsync()
         {
-            if (_serverController == null && ModeController == null)
+            if (ServerController == null && ModeController == null)
                 return;
 
             StatusPortInfoText.Reset();

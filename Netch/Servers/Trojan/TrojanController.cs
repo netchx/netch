@@ -24,7 +24,7 @@ namespace Netch.Servers.Trojan
 
         public string? LocalAddress { get; set; }
 
-        public void Start(in Server s, in Mode mode)
+        public Socks5.Socks5 Start(in Server s)
         {
             var server = (Trojan)s;
             var trojanConfig = new TrojanConfig
@@ -48,6 +48,7 @@ namespace Netch.Servers.Trojan
             File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
             StartGuard("-c ..\\data\\last.json");
+            return new Socks5.Socks5(this.LocalAddress(), this.Socks5LocalPort());
         }
     }
 }

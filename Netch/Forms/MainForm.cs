@@ -509,20 +509,21 @@ namespace Netch.Forms
 
             // 自动检测延迟
             Task.Run(() =>
-            {
-                while (State == State.Started)
-                    if (Global.Settings.StartedPingInterval >= 0)
-                    {
-                        server.Test();
-                        ServerComboBox.Refresh();
+                {
+                    while (State == State.Started)
+                        if (Global.Settings.StartedPingInterval >= 0)
+                        {
+                            server.Test();
+                            ServerComboBox.Refresh();
 
-                        Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
-                    }
-                    else
-                    {
-                        Thread.Sleep(5000);
-                    }
-            }).Forget();
+                            Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
+                        }
+                        else
+                        {
+                            Thread.Sleep(5000);
+                        }
+                })
+                .Forget();
         }
 
         #endregion
@@ -1144,7 +1145,6 @@ namespace Netch.Forms
             {
                 NatTypeStatusText(i18N.Translate("Testing NAT"));
 
-                // Monitor.TryEnter() Monitor.Exit() (a.k.a. lock) not work with async/await
                 var (result, _, publicEnd) = await MainController.NTTController.Start();
 
                 if (!string.IsNullOrEmpty(publicEnd))

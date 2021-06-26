@@ -1,6 +1,3 @@
-using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,6 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 using Serilog;
 
 namespace Netch.Forms
@@ -60,7 +60,7 @@ namespace Netch.Forms
             object[]? stuns;
             try
             {
-                stuns = File.ReadLines("bin\\stun.txt").Cast<object>().ToArray();
+                stuns = File.ReadLines(Constants.STUNServersFile).Cast<object>().ToArray();
             }
             catch (Exception e)
             {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -16,15 +17,21 @@ namespace Netch.Controllers
 {
     public class NFController : IModeController
     {
+        private Server? _server;
+        private Mode? _mode;
+        private RedirectorConfig? _rdrConfig;
+
         private static readonly ServiceController NFService = new("netfilter2");
 
-        private const string BinDriver = "bin\\nfdriver.sys";
         private static readonly string SystemDriver = $"{Environment.SystemDirectory}\\drivers\\netfilter2.sys";
 
-        public string Name { get; } = "Redirector";
+        public string Name => "Redirector";
 
-        public void Start(in Mode mode)
+        public void Start(Server server, Mode mode)
         {
+            _server = server;
+            _mode = mode;
+            _rdrConfig = Global.Settings.Redirector;
             CheckDriver();
 
             Dial(NameList.TYPE_FILTERLOOPBACK, "false");
@@ -34,15 +41,15 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_UDPLISN, p.ToString());
 
             // Server
-            Dial(NameList.TYPE_FILTERUDP, (Global.Settings.Redirector.FilterProtocol != PortType.TCP).ToString().ToLower());
-            Dial(NameList.TYPE_FILTERTCP, (Global.Settings.Redirector.FilterProtocol != PortType.UDP).ToString().ToLower());
-            dial_Server(Global.Settings.Redirector.FilterProtocol);
+            Dial(NameList.TYPE_FILTERUDP, _rdrConfig.FilterProtocol.HasFlag(PortType.UDP).ToString().ToLower());
+            Dial(NameList.TYPE_FILTERTCP, _rdrConfig.FilterProtocol.HasFlag(PortType.TCP).ToString().ToLower());
+            dial_Server(_rdrConfig.FilterProtocol, _server);
 
             // Mode Rule
-            dial_Name(mode);
+            dial_Name(_mode);
 
             // Features
-            Dial(NameList.TYPE_DNSHOST, Global.Settings.Redirector.DNSHijack ? Global.Settings.Redirector.DNSHijackHost : "");
+            Dial(NameList.TYPE_DNSHOST, _rdrConfig.DNSHijack ? _rdrConfig.DNSHijackHost : "");
 
             if (!Init())
                 throw new MessageException("Redirector start failed.");
@@ -95,31 +102,16 @@ namespace Netch.Controllers
 
         #endregion
 
-        private void dial_Server(in PortType portType)
+        private void dial_Server(PortType portType, in Server server)
         {
             if (portType == PortType.Both)
             {
-                dial_Server(PortType.TCP);
-                dial_Server(PortType.UDP);
+                dial_Server(PortType.TCP, server);
+                dial_Server(PortType.UDP, server);
                 return;
             }
 
-            int offset;
-            Server server;
-            IServerController controller;
-
-            if (portType == PortType.UDP)
-            {
-                offset = UdpNameListOffset;
-                server = MainController.UdpServer!;
-                controller = MainController.UdpServerController!;
-            }
-            else
-            {
-                offset = 0;
-                server = MainController.Server!;
-                controller = MainController.ServerController!;
-            }
+            var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
 
             if (server is Socks5 socks5)
             {
@@ -129,7 +121,7 @@ namespace Netch.Controllers
                 Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS)
+            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && _rdrConfig.RedirectorSS)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
                 Dial(NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");
@@ -138,11 +130,7 @@ namespace Netch.Controllers
             }
             else
             {
-                Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
-                Dial(NameList.TYPE_TCPHOST + offset, $"127.0.0.1:{controller.Socks5LocalPort()}");
-                Dial(NameList.TYPE_TCPUSER + offset, string.Empty);
-                Dial(NameList.TYPE_TCPPASS + offset, string.Empty);
-                Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
+                Trace.Assert(false);
             }
         }
 
@@ -175,11 +163,11 @@ namespace Netch.Controllers
 
         private static void CheckDriver()
         {
-            var binFileVersion = Utils.Utils.GetFileVersion(BinDriver);
+            var binFileVersion = Utils.Utils.GetFileVersion(Constants.NFDriver);
             var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
 
-            Log.Information("内置驱动版本: " + binFileVersion);
-            Log.Information("系统驱动版本: " + systemFileVersion);
+            Log.Information("内置驱动版本: {Name}", binFileVersion);
+            Log.Information("系统驱动版本: {Name}", systemFileVersion);
 
             if (!File.Exists(SystemDriver))
             {
@@ -222,16 +210,16 @@ namespace Netch.Controllers
         {
             Log.Information("安装 NF 驱动");
 
-            if (!File.Exists(BinDriver))
+            if (!File.Exists(Constants.NFDriver))
                 throw new MessageException(i18N.Translate("builtin driver files missing, can't install NF driver"));
 
             try
             {
-                File.Copy(BinDriver, SystemDriver);
+                File.Copy(Constants.NFDriver, SystemDriver);
             }
             catch (Exception e)
             {
-                Log.Error(e,"驱动复制失败\n");
+                Log.Error(e, "驱动复制失败\n");
                 throw new MessageException($"Copy NF driver file failed\n{e.Message}");
             }
 
@@ -244,7 +232,7 @@ namespace Netch.Controllers
             }
             else
             {
-                Log.Error("注册驱动失败: {Result}",result);
+                Log.Error("注册驱动失败: {Result}", result);
                 throw new MessageException($"Register NF driver failed\n{result}");
             }
         }

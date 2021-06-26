@@ -15,37 +15,46 @@ namespace Netch.Controllers
 {
     public class PcapController : Guard, IModeController
     {
+        private readonly LogForm _form;
+        private Mode? _mode;
+        private Server? _server;
+
         public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)
         {
             _form = new LogForm(Global.MainForm);
             _form.CreateControl();
         }
 
-        ~PcapController()
-        {
-            _form.Dispose();
-        }
+        protected override IEnumerable<string> StartedKeywords { get; } = new[] { "└" };
 
         public override string Name => "pcap2socks";
 
-        protected override IEnumerable<string> StartedKeywords { get; } = new[] { "└" };
-
-        private readonly LogForm _form;
-
-        public void Start(in Mode mode)
+        public void Start(Server server, Mode mode)
         {
-            var server = MainController.Server!;
+            _server = server;
+            _mode = mode;
 
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
             var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
-            if (server is Socks5 socks5 && !socks5.Auth())
-                argument.Append($" --destination  {server.AutoResolveHostname()}:{server.Port}");
+            if (_server is Socks5 socks5 && !socks5.Auth())
+                argument.Append($" --destination  {socks5.AutoResolveHostname()}:{socks5.Port}");
             else
                 argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
-            argument.Append($" {mode.GetRules().FirstOrDefault() ?? "-P n"}");
+            argument.Append($" {_mode.GetRules().FirstOrDefault() ?? "-P n"}");
             StartGuard(argument.ToString());
+        }
+
+        public override void Stop()
+        {
+            _form.Close();
+            StopGuard();
+        }
+
+        ~PcapController()
+        {
+            _form.Dispose();
         }
 
         protected override void OnReadNewLine(string line)
@@ -72,12 +81,6 @@ namespace Netch.Controllers
             }
 
             Utils.Utils.Open(LogPath);
-        }
-
-        public override void Stop()
-        {
-            _form.Close();
-            StopGuard();
         }
     }
 }

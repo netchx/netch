@@ -25,10 +25,11 @@ namespace Netch.Servers.V2ray
 
         public string? LocalAddress { get; set; }
 
-        public virtual void Start(in Server s, in Mode mode)
+        public virtual Socks5.Socks5 Start(in Server s)
         {
-            File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s, mode));
+            File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s));
             StartGuard("-config ..\\data\\last.json");
+            return new Socks5.Socks5(this.LocalAddress(), this.Socks5LocalPort());
         }
     }
 }

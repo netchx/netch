@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Netch.Enums;
 using Netch.Models;
 using Netch.Servers.V2ray.Models;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
@@ -10,15 +9,15 @@ namespace Netch.Servers.V2ray.Utils
 {
     public static class V2rayConfigUtils
     {
-        public static string GenerateClientConfig(Server server, Mode mode)
+        public static string GenerateClientConfig(Server server)
         {
             var v2rayConfig = new V2rayConfig();
 
             inbound(server, ref v2rayConfig);
 
-            routing(server, mode, ref v2rayConfig);
+            routing(server, ref v2rayConfig);
 
-            outbound(server, mode, ref v2rayConfig);
+            outbound(server, ref v2rayConfig);
 
             return JsonSerializer.Serialize(v2rayConfig, Global.NewDefaultJsonSerializerOptions);
         }
@@ -46,7 +45,7 @@ namespace Netch.Servers.V2ray.Utils
             }
         }
 
-        private static void routing(Server server, Mode mode, ref V2rayConfig v2rayConfig)
+        private static void routing(Server server, ref V2rayConfig v2rayConfig)
         {
             try
             {
@@ -65,14 +64,6 @@ namespace Netch.Servers.V2ray.Utils
                     domain = new List<string>(),
                     outboundTag = "block"
                 };
-
-                if (mode.Type is ModeType.Process or ModeType.ProxyRuleIPs or ModeType.BypassRuleIPs)
-                {
-                    blockRuleObject.ip.Add("0.0.0.0/8");
-                    blockRuleObject.ip.Add("224.0.0.0/4");
-                    blockRuleObject.ip.Add("255.255.255.255/32");
-                    blockRuleObject.ip.Add("fc00::/8");
-                }
 
                 static bool CheckRuleItem(ref RulesItem rulesItem)
                 {
@@ -98,7 +89,7 @@ namespace Netch.Servers.V2ray.Utils
             }
         }
 
-        private static void outbound(Server server, Mode mode, ref V2rayConfig v2rayConfig)
+        private static void outbound(Server server, ref V2rayConfig v2rayConfig)
         {
             try
             {
