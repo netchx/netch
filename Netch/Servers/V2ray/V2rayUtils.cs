@@ -6,14 +6,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Netch.Servers.V2ray
+namespace Netch.Servers
 {
     public static class V2rayUtils
     {
         public static IEnumerable<Server> ParseVUri(string text)
         {
             var scheme = ShareLink.GetUriScheme(text).ToLower();
-            var server = scheme switch { "vmess" => new VMess.VMess(), "vless" => new VLESS.VLESS(), _ => throw new ArgumentOutOfRangeException() };
+            var server = scheme switch { "vmess" => new VMess.VMess(), "vless" => new VLESS(), _ => throw new ArgumentOutOfRangeException() };
             if (text.Contains("#"))
             {
                 server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
@@ -54,7 +54,7 @@ namespace Netch.Servers.V2ray
                 {
                     server.Host = parameter.Get("sni") ?? "";
                     if (server.TLSSecureType == "xtls")
-                        ((VLESS.VLESS)server).Flow = parameter.Get("flow") ?? "";
+                        ((VLESS)server).Flow = parameter.Get("flow") ?? "";
                 }
             }
 
@@ -127,7 +127,7 @@ namespace Netch.Servers.V2ray
 
                 if (server.TLSSecureType == "xtls")
                 {
-                    var flow = ((VLESS.VLESS)server).Flow;
+                    var flow = ((VLESS)server).Flow;
                     if (!flow.IsNullOrWhiteSpace())
                         parameter.Add("flow", flow!.Replace("-udp443", ""));
                 }

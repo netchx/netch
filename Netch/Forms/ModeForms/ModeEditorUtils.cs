@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Netch.Forms.Mode
+namespace Netch.Forms.ModeForms
 {
     public static class ModeEditorUtils
     {

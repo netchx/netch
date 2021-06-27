@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;
-using Netch.Forms.Mode;
+using Netch.Forms.ModeForms;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Properties;
@@ -246,14 +246,14 @@ namespace Netch.Forms
         private void CreateProcessModeToolStripButton_Click(object sender, EventArgs e)
         {
             Hide();
-            new Process().ShowDialog();
+            new ProcessForm().ShowDialog();
             Show();
         }
 
         private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Hide();
-            new Route().ShowDialog();
+            new RouteForm().ShowDialog();
             Show();
         }
 
@@ -479,7 +479,7 @@ namespace Netch.Forms
                 return;
             }
 
-            if (ModeComboBox.SelectedItem is not Models.Mode mode)
+            if (ModeComboBox.SelectedItem is not Mode mode)
             {
                 MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                 return;
@@ -707,7 +707,7 @@ namespace Netch.Forms
         {
             try
             {
-                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Models.Mode)ModeComboBox.SelectedItem);
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
             }
             catch
             {
@@ -724,7 +724,7 @@ namespace Netch.Forms
                 return;
             }
 
-            var mode = (Models.Mode)ModeComboBox.SelectedItem;
+            var mode = (Mode)ModeComboBox.SelectedItem;
             if (ModifierKeys == Keys.Control)
             {
                 Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath!));
@@ -735,13 +735,13 @@ namespace Netch.Forms
             {
                 case ModeType.Process:
                     Hide();
-                    new Process(mode).ShowDialog();
+                    new ProcessForm(mode).ShowDialog();
                     Show();
                     break;
                 case ModeType.ProxyRuleIPs:
                 case ModeType.BypassRuleIPs:
                     Hide();
-                    new Route(mode).ShowDialog();
+                    new RouteForm(mode).ShowDialog();
                     Show();
                     break;
                 default:
@@ -759,7 +759,7 @@ namespace Netch.Forms
                 return;
             }
 
-            ModeHelper.Delete((Models.Mode)ModeComboBox.SelectedItem);
+            ModeHelper.Delete((Mode)ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 
@@ -837,7 +837,7 @@ namespace Netch.Forms
             ProfileNameText.Text = profile.ProfileName;
 
             var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
-            var mode = ModeComboBox.Items.Cast<Models.Mode>().FirstOrDefault(m => m.Remark.Equals(profile.ModeRemark));
+            var mode = ModeComboBox.Items.Cast<Mode>().FirstOrDefault(m => m.Remark.Equals(profile.ModeRemark));
 
             if (server == null)
                 throw new Exception("Server not found.");
@@ -852,7 +852,7 @@ namespace Netch.Forms
         private Profile CreateProfileAtIndex(int index)
         {
             var server = (Server)ServerComboBox.SelectedItem;
-            var mode = (Models.Mode)ModeComboBox.SelectedItem;
+            var mode = (Mode)ModeComboBox.SelectedItem;
             var name = ProfileNameText.Text;
 
             Profile? profile;
@@ -1418,7 +1418,7 @@ namespace Netch.Forms
 
                     break;
                 }
-                case Models.Mode item:
+                case Mode item:
                 {
                     // 绘制 模式Box 底色
                     e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);

@@ -1,6 +1,6 @@
 ﻿using Netch.Forms;
 
-namespace Netch.Servers.Socks5.Form
+namespace Netch.Servers
 {
     public class Socks5Form : ServerForm
     {

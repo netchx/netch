@@ -4,9 +4,9 @@ using System.Text.Json;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Trojan.Models;
+using Netch.Servers.Models;
 
-namespace Netch.Servers.Trojan
+namespace Netch.Servers
 {
     public class TrojanController : Guard, IServerController
     {
@@ -24,7 +24,7 @@ namespace Netch.Servers.Trojan
 
         public string? LocalAddress { get; set; }
 
-        public Socks5.Socks5 Start(in Server s)
+        public Socks5 Start(in Server s)
         {
             var server = (Trojan)s;
             var trojanConfig = new TrojanConfig
@@ -48,7 +48,7 @@ namespace Netch.Servers.Trojan
             File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
             StartGuard("-c ..\\data\\last.json");
-            return new Socks5.Socks5(this.LocalAddress(), this.Socks5LocalPort());
+            return new Socks5(this.LocalAddress(), this.Socks5LocalPort());
         }
     }
 }

@@ -5,8 +5,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.V2ray;
-using Netch.Servers.V2ray.Models;
+using Netch.Servers;
+using Netch.Servers.Models;
 using Netch.Servers.VMess.Form;
 using Netch.Utils;
 

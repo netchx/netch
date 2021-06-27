@@ -1,6 +1,6 @@
 ﻿using Netch.Models;
 
-namespace Netch.Servers.Socks5
+namespace Netch.Servers
 {
     public class Socks5 : Server
     {

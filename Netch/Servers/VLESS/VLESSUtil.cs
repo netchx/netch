@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.V2ray;
+using Netch.Servers;
 
-namespace Netch.Servers.VLESS
+namespace Netch.Servers
 {
     public class VLESSUtil : IServerUtil
     {

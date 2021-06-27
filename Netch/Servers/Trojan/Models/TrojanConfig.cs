@@ -1,7 +1,7 @@
 ﻿#nullable disable
 using System.Collections.Generic;
 
-namespace Netch.Servers.Trojan.Models
+namespace Netch.Servers.Models
 {
     public class TrojanConfig
     {

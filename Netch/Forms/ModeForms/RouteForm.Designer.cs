@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel;
 using Netch.Properties;
 
-namespace Netch.Forms.Mode
+namespace Netch.Forms.ModeForms
 {
-    partial class Route
+    partial class RouteForm
     {
         /// <summary>
         /// Required designer variable.
@@ -166,7 +166,7 @@ namespace Netch.Forms.Mode
             this.ClientSize = new System.Drawing.Size(356, 419);
             this.Controls.Add(this.ConfigurationGroupBox);
             this.Controls.Add(this.ControlButton);
-            this.Name = "Route";
+            this.Name = "RouteForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Route Table Rule";
             this.Load += new System.EventHandler(this.Route_Load);

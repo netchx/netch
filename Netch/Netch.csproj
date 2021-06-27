@@ -72,7 +72,7 @@
             <AutoGen>True</AutoGen>
             <DependentUpon>Settings.settings</DependentUpon>
         </Compile>
-        <Compile Update="Forms\Mode\Route.cs" />
+        <Compile Update="Forms\Mode\RouteForm.cs" />
     </ItemGroup>
 
     <ItemGroup>

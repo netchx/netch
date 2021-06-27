@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace Netch.Forms.Mode
+namespace Netch.Forms.ModeForms
 {
-    partial class Process
+    partial class ProcessForm
     {
         /// <summary>
         /// Required designer variable.
@@ -180,7 +180,7 @@ namespace Netch.Forms.Mode
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
-            this.Name = "Process";
+            this.Name = "ProcessForm";
             this.Padding = new System.Windows.Forms.Padding(12, 5, 12, 5);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Create Process Mode";

@@ -1,6 +1,6 @@
 ﻿using Netch.Forms;
 
-namespace Netch.Servers.Trojan.Form
+namespace Netch.Servers.Form
 {
     public class TrojanForm : ServerForm
     {

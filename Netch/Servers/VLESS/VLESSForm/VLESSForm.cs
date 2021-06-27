@@ -1,7 +1,7 @@
 using Netch.Forms;
 using System.Collections.Generic;
 
-namespace Netch.Servers.VLESS.VLESSForm
+namespace Netch.Servers.VLESSForm
 {
     internal class VLESSForm : ServerForm
     {

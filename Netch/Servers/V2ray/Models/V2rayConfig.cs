@@ -1,7 +1,7 @@
 ﻿#nullable disable
 using System.Collections.Generic;
 
-namespace Netch.Servers.V2ray.Models
+namespace Netch.Servers.Models
 {
     public class V2rayConfig
     {

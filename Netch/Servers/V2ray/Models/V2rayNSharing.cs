@@ -1,4 +1,4 @@
-﻿namespace Netch.Servers.V2ray.Models
+﻿namespace Netch.Servers.Models
 {
     /// <summary>
     ///     使用 v2rayN 定义的 VMess 链接格式

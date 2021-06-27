@@ -1,5 +1,5 @@
 ﻿using Netch.Models;
-using Netch.Servers.Socks5;
+using Netch.Servers;
 
 namespace Netch.Interfaces
 {

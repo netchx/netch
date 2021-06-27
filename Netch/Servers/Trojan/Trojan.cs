@@ -1,6 +1,6 @@
 using Netch.Models;
 
-namespace Netch.Servers.Trojan
+namespace Netch.Servers
 {
     public class Trojan : Server
     {

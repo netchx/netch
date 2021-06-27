@@ -1,7 +1,7 @@
 using Netch.Models;
-using Netch.Servers.V2ray;
+using Netch.Servers;
 
-namespace Netch.Servers.Socks5
+namespace Netch.Servers
 {
     public class S5Controller : V2rayController
     {

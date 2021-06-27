@@ -8,7 +8,7 @@ using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Interops;
 using Netch.Models;
-using Netch.Servers.Socks5;
+using Netch.Servers;
 using Netch.Utils;
 using Serilog;
 using static Netch.Interops.tun2socks;

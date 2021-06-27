@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Socks5.Form;
 
-namespace Netch.Servers.Socks5
+namespace Netch.Servers
 {
     public class S5Util : IServerUtil
     {

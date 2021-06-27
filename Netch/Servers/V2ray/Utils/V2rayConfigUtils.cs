@@ -2,10 +2,10 @@
 using System.Linq;
 using System.Text.Json;
 using Netch.Models;
-using Netch.Servers.V2ray.Models;
-using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
+using Netch.Servers.Models;
+using V2rayConfig = Netch.Servers.Models.V2rayConfig;
 
-namespace Netch.Servers.V2ray.Utils
+namespace Netch.Servers.Utils
 {
     public static class V2rayConfigUtils
     {
@@ -105,7 +105,7 @@ namespace Netch.Servers.V2ray.Utils
 
                 switch (server)
                 {
-                    case Socks5.Socks5 socks5:
+                    case Socks5 socks5:
                     {
                         outbound.settings.servers = new List<ServersItem>
                         {
@@ -132,7 +132,7 @@ namespace Netch.Servers.V2ray.Utils
                         outbound.protocol = "socks";
                         break;
                     }
-                    case VLESS.VLESS vless:
+                    case VLESS vless:
                     {
                         var vnextItem = new VnextItem
                         {

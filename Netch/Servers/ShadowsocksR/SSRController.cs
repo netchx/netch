@@ -21,7 +21,7 @@ namespace Netch.Servers.ShadowsocksR
 
         public string? LocalAddress { get; set; }
 
-        public Socks5.Socks5 Start(in Server s)
+        public Socks5 Start(in Server s)
         {
             var server = (ShadowsocksR)s;
 
@@ -42,7 +42,7 @@ namespace Netch.Servers.ShadowsocksR
             };
 
             StartGuard(command.ToString());
-            return new Socks5.Socks5(this.LocalAddress(), this.Socks5LocalPort());
+            return new Socks5(this.LocalAddress(), this.Socks5LocalPort());
         }
 
         [Verb]

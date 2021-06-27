@@ -1,7 +1,7 @@
 using Netch.Servers.VMess;
 using System.Collections.Generic;
 
-namespace Netch.Servers.VLESS
+namespace Netch.Servers
 {
     public class VLESS : VMess.VMess
     {

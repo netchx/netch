@@ -3,9 +3,9 @@ using System.IO;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.V2ray.Utils;
+using Netch.Servers.Utils;
 
-namespace Netch.Servers.V2ray
+namespace Netch.Servers
 {
     public class V2rayController : Guard, IServerController
     {
@@ -25,11 +25,11 @@ namespace Netch.Servers.V2ray
 
         public string? LocalAddress { get; set; }
 
-        public virtual Socks5.Socks5 Start(in Server s)
+        public virtual Socks5 Start(in Server s)
         {
             File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s));
             StartGuard("-config ..\\data\\last.json");
-            return new Socks5.Socks5(this.LocalAddress(), this.Socks5LocalPort());
+            return new Socks5(this.LocalAddress(), this.Socks5LocalPort());
         }
     }
 }

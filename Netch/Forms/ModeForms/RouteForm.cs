@@ -6,16 +6,16 @@ using System.IO;
 using System.Windows.Forms;
 using Netch.Enums;
 
-namespace Netch.Forms.Mode
+namespace Netch.Forms.ModeForms
 {
-    public partial class Route : Form
+    public partial class RouteForm : Form
     {
         private readonly TagItem<ModeType>[] _items =
             { new(ModeType.ProxyRuleIPs, "Proxy Rule IPs"), new(ModeType.BypassRuleIPs, "Bypass Rule IPs") };
 
-        private readonly Models.Mode? _mode;
+        private readonly Mode? _mode;
 
-        public Route(Models.Mode? mode = null)
+        public RouteForm(Mode? mode = null)
         {
             if (mode != null && mode.Type is not (ModeType.ProxyRuleIPs or ModeType.BypassRuleIPs))
                 throw new ArgumentOutOfRangeException();
@@ -79,7 +79,7 @@ namespace Netch.Forms.Mode
                     return;
                 }
 
-                var mode = new Models.Mode(fullName)
+                var mode = new Mode(fullName)
                 {
                     Type = (ModeType)comboBox1.SelectedValue,
                     Remark = RemarkTextBox.Text

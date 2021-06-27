@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Socks5;
+using Netch.Servers;
 using Netch.Utils;
 
 namespace Netch.Controllers

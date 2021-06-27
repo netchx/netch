@@ -10,20 +10,20 @@ using System.Linq;
 using System.Windows.Forms;
 using Netch.Enums;
 
-namespace Netch.Forms.Mode
+namespace Netch.Forms.ModeForms
 {
-    public partial class Process : Form
+    public partial class ProcessForm : Form
     {
         /// <summary>
         ///     被编辑的模式
         /// </summary>
-        private readonly Models.Mode? _mode;
+        private readonly Mode? _mode;
 
         /// <summary>
         ///     编辑模式
         /// </summary>
         /// <param name="mode">模式</param>
-        public Process(Models.Mode? mode = null)
+        public ProcessForm(Mode? mode = null)
         {
             if (mode != null && mode.Type is not ModeType.Process)
                 throw new ArgumentOutOfRangeException();
@@ -133,7 +133,7 @@ namespace Netch.Forms.Mode
                     return;
                 }
 
-                var mode = new Models.Mode(fullName)
+                var mode = new Mode(fullName)
                 {
                     Type = ModeType.Process,
                     Remark = RemarkTextBox.Text
