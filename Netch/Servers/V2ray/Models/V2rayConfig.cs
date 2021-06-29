@@ -183,6 +183,8 @@ namespace Netch.Servers.Models
         public QuicSettings quicSettings { get; set; }
 
         public TlsSettings xtlsSettings { get; set; }
+
+        public GrpcSettings grpcSettings { get; set; }
     }
 
     public class TlsSettings
@@ -277,5 +279,10 @@ namespace Netch.Servers.Models
         public string key { get; set; }
 
         public Header header { get; set; }
+    }
+
+    public class GrpcSettings
+    {
+        public string serviceName { get; set; }
     }
 }

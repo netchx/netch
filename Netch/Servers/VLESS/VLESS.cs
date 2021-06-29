@@ -41,5 +41,7 @@ namespace Netch.Servers
         public static List<string> TransferProtocols => VMessGlobal.TransferProtocols;
 
         public static List<string> QUIC => VMessGlobal.QUIC;
+
+        public static List<string> GRPCModes => VMessGlobal.GRPCModes;
     }
 }

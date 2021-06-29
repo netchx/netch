@@ -28,6 +28,8 @@ namespace Netch.Servers.VLESSForm
             CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);
             CreateComboBox("QUICSecurity", "QUIC Security", VLESSGlobal.QUIC, s => server.QUICSecure = s, server.QUICSecure);
             CreateTextBox("QUICSecret", "QUIC Secret", s => true, s => server.QUICSecret = s, server.QUICSecret);
+            CreateComboBox("GRPCMode", "GRPC Mode", VLESSGlobal.GRPCModes, s => server.GRPCMode = s, server.GRPCMode);
+            CreateTextBox("GRPCServiceName", "GRPC ServiceName", s => true, s => server.GRPCServiceName = s, server.GRPCServiceName);
             CreateComboBox("UseMux",
                 "Use Mux",
                 new List<string> { "", "true", "false" },

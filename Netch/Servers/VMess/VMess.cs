@@ -55,6 +55,16 @@ namespace Netch.Servers.VMess
         public string? QUICSecret { get; set; } = string.Empty;
 
         /// <summary>
+        ///     GRPC 服务名称
+        /// </summary>
+        public string? GRPCServiceName { get; set; }
+
+        /// <summary>
+        ///     GRPC 模式
+        /// </summary>
+        public string? GRPCMode { get; set; } = VMessGlobal.GRPCModes[0];
+
+        /// <summary>
         ///     TLS 底层传输安全
         /// </summary>
         public string TLSSecureType
@@ -92,6 +102,12 @@ namespace Netch.Servers.VMess
             "chacha20-poly1305"
         };
 
+        public static readonly List<string> GRPCModes = new List<string>()
+        {
+            "gun",
+            "multi"
+        };
+
         /// <summary>
         ///     V2Ray 传输协议
         /// </summary>
@@ -101,7 +117,8 @@ namespace Netch.Servers.VMess
             "kcp",
             "ws",
             "h2",
-            "quic"
+            "quic",
+            "grpc"
         };
 
         /// <summary>

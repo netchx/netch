@@ -310,6 +310,14 @@ namespace Netch.Servers.Utils
 
                         streamSettings.quicSettings = quicSettings;
                         break;
+                    case "grpc":
+                        var grpcSettings = new GrpcSettings
+                        {
+                            serviceName = server.GRPCServiceName
+                        };
+
+                        streamSettings.grpcSettings = grpcSettings;
+                        break;
                     default:
                         if (server.FakeType == "http")
                         {

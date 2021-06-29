@@ -51,6 +51,8 @@
     "Path": "路径",
     "QUIC Security": "QUIC 加密方式",
     "QUIC Secret": "QUIC 加密密钥",
+    "GRPC Mode": "QUIC 模式",
+    "GRPC ServiceName": "QUIC 服务名称",
     "TLS Secure": "TLS 底层传输安全",
     "Use Mux": "Mux 多路复用",
     "Encrypt Method": "加密方式",
