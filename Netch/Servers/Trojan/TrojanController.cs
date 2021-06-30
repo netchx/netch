@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text.Json;
 using Netch.Controllers;
 using Netch.Interfaces;
@@ -48,7 +49,7 @@ namespace Netch.Servers
             File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
 
             StartGuard("-c ..\\data\\last.json");
-            return new Socks5(this.LocalAddress(), this.Socks5LocalPort());
+            return new Socks5(IPAddress.Loopback.ToString(), this.Socks5LocalPort());
         }
     }
 }
