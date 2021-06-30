@@ -47,6 +47,10 @@ namespace Netch.Servers
                         server.QUICSecret = parameter.Get("key") ?? "";
                         server.FakeType = parameter.Get("headerType") ?? "none";
                         break;
+                    case "grpc":
+                        server.FakeType = parameter.Get("mode") ?? "gun";
+                        server.Path = parameter.Get("serviceName") ?? "";
+                        break;
                 }
 
                 server.TLSSecureType = parameter.Get("security") ?? "none";
@@ -114,6 +118,14 @@ namespace Netch.Servers
 
                     if (server.FakeType != "none")
                         parameter.Add("headerType", server.FakeType);
+
+                    break;
+                case "grpc":
+                    if (!string.IsNullOrEmpty(server.Path))
+                        parameter.Add("serviceName", server.Path);
+
+                    if (server.FakeType == "gun" || server.FakeType == "multi")
+                        parameter.Add("mode", server.FakeType);
 
                     break;
             }

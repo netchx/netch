@@ -101,7 +101,8 @@ namespace Netch.Servers.VMess
             "kcp",
             "ws",
             "h2",
-            "quic"
+            "quic",
+            "grpc"
         };
 
         /// <summary>
@@ -115,7 +116,9 @@ namespace Netch.Servers.VMess
             "utp",
             "wechat-video",
             "dtls",
-            "wireguard"
+            "wireguard",
+            "gun",
+            "multi"
         };
 
         /// <summary>
