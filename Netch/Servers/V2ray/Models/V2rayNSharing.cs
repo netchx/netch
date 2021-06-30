@@ -31,7 +31,7 @@
         public string net { get; set; } = string.Empty;
 
         /// <summary>
-        ///     伪装路径
+        ///     伪装路径/服务名称
         /// </summary>
         public string? path { get; set; } = string.Empty;
 

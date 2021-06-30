@@ -48,7 +48,7 @@
     "Transfer Protocol": "传输协议",
     "Fake Type": "伪装类型",
     "Host": "主机",
-    "Path": "路径",
+    "Path": "路径/服务名称",
     "QUIC Security": "QUIC 加密方式",
     "QUIC Secret": "QUIC 加密密钥",
     "GRPC Mode": "QUIC 模式",
