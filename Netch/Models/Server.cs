@@ -1,12 +1,12 @@
-﻿using Netch.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Netch.Utils;
 
 namespace Netch.Models
 {
-    public class Server : ICloneable
+    public abstract class Server : ICloneable
     {
         /// <summary>
         ///     延迟
@@ -48,6 +48,7 @@ namespace Netch.Models
         // ReSharper disable once CollectionNeverUpdated.Global
         public Dictionary<string, object> ExtensionData { get; set; } = new();
 
+
         public object Clone()
         {
             return MemberwiseClone();
@@ -77,6 +78,7 @@ namespace Netch.Models
             return $"[{shortName}][{Group}] {remark}";
         }
 
+        public abstract string MaskedData();
         /// <summary>
         ///     测试延迟
         /// </summary>

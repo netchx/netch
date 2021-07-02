@@ -314,13 +314,8 @@ namespace Netch.Servers.Utils
                         var grpcSettings = new GrpcSettings
                         {
                             serviceName = server.Path,
-                            multiMode = false
+                            multiMode = server.FakeType == "multi"
                         };
-
-                        if (server.FakeType == "multi")
-                        {
-                            grpcSettings.multiMode = true;
-                        }
 
                         streamSettings.grpcSettings = grpcSettings;
                         break;

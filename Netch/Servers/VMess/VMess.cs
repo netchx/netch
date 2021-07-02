@@ -1,5 +1,5 @@
-using Netch.Models;
 using System.Collections.Generic;
+using Netch.Models;
 
 namespace Netch.Servers.VMess
 {
@@ -8,6 +8,25 @@ namespace Netch.Servers.VMess
         private string _tlsSecureType = VMessGlobal.TLSSecure[0];
 
         public override string Type { get; } = "VMess";
+        public override string MaskedData()
+        {
+            var maskedData = $"{EncryptMethod} + {TransferProtocol} + {FakeType}";
+            switch (TransferProtocol)
+            {
+                case "tcp":
+                case "ws":
+                    maskedData += $" + {TLSSecureType}";
+                    break;
+                case "quic":
+                    maskedData += $" + {QUICSecure}";
+                    break;
+                case "grpc":
+                    break;
+                case "kcp":
+                    break;
+            }
+            return maskedData;
+        }
 
         /// <summary>
         ///     用户 ID

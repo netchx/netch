@@ -47,7 +47,6 @@
         <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
         <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" Condition="'$(Configuration)'=='Debug'" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
         <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
         <PackageReference Include="System.Management" Version="5.0.0" />

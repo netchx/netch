@@ -1,14 +1,14 @@
-﻿using Netch.Controllers;
-using Netch.Forms;
-using Netch.Utils;
-using Netch.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Netch.Controllers;
+using Netch.Forms;
+using Netch.Services;
+using Netch.Utils;
 using Serilog;
 using Serilog.Events;
 using Vanara.PInvoke;
@@ -38,7 +38,7 @@ namespace Netch
             Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
-            var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };
+            var directories = new[] {"mode\\Custom", "data", "i18n", "logging"};
             foreach (var item in directories)
                 if (!Directory.Exists(item))
                     Directory.CreateDirectory(item);
@@ -80,8 +80,7 @@ namespace Netch
                 Environment.Exit(2);
             }
 
-            Log.Information("版本: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-            Task.Run(() => { Log.Information("主程序 SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}"); });
+            Task.Run(LogEnvironment);
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -92,6 +91,14 @@ namespace Netch
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
+        }
+        private static void LogEnvironment()
+        {
+            Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
+            Log.Information("Environment: {OSVersion}", Environment.OSVersion);
+            Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
+            if (Log.IsEnabled(LogEventLevel.Debug))
+                Log.Debug("Third-party Drivers:\n{Drivers}", string.Join("\n", SystemInfo.SystemDrivers(false)));
         }
 
         private static void InitConsole()
@@ -108,15 +115,14 @@ namespace Netch
         {
             Log.Logger = new LoggerConfiguration()
 #if DEBUG
-                .MinimumLevel.Debug()
+                .MinimumLevel.Verbose()
                 .WriteTo.Async(c => c.Debug(outputTemplate: Constants.OutputTemplate))
 #else
-                .MinimumLevel.Information()
+                .MinimumLevel.Debug()
+#endif
                 .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
                     outputTemplate: Constants.OutputTemplate,
                     rollOnFileSizeLimit: false))
-#endif
-                .WriteTo.Async(c => c.Console(outputTemplate: Constants.OutputTemplate))
                 .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .CreateLogger();

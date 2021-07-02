@@ -1,11 +1,15 @@
-﻿using Netch.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Netch.Models;
 
 namespace Netch.Servers.Shadowsocks
 {
     public class Shadowsocks : Server
     {
         public override string Type { get; } = "SS";
+        public override string MaskedData()
+        {
+            return $"{EncryptMethod} + {Plugin}";
+        }
 
         /// <summary>
         ///     加密方式

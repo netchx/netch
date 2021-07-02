@@ -5,6 +5,10 @@ namespace Netch.Servers
     public class Trojan : Server
     {
         public override string Type { get; } = "Trojan";
+        public override string MaskedData()
+        {
+            return "";
+        }
 
         /// <summary>
         ///     密码

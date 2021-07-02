@@ -16,6 +16,11 @@ namespace Netch.Servers
 
         public override string Type { get; } = "Socks5";
 
+        public override string MaskedData()
+        {
+            return $"Auth: {Auth()}";
+        }
+
         public Socks5()
         {
         }

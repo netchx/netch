@@ -5,6 +5,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Utils;
 using Serilog;
+using Serilog.Events;
 
 namespace Netch.Controllers
 {
@@ -20,17 +21,20 @@ namespace Netch.Controllers
 
         public static async Task StartAsync(Server server, Mode mode)
         {
-            Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
-            Mode = mode;
-
-            // 刷新 DNS 缓存
-            NativeMethods.RefreshDNSCache();
+            Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int) mode.Type}]{mode.Remark}");
 
             if (DnsUtils.Lookup(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
-            // 添加 Netch 到防火墙
+            Mode = mode;
+
+            NativeMethods.RefreshDNSCache();
             Firewall.AddNetchFwRules();
+            Task.Run(() =>
+            {
+                if (Log.IsEnabled(LogEventLevel.Debug))
+                    Log.Debug("Running Processes: \n{Processes}", string.Join("\n", SystemInfo.Processes(false)));
+            }).Forget();
 
             try
             {
@@ -65,6 +69,7 @@ namespace Netch.Controllers
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
+            Log.Debug($"{server.Type} {server.MaskedData()}");
             var socks5 = ServerController.Start(server);
 
             StatusPortInfoText.Socks5Port = socks5.Port;
@@ -78,7 +83,7 @@ namespace Netch.Controllers
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
 
             if (port != null)
-                TryReleaseTcpPort((ushort)port, portName);
+                TryReleaseTcpPort((ushort) port, portName);
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 
