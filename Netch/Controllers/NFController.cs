@@ -19,7 +19,7 @@ namespace Netch.Controllers
     {
         private Server? _server;
         private Mode? _mode;
-        private RedirectorConfig? _rdrConfig;
+        private RedirectorConfig _rdrConfig = null!;
 
         private static readonly ServiceController NFService = new("netfilter2");
 
