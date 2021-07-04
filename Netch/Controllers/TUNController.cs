@@ -39,11 +39,11 @@ namespace Netch.Controllers
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
                 _serverRemoteAddress = null;
 
-            _outbound = NetRoute.GetBestRouteTemplate(out var address);
+            _outbound = NetRoute.GetBestRouteTemplate();
             CheckDriver();
 
             Dial(NameList.TYPE_ADAPMTU, "1500");
-            Dial(NameList.TYPE_BYPBIND, address.ToString());
+            Dial(NameList.TYPE_BYPBIND, _outbound.Gateway);
             Dial(NameList.TYPE_BYPLIST, "disabled");
 
             #region Server

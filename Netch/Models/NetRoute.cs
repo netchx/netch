@@ -16,12 +16,11 @@ namespace Netch.Models
             };
         }
 
-        public static NetRoute GetBestRouteTemplate(out IPAddress address)
+        public static NetRoute GetBestRouteTemplate()
         {
             if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var route) != 0)
                 throw new MessageException("GetBestRoute 搜索失败");
 
-            address = new IPAddress(route.dwForwardNextHop.S_addr);
             var gateway = new IPAddress(route.dwForwardNextHop.S_un_b);
             return TemplateBuilder(gateway.ToString(), (int)route.dwForwardIfIndex);
         }
