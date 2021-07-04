@@ -34,7 +34,9 @@ namespace Netch.Controllers
         {
             _mode = mode;
             _tunConfig = Global.Settings.TUNTAP;
-            _serverRemoteAddress = DnsUtils.Lookup(server.Hostname);
+
+            if (server is Socks5Bridge socks5Bridge)
+                _serverRemoteAddress = DnsUtils.Lookup(socks5Bridge.RemoteHostname);
 
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
                 _serverRemoteAddress = null;

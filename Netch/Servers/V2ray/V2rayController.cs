@@ -30,7 +30,7 @@ namespace Netch.Servers
         {
             File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s));
             StartGuard("-config ..\\data\\last.json");
-            return new Socks5(IPAddress.Loopback.ToString(), this.Socks5LocalPort());
+            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
         }
     }
 }

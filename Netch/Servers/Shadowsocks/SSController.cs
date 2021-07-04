@@ -40,7 +40,7 @@ namespace Netch.Servers.Shadowsocks
             };
 
             StartGuard(command.ToString());
-            return new Socks5(IPAddress.Loopback.ToString(), this.Socks5LocalPort());
+            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
         }
 
         [Verb]
@@ -60,19 +60,14 @@ namespace Netch.Servers.Shadowsocks
 
             public bool u { get; set; }
 
-            [Full]
-            [Optional]
-            public string? plugin { get; set; }
+            [Full] [Optional] public string? plugin { get; set; }
 
             [Full]
             [Optional]
             [RealName("plugin-opts")]
             public string? plugin_opts { get; set; }
 
-            [Full]
-            [Quote]
-            [Optional]
-            public string? acl { get; set; }
+            [Full] [Quote] [Optional] public string? acl { get; set; }
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Netch.Servers.ShadowsocksR
             };
 
             StartGuard(command.ToString());
-            return new Socks5(IPAddress.Loopback.ToString(), this.Socks5LocalPort());
+            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(),server.Hostname);
         }
 
         [Verb]
