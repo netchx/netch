@@ -5,13 +5,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Netch.Controllers;
 using Netch.Forms;
 using Netch.Services;
 using Netch.Utils;
 using Serilog;
 using Serilog.Events;
-using Vanara.PInvoke;
 
 namespace Netch
 {
@@ -19,7 +21,7 @@ namespace Netch
     {
         public static readonly SingleInstance.SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
-        public static HWND ConsoleHwnd { get; private set; }
+        internal static HWND ConsoleHwnd { get; private set; }
 
         /// <summary>
         ///     应用程序的主入口点
@@ -103,11 +105,11 @@ namespace Netch
 
         private static void InitConsole()
         {
-            Kernel32.AllocConsole();
+            PInvoke.AllocConsole();
 
-            ConsoleHwnd = Kernel32.GetConsoleWindow();
+            ConsoleHwnd = PInvoke.GetConsoleWindow();
 #if RELEASE
-            User32.ShowWindow(ConsoleHwnd, ShowWindowCommand.SW_HIDE);
+            PInvoke.ShowWindow(ConsoleHwnd, SHOW_WINDOW_CMD.SW_HIDE);
 #endif
         }
 

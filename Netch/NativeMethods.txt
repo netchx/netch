@@ -1,0 +1,21 @@
+﻿// IpHlpApi.dll
+GetBestRoute
+GetExtendedTcpTable
+MIB_TCPTABLE_OWNER_PID
+ADDRESS_FAMILY
+
+// User32.dll
+SetWindowPos
+GetWindowLong
+ShowWindow
+WINDOW_STYLE
+
+// Kernel32.dll
+AllocConsole
+GetConsoleWindow
+
+// Ws2_32.dll
+ntohs
+
+// Windows.h
+// WIN32_ERROR

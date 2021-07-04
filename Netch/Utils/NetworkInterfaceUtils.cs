@@ -5,9 +5,8 @@ using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Netch.Models;
-using Vanara.PInvoke;
+using Windows.Win32;
 
 namespace Netch.Utils
 {
@@ -22,7 +21,7 @@ namespace Netch.Utils
                 _ => throw new ArgumentOutOfRangeException(nameof(addressFamily), addressFamily, null)
             };
 
-            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)
+            if (PInvoke.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)
                 throw new MessageException("GetBestRoute 搜索失败");
 
             return Get((int)route.dwForwardIfIndex);

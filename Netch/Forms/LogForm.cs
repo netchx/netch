@@ -1,8 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using Vanara.PInvoke;
-using static Vanara.PInvoke.User32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
+using static Windows.Win32.PInvoke;
 
 namespace Netch.Forms
 {
@@ -34,21 +35,21 @@ namespace Netch.Forms
 
         private void Parent_Activated(object? sender, EventArgs? e)
         {
-            SetWindowPos(Handle,
-                HWND.HWND_TOPMOST,
+            SetWindowPos(new HWND(Handle),
+                new HWND(-1),
                 0,
                 0,
                 0,
                 0,
-                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
+                SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW);
 
-            SetWindowPos(Handle,
-                HWND.HWND_NOTOPMOST,
+            SetWindowPos(new HWND(Handle),
+                new HWND(-2),
                 0,
                 0,
                 0,
                 0,
-                SetWindowPosFlags.SWP_NOACTIVATE | SetWindowPosFlags.SWP_NOMOVE | SetWindowPosFlags.SWP_NOSIZE | SetWindowPosFlags.SWP_SHOWWINDOW);
+                SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW);
         }
 
         private void richTextBox1_TextChanged(object? sender, EventArgs? e)

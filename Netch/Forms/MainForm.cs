@@ -9,6 +9,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;
@@ -19,7 +22,6 @@ using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
 using Serilog;
-using Vanara.PInvoke;
 
 namespace Netch.Forms
 {
@@ -391,9 +393,10 @@ namespace Netch.Forms
 
         private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var windowStyles = (User32.WindowStyles)User32.GetWindowLong(Netch.ConsoleHwnd, User32.WindowLongFlags.GWL_STYLE);
-            var visible = windowStyles.HasFlag(User32.WindowStyles.WS_VISIBLE);
-            User32.ShowWindow(Netch.ConsoleHwnd, visible ? ShowWindowCommand.SW_HIDE : ShowWindowCommand.SW_SHOWNOACTIVATE);
+            
+            var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Netch.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            var visible = windowStyles.HasFlag(WINDOW_STYLE.WS_VISIBLE);
+            PInvoke.ShowWindow(Netch.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
         }
 
         #endregion

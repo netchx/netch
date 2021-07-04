@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.NetworkManagement.IpHelper;
 using Netch.Models;
 using Serilog;
-using static Vanara.PInvoke.IpHlpApi;
-using static Vanara.PInvoke.Ws2_32;
 
 namespace Netch.Utils
 {
@@ -29,14 +31,38 @@ namespace Netch.Utils
             }
         }
 
-        public static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port)
+        internal static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port, ADDRESS_FAMILY inet = ADDRESS_FAMILY.AF_INET)
         {
             if (port == 0)
                 throw new ArgumentOutOfRangeException();
 
-            var row = GetTcpTable2().Where(r => ntohs((ushort)r.dwLocalPort) == port).Where(r => r.dwOwningPid is not (0 or 4));
+            if (inet is ADDRESS_FAMILY.AF_UNSPEC)
+                throw new ArgumentOutOfRangeException(nameof(inet));
 
-            return row.Select(r => Process.GetProcessById((int)r.dwOwningPid));
+            var process = new List<Process>();
+            unsafe
+            {
+                uint err;
+                uint size = 0;
+                PInvoke.GetExtendedTcpTable(default, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0); // get size
+                var tcpTable = (MIB_TCPTABLE_OWNER_PID*)Marshal.AllocHGlobal((int)size);
+
+                if ((err = PInvoke.GetExtendedTcpTable(tcpTable, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0)) != 0)
+                    throw new Win32Exception((int)err);
+
+                for (var i = 0; i < tcpTable->dwNumEntries; i++)
+                {
+                    var row = tcpTable->table.ReadOnlyItemRef(i);
+
+                    if (row.dwOwningPid is 0 or 4)
+                        continue;
+
+                    if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                        process.Add(Process.GetProcessById((int)row.dwOwningPid));
+                }
+            }
+
+            return process;
         }
 
         private static void GetReservedPortRange(PortType portType, ref List<NumberRange> targetList)

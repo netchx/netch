@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using Vanara.PInvoke;
+using Windows.Win32;
 
 namespace Netch.Models
 {
@@ -18,10 +18,10 @@ namespace Netch.Models
 
         public static NetRoute GetBestRouteTemplate()
         {
-            if (IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var route) != 0)
+            if (PInvoke.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var route) != 0)
                 throw new MessageException("GetBestRoute 搜索失败");
 
-            var gateway = new IPAddress(route.dwForwardNextHop.S_un_b);
+            var gateway = new IPAddress(route.dwForwardNextHop);
             return TemplateBuilder(gateway.ToString(), (int)route.dwForwardIfIndex);
         }
 
