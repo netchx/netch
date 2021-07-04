@@ -74,7 +74,7 @@ namespace Netch.Forms
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.Text = "LogForm";
-            this.Load += new System.EventHandler(this.Notifycation_Load);
+            this.Load += new System.EventHandler(this.LogForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

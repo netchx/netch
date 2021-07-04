@@ -60,7 +60,7 @@ namespace Netch.Forms
             richTextBox1.ScrollToCaret();
         }
 
-        private void Notifycation_Load(object? sender, EventArgs? e)
+        private void LogForm_Load(object? sender, EventArgs? e)
         {
             _parent.LocationChanged += Parent_Move;
             _parent.SizeChanged += Parent_Move;
