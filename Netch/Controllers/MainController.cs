@@ -28,20 +28,24 @@ namespace Netch.Controllers
 
             Mode = mode;
 
-            NativeMethods.RefreshDNSCache();
-            Firewall.AddNetchFwRules();
-            Task.Run(() =>
-            {
-                if (Log.IsEnabled(LogEventLevel.Debug))
+            await Task.WhenAll(
+                Task.Run(NativeMethods.RefreshDNSCache),
+                Task.Run(Firewall.AddNetchFwRules)
+            );
+
+            if (Log.IsEnabled(LogEventLevel.Debug))
+                Task.Run(() =>
+                {
+                    // TODO log level setting
                     Log.Debug("Running Processes: \n{Processes}", string.Join("\n", SystemInfo.Processes(false)));
-            }).Forget();
+                }).Forget();
 
             try
             {
                 if (!ModeHelper.SkipServerController(server, mode))
-                    server = StartServer(server);
+                    server = await Task.Run(() => StartServer(server));
 
-                StartMode(server, mode);
+                await Task.Run(() => StartMode(server, mode));
             }
             catch (Exception e)
             {
