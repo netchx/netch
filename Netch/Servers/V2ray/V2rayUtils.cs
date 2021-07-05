@@ -1,10 +1,10 @@
-using Netch.Models;
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Servers
 {
@@ -13,7 +13,7 @@ namespace Netch.Servers
         public static IEnumerable<Server> ParseVUri(string text)
         {
             var scheme = ShareLink.GetUriScheme(text).ToLower();
-            var server = scheme switch { "vmess" => new VMess.VMess(), "vless" => new VLESS(), _ => throw new ArgumentOutOfRangeException() };
+            var server = scheme switch { "vmess" => new VMess(), "vless" => new VLESS(), _ => throw new ArgumentOutOfRangeException() };
             if (text.Contains("#"))
             {
                 server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
@@ -56,7 +56,7 @@ namespace Netch.Servers
                 server.TLSSecureType = parameter.Get("security") ?? "none";
                 if (server.TLSSecureType != "none")
                 {
-                    server.Host = parameter.Get("sni") ?? "";
+                    server.ServerName = parameter.Get("sni") ?? "";
                     if (server.TLSSecureType == "xtls")
                         ((VLESS)server).Flow = parameter.Get("flow") ?? "";
                 }
@@ -77,7 +77,7 @@ namespace Netch.Servers
         public static string GetVShareLink(Server s, string scheme = "vmess")
         {
             // https://github.com/XTLS/Xray-core/issues/91
-            var server = (VMess.VMess)s;
+            var server = (VMess)s;
             var parameter = new Dictionary<string, string>();
             // protocol-specific fields
             parameter.Add("type", server.TransferProtocol);
@@ -97,13 +97,13 @@ namespace Netch.Servers
 
                     break;
                 case "ws":
-                    parameter.Add("path", Uri.EscapeDataString(server.Path.IsNullOrWhiteSpace() ? "/" : server.Path!));
+                    parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
                     if (!server.Host.IsNullOrWhiteSpace())
                         parameter.Add("host", Uri.EscapeDataString(server.Host!));
 
                     break;
                 case "h2":
-                    parameter.Add("path", Uri.EscapeDataString(server.Path.IsNullOrWhiteSpace() ? "/" : server.Path!));
+                    parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
                     if (!server.Host.IsNullOrWhiteSpace())
                         parameter.Add("host", Uri.EscapeDataString(server.Host!));
 
@@ -113,7 +113,6 @@ namespace Netch.Servers
                     {
                         parameter.Add("quicSecurity", server.QUICSecure);
                         parameter.Add("key", server.QUICSecret!);
-                        // TODO Import and Create null value Check
                     }
 
                     if (server.FakeType != "none")
@@ -124,7 +123,7 @@ namespace Netch.Servers
                     if (!string.IsNullOrEmpty(server.Path))
                         parameter.Add("serviceName", server.Path);
 
-                    if (server.FakeType == "gun" || server.FakeType == "multi")
+                    if (server.FakeType is "gun" or "multi")
                         parameter.Add("mode", server.FakeType);
 
                     break;
@@ -146,7 +145,7 @@ namespace Netch.Servers
             }
 
             return
-                $"{scheme}://{server.UserID}@{server.Hostname}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={p.Value}"))}{(server.Remark.IsNullOrWhiteSpace() ? "" : $"#{Uri.EscapeDataString(server.Remark)}")}";
+                $"{scheme}://{server.UserID}@{server.Hostname}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={p.Value}"))}{(!server.Remark.IsNullOrWhiteSpace() ? $"#{Uri.EscapeDataString(server.Remark)}" : "")}";
         }
     }
 }

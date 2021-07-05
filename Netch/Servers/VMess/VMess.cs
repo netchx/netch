@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using Netch.Models;
 
-namespace Netch.Servers.VMess
+namespace Netch.Servers
 {
     public class VMess : Server
     {
         private string _tlsSecureType = VMessGlobal.TLSSecure[0];
 
         public override string Type { get; } = "VMess";
+
         public override string MaskedData()
         {
             var maskedData = $"{EncryptMethod} + {TransferProtocol} + {FakeType}";
@@ -25,6 +26,7 @@ namespace Netch.Servers.VMess
                 case "kcp":
                     break;
             }
+
             return maskedData;
         }
 
@@ -91,7 +93,9 @@ namespace Netch.Servers.VMess
         /// <summary>
         ///     Mux 多路复用
         /// </summary>
-        public bool? UseMux { get; set; } = false;
+        public bool? UseMux { get; set; }
+
+        public string? ServerName { get; set; } = string.Empty;
     }
 
     public class VMessGlobal

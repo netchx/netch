@@ -1,56 +1,20 @@
 ﻿#nullable disable
-using System.Collections.Generic;
+// ReSharper disable InconsistentNaming
 
-namespace Netch.Servers.Models
+namespace Netch.Servers.V2ray.Models
 {
-    public class V2rayConfig
+    public struct V2rayConfig
     {
-        public List<Inbounds> inbounds { get; } = new();
+        public object[] inbounds { get; set; }
 
-        public List<Outbounds> outbounds { get; } = new();
-
-        public Routing routing { get; } = new();
+        public Outbound[] outbounds { get; set; }
     }
 
-    public class Inbounds
-    {
-        public string tag { get; set; }
-
-        public ushort port { get; set; }
-
-        public string listen { get; set; }
-
-        public string protocol { get; set; }
-
-        public Sniffing sniffing { get; set; }
-
-        public Inboundsettings settings { get; set; }
-
-        public StreamSettings streamSettings { get; set; }
-    }
-
-    public class Inboundsettings
-    {
-        public string auth { get; set; }
-
-        public bool udp { get; set; }
-
-        public string ip { get; set; }
-
-        public string address { get; set; }
-
-        public List<UsersItem> clients { get; set; }
-
-        public string decryption { get; set; }
-    }
-
-    public class UsersItem
+    public class User
     {
         public string id { get; set; }
 
         public int alterId { get; set; }
-
-        public string email { get; set; }
 
         public string security { get; set; }
 
@@ -59,33 +23,22 @@ namespace Netch.Servers.Models
         public string flow { get; set; }
     }
 
-    public class Sniffing
+    public class Outbound
     {
-        public bool enabled { get; set; }
-
-        public List<string> destOverride { get; set; }
-    }
-
-    public class Outbounds
-    {
-        public string tag { get; set; }
-
         public string protocol { get; set; }
 
-        public Outboundsettings settings { get; set; }
+        public OutboundConfiguration settings { get; set; }
 
         public StreamSettings streamSettings { get; set; }
 
         public Mux mux { get; set; }
     }
 
-    public class Outboundsettings
+    public class OutboundConfiguration
     {
-        public List<VnextItem> vnext { get; set; }
+        public VnextItem[] vnext { get; set; }
 
-        public List<ServersItem> servers { get; set; }
-
-        public Response response { get; set; }
+        public object[] servers { get; set; }
     }
 
     public class VnextItem
@@ -94,35 +47,7 @@ namespace Netch.Servers.Models
 
         public ushort port { get; set; }
 
-        public List<UsersItem> users { get; set; }
-    }
-
-    public class ServersItem
-    {
-        public string email { get; set; }
-
-        public string address { get; set; }
-
-        public string method { get; set; }
-
-        public bool ota { get; set; }
-
-        public string password { get; set; }
-
-        public ushort port { get; set; }
-
-        public int level { get; set; }
-
-        public List<SocksUsersItem> users { get; set; }
-    }
-
-    public class SocksUsersItem
-    {
-        public string user { get; set; }
-
-        public string pass { get; set; }
-
-        public int level { get; set; }
+        public User[] users { get; set; }
     }
 
     public class Mux
@@ -130,38 +55,6 @@ namespace Netch.Servers.Models
         public bool enabled { get; set; }
 
         public int concurrency { get; set; }
-    }
-
-    public class Response
-    {
-        public string type { get; set; }
-    }
-
-    public class Dns
-    {
-        public List<string> servers { get; set; }
-    }
-
-    public class RulesItem
-    {
-        public string type { get; set; }
-
-        public string port { get; set; }
-
-        public List<string> inboundTag { get; set; }
-
-        public string outboundTag { get; set; }
-
-        public List<string> ip { get; set; }
-
-        public List<string> domain { get; set; }
-    }
-
-    public class Routing
-    {
-        public string domainStrategy { get; set; }
-
-        public List<RulesItem> rules { get; } = new();
     }
 
     public class StreamSettings
@@ -187,6 +80,8 @@ namespace Netch.Servers.Models
         public GrpcSettings grpcSettings { get; set; }
     }
 
+    #region Transport
+
     public class TlsSettings
     {
         public bool allowInsecure { get; set; }
@@ -196,40 +91,14 @@ namespace Netch.Servers.Models
 
     public class TcpSettings
     {
-        public Header header { get; set; }
+        public object header { get; set; }
     }
 
-    public class Header
+    public class WsSettings
     {
-        public string type { get; set; }
+        public string path { get; set; }
 
-        public TCPRequest request { get; set; }
-
-        public object response { get; set; }
-    }
-
-    public class TCPRequest
-    {
-        public TCPRequestHeaders headers { get; set; }
-
-        public string method { get; set; } = "GET";
-
-        public string path { get; set; } = "/";
-
-        public string version { get; set; } = "1.1";
-    }
-
-    public class TCPRequestHeaders
-    {
-        //public string User_Agent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36";
-
-        public string Accept_Encoding { get; set; } = "gzip, deflate";
-
-        public string Connection { get; set; } = "keep-alive";
-
-        public string Host { get; set; }
-
-        public string Pragma { get; set; } = "no-cache";
+        public object headers { get; set; }
     }
 
     public class KcpSettings
@@ -248,28 +117,16 @@ namespace Netch.Servers.Models
 
         public int writeBufferSize { get; set; }
 
-        public Header header { get; set; }
+        public object header { get; set; }
 
         public string seed { get; set; }
-    }
-
-    public class WsSettings
-    {
-        public string path { get; set; }
-
-        public Headers headers { get; set; }
-    }
-
-    public class Headers
-    {
-        public string Host { get; set; }
     }
 
     public class HttpSettings
     {
         public string path { get; set; }
 
-        public List<string> host { get; set; }
+        public string[] host { get; set; }
     }
 
     public class QuicSettings
@@ -278,7 +135,7 @@ namespace Netch.Servers.Models
 
         public string key { get; set; }
 
-        public Header header { get; set; }
+        public object header { get; set; }
     }
 
     public class GrpcSettings
@@ -287,4 +144,6 @@ namespace Netch.Servers.Models
 
         public bool multiMode { get; set; }
     }
+
+    #endregion
 }

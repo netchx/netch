@@ -1,9 +1,8 @@
-using Netch.Servers.VMess;
 using System.Collections.Generic;
 
 namespace Netch.Servers
 {
-    public class VLESS : VMess.VMess
+    public class VLESS : VMess
     {
         public override string Type { get; } = "VLESS";
 

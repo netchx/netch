@@ -1,7 +1,7 @@
-﻿using Netch.Forms;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Netch.Forms;
 
-namespace Netch.Servers.VMess.Form
+namespace Netch.Servers.Form
 {
     public class VMessForm : ServerForm
     {
@@ -9,6 +9,7 @@ namespace Netch.Servers.VMess.Form
         {
             server ??= new VMess();
             Server = server;
+            CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
             CreateTextBox("UserId", "User ID", s => true, s => server.UserID = s, server.UserID);
             CreateTextBox("AlterId", "Alter ID", s => int.TryParse(s, out _), s => server.AlterID = int.Parse(s), server.AlterID.ToString(), 76);
             CreateComboBox("EncryptMethod", "Encrypt Method", VMessGlobal.EncryptMethods, s => server.EncryptMethod = s, server.EncryptMethod);

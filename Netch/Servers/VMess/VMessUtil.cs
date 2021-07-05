@@ -5,12 +5,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers;
+using Netch.Servers.Form;
 using Netch.Servers.Models;
-using Netch.Servers.VMess.Form;
 using Netch.Utils;
 
-namespace Netch.Servers.VMess
+namespace Netch.Servers
 {
     public class VMessUtil : IServerUtil
     {
@@ -92,7 +91,6 @@ namespace Netch.Servers.VMess
             data.Remark = vmess.ps;
             data.Hostname = vmess.add;
             data.Port = vmess.port;
-            data.UserID = vmess.id;
             data.AlterID = vmess.aid;
             data.TransferProtocol = vmess.net;
             data.FakeType = vmess.type;

@@ -1,5 +1,5 @@
-using Netch.Forms;
 using System.Collections.Generic;
+using Netch.Forms;
 
 namespace Netch.Servers.VLESSForm
 {
@@ -9,6 +9,7 @@ namespace Netch.Servers.VLESSForm
         {
             server ??= new VLESS();
             Server = server;
+            CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
             CreateTextBox("UUID", "UUID", s => true, s => server.UserID = s, server.UserID);
             CreateTextBox("EncryptMethod",
                 "Encrypt Method",
