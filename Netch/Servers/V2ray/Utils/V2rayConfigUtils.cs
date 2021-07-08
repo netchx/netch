@@ -57,7 +57,7 @@ namespace Netch.Servers.Utils
                         new
                         {
                             users = socks5.Auth()
-                                ? new []
+                                ? new[]
                                 {
                                     new
                                     {
@@ -147,6 +147,8 @@ namespace Netch.Servers.Utils
 
         private static void boundStreamSettings(VMess server, ref StreamSettings streamSettings)
         {
+            // https://xtls.github.io/config/transports
+
             streamSettings.network = server.TransferProtocol;
             streamSettings.security = server.TLSSecureType;
 
@@ -172,13 +174,14 @@ namespace Netch.Servers.Utils
             switch (server.TransferProtocol)
             {
                 case "tcp":
-                    if (server.FakeType == "http")
+
+                    streamSettings.tcpSettings = new TcpSettings
                     {
-                        streamSettings.tcpSettings = new TcpSettings
+                        header = new
                         {
-                            header = new
-                            {
-                                request = new
+                            type = server.FakeType,
+                            request = server.FakeType is "http"
+                                ? new
                                 {
                                     path = server.Path.SplitOrDefault(),
                                     headers = new
@@ -186,13 +189,9 @@ namespace Netch.Servers.Utils
                                         Host = server.Host.SplitOrDefault()
                                     }
                                 }
-                            }
-                        };
-                    }
-                    else
-                    {
-                        throw new MessageException($"invalid tcp type {server.FakeType}");
-                    }
+                                : null
+                        }
+                    };
 
                     break;
                 case "ws":
@@ -200,7 +199,10 @@ namespace Netch.Servers.Utils
                     streamSettings.wsSettings = new WsSettings
                     {
                         path = server.Path.ValueOrDefault(),
-                        headers = new { Host = server.Host.ValueOrDefault() },
+                        headers = new
+                        {
+                            Host = server.Host.ValueOrDefault()
+                        }
                     };
 
                     break;
