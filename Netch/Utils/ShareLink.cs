@@ -1,12 +1,12 @@
-﻿using Netch.Models;
-using Netch.Servers.Shadowsocks;
-using Netch.Servers.Shadowsocks.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using Netch.Models;
+using Netch.Servers.Shadowsocks;
+using Netch.Servers.Shadowsocks.Models;
 using Serilog;
 
 namespace Netch.Utils
@@ -124,7 +124,7 @@ namespace Netch.Utils
 
         public static string GetNetchLink(Server s)
         {
-            var jsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+            var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
             jsonSerializerOptions.WriteIndented = false;
             return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
         }

@@ -1,10 +1,10 @@
-using Netch.Forms;
-using Netch.Models;
 using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Windows.Forms;
+using Netch.Forms;
+using Netch.Models;
 
 namespace Netch
 {
@@ -39,7 +39,7 @@ namespace Netch
         /// </summary>
         public static MainForm MainForm => LazyMainForm.Value;
 
-        public static JsonSerializerOptions NewDefaultJsonSerializerOptions => new()
+        public static JsonSerializerOptions NewCustomJsonSerializerOptions() => new()
         {
             WriteIndented = true,
             IgnoreNullValues = true,

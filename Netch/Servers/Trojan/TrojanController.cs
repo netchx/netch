@@ -46,7 +46,7 @@ namespace Netch.Servers
             else if (Global.Settings.ResolveServerHostname)
                 trojanConfig.ssl.sni = server.Hostname;
 
-            File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewDefaultJsonSerializerOptions));
+            File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewCustomJsonSerializerOptions()));
 
             StartGuard("-c ..\\data\\last.json");
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);

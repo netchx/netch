@@ -1,10 +1,10 @@
-﻿using Netch.Models;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Netch.Models;
 using Serilog;
 
 namespace Netch.Utils
@@ -24,7 +24,7 @@ namespace Netch.Utils
 
         private const string BackupFileName = "settings.json.bak";
 
-        private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewDefaultJsonSerializerOptions;
+        private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
 
         static Configuration()
         {
