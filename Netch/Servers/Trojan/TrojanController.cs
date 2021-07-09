@@ -6,6 +6,7 @@ using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers.Models;
+using Netch.Utils;
 
 namespace Netch.Servers
 {
@@ -37,16 +38,17 @@ namespace Netch.Servers
                 password = new List<string>
                 {
                     server.Password
+                },
+                ssl = new TrojanSSL
+                {
+                    sni = server.Host.ValueOrDefault() ?? (Global.Settings.ResolveServerHostname ? server.Hostname : "")
                 }
             };
 
-
-            if (!string.IsNullOrWhiteSpace(server.Host))
-                trojanConfig.ssl.sni = server.Host;
-            else if (Global.Settings.ResolveServerHostname)
-                trojanConfig.ssl.sni = server.Hostname;
-
-            File.WriteAllBytes(Constants.TempConfig, JsonSerializer.SerializeToUtf8Bytes(trojanConfig, Global.NewCustomJsonSerializerOptions()));
+            using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write))
+            {
+                JsonSerializer.SerializeAsync(fileStream, trojanConfig, Global.NewCustomJsonSerializerOptions()).Wait();
+            }
 
             StartGuard("-c ..\\data\\last.json");
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);

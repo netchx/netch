@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text.Json;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
@@ -28,7 +29,11 @@ namespace Netch.Servers
 
         public virtual Socks5 Start(in Server s)
         {
-            File.WriteAllText(Constants.TempConfig, V2rayConfigUtils.GenerateClientConfig(s));
+            using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write))
+            {
+                JsonSerializer.SerializeAsync(fileStream, V2rayConfigUtils.GenerateClientConfig(s), Global.NewCustomJsonSerializerOptions()).Wait();
+            }
+
             StartGuard("-config ..\\data\\last.json");
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
         }

@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using Netch.Models;
+﻿using Netch.Models;
 using Netch.Servers.V2ray.Models;
 using Netch.Utils;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
@@ -9,7 +7,7 @@ namespace Netch.Servers.Utils
 {
     public static class V2rayConfigUtils
     {
-        public static string GenerateClientConfig(Server server)
+        public static V2rayConfig GenerateClientConfig(Server server)
         {
             var v2rayConfig = new V2rayConfig
             {
@@ -28,24 +26,18 @@ namespace Netch.Servers.Utils
                 }
             };
 
-            outbound(server, ref v2rayConfig);
+            v2rayConfig.outbounds = new[] { outbound(server) };
 
-            return JsonSerializer.Serialize(v2rayConfig, Global.NewCustomJsonSerializerOptions());
+            return v2rayConfig;
         }
 
-        private static void outbound(Server server, ref V2rayConfig v2rayConfig)
+        private static Outbound outbound(Server server)
         {
             var outbound = new Outbound
             {
                 settings = new OutboundConfiguration(),
-                mux = new Mux(),
-                streamSettings = new StreamSettings
-                {
-                    network = "tcp"
-                }
+                mux = new Mux()
             };
-
-            v2rayConfig.outbounds = new[] { outbound };
 
             switch (server)
             {
@@ -56,6 +48,8 @@ namespace Netch.Servers.Utils
                     {
                         new
                         {
+                            address = server.AutoResolveHostname(),
+                            port = server.Port,
                             users = socks5.Auth()
                                 ? new[]
                                 {
@@ -66,9 +60,7 @@ namespace Netch.Servers.Utils
                                         level = 1
                                     }
                                 }
-                                : null,
-                            address = server.AutoResolveHostname(),
-                            port = server.Port
+                                : null
                         }
                     };
 
@@ -90,7 +82,6 @@ namespace Netch.Servers.Utils
                                 new User
                                 {
                                     id = vless.UserID,
-                                    alterId = 0,
                                     flow = vless.Flow.ValueOrDefault(),
                                     encryption = vless.EncryptMethod
                                 }
@@ -98,8 +89,7 @@ namespace Netch.Servers.Utils
                         }
                     };
 
-                    var streamSettings = outbound.streamSettings;
-                    boundStreamSettings(vless, ref streamSettings);
+                    outbound.streamSettings = boundStreamSettings(vless);
 
                     if (vless.TLSSecureType == "xtls")
                     {
@@ -135,22 +125,26 @@ namespace Netch.Servers.Utils
                         }
                     };
 
-                    var streamSettings = outbound.streamSettings;
-                    boundStreamSettings(vmess, ref streamSettings);
+                    outbound.streamSettings = boundStreamSettings(vmess);
 
                     outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
                     outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
                     break;
                 }
             }
+
+            return outbound;
         }
 
-        private static void boundStreamSettings(VMess server, ref StreamSettings streamSettings)
+        private static StreamSettings boundStreamSettings(VMess server)
         {
             // https://xtls.github.io/config/transports
 
-            streamSettings.network = server.TransferProtocol;
-            streamSettings.security = server.TLSSecureType;
+            var streamSettings = new StreamSettings
+            {
+                network = server.TransferProtocol,
+                security = server.TLSSecureType
+            };
 
             if (server.TLSSecureType != "none")
             {
@@ -180,16 +174,19 @@ namespace Netch.Servers.Utils
                         header = new
                         {
                             type = server.FakeType,
-                            request = server.FakeType is "http"
-                                ? new
+                            request = server.FakeType switch
+                            {
+                                "none" => null,
+                                "http" => new
                                 {
                                     path = server.Path.SplitOrDefault(),
                                     headers = new
                                     {
                                         Host = server.Host.SplitOrDefault()
                                     }
-                                }
-                                : null
+                                },
+                                _ => throw new MessageException($"Invalid tcp type {server.FakeType}")
+                            }
                         }
                     };
 
@@ -257,9 +254,10 @@ namespace Netch.Servers.Utils
 
                     break;
                 default:
-                    Trace.Assert(false);
-                    break;
+                    throw new MessageException($"transfer protocol \"{server.TransferProtocol}\" not implemented yet");
             }
+
+            return streamSettings;
         }
     }
 }
