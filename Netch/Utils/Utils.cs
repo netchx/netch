@@ -103,14 +103,20 @@ namespace Netch.Utils
         {
             try
             {
-                var sha256 = SHA256.Create();
                 using var fileStream = File.OpenRead(filePath);
-                return string.Concat(sha256.ComputeHash(fileStream).Select(b => b.ToString("x2")));
+                return SHA256ComputeCore(fileStream);
             }
-            catch
+            catch (Exception e)
             {
+                Log.Warning(e, $"Compute file \"{filePath}\" sha256 failed");
                 return "";
             }
+        }
+
+        private static string SHA256ComputeCore(Stream stream)
+        {
+            using var sha256 = SHA256.Create();
+            return string.Concat(sha256.ComputeHash(stream).Select(b => b.ToString("x2")));
         }
 
         public static string GetFileVersion(string file)

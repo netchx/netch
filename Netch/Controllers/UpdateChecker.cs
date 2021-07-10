@@ -1,6 +1,4 @@
-﻿using Netch.Models.GitHubRelease;
-using Netch.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,6 +6,8 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Netch.Models.GitHubRelease;
+using Netch.Utils;
 using Serilog;
 
 namespace Netch.Controllers
@@ -71,13 +71,9 @@ namespace Netch.Controllers
             }
         }
 
-        public static void GetLatestUpdateFileNameAndHash(out string fileName, out string sha256, string? keyword = null)
+        public static (string fileName, string sha256) GetLatestUpdateFileNameAndHash(string? keyword = null)
         {
-            fileName = string.Empty;
-            sha256 = string.Empty;
-
-            var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline)
-                .Skip(2);
+            var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline).Skip(2);
             /*
               Skip(2)
               
@@ -87,8 +83,7 @@ namespace Netch.Controllers
 
             Match match = keyword == null ? matches.First() : matches.First(m => m.Groups["filename"].Value.Contains(keyword));
 
-            fileName = match.Groups["filename"].Value;
-            sha256 = match.Groups["sha256"].Value;
+            return (match.Groups["filename"].Value, match.Groups["sha256"].Value);
         }
 
         public static string GetLatestReleaseContent()

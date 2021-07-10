@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
@@ -428,15 +429,59 @@ namespace Netch.Forms
 
             try
             {
-                await Updater.DownloadAndUpdate(Path.Combine(Global.NetchDir, "data"),
-                    Global.NetchDir,
-                    (_, args) => BeginInvoke(new Action(() => NewVersionLabel.Text = $"{args.ProgressPercentage}%")));
+                var progress = new Progress<int>();
+                progress.ProgressChanged += (_, percentage) => { NewVersionLabel.Text = $"{percentage}%"; };
+
+                string downloadDirectory = Path.Combine(Global.NetchDir, "data");
+
+                var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
+                var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url!;
+
+                var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
+                var updater = new Updater(updateFileFullName, Global.NetchDir);
+
+                var downloaded = false;
+                if (File.Exists(updateFileFullName))
+                    if (Utils.Utils.SHA256CheckSum(updateFileFullName) == sha256)
+                        downloaded = true;
+                    else
+                        File.Delete(updateFileFullName);
+
+                if (!downloaded)
+                {
+                    try
+                    {
+                        await WebUtil.DownloadFileAsync(updateFileUrl, updateFileFullName, progress);
+                    }
+                    catch (Exception e1)
+                    {
+                        Log.Warning(e1, "Download Update File Failed");
+                        throw new MessageException($"Download Update File Failed: {e1.Message}");
+                    }
+
+                    if (Utils.Utils.SHA256CheckSum(updateFileFullName) != sha256)
+                        throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
+                }
+
+                ModeHelper.SuspendWatcher = true;
+                await Stop();
+                await Configuration.SaveAsync();
+
+                // Update
+                await Task.Run(updater.ApplyUpdate);
+
+                // release mutex, exit
+                Netch.SingleInstance.Dispose();
+                Process.Start(Global.NetchExecutable);
+                Environment.Exit(0);
+            }
+            catch (MessageException exception)
+            {
+                NotifyTip(exception.Message, info: false);
             }
             catch (Exception exception)
             {
-                if (exception is not MessageException)
-                    Log.Error(exception, "更新未处理异常");
-
+                Log.Error(exception, "更新未处理异常");
                 NotifyTip(exception.Message, info: false);
             }
             finally

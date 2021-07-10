@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -89,6 +90,41 @@ namespace Netch.Utils
 
             await input.CopyToAsync(fileStream);
             fileStream.Flush();
+        }
+
+        public static async Task DownloadFileAsync(string address, string fileFullPath, IProgress<int> progress)
+        {
+            await DownloadFileAsync(CreateRequest(address), fileFullPath, progress);
+        }
+
+        public static async Task DownloadFileAsync(HttpWebRequest req, string fileFullPath, IProgress<int> progress)
+        {
+            using var webResponse = (HttpWebResponse)await req.GetResponseAsync();
+            await using var input = webResponse.GetResponseStream();
+            await using var fileStream = File.OpenWrite(fileFullPath);
+
+            var task = input.CopyToAsync(fileStream);
+            ReportStream(webResponse.ContentLength, task, fileStream, progress, 200).Forget();
+
+            await task;
+            fileStream.Flush();
+            progress.Report(100);
+        }
+
+        private static async Task ReportStream(long total, IAsyncResult downloadTask, Stream stream, IProgress<int> progress, int interval)
+        {
+            var n = 0;
+            while (!downloadTask.IsCompleted)
+            {
+                var n1 = (int)((double)stream.Length / total * 100);
+                if (n != n1)
+                {
+                    n = n1;
+                    progress.Report(n);
+                }
+
+                await Task.Delay(interval);
+            }
         }
     }
 }
