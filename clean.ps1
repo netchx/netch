@@ -9,6 +9,7 @@ function Delete {
 }
 
 Delete ".vs"
+Delete "release"
 Delete "Netch\bin"
 Delete "Netch\obj"
 Delete "Tests\bin"
