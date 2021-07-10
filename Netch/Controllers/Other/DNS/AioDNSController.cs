@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Netch.Controllers.Other.DNS
 {
@@ -27,6 +28,8 @@ namespace Netch.Controllers.Other.DNS
 
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {
+            Global.Logger.Info(String.Format("{0:x} aiodns.bin", Utils.FileHelper.Checksum("Bin\\aiodns.bin")));
+
             Methods.aiodns_dial(NameList.TYPE_REST, "");
             Methods.aiodns_dial(NameList.TYPE_ADDR, ":53");
             Methods.aiodns_dial(NameList.TYPE_LIST, "Bin\\aiodns.conf");

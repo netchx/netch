@@ -56,6 +56,8 @@ namespace Netch.Controllers.Mode
 
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {
+            Global.Logger.Info(String.Format("{0:x} Redirector.bin", Utils.FileHelper.Checksum("Bin\\Redirector.bin")));
+
             var mode = m as Models.Mode.ProcessMode.ProcessMode;
             Methods.aio_dial(NameList.TYPE_FILTERLOOPBACK, mode.Loopback ? "true" : "false");
             Methods.aio_dial(NameList.TYPE_FILTERTCP, mode.TCP ? "true" : "false");

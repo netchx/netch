@@ -1,3 +1,5 @@
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+
 function Delete {
     param([string]$Path)
 
@@ -12,4 +14,6 @@ Delete "Netch\obj"
 Delete "Tests\bin"
 Delete "Tests\obj"
 Delete "TestResults"
-exit 0
+
+.\Other\clean.ps1
+exit $lastExitCode

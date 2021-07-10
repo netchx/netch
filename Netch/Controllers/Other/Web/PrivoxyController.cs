@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Netch.Controllers.Server
+namespace Netch.Controllers.Other.Web
 {
-    public class HTTPController : Interface.IController
+    public class PrivoxyController : Interface.IController
     {
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {

@@ -10,11 +10,13 @@
         /// <summary>
         ///     自定义配置
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("custom")]
         public bool Custom = true;
 
         /// <summary>
         ///     自定义配置文件路径
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("filepath")]
         public string FilePath;
 
         /// <summary>

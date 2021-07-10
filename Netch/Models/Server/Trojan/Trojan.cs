@@ -10,27 +10,32 @@
         /// <summary>
         ///     密码
         /// </summary>
-        public string Passwd;
+        [Newtonsoft.Json.JsonProperty("password")]
+        public string Password;
 
         /// <summary>
         ///     伪装 SNI 标头
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("sni")]
         public string SNI;
 
         /// <summary>
         ///     复用会话
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("reuse")]
         public bool Reuse = true;
 
         /// <summary>
         ///     Session Ticket 
         /// </summary>
+        [Newtonsoft.Json.JsonProperty("ticket")]
         public bool Ticket = false;
 
         /// <summary>
         ///     不安全模式（跳过证书验证、跳过主机名验证）
         /// </summary>
-        public bool Insecure = true;
+        [Newtonsoft.Json.JsonProperty("insecure")]
+        public bool Insecure = false;
 
         /// <summary>
         ///     解析链接

@@ -133,8 +133,12 @@ namespace Netch.Controllers.Mode
 
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {
+            Global.Logger.Info(String.Format("{0:x} tun2socks.bin", Utils.FileHelper.Checksum("Bin\\tun2socks.bin"));
+
             if (!this.Outbound.Get())
             {
+                Global.Logger.Error(String.Format("Failed to fetch outbound"));
+
                 return false;
             }
 

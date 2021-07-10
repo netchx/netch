@@ -1,10 +1,10 @@
 param([string]$OutputPath)
 
-$NetchDataURL="https://github.com/NetchX/NetchData/archive/refs/heads/master.zip"
-$NetchModeURL="https://github.com/NetchX/NetchMode/archive/refs/heads/master.zip"
-$NetchI18NURL="https://github.com/NetchX/NetchI18N/archive/refs/heads/master.zip"
+$NetchDataURL="https://github.com/netchx/netch-data/archive/refs/heads/main.zip"
+$NetchModeURL="https://github.com/netchx/netch-mode/archive/refs/heads/main.zip"
+$NetchI18NURL="https://github.com/netchx/netch-i18n/archive/refs/heads/main.zip"
 
-$last=$(Get-Location)
+$last=(Get-Location).Path
 New-Item -ItemType Directory -Name $OutputPath | Out-Null
 Set-Location $OutputPath
 
@@ -16,23 +16,23 @@ Expand-Archive -Force -Path data.zip -DestinationPath .
 Expand-Archive -Force -Path mode.zip -DestinationPath .
 Expand-Archive -Force -Path i18n.zip -DestinationPath .
 
-New-Item -ItemType Directory -Name bin  | Out-Null
-New-Item -ItemType Directory -Name mode | Out-Null
-New-Item -ItemType Directory -Name i18n | Out-Null
+New-Item -ItemType Directory -Name Bin  | Out-Null
+New-Item -ItemType Directory -Name Mode | Out-Null
+New-Item -ItemType Directory -Name I18N | Out-Null
 
-Copy-Item -Recurse -Force .\NetchData-master\*             .\bin
-Copy-Item -Recurse -Force .\NetchMode-master\mode\*        .\mode
-Copy-Item -Recurse -Force .\NetchI18N-master\i18n\*        .\i18n
+Copy-Item -Recurse -Force .\netch-data-main\*             .\Bin
+Copy-Item -Recurse -Force .\netch-mode-main\mode\*        .\Mode
+Copy-Item -Recurse -Force .\netch-i18n-main\i18n\*        .\I18N
 
-Remove-Item -Recurse -Force NetchData-master
-Remove-Item -Recurse -Force NetchMode-master
-Remove-Item -Recurse -Force NetchI18N-master
+Remove-Item -Recurse -Force netch-data-main
+Remove-Item -Recurse -Force netch-mode-main
+Remove-Item -Recurse -Force netch-i18n-main
 Remove-Item -Force data.zip
 Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
-..\scripts\download\cloak.ps1     -OutputPath bin
-..\scripts\download\xray-core.ps1 -OutputPath bin
+..\scripts\download\cloak.ps1     -OutputPath Bin
+..\scripts\download\xray-core.ps1 -OutputPath Bin
 
 Get-Item *
 Set-Location $last

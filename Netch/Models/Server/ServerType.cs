@@ -3,6 +3,16 @@
     public enum ServerType : int
     {
         /// <summary>
+        ///     HTTP
+        /// </summary>
+        HTTP,
+
+        /// <summary>
+        ///     Clash
+        /// </summary>
+        Clash,
+
+        /// <summary>
         ///     Socks5
         /// </summary>
         Socks,

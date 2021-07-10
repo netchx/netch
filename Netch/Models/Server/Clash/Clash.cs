@@ -1,10 +1,16 @@
-﻿namespace Netch.Models.Server.VLess
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Netch.Models.Server.Clash
 {
-    public class VLess : Server
+    public class Clash : Server
     {
-        public VLess()
+        public Clash()
         {
-            this.Type = ServerType.VLess;
+            this.Type = ServerType.Clash;
         }
 
         /// <summary>

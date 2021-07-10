@@ -14,7 +14,7 @@ namespace Netch
         /// <summary>
         ///     日志记录
         /// </summary>
-        public static Tools.Logger Logger = new Tools.Logger() { SavePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs\\Netch.log") };
+        public static Tools.Logger Logger = new() { SavePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs\\Netch.log") };
 
         /// <summary>
         ///      配置文件

@@ -22,8 +22,11 @@ param (
 	$PublishSingleFile = $True
 )
 
+.\Other\build.ps1
+if ( -Not $? ) { exit $lastExitCode }
+
 .\scripts\download.ps1 $OutputPath
-if ( -Not $? ) { exit 1 }
+if ( -Not $? ) { exit $lastExitCode }
 
 Write-Host "Building $Configuration to $OutputPath"
 dotnet publish `

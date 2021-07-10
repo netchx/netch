@@ -1,4 +1,4 @@
-module github.com/netchx/netch/other/aiodns
+module aiodns
 
 go 1.16
 
