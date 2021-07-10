@@ -22,6 +22,8 @@ param (
 	$PublishSingleFile = $True
 )
 
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+
 .\Other\build.ps1
 if ( -Not $? ) { exit $lastExitCode }
 
