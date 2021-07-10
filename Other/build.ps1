@@ -5,6 +5,9 @@ Set-Location $exec
 
 .\clean.ps1
 
+gcc -v
+go  version
+
 Get-ChildItem -Path . -Directory | ForEach-Object {
     $name=$_.Name
 
