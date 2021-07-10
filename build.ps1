@@ -24,13 +24,13 @@ param (
 
 Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-.\Other\build.ps1
-if ( -Not $? ) { exit $lastExitCode }
-
 .\scripts\download.ps1 $OutputPath
 if ( -Not $? ) { exit $lastExitCode }
 
-Write-Host "Building $Configuration to $OutputPath"
+.\Other\build.ps1
+if ( -Not $? ) { exit $lastExitCode }
+
+Write-Host "Building Netch"
 dotnet publish `
 	-c $Configuration `
 	-r "win-x64" `
