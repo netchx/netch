@@ -31,8 +31,11 @@ Remove-Item -Force data.zip
 Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
-..\scripts\download\cloak.ps1     -OutputPath Bin
-..\scripts\download\xray-core.ps1 -OutputPath Bin
+..\scripts\download\cloak.ps1      -OutputPath Bin
+..\scripts\download\geoip.ps1      -OutputPath Bin
+..\scripts\download\geosite.ps1    -OutputPath Bin
+..\scripts\download\v2ray-core.ps1 -OutputPath Bin
+..\scripts\download\x2ray-core.ps1 -OutputPath Bin
 
 Get-Item *
 Set-Location $last

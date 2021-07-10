@@ -4,9 +4,7 @@ $address="https://github.com/XTLS/Xray-core/releases/download/v1.4.2/Xray-window
 Invoke-WebRequest -Uri $address -OutFile xray-core.zip
 Expand-Archive -Force -Path xray-core.zip -DestinationPath xray-core
 
-Move-Item -Force xray-core\xray.exe    $OutputPath
-Move-Item -Force xray-core\geoip.dat   $OutputPath
-Move-Item -Force xray-core\geosite.dat $OutputPath
+Move-Item -Force xray-core\xray.exe $OutputPath
 
 Remove-Item -Recurse -Force xray-core
 Remove-Item -Recurse -Force xray-core.zip
