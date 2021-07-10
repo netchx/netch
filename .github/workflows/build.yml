@@ -6,6 +6,12 @@ jobs:
     name: Build
     runs-on: windows-latest
     steps:
+      - name: Go
+        uses: actions/setup-go@v2
+
+      - name: C++
+        uses: msys2/setup-msys2@v2
+
       - name: MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
