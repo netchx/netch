@@ -48,7 +48,7 @@ namespace Netch.Controllers
 
         public override void Stop()
         {
-            _form.Close();
+            Global.MainForm.Invoke(new Action(() => { _form.Close(); }));
             StopGuard();
         }
 
