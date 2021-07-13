@@ -1384,14 +1384,18 @@ namespace Netch.Forms
                 return;
             }
 
-            if (WindowState == FormWindowState.Minimized)
-            {
-                Visible = true;
-                ShowInTaskbar = true;                 // 显示在系统任务栏 
-                WindowState = FormWindowState.Normal; // 还原窗体 
-            }
+            var forms = Application.OpenForms.Cast<Form>().ToList();
+            var anyWindowOpened = forms.Any(f => f is not (MainForm or LogForm));
 
-            Activate();
+            forms.ForEach(f =>
+            {
+                if (anyWindowOpened && f is MainForm or LogForm)
+                    return;
+
+                f.Show();
+                f.WindowState = FormWindowState.Normal;
+                f.Activate();
+            });
         }
 
         /// <summary>
@@ -1404,14 +1408,7 @@ namespace Netch.Forms
 
         private void NotifyIcon_MouseDoubleClick(object? sender, MouseEventArgs? e)
         {
-            if (WindowState == FormWindowState.Minimized)
-            {
-                Visible = true;
-                ShowInTaskbar = true;                 //显示在系统任务栏 
-                WindowState = FormWindowState.Normal; //还原窗体
-            }
-
-            Activate();
+            ShowMainFormToolStripButton.PerformClick();
         }
 
         public void NotifyTip(string text, int timeout = 0, bool info = true)
