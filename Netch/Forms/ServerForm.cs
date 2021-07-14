@@ -1,13 +1,13 @@
 ﻿#nullable disable
-using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 
 namespace Netch.Forms
 {
@@ -73,6 +73,8 @@ namespace Netch.Forms
 
             AddSaveButton();
             i18N.TranslateForm(this);
+
+            ConfigurationGroupBox.Enabled = string.IsNullOrEmpty(Server.Remark);
 
             ConfigurationGroupBox.ResumeLayout(false);
             ConfigurationGroupBox.PerformLayout();
