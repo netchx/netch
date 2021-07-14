@@ -42,19 +42,21 @@ namespace Netch.Servers
                 var server = (VMess)s;
 
                 var vmessJson = JsonSerializer.Serialize(new V2rayNSharing
-                {
-                    v = 2,
-                    ps = server.Remark,
-                    add = server.Hostname,
-                    port = server.Port,
-                    id = server.UserID,
-                    aid = server.AlterID,
-                    net = server.TransferProtocol,
-                    type = server.FakeType,
-                    host = server.Host,
-                    path = server.Path,
-                    tls = server.TLSSecureType
-                },
+                    {
+                        v = 2,
+                        ps = server.Remark,
+                        add = server.Hostname,
+                        port = server.Port,
+                        scy = server.EncryptMethod,
+                        id = server.UserID,
+                        aid = server.AlterID,
+                        net = server.TransferProtocol,
+                        type = server.FakeType,
+                        host = server.Host ?? "",
+                        path = server.Path ?? "",
+                        tls = server.TLSSecureType,
+                        sni = server.ServerName ?? ""
+                    },
                     new JsonSerializerOptions
                     {
                         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
@@ -90,18 +92,18 @@ namespace Netch.Servers
 
             data.Remark = vmess.ps;
             data.Hostname = vmess.add;
+            data.EncryptMethod = vmess.scy;
             data.Port = vmess.port;
+            data.UserID = vmess.id;
             data.AlterID = vmess.aid;
             data.TransferProtocol = vmess.net;
             data.FakeType = vmess.type;
+            data.ServerName = vmess.sni;
 
             if (data.TransferProtocol == "quic")
             {
-                if (VMessGlobal.QUIC.Contains(vmess.host!))
-                {
-                    data.QUICSecure = vmess.host;
-                    data.QUICSecret = vmess.path;
-                }
+                data.QUICSecure = vmess.host;
+                data.QUICSecret = vmess.path;
             }
             else
             {
@@ -110,7 +112,6 @@ namespace Netch.Servers
             }
 
             data.TLSSecureType = vmess.tls;
-            data.EncryptMethod = "auto"; // V2Ray 加密方式不包括在链接中，主动添加一个
 
             return new[] { data };
         }
