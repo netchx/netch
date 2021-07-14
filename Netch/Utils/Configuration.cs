@@ -105,6 +105,9 @@ namespace Netch.Utils
                     await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).ConfigureAwait(false);
                 }
 
+                if (!File.Exists(FileFullName))
+                    File.Create(FileFullName);
+
                 File.Replace(tempFile, FileFullName, BackupFileFullName);
             }
             catch (Exception e)
