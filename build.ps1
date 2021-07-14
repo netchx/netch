@@ -22,11 +22,11 @@ param (
 	$PublishSingleFile = $True
 )
 
-.\scripts\download.ps1 $OutputPath
+# .\scripts\download.ps1 $OutputPath
 
-if ( -Not $? ) {
-	Exit 1
-}
+# if ( -Not $? ) {
+# 	Exit 1
+# }
 
 Write-Host "Building $Configuration to $OutputPath"
 dotnet publish `
