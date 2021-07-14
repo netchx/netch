@@ -17,7 +17,7 @@ namespace Netch
 {
     public static class Netch
     {
-        public static readonly SingleInstance.SingleInstance SingleInstance = new($"Global\\{nameof(Netch)}");
+        public static readonly SingleInstance.SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
         public static HWND ConsoleHwnd { get; private set; }
 
