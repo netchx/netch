@@ -15,12 +15,16 @@ using Netch.Services;
 using Netch.Utils;
 using Serilog;
 using Serilog.Events;
+using SingleInstance;
+#if RELEASE
+using Windows.Win32.UI.WindowsAndMessaging;
+#endif
 
 namespace Netch
 {
     public static class Netch
     {
-        public static readonly SingleInstance.SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
+        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
         internal static HWND ConsoleHwnd { get; private set; }
 
@@ -41,7 +45,7 @@ namespace Netch
             Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
-            var directories = new[] {"mode\\Custom", "data", "i18n", "logging"};
+            var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };
             foreach (var item in directories)
                 if (!Directory.Exists(item))
                     Directory.CreateDirectory(item);
@@ -95,6 +99,7 @@ namespace Netch
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
         }
+
         private static void LogEnvironment()
         {
             Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
