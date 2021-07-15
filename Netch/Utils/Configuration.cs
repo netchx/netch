@@ -108,7 +108,7 @@ namespace Netch.Utils
                     Directory.CreateDirectory(DataDirectoryFullName);
 
                 var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
-                var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+                await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 await using (fileStream.ConfigureAwait(false))
                 {
                     await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).ConfigureAwait(false);
