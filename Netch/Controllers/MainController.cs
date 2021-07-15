@@ -22,7 +22,7 @@ namespace Netch.Controllers
 
         public static async Task StartAsync(Server server, Mode mode)
         {
-            Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int) mode.Type}]{mode.Remark}");
+            Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
 
             if (await DnsUtils.LookupAsync(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
@@ -61,8 +61,8 @@ namespace Netch.Controllers
                     case MessageException:
                         throw;
                     default:
-                        Log.Error(e, "主控制器启动未处理异常");
-                        throw new MessageException($"未处理异常\n{e.Message}");
+                        Log.Error(e, "Unhandled Exception When Start MainController");
+                        throw new MessageException($"{i18N.Translate("Unhandled Exception")}\n{e.Message}");
                 }
             }
         }
@@ -89,7 +89,7 @@ namespace Netch.Controllers
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
 
             if (port != null)
-                TryReleaseTcpPort((ushort) port, portName);
+                TryReleaseTcpPort((ushort)port, portName);
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 
@@ -101,6 +101,7 @@ namespace Netch.Controllers
             if (ServerController == null && ModeController == null)
                 return;
 
+            Log.Information("Stop Main Controller");
             StatusPortInfoText.Reset();
 
             Task.Run(() => NTTController.StopAsync()).Forget();
@@ -117,7 +118,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Log.Error(e, "主控制器停止未处理异常");
+                Log.Error(e, "MainController Stop Error");
             }
 
             ModeController = null;
@@ -136,8 +137,7 @@ namespace Netch.Controllers
             }
             catch (PortReservedException)
             {
-                throw new MessageException(i18N.TranslateFormat("The {0} port is reserved by system.",
-                    $"{portName} ({port})"));
+                throw new MessageException(i18N.TranslateFormat("The {0} port is reserved by system.", $"{portName} ({port})"));
             }
         }
 
@@ -156,8 +156,7 @@ namespace Netch.Controllers
                 }
                 else
                 {
-                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.",
-                        $"{portName} ({port})", $"({p.Id}){fileName}"));
+                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.", $"{portName} ({port})", $"({p.Id}){fileName}"));
                 }
             }
 

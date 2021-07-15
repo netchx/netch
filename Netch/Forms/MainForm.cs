@@ -1104,14 +1104,8 @@ namespace Netch.Forms
             UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = state;
         }
 
-        public void NatTypeStatusText(string? text = null, string? country = null)
+        private void NatTypeStatusText(string? text = null, string? country = null)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke(new Action<string, string>(NatTypeStatusText), text, country);
-                return;
-            }
-
             if (State != State.Started)
             {
                 NatTypeStatusLabel.Text = "";
@@ -1370,14 +1364,8 @@ namespace Netch.Forms
 
         #region NotifyIcon
 
-        public void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
+        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => ShowMainFormToolStripButton_Click(sender, e)));
-                return;
-            }
-
             var forms = Application.OpenForms.Cast<Form>().ToList();
             var anyWindowOpened = forms.Any(f => f is not (MainForm or LogForm));
 
