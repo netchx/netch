@@ -3,7 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using Netch.Models;
 using Serilog;
 
@@ -23,6 +25,8 @@ namespace Netch.Utils
         private const string FileName = "settings.json";
 
         private const string BackupFileName = "settings.json.bak";
+
+        private static readonly AsyncReaderWriterLock _lock = new(null);
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
 
@@ -93,8 +97,14 @@ namespace Netch.Utils
         /// </summary>
         public static async Task SaveAsync()
         {
+            if (_lock.IsWriteLockHeld)
+                return;
+
             try
             {
+                await using var _ = await _lock.WriteLockAsync();
+                Log.Verbose("Save Configuration");
+
                 if (!Directory.Exists(DataDirectoryFullName))
                     Directory.CreateDirectory(DataDirectoryFullName);
 

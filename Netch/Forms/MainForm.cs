@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
+using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;
@@ -518,7 +519,7 @@ namespace Netch.Forms
                 return;
             }
 
-            await Configuration.SaveAsync();
+            Configuration.SaveAsync().Forget();
 
             // 服务器、模式 需选择
             if (ServerComboBox.SelectedItem is not Server server)

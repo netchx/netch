@@ -10,6 +10,7 @@
         <IsPackable>false</IsPackable>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
+        <NoWarn>VSTHRD002;VSTHRD200;VSTHRD100;VSTHRD101;VSTHRD110;VSTHRD130</NoWarn>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <AnalysisMode>Default</AnalysisMode>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
@@ -39,6 +40,7 @@
         <PackageReference Include="HMBSbige.SingleInstance" Version="5.0.7" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.70" GeneratePathProperty="true" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" Version="16.10.56" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.506-beta">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
