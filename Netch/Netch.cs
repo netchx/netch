@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -99,6 +100,7 @@ namespace Netch
             Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
             Log.Information("Environment: {OSVersion}", Environment.OSVersion);
             Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
+            Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
             if (Log.IsEnabled(LogEventLevel.Debug))
                 Log.Debug("Third-party Drivers:\n{Drivers}", string.Join("\n", SystemInfo.SystemDrivers(false)));
         }

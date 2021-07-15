@@ -35,10 +35,11 @@ namespace Netch.Controllers
 
             if (Log.IsEnabled(LogEventLevel.Debug))
                 Task.Run(() =>
-                {
-                    // TODO log level setting
-                    Log.Debug("Running Processes: \n{Processes}", string.Join("\n", SystemInfo.Processes(false)));
-                }).Forget();
+                    {
+                        // TODO log level setting
+                        Log.Debug("Running Processes: \n{Processes}", string.Join("\n", SystemInfo.Processes(false)));
+                    })
+                    .Forget();
 
             try
             {
@@ -73,7 +74,7 @@ namespace Netch.Controllers
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
-            Log.Debug($"{server.Type} {server.MaskedData()}");
+            Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
             var socks5 = ServerController.Start(server);
 
             StatusPortInfoText.Socks5Port = socks5.Port;
@@ -134,7 +135,8 @@ namespace Netch.Controllers
             }
             catch (PortReservedException)
             {
-                throw new MessageException(i18N.TranslateFormat("The {0} port is reserved by system.", $"{portName} ({port})"));
+                throw new MessageException(i18N.TranslateFormat("The {0} port is reserved by system.",
+                    $"{portName} ({port})"));
             }
         }
 
@@ -153,7 +155,8 @@ namespace Netch.Controllers
                 }
                 else
                 {
-                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.", $"{portName} ({port})", $"({p.Id}){fileName}"));
+                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.",
+                        $"{portName} ({port})", $"({p.Id}){fileName}"));
                 }
             }
 

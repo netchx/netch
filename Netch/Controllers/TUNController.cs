@@ -147,7 +147,6 @@ namespace Netch.Controllers
         private void SetupRouteTable()
         {
             Global.MainForm.StatusText(i18N.Translate("Setup Route Table Rule"));
-            Log.Information("设置路由规则");
 
             // Server Address
             if (_serverRemoteAddress != null)

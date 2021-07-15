@@ -28,6 +28,14 @@ namespace Netch.Utils
 
         public static bool CreateRoute(NetRoute o)
         {
+            Log.Verbose("CreateRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric}",
+                AddressFamily.InterNetwork,
+                o.Network,
+                o.Cidr,
+                o.Gateway,
+                (ulong)o.InterfaceIndex,
+                o.Metric);
+
             return RouteHelper.CreateRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
         }
 
@@ -41,7 +49,7 @@ namespace Netch.Utils
         {
             if (!TryParseIPNetwork(rule, out var network, out var cidr))
             {
-                Log.Warning("invalid rule {Rule}",rule);
+                Log.Warning("invalid rule {Rule}", rule);
                 return false;
             }
 
@@ -50,6 +58,14 @@ namespace Netch.Utils
 
         public static bool DeleteRoute(NetRoute o)
         {
+            Log.Verbose("DeleteRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric}",
+                AddressFamily.InterNetwork,
+                o.Network,
+                o.Cidr,
+                o.Gateway,
+                (ulong)o.InterfaceIndex,
+                o.Metric);
+
             return RouteHelper.DeleteRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
         }
 

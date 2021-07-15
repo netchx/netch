@@ -135,7 +135,8 @@ namespace Netch.Utils
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    Trace.Assert(false);
+                    return;
             }
         }
 
@@ -161,7 +162,8 @@ namespace Netch.Utils
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                    Trace.Assert(false);
+                    return;
             }
         }
 
