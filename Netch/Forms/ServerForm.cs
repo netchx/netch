@@ -74,7 +74,7 @@ namespace Netch.Forms
             AddSaveButton();
             i18N.TranslateForm(this);
 
-            ConfigurationGroupBox.Enabled = string.IsNullOrEmpty(Server.Remark);
+            ConfigurationGroupBox.Enabled = !Server.IsInGroup();
 
             ConfigurationGroupBox.ResumeLayout(false);
             ConfigurationGroupBox.PerformLayout();

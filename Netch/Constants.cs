@@ -14,6 +14,8 @@
         public const string OutputTemplate = @"[{Timestamp:yyyy-MM-dd HH:mm:ss}][{Level}] {Message:lj}{NewLine}{Exception}";
         public const string EOF = "\r\n";
 
+        public const string DefaultGroup = "NONE";
+
         public static class Parameter
         {
             public const string Show = "-show";

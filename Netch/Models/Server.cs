@@ -17,7 +17,7 @@ namespace Netch.Models
         /// <summary>
         ///     组
         /// </summary>
-        public string Group { get; set; } = "None";
+        public string Group { get; set; } = Constants.DefaultGroup;
 
         /// <summary>
         ///     地址
@@ -62,18 +62,7 @@ namespace Netch.Models
         {
             var remark = string.IsNullOrWhiteSpace(Remark) ? $"{Hostname}:{Port}" : Remark;
 
-            if (Group.Equals("None") || Group.Equals(""))
-                Group = "NONE";
-
-            string shortName;
-            if (Type == string.Empty)
-            {
-                shortName = "WTF";
-            }
-            else
-            {
-                shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
-            }
+            var shortName = Type.IsNullOrEmpty() ? "WTF" : ServerHelper.GetUtilByTypeName(Type).ShortName;
 
             return $"[{shortName}][{Group}] {remark}";
         }
@@ -138,6 +127,11 @@ namespace Netch.Models
             {
                 return false;
             }
+        }
+
+        public static bool IsInGroup(this Server server)
+        {
+            return server.Group is not Constants.DefaultGroup;
         }
     }
 }
