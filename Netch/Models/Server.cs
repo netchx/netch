@@ -118,19 +118,6 @@ namespace Netch.Models
             return Global.Settings.ResolveServerHostname ? (await DnsUtils.LookupAsync(server.Hostname))!.ToString() : server.Hostname;
         }
 
-        public static bool Valid(this Server server)
-        {
-            try
-            {
-                ServerHelper.GetTypeByTypeName(server.Type);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public static bool IsInGroup(this Server server)
         {
             return server.Group is not Constants.DefaultGroup;

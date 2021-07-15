@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Serilog;
 
@@ -14,13 +16,23 @@ namespace Netch.Utils
         ///     缓存
         /// </summary>
         private static readonly Hashtable Cache = new();
+        private static readonly Hashtable Cache6 = new();
 
-        public static async Task<IPAddress?> LookupAsync(string hostname, int timeout = 3000)
+        public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.InterNetwork, int timeout = 3000)
         {
             try
             {
-                if (Cache.Contains(hostname))
-                    return Cache[hostname] as IPAddress;
+                if (inet == AddressFamily.InterNetwork)
+                {
+                    if (Cache.Contains(hostname))
+                        return Cache[hostname] as IPAddress;
+                }
+                else
+                {
+                    Trace.Assert(inet == AddressFamily.InterNetworkV6);
+                    if (Cache6.Contains(hostname))
+                        return Cache6[hostname] as IPAddress;
+                }
 
                 var task = Dns.GetHostAddressesAsync(hostname);
 
@@ -28,14 +40,18 @@ namespace Netch.Utils
 
                 if (resTask == task)
                 {
-                    var result = await task;
+                    var addresses = await task;
 
-                    if (result.Length == 0)
+                    var result = addresses.FirstOrDefault(i => i.AddressFamily == inet);
+                    if (result == null)
                         return null;
 
-                    Cache.Add(hostname, result[0]);
+                    if (inet == AddressFamily.InterNetwork)
+                        Cache.Add(hostname, result);
+                    else
+                        Cache6.Add(hostname, result);
 
-                    return result[0];
+                    return result;
                 }
 
                 return null;
@@ -55,6 +71,7 @@ namespace Netch.Utils
         public static void ClearCache()
         {
             Cache.Clear();
+            Cache6.Clear();
         }
 
         public static IEnumerable<string> Split(string dns)

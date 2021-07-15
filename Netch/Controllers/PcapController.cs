@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,10 +39,10 @@ namespace Netch.Controllers
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
             var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
-            if (_server is Socks5 socks5 && !socks5.Auth())
+            if (_server is Socks5Bridge socks5)
                 argument.Append($" --destination  {await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
             else
-                argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
+                Trace.Assert(false);
 
             argument.Append($" {_mode.GetRules().FirstOrDefault() ?? "-P n"}");
             await StartGuardAsync(argument.ToString());
@@ -77,10 +78,11 @@ namespace Netch.Controllers
             if (new FileInfo(LogPath).Length == 0)
             {
                 Task.Run(() =>
-                {
-                    Thread.Sleep(1000);
-                    Utils.Utils.Open("https://github.com/zhxie/pcap2socks#dependencies");
-                }).Forget();
+                    {
+                        Thread.Sleep(1000);
+                        Utils.Utils.Open("https://github.com/zhxie/pcap2socks#dependencies");
+                    })
+                    .Forget();
 
                 throw new MessageException("Pleases install pcap2socks's dependency");
             }

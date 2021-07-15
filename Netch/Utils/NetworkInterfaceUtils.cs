@@ -14,12 +14,16 @@ namespace Netch.Utils
     {
         public static NetworkInterface GetBest(AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
-            var ipAddress = addressFamily switch
+            string ipAddress;
+            if (addressFamily == AddressFamily.InterNetwork)
             {
-                AddressFamily.InterNetwork => "114.114.114.114",
-                AddressFamily.InterNetworkV6 => throw new NotImplementedException(),
-                _ => throw new ArgumentOutOfRangeException(nameof(addressFamily), addressFamily, null)
-            };
+                ipAddress = "114.114.114.114";
+            }
+            else
+            {
+                Trace.Assert(addressFamily == AddressFamily.InterNetworkV6);
+                throw new NotImplementedException();
+            }
 
             if (PInvoke.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)
                 throw new MessageException("GetBestRoute 搜索失败");

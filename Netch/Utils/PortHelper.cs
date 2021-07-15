@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.NetworkManagement.IpHelper;
@@ -31,13 +32,13 @@ namespace Netch.Utils
             }
         }
 
-        internal static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port, ADDRESS_FAMILY inet = ADDRESS_FAMILY.AF_INET)
+        internal static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port, AddressFamily inet = AddressFamily.InterNetwork)
         {
             if (port == 0)
                 throw new ArgumentOutOfRangeException();
 
-            if (inet is ADDRESS_FAMILY.AF_UNSPEC)
-                throw new ArgumentOutOfRangeException(nameof(inet));
+            if (inet != AddressFamily.InterNetwork)
+                Trace.Assert(inet == AddressFamily.InterNetworkV6);
 
             var process = new List<Process>();
             unsafe
@@ -50,9 +51,9 @@ namespace Netch.Utils
                 if ((err = PInvoke.GetExtendedTcpTable(tcpTable, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0)) != 0)
                     throw new Win32Exception((int)err);
 
-                for (var i = 0; i < tcpTable->dwNumEntries; i++)
+                for (var i = 0; i < tcpTable -> dwNumEntries; i++)
                 {
-                    var row = tcpTable->table.ReadOnlyItemRef(i);
+                    var row = tcpTable -> table.ReadOnlyItemRef(i);
 
                     if (row.dwOwningPid is 0 or 4)
                         continue;

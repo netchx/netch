@@ -67,7 +67,7 @@ namespace Netch.Controllers
                 else
                     Log.Error(e, "获取新版本异常");
 
-                NewVersionFoundFailed?.Invoke(null, new EventArgs());
+                NewVersionFoundFailed?.Invoke(null, EventArgs.Empty);
             }
         }
 

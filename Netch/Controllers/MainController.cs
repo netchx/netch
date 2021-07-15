@@ -62,6 +62,7 @@ namespace Netch.Controllers
                         throw;
                     default:
                         Log.Error(e, "Unhandled Exception When Start MainController");
+                        Utils.Utils.Open(Constants.LogFile);
                         throw new MessageException($"{i18N.Translate("Unhandled Exception")}\n{e.Message}");
                 }
             }

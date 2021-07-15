@@ -42,11 +42,16 @@ namespace Netch.Controllers
                 }
 
                 if (output.IsNullOrWhiteSpace())
-                    if (!error.IsNullOrWhiteSpace())
+                {
+                    if (error.IsNullOrWhiteSpace())
                     {
-                        var errorFirst = error.GetLines().First();
-                        return (errorFirst.SplitTrimEntries(':').Last(), null, null);
+                        Log.Warning("NTT no output");
+                        return (null, null, null);
                     }
+
+                    var errorFirst = error.GetLines().First();
+                    return (errorFirst.SplitTrimEntries(':').Last(), null, null);
+                }
 
                 foreach (var line in output.Split('\n'))
                 {

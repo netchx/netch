@@ -53,69 +53,68 @@ namespace Netch.Utils
             var counterLock = new object();
             //int sent = 0;
 
-            //var processList = Process.GetProcessesByName(ProcessName).Select(p => p.Id).ToHashSet();
-            var instances = new List<Process>();
+            var processes = new List<Process>();
             switch (MainController.ServerController)
             {
                 case null:
                     break;
                 case Guard guard:
-                    instances.Add(guard.Instance);
-
+                    processes.Add(guard.Instance);
                     break;
             }
 
-            if (!instances.Any())
+            if (!processes.Any())
                 switch (MainController.ModeController)
                 {
                     case null:
                         break;
-                    case NFController:
-                        instances.Add(Process.GetCurrentProcess());
+                    case NFController or TUNController:
+                        processes.Add(Process.GetCurrentProcess());
                         break;
                     case Guard guard:
-                        instances.Add(guard.Instance);
+                        processes.Add(guard.Instance);
                         break;
                 }
 
-            var processList = instances.Select(instance => instance.Id).ToHashSet();
+            var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 
-            Log.Information("流量统计进程: {Processes}", string.Join(',', instances.Select(v => $"({v.Id}){v.ProcessName}")));
+            Log.Information("流量统计进程: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
             received = 0;
 
-            if (!instances.Any())
+            if (!processes.Any())
                 return;
 
             Global.MainForm.BandwidthState(true);
 
             Task.Run(() =>
-            {
-                tSession = new TraceEventSession("KernelAndClrEventsSession");
-                tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
-
-                //这玩意儿上传和下载得到的data是一样的:)
-                //所以暂时没办法区分上传下载流量
-                tSession.Source.Kernel.TcpIpRecv += data =>
                 {
-                    if (processList.Contains(data.ProcessID))
-                        lock (counterLock)
-                            received += (ulong)data.size;
+                    tSession = new TraceEventSession("KernelAndClrEventsSession");
+                    tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
 
-                    // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
-                };
+                    //这玩意儿上传和下载得到的data是一样的:)
+                    //所以暂时没办法区分上传下载流量
+                    tSession.Source.Kernel.TcpIpRecv += data =>
+                    {
+                        if (pidHastSet.Contains(data.ProcessID))
+                            lock (counterLock)
+                                received += (ulong)data.size;
 
-                tSession.Source.Kernel.UdpIpRecv += data =>
-                {
-                    if (processList.Contains(data.ProcessID))
-                        lock (counterLock)
-                            received += (ulong)data.size;
+                        // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
+                    };
 
-                    // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
-                };
+                    tSession.Source.Kernel.UdpIpRecv += data =>
+                    {
+                        if (pidHastSet.Contains(data.ProcessID))
+                            lock (counterLock)
+                                received += (ulong)data.size;
 
-                tSession.Source.Process();
-            }).Forget();
+                        // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
+                    };
+
+                    tSession.Source.Process();
+                })
+                .Forget();
 
             while (Global.MainForm.State != State.Stopped)
             {

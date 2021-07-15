@@ -86,7 +86,7 @@ namespace Netch.Controllers
             }
             else
             {
-                _aioDnsController.Start();
+                await _aioDnsController.StartAsync();
                 Dial(NameList.TYPE_DNSADDR, $"127.0.0.1:{Global.Settings.AioDNS.ListenPort}");
             }
 

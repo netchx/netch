@@ -15,6 +15,11 @@ namespace Netch.Interops
             return aiodns_dial(name, Encoding.UTF8.GetBytes(value));
         }
 
+        public static async Task<bool> InitAsync()
+        {
+            return await Task.Run(Init).ConfigureAwait(false);
+        }
+        
         public static async Task FreeAsync()
         {
             await Task.Run(Free).ConfigureAwait(false);

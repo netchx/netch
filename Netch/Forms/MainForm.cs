@@ -53,7 +53,8 @@ namespace Netch.Forms
 
         private void AddAddServerToolStripMenuItems()
         {
-            foreach (var serversUtil in ServerHelper.ServerUtils.Where(i => !string.IsNullOrEmpty(i.FullName)))
+            foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.OrderBy(i => i.Priority)
+                .Where(i => !string.IsNullOrEmpty(i.FullName)))
             {
                 var fullName = serversUtil.FullName;
                 var control = new ToolStripMenuItem
@@ -636,9 +637,6 @@ namespace Netch.Forms
                 return;
             }
 
-            if (!server.Valid())
-                return;
-
             Hide();
             ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
             LoadServers();
@@ -678,9 +676,6 @@ namespace Netch.Forms
                 MessageBoxX.Show(i18N.Translate("Please select a server first"));
                 return;
             }
-
-            if (!server.Valid())
-                return;
 
             try
             {

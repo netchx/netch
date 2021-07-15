@@ -51,7 +51,9 @@ namespace Netch
                     Directory.CreateDirectory(item);
 
             // 加载配置
+#pragma warning disable VSTHRD002
             Configuration.LoadAsync().Wait();
+#pragma warning restore VSTHRD002
 
             if (!SingleInstance.IsFirstInstance)
             {

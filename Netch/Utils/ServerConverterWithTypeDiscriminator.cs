@@ -16,6 +16,7 @@ namespace Netch.Utils
             try
             {
                 var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
+                // TODO replace with .NET 6 Deserialize from DOM
                 return (Server)JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
             }
             catch

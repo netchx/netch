@@ -15,7 +15,7 @@ namespace Netch.Controllers
             await FreeAsync();
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
             MainController.PortCheck(Global.Settings.AioDNS.ListenPort, "DNS");
 
@@ -28,7 +28,7 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_CDNS, $"{aioDnsConfig.ChinaDNS}");
             Dial(NameList.TYPE_ODNS, $"{aioDnsConfig.OtherDNS}");
 
-            if (!Init())
+            if (!await InitAsync())
                 throw new Exception("AioDNS start failed.");
         }
     }

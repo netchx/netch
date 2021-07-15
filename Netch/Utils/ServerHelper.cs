@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -19,12 +20,7 @@ namespace Netch.Utils
                 .GetExportedTypes()
                 .Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
 
-            ServerUtils = serversUtilsTypes.Select(t => (IServerUtil)Activator.CreateInstance(t)!).OrderBy(util => util.Priority);
-        }
-
-        public static Type GetTypeByTypeName(string typeName)
-        {
-            return ServerUtils.Single(i => i.TypeName.Equals(typeName)).ServerType;
+            ServerUtilDictionary = serversUtilsTypes.Select(t => (IServerUtil)Activator.CreateInstance(t)!).ToDictionary(util => util.TypeName);
         }
 
         #region Delay
@@ -118,27 +114,21 @@ namespace Netch.Utils
 
         #region Handler
 
-        public static readonly IEnumerable<IServerUtil> ServerUtils;
+        public static Dictionary<string, IServerUtil> ServerUtilDictionary { get; set; }
 
         public static IServerUtil GetUtilByTypeName(string typeName)
         {
-            if (string.IsNullOrEmpty(typeName))
-                throw new ArgumentNullException();
-
-            return ServerUtils.Single(i => i.TypeName.Equals(typeName));
+            return ServerUtilDictionary[typeName];
         }
 
-        public static IServerUtil GetUtilByFullName(string fullName)
+        public static IServerUtil? GetUtilByUriScheme(string scheme)
         {
-            if (string.IsNullOrEmpty(fullName))
-                throw new ArgumentNullException();
-
-            return ServerUtils.Single(i => i.FullName.Equals(fullName));
+            return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme)));
         }
 
-        public static IServerUtil? GetUtilByUriScheme(string typeName)
+        public static Type GetTypeByTypeName(string typeName)
         {
-            return ServerUtils.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(typeName)));
+            return GetUtilByTypeName(typeName).ServerType;
         }
 
         #endregion

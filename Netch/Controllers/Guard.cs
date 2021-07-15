@@ -71,7 +71,7 @@ namespace Netch.Controllers
         {
             State = State.Starting;
 
-            _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read);
+            _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read);
             _logStreamWriter = new StreamWriter(_logFileStream) { AutoFlush = true };
 
             Instance.StartInfo.Arguments = argument;

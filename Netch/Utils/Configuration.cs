@@ -45,6 +45,8 @@ namespace Netch.Utils
                     return;
                 }
 
+                await using var _ = await _lock.ReadLockAsync();
+
                 if (await LoadCoreAsync(FileFullName))
                     return;
 
