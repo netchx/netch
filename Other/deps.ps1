@@ -1,7 +1,6 @@
 $exec=(Split-Path $MyInvocation.MyCommand.Path -Parent)
-$last=(Get-Location).Path
 
-Set-Location $exec
+Push-Location $exec
 
 .\clean.ps1
 
@@ -14,5 +13,5 @@ Get-ChildItem -Path . -Directory | ForEach-Object {
     }
 }
 
-Set-Location $last
+Pop-Location
 exit 0

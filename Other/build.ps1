@@ -1,7 +1,6 @@
 $exec=(Split-Path $MyInvocation.MyCommand.Path -Parent)
-$last=(Get-Location).Path
 
-Set-Location $exec
+Push-Location $exec
 
 .\clean.ps1
 
@@ -17,5 +16,14 @@ Get-ChildItem -Path . -Directory | ForEach-Object {
     }
 }
 
-Set-Location $last
+Write-Host
+
+Get-ChildItem -Path .\release -File | ForEach-Object {
+    $name=$_.Name
+    $hash=(Get-FileHash ".\release\$name" -Algorithm SHA256).Hash.ToLower()
+
+    Write-Host "$hash $name"
+}
+
+Pop-Location
 exit 0

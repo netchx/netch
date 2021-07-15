@@ -1,8 +1,12 @@
 param([string]$OutputPath)
+$name="v2ray-core.zip"
 $address="https://github.com/v2fly/v2ray-core/releases/download/v4.40.1/v2ray-windows-64.zip"
 
-Invoke-WebRequest -Uri $address -OutFile v2ray-core.zip
-Expand-Archive -Force -Path v2ray-core.zip -DestinationPath v2ray-core
+..\scripts\download.ps1 $name $address
+if (-Not $?) { exit $lastExitCode }
+
+..\scripts\extract.ps1 $name "v2ray-core"
+if (-Not $?) { exit $lastExitCode }
 
 Move-Item -Force v2ray-core\v2ctl.exe  $OutputPath
 Move-Item -Force v2ray-core\v2ray.exe  $OutputPath
