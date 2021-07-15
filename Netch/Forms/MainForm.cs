@@ -1364,8 +1364,14 @@ namespace Netch.Forms
 
         #region NotifyIcon
 
-        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
+        public void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() => ShowMainFormToolStripButton_Click(sender, e)));
+                return;
+            }
+
             var forms = Application.OpenForms.Cast<Form>().ToList();
             var anyWindowOpened = forms.Any(f => f is not (MainForm or LogForm));
 
