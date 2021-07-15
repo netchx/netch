@@ -62,15 +62,16 @@ namespace Netch.Utils
         {
             try
             {
-                var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-                await using (fs.ConfigureAwait(false))
-                {
-                    var settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions).ConfigureAwait(false))!;
+                Setting settings;
 
-                    CheckSetting(settings);
-                    Global.Settings = settings;
-                    return true;
+                await using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
+                {
+                    settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions).ConfigureAwait(false))!;
                 }
+
+                CheckSetting(settings);
+                Global.Settings = settings;
+                return true;
             }
             catch (Exception e)
             {

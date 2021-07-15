@@ -55,7 +55,6 @@ namespace Netch.Interops
 
         public static async Task<bool> FreeAsync()
         {
-            
             return await Task.Run(aio_free).ConfigureAwait(false);
         }
 
