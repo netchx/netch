@@ -112,19 +112,25 @@ namespace Netch.Utils
 
                 var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
                 await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
-                await using (fileStream.ConfigureAwait(false))
                 {
-                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions).ConfigureAwait(false);
+                    await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions);
                 }
 
-                if (!File.Exists(FileFullName))
-                    File.Create(FileFullName);
+                await EnsureConfigFileExistsAsync();
 
                 File.Replace(tempFile, FileFullName, BackupFileFullName);
             }
             catch (Exception e)
             {
                 Log.Error(e, "保存配置异常");
+            }
+        }
+
+        private static async ValueTask EnsureConfigFileExistsAsync()
+        {
+            if (!File.Exists(FileFullName))
+            {
+                await File.Create(FileFullName).DisposeAsync();
             }
         }
     }
