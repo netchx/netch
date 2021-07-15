@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29009.5
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31423.177
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch", "Netch\Netch.csproj", "{4B041B91-5790-4571-8C58-C63FFE4BC9F8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTest", "UnitTest\UnitTest.csproj", "{38240783-9AD2-4A01-84C1-1A3E5F05720F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AdditionalFiles", "AdditionalFiles", "{B7354F81-F79C-4C23-9067-C4DAE91B56F0}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,6 +25,10 @@ Global
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Debug|x64.Build.0 = Debug|x64
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Release|x64.ActiveCfg = Release|x64
 		{4B041B91-5790-4571-8C58-C63FFE4BC9F8}.Release|x64.Build.0 = Release|x64
+		{38240783-9AD2-4A01-84C1-1A3E5F05720F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{38240783-9AD2-4A01-84C1-1A3E5F05720F}.Debug|x64.Build.0 = Debug|Any CPU
+		{38240783-9AD2-4A01-84C1-1A3E5F05720F}.Release|x64.ActiveCfg = Release|Any CPU
+		{38240783-9AD2-4A01-84C1-1A3E5F05720F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
