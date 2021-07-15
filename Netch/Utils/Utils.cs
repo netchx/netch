@@ -57,33 +57,34 @@ namespace Netch.Utils
             return timeout;
         }
 
-        public static int ICMPing(IPAddress ip, int timeout = 1000)
+        public static async Task<int> ICMPingAsync(IPAddress ip, int timeout = 1000)
         {
-            var reply = new Ping().Send(ip, timeout);
+            var reply = await new Ping().SendPingAsync(ip, timeout);
 
-            if (reply?.Status == IPStatus.Success)
+            if (reply.Status == IPStatus.Success)
                 return Convert.ToInt32(reply.RoundtripTime);
 
             return timeout;
         }
 
-        public static string GetCityCode(string Hostname)
+        public static async Task<string> GetCityCodeAsync(string address)
         {
-            if (Hostname.Contains(":"))
-                Hostname = Hostname.Split(':')[0];
+            var i = address.IndexOf(':');
+            if (i != -1)
+                address = address[..i];
 
             string? country = null;
             try
             {
                 var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
 
-                if (IPAddress.TryParse(Hostname, out _))
+                if (IPAddress.TryParse(address, out _))
                 {
-                    country = databaseReader.Country(Hostname).Country.IsoCode;
+                    country = databaseReader.Country(address).Country.IsoCode;
                 }
                 else
                 {
-                    var dnsResult = DnsUtils.Lookup(Hostname);
+                    var dnsResult = await DnsUtils.LookupAsync(address);
 
                     if (dnsResult != null)
                         country = databaseReader.Country(dnsResult).Country.IsoCode;

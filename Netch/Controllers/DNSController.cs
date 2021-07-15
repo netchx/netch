@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Netch.Interfaces;
 using static Netch.Interops.AioDNS;
 
@@ -9,9 +10,9 @@ namespace Netch.Controllers
     {
         public string Name => "DNS Service";
 
-        public void Stop()
+        public async Task StopAsync()
         {
-            Free();
+            await FreeAsync();
         }
 
         public void Start()

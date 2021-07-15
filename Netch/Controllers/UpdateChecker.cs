@@ -37,14 +37,14 @@ namespace Netch.Controllers
 
         public static event EventHandler? NewVersionNotFound;
 
-        public static async Task Check(bool isPreRelease)
+        public static async Task CheckAsync(bool isPreRelease)
         {
             try
             {
                 var updater = new GitHubRelease(Owner, Repo);
                 var url = updater.AllReleaseUrl;
 
-                var json = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
+                var (_, json) = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
 
                 var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
                 LatestRelease = GetLatestRelease(releases, isPreRelease);
@@ -52,12 +52,12 @@ namespace Netch.Controllers
                 if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
                 {
                     Log.Information("发现新版本");
-                    NewVersionFound?.Invoke(null, new EventArgs());
+                    NewVersionFound?.Invoke(null, EventArgs.Empty);
                 }
                 else
                 {
                     Log.Information("目前是最新版本");
-                    NewVersionNotFound?.Invoke(null, new EventArgs());
+                    NewVersionNotFound?.Invoke(null, EventArgs.Empty);
                 }
             }
             catch (Exception e)

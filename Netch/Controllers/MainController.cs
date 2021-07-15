@@ -24,7 +24,7 @@ namespace Netch.Controllers
         {
             Log.Information("启动主控制器: {Server} {Mode}", $"{server.Type}", $"[{(int) mode.Type}]{mode.Remark}");
 
-            if (DnsUtils.Lookup(server.Hostname) == null)
+            if (await DnsUtils.LookupAsync(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
             Mode = mode;
@@ -45,9 +45,9 @@ namespace Netch.Controllers
             try
             {
                 if (!ModeHelper.SkipServerController(server, mode))
-                    server = await Task.Run(() => StartServer(server));
+                    server = await StartServerAsync(server);
 
-                await Task.Run(() => StartMode(server, mode));
+                await StartModeAsync(server, mode);
             }
             catch (Exception e)
             {
@@ -67,7 +67,7 @@ namespace Netch.Controllers
             }
         }
 
-        private static Server StartServer(Server server)
+        private static async Task<Server> StartServerAsync(Server server)
         {
             ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
 
@@ -76,7 +76,7 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
             Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
-            var socks5 = ServerController.Start(server);
+            var socks5 = await ServerController.StartAsync(server);
 
             StatusPortInfoText.Socks5Port = socks5.Port;
             StatusPortInfoText.UpdateShareLan();
@@ -84,7 +84,7 @@ namespace Netch.Controllers
             return socks5;
         }
 
-        private static void StartMode(Server server, Mode mode)
+        private static async Task StartModeAsync(Server server, Mode mode)
         {
             ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
 
@@ -93,7 +93,7 @@ namespace Netch.Controllers
 
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
 
-            ModeController.Start(server, mode);
+            await ModeController.StartAsync(server, mode);
         }
 
         public static async Task StopAsync()
@@ -103,12 +103,12 @@ namespace Netch.Controllers
 
             StatusPortInfoText.Reset();
 
-            Task.Run(() => NTTController.Stop()).Forget();
+            Task.Run(() => NTTController.StopAsync()).Forget();
 
             var tasks = new[]
             {
-                Task.Run(() => ServerController?.Stop()),
-                Task.Run(() => ModeController?.Stop())
+                Task.Run(() => ServerController?.StopAsync()),
+                Task.Run(() => ModeController?.StopAsync())
             };
 
             try

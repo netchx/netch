@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
+using Serilog;
 
 namespace Netch.Utils
 {
@@ -13,7 +15,7 @@ namespace Netch.Utils
         /// </summary>
         private static readonly Hashtable Cache = new();
 
-        public static IPAddress? Lookup(string hostname, int timeout = 3000)
+        public static async Task<IPAddress?> LookupAsync(string hostname, int timeout = 3000)
         {
             try
             {
@@ -21,18 +23,26 @@ namespace Netch.Utils
                     return Cache[hostname] as IPAddress;
 
                 var task = Dns.GetHostAddressesAsync(hostname);
-                if (!task.Wait(timeout))
-                    return null;
 
-                if (task.Result.Length == 0)
-                    return null;
+                var resTask = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
 
-                Cache.Add(hostname, task.Result[0]);
+                if (resTask == task)
+                {
+                    var result = await task;
 
-                return task.Result[0];
+                    if (result.Length == 0)
+                        return null;
+
+                    Cache.Add(hostname, result[0]);
+
+                    return result[0];
+                }
+
+                return null;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Log.Verbose(e, "Lookup hostname {Hostname} failed", hostname);
                 return null;
             }
         }

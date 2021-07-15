@@ -20,7 +20,7 @@ namespace Netch.Controllers
         ///     启动 NatTypeTester
         /// </summary>
         /// <returns></returns>
-        public async Task<(string? result, string? localEnd, string? publicEnd)> Start()
+        public async Task<(string? result, string? localEnd, string? publicEnd)> StartAsync()
         {
             string? localEnd = null, publicEnd = null, result = null, bindingTest = null;
 
@@ -87,7 +87,7 @@ namespace Netch.Controllers
                 Log.Error(e, "{Name} 控制器启动异常", Name);
                 try
                 {
-                    Stop();
+                    await StopAsync();
                 }
                 catch
                 {

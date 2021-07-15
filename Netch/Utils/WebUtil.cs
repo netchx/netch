@@ -38,9 +38,9 @@ namespace Netch.Utils
         /// <returns></returns>
         public static async Task<byte[]> DownloadBytesAsync(HttpWebRequest req)
         {
-            using var webResponse = req.GetResponseAsync();
+            using var webResponse = await req.GetResponseAsync();
             await using var memoryStream = new MemoryStream();
-            await using var input = webResponse.Result.GetResponseStream();
+            await using var input = webResponse.GetResponseStream();
 
             await input.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
@@ -53,14 +53,14 @@ namespace Netch.Utils
         /// <param name="rep"></param>
         /// <param name="encoding">编码，默认UTF-8</param>
         /// <returns></returns>
-        public static string DownloadString(HttpWebRequest req, out HttpWebResponse rep, Encoding? encoding = null)
+        public static (HttpStatusCode, string) DownloadString(HttpWebRequest req, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;
-            rep = (HttpWebResponse)req.GetResponse();
+            using var rep = (HttpWebResponse)req.GetResponse();
             using var responseStream = rep.GetResponseStream();
             using var streamReader = new StreamReader(responseStream, encoding);
 
-            return streamReader.ReadToEnd();
+            return (rep.StatusCode, streamReader.ReadToEnd());
         }
 
         /// <summary>
@@ -69,14 +69,14 @@ namespace Netch.Utils
         /// <param name="req"></param>
         /// <param name="encoding">编码，默认UTF-8</param>
         /// <returns></returns>
-        public static async Task<string> DownloadStringAsync(HttpWebRequest req, Encoding? encoding = null)
+        public static async Task<(HttpStatusCode, string)> DownloadStringAsync(HttpWebRequest req, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;
-            using var webResponse = await req.GetResponseAsync();
+            using var webResponse = (HttpWebResponse)await req.GetResponseAsync();
             await using var responseStream = webResponse.GetResponseStream();
             using var streamReader = new StreamReader(responseStream, encoding);
 
-            return await streamReader.ReadToEndAsync();
+            return (webResponse.StatusCode, await streamReader.ReadToEndAsync());
         }
 
         public static async Task DownloadFileAsync(string address, string fileFullPath, IProgress<int>? progress = null)
@@ -92,7 +92,7 @@ namespace Netch.Utils
             using (var downloadTask = input.CopyToAsync(fileStream))
             {
                 if (progress != null)
-                    ReportProgress(webResponse.ContentLength, downloadTask, fileStream, progress, 200).Forget();
+                    ReportProgressAsync(webResponse.ContentLength, downloadTask, fileStream, progress, 200).Forget();
 
                 await downloadTask;
             }
@@ -100,7 +100,7 @@ namespace Netch.Utils
             progress?.Report(100);
         }
 
-        private static async Task ReportProgress(long total, IAsyncResult downloadTask, Stream stream, IProgress<int> progress, int interval)
+        private static async Task ReportProgressAsync(long total, IAsyncResult downloadTask, Stream stream, IProgress<int> progress, int interval)
         {
             var n = 0;
             while (!downloadTask.IsCompleted)

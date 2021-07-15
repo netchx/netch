@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using Netch.Interfaces;
 using Netch.Models;
 using Timer = System.Timers.Timer;
@@ -33,6 +34,8 @@ namespace Netch.Utils
             private static readonly Timer Timer;
             private static readonly object TestAllLock = new();
 
+            private static readonly SemaphoreSlim SemaphoreSlim = new(1, 16);
+
             public static readonly NumberRange Range = new(0, int.MaxValue / 1000);
 
             static DelayTestHelper()
@@ -43,7 +46,7 @@ namespace Netch.Utils
                     AutoReset = true
                 };
 
-                Timer.Elapsed += (_, _) => TestAllDelay();
+                Timer.Elapsed += (_, _) => TestAllDelayAsync().Forget();
             }
 
             public static bool Enabled
@@ -65,17 +68,27 @@ namespace Netch.Utils
                 return value != 0 && Range.InRange(value);
             }
 
-            public static event EventHandler? TestDelayFinished;
-
-            public static void TestAllDelay()
+            public static async Task TestAllDelayAsync()
             {
                 if (!Monitor.TryEnter(TestAllLock))
                     return;
 
                 try
                 {
-                    Parallel.ForEach(Global.Settings.Server, new ParallelOptions { MaxDegreeOfParallelism = 16 }, server => { server.Test(); });
-                    TestDelayFinished?.Invoke(null, new EventArgs());
+                    var tasks = Global.Settings.Server.Select(async s =>
+                    {
+                        await SemaphoreSlim.WaitAsync();
+                        try
+                        {
+                            await s.PingAsync();
+                        }
+                        finally
+                        {
+                            SemaphoreSlim.Release();
+                        }
+                    });
+
+                    await Task.WhenAll(tasks);
                 }
                 catch (Exception)
                 {
@@ -95,8 +108,9 @@ namespace Netch.Utils
                     return;
 
                 Timer.Interval = Global.Settings.DetectionTick * 1000;
-                Task.Run(TestAllDelay);
                 Timer.Start();
+
+                TestAllDelayAsync().Forget();
             }
         }
 

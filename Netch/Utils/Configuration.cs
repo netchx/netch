@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using Netch.Models;
@@ -46,11 +45,11 @@ namespace Netch.Utils
                     return;
                 }
 
-                if (await LoadAsyncCore(FileFullName))
+                if (await LoadCoreAsync(FileFullName))
                     return;
 
                 Log.Information("尝试加载备份配置文件 {FileName}", BackupFileFullName);
-                await LoadAsyncCore(BackupFileFullName);
+                await LoadCoreAsync(BackupFileFullName);
             }
             catch (Exception e)
             {
@@ -59,7 +58,7 @@ namespace Netch.Utils
             }
         }
 
-        private static async ValueTask<bool> LoadAsyncCore(string filename)
+        private static async ValueTask<bool> LoadCoreAsync(string filename)
         {
             try
             {

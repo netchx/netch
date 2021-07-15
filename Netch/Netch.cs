@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Windows.Win32;
 using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
+using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Forms;
 using Netch.Services;
@@ -83,7 +83,7 @@ namespace Netch
                 Environment.Exit(2);
             }
 
-            Task.Run(LogEnvironment);
+            Task.Run(LogEnvironment).Forget();
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

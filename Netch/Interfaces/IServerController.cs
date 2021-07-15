@@ -1,4 +1,5 @@
-﻿using Netch.Models;
+﻿using System.Threading.Tasks;
+using Netch.Models;
 using Netch.Servers;
 
 namespace Netch.Interfaces
@@ -9,7 +10,7 @@ namespace Netch.Interfaces
 
         public string? LocalAddress { get; set; }
 
-        public Socks5 Start(in Server s);
+        public Task<Socks5> StartAsync(Server s);
     }
 
     public static class ServerControllerExtension

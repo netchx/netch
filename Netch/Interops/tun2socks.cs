@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Serilog;
 
 namespace Netch.Interops
@@ -46,9 +47,9 @@ namespace Netch.Interops
             return tun_init();
         }
 
-        public static bool Free()
+        public static async Task<bool> FreeAsync()
         {
-            return tun_free();
+            return await Task.Run(tun_free).ConfigureAwait(false);
         }
 
         private const string tun2socks_bin = "tun2socks.bin";

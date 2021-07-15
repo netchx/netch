@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
@@ -22,13 +23,13 @@ namespace Netch.Servers.Shadowsocks
 
         public string? LocalAddress { get; set; }
 
-        public Socks5 Start(in Server s)
+        public async Task<Socks5> StartAsync(Server s)
         {
             var server = (Shadowsocks)s;
 
             var command = new SSParameter
             {
-                s = server.AutoResolveHostname(),
+                s = await server.AutoResolveHostnameAsync(),
                 p = server.Port,
                 b = this.LocalAddress(),
                 l = this.Socks5LocalPort(),
@@ -39,7 +40,7 @@ namespace Netch.Servers.Shadowsocks
                 plugin_opts = server.PluginOption
             };
 
-            StartGuard(command.ToString());
+            await StartGuardAsync(command.ToString());
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
         }
 

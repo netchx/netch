@@ -48,7 +48,6 @@ namespace Netch.Models
         // ReSharper disable once CollectionNeverUpdated.Global
         public Dictionary<string, object> ExtensionData { get; set; } = new();
 
-
         public object Clone()
         {
             return MemberwiseClone();
@@ -68,39 +67,42 @@ namespace Netch.Models
         }
 
         public abstract string MaskedData();
+
         /// <summary>
         ///     测试延迟
         /// </summary>
         /// <returns>延迟</returns>
-        public int Test()
+        public async Task<int> PingAsync()
         {
             try
             {
-                var destination = DnsUtils.Lookup(Hostname);
+                var destination = await DnsUtils.LookupAsync(Hostname);
                 if (destination == null)
                     return Delay = -2;
 
                 var list = new Task<int>[3];
                 for (var i = 0; i < 3; i++)
-                    list[i] = Task.Run(async () =>
+                {
+                    async Task<int> PingCoreAsync()
                     {
                         try
                         {
                             return Global.Settings.ServerTCPing
                                 ? await Utils.Utils.TCPingAsync(destination, Port)
-                                : Utils.Utils.ICMPing(destination, Port);
+                                : await Utils.Utils.ICMPingAsync(destination);
                         }
                         catch (Exception)
                         {
                             return -4;
                         }
-                    });
+                    }
 
-                Task.WaitAll(list[0], list[1], list[2]);
+                    list[i] = PingCoreAsync();
+                }
 
-                var min = Math.Min(list[0].Result, list[1].Result);
-                min = Math.Min(min, list[2].Result);
-                return Delay = min;
+                var resTask = await Task.WhenAny(list[0], list[1], list[2]);
+
+                return Delay = await resTask;
             }
             catch (Exception)
             {
@@ -111,9 +113,9 @@ namespace Netch.Models
 
     public static class ServerExtension
     {
-        public static string AutoResolveHostname(this Server server)
+        public static async Task<string> AutoResolveHostnameAsync(this Server server)
         {
-            return Global.Settings.ResolveServerHostname ? DnsUtils.Lookup(server.Hostname)!.ToString() : server.Hostname;
+            return Global.Settings.ResolveServerHostname ? (await DnsUtils.LookupAsync(server.Hostname))!.ToString() : server.Hostname;
         }
 
         public static bool Valid(this Server server)

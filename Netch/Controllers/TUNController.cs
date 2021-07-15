@@ -30,13 +30,13 @@ namespace Netch.Controllers
 
         public string Name => "tun2socks";
 
-        public void Start(Server server, Mode mode)
+        public async Task StartAsync(Server server, Mode mode)
         {
             _mode = mode;
             _tunConfig = Global.Settings.TUNTAP;
 
             if (server is Socks5Bridge socks5Bridge)
-                _serverRemoteAddress = DnsUtils.Lookup(socks5Bridge.RemoteHostname);
+                _serverRemoteAddress = await DnsUtils.LookupAsync(socks5Bridge.RemoteHostname);
 
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
                 _serverRemoteAddress = null;
@@ -58,9 +58,9 @@ namespace Netch.Controllers
 
             if (server is Socks5 socks5)
             {
-                Dial(NameList.TYPE_TCPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                Dial(NameList.TYPE_TCPHOST, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
 
-                Dial(NameList.TYPE_UDPHOST, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                Dial(NameList.TYPE_UDPHOST, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
 
                 if (socks5.Auth())
                 {
@@ -106,16 +106,16 @@ namespace Netch.Controllers
             SetupRouteTable();
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             var tasks = new[]
             {
-                Task.Run(Free),
+                FreeAsync(),
                 Task.Run(ClearRouteTable),
-                Task.Run(_aioDnsController.Stop)
+                _aioDnsController.StopAsync()
             };
 
-            Task.WaitAll(tasks);
+            await Task.WhenAll(tasks);
         }
 
         private void CheckDriver()

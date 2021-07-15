@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
+using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Models;
 using Serilog;
@@ -114,7 +115,7 @@ namespace Netch.Utils
                 };
 
                 tSession.Source.Process();
-            });
+            }).Forget();
 
             while (Global.MainForm.State != State.Stopped)
             {

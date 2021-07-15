@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
@@ -29,7 +30,7 @@ namespace Netch.Controllers
 
         public override string Name => "pcap2socks";
 
-        public void Start(Server server, Mode mode)
+        public async Task StartAsync(Server server, Mode mode)
         {
             _server = server;
             _mode = mode;
@@ -38,18 +39,18 @@ namespace Netch.Controllers
 
             var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
             if (_server is Socks5 socks5 && !socks5.Auth())
-                argument.Append($" --destination  {socks5.AutoResolveHostname()}:{socks5.Port}");
+                argument.Append($" --destination  {await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
             else
                 argument.Append($" --destination  127.0.0.1:{Global.Settings.Socks5LocalPort}");
 
             argument.Append($" {_mode.GetRules().FirstOrDefault() ?? "-P n"}");
-            StartGuard(argument.ToString());
+            await StartGuardAsync(argument.ToString());
         }
 
-        public override void Stop()
+        public override async Task StopAsync()
         {
             Global.MainForm.Invoke(new Action(() => { _form.Close(); }));
-            StopGuard();
+            await StopGuardAsync();
         }
 
         ~PcapController()
@@ -79,7 +80,7 @@ namespace Netch.Controllers
                 {
                     Thread.Sleep(1000);
                     Utils.Utils.Open("https://github.com/zhxie/pcap2socks#dependencies");
-                });
+                }).Forget();
 
                 throw new MessageException("Pleases install pcap2socks's dependency");
             }

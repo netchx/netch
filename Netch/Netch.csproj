@@ -10,7 +10,7 @@
         <IsPackable>false</IsPackable>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
-        <NoWarn>VSTHRD002;VSTHRD200;VSTHRD100;VSTHRD101;VSTHRD110;VSTHRD130</NoWarn>
+        <NoWarn>VSTHRD100</NoWarn>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <AnalysisMode>Default</AnalysisMode>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>

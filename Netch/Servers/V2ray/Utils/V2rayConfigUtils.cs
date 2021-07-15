@@ -1,13 +1,16 @@
-﻿using Netch.Models;
+﻿using System.Threading.Tasks;
+using Netch.Models;
 using Netch.Servers.V2ray.Models;
 using Netch.Utils;
 using V2rayConfig = Netch.Servers.V2ray.Models.V2rayConfig;
+
+#pragma warning disable VSTHRD200
 
 namespace Netch.Servers.Utils
 {
     public static class V2rayConfigUtils
     {
-        public static V2rayConfig GenerateClientConfig(Server server)
+        public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server)
         {
             var v2rayConfig = new V2rayConfig
             {
@@ -26,12 +29,12 @@ namespace Netch.Servers.Utils
                 }
             };
 
-            v2rayConfig.outbounds = new[] { outbound(server) };
+            v2rayConfig.outbounds = new[] { await outbound(server) };
 
             return v2rayConfig;
         }
 
-        private static Outbound outbound(Server server)
+        private static async Task<Outbound> outbound(Server server)
         {
             var outbound = new Outbound
             {
@@ -48,7 +51,7 @@ namespace Netch.Servers.Utils
                     {
                         new
                         {
-                            address = server.AutoResolveHostname(),
+                            address = await server.AutoResolveHostnameAsync(),
                             port = server.Port,
                             users = socks5.Auth()
                                 ? new[]
@@ -75,7 +78,7 @@ namespace Netch.Servers.Utils
                     {
                         new VnextItem
                         {
-                            address = server.AutoResolveHostname(),
+                            address = await server.AutoResolveHostnameAsync(),
                             port = server.Port,
                             users = new[]
                             {
@@ -111,7 +114,7 @@ namespace Netch.Servers.Utils
                     {
                         new VnextItem
                         {
-                            address = server.AutoResolveHostname(),
+                            address = await server.AutoResolveHostnameAsync(),
                             port = server.Port,
                             users = new[]
                             {

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
@@ -27,14 +28,14 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public virtual Socks5 Start(in Server s)
+        public virtual async Task<Socks5> StartAsync(Server s)
         {
-            using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write))
+            using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                JsonSerializer.SerializeAsync(fileStream, V2rayConfigUtils.GenerateClientConfig(s), Global.NewCustomJsonSerializerOptions()).Wait();
+                await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
             }
 
-            StartGuard("-config ..\\data\\last.json");
+            await StartGuardAsync("-config ..\\data\\last.json");
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
         }
     }

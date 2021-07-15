@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
@@ -26,14 +27,14 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public Socks5 Start(in Server s)
+        public async Task<Socks5> StartAsync(Server s)
         {
             var server = (Trojan)s;
             var trojanConfig = new TrojanConfig
             {
                 local_addr = this.LocalAddress(),
                 local_port = this.Socks5LocalPort(),
-                remote_addr = server.AutoResolveHostname(),
+                remote_addr = await server.AutoResolveHostnameAsync(),
                 remote_port = server.Port,
                 password = new List<string>
                 {
@@ -45,12 +46,12 @@ namespace Netch.Servers
                 }
             };
 
-            using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write))
+            await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                JsonSerializer.SerializeAsync(fileStream, trojanConfig, Global.NewCustomJsonSerializerOptions()).Wait();
+                await JsonSerializer.SerializeAsync(fileStream, trojanConfig, Global.NewCustomJsonSerializerOptions());
             }
 
-            StartGuard("-c ..\\data\\last.json");
+            await StartGuardAsync("-c ..\\data\\last.json");
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
         }
     }

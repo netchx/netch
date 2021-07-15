@@ -93,23 +93,17 @@ namespace Netch.Forms
             // 加载快速配置
             LoadProfiles();
 
-            BeginInvoke(new Action(async () =>
-            {
-                // 检查更新
-                if (Global.Settings.CheckUpdateWhenOpened)
-                    await CheckUpdate();
-            }));
+            // 检查更新
+            if (Global.Settings.CheckUpdateWhenOpened)
+                CheckUpdateAsync().Forget();
 
-            BeginInvoke(new Action(async () =>
-            {
-                // 检查订阅更新
-                if (Global.Settings.UpdateServersWhenOpened)
-                    await UpdateServersFromSubscribe();
+            // 检查订阅更新
+            if (Global.Settings.UpdateServersWhenOpened)
+                UpdateServersFromSubscribeAsync().Forget();
 
-                // 打开软件时启动加速，产生开始按钮点击事件
-                if (Global.Settings.StartWhenOpened)
-                    ControlButton_Click(null, null);
-            }));
+            // 打开软件时启动加速，产生开始按钮点击事件
+            if (Global.Settings.StartWhenOpened)
+                ControlButton.PerformClick();
 
             Netch.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
         }
@@ -275,10 +269,10 @@ namespace Netch.Forms
 
         private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await UpdateServersFromSubscribe();
+            await UpdateServersFromSubscribeAsync();
         }
 
-        private async Task UpdateServersFromSubscribe()
+        private async Task UpdateServersFromSubscribeAsync()
         {
             void DisableItems(bool v)
             {
@@ -333,7 +327,7 @@ namespace Netch.Forms
             {
                 UpdateChecker.NewVersionNotFound += OnNewVersionNotFound;
                 UpdateChecker.NewVersionFoundFailed += OnNewVersionFoundFailed;
-                await CheckUpdate();
+                await CheckUpdateAsync();
             }
             finally
             {
@@ -394,7 +388,6 @@ namespace Netch.Forms
 
         private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
             var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Netch.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             var visible = windowStyles.HasFlag(WINDOW_STYLE.WS_VISIBLE);
             PInvoke.ShowWindow(Netch.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
@@ -468,7 +461,7 @@ namespace Netch.Forms
                 }
 
                 ModeHelper.SuspendWatcher = true;
-                await Stop();
+                await StopAsync();
                 await Configuration.SaveAsync();
 
                 // Update
@@ -515,7 +508,7 @@ namespace Netch.Forms
         {
             if (!IsWaiting())
             {
-                await StopCore();
+                await StopCoreAsync();
                 return;
             }
 
@@ -551,28 +544,31 @@ namespace Netch.Forms
             State = State.Started;
 
             Task.Run(Bandwidth.NetTraffic).Forget();
-            Task.Run(NatTest).Forget();
+            NatTestAsync().Forget();
 
             if (Global.Settings.MinimizeWhenStarted)
                 Minimize();
 
             // 自动检测延迟
-            Task.Run(() =>
+            async Task StartedPingAsync()
+            {
+                while (State == State.Started)
                 {
-                    while (State == State.Started)
-                        if (Global.Settings.StartedPingInterval >= 0)
-                        {
-                            server.Test();
-                            ServerComboBox.Refresh();
+                    if (Global.Settings.StartedPingInterval >= 0)
+                    {
+                        await server.PingAsync();
+                        ServerComboBox.Refresh();
 
-                            Thread.Sleep(Global.Settings.StartedPingInterval * 1000);
-                        }
-                        else
-                        {
-                            Thread.Sleep(5000);
-                        }
-                })
-                .Forget();
+                        await Task.Delay(Global.Settings.StartedPingInterval * 1000);
+                    }
+                    else
+                    {
+                        await Task.Delay(5000);
+                    }
+                }
+            }
+
+            StartedPingAsync().Forget();
         }
 
         #endregion
@@ -650,7 +646,7 @@ namespace Netch.Forms
             Show();
         }
 
-        private void SpeedPictureBox_Click(object sender, EventArgs e)
+        private async void SpeedPictureBox_Click(object sender, EventArgs e)
         {
             void Enable()
             {
@@ -664,19 +660,13 @@ namespace Netch.Forms
 
             if (!IsWaiting() || ModifierKeys == Keys.Control)
             {
-                (ServerComboBox.SelectedItem as Server)?.Test();
+                (ServerComboBox.SelectedItem as Server)?.PingAsync();
                 Enable();
             }
             else
             {
-                ServerHelper.DelayTestHelper.TestDelayFinished += OnTestDelayFinished;
-                Task.Run(ServerHelper.DelayTestHelper.TestAllDelay).Forget();
-
-                void OnTestDelayFinished(object? o1, EventArgs? e1)
-                {
-                    ServerHelper.DelayTestHelper.TestDelayFinished -= OnTestDelayFinished;
-                    Enable();
-                }
+                await ServerHelper.DelayTestHelper.TestAllDelayAsync();
+                Enable();
             }
         }
 
@@ -1057,15 +1047,15 @@ namespace Netch.Forms
             }
         }
 
-        public async Task Stop()
+        public async Task StopAsync()
         {
             if (IsWaiting())
                 return;
 
-            await StopCore();
+            await StopCoreAsync();
         }
 
-        private async Task StopCore()
+        private async Task StopCoreAsync()
         {
             State = State.Stopping;
             await MainController.StopAsync();
@@ -1172,7 +1162,7 @@ namespace Netch.Forms
         private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
             if (_state == State.Started && !Monitor.IsEntered(_natTestLock))
-                await NatTest();
+                await NatTestAsync();
         }
 
         private bool _natTestLock = true;
@@ -1180,7 +1170,7 @@ namespace Netch.Forms
         /// <summary>
         ///     测试 NAT
         /// </summary>
-        private async Task NatTest()
+        private async Task NatTestAsync()
         {
             if (!MainController.Mode!.TestNatRequired())
                 return;
@@ -1194,11 +1184,11 @@ namespace Netch.Forms
             {
                 NatTypeStatusText(i18N.Translate("Testing NAT"));
 
-                var (result, _, publicEnd) = await MainController.NTTController.Start();
+                var (result, _, publicEnd) = await MainController.NTTController.StartAsync();
 
                 if (!string.IsNullOrEmpty(publicEnd))
                 {
-                    var country = Utils.Utils.GetCityCode(publicEnd!);
+                    var country = await Utils.Utils.GetCityCodeAsync(publicEnd!);
                     NatTypeStatusText(result, country);
                 }
                 else
@@ -1285,7 +1275,7 @@ namespace Netch.Forms
                 if (File.Exists(file))
                     File.Delete(file);
 
-            await Stop();
+            await StopAsync();
 
             Dispose();
             Environment.Exit(Environment.ExitCode);
@@ -1315,12 +1305,12 @@ namespace Netch.Forms
 
         #region Updater
 
-        private async Task CheckUpdate()
+        private async Task CheckUpdateAsync()
         {
             try
             {
                 UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
-                await UpdateChecker.Check(Global.Settings.CheckBetaUpdate);
+                await UpdateChecker.CheckAsync(Global.Settings.CheckBetaUpdate);
                 if (Flags.AlwaysShowNewVersionFound)
                     OnUpdateCheckerOnNewVersionFound(null!, null!);
             }

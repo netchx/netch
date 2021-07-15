@@ -4,8 +4,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using Netch.Models;
 using Netch.Utils;
 using Serilog;
@@ -67,7 +67,7 @@ namespace Netch.Controllers
             Instance.Dispose();
         }
 
-        protected void StartGuard(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
+        protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             State = State.Starting;
 
@@ -82,8 +82,8 @@ namespace Netch.Controllers
 
             if (RedirectOutput)
             {
-                Task.Run(() => ReadOutput(Instance.StandardOutput));
-                Task.Run(() => ReadOutput(Instance.StandardError));
+                Task.Run(() => ReadOutput(Instance.StandardOutput)).Forget();
+                Task.Run(() => ReadOutput(Instance.StandardError)).Forget();
 
                 if (!StartedKeywords.Any())
                 {
@@ -95,20 +95,20 @@ namespace Netch.Controllers
                 // wait ReadOutput change State
                 for (var i = 0; i < 1000; i++)
                 {
-                    Thread.Sleep(10);
+                    await Task.Delay(50);
                     switch (State)
                     {
                         case State.Started:
                             OnStarted();
                             return;
                         case State.Stopped:
-                            StopGuard();
+                            await StopGuardAsync();
                             OnStartFailed();
                             throw new MessageException($"{Name} 控制器启动失败");
                     }
                 }
 
-                StopGuard();
+                await StopGuardAsync();
                 throw new MessageException($"{Name} 控制器启动超时");
             }
         }
@@ -136,12 +136,12 @@ namespace Netch.Controllers
             State = State.Stopped;
         }
 
-        public virtual void Stop()
+        public virtual async Task StopAsync()
         {
-            StopGuard();
+            await StopGuardAsync();
         }
 
-        protected void StopGuard()
+        protected async Task StopGuardAsync()
         {
             _logStreamWriter?.Close();
             _logFileStream?.Close();
@@ -151,7 +151,7 @@ namespace Netch.Controllers
                 if (Instance is { HasExited: false })
                 {
                     Instance.Kill();
-                    Instance.WaitForExit();
+                    await Instance.WaitForExitAsync();
                 }
             }
             catch (Win32Exception e)

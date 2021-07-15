@@ -1,5 +1,5 @@
+using System.Threading.Tasks;
 using Netch.Models;
-using Netch.Servers;
 
 namespace Netch.Servers
 {
@@ -7,11 +7,11 @@ namespace Netch.Servers
     {
         public override string Name { get; } = "Socks5";
 
-        public override Socks5 Start(in Server s)
+        public override async Task<Socks5> StartAsync(Server s)
         {
             var server = (Socks5)s;
             if (server.Auth())
-                base.Start(s);
+                await base.StartAsync(s);
 
             return server;
         }

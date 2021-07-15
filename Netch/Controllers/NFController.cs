@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
+using System.Threading.Tasks;
 using Netch.Interfaces;
 using Netch.Interops;
 using Netch.Models;
@@ -27,7 +28,7 @@ namespace Netch.Controllers
 
         public string Name => "Redirector";
 
-        public void Start(Server server, Mode mode)
+        public async Task StartAsync(Server server, Mode mode)
         {
             _server = server;
             _mode = mode;
@@ -43,7 +44,7 @@ namespace Netch.Controllers
             // Server
             Dial(NameList.TYPE_FILTERUDP, _rdrConfig.FilterProtocol.HasFlag(PortType.UDP).ToString().ToLower());
             Dial(NameList.TYPE_FILTERTCP, _rdrConfig.FilterProtocol.HasFlag(PortType.TCP).ToString().ToLower());
-            dial_Server(_rdrConfig.FilterProtocol, _server);
+            await DialServerAsync(_rdrConfig.FilterProtocol, _server);
 
             // Mode Rule
             dial_Name(_mode);
@@ -51,13 +52,13 @@ namespace Netch.Controllers
             // Features
             Dial(NameList.TYPE_DNSHOST, _rdrConfig.DNSHijack ? _rdrConfig.DNSHijackHost : "");
 
-            if (!Init())
+            if (!await InitAsync())
                 throw new MessageException("Redirector start failed.");
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
-            Free();
+            await FreeAsync();
         }
 
         #region CheckRule
@@ -102,12 +103,12 @@ namespace Netch.Controllers
 
         #endregion
 
-        private void dial_Server(PortType portType, in Server server)
+        private async Task DialServerAsync(PortType portType, Server server)
         {
             if (portType == PortType.Both)
             {
-                dial_Server(PortType.TCP, server);
-                dial_Server(PortType.UDP, server);
+                await DialServerAsync(PortType.TCP, server);
+                await DialServerAsync(PortType.UDP, server);
                 return;
             }
 
@@ -116,7 +117,7 @@ namespace Netch.Controllers
             if (server is Socks5 socks5)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
-                Dial(NameList.TYPE_TCPHOST + offset, $"{socks5.AutoResolveHostname()}:{socks5.Port}");
+                Dial(NameList.TYPE_TCPHOST + offset, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
                 Dial(NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
                 Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
@@ -124,7 +125,7 @@ namespace Netch.Controllers
             else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && _rdrConfig.RedirectorSS)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
-                Dial(NameList.TYPE_TCPHOST + offset, $"{shadowsocks.AutoResolveHostname()}:{shadowsocks.Port}");
+                Dial(NameList.TYPE_TCPHOST + offset, $"{await shadowsocks.AutoResolveHostnameAsync()}:{shadowsocks.Port}");
                 Dial(NameList.TYPE_TCPMETH + offset, shadowsocks.EncryptMethod);
                 Dial(NameList.TYPE_TCPPASS + offset, shadowsocks.Password);
             }
