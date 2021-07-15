@@ -15,6 +15,8 @@ Delete "Netch\obj"
 Delete "Tests\bin"
 Delete "Tests\obj"
 Delete "TestResults"
+Delete "Redirector\bin"
+Delete "Redirector\obj"
 
 .\Other\clean.ps1
 exit $lastExitCode
