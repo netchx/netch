@@ -27,48 +27,21 @@ namespace Netch.Servers.Shadowsocks
         {
             var server = (Shadowsocks)s;
 
-            var command = new SSParameter
+            var arguments = new object?[]
             {
-                s = await server.AutoResolveHostnameAsync(),
-                p = server.Port,
-                b = this.LocalAddress(),
-                l = this.Socks5LocalPort(),
-                m = server.EncryptMethod,
-                k = server.Password,
-                u = true,
-                plugin = server.Plugin,
-                plugin_opts = server.PluginOption
+                "-s", await server.AutoResolveHostnameAsync(),
+                "-p", server.Port,
+                "-b", this.LocalAddress(),
+                "-l", this.Socks5LocalPort(),
+                "-m", server.EncryptMethod,
+                "-k", server.Password,
+                "-u", SpecialArgument.Flag,
+                "--plugin", server.Plugin,
+                "--plugin-opts", server.PluginOption
             };
 
-            await StartGuardAsync(command.ToString());
+            await StartGuardAsync(Arguments.Format(arguments));
             return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
-        }
-
-        [Verb]
-        private class SSParameter : ParameterBase
-        {
-            public string? s { get; set; }
-
-            public ushort? p { get; set; }
-
-            public string? b { get; set; }
-
-            public ushort? l { get; set; }
-
-            public string? m { get; set; }
-
-            public string? k { get; set; }
-
-            public bool u { get; set; }
-
-            [Full] [Optional] public string? plugin { get; set; }
-
-            [Full]
-            [Optional]
-            [RealName("plugin-opts")]
-            public string? plugin_opts { get; set; }
-
-            [Full] [Quote] [Optional] public string? acl { get; set; }
         }
     }
 }

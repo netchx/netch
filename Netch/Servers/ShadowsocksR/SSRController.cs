@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -27,62 +28,24 @@ namespace Netch.Servers.ShadowsocksR
         {
             var server = (ShadowsocksR)s;
 
-            var command = new SSRParameter
+            var arguments = new object?[]
             {
-                s = await server.AutoResolveHostnameAsync(),
-                p = server.Port,
-                k = server.Password,
-                m = server.EncryptMethod,
-                t = "120",
-                O = server.Protocol,
-                G = server.ProtocolParam,
-                o = server.OBFS,
-                g = server.OBFSParam,
-                b = this.LocalAddress(),
-                l = this.Socks5LocalPort(),
-                u = true
+                "-s", await server.AutoResolveHostnameAsync(),
+                "-p", server.Port,
+                "-k", server.Password,
+                "-m", server.EncryptMethod,
+                "-t", 120,
+                "-O", server.Protocol,
+                "-G", server.ProtocolParam,
+                "-o", server.OBFS,
+                "-g", server.OBFSParam,
+                "-b", this.LocalAddress(),
+                "-l", this.Socks5LocalPort(),
+                "-u", SpecialArgument.Flag
             };
 
-            await StartGuardAsync(command.ToString());
-            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(),server.Hostname);
-        }
-
-        [Verb]
-        class SSRParameter : ParameterBase
-        {
-            public string? s { get; set; }
-
-            public ushort? p { get; set; }
-
-            [Quote]
-            public string? k { get; set; }
-
-            public string? m { get; set; }
-
-            public string? t { get; set; }
-
-            [Optional]
-            public string? O { get; set; }
-
-            [Optional]
-            public string? G { get; set; }
-
-            [Optional]
-            public string? o { get; set; }
-
-            [Optional]
-            public string? g { get; set; }
-
-            public string? b { get; set; }
-
-            public ushort? l { get; set; }
-
-            public bool u { get; set; }
-
-            [Full]
-            [Quote]
-            [Optional]
-            public string? acl { get; set; }
+            await StartGuardAsync(Arguments.Format(arguments));
+            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
         }
     }
 }
