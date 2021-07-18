@@ -1,7 +1,7 @@
-﻿using Netch.Models;
-using Netch.Utils;
+﻿using Netch.Utils;
 using System;
 using System.Windows.Forms;
+using Netch.Enums;
 
 namespace Netch.Forms
 {

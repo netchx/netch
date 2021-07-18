@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
+using Netch.Enums;
 using Netch.Models;
 using Netch.Utils;
 using Serilog;
