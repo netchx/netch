@@ -12,8 +12,8 @@ namespace Netch.Controllers.Server
         {
             StartInfo = new ProcessStartInfo()
             {
-                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin\\Shadowsocks.exe"),
-                WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin"),
+                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\Shadowsocks.exe"),
+                WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin"),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden

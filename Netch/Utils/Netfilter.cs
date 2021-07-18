@@ -26,7 +26,7 @@ namespace Netch.Utils
 
         public static readonly string dName = "netfilter2";
         public static readonly string oPath = Path.Combine(Environment.SystemDirectory, "drivers\\netfilter2.sys");
-        public static readonly string nPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin\\netfilter2.sys");
+        public static readonly string nPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\netfilter2.sys");
 
         /// <summary>
         ///     注册 Netfilter 驱动

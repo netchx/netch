@@ -11,8 +11,8 @@ namespace Netch.Controllers.Other.DNS
         {
             StartInfo = new ProcessStartInfo()
             {
-                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin\\CoreDNS.exe"),
-                WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Bin"),
+                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\CoreDNS.exe"),
+                WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin"),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Hidden

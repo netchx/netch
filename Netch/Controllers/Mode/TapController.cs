@@ -133,7 +133,7 @@ namespace Netch.Controllers.Mode
 
         public bool Create(Models.Server.Server s, Models.Mode.Mode m)
         {
-            Global.Logger.Info(String.Format("{0:x} tap2socks.bin", Utils.FileHelper.Checksum("Bin\\tap2socks.bin")));
+            Global.Logger.Info(String.Format("{0:x} tap2socks.bin", Utils.FileHelper.Checksum("bin\\tap2socks.bin")));
 
             if (!this.Outbound.Get())
             {
