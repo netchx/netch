@@ -48,7 +48,7 @@ namespace Netch.Forms
 
             BindTextBox<int>(ProfileCountTextBox, i => i > -1, i => Global.Settings.ProfileCount = i, Global.Settings.ProfileCount);
             BindTextBox<int>(DetectionTickTextBox,
-                i => ServerHelper.DelayTestHelper.Range.InRange(i),
+                i => DelayTestHelper.Range.InRange(i),
                 i => Global.Settings.DetectionTick = i,
                 Global.Settings.DetectionTick);
 

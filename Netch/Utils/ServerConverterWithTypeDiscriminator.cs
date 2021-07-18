@@ -11,19 +11,9 @@ namespace Netch.Utils
 
         public override Server Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var jsonElement = JsonSerializer.Deserialize<JsonElement>(ref reader)!;
-
-            try
-            {
-                var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
-                // TODO replace with .NET 6 Deserialize from DOM
-                return (Server)JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
-            }
-            catch
-            {
-                // Unsupported Server Type
-                return JsonSerializer.Deserialize<Server>(jsonElement.GetRawText(), new JsonSerializerOptions())!;
-            }
+            var jsonElement = JsonSerializer.Deserialize<JsonElement>(ref reader);
+            var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
+            return (Server)JsonSerializer.Deserialize(jsonElement.GetRawText(), type)!;
         }
 
         public override void Write(Utf8JsonWriter writer, Server value, JsonSerializerOptions options)

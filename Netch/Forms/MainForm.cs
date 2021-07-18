@@ -78,7 +78,7 @@ namespace Netch.Forms
 
             LoadServers();
             SelectLastServer();
-            ServerHelper.DelayTestHelper.UpdateInterval();
+            DelayTestHelper.UpdateTick(true);
 
             ModeHelper.InitWatcher();
             ModeHelper.Load();
@@ -592,7 +592,7 @@ namespace Netch.Forms
             }
 
             if (oldSettings.DetectionTick != Global.Settings.DetectionTick)
-                ServerHelper.DelayTestHelper.UpdateInterval();
+                DelayTestHelper.UpdateTick(true);
 
             if (oldSettings.ProfileCount != Global.Settings.ProfileCount)
                 LoadProfiles();
@@ -663,7 +663,7 @@ namespace Netch.Forms
             }
             else
             {
-                await ServerHelper.DelayTestHelper.TestAllDelayAsync();
+                await DelayTestHelper.PerformTestAsync(true);
                 Enable();
             }
         }
@@ -995,7 +995,7 @@ namespace Netch.Forms
 
                 _state = value;
 
-                ServerHelper.DelayTestHelper.Enabled = IsWaiting(_state);
+                DelayTestHelper.Enabled = IsWaiting(_state);
 
                 StatusText();
                 switch (value)
@@ -1057,14 +1057,11 @@ namespace Netch.Forms
             State = State.Stopped;
         }
 
-        private bool IsWaiting()
-        {
-            return State == State.Waiting || State == State.Stopped;
-        }
+        private bool IsWaiting() => IsWaiting(_state);
 
         private static bool IsWaiting(State state)
         {
-            return state == State.Waiting || state == State.Stopped;
+            return state is State.Waiting or State.Stopped;
         }
 
         /// <summary>
@@ -1253,7 +1250,7 @@ namespace Netch.Forms
                 return;
             }
 
-            State = State.Terminating;
+            // State = State.Terminating;
             NotifyIcon.Visible = false;
             Hide();
 

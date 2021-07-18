@@ -43,11 +43,7 @@ namespace Netch.Models
         /// <summary>
         ///     代理类型
         /// </summary>
-        public virtual string Type { get; } = string.Empty;
-
-        [JsonExtensionData]
-        // ReSharper disable once CollectionNeverUpdated.Global
-        public Dictionary<string, object> ExtensionData { get; set; } = new();
+        public abstract string Type { get; }
 
         public object Clone()
         {
@@ -62,7 +58,7 @@ namespace Netch.Models
         {
             var remark = string.IsNullOrWhiteSpace(Remark) ? $"{Hostname}:{Port}" : Remark;
 
-            var shortName = Type.IsNullOrEmpty() ? "WTF" : ServerHelper.GetUtilByTypeName(Type).ShortName;
+            var shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
 
             return $"[{shortName}][{Group}] {remark}";
         }
