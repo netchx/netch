@@ -1147,11 +1147,11 @@ namespace Netch.Forms
 
         private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
-            if (_state == State.Started && !Monitor.IsEntered(_natTestLock))
+            if (_state == State.Started && NatTestLock.CurrentCount != 0)
                 await NatTestAsync();
         }
 
-        private bool _natTestLock = true;
+        private static readonly SemaphoreSlim NatTestLock = new(1, 1);
 
         /// <summary>
         ///     测试 NAT
@@ -1161,10 +1161,10 @@ namespace Netch.Forms
             if (!MainController.Mode!.TestNatRequired())
                 return;
 
-            if (!_natTestLock)
+            if (NatTestLock.CurrentCount == 0)
                 return;
 
-            _natTestLock = false;
+            await NatTestLock.WaitAsync();
 
             try
             {
@@ -1184,7 +1184,7 @@ namespace Netch.Forms
             }
             finally
             {
-                _natTestLock = true;
+                NatTestLock.Release();
             }
         }
 
