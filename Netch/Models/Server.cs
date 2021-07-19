@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Netch.Utils;
@@ -113,9 +114,9 @@ namespace Netch.Models
 
     public static class ServerExtension
     {
-        public static async Task<string> AutoResolveHostnameAsync(this Server server)
+        public static async Task<string> AutoResolveHostnameAsync(this Server server, AddressFamily inet = AddressFamily.Unspecified)
         {
-            return Global.Settings.ResolveServerHostname ? (await DnsUtils.LookupAsync(server.Hostname))!.ToString() : server.Hostname;
+            return Global.Settings.ResolveServerHostname ? (await DnsUtils.LookupAsync(server.Hostname, inet))!.ToString() : server.Hostname;
         }
 
         public static bool IsInGroup(this Server server)

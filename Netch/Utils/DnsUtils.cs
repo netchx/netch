@@ -18,49 +18,60 @@ namespace Netch.Utils
         private static readonly Hashtable Cache = new();
         private static readonly Hashtable Cache6 = new();
 
-        public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.InterNetwork, int timeout = 3000)
+        public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
         {
             try
             {
-                if (inet == AddressFamily.InterNetwork)
+                var cacheResult = inet switch
                 {
-                    if (Cache.Contains(hostname))
-                        return Cache[hostname] as IPAddress;
-                }
-                else
-                {
-                    Trace.Assert(inet == AddressFamily.InterNetworkV6);
-                    if (Cache6.Contains(hostname))
-                        return Cache6[hostname] as IPAddress;
-                }
+                    AddressFamily.Unspecified => (IPAddress?)(Cache[hostname] ?? Cache6[hostname]),
+                    AddressFamily.InterNetwork => (IPAddress?)Cache[hostname],
+                    AddressFamily.InterNetworkV6 => (IPAddress?)Cache6[hostname],
+                    _ => throw new ArgumentOutOfRangeException()
+                };
 
-                var task = Dns.GetHostAddressesAsync(hostname);
+                if (cacheResult != null)
+                    return cacheResult;
 
-                var resTask = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
-
-                if (resTask == task)
-                {
-                    var addresses = await task;
-
-                    var result = addresses.FirstOrDefault(i => i.AddressFamily == inet);
-                    if (result == null)
-                        return null;
-
-                    if (inet == AddressFamily.InterNetwork)
-                        Cache.Add(hostname, result);
-                    else
-                        Cache6.Add(hostname, result);
-
-                    return result;
-                }
-
-                return null;
+                return await LookupNoCacheAsync(hostname, inet, timeout);
             }
             catch (Exception e)
             {
                 Log.Verbose(e, "Lookup hostname {Hostname} failed", hostname);
                 return null;
             }
+        }
+
+        private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
+        {
+            using var task = Dns.GetHostAddressesAsync(hostname);
+            using var resTask = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
+
+            if (resTask == task)
+            {
+                var addresses = await task;
+
+                var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
+                if (result == null)
+                    return null;
+
+                switch (result.AddressFamily)
+                {
+                    case AddressFamily.InterNetwork:
+                        Cache.Add(hostname, result);
+                        break;
+                    case AddressFamily.InterNetworkV6:
+                        Cache6.Add(hostname, result);
+                        break;
+                    default:
+                        Trace.Assert(false);
+                        break;
+                }
+
+                return result;
+            }
+
+            return null;
         }
 
         /// <summary>
