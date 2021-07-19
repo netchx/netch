@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Netch.Models.Server.Clash
+﻿namespace Netch.Models.Server.Clash
 {
     public class Clash : Server
     {

@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 
+using namespace std;
+
 void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 {
 	if (options->ip_family != AF_INET ||
@@ -47,11 +49,9 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 	data[options->ipHeaderSize + 2] = icmpsum & 0xff;
 	data[options->ipHeaderSize + 3] = (icmpsum >> 8);
 
-	if (NF_STATUS_SUCCESS == nf_ipPostReceive((PCHAR)data, length, options))
-	{
-		printf("[Redirector][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
-	}
+	printf("[Redirector][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
 
+	nf_ipPostReceive((PCHAR)data, length, options);
 	free(data);
 }
 

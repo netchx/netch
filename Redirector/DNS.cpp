@@ -1,6 +1,5 @@
 #include "DNS.h"
 
-#include "API.h"
 #include "Data.h"
 #include "Utils.h"
 
@@ -8,12 +7,12 @@
 
 #include <list>
 #include <string>
+#include <thread>
 
 using namespace std;
 
 extern string dnsHost;
 extern USHORT dnsPort;
-extern USHORT dnsLisn;
 
 typedef struct _DNSPKT {
 	ENDPOINT_ID     ID;
@@ -24,11 +23,11 @@ typedef struct _DNSPKT {
 	PNF_UDP_OPTIONS Option;
 } DNSPKT, * PDNSPKT;
 
-BOOL          dnsInit = FALSE;
-HANDLE        dnsLock = NULL;
+BOOL dnsInited = FALSE;
+HANDLE dnsLock = NULL;
 list<PDNSPKT> dnsList;
 
-SOCKET CreateSocket()
+SOCKET dns_createSocket()
 {
 	sockaddr_in addr;
 	addr.sin_family = AF_INET;
@@ -36,13 +35,13 @@ SOCKET CreateSocket()
 	addr.sin_port = 0;
 
 	auto client = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (INVALID_SOCKET == client)
+	if (client == INVALID_SOCKET)
 	{
 		printf("[Redirector][DNS][CreateSocket] Unable to create socket: %d\n", WSAGetLastError());
 		return NULL;
 	}
 
-	if (SOCKET_ERROR == bind(client, (PSOCKADDR)&addr, sizeof(sockaddr_in)))
+	if (bind(client, (PSOCKADDR)&addr, sizeof(sockaddr_in)) == SOCKET_ERROR)
 	{
 		printf("[Redirector][DNS][CreateSocket] Unable to bind socket: %d\n", WSAGetLastError());
 		return NULL;
@@ -51,7 +50,7 @@ SOCKET CreateSocket()
 	return client;
 }
 
-void DnsFreePacket(PDNSPKT i)
+void dns_freePacket(PDNSPKT i)
 {
 	if (i)
 	{
@@ -76,42 +75,16 @@ void DnsFreePacket(PDNSPKT i)
 	i = NULL;
 }
 
-void dns_init()
-{
-	dnsInit = TRUE;
-
-	if (!dnsLock)
-	{
-		dnsLock = CreateMutex(NULL, FALSE, NULL);
-	}
-
-	dnsDelete();
-}
-
-void dns_free()
-{
-	dnsInit = FALSE;
-	Sleep(10);
-
-	if (dnsLock)
-	{
-		dnsDelete();
-
-		CloseHandle(dnsLock);
-		dnsLock = NULL;
-	}
-}
-
-void dnsWorker()
+void dns_work()
 {
 	sockaddr_in addr;
 	memset(&addr, 0, sizeof(sockaddr_in));
 	addr.sin_addr.S_un.S_addr = inet_addr(dnsHost.c_str());
 	addr.sin_port = htons(dnsPort);
 
-	while (dnsInit)
+	while (dnsInited)
 	{
-		auto client = CreateSocket();
+		auto client = dns_createSocket();
 		if (NULL == client)
 		{
 			Sleep(100);
@@ -123,7 +96,7 @@ void dnsWorker()
 		{
 			closesocket(client);
 			ReleaseMutex(dnsLock);
-			
+
 			Sleep(1);
 			continue;
 		}
@@ -135,7 +108,7 @@ void dnsWorker()
 		if (data->BufferLength != (ULONG)sendto(client, (PCHAR)data->Buffer, data->BufferLength, NULL, (PSOCKADDR)&addr, sizeof(sockaddr_in)))
 		{
 			closesocket(client);
-			DnsFreePacket(data);
+			dns_freePacket(data);
 
 			printf("[Redirector][DNS][dnsWorker] Unable to send packet: %d\n", WSAGetLastError());
 			continue;
@@ -146,7 +119,7 @@ void dnsWorker()
 		if (!length)
 		{
 			closesocket(client);
-			DnsFreePacket(data);
+			dns_freePacket(data);
 
 			printf("[Redirector][DNS][dnsWorker] Unable to receive packet: %d\n", WSAGetLastError());
 			continue;
@@ -154,13 +127,43 @@ void dnsWorker()
 
 		nf_udpPostReceive(data->ID, data->Target, buffer, length, data->Option);
 		closesocket(client);
-		DnsFreePacket(data);
+		dns_freePacket(data);
+	}
+}
+
+void dns_init()
+{
+	if (!dnsLock)
+	{
+		dnsLock = CreateMutex(NULL, FALSE, NULL);
+	}
+
+	dnsInited = TRUE;
+	dnsDelete();
+
+	for (DWORD i = 0; i < 4; i++)
+	{
+		thread(dns_work).detach();
+	}
+}
+
+void dns_free()
+{
+	dnsInited = FALSE;
+	Sleep(10);
+
+	if (dnsLock)
+	{
+		dnsDelete();
+
+		CloseHandle(dnsLock);
+		dnsLock = NULL;
 	}
 }
 
 void dnsCreate(ENDPOINT_ID id, PBYTE target, ULONG targetLength, PCHAR buffer, ULONG bufferLength, PNF_UDP_OPTIONS option)
 {
-	if (!dnsInit)
+	if (!dnsInited)
 	{
 		return;
 	}
@@ -171,8 +174,6 @@ void dnsCreate(ENDPOINT_ID id, PBYTE target, ULONG targetLength, PCHAR buffer, U
 		puts("[Redirector][DNS][dnsCreate] Unable to allocate memory");
 		return;
 	}
-
-	memset(data, 0, sizeof(DNSPKT));
 	data->ID = id;
 
 	data->Target = (PBYTE)malloc(targetLength);
@@ -222,7 +223,7 @@ void dnsDelete()
 
 	for (auto i : dnsList)
 	{
-		DnsFreePacket(i);
+		dns_freePacket(i);
 	}
 	dnsList.clear();
 

@@ -5,7 +5,7 @@
 
 #include <nfapi.h>
 
-BOOL eh_init();
+void eh_init();
 void eh_free();
 
 void threadStart();

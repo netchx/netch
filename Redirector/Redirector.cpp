@@ -6,21 +6,23 @@
 #include <Windows.h>
 
 #include <string>
+#include <vector>
 
 #include <nfapi.h>
 
 using namespace std;
 
-extern BOOL   filterLoop;
-extern BOOL   filterICMP;
-extern BOOL   filterTCP;
-extern BOOL   filterUDP;
-extern BOOL   dnsHook;
+extern BOOL filterLoop;
+extern BOOL filterICMP;
+extern BOOL filterTCP;
+extern BOOL filterUDP;
+extern BOOL dnsHook;
 extern string dnsHost;
 extern USHORT dnsPort;
-extern USHORT apiLisn;
 extern USHORT tcpLisn;
 extern USHORT udpLisn;
+extern vector<wstring> handleList;
+extern vector<wstring> bypassList;
 
 NF_EventHandler EventHandler = {
 	threadStart,
@@ -55,9 +57,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 	return TRUE;
 }
 
-#ifdef __cplusplus
 extern "C" {
-#endif
 	__declspec(dllexport) BOOL __cdecl aio_dial(INT name, LPWSTR value)
 	{
 		UNREFERENCED_PARAMETER(name);
@@ -78,8 +78,6 @@ extern "C" {
 		case AIO_DNSHOST:
 			break;
 		case AIO_DNSPORT:
-			break;
-		case AIO_APIPORT:
 			break;
 		case AIO_TCPPORT:
 			break;
@@ -106,10 +104,12 @@ extern "C" {
 
 	__declspec(dllexport) void __cdecl aio_free()
 	{
-		UNREFERENCED_PARAMETER(WSACleanup());
+		nf_deleteRules();
+		nf_free();
 
+		eh_free();
+
+		UNREFERENCED_PARAMETER(WSACleanup());
 		return;
 	}
-#ifdef __cplusplus
 }
-#endif

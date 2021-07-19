@@ -29,9 +29,6 @@
     <ClCompile Include="DNS.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="API.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h">
@@ -47,9 +44,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="DNS.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="API.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

@@ -99,7 +99,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="API.cpp" />
     <ClCompile Include="Data.cpp" />
     <ClCompile Include="DNS.cpp" />
     <ClCompile Include="EventHandler.cpp" />
@@ -108,7 +107,6 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="API.h" />
     <ClInclude Include="Data.h" />
     <ClInclude Include="DNS.h" />
     <ClInclude Include="EventHandler.h" />
