@@ -56,6 +56,16 @@ dotnet publish `
 	Netch\Netch.csproj
 if ( -Not $? ) { exit $lastExitCode }
 
+Write-Host
+Write-Host "Building Redirector"
+msbuild `
+	-property:Configuration=Release `
+	-property:Platform=x64 `
+	Redirector\Redirector.vcxproj
+if ( -Not $? ) { exit $lastExitCode }
+
+Copy-Item -Force Redirector\bin\Redirector.bin $OutputPath\bin
+
 if ( "Release".Equals($Configuration) ) {
 	Remove-Item -Force $OutputPath\*.pdb
 	Remove-Item -Force $OutputPath\*.xml
