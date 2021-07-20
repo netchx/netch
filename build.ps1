@@ -38,7 +38,7 @@ if ( -Not $? ) { exit $lastExitCode }
 Write-Host
 Write-Host 'Building Netch'
 dotnet publish `
-	-c $Configuration `
+	-c "$Configuration" `
 	-r 'win-x64' `
 	-p:Platform='x64' `
 	-p:PublishSingleFile="$PublishSingleFile" `
@@ -52,7 +52,7 @@ if ( -Not $? ) { exit $lastExitCode }
 Write-Host
 Write-Host 'Building Redirector'
 msbuild `
-	-property:Configuration=Release `
+	-property:Configuration="$Configuration" `
 	-property:Platform=x64 `
 	'.\Redirector\Redirector.vcxproj'
 if ( -Not $? ) { exit $lastExitCode }
