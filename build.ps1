@@ -25,7 +25,7 @@ param (
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 if (Test-Path -Path "$OutputPath") {
-    Remove-Item -Recurse -Force "$OutputPath"
+    rm -Recurse -Force "$OutputPath"
 }
 
 if (Test-Path -Path "$OutputPath" -IsValid) {
@@ -37,10 +37,6 @@ if ( -Not $? ) { exit $lastExitCode }
 
 .\other\build.ps1
 if ( -Not $? ) { exit $lastExitCode }
-
-if (Test-Path '.\other\release') {
-	Copy-Item -Recurse -Force '.\other\release\*' "$OutputPath\bin"
-}
 
 Write-Host
 Write-Host 'Building Netch'
@@ -64,11 +60,12 @@ msbuild `
 	'.\Redirector\Redirector.vcxproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-Copy-Item -Force 'Redirector\bin\Redirector.bin' "$OutputPath\bin"
+cp -Force '.\other\release\*'               "$OutputPath\bin"
+cp -Force '.\Redirector\bin\Redirector.bin' "$OutputPath\bin"
 
 if ( $Configuration.Equals('Release') ) {
-	Remove-Item -Force "$OutputPath\*.pdb"
-	Remove-Item -Force "$OutputPath\*.xml"
+	rm -Force "$OutputPath\*.pdb"
+	rm -Force "$OutputPath\*.xml"
 }
 
 Pop-Location
