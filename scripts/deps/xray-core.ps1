@@ -1,15 +1,22 @@
-param([string]$OutputPath)
-$name="xray-core.zip"
-$address="https://github.com/XTLS/Xray-core/releases/download/v1.4.2/Xray-windows-64.zip"
+param (
+    [string]
+    $OutputPath
+)
 
-..\scripts\download.ps1 $name $address
-if (-Not $?) { exit $lastExitCode }
+try {
+    Invoke-WebRequest `
+        -Uri 'https://github.com/XTLS/Xray-core/releases/download/v1.4.2/Xray-windows-64.zip' `
+        -OutFile 'xray-core.zip'
+}
+catch {
+    exit 1
+}
 
-..\scripts\extract.ps1 $name "xray-core"
-if (-Not $?) { exit $lastExitCode }
+7z x 'xray-core.zip' -o'xray-core'
+if ( -Not $? ) { exit $lastExitCode }
 
-Move-Item -Force "xray-core\xray.exe" $OutputPath
+mv -Force 'xray-core\xray.exe' $OutputPath
 
-Remove-Item -Recurse -Force xray-core
-Remove-Item -Recurse -Force xray-core.zip
+rm -Recurse -Force xray-core
+rm -Recurse -Force xray-core.zip
 exit 0

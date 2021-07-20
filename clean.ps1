@@ -1,22 +1,27 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 function Delete {
-    param([string]$Path)
+    param (
+        [string]
+        $Path
+    )
 
     if (Test-Path $Path) {
-        Remove-Item -Recurse -Force $Path | Out-Null
+        rm -Recurse -Force $Path | Out-Null
     }
 }
 
-Delete ".vs"
-Delete "release"
-Delete "Netch\bin"
-Delete "Netch\obj"
-Delete "Tests\bin"
-Delete "Tests\obj"
-Delete "TestResults"
-Delete "Redirector\bin"
-Delete "Redirector\obj"
+Delete '.vs'
+Delete 'release'
+Delete 'Netch\bin'
+Delete 'Netch\obj'
+Delete 'Tests\bin'
+Delete 'Tests\obj'
+Delete 'TestResults'
+Delete 'Redirector\bin'
+Delete 'Redirector\obj'
 
-.\Other\clean.ps1
+.\other\clean.ps1
+
+Pop-Location
 exit $lastExitCode

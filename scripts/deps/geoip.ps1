@@ -1,9 +1,16 @@
-param([string]$OutputPath)
-$name="geoip.dat"
-$address="https://github.com/v2fly/geoip/releases/download/202107150023/geoip.dat"
+param (
+    [string]
+    $OutputPath
+)
 
-..\scripts\download.ps1 $name $address
-if (-Not $?) { exit $lastExitCode }
+try {
+    Invoke-WebRequest `
+        -Uri 'https://github.com/v2fly/geoip/releases/download/202107150023/geoip.dat' `
+        -OutFile 'geoip.dat'
+}
+catch {
+    exit 1
+}
 
-Move-Item -Force $name $OutputPath
+mv -Force 'geoip.dat' $OutputPath
 exit 0

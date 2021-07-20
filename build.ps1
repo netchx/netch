@@ -43,11 +43,11 @@ if (Test-Path .\other\release) {
 }
 
 Write-Host
-Write-Host "Building Netch"
+Write-Host 'Building Netch'
 dotnet publish `
 	-c $Configuration `
-	-r "win-x64" `
-	-p:Platform="x64" `
+	-r 'win-x64' `
+	-p:Platform='x64' `
 	-p:PublishSingleFile=$PublishSingleFile `
 	-p:SelfContained=$SelfContained `
 	-p:PublishTrimmed=$SelfContained `
@@ -57,7 +57,7 @@ dotnet publish `
 if ( -Not $? ) { exit $lastExitCode }
 
 Write-Host
-Write-Host "Building Redirector"
+Write-Host 'Building Redirector'
 msbuild `
 	-property:Configuration=Release `
 	-property:Platform=x64 `
@@ -66,7 +66,7 @@ if ( -Not $? ) { exit $lastExitCode }
 
 Copy-Item -Force Redirector\bin\Redirector.bin $OutputPath\bin
 
-if ( "Release".Equals($Configuration) ) {
+if ( $Configuration.Equals('Release') ) {
 	Remove-Item -Force $OutputPath\*.pdb
 	Remove-Item -Force $OutputPath\*.xml
 }

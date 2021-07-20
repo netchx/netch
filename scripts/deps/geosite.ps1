@@ -1,9 +1,16 @@
-param([string]$OutputPath)
-$name="geosite.dat"
-$address="https://github.com/v2fly/domain-list-community/releases/download/20210718155822/dlc.dat"
+param (
+    [string]
+    $OutputPath
+)
 
-..\scripts\download.ps1 $name $address
-if (-Not $?) { exit $lastExitCode }
+try {
+    Invoke-WebRequest `
+        -Uri 'https://github.com/v2fly/domain-list-community/releases/download/20210718155822/dlc.dat' `
+        -OutFile 'geosite.dat'
+}
+catch {
+    exit 1
+}
 
-Move-Item -Force $name $OutputPath
+mv -Force 'geosite.dat' $OutputPath
 exit 0
