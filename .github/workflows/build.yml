@@ -8,6 +8,8 @@ jobs:
     steps:
       - name: Go
         uses: actions/setup-go@v2
+        with:
+          go-version: 1.16.6
 
       - name: C++
         uses: msys2/setup-msys2@v2
