@@ -1,9 +1,7 @@
-$exec=(Split-Path $MyInvocation.MyCommand.Path -Parent)
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-Push-Location $exec
-
-if (Test-Path release) {
-    Remove-Item -Recurse -Force release
+if (Test-Path 'release') {
+    rm -Recurse -Force 'release'
 }
 
 Pop-Location

@@ -1,6 +1,4 @@
-$exec=(Split-Path $MyInvocation.MyCommand.Path -Parent)
-
-Push-Location $exec
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 $Env:CGO_ENABLED="0"
 $Env:GOROOT_FINAL="/usr"

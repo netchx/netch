@@ -1,10 +1,8 @@
-$exec=(Split-Path $MyInvocation.MyCommand.Path -Parent)
-
-Push-Location $exec
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 .\clean.ps1
 
-Get-ChildItem -Path . -Directory | ForEach-Object {
+Get-ChildItem -Path '.' -Directory | ForEach-Object {
     $name=$_.Name
 
     Write-Host "Building $name"
@@ -18,7 +16,7 @@ Get-ChildItem -Path . -Directory | ForEach-Object {
 
 Write-Host
 
-Get-ChildItem -Path .\release -File | ForEach-Object {
+Get-ChildItem -Path '.\release' -File | ForEach-Object {
     $name=$_.Name
     $hash=(Get-FileHash ".\release\$name" -Algorithm SHA256).Hash.ToLower()
 
