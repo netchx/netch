@@ -3,7 +3,7 @@ param (
     $OutputPath = 'release'
 )
 
-if ( Test-Path -Path "$OutputPath" -IsValid ) {
+if ( -Not (Test-Path -Path "$OutputPath") ) {
     New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
 }
 
