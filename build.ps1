@@ -24,13 +24,10 @@ param (
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-if (Test-Path -Path "$OutputPath") {
+if ( Test-Path -Path "$OutputPath" ) {
     rm -Recurse -Force "$OutputPath"
 }
-
-if (Test-Path -Path "$OutputPath" -IsValid) {
-    New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
-}
+New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
 
 .\deps.ps1 "$OutputPath"
 if ( -Not $? ) { exit $lastExitCode }
