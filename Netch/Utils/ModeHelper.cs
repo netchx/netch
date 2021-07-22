@@ -6,8 +6,6 @@ using Netch.Controllers;
 using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers;
-using Netch.Servers.Shadowsocks;
 using Serilog;
 
 namespace Netch.Utils
@@ -126,38 +124,20 @@ namespace Netch.Utils
                 File.Delete(mode.FullName);
         }
 
-        public static bool SkipServerController(Server server, Mode mode)
-        {
-            switch (mode.Type)
-            {
-                case ModeType.Process:
-                    return server switch
-                    {
-                        Socks5 => true,
-                        Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && Global.Settings.Redirector.RedirectorSS => true,
-                        _ => false
-                    };
-                case ModeType.ProxyRuleIPs:
-                case ModeType.BypassRuleIPs:
-                    return server is Socks5;
-                default:
-                    return false;
-            }
-        }
-
-        public static IModeController GetModeControllerByType(ModeType type, out ushort? port, out string portName)
+        public static (IModeController, ModeFeature) GetModeControllerByType(ModeType type, out ushort? port, out string portName)
         {
             port = null;
             portName = string.Empty;
             switch (type)
             {
                 case ModeType.Process:
-                    return new NFController();
+                    return (new NFController(), ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth | ModeFeature.RequireTestNat);
                 case ModeType.ProxyRuleIPs:
+                    return (new TUNController(), ModeFeature.SupportSocks5Auth);
                 case ModeType.BypassRuleIPs:
-                    return new TUNController();
+                    return (new TUNController(), ModeFeature.SupportSocks5Auth | ModeFeature.RequireTestNat);
                 case ModeType.Pcap2Socks:
-                    return new PcapController();
+                    return (new PcapController(), 0);
                 default:
                     Log.Error("未知模式类型");
                     throw new MessageException("未知模式类型");

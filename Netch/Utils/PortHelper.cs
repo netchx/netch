@@ -195,8 +195,8 @@ namespace Netch.Utils
     [Flags]
     public enum PortType
     {
-        TCP = 0x01,
-        UDP = 0x10,
+        TCP = 0b_01,
+        UDP = 0b_10,
         Both = TCP | UDP
     }
 

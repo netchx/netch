@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Netch.Models;
 
@@ -10,10 +11,10 @@ namespace Netch.Servers
         public override async Task<Socks5> StartAsync(Server s)
         {
             var server = (Socks5)s;
-            if (server.Auth())
-                await base.StartAsync(s);
+            if (!server.Auth())
+                throw new ArgumentException();
 
-            return server;
+            return await base.StartAsync(s);
         }
     }
 }

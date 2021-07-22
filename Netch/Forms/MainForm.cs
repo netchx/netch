@@ -1158,7 +1158,7 @@ namespace Netch.Forms
         /// </summary>
         private async Task NatTestAsync()
         {
-            if (!MainController.Mode!.TestNatRequired())
+            if (!MainController.ModeFeatures.HasFlag(ModeFeature.RequireTestNat))
                 return;
 
             if (NatTestLock.CurrentCount == 0)

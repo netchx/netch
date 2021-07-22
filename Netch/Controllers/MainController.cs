@@ -2,8 +2,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Servers;
+using Netch.Servers.Shadowsocks;
 using Netch.Utils;
 using Serilog;
 using Serilog.Events;
@@ -19,6 +22,8 @@ namespace Netch.Controllers
         public static IServerController? ServerController { get; private set; }
 
         public static IModeController? ModeController { get; private set; }
+
+        public static ModeFeature ModeFeatures { get; private set; }
 
         public static async Task StartAsync(Server server, Mode mode)
         {
@@ -44,10 +49,24 @@ namespace Netch.Controllers
 
             try
             {
-                if (!ModeHelper.SkipServerController(server, mode))
-                    server = await StartServerAsync(server);
+                (ModeController, ModeFeatures) = ModeHelper.GetModeControllerByType(mode.Type, out var modePort, out var portName);
 
-                await StartModeAsync(server, mode);
+                if (modePort != null)
+                    TryReleaseTcpPort((ushort)modePort, portName);
+
+                switch (server)
+                {
+                    case Socks5 socks5 when !socks5.Auth() || socks5.Auth() && ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth):
+                    case Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && ModeFeatures.HasFlag(ModeFeature.SupportShadowsocks) &&
+                                                      Global.Settings.Redirector.RedirectorSS:
+                        break;
+                    default:
+                        server = await StartServerAsync(server);
+                        break;
+                }
+
+                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                await ModeController.StartAsync(server, mode);
             }
             catch (Exception e)
             {
@@ -77,24 +96,12 @@ namespace Netch.Controllers
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
             Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
-            var socks5 = await ServerController.StartAsync(server);
+            var socks5Bridge = await ServerController.StartAsync(server);
 
-            StatusPortInfoText.Socks5Port = socks5.Port;
+            StatusPortInfoText.Socks5Port = socks5Bridge.Port;
             StatusPortInfoText.UpdateShareLan();
 
-            return socks5;
-        }
-
-        private static async Task StartModeAsync(Server server, Mode mode)
-        {
-            ModeController = ModeHelper.GetModeControllerByType(mode.Type, out var port, out var portName);
-
-            if (port != null)
-                TryReleaseTcpPort((ushort)port, portName);
-
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-
-            await ModeController.StartAsync(server, mode);
+            return socks5Bridge;
         }
 
         public static async Task StopAsync()
@@ -122,8 +129,9 @@ namespace Netch.Controllers
                 Log.Error(e, "MainController Stop Error");
             }
 
-            ModeController = null;
             ServerController = null;
+            ModeController = null;
+            ModeFeatures = 0;
         }
 
         public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)

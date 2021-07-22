@@ -120,14 +120,4 @@ namespace Netch.Models
             return $"[{(int)Type + 1}] {i18N.Translate(Remark)}";
         }
     }
-
-    public static class ModeExtension
-    {
-        /// 是否会转发 UDP
-        public static bool TestNatRequired(this Mode mode)
-        {
-            return mode.Type is ModeType.Process && Global.Settings.Redirector.FilterProtocol.HasFlag(PortType.UDP) ||
-                   mode.Type is ModeType.BypassRuleIPs;
-        }
-    }
 }
