@@ -3,7 +3,6 @@
 #define UTILS_H
 #include <Windows.h>
 
-DWORD  GetCPUCount();
 USHORT IPv4Checksum(PBYTE buffer, ULONG64 size);
 USHORT ICMPChecksum(PBYTE buffer, ULONG64 size);
 

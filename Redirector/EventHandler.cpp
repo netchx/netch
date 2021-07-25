@@ -1,18 +1,23 @@
 #include "EventHandler.h"
 
-#include "DNS.h"
 #include "Data.h"
+#include "DNSHandler.h"
+#include "TCPHandler.h"
+#include "UDPHandler.h"
 
 #include <stdio.h>
 
 #include <map>
 #include <regex>
+#include <mutex>
 #include <string>
 #include <vector>
 
 using namespace std;
 
 extern BOOL dnsHook;
+extern string dnsHost;
+extern USHORT dnsPort;
 extern USHORT tcpLisn;
 extern USHORT udpLisn;
 
@@ -28,10 +33,13 @@ typedef struct _UDPINFO {
 vector<wstring> handleList;
 vector<wstring> bypassList;
 
-HANDLE TCPLock = NULL;
-HANDLE UDPLock = NULL;
+mutex TCPLock;
+mutex UDPLock;
 map<ENDPOINT_ID, PTCPINFO> TCPContext;
 map<ENDPOINT_ID, PUDPINFO> UDPContext;
+
+PDNSHandler dnsHandler = NULL;
+PTCPHandler tcpHandler = NULL;
 
 wstring getProcessName(DWORD id)
 {
@@ -95,23 +103,21 @@ BOOL checkHandleName(DWORD id)
 
 void eh_init()
 {
-	if (!TCPLock)
+	if (dnsHandler == NULL)
 	{
-		TCPLock = CreateMutex(NULL, FALSE, NULL);
+		dnsHandler = new DNSHandler(dnsHost, dnsPort);
 	}
 
-	if (!UDPLock)
+	if (tcpHandler == NULL)
 	{
-		UDPLock = CreateMutex(NULL, FALSE, NULL);
+		tcpHandler = new TCPHandler();
 	}
-
-	dns_init();
 }
 
 void eh_free()
 {
-	WaitForSingleObject(TCPLock, INFINITE);
-	WaitForSingleObject(UDPLock, INFINITE);
+	lock_guard<mutex> tlg(TCPLock);
+	lock_guard<mutex> ulg(UDPLock);
 
 	for (auto& [k, v] : TCPContext)
 	{
@@ -133,16 +139,17 @@ void eh_free()
 	}
 	UDPContext.clear();
 
-	ReleaseMutex(TCPLock);
-	ReleaseMutex(UDPLock);
+	if (dnsHandler != NULL)
+	{
+		delete dnsHandler;
+		dnsHandler = NULL;
+	}
 
-	CloseHandle(TCPLock);
-	CloseHandle(UDPLock);
-
-	TCPLock = NULL;
-	UDPLock = NULL;
-
-	dns_free();
+	if (tcpHandler != NULL)
+	{
+		delete tcpHandler;
+		tcpHandler = NULL;
+	}
 }
 
 void threadStart()
@@ -189,7 +196,7 @@ void tcpReceive(ENDPOINT_ID id, const char* buffer, int length)
 
 void tcpClosed(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
-
+	
 }
 
 void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)

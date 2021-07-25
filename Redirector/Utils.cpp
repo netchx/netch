@@ -2,14 +2,6 @@
 
 #include "Data.h"
 
-DWORD GetCPUCount()
-{
-	SYSTEM_INFO info;
-	GetSystemInfo(&info);
-
-	return info.dwNumberOfProcessors;
-}
-
 USHORT IPv4Checksum(PBYTE buffer, ULONG64 size)
 {
 	UINT32 sum = 0;
