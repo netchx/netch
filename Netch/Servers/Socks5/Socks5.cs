@@ -7,12 +7,12 @@ namespace Netch.Servers
         /// <summary>
         ///     密码
         /// </summary>
-        public string? Password;
+        public string? Password { get; set; }
 
         /// <summary>
         ///     账号
         /// </summary>
-        public string? Username;
+        public string? Username { get; set; }
 
         public override string Type { get; } = "Socks5";
 
