@@ -1,28 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <Import Project="..\common.props" />
+
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
+        <Configurations>Debug;Release</Configurations>
         <UseWindowsForms>true</UseWindowsForms>
-        <UseWPF>true</UseWPF>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <StartupObject>Netch.Netch</StartupObject>
-        <ApplicationManifest>App.manifest</ApplicationManifest>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
         <IsPackable>false</IsPackable>
-        <LangVersion>latest</LangVersion>
-        <Nullable>enable</Nullable>
         <NoWarn>VSTHRD100</NoWarn>
         <EnableNETAnalyzers>false</EnableNETAnalyzers>
         <AnalysisMode>Default</AnalysisMode>
         <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <TargetFramework>net5.0-windows</TargetFramework>
-        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-        <Configurations>Debug;Release</Configurations>
-        <Platforms>x64</Platforms>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -65,31 +57,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Update="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
         <Compile Update="Properties\Resources.Designer.cs">
             <DesignTime>True</DesignTime>
             <AutoGen>True</AutoGen>
             <DependentUpon>Resources.resx</DependentUpon>
         </Compile>
-        <Compile Update="Properties\Settings.Designer.cs">
-            <DesignTimeSharedInput>True</DesignTimeSharedInput>
-            <AutoGen>True</AutoGen>
-            <DependentUpon>Settings.settings</DependentUpon>
-        </Compile>
-        <Compile Update="Forms\Mode\RouteForm.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <EmbeddedResource Update="Properties\Resources.resx">
-            <Generator>ResXFileCodeGenerator</Generator>
-            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-        </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Update="Properties\Settings.settings">
-            <Generator>SettingsSingleFileGenerator</Generator>
-            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-        </None>
     </ItemGroup>
 
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
