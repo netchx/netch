@@ -20,6 +20,8 @@ Delete 'Tests\obj'
 Delete 'TestResults'
 Delete 'Redirector\bin'
 Delete 'Redirector\obj'
+Delete 'RouteHelper\bin'
+Delete 'RouteHelper\obj'
 
 .\other\clean.ps1
 
