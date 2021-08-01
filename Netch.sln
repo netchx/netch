@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Redirector", "Redirector\Redirector.vcxproj", "{1676DEF3-FBE4-47D2-93A6-8F85EA2F5B74}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RouteHelper", "RouteHelper\RouteHelper.vcxproj", "{7374F7F4-1732-4DED-A603-8335F6704F10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -26,6 +28,10 @@ Global
 		{1676DEF3-FBE4-47D2-93A6-8F85EA2F5B74}.Debug|x64.Build.0 = Debug|x64
 		{1676DEF3-FBE4-47D2-93A6-8F85EA2F5B74}.Release|x64.ActiveCfg = Release|x64
 		{1676DEF3-FBE4-47D2-93A6-8F85EA2F5B74}.Release|x64.Build.0 = Release|x64
+		{7374F7F4-1732-4DED-A603-8335F6704F10}.Debug|x64.ActiveCfg = Debug|x64
+		{7374F7F4-1732-4DED-A603-8335F6704F10}.Debug|x64.Build.0 = Debug|x64
+		{7374F7F4-1732-4DED-A603-8335F6704F10}.Release|x64.ActiveCfg = Release|x64
+		{7374F7F4-1732-4DED-A603-8335F6704F10}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
