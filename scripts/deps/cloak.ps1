@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/cbeuw/Cloak/releases/download/v2.5.4/ck-client-windows-amd64-v2.5.4.exe' `
+        -Uri 'https://github.com/cbeuw/Cloak/releases/download/v2.5.5/ck-client-windows-amd64-v2.5.5.exe' `
         -OutFile 'ck-client.exe'
 }
 catch {
