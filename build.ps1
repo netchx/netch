@@ -63,6 +63,7 @@ msbuild `
 	-property:Configuration="$Configuration" `
 	-property:Platform=x64 `
 	'.\RouteHelper\RouteHelper.vcxproj'
+if ( -Not $? ) { exit $lastExitCode }
 
 cp -Force '.\other\release\*'                 "$OutputPath\bin"
 cp -Force '.\Redirector\bin\Redirector.bin'   "$OutputPath\bin"
