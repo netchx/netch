@@ -1,11 +1,9 @@
 #pragma once
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
-#include <Windows.h>
+#include "Based.h"
 
-#include <nfapi.h>
-
-void eh_init();
+BOOL eh_init();
 void eh_free();
 
 void threadStart();

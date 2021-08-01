@@ -1,45 +1,31 @@
 #include "EventHandler.h"
 
-#include "Data.h"
 #include "DNSHandler.h"
 #include "TCPHandler.h"
 #include "UDPHandler.h"
 
-#include <stdio.h>
-
-#include <map>
-#include <regex>
-#include <mutex>
-#include <string>
-#include <vector>
-
-using namespace std;
-
-extern BOOL dnsHook;
-extern string dnsHost;
-extern USHORT dnsPort;
-extern USHORT tcpLisn;
-extern USHORT udpLisn;
-
-typedef struct _TCPINFO {
-	DWORD PID;
-	PBYTE Target;
-} TCPINFO, * PTCPINFO;
-
-typedef struct _UDPINFO {
-	SOCKET Socket;
-} UDPINFO, * PUDPINFO;
+BOOL Started = FALSE;
+BOOL filterLoop = FALSE;
+BOOL filterICMP = TRUE;
+BOOL filterTCP = TRUE;
+BOOL filterUDP = TRUE;
+BOOL dnsHook = FALSE;
+string dnsHost = "";
+USHORT dnsPort = 0;
+USHORT tcpLisn = 0;
+USHORT udpLisn = 0;
 
 vector<wstring> handleList;
 vector<wstring> bypassList;
 
-mutex TCPLock;
-mutex UDPLock;
-map<ENDPOINT_ID, PTCPINFO> TCPContext;
-map<ENDPOINT_ID, PUDPINFO> UDPContext;
+mutex tcpLock;
+mutex udpLock;
+map<ENDPOINT_ID, PTCPINFO> tcpContext;
+map<ENDPOINT_ID, PUDPINFO> udpContext;
 
 PDNSHandler dnsHandler = NULL;
 PTCPHandler tcpHandler = NULL;
+PUDPHandler udpHandler = NULL;
 
 wstring getProcessName(DWORD id)
 {
@@ -62,10 +48,10 @@ wstring getProcessName(DWORD id)
 		}
 	}
 
-	wchar_t result[MAX_PATH];
-	if (GetLongPathNameW(name, result, MAX_PATH))
+	wchar_t data[MAX_PATH];
+	if (GetLongPathNameW(name, data, MAX_PATH))
 	{
-		return result;
+		return data;
 	}
 
 	return name;
@@ -101,35 +87,32 @@ BOOL checkHandleName(DWORD id)
 	return FALSE;
 }
 
-void eh_init()
+BOOL eh_init()
 {
-	if (dnsHandler == NULL)
+	dnsHandler = new DNSHandler(dnsHost, dnsPort);
+	tcpHandler = new TCPHandler(tcpLisn);
+	udpHandler = new UDPHandler();
+	
+	if (!tcpHandler->init())
 	{
-		dnsHandler = new DNSHandler(dnsHost, dnsPort);
+		return FALSE;
 	}
 
-	if (tcpHandler == NULL)
-	{
-		tcpHandler = new TCPHandler();
-	}
+	return TRUE;
 }
 
 void eh_free()
 {
-	lock_guard<mutex> tlg(TCPLock);
-	lock_guard<mutex> ulg(UDPLock);
+	lock_guard<mutex> tlg(tcpLock);
+	lock_guard<mutex> ulg(udpLock);
 
-	for (auto& [k, v] : TCPContext)
+	for (auto& [k, v] : tcpContext)
 	{
-		if (v->Target)
-		{
-			free(v->Target);
-			v->Target = NULL;
-		}
+		continue;
 	}
-	TCPContext.clear();
+	tcpContext.clear();
 
-	for (auto& [k, v] : UDPContext)
+	for (auto& [k, v] : udpContext)
 	{
 		if (v->Socket)
 		{
@@ -137,18 +120,28 @@ void eh_free()
 			v->Socket = NULL;
 		}
 	}
-	UDPContext.clear();
+	udpContext.clear();
 
-	if (dnsHandler != NULL)
+	if (dnsHandler)
 	{
+		dnsHandler->free();
+
 		delete dnsHandler;
 		dnsHandler = NULL;
 	}
 
-	if (tcpHandler != NULL)
+	if (tcpHandler)
 	{
+		tcpHandler->free();
+
 		delete tcpHandler;
 		tcpHandler = NULL;
+	}
+
+	if (udpHandler)
+	{
+		delete udpHandler;
+		udpHandler = NULL;
 	}
 }
 
@@ -164,7 +157,21 @@ void threadEnd()
 
 void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
-	nf_tcpDisableFiltering(id);
+	if (checkBypassName(info->processId))
+	{
+		nf_tcpDisableFiltering(id);
+
+		printf("[Redirector][EventHandler][tcpConnectRequest][%llu] this->checkBypassName\n", id);
+		return;
+	}
+
+	if (!checkHandleName(info->processId))
+	{
+		nf_tcpDisableFiltering(id);
+
+		printf("[Redirector][EventHandler][tcpConnectRequest][%llu] !this->checkHandleName\n", id);
+		return;
+	}
 }
 
 void tcpConnected(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
@@ -196,7 +203,7 @@ void tcpReceive(ENDPOINT_ID id, const char* buffer, int length)
 
 void tcpClosed(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
-	
+	printf("[Redirector][EventHandler][tcpClosed][%llu]\n", id);
 }
 
 void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
@@ -232,5 +239,11 @@ void udpReceive(ENDPOINT_ID id, const unsigned char* target, const char* buffer,
 
 void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 {
+	printf("[Redirector][EventHandler][udpClosed][%llu]\n", id);
 
+	lock_guard<mutex> lg(udpLock);
+	if (udpContext.find(id) != udpContext.end())
+	{
+		udpContext.erase(id);
+	}
 }

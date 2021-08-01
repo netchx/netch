@@ -17,9 +17,6 @@
     <ClCompile Include="EventHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="Data.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Utils.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -40,9 +37,6 @@
     <ClInclude Include="EventHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Data.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -56,6 +50,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="UDPHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Based.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

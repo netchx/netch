@@ -1,16 +1,26 @@
-#include "Data.h"
+#include "Based.h"
+
 #include "Utils.h"
 #include "EventHandler.h"
 #include "IPEventHandler.h"
 
-#include <Windows.h>
+typedef enum _AIO_TYPE {
+	AIO_FILTERLOOP,
+	AIO_FILTERICMP,
+	AIO_FILTERTCP,
+	AIO_FILTERUDP,
 
-#include <string>
-#include <vector>
+	AIO_CLRNAME,
+	AIO_ADDNAME,
+	AIO_BYPNAME,
 
-#include <nfapi.h>
+	AIO_DNSHOOK,
+	AIO_DNSHOST,
+	AIO_DNSPORT,
 
-using namespace std;
+	AIO_TCPPORT,
+	AIO_UDPPORT
+} AIO_TYPE;
 
 extern BOOL filterLoop;
 extern BOOL filterICMP;
@@ -92,12 +102,12 @@ extern "C" {
 
 	__declspec(dllexport) BOOL __cdecl aio_init()
 	{
-		nf_adjustProcessPriviledges();
-
 		{
 			WSADATA data;
 			UNREFERENCED_PARAMETER(WSAStartup(MAKEWORD(2, 2), &data));
 		}
+
+		nf_adjustProcessPriviledges();
 
 		return FALSE;
 	}

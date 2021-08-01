@@ -1,15 +1,7 @@
 #pragma once
 #ifndef DNSHANDLER_H
 #define DNSHANDLER_H
-#include <Windows.h>
-
-#include <mutex>
-#include <string>
-#include <vector>
-
-#include <nfapi.h>
-
-using namespace std;
+#include "Based.h"
 
 typedef struct _DNSPKT {
 	ENDPOINT_ID     ID;
@@ -24,20 +16,23 @@ typedef class DNSHandler
 {
 public:
 	DNSHandler(string dnsHost, USHORT dnsPort);
-	~DNSHandler();
+
+	BOOL init();
+	void free();
 
 	void Create(ENDPOINT_ID id, PBYTE target, ULONG targetLength, PCHAR buffer, ULONG bufferLength, PNF_UDP_OPTIONS options);
 private:
-	void Delete(PDNSPKT i);
-	void Worker();
+	void Thread();
+	void Handle();
+
+	string dnsHost;
+	USHORT dnsPort = 0;
+
+	HANDLE         dnsLock;
+	queue<PDNSPKT> dnsList;
+	vector<thread> dnsLoop;
 
 	BOOL Started = FALSE;
-
-	string DNSHost;
-	USHORT DNSPort = 0;
-
-	mutex DNSLock;
-	vector<PDNSPKT> DNSList;
 } *PDNSHandler;
 
 #endif
