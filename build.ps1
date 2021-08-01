@@ -57,8 +57,16 @@ msbuild `
 	'.\Redirector\Redirector.vcxproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-cp -Force '.\other\release\*'               "$OutputPath\bin"
-cp -Force '.\Redirector\bin\Redirector.bin' "$OutputPath\bin"
+Write-Host
+Write-Host 'Building RouteHelper'
+msbuild `
+	-property:Configuration="$Configuration" `
+	-property:Platform=x64 `
+	'.\RouteHelper\RouteHelper.vcxproj'
+
+cp -Force '.\other\release\*'                 "$OutputPath\bin"
+cp -Force '.\Redirector\bin\Redirector.bin'   "$OutputPath\bin"
+cp -Force '.\RouteHelper\bin\RouteHelper.bin' "$OutputPath\bin"
 
 if ( $Configuration.Equals('Release') ) {
 	rm -Force "$OutputPath\*.pdb"
