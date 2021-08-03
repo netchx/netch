@@ -45,6 +45,7 @@ dotnet publish `
 	-p:SelfContained="$SelfContained" `
 	-p:PublishTrimmed="$SelfContained" `
 	-p:PublishReadyToRun="$PublishReadyToRun" `
+	-p:IncludeNativeLibrariesForSelfExtract="$SelfContained" `
 	-o "$OutputPath" `
 	'.\Netch\Netch.csproj'
 if ( -Not $? ) { exit $lastExitCode }
