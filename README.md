@@ -31,7 +31,7 @@ Some features may not be implemented in version 1
 - [VMess](https://github.com/v2fly/v2ray-core)
 
 ### Others
-- UDP NAT FullCone (May limited by your server)
+- UDP NAT FullCone (Might be limited by your server)
 - .NET 5.0 x64
 
 ## Sponsor
