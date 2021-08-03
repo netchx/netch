@@ -11,7 +11,7 @@ param (
 
 	[Parameter()]
 	[bool]
-	$SelfContained = $False,
+	$SelfContained = $True,
 
 	[Parameter()]
 	[bool]
@@ -41,10 +41,11 @@ dotnet publish `
 	-c "$Configuration" `
 	-r 'win-x64' `
 	-p:Platform='x64' `
-	-p:PublishSingleFile="$PublishSingleFile" `
 	-p:SelfContained="$SelfContained" `
 	-p:PublishTrimmed="$SelfContained" `
 	-p:PublishReadyToRun="$PublishReadyToRun" `
+	-p:PublishSingleFile="$PublishSingleFile" `
+	-p:IncludeNativeLibrariesForSelfExtract="$SelfContained" `
 	-o "$OutputPath" `
 	'.\Netch\Netch.csproj'
 if ( -Not $? ) { exit $lastExitCode }
