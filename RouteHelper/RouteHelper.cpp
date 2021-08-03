@@ -16,7 +16,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-BOOL make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, int metric)
+BOOL make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric)
 {
     rule->InterfaceIndex = index;
     rule->DestinationPrefix.PrefixLength = cidr;
@@ -130,7 +130,7 @@ extern "C" {
         return (NO_ERROR == FlushIpNetTable2(inet, index)) ? TRUE : FALSE;
     }
 
-    __declspec(dllexport) BOOL __cdecl CreateRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, int metric = 1)
+    __declspec(dllexport) BOOL __cdecl CreateRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
     {
         MIB_IPFORWARD_ROW2 rule;
         InitializeIpForwardEntry(&rule);
@@ -143,7 +143,7 @@ extern "C" {
         return (NO_ERROR == CreateIpForwardEntry2(&rule)) ? TRUE : FALSE;
     }
 
-    __declspec(dllexport) BOOL __cdecl DeleteRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, int metric = 1)
+    __declspec(dllexport) BOOL __cdecl DeleteRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
     {
         MIB_IPFORWARD_ROW2 rule;
         InitializeIpForwardEntry(&rule);
