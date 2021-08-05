@@ -163,6 +163,7 @@
     "Language": "语言",
     "Resolve Server Hostname": "解析服务器主机名",
     "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
+    "Disable Support Warning": "停用支持警告",
 
     "Profile": "配置名",
     "Profiles": "配置",
@@ -174,5 +175,7 @@
     "The {0} port is in use.": "{0} 端口已被占用",
     "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
     
-    "\"Core.bin\" is missing. Please check your Antivirus software": "找不到 \"Core.bin\" 文件！请检查你的杀毒软件。"
+    "\"Core.bin\" is missing. Please check your Antivirus software": "找不到 \"Core.bin\" 文件！请检查你的杀毒软件。",
+    "{0} won't get developers' support, Please do not report any issues or seek help from developers.": "{0} 将不会得到开发者的支持，请不要报告任何问题或寻求开发人员的帮助。",
+    "No Support": "不受支持"
 }

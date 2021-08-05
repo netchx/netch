@@ -43,6 +43,9 @@ namespace Netch.Forms
 
             #region i18N Translations
 
+            if (Flags.NoSupport)
+                _mainFormText.Add(Name, new[] { "{0} ({1})", "Netch", "No Support" });
+
             _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] { "Uninstall {0}", "NF Service" });
 
             #endregion

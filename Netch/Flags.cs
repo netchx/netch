@@ -7,5 +7,7 @@ namespace Netch
         public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
 
         public static bool AlwaysShowNewVersionFound { get; set; }
+
+        public static bool NoSupport { get; set; }
     }
 }

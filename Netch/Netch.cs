@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -10,6 +12,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
+using Netch.Enums;
 using Netch.Forms;
 using Netch.Services;
 using Netch.Utils;
@@ -90,6 +93,8 @@ namespace Netch
             }
 
             Task.Run(LogEnvironment).Forget();
+            CheckClr();
+            CheckOS();
 
             // 绑定错误捕获
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
@@ -105,11 +110,41 @@ namespace Netch
         private static void LogEnvironment()
         {
             Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-            Log.Information("Environment: {OSVersion}", Environment.OSVersion);
+            Log.Information("OS: {OSVersion}", Environment.OSVersion);
             Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
             Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
             if (Log.IsEnabled(LogEventLevel.Debug))
                 Log.Debug("Third-party Drivers:\n{Drivers}", string.Join("\n", SystemInfo.SystemDrivers(false)));
+        }
+
+        private static void CheckClr()
+        {
+            var framework = Assembly.GetExecutingAssembly().GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName;
+            if (framework == null)
+            {
+                Log.Warning("TargetFrameworkAttribute null");
+                return;
+            }
+
+            var frameworkName = new FrameworkName(framework);
+
+            if (frameworkName.Version.Major != Environment.Version.Major)
+            {
+                Log.Information("CLR: {OSVersion}", Environment.Version);
+                Flags.NoSupport = true;
+                if(!Global.Settings.NoSupportDialog)
+                    MessageBoxX.Show(i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.", "CLR " + Environment.Version), LogLevel.WARNING);
+            }
+        }
+
+        private static void CheckOS()
+        {
+            if (Environment.OSVersion.Version.Build < 17763)
+            {
+                Flags.NoSupport = true;
+                if(!Global.Settings.NoSupportDialog)
+                    MessageBoxX.Show(i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.", Environment.OSVersion), LogLevel.WARNING);
+            }
         }
 
         private static void InitConsole()

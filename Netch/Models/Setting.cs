@@ -263,6 +263,8 @@ namespace Netch.Models
 
         public V2rayConfig V2RayConfig { get; set; } = new();
 
+        public bool NoSupportDialog { get; set; } = false;
+
         public Setting Clone()
         {
             return (Setting)MemberwiseClone();

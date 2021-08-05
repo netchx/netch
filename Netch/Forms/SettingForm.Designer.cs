@@ -99,6 +99,7 @@ namespace Netch.Forms
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
+            this.NoSupportDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
@@ -771,6 +772,7 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.StopWhenExitedCheckBox);
             this.OtherTabPage.Controls.Add(this.StartWhenOpenedCheckBox);
             this.OtherTabPage.Controls.Add(this.MinimizeWhenStartedCheckBox);
+            this.OtherTabPage.Controls.Add(this.NoSupportDialogCheckBox);
             this.OtherTabPage.Controls.Add(this.RunAtStartupCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckBetaUpdateCheckBox);
@@ -824,6 +826,16 @@ namespace Netch.Forms
             this.MinimizeWhenStartedCheckBox.TabIndex = 3;
             this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
             this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // NoSupportDialogCheckBox
+            // 
+            this.NoSupportDialogCheckBox.AutoSize = true;
+            this.NoSupportDialogCheckBox.Location = new System.Drawing.Point(6, 72);
+            this.NoSupportDialogCheckBox.Name = "NoSupportDialogCheckBox";
+            this.NoSupportDialogCheckBox.Size = new System.Drawing.Size(174, 21);
+            this.NoSupportDialogCheckBox.TabIndex = 4;
+            this.NoSupportDialogCheckBox.Text = "Disable Support Warning";
+            this.NoSupportDialogCheckBox.UseVisualStyleBackColor = true;
             // 
             // RunAtStartupCheckBox
             // 
@@ -1080,5 +1092,6 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox ChildProcessHandleCheckBox;
         private System.Windows.Forms.TextBox ICMPDelayTextBox;
         private System.Windows.Forms.Label ICMPDelayLabel;
+        private System.Windows.Forms.CheckBox NoSupportDialogCheckBox;
     }
 }
