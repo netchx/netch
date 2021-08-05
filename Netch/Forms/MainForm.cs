@@ -990,7 +990,8 @@ namespace Netch.Forms
                         EditServerPictureBox.Enabled = DeleteModePictureBox.Enabled = DeleteServerPictureBox.Enabled = enabled;
 
                     // 启动需要禁用的控件
-                    UninstallServiceToolStripMenuItem.Enabled = UpdateServersFromSubscribeLinksToolStripMenuItem.Enabled = enabled;
+                    ServerToolStripMenuItem.Enabled = ModeToolStripMenuItem.Enabled =
+                        SubscribeToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
