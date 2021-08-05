@@ -172,5 +172,7 @@
     "Exit": "退出",
 
     "The {0} port is in use.": "{0} 端口已被占用",
-    "The {0} port is reserved by system.": "{0} 端口是系统保留端口"
+    "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
+    
+    "\"Core.bin\" is missing. Please check your Antivirus software": "找不到 \"Core.bin\" 文件！请检查你的杀毒软件。"
 }

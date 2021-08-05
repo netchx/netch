@@ -34,6 +34,7 @@ namespace Netch.Controllers
             _mode = mode;
             _rdrConfig = Global.Settings.Redirector;
             CheckDriver();
+            CheckCore();
 
             Dial(NameList.TYPE_FILTERLOOPBACK, "false");
             Dial(NameList.TYPE_FILTERICMP, "true");
@@ -158,6 +159,12 @@ namespace Netch.Controllers
 
             Dial(NameList.TYPE_ADDNAME, @"NTT\.exe");
             Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
+        }
+
+        private void CheckCore()
+        {
+            if (!File.Exists(Constants.NFCore))
+                throw new MessageException(i18N.Translate("\"Core.bin\" is missing. Please check your Antivirus software"));
         }
 
         #region DriverUtil
