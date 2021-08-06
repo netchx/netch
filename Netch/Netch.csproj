@@ -7,6 +7,7 @@
         <Configurations>Debug;Release</Configurations>
         <UseWindowsForms>true</UseWindowsForms>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <ApplicationManifest>App.manifest</ApplicationManifest>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
