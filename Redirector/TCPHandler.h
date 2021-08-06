@@ -3,31 +3,27 @@
 #define TCPHANDLER_H
 #include "Based.h"
 
-typedef struct _TCPINFO {
-	DWORD    PID;
-	SOCKADDR Target;
-} TCPINFO, * PTCPINFO;
-
 typedef class TCPHandler
 {
 public:
-	TCPHandler(USHORT tcpPort);
-
 	BOOL init();
 	void free();
 
-	HANDLE tcpLock = NULL;
-	map<USHORT, PTCPINFO> tcpContext;
+	void Create(ENDPOINT_ID id, PNF_TCP_CONN_INFO info);
+	void Delete(ENDPOINT_ID id);
+
+	USHORT ListenIPv4 = 0;
+	USHORT ListenIPv6 = 0;
 private:
 	void IPv4();
 	void IPv6();
 	void Handle(SOCKET client, USHORT side);
 
-	USHORT tcpPort = 0;
+	mutex Lock;
+	map<USHORT, ENDPOINT_ID> Context;
 
-	BOOL Started = FALSE;
-	SOCKET IPv4Socket = NULL;
-	SOCKET IPv6Socket = NULL;
+	SOCKET SocketIPv4 = NULL;
+	SOCKET SocketIPv6 = NULL;
 } *PTCPHandler;
 
 #endif

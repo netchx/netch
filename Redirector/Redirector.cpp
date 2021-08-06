@@ -1,36 +1,13 @@
 #include "Based.h"
-
-#include "Utils.h"
 #include "EventHandler.h"
 #include "IPEventHandler.h"
 
-typedef enum _AIO_TYPE {
-	AIO_FILTERLOOP,
-	AIO_FILTERICMP,
-	AIO_FILTERTCP,
-	AIO_FILTERUDP,
-
-	AIO_CLRNAME,
-	AIO_ADDNAME,
-	AIO_BYPNAME,
-
-	AIO_DNSHOOK,
-	AIO_DNSHOST,
-	AIO_DNSPORT,
-
-	AIO_TCPPORT,
-	AIO_UDPPORT
-} AIO_TYPE;
-
-extern BOOL filterLoop;
+extern BOOL filterLoopback;
 extern BOOL filterICMP;
 extern BOOL filterTCP;
 extern BOOL filterUDP;
-extern BOOL dnsHook;
-extern string dnsHost;
-extern USHORT dnsPort;
-extern USHORT tcpLisn;
-extern USHORT udpLisn;
+extern USHORT tcpPort;
+extern USHORT udpPort;
 extern vector<wstring> handleList;
 extern vector<wstring> bypassList;
 
@@ -58,10 +35,10 @@ NF_IPEventHandler IPEventHandler = {
 	ipSend
 };
 
-BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 {
 	UNREFERENCED_PARAMETER(hModule);
-	UNREFERENCED_PARAMETER(ul_reason_for_call);
+	UNREFERENCED_PARAMETER(dwReason);
 	UNREFERENCED_PARAMETER(lpReserved);
 
 	return TRUE;
@@ -75,7 +52,7 @@ extern "C" {
 
 		switch (name)
 		{
-		case AIO_FILTERLOOP:
+		case AIO_FILTERLOOPBACK:
 			break;
 		case AIO_FILTERICMP:
 			break;
@@ -83,11 +60,11 @@ extern "C" {
 			break;
 		case AIO_FILTERUDP:
 			break;
-		case AIO_DNSHOOK:
+		case AIO_CLRNAME:
 			break;
-		case AIO_DNSHOST:
+		case AIO_BYPNAME:
 			break;
-		case AIO_DNSPORT:
+		case AIO_ADDNAME:
 			break;
 		case AIO_TCPPORT:
 			break;

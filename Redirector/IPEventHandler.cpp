@@ -1,7 +1,5 @@
 #include "IPEventHandler.h"
 
-#include "Utils.h"
-
 USHORT IPv4Checksum(PBYTE buffer, ULONG64 size)
 {
 	UINT32 sum = 0;
@@ -53,14 +51,7 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 		return;
 	}
 
-	auto data = (PBYTE)malloc(length);
-	if (!data)
-	{
-		puts("[Redirector][IPEventHandler][ipSend] Unable to allocate memory");
-
-		UNREFERENCED_PARAMETER(nf_ipPostSend(buffer, length, options));
-		return;
-	}
+	auto data = new BYTE[length]();
 	memcpy(data, buffer, length);
 
 	{
@@ -85,10 +76,10 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 	data[options->ipHeaderSize + 2] = icmpsum & 0xff;
 	data[options->ipHeaderSize + 3] = (icmpsum >> 8);
 
-	printf("[Redirector][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
+	printf("[Redirector][IPEventHandler][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
 
 	nf_ipPostReceive((PCHAR)data, length, options);
-	free(data);
+	delete[] data;
 }
 
 void ipReceive(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)

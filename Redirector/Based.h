@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <iostream>
 
 #include <WinSock2.h>
 #include <ws2ipdef.h>
@@ -20,4 +21,30 @@
 #include <nfapi.h>
 
 using namespace std;
+
+typedef enum _AIO_TYPE {
+	AIO_FILTERLOOPBACK,
+	AIO_FILTERICMP,
+	AIO_FILTERTCP,
+	AIO_FILTERUDP,
+
+	AIO_CLRNAME,
+	AIO_ADDNAME,
+	AIO_BYPNAME,
+
+	AIO_TCPPORT,
+	AIO_UDPPORT
+} AIO_TYPE;
+
+typedef struct _TCPINFO {
+	DWORD PID;
+	PBYTE Client[NF_MAX_ADDRESS_LENGTH];
+	PBYTE Target[NF_MAX_ADDRESS_LENGTH];
+} TCPINFO, * PTCPINFO;
+
+typedef struct _UDPINFO {
+	DWORD  PID;
+	SOCKET Socket;
+} UDPINFO, * PUDPINFO;
+
 #endif
