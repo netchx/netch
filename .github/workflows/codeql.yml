@@ -1,0 +1,51 @@
+name: "Netch CodeQL CI"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp', 'csharp', 'go' ]
+
+    steps:
+      - name: Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.16.6
+
+      - name: C++
+        uses: msys2/setup-msys2@v2
+
+      - name: CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Build
+        shell: pwsh
+        run: |
+          .\build.ps1
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@v1
