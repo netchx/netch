@@ -1,6 +1,7 @@
 #pragma once
 #ifndef BASED_H
 #define BASED_H
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <stdio.h>
 
 #include <map>
@@ -11,6 +12,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <codecvt>
 #include <iostream>
 
 #include <WinSock2.h>

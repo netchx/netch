@@ -5,8 +5,8 @@
 extern BOOL filterTCP;
 extern BOOL filterUDP;
 extern USHORT udpPort;
-extern vector<wstring> handleList;
 extern vector<wstring> bypassList;
+extern vector<wstring> handleList;
 
 extern mutex tcpLock;
 extern mutex udpLock;

@@ -6,8 +6,8 @@ BOOL filterTCP = TRUE;
 BOOL filterUDP = TRUE;
 USHORT tcpPort = 0;
 USHORT udpPort = 0;
-vector<wstring> handleList;
 vector<wstring> bypassList;
+vector<wstring> handleList;
 
 mutex tcpLock;
 mutex udpLock;

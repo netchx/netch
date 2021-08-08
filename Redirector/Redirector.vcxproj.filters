@@ -26,6 +26,9 @@
     <ClCompile Include="Based.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h">
@@ -38,6 +41,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Based.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
