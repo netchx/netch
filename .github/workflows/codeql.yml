@@ -27,15 +27,15 @@ jobs:
       - name: C++
         uses: msys2/setup-msys2@v2
 
-      - name: CodeQL
+      - name: MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
+
+      - name: Code QL
         uses: github/codeql-action/init@v1
         with:
           languages: ${{ matrix.language }}
 
-      - name: MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
-
-      - name: Clone
+      - name: Checkout
         uses: actions/checkout@v2
 
       - name: Build
