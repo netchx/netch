@@ -7,17 +7,17 @@ extern map<ENDPOINT_ID, PTCPINFO> tcpContext;
 
 void IoConn(SOCKET client, SOCKET remote)
 {
-	char buffer[1400];
+	auto buffer =  new char[NF_TCP_PACKET_BUF_SIZE]();
 
 	while (true)
 	{
-		auto length = recv(client, buffer, 1400, 0);
+		auto length = recv(client, buffer, NF_TCP_PACKET_BUF_SIZE, 0);
 		if (!length)
 		{
 			if (length == SOCKET_ERROR)
 			{
 				printf("[Redirector][TCPHandler][IoConn] Receive failed: %d\n", WSAGetLastError());
-				return;
+				break;
 			}
 			
 			continue;
@@ -27,9 +27,11 @@ void IoConn(SOCKET client, SOCKET remote)
 		if (!sended && sended != length)
 		{
 			printf("[Redirector][TCPHandler][IoConn] Send failed: %d\n", WSAGetLastError());
-			return;
+			break;
 		}
 	}
+
+	delete[] buffer;
 }
 
 BOOL TCPHandler::init()

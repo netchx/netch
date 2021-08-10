@@ -404,14 +404,14 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 void udpBeginReceive(ENDPOINT_ID id, SOCKET client, PBYTE data)
 {
-	auto buffer = new char[65535]();
+	auto buffer = new char[NF_TCP_PACKET_BUF_SIZE]();
 
 	while (true)
 	{
 		SOCKADDR_IN remote;
 		int remoteLength = sizeof(SOCKADDR_IN);
 
-		int length = recvfrom(client, buffer, sizeof(buffer), 0, (PSOCKADDR)&remote, &remoteLength);
+		int length = recvfrom(client, buffer, NF_TCP_PACKET_BUF_SIZE, 0, (PSOCKADDR)&remote, &remoteLength);
 		if (length == 0)
 		{
 			break;
