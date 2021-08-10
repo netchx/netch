@@ -10,20 +10,20 @@ BOOL DeleteRoute(USHORT inet, const char* address, UINT8 cidr, const char* gatew
 
 ```csharp
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern ulong ConvertLuidToIndex(ulong id);
+public static extern uint ConvertLuidToIndex(ulong id);
 
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern bool CreateIPv4(string address, string netmask, ulong index);
+public static extern bool CreateIPv4(string address, string netmask, uint index);
 
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, ulong index);
+public static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, uint index);
 
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern bool RefreshIPTable(AddressFamily inet, ulong index);
+public static extern bool RefreshIPTable(AddressFamily inet, uint index);
 
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, ulong metric);
+public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, uint index, uint metric);
 
 [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, ulong metric);
+public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, uint index, uint metric);
 ```
