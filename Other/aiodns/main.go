@@ -2,8 +2,7 @@ package main
 
 import (
 	"bufio"
-	"flag"
-	"log"
+	"fmt"
 	"net"
 	"net/url"
 	"os"
@@ -12,62 +11,93 @@ import (
 	"github.com/miekg/dns"
 )
 
-var (
-	flags struct {
-		Path     string
-		Listen   string
-		ChinaDNS string
-		OtherDNS string
-	}
+import "C"
+
+const (
+	TYPE_REST = iota
+	TYPE_LIST
+	TYPE_LISN
+	TYPE_CDNS
+	TYPE_ODNS
 )
 
-func main() {
-	flag.StringVar(&flags.Path, "c", "", "")
-	flag.StringVar(&flags.Listen, "l", ":53", "Listen")
-	flag.StringVar(&flags.ChinaDNS, "cdns", "tls://223.5.5.5:853", "China DNS")
-	flag.StringVar(&flags.OtherDNS, "odns", "tls://1.1.1.1:853", "Other DNS")
-	flag.Parse()
+var (
+	Path     string
+	Listen   string
+	ChinaDNS string
+	OtherDNS string
 
-	{
+	CDNS = dns.Client{}
+	ODNS = dns.Client{}
+
+	mux       *dns.ServeMux
+	tcpSocket net.Listener
+	udpSocket net.PacketConn
+)
+
+//export aiodns_dial
+func aiodns_dial(name int, value *C.char) bool {
+	switch name {
+	case TYPE_REST:
+		Path = ""
+		Listen = ""
+		ChinaDNS = ""
+		OtherDNS = ""
+	case TYPE_LIST:
+		Path = C.GoString(value)
+	case TYPE_LISN:
+		Listen = C.GoString(value)
+	case TYPE_CDNS:
 		{
-			info, err := url.Parse(flags.ChinaDNS)
+			info, err := url.Parse(C.GoString(value))
 			if err != nil {
-				log.Fatalf("[aiodns][main][url.Parse] %v", err)
+				fmt.Printf("[aiodns][dial] url.Parse: %v\n", err)
+				return false
 			}
 
 			switch info.Scheme {
 			case "tls":
-				ChinaDNS.Net = "tcp-tls"
+				CDNS.Net = "tcp-tls"
 			default:
-				ChinaDNS.Net = "tcp"
+				CDNS.Net = "tcp"
 			}
 
-			flags.ChinaDNS = info.Host
+			ChinaDNS = info.Host
 		}
-
+	case TYPE_ODNS:
 		{
-			info, err := url.Parse(flags.OtherDNS)
+			info, err := url.Parse(C.GoString(value))
 			if err != nil {
-				log.Fatalf("[aiodns][main][url.Parse] %v", err)
+				fmt.Printf("[aiodns][dial] url.Parse: %v\n", err)
+				return false
 			}
 
 			switch info.Scheme {
 			case "tls":
-				OtherDNS.Net = "tcp-tls"
+				ODNS.Net = "tcp-tls"
 			default:
-				OtherDNS.Net = "tcp"
+				ODNS.Net = "tcp"
 			}
 
-			flags.OtherDNS = info.Host
+			OtherDNS = info.Host
 		}
+	default:
+		return false
 	}
 
-	mux := dns.NewServeMux()
-	if flags.Path != "" {
-		file, err := os.Open(flags.Path)
+	return true
+}
+
+//export aiodns_init
+func aiodns_init() bool {
+	mux = dns.NewServeMux()
+	if Path != "" {
+		file, err := os.Open(Path)
 		if err != nil {
-			log.Fatalf("[aiodns][main][os.Open] %v", err)
+			fmt.Printf("[aiodns][init] os.Open: %v\n", err)
+			return false
 		}
+		defer file.Close()
 
 		scan := bufio.NewScanner(file)
 		for scan.Scan() {
@@ -77,18 +107,67 @@ func main() {
 	mux.HandleFunc("in-addr.arpa.", handleServerName)
 	mux.HandleFunc(".", handleOtherDNS)
 
-	tcpSocket, err := net.Listen("tcp", flags.Listen)
+	var err error
+
+	tcpSocket, err = net.Listen("tcp", Listen)
 	if err != nil {
-		log.Fatalf("[aiodns][main][net.Listen] %v", err)
+		fmt.Printf("[aiodns][init] net.Listen: %v\n", err)
+		return false
 	}
 
-	udpSocket, err := net.ListenPacket("udp", flags.Listen)
+	udpSocket, err = net.ListenPacket("udp", Listen)
 	if err != nil {
-		log.Fatalf("[aiodns][main][net.ListenPacket] %v", err)
+		fmt.Printf("[aiodns][init] net.ListenPacket: %v\n", err)
+		return false
 	}
-
-	log.Printf("[aiodns] Started")
 
 	go dns.ActivateAndServe(tcpSocket, nil, mux)
-	dns.ActivateAndServe(nil, udpSocket, mux)
+	go dns.ActivateAndServe(nil, udpSocket, mux)
+
+	fmt.Println("[aiodns] Started")
+	return true
+}
+
+//export aiodns_free
+func aiodns_free() {
+
+}
+
+func handleServerName(w dns.ResponseWriter, m *dns.Msg) {
+	r := new(dns.Msg)
+	r.SetReply(m)
+
+	for i := 0; i < len(m.Question); i++ {
+		rr, err := dns.NewRR(fmt.Sprintf("%s PTR Netch", m.Question[i].Name))
+		if err != nil {
+			fmt.Printf("[aiodns][dns.NewRR] %v\n", err)
+			return
+		}
+
+		r.Answer = append(m.Answer, rr)
+	}
+
+	_ = w.WriteMsg(r)
+}
+
+func handleChinaDNS(w dns.ResponseWriter, m *dns.Msg) {
+	r, _, err := CDNS.Exchange(m, ChinaDNS)
+	if err != nil {
+		fmt.Printf("[aiodns] handleChinaDNS: %v\n", err)
+	}
+
+	_ = w.WriteMsg(r)
+}
+
+func handleOtherDNS(w dns.ResponseWriter, m *dns.Msg) {
+	r, _, err := ODNS.Exchange(m, OtherDNS)
+	if err != nil {
+		fmt.Printf("[aiodns] handleOtherDNS: %v\n", err)
+	}
+
+	_ = w.WriteMsg(r)
+}
+
+func main() {
+
 }
