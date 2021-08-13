@@ -66,7 +66,7 @@ msbuild `
 	'.\RouteHelper\RouteHelper.vcxproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-cp -Force '.\other\release\*'                 "$OutputPath\bin"
+cp -Force '.\other\release\aiodns.bin'        "$OutputPath\bin"
 cp -Force '.\Redirector\bin\Redirector.bin'   "$OutputPath\bin"
 cp -Force '.\RouteHelper\bin\RouteHelper.bin' "$OutputPath\bin"
 
