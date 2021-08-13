@@ -18,4 +18,5 @@ if ( -Not $? ) { exit $lastExitCode }
 mv -Force 'wintun\bin\amd64\wintun.dll' $OutputPath
 
 rm -Recurse -Force 'wintun'
+rm -Recurse -Force 'wintun.zip'
 exit 0
