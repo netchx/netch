@@ -7,8 +7,8 @@ A simple proxy client
 
 [![](https://img.shields.io/badge/telegram-group-green?style=flat-square)](https://t.me/netch_group)
 [![](https://img.shields.io/badge/telegram-channel-blue?style=flat-square)](https://t.me/netch_channel)
-[![](https://img.shields.io/github/downloads/NetchX/Netch/total.svg?style=flat-square)](https://github.com/NetchX/Netch/releases)
-[![](https://img.shields.io/github/v/release/NetchX/Netch?style=flat-square)](https://github.com/NetchX/Netch/releases)
+[![](https://img.shields.io/github/downloads/netchx/netch/total.svg?style=flat-square)](https://github.com/netchx/netch/releases)
+[![](https://img.shields.io/github/v/release/netchx/netch?style=flat-square)](https://github.com/netchx/netch/releases)
 </div>
 
 ## Features
@@ -27,8 +27,8 @@ Some features may not be implemented in version 1
 - [Shadowsocks](https://github.com/shadowsocks/shadowsocks-libev)
 - [ShadowsocksR](https://github.com/shadowsocksrr/shadowsocksr-libev)
 - [Trojan](https://trojan-gfw.github.io/trojan/)
-- [VLess](https://github.com/xtls/xray-core)
 - [VMess](https://github.com/v2fly/v2ray-core)
+- [VLess](https://github.com/xtls/xray-core)
 
 ### Others
 - UDP NAT FullCone (May limited by your server)
