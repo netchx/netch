@@ -30,9 +30,9 @@ var (
 	CDNS = dns.Client{}
 	ODNS = dns.Client{}
 
-	mux       *dns.ServeMux
-	tcpSocket net.Listener
-	udpSocket net.PacketConn
+	mux       *dns.ServeMux  = nil
+	tcpSocket net.Listener   = nil
+	udpSocket net.PacketConn = nil
 )
 
 //export aiodns_dial
@@ -130,7 +130,17 @@ func aiodns_init() bool {
 
 //export aiodns_free
 func aiodns_free() {
+	if tcpSocket != nil {
+		tcpSocket.Close()
+		tcpSocket = nil
+	}
 
+	if udpSocket != nil {
+		udpSocket.Close()
+		udpSocket = nil
+	}
+
+	mux = nil
 }
 
 func handleServerName(w dns.ResponseWriter, m *dns.Msg) {
