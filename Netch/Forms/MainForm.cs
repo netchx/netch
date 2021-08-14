@@ -501,7 +501,7 @@ namespace Netch.Forms
 
         private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Utils.Utils.Open("https://netch.org/#/docs/zh-CN/faq");
+            Utils.Utils.Open("https://docs.netch.org");
         }
 
         #endregion
