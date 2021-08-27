@@ -51,7 +51,7 @@
         <PackageReference Include="System.Reactive" Version="5.0.0" />
         <PackageReference Include="TaskScheduler" Version="2.9.1" />
         <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.4" />
-        <PackageReference Include="WindowsFirewallHelper" Version="2.0.4.70-beta2" />
+        <PackageReference Include="WindowsFirewallHelper" Version="2.1.4.81" />
         <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
         <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
     </ItemGroup>
