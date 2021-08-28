@@ -16,7 +16,7 @@ namespace Netch.Utils
         /// </summary>
         public static void AddNetchFwRules()
         {
-            if (!FirewallWAS.IsSupported)
+            if (!FirewallWAS.IsLocallySupported)
             {
                 Log.Warning("不支持防火墙");
                 return;
@@ -47,7 +47,7 @@ namespace Netch.Utils
         /// </summary>
         public static void RemoveNetchFwRules()
         {
-            if (!FirewallWAS.IsSupported)
+            if (!FirewallWAS.IsLocallySupported)
                 return;
 
             try
