@@ -8,7 +8,6 @@ using Microsoft.Diagnostics.Tracing.Session;
 using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
-using Netch.Models;
 using Serilog;
 
 namespace Netch.Utils

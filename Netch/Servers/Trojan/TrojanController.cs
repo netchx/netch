@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Models;
 using Netch.Utils;
 
 namespace Netch.Servers
@@ -27,9 +26,9 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public async Task<Socks5> StartAsync(Server s)
+        public async Task<Socks5Server> StartAsync(Server s)
         {
-            var server = (Trojan)s;
+            var server = (TrojanServer)s;
             var trojanConfig = new TrojanConfig
             {
                 local_addr = this.LocalAddress(),
@@ -52,7 +51,7 @@ namespace Netch.Servers
             }
 
             await StartGuardAsync("-c ..\\data\\last.json");
-            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
+            return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
         }
     }
 }

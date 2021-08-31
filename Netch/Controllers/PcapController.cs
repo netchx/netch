@@ -39,7 +39,7 @@ namespace Netch.Controllers
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
             var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
-            if (_server is Socks5 socks5 && !socks5.Auth())
+            if (_server is Socks5Server socks5 && !socks5.Auth())
                 argument.Append($" --destination  {await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
             else
                 Trace.Assert(false);

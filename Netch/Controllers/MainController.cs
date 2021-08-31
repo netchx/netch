@@ -6,7 +6,6 @@ using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Servers;
-using Netch.Servers.Shadowsocks;
 using Netch.Utils;
 using Serilog;
 using Serilog.Events;
@@ -56,8 +55,8 @@ namespace Netch.Controllers
 
                 switch (server)
                 {
-                    case Socks5 socks5 when !socks5.Auth() || socks5.Auth() && ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth):
-                    case Shadowsocks shadowsocks when !shadowsocks.HasPlugin() && ModeFeatures.HasFlag(ModeFeature.SupportShadowsocks) &&
+                    case Socks5Server socks5 when !socks5.Auth() || socks5.Auth() && ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth):
+                    case ShadowsocksServer shadowsocks when !shadowsocks.HasPlugin() && ModeFeatures.HasFlag(ModeFeature.SupportShadowsocks) &&
                                                       Global.Settings.Redirector.RedirectorSS:
                         break;
                     default:

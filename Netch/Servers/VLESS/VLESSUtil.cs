@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers;
 
 namespace Netch.Servers
 {
@@ -18,16 +17,16 @@ namespace Netch.Servers
 
         public string[] UriScheme { get; } = { "vless" };
 
-        public Type ServerType { get; } = typeof(VLESS);
+        public Type ServerType { get; } = typeof(VLESSServer);
 
         public void Edit(Server s)
         {
-            new VLESSForm.VLESSForm((VLESS)s).ShowDialog();
+            new VLESSForm((VLESSServer)s).ShowDialog();
         }
 
         public void Create()
         {
-            new VLESSForm.VLESSForm().ShowDialog();
+            new VLESSForm().ShowDialog();
         }
 
         public string GetShareLink(Server s)

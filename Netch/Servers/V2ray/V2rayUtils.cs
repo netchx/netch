@@ -13,7 +13,7 @@ namespace Netch.Servers
         public static IEnumerable<Server> ParseVUri(string text)
         {
             var scheme = ShareLink.GetUriScheme(text).ToLower();
-            var server = scheme switch { "vmess" => new VMess(), "vless" => new VLESS(), _ => throw new ArgumentOutOfRangeException() };
+            var server = scheme switch { "vmess" => new VMessServer(), "vless" => new VLESSServer(), _ => throw new ArgumentOutOfRangeException() };
             if (text.Contains("#"))
             {
                 server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
@@ -58,7 +58,7 @@ namespace Netch.Servers
                 {
                     server.ServerName = parameter.Get("sni") ?? "";
                     if (server.TLSSecureType == "xtls")
-                        ((VLESS)server).Flow = parameter.Get("flow") ?? "";
+                        ((VLESSServer)server).Flow = parameter.Get("flow") ?? "";
                 }
             }
 
@@ -77,7 +77,7 @@ namespace Netch.Servers
         public static string GetVShareLink(Server s, string scheme = "vmess")
         {
             // https://github.com/XTLS/Xray-core/issues/91
-            var server = (VMess)s;
+            var server = (VMessServer)s;
             var parameter = new Dictionary<string, string>();
             // protocol-specific fields
             parameter.Add("type", server.TransferProtocol);
@@ -138,7 +138,7 @@ namespace Netch.Servers
 
                 if (server.TLSSecureType == "xtls")
                 {
-                    var flow = ((VLESS)server).Flow;
+                    var flow = ((VLESSServer)server).Flow;
                     if (!flow.IsNullOrWhiteSpace())
                         parameter.Add("flow", flow!.Replace("-udp443", ""));
                 }

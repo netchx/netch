@@ -35,7 +35,7 @@ namespace Netch.Controllers
             _mode = mode;
             _tunConfig = Global.Settings.TUNTAP;
 
-            if (server is Socks5Bridge socks5Bridge)
+            if (server is Socks5LocalServer socks5Bridge)
                 _serverRemoteAddress = await DnsUtils.LookupAsync(socks5Bridge.RemoteHostname);
 
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
@@ -56,7 +56,7 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_UDPREST, "");
             Dial(NameList.TYPE_UDPTYPE, "Socks5");
 
-            if (server is Socks5 socks5)
+            if (server is Socks5Server socks5)
             {
                 Dial(NameList.TYPE_TCPHOST, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
 

@@ -10,7 +10,7 @@ namespace Netch.Interfaces
 
         public string? LocalAddress { get; set; }
 
-        public Task<Socks5> StartAsync(Server s);
+        public Task<Socks5Server> StartAsync(Server s);
     }
 
     public static class ServerControllerExtension

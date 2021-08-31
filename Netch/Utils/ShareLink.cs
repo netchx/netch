@@ -5,8 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using Netch.Models;
-using Netch.Servers.Shadowsocks;
-using Netch.Servers.Shadowsocks.Models;
+using Netch.Servers;
 using Serilog;
 
 namespace Netch.Utils
@@ -33,7 +32,7 @@ namespace Netch.Utils
 
             try
             {
-                list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new Shadowsocks
+                list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new ShadowsocksServer
                 {
                     Hostname = server.server,
                     Port = server.server_port,

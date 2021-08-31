@@ -9,7 +9,6 @@ using Netch.Interfaces;
 using Netch.Interops;
 using Netch.Models;
 using Netch.Servers;
-using Netch.Servers.Shadowsocks;
 using Netch.Utils;
 using Serilog;
 using static Netch.Interops.Redirector;
@@ -115,7 +114,7 @@ namespace Netch.Controllers
 
             var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
 
-            if (server is Socks5 socks5)
+            if (server is Socks5Server socks5)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
                 Dial(NameList.TYPE_TCPHOST + offset, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
@@ -123,7 +122,7 @@ namespace Netch.Controllers
                 Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
             }
-            else if (server is Shadowsocks shadowsocks && !shadowsocks.HasPlugin() && _rdrConfig.RedirectorSS)
+            else if (server is ShadowsocksServer shadowsocks && !shadowsocks.HasPlugin() && _rdrConfig.RedirectorSS)
             {
                 Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
                 Dial(NameList.TYPE_TCPHOST + offset, $"{await shadowsocks.AutoResolveHostnameAsync()}:{shadowsocks.Port}");

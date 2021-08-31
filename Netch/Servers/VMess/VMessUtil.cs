@@ -5,8 +5,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Form;
-using Netch.Servers.Models;
 using Netch.Utils;
 
 namespace Netch.Servers
@@ -23,11 +21,11 @@ namespace Netch.Servers
 
         public string[] UriScheme { get; } = { "vmess" };
 
-        public Type ServerType { get; } = typeof(VMess);
+        public Type ServerType { get; } = typeof(VMessServer);
 
         public void Edit(Server s)
         {
-            new VMessForm((VMess)s).ShowDialog();
+            new VMessForm((VMessServer)s).ShowDialog();
         }
 
         public void Create()
@@ -39,9 +37,9 @@ namespace Netch.Servers
         {
             if (Global.Settings.V2RayConfig.V2rayNShareLink)
             {
-                var server = (VMess)s;
+                var server = (VMessServer)s;
 
-                var vmessJson = JsonSerializer.Serialize(new V2rayNSharing
+                var vmessJson = JsonSerializer.Serialize(new V2rayNJObject
                     {
                         v = 2,
                         ps = server.Remark,
@@ -75,7 +73,7 @@ namespace Netch.Servers
 
         public IEnumerable<Server> ParseUri(string text)
         {
-            var data = new VMess();
+            var data = new VMessServer();
 
             string s;
             try
@@ -87,7 +85,7 @@ namespace Netch.Servers
                 return V2rayUtils.ParseVUri(text);
             }
 
-            V2rayNSharing vmess = JsonSerializer.Deserialize<V2rayNSharing>(s,
+            V2rayNJObject vmess = JsonSerializer.Deserialize<V2rayNJObject>(s,
                 new JsonSerializerOptions { NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString })!;
 
             data.Remark = vmess.ps;

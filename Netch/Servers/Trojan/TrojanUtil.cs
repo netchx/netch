@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Form;
 
 namespace Netch.Servers
 {
@@ -20,11 +19,11 @@ namespace Netch.Servers
 
         public string[] UriScheme { get; } = { "trojan" };
 
-        public Type ServerType { get; } = typeof(Trojan);
+        public Type ServerType { get; } = typeof(TrojanServer);
 
         public void Edit(Server s)
         {
-            new TrojanForm((Trojan)s).ShowDialog();
+            new TrojanForm((TrojanServer)s).ShowDialog();
         }
 
         public void Create()
@@ -34,7 +33,7 @@ namespace Netch.Servers
 
         public string GetShareLink(Server s)
         {
-            var server = (Trojan)s;
+            var server = (TrojanServer)s;
             return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
         }
 
@@ -45,7 +44,7 @@ namespace Netch.Servers
 
         public IEnumerable<Server> ParseUri(string text)
         {
-            var data = new Trojan();
+            var data = new TrojanServer();
 
             text = text.Replace("/?", "?");
             if (text.Contains("#"))

@@ -1,7 +1,6 @@
 ﻿using Netch.Properties;
 using Netch.Utils;
 using System;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Netch.Forms

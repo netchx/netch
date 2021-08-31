@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Servers.Utils;
 
 namespace Netch.Servers
 {
@@ -28,7 +27,7 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public virtual async Task<Socks5> StartAsync(Server s)
+        public virtual async Task<Socks5Server> StartAsync(Server s)
         {
             await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
@@ -36,7 +35,7 @@ namespace Netch.Servers
             }
 
             await StartGuardAsync("-config ..\\data\\last.json");
-            return new Socks5Bridge(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
+            return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
         }
     }
 }
