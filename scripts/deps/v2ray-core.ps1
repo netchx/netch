@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/v2fly/v2ray-core/releases/download/v4.40.1/v2ray-windows-64.zip' `
+        -Uri 'https://github.com/v2fly/v2ray-core/releases/download/v4.41.1/v2ray-windows-64.zip' `
         -OutFile 'v2ray-core.zip'
 }
 catch {

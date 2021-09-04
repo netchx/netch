@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/teddysun/v2ray-plugin/releases/download/v4.40.1/v2ray-plugin-windows-amd64-v4.40.1.tar.gz' `
+        -Uri 'https://github.com/teddysun/v2ray-plugin/releases/download/v4.42.1/v2ray-plugin-windows-amd64-v4.42.1.tar.gz' `
         -OutFile 'v2ray-plugin.tar.gz'
 }
 catch {
