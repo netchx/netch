@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Asia/Shanghai"
+
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "automatic"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "00:00"
+      timezone: "Asia/Shanghai"
+    labels:
+      - "automatic"
