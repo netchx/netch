@@ -73,6 +73,7 @@
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.blankToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.TcpStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLightLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
@@ -521,6 +522,7 @@
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel,
             this.blankToolStripStatusLabel,
+            this.TcpStatusLabel,
             this.NatTypeStatusLabel,
             this.NatTypeStatusLightLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 272);
@@ -560,8 +562,17 @@
             // blankToolStripStatusLabel
             // 
             this.blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
-            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(494, 17);
+            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(240, 17);
             this.blankToolStripStatusLabel.Spring = true;
+            // 
+            // TcpStatusLabel
+            // 
+            this.TcpStatusLabel.Name = "TcpStatusLabel";
+            this.TcpStatusLabel.Size = new System.Drawing.Size(33, 17);
+            this.TcpStatusLabel.Text = "TCP:";
+            this.TcpStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.TcpStatusLabel.Visible = false;
+            this.TcpStatusLabel.Click += new System.EventHandler(this.TcpStatusLabel_Click);
             // 
             // NatTypeStatusLabel
             // 
@@ -609,19 +620,19 @@
             this.ExitToolStripButton});
             this.NotifyMenu.Name = "NotifyMenu";
             this.NotifyMenu.ShowItemToolTips = false;
-            this.NotifyMenu.Size = new System.Drawing.Size(181, 70);
+            this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
             // 
             // ShowMainFormToolStripButton
             // 
             this.ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
-            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(180, 22);
+            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(107, 22);
             this.ShowMainFormToolStripButton.Text = "Show";
             this.ShowMainFormToolStripButton.Click += new System.EventHandler(this.ShowMainFormToolStripButton_Click);
             // 
             // ExitToolStripButton
             // 
             this.ExitToolStripButton.Name = "ExitToolStripButton";
-            this.ExitToolStripButton.Size = new System.Drawing.Size(180, 22);
+            this.ExitToolStripButton.Size = new System.Drawing.Size(107, 22);
             this.ExitToolStripButton.Text = "Exit";
             this.ExitToolStripButton.Click += new System.EventHandler(this.ExitToolStripButton_Click);
             // 
@@ -792,5 +803,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.ContainerControl ButtomControlContainerControl;
         private System.Windows.Forms.ToolStripMenuItem ShowHideConsoleToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel TcpStatusLabel;
     }
 }

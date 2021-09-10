@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Windows.Win32;
@@ -90,8 +91,8 @@ namespace Netch.Forms
             // 加载翻译
             TranslateControls();
 
-            // 隐藏 NatTypeStatusLabel
-            NatTypeStatusText();
+            // 隐藏 ConnectivityStatusLabel
+            ConnectivityStatusVisible(false);
 
             // 加载快速配置
             LoadProfiles();
@@ -547,7 +548,8 @@ namespace Netch.Forms
             State = State.Started;
 
             Task.Run(Bandwidth.NetTraffic).Forget();
-            NatTestAsync().Forget();
+            DiscoveryNatTypeAsync().Forget();
+            HttpConnectAsync().Forget();
 
             if (Global.Settings.MinimizeWhenStarted)
                 Minimize();
@@ -1028,7 +1030,7 @@ namespace Netch.Forms
 
                         ProfileGroupBox.Enabled = false;
                         BandwidthState(false);
-                        NatTypeStatusText();
+                        ConnectivityStatusVisible(false);
                         break;
                     case State.Stopped:
                         ControlButton.Enabled = true;
@@ -1099,18 +1101,14 @@ namespace Netch.Forms
             UsedBandwidthLabel.Visible /*= UploadSpeedLabel.Visible*/ = DownloadSpeedLabel.Visible = state;
         }
 
-        private void NatTypeStatusText(string? text = null, string? country = null)
+        private void UpdateNatTypeStatusLabelText(string? text, string? country = null)
         {
-            if (State != State.Started)
-            {
-                NatTypeStatusLabel.Text = "";
-                NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = false;
-                return;
-            }
-
             if (!string.IsNullOrEmpty(text))
             {
-                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} {(!country.IsNullOrEmpty() ? $"[{country}]" : "")}";
+                if (country == null)
+                    NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} ";
+                else
+                    NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} [{country}]";
 
                 UpdateNatTypeLight(int.TryParse(text, out var natType) ? natType : -1);
             }
@@ -1122,10 +1120,18 @@ namespace Netch.Forms
             NatTypeStatusLabel.Visible = true;
         }
 
+        private void ConnectivityStatusVisible(bool visible)
+        {
+            if (!visible)
+                TcpStatusLabel.Text = NatTypeStatusLabel.Text = "";
+
+            TcpStatusLabel.Visible = NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = visible;
+        }
+
         /// <summary>
         ///     更新 NAT指示灯颜色
         /// </summary>
-        /// <param name="natType"></param>
+        /// <param name="natType">NAT Type. keep default(-1) to Hide Light</param>
         private void UpdateNatTypeLight(int natType = -1)
         {
             if (natType > 0 && natType < 5)
@@ -1148,40 +1154,73 @@ namespace Netch.Forms
             }
         }
 
-        private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
+        private async void TcpStatusLabel_Click(object sender, EventArgs e)
         {
-            await NatTestAsync();
+            await HttpConnectAsync();
         }
 
-        /// <summary>
-        ///     测试 NAT
-        /// </summary>
-        private async Task NatTestAsync()
+        private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
+        {
+            await DiscoveryNatTypeAsync();
+        }
+
+        private async Task DiscoveryNatTypeAsync()
         {
             NatTypeStatusLabel.Enabled = false;
+            NatTypeStatusLabel.Text = i18N.Translate("Testing NAT Type");
+
+            using var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+
+            var discoveryNatTypeAsync = MainController.DiscoveryNatTypeAsync(cts.Token);
+
             try
             {
-                NatTypeStatusText(i18N.Translate("Testing NAT Type"));
-
-                var res = await MainController.NatTestAsync();
+                var res = await discoveryNatTypeAsync;
 
                 if (!string.IsNullOrEmpty(res.PublicEnd))
                 {
                     var country = await Utils.Utils.GetCityCodeAsync(res.PublicEnd);
-                    NatTypeStatusText(res.Result, country);
+
+                    UpdateNatTypeStatusLabelText(res.Result, country);
+                    if (int.TryParse(res.Result, out var natType))
+                        UpdateNatTypeLight(natType);
+                    else
+                        UpdateNatTypeLight();
                 }
                 else
                 {
-                    NatTypeStatusText(res.Result ?? "Error");
+                    UpdateNatTypeStatusLabelText(res.Result ?? "Error");
+                    NatTypeStatusLightLabel.Visible = false;
                 }
-            }
-            catch (Exception e)
-            {
-                NatTypeStatusText(e.Message);
             }
             finally
             {
                 NatTypeStatusLabel.Enabled = true;
+            }
+        }
+
+        private async Task HttpConnectAsync()
+        {
+            TcpStatusLabel.Enabled = false;
+
+            using var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            var httpConnectAsync = MainController.HttpConnectAsync(cts.Token);
+
+            try
+            {
+                var httpRes = await httpConnectAsync;
+                if (httpRes != null)
+                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ")}{httpRes}ms";
+                else
+                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ", "Timeout")}";
+
+                TcpStatusLabel.Visible = true;
+            }
+            finally
+            {
+                TcpStatusLabel.Enabled = true;
             }
         }
 

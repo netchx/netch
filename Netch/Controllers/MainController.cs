@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
 using Netch.Enums;
@@ -168,10 +169,16 @@ namespace Netch.Controllers
             PortCheck(port, portName, PortType.TCP);
         }
 
-        public static async Task<NatTypeTestResult> NatTestAsync()
+        public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
         {
             Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
-            return await NatTypeTester.StartAsync(Socks5Server);
+            return await Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
+        }
+
+        public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
+        {
+            Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
+            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
         }
     }
 }

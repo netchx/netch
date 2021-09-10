@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Diagnostics;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Netch.Models;
@@ -11,9 +13,9 @@ using STUN.StunResult;
 
 namespace Netch.Utils
 {
-    public static class NatTypeTester
+    public static class Socks5ServerTestUtils
     {
-        public static async Task<NatTypeTestResult> StartAsync(Socks5Server socks5, CancellationToken ctx = default)
+        public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(Socks5Server socks5, CancellationToken ctx = default)
         {
             var stunServer = Global.Settings.STUN_Server;
             var port = (ushort)Global.Settings.STUN_Server_Port;
@@ -30,7 +32,11 @@ namespace Netch.Utils
                 }
             };
 
-            var ip = await DnsUtils.LookupAsync(stunServer) ?? throw new MessageException("Wrong STUN Server!");
+            var ip = await DnsUtils.LookupAsync(stunServer);
+            if (ip == null)
+            {
+                return new NatTypeTestResult { Result = "Wrong STUN Server!" };
+            }
 
             using IUdpProxy proxy = ProxyFactory.CreateProxy(ProxyType.Socks5, new IPEndPoint(IPAddress.Loopback, 0), socks5Option);
             using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy);
@@ -71,6 +77,30 @@ namespace Netch.Utils
                 default:
                     return res.FilteringBehavior.ToString();
             }
+        }
+
+        public static async Task<int?> HttpConnectAsync(Socks5Server socks5, CancellationToken ctx)
+        {
+            var socks5Option = new Socks5CreateOption
+            {
+                Address = await DnsUtils.LookupAsync(socks5.Hostname),
+                Port = socks5.Port,
+                UsernamePassword = new UsernamePassword
+                {
+                    UserName = socks5.Username,
+                    Password = socks5.Password
+                }
+            };
+
+            var stopwatch = Stopwatch.StartNew();
+
+            var result = await Socks5.Utils.Socks5TestUtils.Socks5ConnectAsync(socks5Option, token: ctx);
+
+            stopwatch.Stop();
+            if (result)
+                return Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
+
+            return null;
         }
     }
 }
