@@ -34,6 +34,10 @@ namespace Netch.Controllers
 
             if (await DnsUtils.LookupAsync(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
+            
+            // TODO Disable NAT Type Test setting
+            // cache STUN Server ip to prevent "Wrong STUN Server"
+            DnsUtils.LookupAsync(Global.Settings.STUN_Server).Forget();
 
             Server = server;
             Mode = mode;
