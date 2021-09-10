@@ -37,7 +37,7 @@ namespace Netch.Models
         /// <summary>
         ///     使用自定义 DNS 设置
         /// </summary>
-        public bool UseCustomDNS { get; set; } = true;
+        public bool UseCustomDNS { get; set; } = false;
 
         /// <summary>
         ///     全局绕过 IP 列表
@@ -72,7 +72,7 @@ namespace Netch.Models
 
         public bool V2rayNShareLink { get; set; } = true;
 
-        public bool XrayCone { get; set; } = false;
+        public bool XrayCone { get; set; } = true;
     }
 
     public class AioDNSConfig
@@ -109,6 +109,7 @@ namespace Netch.Models
         /// <summary>
         ///     是否代理子进程
         /// </summary>
+        [JsonIgnore]
         public bool ChildProcessHandle { get; set; } = false;
     }
 
