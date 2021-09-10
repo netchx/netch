@@ -112,8 +112,6 @@ namespace Netch.Forms
 
             BindTextBox(ICMPDelayTextBox, s => int.TryParse(s, out _), s => { }, Global.Settings.Redirector.ICMPDelay);
 
-            BindCheckBox(RedirectorSSCheckBox, s => Global.Settings.Redirector.RedirectorSS = s, Global.Settings.Redirector.RedirectorSS);
-
             BindCheckBox(ChildProcessHandleCheckBox,
                 s => Global.Settings.Redirector.ChildProcessHandle = s,
                 Global.Settings.Redirector.ChildProcessHandle);

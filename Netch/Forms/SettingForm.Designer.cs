@@ -61,7 +61,6 @@ namespace Netch.Forms
             this.FilterICMPCheckBox = new System.Windows.Forms.CheckBox();
             this.ICMPDelayLabel = new System.Windows.Forms.Label();
             this.ICMPDelayTextBox = new System.Windows.Forms.TextBox();
-            this.RedirectorSSCheckBox = new System.Windows.Forms.CheckBox();
             this.ChildProcessHandleCheckBox = new System.Windows.Forms.CheckBox();
             this.WinTUNTabPage = new System.Windows.Forms.TabPage();
             this.WinTUNGroupBox = new System.Windows.Forms.GroupBox();
@@ -362,7 +361,6 @@ namespace Netch.Forms
             this.NFTabPage.Controls.Add(this.FilterICMPCheckBox);
             this.NFTabPage.Controls.Add(this.ICMPDelayLabel);
             this.NFTabPage.Controls.Add(this.ICMPDelayTextBox);
-            this.NFTabPage.Controls.Add(this.RedirectorSSCheckBox);
             this.NFTabPage.Controls.Add(this.ChildProcessHandleCheckBox);
             this.NFTabPage.Location = new System.Drawing.Point(4, 29);
             this.NFTabPage.Name = "NFTabPage";
@@ -436,21 +434,11 @@ namespace Netch.Forms
             this.ICMPDelayTextBox.TabIndex = 6;
             this.ICMPDelayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // RedirectorSSCheckBox
-            // 
-            this.RedirectorSSCheckBox.AutoSize = true;
-            this.RedirectorSSCheckBox.Location = new System.Drawing.Point(15, 140);
-            this.RedirectorSSCheckBox.Name = "RedirectorSSCheckBox";
-            this.RedirectorSSCheckBox.Size = new System.Drawing.Size(265, 21);
-            this.RedirectorSSCheckBox.TabIndex = 7;
-            this.RedirectorSSCheckBox.Text = "Redirector built-in Shadowsocks support";
-            this.RedirectorSSCheckBox.UseVisualStyleBackColor = true;
-            // 
             // ChildProcessHandleCheckBox
             // 
             this.ChildProcessHandleCheckBox.AutoSize = true;
             this.ChildProcessHandleCheckBox.Enabled = false;
-            this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(15, 170);
+            this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(15, 140);
             this.ChildProcessHandleCheckBox.Name = "ChildProcessHandleCheckBox";
             this.ChildProcessHandleCheckBox.Size = new System.Drawing.Size(150, 21);
             this.ChildProcessHandleCheckBox.TabIndex = 8;
@@ -1082,7 +1070,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox OtherDNSTextBox;
         private System.Windows.Forms.TextBox ChinaDNSTextBox;
         private System.Windows.Forms.TextBox DNSHijackHostTextBox;
-        private System.Windows.Forms.CheckBox RedirectorSSCheckBox;
         private System.Windows.Forms.Label ServerPingTypeLabel;
         private System.Windows.Forms.RadioButton TCPingRadioBtn;
         private System.Windows.Forms.RadioButton ICMPingRadioBtn;

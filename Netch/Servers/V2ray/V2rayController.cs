@@ -27,7 +27,7 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public virtual async Task<Socks5Server> StartAsync(Server s)
+        public virtual async Task<Socks5LocalServer> StartAsync(Server s)
         {
             await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
             {

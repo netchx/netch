@@ -8,7 +8,7 @@ namespace Netch.Servers
     {
         public override string Name { get; } = "Socks5";
 
-        public override async Task<Socks5Server> StartAsync(Server s)
+        public override async Task<Socks5LocalServer> StartAsync(Server s)
         {
             var server = (Socks5Server)s;
             if (!server.Auth())

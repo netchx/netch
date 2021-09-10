@@ -131,11 +131,11 @@ namespace Netch.Utils
             switch (type)
             {
                 case ModeType.Process:
-                    return (new NFController(), ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth | ModeFeature.RequireTestNat);
+                    return (new NFController(), ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth);
                 case ModeType.ProxyRuleIPs:
                     return (new TUNController(), ModeFeature.SupportSocks5Auth);
                 case ModeType.BypassRuleIPs:
-                    return (new TUNController(), ModeFeature.SupportSocks5Auth | ModeFeature.RequireTestNat);
+                    return (new TUNController(), ModeFeature.SupportSocks5Auth);
                 case ModeType.Pcap2Socks:
                     return (new PcapController(), 0);
                 default:

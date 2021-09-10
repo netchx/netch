@@ -27,7 +27,7 @@ namespace Netch.Controllers
 
         public string Name => "Redirector";
 
-        public async Task StartAsync(Server server, Mode mode)
+        public async Task StartAsync(Socks5Server server, Mode mode)
         {
             _server = server;
             _mode = mode;
@@ -121,13 +121,6 @@ namespace Netch.Controllers
                 Dial(NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
                 Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
                 Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
-            }
-            else if (server is ShadowsocksServer shadowsocks && !shadowsocks.HasPlugin() && _rdrConfig.RedirectorSS)
-            {
-                Dial(NameList.TYPE_TCPTYPE + offset, "Shadowsocks");
-                Dial(NameList.TYPE_TCPHOST + offset, $"{await shadowsocks.AutoResolveHostnameAsync()}:{shadowsocks.Port}");
-                Dial(NameList.TYPE_TCPMETH + offset, shadowsocks.EncryptMethod);
-                Dial(NameList.TYPE_TCPPASS + offset, shadowsocks.Password);
             }
             else
             {

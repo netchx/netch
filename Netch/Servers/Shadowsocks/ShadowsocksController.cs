@@ -23,7 +23,7 @@ namespace Netch.Servers
 
         public string? LocalAddress { get; set; }
 
-        public async Task<Socks5Server> StartAsync(Server s)
+        public async Task<Socks5LocalServer> StartAsync(Server s)
         {
             var server = (ShadowsocksServer)s;
 

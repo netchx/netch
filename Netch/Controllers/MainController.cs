@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
@@ -14,9 +15,11 @@ namespace Netch.Controllers
 {
     public static class MainController
     {
-        public static Mode? Mode { get; private set; }
+        public static Socks5Server? Socks5Server { get; private set; }
 
-        public static readonly NTTController NTTController = new();
+        public static Server? Server { get; private set; }
+
+        public static Mode? Mode { get; private set; }
 
         public static IServerController? ServerController { get; private set; }
 
@@ -31,12 +34,10 @@ namespace Netch.Controllers
             if (await DnsUtils.LookupAsync(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
+            Server = server;
             Mode = mode;
 
-            await Task.WhenAll(
-                Task.Run(NativeMethods.RefreshDNSCache),
-                Task.Run(Firewall.AddNetchFwRules)
-            );
+            await Task.WhenAll(Task.Run(NativeMethods.RefreshDNSCache), Task.Run(Firewall.AddNetchFwRules));
 
             if (Log.IsEnabled(LogEventLevel.Debug))
                 Task.Run(() =>
@@ -53,19 +54,34 @@ namespace Netch.Controllers
                 if (modePort != null)
                     TryReleaseTcpPort((ushort)modePort, portName);
 
-                switch (server)
+
+                switch (Server)
                 {
-                    case Socks5Server socks5 when !socks5.Auth() || socks5.Auth() && ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth):
-                    case ShadowsocksServer shadowsocks when !shadowsocks.HasPlugin() && ModeFeatures.HasFlag(ModeFeature.SupportShadowsocks) &&
-                                                      Global.Settings.Redirector.RedirectorSS:
+                    case Socks5Server socks5 when !socks5.Auth():
+                    case Socks5Server socks5B when socks5B.Auth() && ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth):
+                        // Directly Start ModeController
+                        Socks5Server = (Socks5Server)Server;
+                        Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                        await ModeController.StartAsync(Socks5Server, mode);
                         break;
                     default:
-                        server = await StartServerAsync(server);
+                        // Start Server Controller to get a local socks5 server
+                        Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
+
+                        ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
+                        Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
+
+                        TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
+                        Socks5Server = await ServerController.StartAsync(server);
+
+                        StatusPortInfoText.Socks5Port = Socks5Server.Port;
+                        StatusPortInfoText.UpdateShareLan();
+
+                        // Start Mode Controller
+                        Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                        await ModeController.StartAsync(Socks5Server, mode);
                         break;
                 }
-
-                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-                await ModeController.StartAsync(server, mode);
             }
             catch (Exception e)
             {
@@ -86,23 +102,6 @@ namespace Netch.Controllers
             }
         }
 
-        private static async Task<Server> StartServerAsync(Server server)
-        {
-            ServerController = ServerHelper.GetUtilByTypeName(server.Type).GetController();
-
-            TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
-
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
-
-            Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
-            var socks5Bridge = await ServerController.StartAsync(server);
-
-            StatusPortInfoText.Socks5Port = socks5Bridge.Port;
-            StatusPortInfoText.UpdateShareLan();
-
-            return socks5Bridge;
-        }
-
         public static async Task StopAsync()
         {
             if (ServerController == null && ModeController == null)
@@ -110,8 +109,6 @@ namespace Netch.Controllers
 
             Log.Information("Stop Main Controller");
             StatusPortInfoText.Reset();
-
-            Task.Run(() => NTTController.StopAsync()).Forget();
 
             var tasks = new[]
             {
@@ -169,6 +166,12 @@ namespace Netch.Controllers
             }
 
             PortCheck(port, portName, PortType.TCP);
+        }
+
+        public static async Task<NatTypeTestResult> NatTestAsync()
+        {
+            Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
+            return await NatTypeTester.StartAsync(Socks5Server);
         }
     }
 }

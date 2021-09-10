@@ -30,7 +30,7 @@ namespace Netch.Controllers
 
         public string Name => "tun2socks";
 
-        public async Task StartAsync(Server server, Mode mode)
+        public async Task StartAsync(Socks5Server server, Mode mode)
         {
             _mode = mode;
             _tunConfig = Global.Settings.TUNTAP;

@@ -1,6 +1,6 @@
-﻿using Netch.Utils;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using Netch.Utils;
 
 namespace Netch.Models
 {
@@ -105,11 +105,6 @@ namespace Netch.Models
         public int ICMPDelay { get; } = 0;
 
         public bool FilterICMP { get; set; } = false;
-
-        /// <summary>
-        ///     是否使用RDR内置SS
-        /// </summary>
-        public bool RedirectorSS { get; set; } = false;
 
         /// <summary>
         ///     是否代理子进程

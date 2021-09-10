@@ -15,7 +15,7 @@
     "Stopping": "正在停止中",
     "Stopped": "已停止",
     "Starting {0}": "正在启动 {0}",
-    "Testing NAT": "正在测试 NAT",
+    "Testing NAT Type": "正在测试 NAT 类型",
     "Setup Route Table Rule": "配置路由规则",
     "Test failed": "测试失败",
     "Starting update subscription": "正在更新订阅",

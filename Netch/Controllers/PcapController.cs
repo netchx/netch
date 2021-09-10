@@ -31,7 +31,7 @@ namespace Netch.Controllers
 
         public override string Name => "pcap2socks";
 
-        public async Task StartAsync(Server server, Mode mode)
+        public async Task StartAsync(Socks5Server server, Mode mode)
         {
             _server = server;
             _mode = mode;

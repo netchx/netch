@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Windows.Win32;
@@ -1151,44 +1150,38 @@ namespace Netch.Forms
 
         private async void NatTypeStatusLabel_Click(object sender, EventArgs e)
         {
-            if (_state == State.Started && NatTestLock.CurrentCount != 0)
-                await NatTestAsync();
+            await NatTestAsync();
         }
-
-        private static readonly SemaphoreSlim NatTestLock = new(1, 1);
 
         /// <summary>
         ///     测试 NAT
         /// </summary>
         private async Task NatTestAsync()
         {
-            if (!MainController.ModeFeatures.HasFlag(ModeFeature.RequireTestNat))
-                return;
-
-            if (NatTestLock.CurrentCount == 0)
-                return;
-
-            await NatTestLock.WaitAsync();
-
+            NatTypeStatusLabel.Enabled = false;
             try
             {
-                NatTypeStatusText(i18N.Translate("Testing NAT"));
+                NatTypeStatusText(i18N.Translate("Testing NAT Type"));
 
-                var (result, _, publicEnd) = await MainController.NTTController.StartAsync();
+                var res = await MainController.NatTestAsync();
 
-                if (!string.IsNullOrEmpty(publicEnd))
+                if (!string.IsNullOrEmpty(res.PublicEnd))
                 {
-                    var country = await Utils.Utils.GetCityCodeAsync(publicEnd!);
-                    NatTypeStatusText(result, country);
+                    var country = await Utils.Utils.GetCityCodeAsync(res.PublicEnd);
+                    NatTypeStatusText(res.Result, country);
                 }
                 else
                 {
-                    NatTypeStatusText(result ?? "Error");
+                    NatTypeStatusText(res.Result ?? "Error");
                 }
+            }
+            catch (Exception e)
+            {
+                NatTypeStatusText(e.Message);
             }
             finally
             {
-                NatTestLock.Release();
+                NatTypeStatusLabel.Enabled = true;
             }
         }
 
