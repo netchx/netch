@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Microsoft.VisualStudio.Threading;
 using Netch.Models;
-using Timer = System.Timers.Timer;
 
 namespace Netch.Utils
 {
@@ -12,9 +11,9 @@ namespace Netch.Utils
     {
         private static readonly Timer Timer;
 
-        private static readonly SemaphoreSlim Lock = new(1, 1);
+        private static readonly AsyncSemaphore Lock = new(1);
 
-        private static readonly SemaphoreSlim PoolLock = new(16, 16);
+        private static readonly AsyncSemaphore PoolLock = new(16);
 
         public static readonly NumberRange Range = new(0, int.MaxValue / 1000);
 
@@ -47,27 +46,20 @@ namespace Netch.Utils
             if (Lock.CurrentCount == 0)
             {
                 if (waitFinish)
-                {
-                    await Lock.WaitAsync();
-                    Lock.Release();
-                }
+                    (await Lock.EnterAsync()).Dispose();
 
                 return;
             }
 
-            await Lock.WaitAsync();
+            using var _ = await Lock.EnterAsync();
+
             try
             {
                 var tasks = Global.Settings.Server.Select(async s =>
                 {
-                    await PoolLock.WaitAsync();
-                    try
+                    using (await PoolLock.EnterAsync())
                     {
                         await s.PingAsync();
-                    }
-                    finally
-                    {
-                        PoolLock.Release();
                     }
                 });
 
@@ -76,10 +68,6 @@ namespace Netch.Utils
             catch (Exception)
             {
                 // ignored
-            }
-            finally
-            {
-                Lock.Release();
             }
         }
 
