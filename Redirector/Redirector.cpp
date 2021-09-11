@@ -4,11 +4,10 @@
 #include "Utils.h"
 
 extern BOOL filterLoopback;
+extern BOOL filterIntranet;
 extern BOOL filterICMP;
 extern BOOL filterTCP;
 extern BOOL filterUDP;
-extern USHORT tcpPort;
-extern USHORT udpPort;
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
@@ -53,6 +52,9 @@ extern "C" {
 		case AIO_FILTERLOOPBACK:
 			filterLoopback = (wstring(value).find(L"false") == string::npos);
 			break;
+		case AIO_FILTERINTRANET:
+			filterIntranet = (wstring(value).find(L"false") == string::npos);
+			break;
 		case AIO_FILTERICMP:
 			filterICMP = (wstring(value).find(L"false") == string::npos);
 			break;
@@ -87,12 +89,6 @@ extern "C" {
 			}
 
 			handleList.emplace_back(value);
-			break;
-		case AIO_TCPPORT:
-			tcpPort = (USHORT)atoi(ws2s(value).c_str());
-			break;
-		case AIO_UDPPORT:
-			udpPort = (USHORT)atoi(ws2s(value).c_str());
 			break;
 		default:
 			return FALSE;
@@ -137,6 +133,65 @@ extern "C" {
 			rule.ip_family = AF_INET6;
 			rule.remoteIpAddress[15] = 1;
 			memset(rule.remoteIpAddressMask, 0xff, sizeof(rule.remoteIpAddressMask));
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+		}
+
+		if (!filterIntranet)
+		{
+			/* 10.0.0.0/8 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "10.0.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.0.0.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 100.64.0.0/10 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "100.64.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.192.0.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 169.254.0.0/16 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "169.254.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.255.0.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 172.16.0.0/12 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "100.64.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.240.0.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 192.0.0.0/24 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "192.0.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.255.255.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 192.168.0.0/16 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "192.168.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.255.0.0", rule.remoteIpAddressMask);
+			rule.filteringFlag = NF_ALLOW;
+			nf_addRule(&rule, FALSE);
+
+			/* 198.18.0.0/15 */
+			memset(&rule, 0, sizeof(NF_RULE));
+			rule.ip_family = AF_INET;
+			inet_pton(AF_INET, "198.18.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "255.254.0.0", rule.remoteIpAddressMask);
 			rule.filteringFlag = NF_ALLOW;
 			nf_addRule(&rule, FALSE);
 		}

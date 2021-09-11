@@ -1,7 +1,6 @@
 #pragma once
 #ifndef BASED_H
 #define BASED_H
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <stdio.h>
 
 #include <map>
@@ -12,7 +11,6 @@
 #include <string>
 #include <vector>
 #include <thread>
-#include <codecvt>
 #include <iostream>
 
 #include <WinSock2.h>
@@ -26,27 +24,14 @@ using namespace std;
 
 typedef enum _AIO_TYPE {
 	AIO_FILTERLOOPBACK,
+	AIO_FILTERINTRANET,
 	AIO_FILTERICMP,
 	AIO_FILTERTCP,
 	AIO_FILTERUDP,
 
 	AIO_CLRNAME,
 	AIO_ADDNAME,
-	AIO_BYPNAME,
-
-	AIO_TCPPORT,
-	AIO_UDPPORT
+	AIO_BYPNAME
 } AIO_TYPE;
-
-typedef struct _TCPINFO {
-	DWORD PID;
-	PBYTE Client[NF_MAX_ADDRESS_LENGTH];
-	PBYTE Target[NF_MAX_ADDRESS_LENGTH];
-} TCPINFO, * PTCPINFO;
-
-typedef struct _UDPINFO {
-	DWORD  PID;
-	SOCKET Socket;
-} UDPINFO, * PUDPINFO;
 
 #endif

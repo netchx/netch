@@ -100,18 +100,13 @@
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="IPEventHandler.cpp" />
     <ClCompile Include="Redirector.cpp" />
-    <ClCompile Include="TCPHandler.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h" />
     <ClInclude Include="IPEventHandler.h" />
     <ClInclude Include="Based.h" />
-    <ClInclude Include="TCPHandler.h" />
     <ClInclude Include="Utils.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="PROTOCOL.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
