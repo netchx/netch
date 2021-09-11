@@ -66,6 +66,8 @@ namespace Netch.Utils
         {
             switch (res.BindingTestResult, res.MappingBehavior, res.FilteringBehavior)
             {
+                case (BindingTestResult.Fail, _, _):
+                    return "NoUDP";
                 case (not BindingTestResult.Success, _, _):
                     return res.BindingTestResult.ToString();
                 case (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.EndpointIndependent):
@@ -74,6 +76,8 @@ namespace Netch.Utils
                     return "2";
                 case (_, MappingBehavior.AddressDependent or MappingBehavior.AddressAndPortDependent, _):
                     return "3";
+                case (_, MappingBehavior.Fail, _):
+                    return MappingBehavior.Fail.ToString();
                 default:
                     return res.FilteringBehavior.ToString();
             }
