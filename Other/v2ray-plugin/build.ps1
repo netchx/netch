@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/teddysun/v2ray-plugin src
+git clone https://github.com/teddysun/v2ray-plugin -b 'v4.42.1' src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode

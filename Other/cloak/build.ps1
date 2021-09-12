@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/cbeuw/Cloak src
+git clone https://github.com/cbeuw/Cloak -b 'v2.5.5' src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode

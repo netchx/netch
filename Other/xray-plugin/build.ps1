@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/teddysun/xray-plugin src
+git clone https://github.com/teddysun/xray-plugin -b 'v1.4.3' src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode
