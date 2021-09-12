@@ -35,8 +35,8 @@ Some features may not be implemented in version 1
 - .NET 5.0 x64
 
 ## Donate
-- XMR `48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx`
-- ETH `0x23dac0a93bcd71fec7a95833ad030338f167f185`
+- `XMR` `48ju3ELNZEa6wwPBMexCJ9G218BGY2XwhH6B6bmkFuJ3QgM4hPw2Pra35jPtuBZSc7SLNWeBpiWJZWjQeMAiLnTx2tH2Efx`
+- `ETH` `0x23dac0a93bcd71fec7a95833ad030338f167f185`
 
 ## Sponsor
 <a href="https://www.jetbrains.com/?from=Netch"><img src="jetbrains.svg" alt="JetBrains" width="200"/></a>
