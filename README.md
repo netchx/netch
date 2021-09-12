@@ -26,7 +26,7 @@ Some features may not be implemented in version 1
 - [`Socks5`](https://www.wikiwand.com/en/SOCKS)
 - [`Shadowsocks`](https://github.com/shadowsocks/shadowsocks-libev)
 - [`ShadowsocksR`](https://github.com/shadowsocksrr/shadowsocksr-libev)
-- [`Trojan`](https://trojan-gfw.github.io/trojan/)
+- [`Trojan`](https://github.com/p4gefau1t/trojan-go)
 - [`VMess`](https://github.com/v2fly/v2ray-core)
 - [`VLess`](https://github.com/xtls/xray-core)
 
