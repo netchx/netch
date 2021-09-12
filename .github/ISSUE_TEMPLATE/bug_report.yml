@@ -1,0 +1,43 @@
+name: Bug report
+description: Create a report to help us improve
+labels: bug
+body:
+  - type: textarea
+    id: error
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To Reproduce
+      placeholder: |
+        1. Open Netch
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: Attaching any log files in the folder `logging` is strongly recommended.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      render: txt
+      placeholder: |
+        - OS: [e.g. Windows 10 x64 Professional Workstation 20H2 19042.928]
+        - Netch Version: [e.g. 1.0.0]
+    validations:
+      required: true
+  - type: textarea
+    id: info
+    attributes:
+      label: Additional information
+      description: >
+        If you have any additional information for us, use the field below.

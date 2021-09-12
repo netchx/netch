@@ -1,0 +1,11 @@
+name: 功能请求
+description: 建议这个项目的想法
+labels: enhancement
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 功能描述
+      description: 简明扼要地描述需要的功能
+    validations:
+      required: true

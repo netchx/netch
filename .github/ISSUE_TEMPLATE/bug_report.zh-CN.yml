@@ -1,0 +1,43 @@
+name: 错误报告
+description: 创建错误报告以帮助我们改进
+labels: bug
+body:
+  - type: textarea
+    id: error
+    attributes:
+      label: 错误描述
+      description: 对错误的清晰简洁描述
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开 Netch 软件
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: 日志
+      description: 强烈建议附上任何在 `logging` 文件夹下面的日志
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 操作环境
+      render: txt
+      placeholder: |
+        操作系统：[Windows 10 x64 Professional Workstation 20H2 19042.928]
+        软件版本：[1.0.0]
+    validations:
+      required: true
+  - type: textarea
+    id: info
+    attributes:
+      label: 额外信息
+      description: >
+        下面的文本框中你可以附上跟 issue 相关的截图、文件
