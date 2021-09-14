@@ -15,5 +15,7 @@ $Env:GOARCH='amd64'
 go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w' -o '..\..\release\ck-client.exe' '.\cmd\ck-client'
 
 Pop-Location
+rm -Recurse -Force src
+
 Pop-Location
 exit $lastExitCode

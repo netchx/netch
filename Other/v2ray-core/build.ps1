@@ -15,6 +15,8 @@ $Env:GOARCH='amd64'
 go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w -buildid=' -o '..\..\release\v2ray.exe' '.\main'
 if ( -Not $? ) {
     Pop-Location
+    rm -Recurse -Force src
+
     Pop-Location
     exit $lastExitCode
 }
@@ -22,6 +24,8 @@ if ( -Not $? ) {
 go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w -buildid=' -tags confonly -o '..\..\release\v2ctl.exe' '.\infra\control\main'
 if ( -Not $? ) {
     Pop-Location
+    rm -Recurse -Force src
+
     Pop-Location
     exit $lastExitCode
 }
@@ -29,5 +33,7 @@ if ( -Not $? ) {
 go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w -buildid= -H windowsgui' -o '..\..\release\wv2ray.exe' '.\main'
 
 Pop-Location
+rm -Recurse -Force src
+
 Pop-Location
 exit $lastExitCode
