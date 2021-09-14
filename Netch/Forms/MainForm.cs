@@ -1058,6 +1058,8 @@ namespace Netch.Forms
         private async Task StopCoreAsync()
         {
             State = State.Stopping;
+            _discoveryNatCts?.Cancel();
+            _httpConnectCts?.Cancel();
             await MainController.StopAsync();
             State = State.Stopped;
         }
@@ -1082,9 +1084,10 @@ namespace Netch.Forms
             }
 
             text ??= i18N.Translate(StateExtension.GetStatusString(State));
-            StatusLabel.Text = i18N.Translate("Status", ": ") + text;
             if (_state == State.Started)
-                StatusLabel.Text += StatusPortInfoText.Value;
+                text += StatusPortInfoText.Value;
+
+            StatusLabel.Text = i18N.Translate("Status", ": ") + text;
         }
 
         public void BandwidthState(bool state)
@@ -1164,19 +1167,20 @@ namespace Netch.Forms
             await DiscoveryNatTypeAsync();
         }
 
+        private CancellationTokenSource? _discoveryNatCts;
+
         private async Task DiscoveryNatTypeAsync()
         {
             NatTypeStatusLabel.Enabled = false;
-            NatTypeStatusLabel.Text = i18N.Translate("Testing NAT Type");
+            UpdateNatTypeStatusLabelText("Testing NAT Type");
 
-            using var cts = new CancellationTokenSource();
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
-
-            var discoveryNatTypeAsync = MainController.DiscoveryNatTypeAsync(cts.Token);
+            _discoveryNatCts = new CancellationTokenSource();
 
             try
             {
-                var res = await discoveryNatTypeAsync;
+                var res = await MainController.DiscoveryNatTypeAsync(_discoveryNatCts.Token);
+                if (_discoveryNatCts.IsCancellationRequested)
+                    return;
 
                 if (!string.IsNullOrEmpty(res.PublicEnd))
                 {
@@ -1196,23 +1200,28 @@ namespace Netch.Forms
             }
             finally
             {
+                _discoveryNatCts.Dispose();
+                _discoveryNatCts = null;
                 NatTypeStatusLabel.Enabled = true;
             }
         }
+
+        private CancellationTokenSource? _httpConnectCts;
 
         private async Task HttpConnectAsync()
         {
             TcpStatusLabel.Enabled = false;
 
-            using var cts = new CancellationTokenSource();
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var httpConnectAsync = MainController.HttpConnectAsync(cts.Token);
+            _httpConnectCts = new CancellationTokenSource();
 
             try
             {
-                var httpRes = await httpConnectAsync;
-                if (httpRes != null)
-                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ")}{httpRes}ms";
+                var res = await MainController.HttpConnectAsync(_httpConnectCts.Token);
+                if (_httpConnectCts.IsCancellationRequested)
+                    return;
+
+                if (res != null)
+                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ")}{res}ms";
                 else
                     TcpStatusLabel.Text = $"TCP{i18N.Translate(": ", "Timeout")}";
 
@@ -1220,6 +1229,8 @@ namespace Netch.Forms
             }
             finally
             {
+                _httpConnectCts.Dispose();
+                _httpConnectCts = null;
                 TcpStatusLabel.Enabled = true;
             }
         }
