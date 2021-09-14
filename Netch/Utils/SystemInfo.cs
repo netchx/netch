@@ -13,14 +13,14 @@ namespace Netch.Utils
             var mc = new ManagementClass("Win32_SystemDriver");
             foreach (var obj in mc.GetInstances().Cast<ManagementObject>())
             {
-                if (!(bool) obj["Started"])
+                if (!(bool)obj["Started"])
                     continue;
 
                 var path = obj["PathName"].ToString();
                 if (path == null)
                     continue;
 
-                var vendorExclude = new[] {"microsoft", "intel", "amd", "nvidia", "realtek"};
+                var vendorExclude = new[] { "microsoft", "intel", "amd", "nvidia", "realtek" };
                 var vendorName = FileVersionInfo.GetVersionInfo(path).LegalCopyright ?? string.Empty;
                 if (!allDriver && vendorExclude.Any(s => vendorName.Contains(s, StringComparison.OrdinalIgnoreCase)))
                     continue;
@@ -32,6 +32,7 @@ namespace Netch.Utils
         public static IEnumerable<string> Processes(bool mask)
         {
             var hashset = new HashSet<string>();
+            var windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
             foreach (var process in Process.GetProcesses())
             {
                 try
@@ -39,8 +40,10 @@ namespace Netch.Utils
                     if (process.Id is 0 or 4)
                         continue;
 
-                    if (process.MainModule!.FileName!.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.Windows), StringComparison.OrdinalIgnoreCase))
+                    // ! NT Kernel & System 
+                    if (process.MainModule!.FileName!.StartsWith(windowsFolder, StringComparison.OrdinalIgnoreCase))
                         continue;
+
                     var path = process.MainModule.FileName;
 
                     if (mask)

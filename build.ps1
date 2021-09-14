@@ -22,7 +22,9 @@ param (
 	$PublishSingleFile = $True
 )
 
-# .\scripts\download.ps1 $OutputPath
+Remove-Item -Recurse -Force $OutputPath
+
+.\scripts\download.ps1 $OutputPath
 
 # if ( -Not $? ) {
 # 	Exit 1
