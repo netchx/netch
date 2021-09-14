@@ -22,7 +22,7 @@ param (
 	$PublishSingleFile = $True
 )
 
-Remove-Item -Recurse -Force $OutputPath
+Remove-Item -Recurse -Force $OutputPath -Confirm:$false -ErrorAction Ignore
 
 .\scripts\download.ps1 $OutputPath
 
