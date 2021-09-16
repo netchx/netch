@@ -26,6 +26,12 @@
     <ClCompile Include="Utils.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="SocksHelper.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TCPHandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h">
@@ -38,6 +44,12 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="SocksHelper.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TCPHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
