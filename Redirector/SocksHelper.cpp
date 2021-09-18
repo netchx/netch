@@ -454,8 +454,8 @@ int SocksHelper::UDP::Read(PSOCKADDR target, char* buffer, int length)
 		auto ipv4 = (PSOCKADDR_IN)target;
 		ipv4->sin_family = AF_INET;
 
-		memcpy(&ipv4->sin_addr, buffer + 1, 4);
-		memcpy(&ipv4->sin_port, buffer + 5, 2);
+		memcpy(&ipv4->sin_addr, buffer + 4, 4);
+		memcpy(&ipv4->sin_port, buffer + 8, 2);
 
 		memcpy(buffer, buffer + 10, (ULONG64)bufferLength - 10);
 	}
