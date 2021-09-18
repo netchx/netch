@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/p4gefau1t/trojan-go -b 'v0.10.5' src
+git clone https://github.com/p4gefau1t/trojan-go -b 'v0.10.6' src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode
