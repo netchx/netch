@@ -1,6 +1,7 @@
 # How to build
 ## Requirements
 - Go
+- Git
 - 7-Zip
 - MinGW-w64
 - Visual Studio 2019
