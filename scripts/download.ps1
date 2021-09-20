@@ -22,7 +22,7 @@ New-Item -ItemType Directory -Name i18n | Out-Null
 
 Copy-Item -Recurse -Force .\netchdata-master\*             .\bin -Exclude @('tap2socks.bin')
 Copy-Item -Recurse -Force .\netchmode-master\mode\*        .\mode
-Copy-Item -Recurse -Force .\netchi18n-master\i18n\* .\i18n
+Copy-Item -Recurse -Force .\netchi18n-master\i18n\*        .\i18n
 
 Remove-Item -Recurse -Force netchdata-master
 Remove-Item -Recurse -Force netchmode-master
@@ -31,9 +31,10 @@ Remove-Item -Force data.zip
 Remove-Item -Force mode.zip
 Remove-Item -Force i18n.zip
 
-#..\scripts\download\aiodns.ps1    -OutputPath bin
-..\scripts\download\cloak.ps1     -OutputPath bin
-..\scripts\download\xray-core.ps1 -OutputPath bin
+#..\scripts\download\aiodns.ps1     -OutputPath bin
+..\scripts\download\cloak.ps1      -OutputPath bin
+..\scripts\download\xray-core.ps1  -OutputPath bin
+..\scripts\download\pcap2socks.ps1 -OutputPath bin
 
 Get-Item *
 Set-Location $last
