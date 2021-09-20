@@ -41,7 +41,7 @@ namespace Netch.Servers
                 },
                 ssl = new TrojanSSL
                 {
-                    sni = server.Host.ValueOrDefault() ?? (Global.Settings.ResolveServerHostname ? server.Hostname : "")
+                    sni = server.Host.ValueOrDefault() ?? server.Hostname
                 }
             };
 

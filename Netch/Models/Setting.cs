@@ -193,11 +193,6 @@ namespace Netch.Models
         public int RequestTimeout { get; set; } = 10000;
 
         /// <summary>
-        ///     解析服务器主机名
-        /// </summary>
-        public bool ResolveServerHostname { get; set; } = true;
-
-        /// <summary>
         ///     是否开机启动软件
         /// </summary>
         public bool RunAtStartup { get; set; } = false;

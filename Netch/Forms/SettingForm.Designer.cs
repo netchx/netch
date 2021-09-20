@@ -39,7 +39,6 @@ namespace Netch.Forms
             this.HTTPPortLabel = new System.Windows.Forms.Label();
             this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
-            this.ResolveServerHostnameCheckBox = new System.Windows.Forms.CheckBox();
             this.ServerPingTypeLabel = new System.Windows.Forms.Label();
             this.ICMPingRadioBtn = new System.Windows.Forms.RadioButton();
             this.TCPingRadioBtn = new System.Windows.Forms.RadioButton();
@@ -144,7 +143,6 @@ namespace Netch.Forms
             // 
             this.GeneralTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.GeneralTabPage.Controls.Add(this.PortGroupBox);
-            this.GeneralTabPage.Controls.Add(this.ResolveServerHostnameCheckBox);
             this.GeneralTabPage.Controls.Add(this.ServerPingTypeLabel);
             this.GeneralTabPage.Controls.Add(this.ICMPingRadioBtn);
             this.GeneralTabPage.Controls.Add(this.TCPingRadioBtn);
@@ -224,20 +222,10 @@ namespace Netch.Forms
             this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.AllowDevicesCheckBox.UseVisualStyleBackColor = true;
             // 
-            // ResolveServerHostnameCheckBox
-            // 
-            this.ResolveServerHostnameCheckBox.AutoSize = true;
-            this.ResolveServerHostnameCheckBox.Location = new System.Drawing.Point(267, 15);
-            this.ResolveServerHostnameCheckBox.Name = "ResolveServerHostnameCheckBox";
-            this.ResolveServerHostnameCheckBox.Size = new System.Drawing.Size(176, 21);
-            this.ResolveServerHostnameCheckBox.TabIndex = 1;
-            this.ResolveServerHostnameCheckBox.Text = "Resolve Server Hostname";
-            this.ResolveServerHostnameCheckBox.UseVisualStyleBackColor = true;
-            // 
             // ServerPingTypeLabel
             // 
             this.ServerPingTypeLabel.AutoSize = true;
-            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 44);
+            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 15);
             this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
             this.ServerPingTypeLabel.Size = new System.Drawing.Size(86, 17);
             this.ServerPingTypeLabel.TabIndex = 2;
@@ -246,7 +234,7 @@ namespace Netch.Forms
             // ICMPingRadioBtn
             // 
             this.ICMPingRadioBtn.AutoSize = true;
-            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 63);
+            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 34);
             this.ICMPingRadioBtn.Name = "ICMPingRadioBtn";
             this.ICMPingRadioBtn.Size = new System.Drawing.Size(75, 21);
             this.ICMPingRadioBtn.TabIndex = 3;
@@ -257,7 +245,7 @@ namespace Netch.Forms
             // TCPingRadioBtn
             // 
             this.TCPingRadioBtn.AutoSize = true;
-            this.TCPingRadioBtn.Location = new System.Drawing.Point(366, 64);
+            this.TCPingRadioBtn.Location = new System.Drawing.Point(366, 35);
             this.TCPingRadioBtn.Name = "TCPingRadioBtn";
             this.TCPingRadioBtn.Size = new System.Drawing.Size(66, 21);
             this.TCPingRadioBtn.TabIndex = 4;
@@ -1012,7 +1000,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox HTTPPortTextBox;
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
-        private System.Windows.Forms.CheckBox ResolveServerHostnameCheckBox;
         private System.Windows.Forms.GroupBox WinTUNGroupBox;
         private System.Windows.Forms.CheckBox ProxyDNSCheckBox;
         private System.Windows.Forms.CheckBox UseCustomDNSCheckBox;

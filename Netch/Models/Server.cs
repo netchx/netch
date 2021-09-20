@@ -111,7 +111,8 @@ namespace Netch.Models
     {
         public static async Task<string> AutoResolveHostnameAsync(this Server server, AddressFamily inet = AddressFamily.Unspecified)
         {
-            return Global.Settings.ResolveServerHostname ? (await DnsUtils.LookupAsync(server.Hostname, inet))!.ToString() : server.Hostname;
+            // ! MainController cached
+            return (await DnsUtils.LookupAsync(server.Hostname, inet))!.ToString();
         }
 
         public static bool IsInGroup(this Server server)

@@ -103,6 +103,7 @@
     "Please select a mode first": "请先选择一个模式",
     "Please enter a profile name first": "请先为该配置设置一个名称",
     "No saved profile here. Save a profile first by Ctrl+Click on the button": "当前按钮下没有保存配置，请先使用 CTRL + 左键 点击该按钮保存一个配置",
+    "Lookup Server hostname failed": "解析服务器主机名失败",
 
     "Used": "已使用",
     "Testing": "测试中",
@@ -154,14 +155,12 @@
     "Handle process's DNS Hijack": "被代理进程 DNS 劫持",
     "Child Process Handle": "子进程代理",
     "ICMP Delay(ms)": "ICMP 延迟（毫秒）",
-    "Redirector built-in Shadowsocks support": "Redirector 内建 Shadowsocks 支持",
     "Profile Count": "快捷配置数量",
     "Delay test after start(sec)": "启动后延迟测试（秒）",
     "Ping Protocol": "延迟测试协议",
     "Detection Tick(sec)": "检测心跳（秒）",
     "STUN Server": "STUN 服务器",
     "Language": "语言",
-    "Resolve Server Hostname": "解析服务器主机名",
     "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
     "Disable Support Warning": "停用支持警告",
 
