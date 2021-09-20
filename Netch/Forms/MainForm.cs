@@ -1126,9 +1126,9 @@ namespace Netch.Forms
         private void ConnectivityStatusVisible(bool visible)
         {
             if (!visible)
-                TcpStatusLabel.Text = NatTypeStatusLabel.Text = "";
+                HttpStatusLabel.Text = NatTypeStatusLabel.Text = "";
 
-            TcpStatusLabel.Visible = NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = visible;
+            HttpStatusLabel.Visible = NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = visible;
         }
 
         /// <summary>
@@ -1210,7 +1210,7 @@ namespace Netch.Forms
 
         private async Task HttpConnectAsync()
         {
-            TcpStatusLabel.Enabled = false;
+            HttpStatusLabel.Enabled = false;
 
             _httpConnectCts = new CancellationTokenSource();
 
@@ -1221,17 +1221,17 @@ namespace Netch.Forms
                     return;
 
                 if (res != null)
-                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ")}{res}ms";
+                    HttpStatusLabel.Text = $"HTTP{i18N.Translate(": ")}{res}ms";
                 else
-                    TcpStatusLabel.Text = $"TCP{i18N.Translate(": ", "Timeout")}";
+                    HttpStatusLabel.Text = $"HTTP{i18N.Translate(": ", "Timeout")}";
 
-                TcpStatusLabel.Visible = true;
+                HttpStatusLabel.Visible = true;
             }
             finally
             {
                 _httpConnectCts.Dispose();
                 _httpConnectCts = null;
-                TcpStatusLabel.Enabled = true;
+                HttpStatusLabel.Enabled = true;
             }
         }
 

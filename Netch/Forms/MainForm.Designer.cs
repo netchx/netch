@@ -73,7 +73,7 @@
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.blankToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.TcpStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.HttpStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLightLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.ControlButton = new System.Windows.Forms.Button();
@@ -522,7 +522,7 @@
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel,
             this.blankToolStripStatusLabel,
-            this.TcpStatusLabel,
+            this.HttpStatusLabel,
             this.NatTypeStatusLabel,
             this.NatTypeStatusLightLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 272);
@@ -565,14 +565,14 @@
             this.blankToolStripStatusLabel.Size = new System.Drawing.Size(240, 17);
             this.blankToolStripStatusLabel.Spring = true;
             // 
-            // TcpStatusLabel
+            // HttpStatusLabel
             // 
-            this.TcpStatusLabel.Name = "TcpStatusLabel";
-            this.TcpStatusLabel.Size = new System.Drawing.Size(33, 17);
-            this.TcpStatusLabel.Text = "TCP:";
-            this.TcpStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.TcpStatusLabel.Visible = false;
-            this.TcpStatusLabel.Click += new System.EventHandler(this.TcpStatusLabel_Click);
+            this.HttpStatusLabel.Name = "HttpStatusLabel";
+            this.HttpStatusLabel.Size = new System.Drawing.Size(41, 17);
+            this.HttpStatusLabel.Text = "HTTP:";
+            this.HttpStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.HttpStatusLabel.Visible = false;
+            this.HttpStatusLabel.Click += new System.EventHandler(this.TcpStatusLabel_Click);
             // 
             // NatTypeStatusLabel
             // 
@@ -803,6 +803,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.ContainerControl ButtomControlContainerControl;
         private System.Windows.Forms.ToolStripMenuItem ShowHideConsoleToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel TcpStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel HttpStatusLabel;
     }
 }
