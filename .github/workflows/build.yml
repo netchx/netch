@@ -27,6 +27,20 @@ jobs:
         run: |
           .\build.ps1 -Configuration Release -OutputPath release
 
+      - name: Package
+        shell: pwsh
+        run: |
+          7z a -mx9 Netch.7z release
+          7z rn Netch.7z release Netch
+          echo "NETCH_SHA256=$((Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower())" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: VirusTotal
+        uses: crazy-max/ghaction-virustotal@v2
+        with:
+          vt_api_key: ${{ secrets.VirusTotal }}
+          files: |
+            Netch.7z
+
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
