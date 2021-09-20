@@ -130,7 +130,7 @@ namespace Netch
 
             if (frameworkName.Version.Major != Environment.Version.Major)
             {
-                Log.Information("CLR: {OSVersion}", Environment.Version);
+                Log.Information("CLR: {Version}", Environment.Version);
                 Flags.NoSupport = true;
                 if(!Global.Settings.NoSupportDialog)
                     MessageBoxX.Show(i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.", "CLR " + Environment.Version), LogLevel.WARNING);
