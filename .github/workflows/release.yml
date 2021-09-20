@@ -39,7 +39,7 @@ jobs:
       - name: Checksum
         shell: pwsh
         run: |
-          $hash=(Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower())
+          $hash=(Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower()
           echo "$hash Netch.7z"
           echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
