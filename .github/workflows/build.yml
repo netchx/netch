@@ -43,7 +43,7 @@ jobs:
       - name: VirusTotal
         uses: crazy-max/ghaction-virustotal@v2
         with:
-          vt_api_key: ${{ secrets.VirusTotal }}
+          vt_api_key: ${{ secrets.VIRUSTOTAL }}
           files: |
             Netch.7z
 
