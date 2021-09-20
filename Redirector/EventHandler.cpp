@@ -1,5 +1,7 @@
 #include "EventHandler.h"
 
+#include "SocksHelper.h"
+
 extern BOOL filterTCP;
 extern BOOL filterUDP;
 extern vector<wstring> bypassList;

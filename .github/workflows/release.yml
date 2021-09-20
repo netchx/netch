@@ -43,13 +43,6 @@ jobs:
           echo "$hash Netch.7z"
           echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
-      - name: VirusTotal
-        uses: crazy-max/ghaction-virustotal@v2
-        with:
-          vt_api_key: ${{ secrets.VIRUSTOTAL }}
-          files: |
-            Netch.7z
-
       - name: Release
         uses: softprops/action-gh-release@v1
         env:
