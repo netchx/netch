@@ -32,7 +32,13 @@ jobs:
         run: |
           7z a -mx9 Netch.7z release
           7z rn Netch.7z release Netch
-          echo "NETCH_SHA256=$((Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower())" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash=(Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower())
+          echo "$hash Netch.7z"
+          echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: VirusTotal
         uses: crazy-max/ghaction-virustotal@v2
