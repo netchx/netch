@@ -35,7 +35,7 @@ namespace Netch.Controllers.Other.DNS
 
             Methods.aiodns_dial(NameList.TYPE_REST, "");
             Methods.aiodns_dial(NameList.TYPE_LIST, "chnsite.txt");
-            Methods.aiodns_dial(NameList.TYPE_LISN, Global.Config.AioDNS.ListenPort.ToString());
+            Methods.aiodns_dial(NameList.TYPE_LISN, $"127.0.0.1:{Global.Config.AioDNS.ListenPort}");
             Methods.aiodns_dial(NameList.TYPE_CDNS, Global.Config.AioDNS.ChinaDNS);
             Methods.aiodns_dial(NameList.TYPE_ODNS, Global.Config.AioDNS.OtherDNS);
 
