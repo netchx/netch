@@ -13,7 +13,7 @@ namespace SocksHelper
 		bool ReadAddr(SOCKET client, char type, PSOCKADDR addr);
 	}
 
-	class TCP
+	typedef class TCP
 	{
 	public:
 		TCP();
@@ -26,9 +26,9 @@ namespace SocksHelper
 		int Read(char* buffer, int length);
 
 		SOCKET tcpSocket = NULL;
-	};
+	} *PTCP;
 
-	class UDP
+	typedef class UDP
 	{
 	public:
 		UDP();
@@ -48,7 +48,7 @@ namespace SocksHelper
 
 		thread tcpThread;
 		SOCKADDR_IN6 address = { 0 };
-	};
+	} *PUDP;
 };
 
 #endif

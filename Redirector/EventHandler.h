@@ -3,7 +3,7 @@
 #define EVENTHANDLER_H
 #include "Based.h"
 
-BOOL eh_init();
+bool eh_init();
 void eh_free();
 
 void threadStart();

@@ -1,11 +1,13 @@
 #include "EventHandler.h"
 
-#include "SocksHelper.h"
+#include "TCPHandler.h"
 
 extern BOOL filterTCP;
 extern BOOL filterUDP;
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
+
+extern USHORT tcpListen;
 
 wstring ConvertIP(PSOCKADDR addr)
 {
@@ -84,14 +86,14 @@ BOOL checkHandleName(DWORD id)
 	return FALSE;
 }
 
-BOOL eh_init()
+bool eh_init()
 {
-	return TRUE;
+	return TCPHandler::Init();
 }
 
 void eh_free()
 {
-
+	TCPHandler::Free();
 }
 
 void threadStart()
@@ -137,6 +139,31 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!IPv4 && !IPv6] " << GetProcessName(info->processId) << endl;
 		return;
 	}
+
+	SOCKADDR_IN6 client;
+	memcpy(&client, info->localAddress, sizeof(SOCKADDR_IN6));
+
+	SOCKADDR_IN6 remote;
+	memcpy(&remote, info->remoteAddress, sizeof(SOCKADDR_IN6));
+
+	if (info->ip_family == AF_INET)
+	{
+		auto addr = (PSOCKADDR_IN)info->remoteAddress;
+		addr->sin_family = AF_INET;
+		addr->sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
+		addr->sin_port = htons(tcpListen);
+	}
+
+	if (info->ip_family == AF_INET6)
+	{
+		auto addr = (PSOCKADDR_IN6)info->remoteAddress;
+		IN6ADDR_SETLOOPBACK(addr);
+		addr->sin6_port = htons(tcpListen);
+	}
+
+	TCPHandler::CreateHandler(client, remote);
+
+	wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "] " << ConvertIP((PSOCKADDR)&client) << " -> " << ConvertIP((PSOCKADDR)&remote) << endl;
 }
 
 void tcpConnected(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
@@ -166,6 +193,11 @@ void tcpReceive(ENDPOINT_ID id, const char* buffer, int length)
 
 void tcpClosed(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
+	SOCKADDR_IN6 client;
+	memcpy(&client, info->localAddress, sizeof(SOCKADDR_IN6));
+
+	TCPHandler::DeleteHandler(client);
+
 	printf("[Redirector][EventHandler][tcpClosed][%llu][%lu]\n", id, info->processId);
 }
 
@@ -194,6 +226,8 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << GetProcessName(info->processId) << endl;
 		return;
 	}
+
+	nf_udpDisableFiltering(id);
 }
 
 void udpConnectRequest(ENDPOINT_ID id, PNF_UDP_CONN_REQUEST info)

@@ -8,6 +8,10 @@ extern BOOL filterIntranet;
 extern BOOL filterICMP;
 extern BOOL filterTCP;
 extern BOOL filterUDP;
+extern wstring tgtHost;
+extern wstring tgtPort;
+extern string tgtUsername;
+extern string tgtPassword;
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
@@ -67,6 +71,18 @@ extern "C" {
 		case AIO_CLRNAME:
 			bypassList.clear();
 			handleList.clear();
+			break;
+		case AIO_TGTHOST:
+			tgtHost = wstring(value);
+			break;
+		case AIO_TGTPORT:
+			tgtPort = wstring(value);
+			break;
+		case AIO_TGTUSER:
+			tgtUsername = ws2s(value);
+			break;
+		case AIO_TGTPASS:
+			tgtPassword = ws2s(value);
 			break;
 		case AIO_BYPNAME:
 			try
