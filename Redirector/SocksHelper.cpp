@@ -95,22 +95,22 @@ bool SocksHelper::Utils::Handshake(SOCKET client)
 			printf("[Redirector][SocksHelper::Utils::Handshake] Send authentication request failed: %d\n", WSAGetLastError());
 			return false;
 		}
+
+		/* Server Response */
+		if (recv(client, buffer, 2, 0) != 2)
+		{
+			printf("[Redirector][SocksHelper::Utils::Handshake] Receive server response failed: %d\n", WSAGetLastError());
+			return false;
+		}
+
+		if (buffer[1] != 0x00)
+		{
+			puts("[Redirector][SocksHelper::Utils::Handshake] Authentication failed");
+			return false;
+		}
 	}
 	else if (buffer[1] != 0x00)
 	{
-		return false;
-	}
-
-	/* Server Response */
-	if (recv(client, buffer, 2, 0) != 2)
-	{
-		printf("[Redirector][SocksHelper::Utils::Handshake] Receive server response failed: %d\n", WSAGetLastError());
-		return false;
-	}
-
-	if (buffer[1] != 0x00)
-	{
-		puts("[Redirector][SocksHelper::Utils::Handshake] Authentication failed");
 		return false;
 	}
 
