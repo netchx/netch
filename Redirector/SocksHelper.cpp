@@ -245,7 +245,7 @@ int SocksHelper::TCP::Send(char* buffer, int length)
 		return send(this->tcpSocket, buffer, length, 0);
 	}
 
-	return -1;
+	return SOCKET_ERROR;
 }
 
 int SocksHelper::TCP::Read(char* buffer, int length)
@@ -255,7 +255,7 @@ int SocksHelper::TCP::Read(char* buffer, int length)
 		return recv(this->tcpSocket, buffer, length, 0);
 	}
 
-	return -1;
+	return SOCKET_ERROR;
 }
 
 SocksHelper::UDP::UDP()
@@ -375,7 +375,7 @@ int SocksHelper::UDP::Send(PSOCKADDR target, char* buffer, int length)
 {
 	if (this->udpSocket == INVALID_SOCKET)
 	{
-		return -1;
+		return SOCKET_ERROR;
 	}
 
 	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
@@ -411,7 +411,7 @@ int SocksHelper::UDP::Send(PSOCKADDR target, char* buffer, int length)
 		delete[] data;
 
 		printf("[Redirector][SocksHelper::UDP::Send] Send packet failed: %d\n", WSAGetLastError());
-		return -1;
+		return SOCKET_ERROR;
 	}
 
 	delete[] data;
@@ -422,17 +422,17 @@ int SocksHelper::UDP::Read(PSOCKADDR target, char* buffer, int length)
 {
 	if (!this->udpSocket)
 	{
-		return -1;
+		return SOCKET_ERROR;
 	}
 
 	auto targetLength = 0;
 	auto bufferLength = recvfrom(this->udpSocket, buffer, length, 0, target, &targetLength);
-	if (!bufferLength)
+	if (bufferLength <= 0)
 	{
 		if (bufferLength == SOCKET_ERROR)
 		{
 			printf("[Redirector][SocksHelper::UDP::Read] Receive packet failed: %d\n", WSAGetLastError());
-			return -1;
+			return SOCKET_ERROR;
 		}
 
 		return 0;
