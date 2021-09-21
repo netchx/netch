@@ -14,7 +14,7 @@ namespace Netch.Utils
         /// <param name="id"></param>
         /// <returns></returns>
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong ConvertLuidToIndex(ulong id);
+        public static extern uint ConvertLuidToIndex(ulong id);
 
         /// <summary>
         ///     绑定 IP 地址（Windows XP）
@@ -24,7 +24,7 @@ namespace Netch.Utils
         /// <param name="index"></param>
         /// <returns></returns>
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool CreateIPv4(string address, string netmask, ulong index);
+        public static extern bool CreateIPv4(string address, string netmask, uint index);
 
         /// <summary>
         ///     绑定 IP 地址
@@ -35,7 +35,7 @@ namespace Netch.Utils
         /// <param name="index"></param>
         /// <returns></returns>
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, ulong index);
+        public static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, uint index);
 
         /// <summary>
         ///     创建路由
@@ -47,7 +47,7 @@ namespace Netch.Utils
         /// <param name="index"></param>
         /// <returns></returns>
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index);
+        public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, uint index, uint metric = 1);
 
         /// <summary>
         ///     删除路由
@@ -59,7 +59,7 @@ namespace Netch.Utils
         /// <param name="index"></param>
         /// <returns></returns>
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-        public static extern bool DeleteRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index);
+        public static extern bool DeleteRoute(AddressFamily inet, string address, byte cidr, string gateway, uint index);
 
         /// <summary>
         ///     使用索引获取适配器

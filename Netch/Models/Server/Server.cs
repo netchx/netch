@@ -58,9 +58,10 @@ namespace Netch.Models.Server
                 ServerType.Socks => "S5",
                 ServerType.Shadowsocks => "SS",
                 ServerType.ShadowsocksR => "SR",
+                ServerType.WireGuard => "WG",
                 ServerType.Trojan => "TR",
-                ServerType.VLess => "VL",
                 ServerType.VMess => "VM",
+                ServerType.VLess => "VL",
                 _ => "UN",
             };
 

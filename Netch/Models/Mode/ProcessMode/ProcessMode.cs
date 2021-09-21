@@ -16,6 +16,12 @@ namespace Netch.Models.Mode.ProcessMode
         public bool Loopback = false;
 
         /// <summary>
+        ///     过滤 内网 流量
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("filterIntranet")]
+        public bool Intranet = false;
+
+        /// <summary>
         ///     过滤 ICMP 流量（伪造 ICMP 回复）
         /// </summary>
         [Newtonsoft.Json.JsonProperty("filterICMP")]

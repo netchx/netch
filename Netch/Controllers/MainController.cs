@@ -21,30 +21,22 @@ namespace Netch.Controllers
                 case Models.Server.ServerType.Socks:
                     break;
                 case Models.Server.ServerType.Shadowsocks:
-                    {
-                        if (m.Type == Models.Mode.ModeType.ProcessMode)
-                        {
-                            var node = s as Models.Server.Shadowsocks.Shadowsocks;
-                            if (String.IsNullOrEmpty(node.OBFS))
-                            {
-                                break;
-                            }
-                        }
-
-                        this.NodeController = new Server.ShadowsocksController();
-                    }
+                    this.NodeController = new Server.ShadowsocksController();
                     break;
                 case Models.Server.ServerType.ShadowsocksR:
                     this.NodeController = new Server.ShadowsocksRController();
                     break;
+                case Models.Server.ServerType.WireGuard:
+                    this.NodeController = new Server.WireGuardController();
+                    break;
                 case Models.Server.ServerType.Trojan:
                     this.NodeController = new Server.TrojanController();
                     break;
-                case Models.Server.ServerType.VLess:
-                    this.NodeController = new Server.VLessController();
-                    break;
                 case Models.Server.ServerType.VMess:
                     this.NodeController = new Server.VMessController();
+                    break;
+                case Models.Server.ServerType.VLess:
+                    this.NodeController = new Server.VLessController();
                     break;
                 default:
                     Global.Logger.Error($"未知的节点类型：{s.Type}");
@@ -63,22 +55,16 @@ namespace Netch.Controllers
             switch (m.Type)
             {
                 case Models.Mode.ModeType.ProcessMode:
-                    this.ModeController = new Mode.RedirectorController();
+                    this.ModeController = new Mode.ProcessController();
                     break;
                 case Models.Mode.ModeType.ShareMode:
                     this.ModeController = new Mode.ShareController();
-                    break;
-                case Models.Mode.ModeType.TapMode:
-                    this.ModeController = new Mode.TapController();
                     break;
                 case Models.Mode.ModeType.TunMode:
                     this.ModeController = new Mode.TunController();
                     break;
                 case Models.Mode.ModeType.WebMode:
                     this.ModeController = new Mode.WebController();
-                    break;
-                case Models.Mode.ModeType.WmpMode:
-                    this.ModeController = new Mode.WmpController();
                     break;
                 default:
                     Global.Logger.Error($"未知的模式类型：{s.Type}");

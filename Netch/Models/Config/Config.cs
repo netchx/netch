@@ -35,12 +35,6 @@ namespace Netch.Models.Config
         public ShareMode ShareMode = new();
 
         /// <summary>
-        ///     TapMode 配置
-        /// </summary>
-        [Newtonsoft.Json.JsonProperty("tapmode")]
-        public TapMode TapMode = new();
-
-        /// <summary>
         ///     TunMode 配置
         /// </summary>
         [Newtonsoft.Json.JsonProperty("tunmode")]
@@ -53,10 +47,22 @@ namespace Netch.Models.Config
         public AioDNS AioDNS = new();
 
         /// <summary>
+        ///     DNSProxy 配置
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("dnsproxy")]
+        public DNSProxy DNSProxy = new();
+
+        /// <summary>
         ///     V2Ray 配置
         /// </summary>
         [Newtonsoft.Json.JsonProperty("v2ray")]
         public V2Ray V2Ray = new();
+
+        /// <summary>
+        ///     V2Ray 配置
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("xray")]
+        public XRay XRay = new();
 
         /// <summary>
         ///     STUN 配置

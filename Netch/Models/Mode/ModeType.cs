@@ -15,21 +15,11 @@
         /// <summary>
         ///     网卡代理
         /// </summary>
-        TapMode,
-
-        /// <summary>
-        ///     网卡代理
-        /// </summary>
         TunMode,
 
         /// <summary>
         ///     网页代理
         /// </summary>
         WebMode,
-
-        /// <summary>
-        ///     代理转发
-        /// </summary>
-        WmpMode
     }
 }

@@ -3,16 +3,6 @@
     public enum ServerType : int
     {
         /// <summary>
-        ///     HTTP
-        /// </summary>
-        HTTP,
-
-        /// <summary>
-        ///     Clash
-        /// </summary>
-        Clash,
-
-        /// <summary>
         ///     Socks5
         /// </summary>
         Socks,
@@ -28,18 +18,23 @@
         ShadowsocksR,
 
         /// <summary>
+        ///     WireGuard
+        /// </summary>
+        WireGuard,
+        
+        /// <summary>
         ///     Trojan
         /// </summary>
         Trojan,
 
         /// <summary>
-        ///     VLess
-        /// </summary>
-        VLess,
-
-        /// <summary>
         ///     VMess
         /// </summary>
-        VMess
+        VMess,
+
+        /// <summary>
+        ///     VLess
+        /// </summary>
+        VLess
     }
 }

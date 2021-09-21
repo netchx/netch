@@ -137,7 +137,7 @@ namespace Netch.Controllers.Mode
 
             if (!this.Outbound.Get())
             {
-                Global.Logger.Error(String.Format("Failed to fetch outbound"));
+                Global.Logger.Error("Fetch outbound adapter failed");
 
                 return false;
             }
@@ -201,7 +201,15 @@ namespace Netch.Controllers.Mode
                 return false;
             }
 
-            this.DNSController = new Other.DNS.AioDNSController();
+            if (Global.Config.Generic.AioDNS)
+            {
+                this.DNSController = new Other.DNS.AioDNSController();
+            }
+            else
+            {
+                this.DNSController = new Other.DNS.DNSProxyController();
+            }
+
             if (!this.DNSController.Create(s, m))
             {
                 return false;

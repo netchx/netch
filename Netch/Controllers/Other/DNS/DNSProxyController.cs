@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Netch.Controllers.Other.DNS
 {
-    public class DNSController : Interface.IController
+    public class DNSProxyController : Interface.IController
     {
         private Tools.Guard Guard = new()
         {

@@ -9,7 +9,7 @@ namespace Netch.Utils
         /// <summary>
         ///     缓存表
         /// </summary>
-        private static readonly Hashtable Cache = new Hashtable();
+        private static Hashtable Cache = new Hashtable();
 
         /// <summary>
         ///     获取 IP 地址

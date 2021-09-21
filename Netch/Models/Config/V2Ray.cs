@@ -3,11 +3,6 @@
     public class V2Ray
     {
         /// <summary>
-        ///     FullCone 支持（需要 xray-core 服务端版本 v1.3.0+）
-        /// </summary>
-        public bool FullCone = false;
-
-        /// <summary>
         ///     跳过证书认证
         /// </summary>
         public bool Insecure = false;
