@@ -115,7 +115,7 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 
 void TCPHandler::Accept()
 {
-	while (true)
+	while (tcpSocket)
 	{
 		auto client = accept(tcpSocket, NULL, NULL);
 		if (!client)
@@ -189,7 +189,7 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 {
 	char buffer[1446];
 	
-	while (true)
+	while (tcpSocket)
 	{
 		auto length = remote->Read(buffer, 1446);
 		if (!length)
@@ -208,7 +208,7 @@ void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
 {
 	char buffer[1446];
 
-	while (true)
+	while (tcpSocket)
 	{
 		auto length = recv(client, buffer, 1446, 0);
 		if (!length)
