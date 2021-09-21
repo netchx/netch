@@ -1,5 +1,4 @@
 name: "CodeQL CI"
-
 on:
   schedule:
     - cron: '0 0 * * *'
