@@ -151,14 +151,14 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 		auto addr = (PSOCKADDR_IN)info->remoteAddress;
 		addr->sin_family = AF_INET;
 		addr->sin_addr.S_un.S_addr = htonl(INADDR_LOOPBACK);
-		addr->sin_port = htons(tcpListen);
+		addr->sin_port = tcpListen;
 	}
 
 	if (info->ip_family == AF_INET6)
 	{
 		auto addr = (PSOCKADDR_IN6)info->remoteAddress;
 		IN6ADDR_SETLOOPBACK(addr);
-		addr->sin6_port = htons(tcpListen);
+		addr->sin6_port = tcpListen;
 	}
 
 	TCPHandler::CreateHandler(client, remote);
