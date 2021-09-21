@@ -57,7 +57,7 @@ bool TCPHandler::Init()
 
 	{
 		SOCKADDR_IN6 addr;
-		int addrLength = 0;
+		int addrLength = sizeof(SOCKADDR_IN6);
 		if (getsockname(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
 		{
 			printf("[Redirector][TCPHandler::Init] Get listen address failed: %d\n", WSAGetLastError());
@@ -115,12 +115,9 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 
 void TCPHandler::Accept()
 {
-	SOCKADDR_IN6 addr;
-	int addrLength = 0;
-
 	while (true)
 	{
-		auto client = accept(tcpSocket, (PSOCKADDR)&addr, &addrLength);
+		auto client = accept(tcpSocket, NULL, NULL);
 		if (!client)
 		{
 			return;
@@ -135,7 +132,7 @@ void TCPHandler::Handle(SOCKET client)
 	USHORT id = 0;
 	{
 		SOCKADDR_IN6 addr;
-		int addrLength = 0;
+		int addrLength = sizeof(SOCKADDR_IN6);
 		if (getpeername(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
 		{
 			closesocket(client);
