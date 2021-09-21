@@ -22,11 +22,12 @@ Some features may not be implemented in version 1
 
 ### Protocols
 - [`Socks5`](https://www.wikiwand.com/en/SOCKS)
-- [`Shadowsocks`](https://github.com/shadowsocks/shadowsocks-libev)
+- [`Shadowsocks`](https://shadowsocks.org)
 - [`ShadowsocksR`](https://github.com/shadowsocksrr/shadowsocksr-libev)
-- [`Trojan`](https://github.com/p4gefau1t/trojan-go)
-- [`VMess`](https://github.com/v2fly/v2ray-core)
-- [`VLess`](https://github.com/xtls/xray-core)
+- [`WireGuard`](https://www.wireguard.com)
+- [`Trojan`](https://trojan-gfw.github.io/trojan)
+- [`VMess`](https://www.v2fly.org)
+- [`VLess`](https://xtls.github.io)
 
 ### Others
 - UDP NAT FullCone (Limited by your server)
