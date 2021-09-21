@@ -32,7 +32,7 @@ namespace Netch.Controllers
 
         public static async Task StartAsync(Server server, Mode mode)
         {
-            using var _ = await Lock.EnterAsync();
+            using var releaser = await Lock.EnterAsync();
 
             Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
 
@@ -88,6 +88,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
+                releaser.Dispose();
                 await StopAsync();
 
                 switch (e)
