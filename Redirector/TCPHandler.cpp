@@ -1,6 +1,6 @@
 #include "TCPHandler.h"
 
-SOCKET tcpSocket = NULL;
+SOCKET tcpSocket = INVALID_SOCKET;
 USHORT tcpListen = 0;
 
 mutex tcpLock;
@@ -17,7 +17,7 @@ bool TCPHandler::Init()
 	}
 
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-	if (!client)
+	if (client == INVALID_SOCKET)
 	{
 		printf("[Redirector][TCPHandler::Init] Create socket failed: %d\n", WSAGetLastError());
 		return false;
@@ -79,10 +79,10 @@ void TCPHandler::Free()
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
-	if (tcpSocket)
+	if (tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(tcpSocket);
-		tcpSocket = NULL;
+		tcpSocket = INVALID_SOCKET;
 	}
 	tcpListen = 0;
 
@@ -115,10 +115,10 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 
 void TCPHandler::Accept()
 {
-	while (tcpSocket)
+	while (tcpSocket != INVALID_SOCKET)
 	{
 		auto client = accept(tcpSocket, NULL, NULL);
-		if (!client)
+		if (client == INVALID_SOCKET)
 		{
 			return;
 		}
@@ -143,7 +143,7 @@ void TCPHandler::Handle(SOCKET client)
 	}
 
 	auto remote = SocksHelper::Utils::Connect();
-	if (!remote)
+	if (remote != INVALID_SOCKET)
 	{
 		closesocket(client);
 		return;
@@ -189,10 +189,10 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 {
 	char buffer[1446];
 	
-	while (tcpSocket)
+	while (tcpSocket != INVALID_SOCKET)
 	{
 		auto length = remote->Read(buffer, 1446);
-		if (!length)
+		if (!length || length == SOCKET_ERROR)
 		{
 			return;
 		}
@@ -208,10 +208,10 @@ void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
 {
 	char buffer[1446];
 
-	while (tcpSocket)
+	while (tcpSocket != INVALID_SOCKET)
 	{
 		auto length = recv(client, buffer, 1446, 0);
-		if (!length)
+		if (!length || length == SOCKET_ERROR)
 		{
 			return;
 		}

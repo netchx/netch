@@ -56,7 +56,7 @@ wstring GetProcessName(DWORD id)
 	return name;
 }
 
-BOOL checkBypassName(DWORD id)
+bool checkBypassName(DWORD id)
 {
 	auto name = GetProcessName(id);
 
@@ -64,14 +64,14 @@ BOOL checkBypassName(DWORD id)
 	{
 		if (regex_search(name, wregex(bypassList[i])))
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
-BOOL checkHandleName(DWORD id)
+bool checkHandleName(DWORD id)
 {
 	auto name = GetProcessName(id);
 
@@ -79,11 +79,11 @@ BOOL checkHandleName(DWORD id)
 	{
 		if (regex_search(name, wregex(handleList[i])))
 		{
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 bool eh_init()

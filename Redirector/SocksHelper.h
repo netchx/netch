@@ -9,7 +9,6 @@ namespace SocksHelper
 	{
 		SOCKET Connect();
 		bool Handshake(SOCKET client);
-
 		bool ReadAddr(SOCKET client, char type, PSOCKADDR addr);
 	}
 

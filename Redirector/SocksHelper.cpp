@@ -10,10 +10,10 @@ extern string tgtPassword;
 SOCKET SocksHelper::Utils::Connect()
 {
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-	if (!client)
+	if (client == INVALID_SOCKET)
 	{
 		printf("[Redirector][SocksHelper::Utils::Connect] Create socket failed: %d\n", WSAGetLastError());
-		return NULL;
+		return INVALID_SOCKET;
 	}
 
 	{
@@ -23,7 +23,7 @@ SOCKET SocksHelper::Utils::Connect()
 			printf("[Redirector][SocksHelper::Utils::Connect] Set socket option failed: %d\n", WSAGetLastError());
 
 			closesocket(client);
-			return NULL;
+			return INVALID_SOCKET;
 		}
 	}
 
@@ -35,7 +35,7 @@ SOCKET SocksHelper::Utils::Connect()
 		printf("[Redirector][SocksHelper::Utils::Connect] Connect to remote server failed: %d\n", WSAGetLastError());
 
 		closesocket(client);
-		return NULL;
+		return INVALID_SOCKET;
 	}
 
 	return client;
@@ -174,10 +174,10 @@ SocksHelper::TCP::TCP(SOCKET tcpSocket)
 
 SocksHelper::TCP::~TCP()
 {
-	if (this->tcpSocket)
+	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->tcpSocket);
-		this->tcpSocket = NULL;
+		this->tcpSocket = INVALID_SOCKET;
 	}
 }
 
@@ -240,7 +240,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR target)
 
 int SocksHelper::TCP::Send(char* buffer, int length)
 {
-	if (this->tcpSocket)
+	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		return send(this->tcpSocket, buffer, length, 0);
 	}
@@ -250,7 +250,7 @@ int SocksHelper::TCP::Send(char* buffer, int length)
 
 int SocksHelper::TCP::Read(char* buffer, int length)
 {
-	if (this->tcpSocket)
+	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		return recv(this->tcpSocket, buffer, length, 0);
 	}
@@ -269,16 +269,16 @@ SocksHelper::UDP::UDP(SOCKET tcpSocket)
 
 SocksHelper::UDP::~UDP()
 {
-	if (this->tcpSocket)
+	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->tcpSocket);
-		this->tcpSocket = NULL;
+		this->tcpSocket = INVALID_SOCKET;
 	}
 
-	if (this->udpSocket)
+	if (this->udpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->udpSocket);
-		this->udpSocket = NULL;
+		this->udpSocket = INVALID_SOCKET;
 	}
 
 	if (this->tcpThread.joinable())
@@ -289,7 +289,7 @@ SocksHelper::UDP::~UDP()
 
 bool SocksHelper::UDP::Associate()
 {
-	if (!this->tcpSocket)
+	if (this->tcpSocket == INVALID_SOCKET)
 	{
 		return false;
 	}
@@ -332,7 +332,7 @@ bool SocksHelper::UDP::CreateUDP()
 	if (this->address.sin6_family == AF_INET6)
 	{
 		this->udpSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		if (!this->udpSocket)
+		if (this->udpSocket == INVALID_SOCKET)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv6 socket failed: %d\n", WSAGetLastError());
 			return false;
@@ -351,7 +351,7 @@ bool SocksHelper::UDP::CreateUDP()
 	else
 	{
 		this->udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		if (!this->udpSocket)
+		if (this->udpSocket == INVALID_SOCKET)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv4 socket failed: %d\n", WSAGetLastError());
 			return false;
@@ -373,7 +373,7 @@ bool SocksHelper::UDP::CreateUDP()
 
 int SocksHelper::UDP::Send(PSOCKADDR target, char* buffer, int length)
 {
-	if (!this->udpSocket)
+	if (this->udpSocket == INVALID_SOCKET)
 	{
 		return -1;
 	}
@@ -411,7 +411,7 @@ int SocksHelper::UDP::Send(PSOCKADDR target, char* buffer, int length)
 		delete[] data;
 
 		printf("[Redirector][SocksHelper::UDP::Send] Send packet failed: %d\n", WSAGetLastError());
-		return 0;
+		return -1;
 	}
 
 	delete[] data;
@@ -432,7 +432,7 @@ int SocksHelper::UDP::Read(PSOCKADDR target, char* buffer, int length)
 		if (bufferLength == SOCKET_ERROR)
 		{
 			printf("[Redirector][SocksHelper::UDP::Read] Receive packet failed: %d\n", WSAGetLastError());
-			return 0;
+			return -1;
 		}
 
 		return 0;
