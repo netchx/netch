@@ -17,6 +17,11 @@ jobs:
       - name: C++
         uses: msys2/setup-msys2@v2
 
+      - name: Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+
       - name: MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
