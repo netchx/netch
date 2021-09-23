@@ -10,7 +10,6 @@ using Netch.Models;
 using Netch.Servers;
 using Netch.Utils;
 using Serilog;
-using Serilog.Events;
 
 namespace Netch.Controllers
 {
@@ -47,14 +46,6 @@ namespace Netch.Controllers
             Mode = mode;
 
             await Task.WhenAll(Task.Run(NativeMethods.RefreshDNSCache), Task.Run(Firewall.AddNetchFwRules));
-
-            if (Log.IsEnabled(LogEventLevel.Debug))
-                Task.Run(() =>
-                    {
-                        // TODO log level setting
-                        Log.Debug("Running Processes: \n{Processes}", string.Join("\n", SystemInfo.Processes(false)));
-                    })
-                    .Forget();
 
             try
             {

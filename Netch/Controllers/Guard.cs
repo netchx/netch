@@ -157,7 +157,7 @@ namespace Netch.Controllers
             }
             catch (Win32Exception e)
             {
-                Log.Error(e, "停止 {Name} 异常", Instance.ProcessName);
+                Log.Error(e, "Stop {Name} failed", Instance.ProcessName);
             }
             catch
             {

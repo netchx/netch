@@ -8,16 +8,16 @@ using Serilog;
 
 namespace Netch.Utils
 {
-    public static class Subscription
+    public static class SubscriptionUtil
     {
         private static readonly object ServerLock = new();
 
         public static async Task UpdateServersAsync(string? proxyServer = default)
         {
-            await Task.WhenAll(Global.Settings.SubscribeLink.Select(item => UpdateServerCoreAsync(item, proxyServer)));
+            await Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, proxyServer)));
         }
 
-        private static async Task UpdateServerCoreAsync(SubscribeLink item, string? proxyServer)
+        private static async Task UpdateServerCoreAsync(Subscription item, string? proxyServer)
         {
             try
             {
@@ -53,8 +53,8 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Global.MainForm.NotifyTip($"{i18N.TranslateFormat("Update servers error from {0}", item.Remark)}\n{e.Message}", info: false);
-                Log.Warning(e, "更新服务器失败");
+                Global.MainForm.NotifyTip($"{i18N.TranslateFormat("Update servers failed from {0}", item.Remark)}\n{e.Message}", info: false);
+                Log.Warning(e, "Update servers failed");
             }
         }
     }

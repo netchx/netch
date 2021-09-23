@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Management;
 
@@ -31,25 +32,28 @@ namespace Netch.Utils
 
         public static IEnumerable<string> Processes(bool mask)
         {
-            var hashset = new HashSet<string>();
+            var sortedSet = new SortedSet<string>();
             var windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            var windowsAppsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "WindowsApps");
+            var userProfileFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             foreach (var process in Process.GetProcesses())
             {
                 try
                 {
-                    if (process.Id is 0 or 4)
+                    var path = process.MainModule?.FileName;
+                    if (path == null)
                         continue;
 
-                    // ! NT Kernel & System 
-                    if (process.MainModule!.FileName!.StartsWith(windowsFolder, StringComparison.OrdinalIgnoreCase))
+                    if (path.StartsWith(windowsFolder, StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    var path = process.MainModule.FileName;
+                    if (path.StartsWith(windowsAppsFolder, StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     if (mask)
-                        path = path.Replace(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "%USERPROFILE%");
-
-                    hashset.Add(path);
+                        sortedSet.Add(path.Replace(userProfileFolder, "%USERPROFILE%"));
+                    else
+                        sortedSet.Add(path);
                 }
                 catch (Exception)
                 {
@@ -57,7 +61,7 @@ namespace Netch.Utils
                 }
             }
 
-            return hashset;
+            return sortedSet;
         }
     }
 }

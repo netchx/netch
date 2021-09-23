@@ -33,7 +33,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Warning(e, "打开 {Uri} 失败", path);
+                Log.Warning(e, "Open \"{Uri}\" failed", path);
             }
         }
 

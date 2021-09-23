@@ -125,8 +125,8 @@ namespace Netch.Controllers
 
             var binHash = Utils.Utils.SHA256CheckSum(binDriver);
             var sysHash = Utils.Utils.SHA256CheckSum(sysDriver);
-            Log.Information("自带 wintun.dll Hash: {Hash}", binHash);
-            Log.Information("系统 wintun.dll Hash: {Hash}", sysHash);
+            Log.Information("Built-in  wintun.dll Hash: {Hash}", binHash);
+            Log.Information("Installed wintun.dll Hash: {Hash}", sysHash);
             if (binHash == sysHash)
                 return;
 
@@ -137,7 +137,7 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Log.Error(e, "复制 wintun.dll 异常");
+                Log.Error(e, "Copy wintun.dll failed");
                 throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
             }
         }

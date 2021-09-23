@@ -53,13 +53,13 @@ namespace Netch.Utils
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, "从分享链接导入服务器异常");
+                        Log.Error(e, "Parse servers from share link error");
                     }
                 }
             }
             catch (Exception e)
             {
-                Log.Error(e, "从分享链接导入服务器异常");
+                Log.Error(e, "Parse servers from share link error");
             }
 
             return list;
@@ -84,7 +84,7 @@ namespace Netch.Utils
                 if (util != null)
                     list.AddRange(util.ParseUri(text));
                 else
-                    Log.Warning("无法处理 {Scheme} 协议订阅链接", scheme);
+                    Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
             }
 
             foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))

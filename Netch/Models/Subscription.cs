@@ -1,6 +1,6 @@
 ﻿namespace Netch.Models
 {
-    public class SubscribeLink
+    public class Subscription
     {
         /// <summary>
         ///     启用状态

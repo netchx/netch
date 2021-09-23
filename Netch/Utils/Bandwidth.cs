@@ -78,7 +78,7 @@ namespace Netch.Utils
 
             var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 
-            Log.Information("流量统计进程: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
+            Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
             received = 0;
 

@@ -139,8 +139,8 @@ namespace Netch.Utils
                 case ModeType.Pcap2Socks:
                     return (new PcapController(), 0);
                 default:
-                    Log.Error("未知模式类型");
-                    throw new MessageException("未知模式类型");
+                    Log.Error("Unknown Mode Type \"{Type}\"", (int)type);
+                    throw new MessageException("Unknown Mode Type");
             }
         }
     }

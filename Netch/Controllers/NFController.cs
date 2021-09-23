@@ -149,8 +149,7 @@ namespace Netch.Controllers
             if (invalidList.Any())
                 throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
-            Dial(NameList.TYPE_ADDNAME, @"NTT\.exe");
-            Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString() + @"((?!NTT\.exe).)*$");
+            Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString());
         }
 
         private void CheckCore()
@@ -166,8 +165,8 @@ namespace Netch.Controllers
             var binFileVersion = Utils.Utils.GetFileVersion(Constants.NFDriver);
             var systemFileVersion = Utils.Utils.GetFileVersion(SystemDriver);
 
-            Log.Information("内置驱动版本: {Name}", binFileVersion);
-            Log.Information("系统驱动版本: {Name}", systemFileVersion);
+            Log.Information("Built-in  netfilter2 driver version: {Name}", binFileVersion);
+            Log.Information("Installed netfilter2 driver version: {Name}", systemFileVersion);
 
             if (!File.Exists(SystemDriver))
             {
@@ -197,7 +196,7 @@ namespace Netch.Controllers
             if (!reinstall)
                 return;
 
-            Log.Information("更新驱动");
+            Log.Information("Update netfilter2 driver");
             UninstallDriver();
             InstallDriver();
         }
@@ -208,7 +207,8 @@ namespace Netch.Controllers
         /// <returns>驱动是否安装成功</returns>
         private static void InstallDriver()
         {
-            Log.Information("安装 NF 驱动");
+            Log.Information("Install netfilter2 driver");
+            Global.MainForm.StatusText(i18N.Translate("Installing netfilter2 driver"));
 
             if (!File.Exists(Constants.NFDriver))
                 throw new MessageException(i18N.Translate("builtin driver files missing, can't install NF driver"));
@@ -219,21 +219,20 @@ namespace Netch.Controllers
             }
             catch (Exception e)
             {
-                Log.Error(e, "驱动复制失败\n");
-                throw new MessageException($"Copy NF driver file failed\n{e.Message}");
+                Log.Error(e, "Copy netfilter2.sys failed\n");
+                throw new MessageException($"Copy netfilter2.sys failed\n{e.Message}");
             }
 
-            Global.MainForm.StatusText(i18N.Translate("Register driver"));
             // 注册驱动文件
             var result = NFAPI.nf_registerDriver("netfilter2");
             if (result == NF_STATUS.NF_STATUS_SUCCESS)
             {
-                Log.Information("驱动安装成功");
+                Log.Information("Install netfilter2 driver finished");
             }
             else
             {
-                Log.Error("注册驱动失败: {Result}", result);
-                throw new MessageException($"Register NF driver failed\n{result}");
+                Log.Error("Register netfilter2 failed: {Result}", result);
+                throw new MessageException($"Register netfilter2 failed\n{result}");
             }
         }
 
@@ -243,7 +242,7 @@ namespace Netch.Controllers
         /// <returns>是否成功卸载</returns>
         public static bool UninstallDriver()
         {
-            Log.Information("卸载 NF 驱动");
+            Log.Information("Uninstall netfilter2");
             try
             {
                 if (NFService.Status == ServiceControllerStatus.Running)

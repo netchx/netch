@@ -1,15 +1,15 @@
-﻿using Netch.Models;
-using Netch.Properties;
-using Netch.Utils;
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows.Forms;
+using Netch.Models;
+using Netch.Properties;
+using Netch.Utils;
 
 namespace Netch.Forms
 {
-    public partial class SubscribeForm : Form
+    public partial class SubscriptionForm : Form
     {
-        public SubscribeForm()
+        public SubscriptionForm()
         {
             InitializeComponent();
             Icon = Resources.icon;
@@ -17,33 +17,33 @@ namespace Netch.Forms
             i18N.TranslateForm(this);
             i18N.TranslateForm(pContextMenuStrip);
 
-            InitSubscribeLink();
+            LoadSubscriptionLinks();
         }
 
         private int SelectedIndex
         {
             get
             {
-                if (SubscribeLinkListView.MultiSelect)
+                if (SubscriptionLinkListView.MultiSelect)
                     throw new Exception();
 
-                return SubscribeLinkListView.SelectedIndices.Count == 0 ? -1 : SubscribeLinkListView.SelectedIndices[0];
+                return SubscriptionLinkListView.SelectedIndices.Count == 0 ? -1 : SubscriptionLinkListView.SelectedIndices[0];
             }
         }
 
         #region EventHandler
 
-        private void SubscribeLinkListView_MouseUp(object sender, MouseEventArgs e)
+        private void SubscriptionLinkListView_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
                 if (SelectedIndex != -1)
-                    pContextMenuStrip.Show(SubscribeLinkListView, e.Location);
+                    pContextMenuStrip.Show(SubscriptionLinkListView, e.Location);
         }
 
         /// <summary>
         ///     选中/取消选中
         /// </summary>
-        private void SubscribeLinkListView_SelectedIndexChanged(object sender, EventArgs e)
+        private void SubscriptionLinkListView_SelectedIndexChanged(object sender, EventArgs e)
         {
             SetEditingGroup(SelectedIndex);
         }
@@ -51,13 +51,13 @@ namespace Netch.Forms
         /// <summary>
         ///     订阅启/禁用
         /// </summary>
-        private void SubscribeLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
+        private void SubscriptionLinkListView_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
             var index = e.Item.Index;
-            Global.Settings.SubscribeLink[index].Enable = SubscribeLinkListView.Items[index].Checked;
+            Global.Settings.Subscription[index].Enable = SubscriptionLinkListView.Items[index].Checked;
         }
 
-        private async void SubscribeForm_FormClosing(object sender, FormClosingEventArgs e)
+        private async void SubscriptionForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             await Configuration.SaveAsync();
         }
@@ -94,13 +94,13 @@ namespace Netch.Forms
 
             if (SelectedIndex == -1)
             {
-                if (Global.Settings.SubscribeLink.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
+                if (Global.Settings.Subscription.Any(link => link.Remark.Equals(RemarkTextBox.Text)))
                 {
-                    MessageBoxX.Show("Remark Name Duplicate!");
+                    MessageBoxX.Show(i18N.Translate("Subscription with the specified remark already exists"));
                     return;
                 }
 
-                Global.Settings.SubscribeLink.Add(new SubscribeLink
+                Global.Settings.Subscription.Add(new Subscription
                 {
                     Enable = true,
                     Remark = RemarkTextBox.Text,
@@ -110,7 +110,7 @@ namespace Netch.Forms
             }
             else
             {
-                var subscribeLink = Global.Settings.SubscribeLink[SelectedIndex];
+                var subscribeLink = Global.Settings.Subscription[SelectedIndex];
 
                 RenameServers(subscribeLink.Remark, RemarkTextBox.Text);
                 subscribeLink.Link = LinkTextBox.Text;
@@ -118,7 +118,7 @@ namespace Netch.Forms
                 subscribeLink.UserAgent = UserAgentTextBox.Text;
             }
 
-            InitSubscribeLink();
+            LoadSubscriptionLinks();
         }
 
         #endregion
@@ -131,24 +131,24 @@ namespace Netch.Forms
                 confirm: true) != DialogResult.OK)
                 return;
 
-            var subscribeLink = Global.Settings.SubscribeLink[SelectedIndex];
+            var subscribeLink = Global.Settings.Subscription[SelectedIndex];
             DeleteServers(subscribeLink.Remark);
-            Global.Settings.SubscribeLink.Remove(subscribeLink);
+            Global.Settings.Subscription.Remove(subscribeLink);
 
-            InitSubscribeLink();
+            LoadSubscriptionLinks();
         }
 
-        private void deleteServerToolStripMenuItem_Click(object sender, EventArgs e)
+        private void DeleteServersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBoxX.Show(i18N.Translate("Confirm deletion?"), confirm: true) != DialogResult.OK)
                 return;
 
-            DeleteServers(Global.Settings.SubscribeLink[SelectedIndex].Remark);
+            DeleteServers(Global.Settings.Subscription[SelectedIndex].Remark);
         }
 
         private void CopyLinkToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetText(Global.Settings.SubscribeLink[SelectedIndex].Link);
+            Clipboard.SetText(Global.Settings.Subscription[SelectedIndex].Link);
         }
 
         #endregion
@@ -166,12 +166,12 @@ namespace Netch.Forms
                 server.Group = newGroup;
         }
 
-        private void InitSubscribeLink()
+        private void LoadSubscriptionLinks()
         {
-            SubscribeLinkListView.Items.Clear();
+            SubscriptionLinkListView.Items.Clear();
 
-            foreach (var item in Global.Settings.SubscribeLink)
-                SubscribeLinkListView.Items.Add(new ListViewItem(new[]
+            foreach (var item in Global.Settings.Subscription)
+                SubscriptionLinkListView.Items.Add(new ListViewItem(new[]
                 {
                     "",
                     item.Remark,
@@ -202,7 +202,7 @@ namespace Netch.Forms
                 return;
             }
 
-            var item = Global.Settings.SubscribeLink[index];
+            var item = Global.Settings.Subscription[index];
             AddSubscriptionBox.Text = item.Remark;
             RemarkTextBox.Text = item.Remark;
             LinkTextBox.Text = item.Link;

@@ -1,5 +1,4 @@
-﻿using Netch.Properties;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Windows.Forms;
+using Netch.Properties;
 using Serilog;
 
 namespace Netch.Utils
@@ -42,7 +42,7 @@ namespace Netch.Utils
             {
                 var oldLangCode = LangCode;
                 LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
-                Log.Information("找不到语言 {OldLangCode}, 使用 {LangCode}",oldLangCode,LangCode);
+                Log.Information("Not found language {OldLangCode}, use {LangCode} instead", oldLangCode, LangCode);
             }
 
             switch (LangCode)
@@ -62,7 +62,7 @@ namespace Netch.Utils
 
             if (!dictionary.Any())
             {
-                Log.Error("{LangCode} 语言文件错误", LangCode);
+                Log.Error("Invalid language file \"{LangCode}\"", LangCode);
                 return;
             }
 

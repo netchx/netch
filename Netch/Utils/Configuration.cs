@@ -50,12 +50,12 @@ namespace Netch.Utils
                 if (await LoadCoreAsync(FileFullName))
                     return;
 
-                Log.Information("尝试加载备份配置文件 {FileName}", BackupFileFullName);
+                Log.Information("Load backup configuration \"{FileName}\"", BackupFileFullName);
                 await LoadCoreAsync(BackupFileFullName);
             }
             catch (Exception e)
             {
-                Log.Error(e, "加载配置异常");
+                Log.Error(e, "Load configuration failed");
                 Environment.Exit(-1);
             }
         }
@@ -77,7 +77,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Error(e, @"从 {FileName} 加载配置异常", filename);
+                Log.Error(e, "Load configuration file \"{FileName}\" error ", filename);
                 return false;
             }
         }
@@ -122,7 +122,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Error(e, "保存配置异常");
+                Log.Error(e, "Save Configuration error");
             }
         }
 

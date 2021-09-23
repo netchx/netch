@@ -48,24 +48,24 @@ namespace Netch.Controllers
 
                 var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
                 LatestRelease = GetLatestRelease(releases, isPreRelease);
-                Log.Information("Github 最新发布版本: {Version}", LatestRelease.tag_name);
+                Log.Information("Github latest release: {Version}", LatestRelease.tag_name);
                 if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
                 {
-                    Log.Information("发现新版本");
+                    Log.Information("Found newer version");
                     NewVersionFound?.Invoke(null, EventArgs.Empty);
                 }
                 else
                 {
-                    Log.Information("目前是最新版本");
+                    Log.Information("Already the latest version");
                     NewVersionNotFound?.Invoke(null, EventArgs.Empty);
                 }
             }
             catch (Exception e)
             {
                 if (e is WebException)
-                    Log.Warning(e, "获取新版本失败");
+                    Log.Warning(e, "Get releases failed");
                 else
-                    Log.Error(e, "获取新版本异常");
+                    Log.Error(e, "Get releases error");
 
                 NewVersionFoundFailed?.Invoke(null, EventArgs.Empty);
             }

@@ -28,7 +28,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Error(e, "获取保留端口错误");
+                Log.Error(e, "Get reserved ports failed");
             }
         }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
 using Netch.Forms;
 using Netch.Models;
@@ -42,7 +43,7 @@ namespace Netch
         public static JsonSerializerOptions NewCustomJsonSerializerOptions() => new()
         {
             WriteIndented = true,
-            IgnoreNullValues = true,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
     }

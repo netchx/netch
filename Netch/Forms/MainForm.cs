@@ -103,7 +103,7 @@ namespace Netch.Forms
 
             // 检查订阅更新
             if (Global.Settings.UpdateServersWhenOpened)
-                UpdateServersFromSubscribeAsync().Forget();
+                UpdateServersFromSubscriptionAsync().Forget();
 
             // 打开软件时启动加速，产生开始按钮点击事件
             if (Global.Settings.StartWhenOpened)
@@ -263,47 +263,47 @@ namespace Netch.Forms
 
         #region Subscription
 
-        private void ManageSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ManageSubscriptionLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Hide();
-            new SubscribeForm().ShowDialog();
+            new SubscriptionForm().ShowDialog();
             LoadServers();
             Show();
         }
 
-        private async void UpdateServersFromSubscribeLinksToolStripMenuItem_Click(object sender, EventArgs e)
+        private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            await UpdateServersFromSubscribeAsync();
+            await UpdateServersFromSubscriptionAsync();
         }
 
-        private async Task UpdateServersFromSubscribeAsync()
+        private async Task UpdateServersFromSubscriptionAsync()
         {
             void DisableItems(bool v)
             {
                 MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
             }
 
-            if (Global.Settings.SubscribeLink.Count <= 0)
+            if (Global.Settings.Subscription.Count <= 0)
             {
                 MessageBoxX.Show(i18N.Translate("No subscription link"));
                 return;
             }
 
-            StatusText(i18N.Translate("Starting update subscription"));
+            StatusText(i18N.Translate("Updating servers"));
             DisableItems(false);
 
             try
             {
-                await Subscription.UpdateServersAsync();
+                await SubscriptionUtil.UpdateServersAsync();
 
                 LoadServers();
                 await Configuration.SaveAsync();
-                StatusText(i18N.Translate("Subscription updated"));
+                StatusText(i18N.Translate("Servers updated"));
             }
             catch (Exception e)
             {
-                NotifyTip(i18N.Translate("update servers failed") + "\n" + e.Message, info: false);
-                Log.Error("更新服务器 失败！" + e);
+                NotifyTip(i18N.Translate("Unhandled update servers error") + "\n" + e.Message, info: false);
+                Log.Error(e, "Unhandled Update servers error");
             }
             finally
             {
@@ -324,7 +324,7 @@ namespace Netch.Forms
 
             void OnNewVersionFoundFailed(object? o, EventArgs? args)
             {
-                NotifyTip(i18N.Translate("New version found failed"), info: false);
+                NotifyTip(i18N.Translate("Check for update failed"), info: false);
             }
 
             try
@@ -402,7 +402,7 @@ namespace Netch.Forms
         /// <summary>
         ///     菜单栏强制退出
         /// </summary>
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ForceExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Exit(true);
         }
@@ -482,7 +482,7 @@ namespace Netch.Forms
             }
             catch (Exception exception)
             {
-                Log.Error(exception, "更新未处理异常");
+                Log.Error(exception, "Unhandled Update error");
                 NotifyTip(exception.Message, info: false);
             }
             finally
@@ -582,7 +582,7 @@ namespace Netch.Forms
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
-            var oldSettings = Global.Settings.Clone();
+            var oldSettings = Global.Settings.ShallowCopy();
 
             Hide();
             new SettingForm().ShowDialog();
@@ -995,7 +995,7 @@ namespace Netch.Forms
 
                     // 启动需要禁用的控件
                     ServerToolStripMenuItem.Enabled = ModeToolStripMenuItem.Enabled =
-                        SubscribeToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
+                        SubscriptionToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
                 }
 
                 _state = value;
@@ -1172,7 +1172,7 @@ namespace Netch.Forms
         private async Task DiscoveryNatTypeAsync()
         {
             NatTypeStatusLabel.Enabled = false;
-            UpdateNatTypeStatusLabelText("Testing NAT Type");
+            UpdateNatTypeStatusLabelText(i18N.Translate("Testing NAT Type"));
 
             _discoveryNatCts = new CancellationTokenSource();
 
@@ -1253,7 +1253,7 @@ namespace Netch.Forms
                     if (!IsWaiting())
                     {
                         _resumeFlag = true;
-                        Log.Information("操作系统即将挂起，自动停止");
+                        Log.Information("OS Suspend, Stop");
                         ControlButton_Click(null, null);
                     }
 
@@ -1262,7 +1262,7 @@ namespace Netch.Forms
                     if (_resumeFlag)
                     {
                         _resumeFlag = false;
-                        Log.Information("操作系统即将从挂起状态继续，自动重启");
+                        Log.Information("OS Resume, Restart");
                         ControlButton_Click(null, null);
                     }
 

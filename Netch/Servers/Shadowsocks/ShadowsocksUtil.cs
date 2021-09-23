@@ -64,7 +64,7 @@ namespace Netch.Servers
             var server = (ShadowsocksServer)s;
             if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
             {
-                Log.Warning("不支持的 SS 加密方式：{Method}", server.EncryptMethod);
+                Log.Warning("Unsupported SS Encrypt Method: {Method}", server.EncryptMethod);
                 return false;
             }
 

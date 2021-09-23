@@ -35,19 +35,19 @@
             this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CreateRouteTableRuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.SubscribeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ManageSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SubscriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ManageSubscriptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UpdateServersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ShowHideConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.removeNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.RemoveNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CheckForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CheckForUpdateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ForceExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.NewVersionLabel = new System.Windows.Forms.ToolStripLabel();
             this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
@@ -111,10 +111,10 @@
             this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ServerToolStripMenuItem,
             this.ModeToolStripMenuItem,
-            this.SubscribeToolStripMenuItem,
+            this.SubscriptionToolStripMenuItem,
             this.OptionsToolStripMenuItem,
             this.HelpToolStripMenuItem,
-            this.exitToolStripMenuItem,
+            this.ForceExitToolStripMenuItem,
             this.AboutToolStripButton,
             this.NewVersionLabel,
             this.VersionLabel});
@@ -164,29 +164,29 @@
             this.CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
             this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.createRouteTableModeToolStripMenuItem_Click);
             // 
-            // SubscribeToolStripMenuItem
+            // SubscriptionToolStripMenuItem
             // 
-            this.SubscribeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ManageSubscribeLinksToolStripMenuItem,
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem});
-            this.SubscribeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.SubscribeToolStripMenuItem.Name = "SubscribeToolStripMenuItem";
-            this.SubscribeToolStripMenuItem.Size = new System.Drawing.Size(77, 21);
-            this.SubscribeToolStripMenuItem.Text = "Subscribe";
+            this.SubscriptionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.ManageSubscriptionsToolStripMenuItem,
+            this.UpdateServersToolStripMenuItem});
+            this.SubscriptionToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
+            this.SubscriptionToolStripMenuItem.Name = "SubscriptionToolStripMenuItem";
+            this.SubscriptionToolStripMenuItem.Size = new System.Drawing.Size(92, 21);
+            this.SubscriptionToolStripMenuItem.Text = "Subscription";
             // 
-            // ManageSubscribeLinksToolStripMenuItem
+            // ManageSubscriptionsToolStripMenuItem
             // 
-            this.ManageSubscribeLinksToolStripMenuItem.Name = "ManageSubscribeLinksToolStripMenuItem";
-            this.ManageSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
-            this.ManageSubscribeLinksToolStripMenuItem.Text = "Manage Subscribe Links";
-            this.ManageSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.ManageSubscribeLinksToolStripMenuItem_Click);
+            this.ManageSubscriptionsToolStripMenuItem.Name = "ManageSubscriptionsToolStripMenuItem";
+            this.ManageSubscriptionsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.ManageSubscriptionsToolStripMenuItem.Text = "Manage Subscriptions";
+            this.ManageSubscriptionsToolStripMenuItem.Click += new System.EventHandler(this.ManageSubscriptionLinksToolStripMenuItem_Click);
             // 
-            // UpdateServersFromSubscribeLinksToolStripMenuItem
+            // UpdateServersToolStripMenuItem
             // 
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Name = "UpdateServersFromSubscribeLinksToolStripMenuItem";
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Size = new System.Drawing.Size(294, 22);
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Text = "Update Servers From Subscribe Links";
-            this.UpdateServersFromSubscribeLinksToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscribeLinksToolStripMenuItem_Click);
+            this.UpdateServersToolStripMenuItem.Name = "UpdateServersToolStripMenuItem";
+            this.UpdateServersToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.UpdateServersToolStripMenuItem.Text = "Update Servers";
+            this.UpdateServersToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscriptionLinksToolStripMenuItem_Click);
             // 
             // OptionsToolStripMenuItem
             // 
@@ -195,7 +195,7 @@
             this.ShowHideConsoleToolStripMenuItem,
             this.CleanDNSCacheToolStripMenuItem,
             this.UninstallServiceToolStripMenuItem,
-            this.removeNetchFirewallRulesToolStripMenuItem});
+            this.RemoveNetchFirewallRulesToolStripMenuItem});
             this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
             this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
@@ -229,43 +229,43 @@
             this.UninstallServiceToolStripMenuItem.Text = "Uninstall NF Service";
             this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
             // 
-            // removeNetchFirewallRulesToolStripMenuItem
+            // RemoveNetchFirewallRulesToolStripMenuItem
             // 
-            this.removeNetchFirewallRulesToolStripMenuItem.Name = "removeNetchFirewallRulesToolStripMenuItem";
-            this.removeNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.removeNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
-            this.removeNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
+            this.RemoveNetchFirewallRulesToolStripMenuItem.Name = "RemoveNetchFirewallRulesToolStripMenuItem";
+            this.RemoveNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
+            this.RemoveNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
+            this.RemoveNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
             // 
             // HelpToolStripMenuItem
             // 
             this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CheckForUpdatesToolStripMenuItem,
-            this.fAQToolStripMenuItem});
+            this.CheckForUpdateToolStripMenuItem,
+            this.FAQToolStripMenuItem});
             this.HelpToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             this.HelpToolStripMenuItem.Size = new System.Drawing.Size(47, 21);
             this.HelpToolStripMenuItem.Text = "Help";
             // 
-            // CheckForUpdatesToolStripMenuItem
+            // CheckForUpdateToolStripMenuItem
             // 
-            this.CheckForUpdatesToolStripMenuItem.Name = "CheckForUpdatesToolStripMenuItem";
-            this.CheckForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.CheckForUpdatesToolStripMenuItem.Text = "Check for updates";
-            this.CheckForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.CheckForUpdatesToolStripMenuItem_Click);
+            this.CheckForUpdateToolStripMenuItem.Name = "CheckForUpdateToolStripMenuItem";
+            this.CheckForUpdateToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.CheckForUpdateToolStripMenuItem.Text = "Check for update";
+            this.CheckForUpdateToolStripMenuItem.Click += new System.EventHandler(this.CheckForUpdatesToolStripMenuItem_Click);
             // 
-            // fAQToolStripMenuItem
+            // FAQToolStripMenuItem
             // 
-            this.fAQToolStripMenuItem.Name = "fAQToolStripMenuItem";
-            this.fAQToolStripMenuItem.Size = new System.Drawing.Size(183, 22);
-            this.fAQToolStripMenuItem.Text = "FAQ";
-            this.fAQToolStripMenuItem.Click += new System.EventHandler(this.fAQToolStripMenuItem_Click);
+            this.FAQToolStripMenuItem.Name = "FAQToolStripMenuItem";
+            this.FAQToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.FAQToolStripMenuItem.Text = "FAQ";
+            this.FAQToolStripMenuItem.Click += new System.EventHandler(this.fAQToolStripMenuItem_Click);
             // 
-            // exitToolStripMenuItem
+            // ForceExitToolStripMenuItem
             // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            this.ForceExitToolStripMenuItem.Name = "ForceExitToolStripMenuItem";
+            this.ForceExitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
+            this.ForceExitToolStripMenuItem.Text = "Exit";
+            this.ForceExitToolStripMenuItem.Click += new System.EventHandler(this.ForceExitToolStripMenuItem_Click);
             // 
             // AboutToolStripButton
             // 
@@ -562,7 +562,7 @@
             // blankToolStripStatusLabel
             // 
             this.blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
-            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(240, 17);
+            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(494, 17);
             this.blankToolStripStatusLabel.Spring = true;
             // 
             // HttpStatusLabel
@@ -620,19 +620,19 @@
             this.ExitToolStripButton});
             this.NotifyMenu.Name = "NotifyMenu";
             this.NotifyMenu.ShowItemToolTips = false;
-            this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
+            this.NotifyMenu.Size = new System.Drawing.Size(181, 70);
             // 
             // ShowMainFormToolStripButton
             // 
             this.ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
-            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(107, 22);
+            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(180, 22);
             this.ShowMainFormToolStripButton.Text = "Show";
             this.ShowMainFormToolStripButton.Click += new System.EventHandler(this.ShowMainFormToolStripButton_Click);
             // 
             // ExitToolStripButton
             // 
             this.ExitToolStripButton.Name = "ExitToolStripButton";
-            this.ExitToolStripButton.Size = new System.Drawing.Size(107, 22);
+            this.ExitToolStripButton.Size = new System.Drawing.Size(180, 22);
             this.ExitToolStripButton.Text = "Exit";
             this.ExitToolStripButton.Click += new System.EventHandler(this.ExitToolStripButton_Click);
             // 
@@ -744,7 +744,7 @@
 
         private System.Windows.Forms.ToolStripMenuItem CreateRouteTableRuleToolStripMenuItem;
 
-        private System.Windows.Forms.ToolStripMenuItem removeNetchFirewallRulesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem RemoveNetchFirewallRulesToolStripMenuItem;
 
         private System.Windows.Forms.ToolStripButton AboutToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem CleanDNSCacheToolStripMenuItem;
@@ -759,9 +759,9 @@
         private System.Windows.Forms.PictureBox EditModePictureBox;
         private System.Windows.Forms.PictureBox EditServerPictureBox;
         private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ForceExitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem ManageSubscribeLinksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ManageSubscriptionsToolStripMenuItem;
         private System.Windows.Forms.MenuStrip MenuStrip;
         public System.Windows.Forms.ComboBox ModeComboBox;
         private System.Windows.Forms.Label ModeLabel;
@@ -776,7 +776,7 @@
         private System.Windows.Forms.Label ProfileLabel;
         private System.Windows.Forms.TextBox ProfileNameText;
         private System.Windows.Forms.TableLayoutPanel ProfileTable;
-        private System.Windows.Forms.ToolStripMenuItem CheckForUpdatesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem CheckForUpdateToolStripMenuItem;
         private System.Windows.Forms.ComboBox ServerComboBox;
         private System.Windows.Forms.Label ServerLabel;
         private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
@@ -785,18 +785,18 @@
         private System.Windows.Forms.PictureBox SpeedPictureBox;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
         private System.Windows.Forms.StatusStrip StatusStrip;
-        private System.Windows.Forms.ToolStripMenuItem SubscribeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SubscriptionToolStripMenuItem;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem UpdateServersFromSubscribeLinksToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UpdateServersToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
         private System.Windows.Forms.ToolStripLabel NewVersionLabel;
         private System.Windows.Forms.ToolStripLabel VersionLabel;
         private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLightLabel;
         private System.Windows.Forms.ToolStripStatusLabel blankToolStripStatusLabel;
-        private System.Windows.Forms.ToolStripMenuItem fAQToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FAQToolStripMenuItem;
 
         #endregion
 

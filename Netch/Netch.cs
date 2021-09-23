@@ -113,8 +113,13 @@ namespace Netch
             Log.Information("OS: {OSVersion}", Environment.OSVersion);
             Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
             Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
+
             if (Log.IsEnabled(LogEventLevel.Debug))
-                Log.Debug("Third-party Drivers:\n{Drivers}", string.Join("\n", SystemInfo.SystemDrivers(false)));
+            {
+                // TODO log level setting
+                Task.Run(() => Log.Debug("Third-party Drivers:\n{Drivers}", string.Join(Constants.EOF, SystemInfo.SystemDrivers(false)))).Forget();
+                Task.Run(() => Log.Debug("Running Processes: \n{Processes}", string.Join(Constants.EOF, SystemInfo.Processes(false)))).Forget();
+            }
         }
 
         private static void CheckClr()
@@ -162,13 +167,13 @@ namespace Netch
             Log.Logger = new LoggerConfiguration()
 #if DEBUG
                 .MinimumLevel.Verbose()
-                .WriteTo.Async(c => c.Debug(outputTemplate: Constants.OutputTemplate))
 #else
                 .MinimumLevel.Debug()
 #endif
                 .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
                     outputTemplate: Constants.OutputTemplate,
                     rollOnFileSizeLimit: false))
+                .WriteTo.Console(outputTemplate: Constants.OutputTemplate)
                 .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
                 .Enrich.FromLogContext()
                 .CreateLogger();
@@ -176,7 +181,7 @@ namespace Netch
 
         private static void Application_OnException(object sender, ThreadExceptionEventArgs e)
         {
-            Log.Error(e.Exception, "未处理异常");
+            Log.Error(e.Exception, "Unhandled error");
         }
 
         private static void Application_OnExit(object? sender, EventArgs eventArgs)

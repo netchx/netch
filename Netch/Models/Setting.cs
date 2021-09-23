@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.Utils;
 
@@ -240,7 +243,7 @@ namespace Netch.Models
         /// <summary>
         ///     订阅链接列表
         /// </summary>
-        public List<SubscribeLink> SubscribeLink { get; set; } = new();
+        public List<Subscription> Subscription { get; set; } = new();
 
         /// <summary>
         ///     TUNTAP 适配器配置
@@ -256,7 +259,21 @@ namespace Netch.Models
 
         public bool NoSupportDialog { get; set; } = false;
 
-        public Setting Clone()
+        #region Migration
+
+        [Obsolete]
+        public JsonElement SubscribeLink
+        {
+            set
+            {
+                if (Subscription == null! || !Subscription.Any())
+                    Subscription = value.Deserialize<List<Subscription>>()!;
+            }
+        }
+
+        #endregion
+
+        public Setting ShallowCopy()
         {
             return (Setting)MemberwiseClone();
         }

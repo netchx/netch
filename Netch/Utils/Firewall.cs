@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Serilog;
 using WindowsFirewallHelper;
 using WindowsFirewallHelper.FirewallRules;
-using Serilog;
 
 namespace Netch.Utils
 {
@@ -18,7 +18,7 @@ namespace Netch.Utils
         {
             if (!FirewallWAS.IsLocallySupported)
             {
-                Log.Warning("不支持防火墙");
+                Log.Warning("Windows Firewall Locally Unsupported");
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Warning(e, "添加防火墙规则错误");
+                Log.Warning(e, "Create Netch Firewall rules error");
             }
         }
 
@@ -58,7 +58,7 @@ namespace Netch.Utils
             }
             catch (Exception e)
             {
-                Log.Warning(e, "清除防火墙规则错误");
+                Log.Warning(e, "Remove Netch Firewall rules error");
             }
         }
 
