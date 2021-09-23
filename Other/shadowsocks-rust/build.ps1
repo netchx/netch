@@ -17,7 +17,7 @@ if ( -Not $? ) {
 
 tree
 
-cp -Force '.\target\release\sslocal.exe' '..\release\ss-local.exe'
+cp -Force '.\target\release\sslocal.exe' '..\..\release\ss-local.exe'
 
 Pop-Location
 rm -Recurse -Force src
