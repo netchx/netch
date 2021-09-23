@@ -15,6 +15,8 @@ if ( -Not $? ) {
     exit $lastExitCode
 }
 
+tree
+
 cp -Force '.\target\release\sslocal.exe' '..\release\ss-local.exe'
 
 Pop-Location
