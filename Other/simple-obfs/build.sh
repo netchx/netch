@@ -2,7 +2,9 @@
 git submodule update --init || exit $?
 
 ./autogen.sh || exit $?
-./configure --disable-documentation --with-ev="${PWD}/libev-mingw/build" || exit $?
+./configure --disable-documentation --with-ev="${PWD}/../../build" || exit $?
 
-make -j2
+make -j2 || exit $?
+
+gcc $(find src/ -name "obfs_local-*.o") $(find . -name "*.a" ! -name "*.dll.a") "$LIBEV_PATH/lib/libev.a" -o simple-obfs -fstack-protector -static -lws2_32 -s || exit $?
 exit $?

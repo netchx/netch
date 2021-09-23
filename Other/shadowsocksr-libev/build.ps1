@@ -15,7 +15,7 @@ if ( -Not $? ) {
     exit $lastExitCode
 }
 
-cp -Force '.\src\ss-local.exe' '..\..\release\ssr-local.exe'
+cp -Force '.\ss-local.exe' '..\..\release\ssr-local.exe'
 
 Pop-Location
 rm -Recurse -Force src

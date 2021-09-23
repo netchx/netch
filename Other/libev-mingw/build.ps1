@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/shadowsocks/simple-obfs src
+git clone https://github.com/shadowsocks/libev -b 'mingw' src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode
@@ -14,8 +14,6 @@ if ( -Not $? ) {
     rm -Recurse -Force src
     exit $lastExitCode
 }
-
-cp -Force '.\simple-obfs.exe' '..\..\release\simple-obfs.exe'
 
 Pop-Location
 rm -Recurse -Force src
