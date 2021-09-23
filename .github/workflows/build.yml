@@ -16,6 +16,9 @@ jobs:
 
       - name: Rust
         uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
 
       - name: MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
