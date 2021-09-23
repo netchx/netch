@@ -15,6 +15,4 @@ sed -i "s/^const/extern const/g" src/tls.h
 sed -i "s/^const/extern const/g" src/http.h
 
 make -j2
-
-gcc $(find src/ -name "ss_local-*.o") $(find . -name "*.a" ! -name "*.dll.a") "${PWD}/libev-mingw/build/lib/libev.a" -o ssr-local -fstack-protector -static -lpcre -lssl -lcrypto -lws2_32 -s
 exit $?
