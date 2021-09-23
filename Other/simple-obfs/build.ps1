@@ -1,6 +1,6 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/shadowsocksrr/shadowsocksr-libev -b 'Akkariiin/develop' src
+git clone https://github.com/shadowsocks/simple-obfs src
 if ( -Not $? ) {
     Pop-Location
     exit $lastExitCode
