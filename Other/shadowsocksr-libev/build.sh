@@ -8,7 +8,7 @@ make -j2 || exit $?
 cd ..
 
 ./autogen.sh || exit $?
-CFLAGS+="-fstack-protector" ./configure --disable-documentation --with-ev="${PWD}/libev-mingw/build"
+CFLAGS+="-fstack-protector" ./configure --disable-documentation --with-ev="${PWD}/libev-mingw/build" || exit $?
 
 sed -i "s/%I/%z/g" src/utils.h
 sed -i "s/^const/extern const/g" src/tls.h
