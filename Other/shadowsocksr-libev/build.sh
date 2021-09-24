@@ -16,5 +16,5 @@ sed -i "s/^const/extern const/g" src/http.h
 
 make -j2 || exit $?
 
-gcc $(find src/ -name "ss_local-*.o") $(find . -name "*.a" ! -name "*.dll.a") "$LIBEV_PATH/lib/libev.a" -o ss-local -fstack-protector -static -lws2_32 -lsodium -lmbedtls -lmbedcrypto -lpcre || exit $?
+gcc $(find src/ -name "ss_local-*.o") $(find . -name "*.a" ! -name "*.dll.a") "${PWD}/../../build/lib/libev.a" -o ss-local -fstack-protector -static -lws2_32 -lsodium -lmbedtls -lmbedcrypto -lpcre || exit $?
 exit $?
