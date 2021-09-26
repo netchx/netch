@@ -3,11 +3,16 @@ Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 .\clean.ps1
 
 Get-ChildItem -Path '.' -Directory | ForEach-Object {
-    $name=$_.Name
-    & ".\$name\deps.ps1"
+    Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-    if ( -Not $? ) {
-        exit $lastExitCode
+    $name=$_.Name
+
+    if ( Test-Path ".\$name\deps.ps1" ) {
+        & ".\$name\deps.ps1"
+
+        if ( -Not $? ) {
+            exit $lastExitCode
+        }
     }
 }
 
