@@ -3,5 +3,5 @@ mkdir -p "${PWD}/../../build"
 
 ./configure --prefix="${PWD}/../../build" || exit $?
 
-make install -j2 || exit $?
+make install -j2
 exit $?
