@@ -1,11 +1,10 @@
-Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 git clone https://github.com/cbeuw/Cloak -b 'v2.5.5' src
 if ( -Not $? ) {
-    Pop-Location
     exit $lastExitCode
 }
-Push-Location src
+Set-Location src
 
 $Env:CGO_ENABLED='0'
 $Env:GOROOT_FINAL='/usr'
@@ -13,9 +12,4 @@ $Env:GOROOT_FINAL='/usr'
 $Env:GOOS='windows'
 $Env:GOARCH='amd64'
 go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w' -o '..\..\release\ck-client.exe' '.\cmd\ck-client'
-
-Pop-Location
-rm -Recurse -Force src
-
-Pop-Location
 exit $lastExitCode
