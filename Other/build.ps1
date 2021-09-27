@@ -2,9 +2,8 @@ Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 .\clean.ps1
 
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 Get-ChildItem -Path '.' -Directory | ForEach-Object {
-    Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
-
     $name=$_.Name
 
     if ( Test-Path ".\$name\build.ps1" ) {
@@ -16,20 +15,24 @@ Get-ChildItem -Path '.' -Directory | ForEach-Object {
             exit $lastExitCode
         }
     }
+
+    Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 }
 
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 Get-ChildItem -Path '.' -Directory | ForEach-Object {
-    Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
-
     $name=$_.Name
 
     if ( Test-Path ".\$name\src" ) {
         rm -Recurse -Force ".\$name\src"
     }
+
+    Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 }
 
 Write-Host
 
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 Get-ChildItem -Path '.\release' -File | ForEach-Object {
     $name=$_.Name
     $hash=(Get-FileHash ".\release\$name" -Algorithm SHA256).Hash.ToLower()
