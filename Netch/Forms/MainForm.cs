@@ -215,15 +215,18 @@ namespace Netch.Forms
         private async void ImportServersFromClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var texts = Clipboard.GetText();
-            if (!string.IsNullOrWhiteSpace(texts))
-            {
-                var servers = ShareLink.ParseText(texts);
-                Global.Settings.Server.AddRange(servers);
-                NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
+            if (string.IsNullOrWhiteSpace(texts))
+                return;
 
-                LoadServers();
-                await Configuration.SaveAsync();
-            }
+            var servers = ShareLink.ParseText(texts);
+            foreach (var server in servers)
+                server.Group = Constants.DefaultGroup;
+
+            Global.Settings.Server.AddRange(servers);
+            NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
+
+            LoadServers();
+            await Configuration.SaveAsync();
         }
 
         private async void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
