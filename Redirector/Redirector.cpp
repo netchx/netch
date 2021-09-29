@@ -8,6 +8,7 @@ extern BOOL filterIntranet;
 extern BOOL filterICMP;
 extern BOOL filterTCP;
 extern BOOL filterUDP;
+extern DWORD icmping;
 extern wstring tgtHost;
 extern wstring tgtPort;
 extern string tgtUsername;
@@ -68,9 +69,8 @@ extern "C" {
 		case AIO_FILTERUDP:
 			filterUDP = (wstring(value).find(L"false") == string::npos);
 			break;
-		case AIO_CLRNAME:
-			bypassList.clear();
-			handleList.clear();
+		case AIO_ICMPING:
+			icmping = atoi(ws2s(value).c_str());
 			break;
 		case AIO_TGTHOST:
 			tgtHost = wstring(value);
@@ -83,6 +83,10 @@ extern "C" {
 			break;
 		case AIO_TGTPASS:
 			tgtPassword = ws2s(value);
+			break;
+		case AIO_CLRNAME:
+			bypassList.clear();
+			handleList.clear();
 			break;
 		case AIO_BYPNAME:
 			try
