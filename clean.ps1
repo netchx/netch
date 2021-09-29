@@ -23,6 +23,10 @@ Delete 'Redirector\obj'
 Delete 'RouteHelper\bin'
 Delete 'RouteHelper\obj'
 
+Delete 'Netch\*.csproj.user'
+Delete 'Redirector\*.vcxproj.user'
+Delete 'RouteHelper\*.vcxproj.user'
+
 .\other\clean.ps1
 
 Pop-Location
