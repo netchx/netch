@@ -144,7 +144,7 @@ void TCPHandler::Handle(SOCKET client)
 	}
 
 	auto remote = SocksHelper::Utils::Connect();
-	if (remote != INVALID_SOCKET)
+	if (remote == INVALID_SOCKET)
 	{
 		closesocket(client);
 		return;
@@ -170,7 +170,7 @@ void TCPHandler::Handle(SOCKET client)
 	tcpLock.unlock();
 
 	auto conn = new SocksHelper::TCP(remote);
-	if (!conn->Connect((PSOCKADDR)&target))
+	if (!conn->Connect(&target))
 	{
 		delete conn;
 

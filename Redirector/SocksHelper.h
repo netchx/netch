@@ -9,7 +9,7 @@ namespace SocksHelper
 	{
 		SOCKET Connect();
 		bool Handshake(SOCKET client);
-		bool ReadAddr(SOCKET client, char type, PSOCKADDR addr);
+		bool ReadAddr(SOCKET client, char type, PSOCKADDR_IN6 addr);
 	}
 
 	typedef class TCP
@@ -19,7 +19,7 @@ namespace SocksHelper
 		TCP(SOCKET tcpSocket);
 		~TCP();
 
-		bool Connect(PSOCKADDR target);
+		bool Connect(PSOCKADDR_IN6 target);
 
 		int Send(const char* buffer, int length);
 		int Read(char* buffer, int length);
@@ -37,8 +37,8 @@ namespace SocksHelper
 		bool Associate();
 		bool CreateUDP();
 
-		int Send(PSOCKADDR target, const char* buffer, int length);
-		int Read(PSOCKADDR target, char* buffer, int length);
+		int Send(PSOCKADDR_IN6 target, const char* buffer, int length);
+		int Read(PSOCKADDR_IN6 target, char* buffer, int length);
 
 		SOCKET tcpSocket = INVALID_SOCKET;
 		SOCKET udpSocket = INVALID_SOCKET;
