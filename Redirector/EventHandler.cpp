@@ -299,7 +299,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 			return;
 		}
 
-		PNF_UDP_OPTIONS data = new NF_UDP_OPTIONS();
+		auto data = new NF_UDP_OPTIONS();
 		memcpy(data, options, sizeof(NF_UDP_OPTIONS));
 
 		thread(udpBeginReceive, id, conn, data).detach();
@@ -350,7 +350,6 @@ void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS dat
 	while (conn->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
-		int targetLength = sizeof(SOCKADDR_IN6);
 
 		int length = conn->Read((PSOCKADDR)&target, buffer, 1458);
 		if (length == 0 || length == SOCKET_ERROR)

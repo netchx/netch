@@ -3,6 +3,8 @@
 #define EVENTHANDLER_H
 #include "Based.h"
 
+#include "SocksHelper.h"
+
 bool eh_init();
 void eh_free();
 
@@ -22,5 +24,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 void udpCanReceive(ENDPOINT_ID id);
 void udpReceive(ENDPOINT_ID id, const unsigned char* target, const char* buffer, int length, PNF_UDP_OPTIONS options);
 void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info);
+
+void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS data);
 
 #endif
