@@ -10,10 +10,10 @@ bool TCPHandler::Init()
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
-	if (tcpSocket)
+	if (tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(tcpSocket);
-		tcpSocket = NULL;
+		tcpSocket = INVALID_SOCKET;
 	}
 
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -120,6 +120,7 @@ void TCPHandler::Accept()
 		auto client = accept(tcpSocket, NULL, NULL);
 		if (client == INVALID_SOCKET)
 		{
+			printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", WSAGetLastError());
 			return;
 		}
 
@@ -191,8 +192,8 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 	
 	while (tcpSocket != INVALID_SOCKET)
 	{
-		auto length = remote->Read(buffer, 1446);
-		if (!length || length == SOCKET_ERROR)
+		int length = remote->Read(buffer, 1446);
+		if (length == 0 || length == SOCKET_ERROR)
 		{
 			return;
 		}
@@ -210,8 +211,8 @@ void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
 
 	while (tcpSocket != INVALID_SOCKET)
 	{
-		auto length = recv(client, buffer, 1446, 0);
-		if (!length || length == SOCKET_ERROR)
+		int length = recv(client, buffer, 1446, 0);
+		if (length == 0 || length == SOCKET_ERROR)
 		{
 			return;
 		}

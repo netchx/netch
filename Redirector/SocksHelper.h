@@ -21,10 +21,10 @@ namespace SocksHelper
 
 		bool Connect(PSOCKADDR target);
 
-		int Send(char* buffer, int length);
+		int Send(const char* buffer, int length);
 		int Read(char* buffer, int length);
 
-		SOCKET tcpSocket = NULL;
+		SOCKET tcpSocket = INVALID_SOCKET;
 	} *PTCP;
 
 	typedef class UDP
@@ -37,11 +37,11 @@ namespace SocksHelper
 		bool Associate();
 		bool CreateUDP();
 
-		int Send(PSOCKADDR target, char* buffer, int length);
+		int Send(PSOCKADDR target, const char* buffer, int length);
 		int Read(PSOCKADDR target, char* buffer, int length);
 
-		SOCKET tcpSocket = NULL;
-		SOCKET udpSocket = NULL;
+		SOCKET tcpSocket = INVALID_SOCKET;
+		SOCKET udpSocket = INVALID_SOCKET;
 	private:
 		void run();
 

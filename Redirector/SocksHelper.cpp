@@ -238,7 +238,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR target)
 	return Utils::ReadAddr(this->tcpSocket, buffer[3], (PSOCKADDR)&addr);
 }
 
-int SocksHelper::TCP::Send(char* buffer, int length)
+int SocksHelper::TCP::Send(const char* buffer, int length)
 {
 	if (this->tcpSocket != INVALID_SOCKET)
 	{
@@ -371,7 +371,7 @@ bool SocksHelper::UDP::CreateUDP()
 	return true;
 }
 
-int SocksHelper::UDP::Send(PSOCKADDR target, char* buffer, int length)
+int SocksHelper::UDP::Send(PSOCKADDR target, const char* buffer, int length)
 {
 	if (this->udpSocket == INVALID_SOCKET)
 	{
@@ -425,17 +425,11 @@ int SocksHelper::UDP::Read(PSOCKADDR target, char* buffer, int length)
 		return SOCKET_ERROR;
 	}
 
-	auto targetLength = 0;
-	auto bufferLength = recvfrom(this->udpSocket, buffer, length, 0, target, &targetLength);
-	if (bufferLength <= 0)
+	int targetLength = 0;
+	int bufferLength = recvfrom(this->udpSocket, buffer, length, 0, target, &targetLength);
+	if (bufferLength == 0 || bufferLength == SOCKET_ERROR)
 	{
-		if (bufferLength == SOCKET_ERROR)
-		{
-			printf("[Redirector][SocksHelper::UDP::Read] Receive packet failed: %d\n", WSAGetLastError());
-			return SOCKET_ERROR;
-		}
-
-		return 0;
+		return bufferLength;
 	}
 
 	memset(target, 0, sizeof(SOCKADDR_IN6));
@@ -467,7 +461,7 @@ void SocksHelper::UDP::run()
 {
 	char buffer[1];
 
-	while (true)
+	while (this->tcpSocket != INVALID_SOCKET)
 	{
 		if (recv(this->tcpSocket, buffer, 1, 0) != 1)
 		{
