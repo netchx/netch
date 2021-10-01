@@ -86,7 +86,7 @@ namespace Netch.Utils
             foreach (var line in output.SplitRemoveEmptyEntriesAndTrimEntries('\n'))
             {
                 var value = line.Trim().SplitRemoveEmptyEntries(' ');
-                if (value.Length != 2)
+                if (value.Length < 2)
                     continue;
 
                 if (!ushort.TryParse(value[0], out var start) || !ushort.TryParse(value[1], out var end))
