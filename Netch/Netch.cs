@@ -45,6 +45,13 @@ namespace Netch
             var binPath = Path.Combine(Global.NetchDir, "bin");
             Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
 
+            if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
+            {
+                i18N.Load("System");
+                MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
+                Environment.Exit(2);
+            }
+
             Updater.CleanOld(Global.NetchDir);
 
             // 预创建目录
@@ -85,12 +92,6 @@ namespace Netch
 
             // 加载语言
             i18N.Load(Global.Settings.Language);
-
-            if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
-            {
-                MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
-                Environment.Exit(2);
-            }
 
             Task.Run(LogEnvironment).Forget();
             CheckClr();
@@ -137,8 +138,11 @@ namespace Netch
             {
                 Log.Information("CLR: {Version}", Environment.Version);
                 Flags.NoSupport = true;
-                if(!Global.Settings.NoSupportDialog)
-                    MessageBoxX.Show(i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.", "CLR " + Environment.Version), LogLevel.WARNING);
+                if (!Global.Settings.NoSupportDialog)
+                    MessageBoxX.Show(
+                        i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.",
+                            "CLR " + Environment.Version),
+                        LogLevel.WARNING);
             }
         }
 
@@ -147,8 +151,11 @@ namespace Netch
             if (Environment.OSVersion.Version.Build < 17763)
             {
                 Flags.NoSupport = true;
-                if(!Global.Settings.NoSupportDialog)
-                    MessageBoxX.Show(i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.", Environment.OSVersion), LogLevel.WARNING);
+                if (!Global.Settings.NoSupportDialog)
+                    MessageBoxX.Show(
+                        i18N.TranslateFormat("{0} won't get developers' support, Please do not report any issues or seek help from developers.",
+                            Environment.OSVersion),
+                        LogLevel.WARNING);
             }
         }
 

@@ -178,8 +178,7 @@
 
     "The {0} port is in use.": "{0} 端口已被占用",
     "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
-    
-    "\"Core.bin\" is missing. Please check your Antivirus software": "找不到 \"Core.bin\" 文件！请检查你的杀毒软件。",
+
     "{0} won't get developers' support, Please do not report any issues or seek help from developers.": "{0} 将不会得到开发者的支持，请不要报告任何问题或寻求开发人员的帮助。",
     "No Support": "不受支持"
 }

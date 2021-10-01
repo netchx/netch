@@ -7,7 +7,6 @@
 
         public const string AioDnsRuleFile = "bin\\aiodns.conf";
         public const string NFDriver = "bin\\nfdriver.sys";
-        public const string NFCore = "bin\\core.bin";
         public const string STUNServersFile = "bin\\stun.txt";
 
         public const string LogFile = "logging\\application.log";
