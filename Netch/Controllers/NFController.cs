@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.ServiceProcess;
@@ -33,24 +32,26 @@ namespace Netch.Controllers
             _mode = mode;
             _rdrConfig = Global.Settings.Redirector;
             CheckDriver();
-            CheckCore();
 
-            Dial(NameList.TYPE_FILTERLOOPBACK, "false");
-            Dial(NameList.TYPE_FILTERICMP, "true");
-            var p = PortHelper.GetAvailablePort();
-            Dial(NameList.TYPE_TCPLISN, p.ToString());
-            Dial(NameList.TYPE_UDPLISN, p.ToString());
+            Dial(NameList.AIO_FILTERLOOPBACK, "false");
+            Dial(NameList.AIO_FILTERINTRANET, "false");
+            Dial(NameList.AIO_FILTERICMP, _rdrConfig.FilterICMP.ToString().ToLower());
+            Dial(NameList.AIO_ICMPING, _rdrConfig.ICMPDelay.ToString());
 
             // Server
-            Dial(NameList.TYPE_FILTERUDP, _rdrConfig.FilterProtocol.HasFlag(PortType.UDP).ToString().ToLower());
-            Dial(NameList.TYPE_FILTERTCP, _rdrConfig.FilterProtocol.HasFlag(PortType.TCP).ToString().ToLower());
-            await DialServerAsync(_rdrConfig.FilterProtocol, _server);
+            Dial(NameList.AIO_FILTERUDP, _rdrConfig.FilterProtocol.HasFlag(PortType.UDP).ToString().ToLower());
+            Dial(NameList.AIO_FILTERTCP, _rdrConfig.FilterProtocol.HasFlag(PortType.TCP).ToString().ToLower());
+
+            Dial(NameList.AIO_TGTHOST, await server.AutoResolveHostnameAsync());
+            Dial(NameList.AIO_TGTPORT, server.Port.ToString());
+            Dial(NameList.AIO_TGTUSER, server.Username ?? string.Empty);
+            Dial(NameList.AIO_TGTPASS, server.Password ?? string.Empty);
 
             // Mode Rule
-            dial_Name(_mode);
+            DialRule(_mode);
 
-            // Features
-            Dial(NameList.TYPE_DNSHOST, _rdrConfig.DNSHijack ? _rdrConfig.DNSHijackHost : "");
+            // Features TODO
+            // Dial(NameList.AIO_DNSHOST, _rdrConfig.DNSHijack ? _rdrConfig.DNSHijackHost : "");
 
             if (!await InitAsync())
                 throw new MessageException("Redirector start failed.");
@@ -73,14 +74,14 @@ namespace Netch.Controllers
             try
             {
                 if (r.StartsWith("!"))
-                    return Dial(NameList.TYPE_ADDNAME, r.Substring(1));
+                    return Dial(NameList.AIO_ADDNAME, r.Substring(1));
 
-                return Dial(NameList.TYPE_ADDNAME, r);
+                return Dial(NameList.AIO_ADDNAME, r);
             }
             finally
             {
                 if (clear)
-                    Dial(NameList.TYPE_CLRNAME, "");
+                    Dial(NameList.AIO_CLRNAME, "");
             }
         }
 
@@ -92,70 +93,40 @@ namespace Netch.Controllers
         public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
         {
             results = rules.Where(r => !CheckCppRegex(r, false));
-            Dial(NameList.TYPE_CLRNAME, "");
+            Dial(NameList.AIO_CLRNAME, "");
             return !results.Any();
         }
 
         public static string GenerateInvalidRulesMessage(IEnumerable<string> rules)
         {
-            return $"{string.Join("\n", rules)}\nAbove rules does not conform to C++ regular expression syntax";
+            return $"{string.Join("\n", rules)}\n" + i18N.Translate("Above rules does not conform to C++ regular expression syntax");
         }
 
         #endregion
 
-        private async Task DialServerAsync(PortType portType, Server server)
+        private void DialRule(Mode mode)
         {
-            if (portType == PortType.Both)
-            {
-                await DialServerAsync(PortType.TCP, server);
-                await DialServerAsync(PortType.UDP, server);
-                return;
-            }
-
-            var offset = portType == PortType.UDP ? UdpNameListOffset : 0;
-
-            if (server is Socks5Server socks5)
-            {
-                Dial(NameList.TYPE_TCPTYPE + offset, "Socks5");
-                Dial(NameList.TYPE_TCPHOST + offset, $"{await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
-                Dial(NameList.TYPE_TCPUSER + offset, socks5.Username ?? string.Empty);
-                Dial(NameList.TYPE_TCPPASS + offset, socks5.Password ?? string.Empty);
-                Dial(NameList.TYPE_TCPMETH + offset, string.Empty);
-            }
-            else
-            {
-                Trace.Assert(false);
-            }
-        }
-
-        private void dial_Name(Mode mode)
-        {
-            Dial(NameList.TYPE_CLRNAME, "");
+            Dial(NameList.AIO_CLRNAME, "");
             var invalidList = new List<string>();
             foreach (var s in mode.GetRules())
             {
                 if (s.StartsWith("!"))
                 {
-                    if (!Dial(NameList.TYPE_BYPNAME, s.Substring(1)))
+                    if (!Dial(NameList.AIO_BYPNAME, s.Substring(1)))
                         invalidList.Add(s);
 
                     continue;
                 }
 
-                if (!Dial(NameList.TYPE_ADDNAME, s))
+                if (!Dial(NameList.AIO_ADDNAME, s))
                     invalidList.Add(s);
             }
 
             if (invalidList.Any())
                 throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
-            Dial(NameList.TYPE_BYPNAME, "^" + Global.NetchDir.ToRegexString());
-        }
-
-        private void CheckCore()
-        {
-            if (!File.Exists(Constants.NFCore))
-                throw new MessageException(i18N.Translate("\"Core.bin\" is missing. Please check your Antivirus software"));
+            // Bypass Self
+            Dial(NameList.AIO_BYPNAME, "^" + Global.NetchDir.ToRegexString());
         }
 
         #region DriverUtil

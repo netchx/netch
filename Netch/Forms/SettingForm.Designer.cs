@@ -36,8 +36,6 @@ namespace Netch.Forms
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.Socks5PortLabel = new System.Windows.Forms.Label();
             this.Socks5PortTextBox = new System.Windows.Forms.TextBox();
-            this.HTTPPortLabel = new System.Windows.Forms.Label();
-            this.HTTPPortTextBox = new System.Windows.Forms.TextBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.ServerPingTypeLabel = new System.Windows.Forms.Label();
             this.ICMPingRadioBtn = new System.Windows.Forms.RadioButton();
@@ -55,11 +53,11 @@ namespace Netch.Forms
             this.NFTabPage = new System.Windows.Forms.TabPage();
             this.ProcessFilterProtocolLabel = new System.Windows.Forms.Label();
             this.ProcessFilterProtocolComboBox = new System.Windows.Forms.ComboBox();
-            this.DNSHijackCheckBox = new System.Windows.Forms.CheckBox();
-            this.DNSHijackHostTextBox = new System.Windows.Forms.TextBox();
             this.FilterICMPCheckBox = new System.Windows.Forms.CheckBox();
             this.ICMPDelayLabel = new System.Windows.Forms.Label();
             this.ICMPDelayTextBox = new System.Windows.Forms.TextBox();
+            this.DNSHijackCheckBox = new System.Windows.Forms.CheckBox();
+            this.DNSHijackHostTextBox = new System.Windows.Forms.TextBox();
             this.ChildProcessHandleCheckBox = new System.Windows.Forms.CheckBox();
             this.WinTUNTabPage = new System.Windows.Forms.TabPage();
             this.WinTUNGroupBox = new System.Windows.Forms.GroupBox();
@@ -167,8 +165,6 @@ namespace Netch.Forms
             // 
             this.PortGroupBox.Controls.Add(this.Socks5PortLabel);
             this.PortGroupBox.Controls.Add(this.Socks5PortTextBox);
-            this.PortGroupBox.Controls.Add(this.HTTPPortLabel);
-            this.PortGroupBox.Controls.Add(this.HTTPPortTextBox);
             this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Location = new System.Drawing.Point(8, 6);
             this.PortGroupBox.Name = "PortGroupBox";
@@ -193,23 +189,6 @@ namespace Netch.Forms
             this.Socks5PortTextBox.Size = new System.Drawing.Size(90, 23);
             this.Socks5PortTextBox.TabIndex = 1;
             this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // HTTPPortLabel
-            // 
-            this.HTTPPortLabel.AutoSize = true;
-            this.HTTPPortLabel.Location = new System.Drawing.Point(9, 54);
-            this.HTTPPortLabel.Name = "HTTPPortLabel";
-            this.HTTPPortLabel.Size = new System.Drawing.Size(38, 17);
-            this.HTTPPortLabel.TabIndex = 2;
-            this.HTTPPortLabel.Text = "HTTP";
-            // 
-            // HTTPPortTextBox
-            // 
-            this.HTTPPortTextBox.Location = new System.Drawing.Point(120, 51);
-            this.HTTPPortTextBox.Name = "HTTPPortTextBox";
-            this.HTTPPortTextBox.Size = new System.Drawing.Size(90, 23);
-            this.HTTPPortTextBox.TabIndex = 3;
-            this.HTTPPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // AllowDevicesCheckBox
             // 
@@ -344,11 +323,11 @@ namespace Netch.Forms
             this.NFTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.NFTabPage.Controls.Add(this.ProcessFilterProtocolLabel);
             this.NFTabPage.Controls.Add(this.ProcessFilterProtocolComboBox);
-            this.NFTabPage.Controls.Add(this.DNSHijackCheckBox);
-            this.NFTabPage.Controls.Add(this.DNSHijackHostTextBox);
             this.NFTabPage.Controls.Add(this.FilterICMPCheckBox);
             this.NFTabPage.Controls.Add(this.ICMPDelayLabel);
             this.NFTabPage.Controls.Add(this.ICMPDelayTextBox);
+            this.NFTabPage.Controls.Add(this.DNSHijackCheckBox);
+            this.NFTabPage.Controls.Add(this.DNSHijackHostTextBox);
             this.NFTabPage.Controls.Add(this.ChildProcessHandleCheckBox);
             this.NFTabPage.Location = new System.Drawing.Point(4, 29);
             this.NFTabPage.Name = "NFTabPage";
@@ -375,52 +354,54 @@ namespace Netch.Forms
             this.ProcessFilterProtocolComboBox.Size = new System.Drawing.Size(98, 25);
             this.ProcessFilterProtocolComboBox.TabIndex = 1;
             // 
-            // DNSHijackCheckBox
-            // 
-            this.DNSHijackCheckBox.AutoSize = true;
-            this.DNSHijackCheckBox.Location = new System.Drawing.Point(15, 50);
-            this.DNSHijackCheckBox.Name = "DNSHijackCheckBox";
-            this.DNSHijackCheckBox.Size = new System.Drawing.Size(196, 21);
-            this.DNSHijackCheckBox.TabIndex = 2;
-            this.DNSHijackCheckBox.Text = "Handle process\'s DNS Hijack";
-            this.DNSHijackCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // DNSHijackHostTextBox
-            // 
-            this.DNSHijackHostTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.DNSHijackCheckBox, "Checked", true));
-            this.DNSHijackHostTextBox.Location = new System.Drawing.Point(237, 48);
-            this.DNSHijackHostTextBox.Name = "DNSHijackHostTextBox";
-            this.DNSHijackHostTextBox.Size = new System.Drawing.Size(191, 23);
-            this.DNSHijackHostTextBox.TabIndex = 3;
-            this.DNSHijackHostTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // FilterICMPCheckBox
             // 
             this.FilterICMPCheckBox.AutoSize = true;
-            this.FilterICMPCheckBox.Location = new System.Drawing.Point(13, 80);
+            this.FilterICMPCheckBox.Location = new System.Drawing.Point(15, 50);
             this.FilterICMPCheckBox.Name = "FilterICMPCheckBox";
             this.FilterICMPCheckBox.Size = new System.Drawing.Size(90, 21);
-            this.FilterICMPCheckBox.TabIndex = 4;
+            this.FilterICMPCheckBox.TabIndex = 2;
             this.FilterICMPCheckBox.Text = "Filter ICMP";
             this.FilterICMPCheckBox.UseVisualStyleBackColor = true;
             // 
             // ICMPDelayLabel
             // 
             this.ICMPDelayLabel.AutoSize = true;
-            this.ICMPDelayLabel.Location = new System.Drawing.Point(30, 110);
+            this.ICMPDelayLabel.Location = new System.Drawing.Point(30, 80);
             this.ICMPDelayLabel.Name = "ICMPDelayLabel";
             this.ICMPDelayLabel.Size = new System.Drawing.Size(100, 17);
-            this.ICMPDelayLabel.TabIndex = 5;
+            this.ICMPDelayLabel.TabIndex = 3;
             this.ICMPDelayLabel.Text = "ICMP Delay(ms)";
             // 
             // ICMPDelayTextBox
             // 
-            this.ICMPDelayTextBox.Location = new System.Drawing.Point(237, 107);
+            this.ICMPDelayTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterICMPCheckBox, "Checked", true));
+            this.ICMPDelayTextBox.Location = new System.Drawing.Point(237, 77);
             this.ICMPDelayTextBox.Name = "ICMPDelayTextBox";
-            this.ICMPDelayTextBox.ReadOnly = true;
             this.ICMPDelayTextBox.Size = new System.Drawing.Size(98, 23);
-            this.ICMPDelayTextBox.TabIndex = 6;
+            this.ICMPDelayTextBox.TabIndex = 4;
             this.ICMPDelayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // DNSHijackCheckBox
+            // 
+            this.DNSHijackCheckBox.AutoSize = true;
+            this.DNSHijackCheckBox.Location = new System.Drawing.Point(15, 110);
+            this.DNSHijackCheckBox.Name = "DNSHijackCheckBox";
+            this.DNSHijackCheckBox.Size = new System.Drawing.Size(196, 21);
+            this.DNSHijackCheckBox.TabIndex = 5;
+            this.DNSHijackCheckBox.Text = "Handle process\'s DNS Hijack";
+            this.DNSHijackCheckBox.UseVisualStyleBackColor = true;
+            this.DNSHijackCheckBox.Visible = false;
+            // 
+            // DNSHijackHostTextBox
+            // 
+            this.DNSHijackHostTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.DNSHijackCheckBox, "Checked", true));
+            this.DNSHijackHostTextBox.Location = new System.Drawing.Point(237, 108);
+            this.DNSHijackHostTextBox.Name = "DNSHijackHostTextBox";
+            this.DNSHijackHostTextBox.Size = new System.Drawing.Size(191, 23);
+            this.DNSHijackHostTextBox.TabIndex = 6;
+            this.DNSHijackHostTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.DNSHijackHostTextBox.Visible = false;
             // 
             // ChildProcessHandleCheckBox
             // 
@@ -429,9 +410,10 @@ namespace Netch.Forms
             this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(15, 140);
             this.ChildProcessHandleCheckBox.Name = "ChildProcessHandleCheckBox";
             this.ChildProcessHandleCheckBox.Size = new System.Drawing.Size(150, 21);
-            this.ChildProcessHandleCheckBox.TabIndex = 8;
+            this.ChildProcessHandleCheckBox.TabIndex = 7;
             this.ChildProcessHandleCheckBox.Text = "Child Process Handle";
             this.ChildProcessHandleCheckBox.UseVisualStyleBackColor = true;
+            this.ChildProcessHandleCheckBox.Visible = false;
             // 
             // WinTUNTabPage
             // 
@@ -748,9 +730,9 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.StopWhenExitedCheckBox);
             this.OtherTabPage.Controls.Add(this.StartWhenOpenedCheckBox);
             this.OtherTabPage.Controls.Add(this.MinimizeWhenStartedCheckBox);
-            this.OtherTabPage.Controls.Add(this.NoSupportDialogCheckBox);
             this.OtherTabPage.Controls.Add(this.RunAtStartupCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckUpdateWhenOpenedCheckBox);
+            this.OtherTabPage.Controls.Add(this.NoSupportDialogCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckBetaUpdateCheckBox);
             this.OtherTabPage.Controls.Add(this.UpdateServersWhenOpenedCheckBox);
             this.OtherTabPage.Location = new System.Drawing.Point(4, 29);
@@ -809,7 +791,7 @@ namespace Netch.Forms
             this.NoSupportDialogCheckBox.Location = new System.Drawing.Point(6, 72);
             this.NoSupportDialogCheckBox.Name = "NoSupportDialogCheckBox";
             this.NoSupportDialogCheckBox.Size = new System.Drawing.Size(174, 21);
-            this.NoSupportDialogCheckBox.TabIndex = 4;
+            this.NoSupportDialogCheckBox.TabIndex = 6;
             this.NoSupportDialogCheckBox.Text = "Disable Support Warning";
             this.NoSupportDialogCheckBox.UseVisualStyleBackColor = true;
             // 
@@ -840,7 +822,7 @@ namespace Netch.Forms
             this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(200, 72);
             this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
             this.CheckBetaUpdateCheckBox.Size = new System.Drawing.Size(137, 21);
-            this.CheckBetaUpdateCheckBox.TabIndex = 6;
+            this.CheckBetaUpdateCheckBox.TabIndex = 7;
             this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
             this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
@@ -851,7 +833,7 @@ namespace Netch.Forms
             this.UpdateServersWhenOpenedCheckBox.Location = new System.Drawing.Point(200, 94);
             this.UpdateServersWhenOpenedCheckBox.Name = "UpdateServersWhenOpenedCheckBox";
             this.UpdateServersWhenOpenedCheckBox.Size = new System.Drawing.Size(200, 21);
-            this.UpdateServersWhenOpenedCheckBox.TabIndex = 7;
+            this.UpdateServersWhenOpenedCheckBox.TabIndex = 8;
             this.UpdateServersWhenOpenedCheckBox.Text = "Update Servers when opened";
             this.UpdateServersWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.UpdateServersWhenOpenedCheckBox.UseVisualStyleBackColor = true;
@@ -996,8 +978,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TabPage v2rayTabPage;
         private System.Windows.Forms.GroupBox PortGroupBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
-        private System.Windows.Forms.Label HTTPPortLabel;
-        private System.Windows.Forms.TextBox HTTPPortTextBox;
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
         private System.Windows.Forms.GroupBox WinTUNGroupBox;

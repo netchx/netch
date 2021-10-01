@@ -26,15 +26,7 @@ namespace Netch.Forms
 
             #region General
 
-            BindTextBox<ushort>(Socks5PortTextBox,
-                p => p.ToString() != HTTPPortTextBox.Text,
-                p => Global.Settings.Socks5LocalPort = p,
-                Global.Settings.Socks5LocalPort);
-
-            BindTextBox<ushort>(HTTPPortTextBox,
-                p => p.ToString() != Socks5PortTextBox.Text,
-                p => Global.Settings.HTTPLocalPort = p,
-                Global.Settings.HTTPLocalPort);
+            BindTextBox<ushort>(Socks5PortTextBox, p => true, p => Global.Settings.Socks5LocalPort = p, Global.Settings.Socks5LocalPort);
 
             BindCheckBox(AllowDevicesCheckBox,
                 c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
@@ -108,7 +100,7 @@ namespace Netch.Forms
 
             BindCheckBox(FilterICMPCheckBox, b => Global.Settings.Redirector.FilterICMP = b, Global.Settings.Redirector.FilterICMP);
 
-            BindTextBox(ICMPDelayTextBox, s => int.TryParse(s, out _), s => { }, Global.Settings.Redirector.ICMPDelay);
+            BindTextBox<int>(ICMPDelayTextBox, s => true, s => Global.Settings.Redirector.ICMPDelay = s, Global.Settings.Redirector.ICMPDelay);
 
             BindCheckBox(ChildProcessHandleCheckBox,
                 s => Global.Settings.Redirector.ChildProcessHandle = s,

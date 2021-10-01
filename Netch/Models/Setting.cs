@@ -104,8 +104,7 @@ namespace Netch.Models
         /// </summary>
         public string DNSHijackHost { get; set; } = "1.1.1.1:53";
 
-        [JsonIgnore]
-        public int ICMPDelay { get; } = 0;
+        public int ICMPDelay { get; set; } = 0;
 
         public bool FilterICMP { get; set; } = false;
 

@@ -10,7 +10,7 @@ namespace Netch.Utils
     public static class WebUtil
     {
         public const string DefaultUserAgent =
-            @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.67";
+            @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31";
 
         static WebUtil()
         {
@@ -50,7 +50,6 @@ namespace Netch.Utils
         ///     异步下载并编码为字符串
         /// </summary>
         /// <param name="req"></param>
-        /// <param name="rep"></param>
         /// <param name="encoding">编码，默认UTF-8</param>
         /// <returns></returns>
         public static (HttpStatusCode, string) DownloadString(HttpWebRequest req, Encoding? encoding = null)

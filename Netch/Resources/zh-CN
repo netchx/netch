@@ -115,6 +115,9 @@
     "Scan": "扫描",
     "Save": "保存",
     "Modify": "修改",
+    "Select": "选择",
+    "Validation": "验证",
+    "Action": "动作",
     "Select a folder": "选择一个目录",
     "Please enter an process name (xxx.exe)": "请输入一个进程名（xxx.exe）",
     "Rule does not conform to C++ regular expression syntax": "规则不符合 C++ 正则表达式语法",
@@ -125,6 +128,7 @@
     "Please enter a mode remark": "请输入模式的备注",
     "File already exists.\n Please Change the filename": "文件名已存在，请修改文件名",
     "Please enter a mode filename": "请输入模式的文件名",
+    "Above rules does not conform to C++ regular expression syntax": "以上规则不符合 C++ 正则表达式语法",
 
     "Proxy Rule IPs": "代理规则 IP",
     "Bypass Rule IPs": "绕过规则 IP",

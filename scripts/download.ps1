@@ -20,7 +20,7 @@ New-Item -ItemType Directory -Name bin  | Out-Null
 New-Item -ItemType Directory -Name mode | Out-Null
 New-Item -ItemType Directory -Name i18n | Out-Null
 
-Copy-Item -Recurse -Force .\netchdata-master\*             .\bin -Exclude @('tap2socks.bin')
+Copy-Item -Recurse -Force .\netchdata-master\*             .\bin
 Copy-Item -Recurse -Force .\netchmode-master\mode\*        .\mode
 Copy-Item -Recurse -Force .\netchi18n-master\i18n\*        .\i18n
 

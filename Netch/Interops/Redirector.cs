@@ -8,38 +8,22 @@ namespace Netch.Interops
     {
         public enum NameList
         {
-            TYPE_FILTERLOOPBACK,
-            TYPE_FILTERICMP,
-            TYPE_FILTERTCP,
-            TYPE_FILTERUDP,
+            AIO_FILTERLOOPBACK,
+            AIO_FILTERINTRANET, // LAN
+            AIO_FILTERICMP,
+            AIO_FILTERTCP,
+            AIO_FILTERUDP,
 
-            TYPE_CLRNAME,
-            TYPE_ADDNAME,
-            TYPE_BYPNAME,
+            AIO_ICMPING,
 
-            TYPE_DNSHOST,
+            AIO_TGTHOST,
+            AIO_TGTPORT,
+            AIO_TGTUSER,
+            AIO_TGTPASS,
 
-            TYPE_TCPLISN,
-            TYPE_TCPTYPE,
-            TYPE_TCPHOST,
-            TYPE_TCPUSER,
-            TYPE_TCPPASS,
-            TYPE_TCPMETH,
-            TYPE_TCPPROT,
-            TYPE_TCPPRPA,
-            TYPE_TCPOBFS,
-            TYPE_TCPOBPA,
-
-            TYPE_UDPLISN,
-            TYPE_UDPTYPE,
-            TYPE_UDPHOST,
-            TYPE_UDPUSER,
-            TYPE_UDPPASS,
-            TYPE_UDPMETH,
-            TYPE_UDPPROT,
-            TYPE_UDPPRPA,
-            TYPE_UDPOBFS,
-            TYPE_UDPOBPA
+            AIO_CLRNAME,
+            AIO_ADDNAME,
+            AIO_BYPNAME
         }
 
         public static bool Dial(NameList name, string value)
@@ -58,8 +42,6 @@ namespace Netch.Interops
             return await Task.Run(aio_free).ConfigureAwait(false);
         }
 
-        public const int UdpNameListOffset = (int)NameList.TYPE_UDPLISN - (int)NameList.TYPE_TCPLISN;
-
         private const string Redirector_bin = "Redirector.bin";
 
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
@@ -71,10 +53,12 @@ namespace Netch.Interops
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool aio_free();
 
+        /*
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong aio_getUP();
 
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong aio_getDL();
+        */
     }
 }
