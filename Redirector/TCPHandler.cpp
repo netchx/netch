@@ -169,7 +169,9 @@ void TCPHandler::Handle(SOCKET client)
 	auto target = tcpContext[id];
 	tcpLock.unlock();
 
-	auto conn = new SocksHelper::TCP(remote);
+	auto conn = new SocksHelper::TCP();
+	conn->tcpSocket = remote;
+
 	if (!conn->Connect(&target))
 	{
 		delete conn;
@@ -192,7 +194,7 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 	
 	while (tcpSocket != INVALID_SOCKET)
 	{
-		int length = remote->Read(buffer, 1446);
+		int length = remote->Read(buffer, sizeof(buffer));
 		if (length == 0 || length == SOCKET_ERROR)
 		{
 			return;
@@ -211,7 +213,7 @@ void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
 
 	while (tcpSocket != INVALID_SOCKET)
 	{
-		int length = recv(client, buffer, 1446, 0);
+		int length = recv(client, buffer, sizeof(buffer), 0);
 		if (length == 0 || length == SOCKET_ERROR)
 		{
 			return;

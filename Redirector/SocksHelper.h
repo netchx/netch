@@ -15,8 +15,6 @@ namespace SocksHelper
 	typedef class TCP
 	{
 	public:
-		TCP();
-		TCP(SOCKET tcpSocket);
 		~TCP();
 
 		bool Connect(PSOCKADDR_IN6 target);
@@ -30,8 +28,6 @@ namespace SocksHelper
 	typedef class UDP
 	{
 	public:
-		UDP();
-		UDP(SOCKET tcpSocket);
 		~UDP();
 
 		bool Associate();
@@ -43,9 +39,8 @@ namespace SocksHelper
 		SOCKET tcpSocket = INVALID_SOCKET;
 		SOCKET udpSocket = INVALID_SOCKET;
 	private:
-		void run();
+		void Run();
 
-		thread tcpThread;
 		SOCKADDR_IN6 address = { 0 };
 	} *PUDP;
 };

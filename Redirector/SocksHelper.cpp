@@ -162,16 +162,6 @@ bool SocksHelper::Utils::ReadAddr(SOCKET client, char type, PSOCKADDR_IN6 addr)
 	return true;
 }
 
-SocksHelper::TCP::TCP()
-{
-
-}
-
-SocksHelper::TCP::TCP(SOCKET tcpSocket)
-{
-	this->tcpSocket = tcpSocket;
-}
-
 SocksHelper::TCP::~TCP()
 {
 	if (this->tcpSocket != INVALID_SOCKET)
@@ -214,7 +204,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		memcpy(buffer + 4, &addr->sin6_addr, 16);
 		memcpy(buffer + 20, &addr->sin6_port, 2);
 
-		if (send(this->tcpSocket, buffer, 22, 0) != 22)
+		if (send(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
 		{
 			printf("[Redirector][SocksHelper::TCP::Connect] Send connect request failed: %d\n", WSAGetLastError());
 			return false;
@@ -258,15 +248,6 @@ int SocksHelper::TCP::Read(char* buffer, int length)
 	return SOCKET_ERROR;
 }
 
-SocksHelper::UDP::UDP()
-{
-}
-
-SocksHelper::UDP::UDP(SOCKET tcpSocket)
-{
-	this->tcpSocket = tcpSocket;
-}
-
 SocksHelper::UDP::~UDP()
 {
 	if (this->tcpSocket != INVALID_SOCKET)
@@ -279,11 +260,6 @@ SocksHelper::UDP::~UDP()
 	{
 		closesocket(this->udpSocket);
 		this->udpSocket = INVALID_SOCKET;
-	}
-
-	if (this->tcpThread.joinable())
-	{
-		this->tcpThread.join();
 	}
 }
 
@@ -329,26 +305,7 @@ bool SocksHelper::UDP::Associate()
 
 bool SocksHelper::UDP::CreateUDP()
 {
-	if (this->address.sin6_family == AF_INET6)
-	{
-		this->udpSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		if (this->udpSocket == INVALID_SOCKET)
-		{
-			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv6 socket failed: %d\n", WSAGetLastError());
-			return false;
-		}
-
-		SOCKADDR_IN6 bindaddr;
-		memset(&bindaddr, 0, sizeof(SOCKADDR_IN6));
-		bindaddr.sin6_family = AF_INET6;
-
-		if (bind(this->udpSocket, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN6)) == SOCKET_ERROR)
-		{
-			printf("[Redirector][SocksHelper::UDP::CreateUDP] Listen IPv6 socket failed: %d\n", WSAGetLastError());
-			return false;
-		}
-	}
-	else
+	if (this->address.sin6_family == AF_INET)
 	{
 		this->udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 		if (this->udpSocket == INVALID_SOCKET)
@@ -367,7 +324,27 @@ bool SocksHelper::UDP::CreateUDP()
 			return false;
 		}
 	}
+	else
+	{
+		this->udpSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+		if (this->udpSocket == INVALID_SOCKET)
+		{
+			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv6 socket failed: %d\n", WSAGetLastError());
+			return false;
+		}
 
+		SOCKADDR_IN6 bindaddr;
+		memset(&bindaddr, 0, sizeof(SOCKADDR_IN6));
+		bindaddr.sin6_family = AF_INET6;
+
+		if (bind(this->udpSocket, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN6)) == SOCKET_ERROR)
+		{
+			printf("[Redirector][SocksHelper::UDP::CreateUDP] Listen IPv6 socket failed: %d\n", WSAGetLastError());
+			return false;
+		}
+	}
+
+	thread(&SocksHelper::UDP::Run, this).detach();
 	return true;
 }
 
@@ -390,10 +367,8 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 	}
 	else if (target->sin6_family == AF_INET6)
 	{
-		auto ipv6 = target;
-
-		memcpy(data + 4, &ipv6->sin6_addr, 16);
-		memcpy(data + 20, &ipv6->sin6_port, 2);
+		memcpy(data + 4, &target->sin6_addr, 16);
+		memcpy(data + 20, &target->sin6_port, 2);
 	}
 	else
 	{
@@ -444,11 +419,10 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 	}
 	else
 	{
-		auto ipv6 = target;
-		ipv6->sin6_family = AF_INET6;
+		target->sin6_family = AF_INET6;
 
-		memcpy(&ipv6->sin6_addr, buffer + 4, 16);
-		memcpy(&ipv6->sin6_port, buffer + 20, 2);
+		memcpy(&target->sin6_addr, buffer + 4, 16);
+		memcpy(&target->sin6_port, buffer + 20, 2);
 
 		memcpy(buffer, buffer + 22, (ULONG64)bufferLength - 22);
 	}
@@ -456,20 +430,32 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 	return bufferLength - (target->sin6_family == AF_INET ? 10 : 22);
 }
 
-void SocksHelper::UDP::run()
+void SocksHelper::UDP::Run()
 {
 	char buffer[1];
 
 	while (this->tcpSocket != INVALID_SOCKET)
 	{
-		if (recv(this->tcpSocket, buffer, 1, 0) != 1)
+		if (recv(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
 		{
-			return;
+			break;
 		}
 
-		if (send(this->tcpSocket, buffer, 1, 0) != 1)
+		if (send(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
 		{
-			return;
+			break;
 		}
+	}
+
+	if (this->tcpSocket != INVALID_SOCKET)
+	{
+		closesocket(this->tcpSocket);
+		this->tcpSocket = INVALID_SOCKET;
+	}
+
+	if (this->udpSocket != INVALID_SOCKET)
+	{
+		closesocket(this->udpSocket);
+		this->udpSocket = INVALID_SOCKET;
 	}
 }
