@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/v2fly/geoip/releases/download/202109230028/geoip.dat' `
+        -Uri 'https://github.com/v2fly/geoip/releases/download/202109300030/geoip.dat' `
         -OutFile 'geoip.dat'
 }
 catch {
