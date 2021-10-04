@@ -8,6 +8,7 @@
 #include <queue>
 #include <regex>
 #include <mutex>
+#include <chrono>
 #include <string>
 #include <vector>
 #include <thread>
@@ -28,8 +29,13 @@ typedef enum _AIO_TYPE {
 	AIO_FILTERICMP,
 	AIO_FILTERTCP,
 	AIO_FILTERUDP,
+	AIO_FILTERDNS,
 
 	AIO_ICMPING,
+
+	AIO_DNSPROX,
+	AIO_DNSHOST,
+	AIO_DNSPORT,
 
 	AIO_TGTHOST,
 	AIO_TGTPORT,
