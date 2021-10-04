@@ -119,14 +119,14 @@ bool SocksHelper::Utils::Handshake(SOCKET client)
 
 bool SocksHelper::Utils::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
-	char addressType[1];
-	if (recv(client, addressType, 1, 0) != 1)
+	char addressType;
+	if (recv(client, (char*)&addressType, 1, 0) != 1)
 	{
 		printf("[Redirector][SocksHelper::Utils::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
-	if (addressType[0] == 0x01)
+	if (addressType == 0x01)
 	{
 		auto address = (PSOCKADDR_IN)addr;
 		address->sin_family = AF_INET;
@@ -143,7 +143,7 @@ bool SocksHelper::Utils::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 			return false;
 		}
 	}
-	else if (addressType[0] == 0x04)
+	else if (addressType == 0x04)
 	{
 		addr->sin6_family = AF_INET6;
 
@@ -161,7 +161,7 @@ bool SocksHelper::Utils::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 	}
 	else
 	{
-		printf("[Redirector][SocksHelper::Utils::SplitAddr] Unsupported address family: %d\n", addressType[0]);
+		printf("[Redirector][SocksHelper::Utils::SplitAddr] Unsupported address family: %d\n", addressType);
 		return false;
 	}
 
@@ -361,7 +361,7 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		return SOCKET_ERROR;
 	}
 
-	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length];
+	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
 	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
 
 	if (target->sin6_family == AF_INET)
