@@ -413,7 +413,6 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 	}
 
 	SOCKADDR_IN6 addr;
-
 	if (buffer[3] == 0x01)
 	{
 		auto ipv4 = (PSOCKADDR_IN)&addr;

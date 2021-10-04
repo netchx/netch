@@ -251,7 +251,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 {
 	if (filterDNS && DNSHandler::IsDNS((PSOCKADDR_IN6)target))
 	{
-		wcout << "[Redirector][EventHandler][udpSend] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+		wcout << "[Redirector][EventHandler][udpSend][" << id << "] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
 
 		DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
 		return;
@@ -266,10 +266,10 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		return;
 	}
 
-	auto conn = udpContext[id];
+	auto udpConn = udpContext[id];
 	udpContextLock.unlock();
 
-	if (conn->tcpSocket == INVALID_SOCKET)
+	if (udpConn->tcpSocket == INVALID_SOCKET)
 	{
 		auto tcpSocket = SocksHelper::Utils::Connect();
 		if (tcpSocket == INVALID_SOCKET)
@@ -286,24 +286,24 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 			return;
 		}
 
-		conn->tcpSocket = tcpSocket;
+		udpConn->tcpSocket = tcpSocket;
 	}
 
-	if (conn->udpSocket == INVALID_SOCKET)
+	if (udpConn->udpSocket == INVALID_SOCKET)
 	{
-		if (!conn->Associate())
+		if (!udpConn->Associate())
 		{
-			closesocket(conn->tcpSocket);
-			conn->tcpSocket = INVALID_SOCKET;
+			closesocket(udpConn->tcpSocket);
+			udpConn->tcpSocket = INVALID_SOCKET;
 
 			printf("[Redirector][EventHandler][udpSend][%llu] UDP Associate failed\n", id);
 			return;
 		}
 
-		if (!conn->CreateUDP())
+		if (!udpConn->CreateUDP())
 		{
-			closesocket(conn->tcpSocket);
-			conn->tcpSocket = INVALID_SOCKET;
+			closesocket(udpConn->tcpSocket);
+			udpConn->tcpSocket = INVALID_SOCKET;
 
 			printf("[Redirector][EventHandler][udpSend][%llu] Create UDP socket failed\n", id);
 			return;
@@ -312,19 +312,18 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		auto data = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength];
 		memcpy(data, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
 
-		thread(udpBeginReceive, id, conn, data).detach();
+		thread(udpBeginReceive, id, udpConn, data).detach();
 	}
 
-	if (conn->Send((PSOCKADDR_IN6)target, buffer, length) == SOCKET_ERROR)
+	if (udpConn->Send((PSOCKADDR_IN6)target, buffer, length) != length)
 	{
-		closesocket(conn->tcpSocket);
-		closesocket(conn->udpSocket);
+		closesocket(udpConn->tcpSocket);
+		closesocket(udpConn->udpSocket);
 
-		conn->tcpSocket = INVALID_SOCKET;
-		conn->udpSocket = INVALID_SOCKET;
+		udpConn->tcpSocket = INVALID_SOCKET;
+		udpConn->udpSocket = INVALID_SOCKET;
 
 		printf("[Redirector][EventHandler][udpSend][%llu] Send data failed\n", id);
-		return;
 	}
 }
 
@@ -353,15 +352,15 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	}
 }
 
-void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS options)
+void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP udpConn, PNF_UDP_OPTIONS options)
 {
 	char buffer[1458];
 
-	while (conn->udpSocket != INVALID_SOCKET)
+	while (udpConn->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
 
-		int length = conn->Read(&target, buffer, 1458);
+		int length = udpConn->Read(&target, buffer, sizeof(buffer));
 		if (length == 0 || length == SOCKET_ERROR)
 		{
 			break;
