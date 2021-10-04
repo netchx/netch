@@ -117,45 +117,51 @@ bool SocksHelper::Utils::Handshake(SOCKET client)
 	return true;
 }
 
-bool SocksHelper::Utils::ReadAddr(SOCKET client, char type, PSOCKADDR_IN6 addr)
+bool SocksHelper::Utils::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
-	if (type == 0x01)
+	char addressType[1];
+	if (recv(client, addressType, 1, 0) != 1)
+	{
+		printf("[Redirector][SocksHelper::Utils::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
+		return false;
+	}
+
+	if (addressType[0] == 0x01)
 	{
 		auto address = (PSOCKADDR_IN)addr;
 		address->sin_family = AF_INET;
 
 		if (recv(client, (char*)&address->sin_addr, 4, 0) != 4)
 		{
-			printf("[Redirector][SocksHelper::Utils::ReadAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		if (recv(client, (char*)&address->sin_port, 2, 0) != 2)
 		{
-			printf("[Redirector][SocksHelper::Utils::ReadAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
 	}
-	else if (type == 0x04)
+	else if (addressType[0] == 0x04)
 	{
-		auto address = addr;
-		address->sin6_family = AF_INET6;
+		addr->sin6_family = AF_INET6;
 
-		if (recv(client, (char*)&address->sin6_addr, 16, 0) != 16)
+		if (recv(client, (char*)&addr->sin6_addr, 16, 0) != 16)
 		{
-			printf("[Redirector][SocksHelper::Utils::ReadAddr] Read IPv6 address failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv6 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
-		if (recv(client, (char*)&address->sin6_port, 2, 0) != 2)
+		if (recv(client, (char*)&addr->sin6_port, 2, 0) != 2)
 		{
-			printf("[Redirector][SocksHelper::Utils::ReadAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
 	}
 	else
 	{
-		puts("[Redirector][SocksHelper::Utils::ReadAddr] Unsupported address family");
+		printf("[Redirector][SocksHelper::Utils::SplitAddr] Unsupported address family: %d\n", addressType[0]);
 		return false;
 	}
 
@@ -212,8 +218,8 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 	}
 
 	/* Server Response */
-	char buffer[4];
-	if (recv(this->tcpSocket, buffer, 4, 0) != 4)
+	char buffer[3];
+	if (recv(this->tcpSocket, buffer, 3, 0) != 3)
 	{
 		printf("[Redirector][SocksHelper::TCP::Connect] Receive server response failed: %d\n", WSAGetLastError());
 		return false;
@@ -225,7 +231,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 	}
 
 	SOCKADDR_IN6 addr;
-	return Utils::ReadAddr(this->tcpSocket, buffer[3], &addr);
+	return SocksHelper::Utils::SplitAddr(this->tcpSocket, &addr);
 }
 
 int SocksHelper::TCP::Send(const char* buffer, int length)
@@ -288,7 +294,7 @@ bool SocksHelper::UDP::Associate()
 		return false;
 	}
 
-	if (recv(this->tcpSocket, buffer, 4, 0) != 4)
+	if (recv(this->tcpSocket, buffer, 3, 0) != 3)
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] Receive udp associate response failed: %d\n", WSAGetLastError());
 		return false;
@@ -300,7 +306,7 @@ bool SocksHelper::UDP::Associate()
 		return false;
 	}
 
-	return Utils::ReadAddr(this->tcpSocket, buffer[3], &this->address);
+	return SocksHelper::Utils::SplitAddr(this->tcpSocket, &this->address);
 }
 
 bool SocksHelper::UDP::CreateUDP()

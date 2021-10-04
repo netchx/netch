@@ -9,7 +9,7 @@ namespace SocksHelper
 	{
 		SOCKET Connect();
 		bool Handshake(SOCKET client);
-		bool ReadAddr(SOCKET client, char type, PSOCKADDR_IN6 addr);
+		bool SplitAddr(SOCKET client, PSOCKADDR_IN6 addr);
 	}
 
 	typedef class TCP
