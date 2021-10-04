@@ -5,7 +5,7 @@ extern USHORT dnsPort;
 
 SOCKADDR_IN6 dnsAddr;
 
-void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
+void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
 	char buffer[1024];
 
@@ -26,7 +26,7 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int 
 						int size = udpConn.Read(NULL, buffer, sizeof(buffer));
 						if (size != 0 && size != SOCKET_ERROR)
 						{
-							nf_udpPostReceive(id, (unsigned char*)&target, buffer, size, options);
+							nf_udpPostReceive(id, (unsigned char*)&target, buffer, size, option);
 						}
 					}
 				}
@@ -35,7 +35,7 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int 
 	}
 
 	delete[] packet;
-	delete[] options;
+	delete[] option;
 }
 
 bool DNSHandler::Init()
