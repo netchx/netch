@@ -10,7 +10,7 @@ bool filterDNS = true;
 DWORD icmping = 0;
 
 string dnsHost = "1.1.1.1";
-USHORT dnsPort = 443;
+USHORT dnsPort = 53;
 
 wstring tgtHost = L"127.0.0.1";
 wstring tgtPort = L"1080";
