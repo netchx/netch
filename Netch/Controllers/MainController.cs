@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Netch.Controllers
+﻿namespace Netch.Controllers
 {
     public class MainController : Interface.IController
     {

@@ -21,7 +21,7 @@
         ///     WireGuard
         /// </summary>
         WireGuard,
-        
+
         /// <summary>
         ///     Trojan
         /// </summary>

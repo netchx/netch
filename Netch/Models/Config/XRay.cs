@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Netch.Models.Config
+﻿namespace Netch.Models.Config
 {
     public class XRay
     {
