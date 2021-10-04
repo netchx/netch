@@ -13,6 +13,8 @@ extern vector<wstring> handleList;
 
 extern USHORT tcpListen;
 
+DWORD CurrentID = 0;
+
 mutex udpContextLock;
 map<ENDPOINT_ID, SocksHelper::PUDP> udpContext;
 
@@ -137,6 +139,8 @@ bool checkHandleName(DWORD id)
 
 bool eh_init()
 {
+	CurrentID = GetCurrentProcessId();
+
 	if (!DNSHandler::Init())
 	{
 		return false;
@@ -165,6 +169,12 @@ void threadEnd()
 
 void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
+	if (CurrentID == info->processId)
+	{
+		nf_tcpDisableFiltering(id);
+		return;
+	}
+
 	if (!filterTCP)
 	{
 		nf_tcpDisableFiltering(id);
@@ -263,6 +273,12 @@ void tcpClosed(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 
 void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 {
+	if (CurrentID == info->processId)
+	{
+		nf_udpDisableFiltering(id);
+		return;
+	}
+
 	if (!filterUDP)
 	{
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << GetProcessName(info->processId) << endl;
