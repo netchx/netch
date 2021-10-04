@@ -74,7 +74,7 @@ bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)
 void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
 {
 	SOCKADDR_IN6 remote;
-	auto buffer = new char[length];
+	auto buffer = new char[length]();
 	auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength];
 
 	memcpy(&remote, target, sizeof(SOCKADDR_IN6));

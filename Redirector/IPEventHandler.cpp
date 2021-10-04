@@ -53,7 +53,7 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 		return;
 	}
 
-	auto data = new BYTE[length];
+	auto data = new BYTE[length]();
 	memcpy(data, buffer, length);
 
 	{
