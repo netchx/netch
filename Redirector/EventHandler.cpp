@@ -370,5 +370,5 @@ void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS opt
 		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
 	}
 
-	delete options;
+	delete[] options;
 }

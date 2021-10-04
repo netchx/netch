@@ -34,8 +34,8 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int 
 		}
 	}
 
-	delete options;
 	delete[] packet;
+	delete[] options;
 }
 
 bool DNSHandler::Init()
