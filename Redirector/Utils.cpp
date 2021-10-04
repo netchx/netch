@@ -2,28 +2,26 @@
 
 string ws2s(const wstring str)
 {
-	char buffer[1024];
-	memset(buffer, 0, sizeof(buffer));
+	auto length = WideCharToMultiByte(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0, NULL, NULL);
+	auto buffer = new char[length]();
 
-	if (WideCharToMultiByte(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0, NULL, NULL) > 1024)
-	{
-		return "Convert Failed";
-	}
+	WideCharToMultiByte(CP_ACP, 0, str.c_str(), (int)str.length(), buffer, length, NULL, NULL);
 
-	WideCharToMultiByte(CP_ACP, 0, str.c_str(), (int)str.length(), buffer, 1024, NULL, NULL);
-	return buffer;
+	auto data = string(buffer);
+	delete[] buffer;
+
+	return data;
 }
 
 wstring s2ws(const string str)
 {
-	wchar_t buffer[1024];
-	memset(buffer, 0, sizeof(buffer));
+	auto length = MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0);
+	auto buffer = new wchar_t[length]();
 
-	if (MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), NULL, 0) > 1024)
-	{
-		return L"Convert Failed";
-	}
+	MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), buffer, length);
 
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), (int)str.length(), buffer, 1024);
-	return buffer;
+	auto data = wstring(buffer);
+	delete[] buffer;
+
+	return data;
 }
