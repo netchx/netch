@@ -23,6 +23,9 @@ extern string tgtPassword;
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
+extern atomic_ullong UP;
+extern atomic_ullong DL;
+
 NF_EventHandler EventHandler = {
 	threadStart,
 	threadEnd,
@@ -57,6 +60,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 }
 
 extern "C" {
+	__declspec(dllexport) BOOL __cdecl aio_register(LPWSTR value)
+	{
+		return nf_registerDriver(ws2s(value).c_str()) == NF_STATUS_SUCCESS;
+	}
+
+	__declspec(dllexport) BOOL __cdecl aio_unregister(LPWSTR value)
+	{
+		return nf_unRegisterDriver(ws2s(value).c_str()) == NF_STATUS_SUCCESS;
+	}
+
 	__declspec(dllexport) BOOL __cdecl aio_dial(int name, LPWSTR value)
 	{
 		switch (name)
@@ -287,5 +300,15 @@ extern "C" {
 
 		WSACleanup();
 		return;
+	}
+
+	__declspec(dllexport) ULONG64 __cdecl aio_getUP()
+	{
+		return UP;
+	}
+
+	__declspec(dllexport) ULONG64 __cdecl aio_getDL()
+	{
+		return DL;
 	}
 }

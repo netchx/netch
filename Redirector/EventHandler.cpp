@@ -15,6 +15,9 @@ extern USHORT tcpListen;
 mutex udpContextLock;
 map<ENDPOINT_ID, SocksHelper::PUDP> udpContext;
 
+atomic_ullong UP = { 0 };
+atomic_ullong DL = { 0 };
+
 wstring ConvertIP(PSOCKADDR addr)
 {
 	WCHAR buffer[MAX_PATH] = L"";
@@ -105,6 +108,9 @@ bool eh_init()
 void eh_free()
 {
 	TCPHandler::Free();
+
+	UP = 0;
+	DL = 0;
 }
 
 void threadStart()
@@ -173,7 +179,6 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	}
 
 	TCPHandler::CreateHandler(client, remote);
-
 	wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "] " << ConvertIP((PSOCKADDR)&client) << " -> " << ConvertIP((PSOCKADDR)&remote) << endl;
 }
 
@@ -189,6 +194,8 @@ void tcpCanSend(ENDPOINT_ID id)
 
 void tcpSend(ENDPOINT_ID id, const char* buffer, int length)
 {
+	UP += length;
+
 	nf_tcpPostSend(id, buffer, length);
 }
 
@@ -199,6 +206,8 @@ void tcpCanReceive(ENDPOINT_ID id)
 
 void tcpReceive(ENDPOINT_ID id, const char* buffer, int length)
 {
+	DL += length;
+
 	nf_tcpPostReceive(id, buffer, length);
 }
 
@@ -251,9 +260,10 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 {
 	if (filterDNS && DNSHandler::IsDNS((PSOCKADDR_IN6)target))
 	{
-		wcout << "[Redirector][EventHandler][udpSend][" << id << "] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
-
+		UP += length;
 		DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
+
+		wcout << "[Redirector][EventHandler][udpSend][" << id << "] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
 		return;
 	}
 
@@ -265,9 +275,10 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		nf_udpPostSend(id, target, buffer, length, options);
 		return;
 	}
-
 	auto udpConn = udpContext[id];
 	udpContextLock.unlock();
+
+	UP += length;
 
 	if (udpConn->tcpSocket == INVALID_SOCKET)
 	{
@@ -365,6 +376,8 @@ void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP udpConn, PNF_UDP_OPTIONS 
 		{
 			break;
 		}
+
+		DL += length;
 
 		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
 	}
