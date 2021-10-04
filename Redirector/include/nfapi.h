@@ -13,7 +13,6 @@
 #define _NFAPI_H
 #include <nfevents.h>
 
-#define _NFAPI_STATIC_LIB
 #ifdef _NFAPI_STATIC_LIB
 	#define NFAPI_API
 #else
