@@ -1,14 +1,13 @@
 #include "DNSHandler.h"
 
-// Noob code
-// Waiting rewrite
-
 extern string dnsHost;
 extern USHORT dnsPort;
 
+SOCKADDR_IN6 dnsAddr;
+
 void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
 {
-	auto buffer = new char[1024]();
+	char buffer[1024];
 
 	auto tcpSocket = SocksHelper::Utils::Connect();
 	if (tcpSocket != INVALID_SOCKET)
@@ -22,26 +21,7 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int 
 			{
 				if (udpConn.CreateUDP())
 				{
-					SOCKADDR_IN6 addr;
-					if (inet_pton(AF_INET, dnsHost.c_str(), &addr.sin6_addr) == 1)
-					{
-						addr.sin6_family = AF_INET;
-					}
-					else if (inet_pton(AF_INET6, dnsHost.c_str(), &((PSOCKADDR_IN)&addr)->sin_addr) == 1)
-					{
-						addr.sin6_family = AF_INET6;
-					}
-
-					if (addr.sin6_family == AF_INET)
-					{
-						((PSOCKADDR_IN)&addr)->sin_port = htons(dnsPort);
-					}
-					else
-					{
-						addr.sin6_port = htons(dnsPort);
-					}
-
-					if (udpConn.Send(&addr, packet, length) == length)
+					if (udpConn.Send(&dnsAddr, packet, length) == length)
 					{
 						int size = udpConn.Read(NULL, buffer, sizeof(buffer));
 						if (size != 0 && size != SOCKET_ERROR)
@@ -55,8 +35,30 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, const char* packet, int 
 	}
 
 	delete options;
-	delete[] buffer;
 	delete[] packet;
+}
+
+bool DNSHandler::Init()
+{
+	memset(&dnsAddr, 0, sizeof(SOCKADDR_IN6));
+	
+	auto ipv4 = (PSOCKADDR_IN)&dnsAddr;
+	if (inet_pton(AF_INET, dnsHost.c_str(), &ipv4->sin_addr) == 1)
+	{
+		ipv4->sin_family = AF_INET;
+		ipv4->sin_port = htons(dnsPort);
+		return true;
+	}
+
+	if (inet_pton(AF_INET6, dnsHost.c_str(), &dnsAddr.sin6_addr) == 1)
+	{
+		dnsAddr.sin6_family = AF_INET6;
+		dnsAddr.sin6_port = htons(dnsPort);
+		return true;
+	}
+
+	puts("[Redirector][DNSHandler::Init] Call WSAStringToAddress failed");
+	return false;
 }
 
 bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)

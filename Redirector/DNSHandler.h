@@ -6,6 +6,8 @@
 
 namespace DNSHandler
 {
+	bool Init();
+
 	bool IsDNS(PSOCKADDR_IN6 target);
 
 	void CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options);

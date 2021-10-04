@@ -49,7 +49,7 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 		length < 28                   ||
 		buffer[options->ipHeaderSize] != 0x08)
 	{
-		UNREFERENCED_PARAMETER(nf_ipPostSend(buffer, length, options));
+		nf_ipPostSend(buffer, length, options);
 		return;
 	}
 
@@ -81,11 +81,11 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 	this_thread::sleep_for(chrono::microseconds(icmping));
 	printf("[Redirector][IPEventHandler][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
 
-	nf_ipPostReceive((PCHAR)data, length, options);
+	nf_ipPostReceive((char*)data, length, options);
 	delete[] data;
 }
 
 void ipReceive(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 {
-	UNREFERENCED_PARAMETER(nf_ipPostReceive(buffer, length, options));
+	nf_ipPostReceive(buffer, length, options);
 }

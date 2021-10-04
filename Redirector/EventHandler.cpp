@@ -94,6 +94,11 @@ bool checkHandleName(DWORD id)
 
 bool eh_init()
 {
+	if (!DNSHandler::Init())
+	{
+		return false;
+	}
+
 	return TCPHandler::Init();
 }
 
@@ -246,6 +251,8 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 {
 	if (filterDNS && DNSHandler::IsDNS((PSOCKADDR_IN6)target))
 	{
+		wcout << "[Redirector][EventHandler][udpSend] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+
 		DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
 		return;
 	}
@@ -346,7 +353,7 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	}
 }
 
-void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS data)
+void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS options)
 {
 	char buffer[1458];
 
@@ -360,8 +367,8 @@ void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS dat
 			break;
 		}
 
-		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, data);
+		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
 	}
 
-	delete data;
+	delete options;
 }

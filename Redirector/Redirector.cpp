@@ -57,7 +57,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 }
 
 extern "C" {
-	__declspec(dllexport) BOOL __cdecl aio_dial(INT name, LPWSTR value)
+	__declspec(dllexport) BOOL __cdecl aio_dial(int name, LPWSTR value)
 	{
 		switch (name)
 		{
@@ -261,7 +261,7 @@ extern "C" {
 			nf_addRule(&rule, FALSE);
 		}
 
-		if (filterUDP)
+		if (filterUDP || filterDNS)
 		{
 			memset(&rule, 0, sizeof(NF_RULE));
 			rule.ip_family = AF_INET;
