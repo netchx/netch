@@ -361,7 +361,7 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		return SOCKET_ERROR;
 	}
 
-	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
+	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length];
 	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
 
 	if (target->sin6_family == AF_INET)
