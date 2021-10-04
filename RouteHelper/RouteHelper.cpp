@@ -1,5 +1,3 @@
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 #include <ws2ipdef.h>
@@ -16,7 +14,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     return TRUE;
 }
 
-BOOL make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric)
+bool make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric)
 {
     rule->InterfaceIndex = index;
     rule->DestinationPrefix.PrefixLength = cidr;
@@ -24,34 +22,34 @@ BOOL make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr
     if (AF_INET == inet)
     {
         rule->DestinationPrefix.Prefix.Ipv4.sin_family = inet;
-        if (!inet_pton(inet, address, &rule->DestinationPrefix.Prefix.Ipv4.sin_addr))
+        if (inet_pton(inet, address, &rule->DestinationPrefix.Prefix.Ipv4.sin_addr) != 1)
         {
-            return FALSE;
+            return false;
         }
 
         if (strlen(gateway))
         {
             rule->NextHop.Ipv4.sin_family = inet;
-            if (!inet_pton(inet, gateway, &rule->NextHop.Ipv4.sin_addr))
+            if (inet_pton(inet, gateway, &rule->NextHop.Ipv4.sin_addr) != 1)
             {
-                return FALSE;
+                return false;
             }
         }
     }
     else if (AF_INET6 == inet)
     {
         rule->DestinationPrefix.Prefix.Ipv6.sin6_family = inet;
-        if (!inet_pton(inet, address, &rule->DestinationPrefix.Prefix.Ipv6.sin6_addr))
+        if (inet_pton(inet, address, &rule->DestinationPrefix.Prefix.Ipv6.sin6_addr) != 1)
         {
-            return FALSE;
+            return false;
         }
 
         if (strlen(gateway))
         {
             rule->NextHop.Ipv6.sin6_family = inet;
-            if (!inet_pton(inet, gateway, &rule->NextHop.Ipv6.sin6_addr))
+            if (inet_pton(inet, gateway, &rule->NextHop.Ipv6.sin6_addr) != 1)
             {
-                return FALSE;
+                return false;
             }
         }
     }
@@ -60,7 +58,7 @@ BOOL make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr
     rule->PreferredLifetime = 0xffffffff;
     rule->Metric = metric;
     rule->Protocol = MIB_IPPROTO_NETMGMT;
-    return TRUE;
+    return true;
 }
 
 extern "C" {
@@ -80,12 +78,21 @@ extern "C" {
 
     __declspec(dllexport) BOOL __cdecl CreateIPv4(const char* address, const char* netmask, ULONG index)
     {
-        ULONG addr = inet_addr(address);
-        ULONG mask = inet_addr(netmask);
-        ULONG ctx = 0;
-        ULONG inst = 0;
+        ULONG addr = 0;
+        if (inet_pton(AF_INET, address, &addr) != 1)
+        {
+            return FALSE;
+        }
 
-        return (NO_ERROR == AddIPAddress(addr, mask, index, &ctx, &inst)) ? TRUE : FALSE;
+        ULONG mask = 0;
+        if (inet_pton(AF_INET, netmask, &mask) != 1)
+        {
+            return FALSE;
+        }
+
+        ULONG context = 0;
+        ULONG instance = 0;
+        return (NO_ERROR == AddIPAddress(addr, mask, index, &context, &instance)) ? TRUE : FALSE;
     }
 
     __declspec(dllexport) BOOL __cdecl CreateUnicastIP(USHORT inet, const char* address, UINT8 cidr, ULONG index)
