@@ -32,6 +32,9 @@
     <ClCompile Include="TCPHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="DNSHandler.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EventHandler.h">
@@ -50,6 +53,9 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="TCPHandler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="DNSHandler.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

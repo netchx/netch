@@ -3,16 +3,23 @@
 #include "IPEventHandler.h"
 #include "Utils.h"
 
-extern BOOL filterLoopback;
-extern BOOL filterIntranet;
-extern BOOL filterICMP;
-extern BOOL filterTCP;
-extern BOOL filterUDP;
+extern bool filterLoopback;
+extern bool filterIntranet;
+extern bool filterICMP;
+extern bool filterTCP;
+extern bool filterUDP;
+extern bool filterDNS;
+
 extern DWORD icmping;
+
+extern string dnsHost;
+extern USHORT dnsPort;
+
 extern wstring tgtHost;
 extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
+
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
@@ -69,8 +76,17 @@ extern "C" {
 		case AIO_FILTERUDP:
 			filterUDP = (wstring(value).find(L"false") == string::npos);
 			break;
+		case AIO_FILTERDNS:
+			filterDNS = (wstring(value).find(L"false") == string::npos);
+			break;
 		case AIO_ICMPING:
 			icmping = atoi(ws2s(value).c_str());
+			break;
+		case AIO_DNSHOST:
+			dnsHost = ws2s(value);
+			break;
+		case AIO_DNSPORT:
+			dnsPort = (USHORT)atoi(ws2s(value).c_str());
 			break;
 		case AIO_TGTHOST:
 			tgtHost = wstring(value);

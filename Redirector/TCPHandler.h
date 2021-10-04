@@ -2,7 +2,6 @@
 #ifndef TCPHANDLER_H
 #define TCPHANDLER_H
 #include "Based.h"
-
 #include "SocksHelper.h"
 
 namespace TCPHandler

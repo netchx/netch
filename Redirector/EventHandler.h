@@ -2,7 +2,6 @@
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 #include "Based.h"
-
 #include "SocksHelper.h"
 
 bool eh_init();

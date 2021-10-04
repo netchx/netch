@@ -412,25 +412,28 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 		return bufferLength;
 	}
 
-	memset(target, 0, sizeof(SOCKADDR_IN6));
-	if (buffer[3] == 0x01)
+	if (target != NULL)
 	{
-		auto ipv4 = (PSOCKADDR_IN)target;
-		ipv4->sin_family = AF_INET;
+		memset(target, 0, sizeof(SOCKADDR_IN6));
+		if (buffer[3] == 0x01)
+		{
+			auto ipv4 = (PSOCKADDR_IN)target;
+			ipv4->sin_family = AF_INET;
 
-		memcpy(&ipv4->sin_addr, buffer + 4, 4);
-		memcpy(&ipv4->sin_port, buffer + 8, 2);
+			memcpy(&ipv4->sin_addr, buffer + 4, 4);
+			memcpy(&ipv4->sin_port, buffer + 8, 2);
 
-		memcpy(buffer, buffer + 10, (ULONG64)bufferLength - 10);
-	}
-	else
-	{
-		target->sin6_family = AF_INET6;
+			memcpy(buffer, buffer + 10, (ULONG64)bufferLength - 10);
+		}
+		else
+		{
+			target->sin6_family = AF_INET6;
 
-		memcpy(&target->sin6_addr, buffer + 4, 16);
-		memcpy(&target->sin6_port, buffer + 20, 2);
+			memcpy(&target->sin6_addr, buffer + 4, 16);
+			memcpy(&target->sin6_port, buffer + 20, 2);
 
-		memcpy(buffer, buffer + 22, (ULONG64)bufferLength - 22);
+			memcpy(buffer, buffer + 22, (ULONG64)bufferLength - 22);
+		}
 	}
 
 	return bufferLength - (target->sin6_family == AF_INET ? 10 : 22);

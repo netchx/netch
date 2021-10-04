@@ -1,9 +1,12 @@
 #include "EventHandler.h"
 
+#include "DNSHandler.h"
 #include "TCPHandler.h"
 
-extern BOOL filterTCP;
-extern BOOL filterUDP;
+extern bool filterTCP;
+extern bool filterUDP;
+extern bool filterDNS;
+
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
@@ -208,24 +211,18 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 {
 	if (!filterUDP)
 	{
-		nf_udpDisableFiltering(id);
-
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << GetProcessName(info->processId) << endl;
 		return;
 	}
 
 	if (checkBypassName(info->processId))
 	{
-		nf_udpDisableFiltering(id);
-
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << GetProcessName(info->processId) << endl;
 		return;
 	}
 
 	if (!checkHandleName(info->processId))
 	{
-		nf_udpDisableFiltering(id);
-
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << GetProcessName(info->processId) << endl;
 		return;
 	}
@@ -247,6 +244,12 @@ void udpCanSend(ENDPOINT_ID id)
 
 void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, int length, PNF_UDP_OPTIONS options)
 {
+	if (filterDNS && DNSHandler::IsDNS((PSOCKADDR_IN6)target))
+	{
+		DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
+		return;
+	}
+
 	udpContextLock.lock();
 	if (udpContext.find(id) == udpContext.end())
 	{

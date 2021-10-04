@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Based.cpp" />
+    <ClCompile Include="DNSHandler.cpp" />
     <ClCompile Include="EventHandler.cpp" />
     <ClCompile Include="IPEventHandler.cpp" />
     <ClCompile Include="Redirector.cpp" />
@@ -105,6 +106,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DNSHandler.h" />
     <ClInclude Include="EventHandler.h" />
     <ClInclude Include="IPEventHandler.h" />
     <ClInclude Include="Based.h" />
