@@ -3,6 +3,7 @@
 #include "DNSHandler.h"
 #include "TCPHandler.h"
 
+extern bool filterParent;
 extern bool filterTCP;
 extern bool filterUDP;
 extern bool filterDNS;
@@ -82,14 +83,53 @@ bool checkBypassName(DWORD id)
 
 bool checkHandleName(DWORD id)
 {
-	auto name = GetProcessName(id);
-
-	for (size_t i = 0; i < handleList.size(); i++)
 	{
-		if (regex_search(name, wregex(handleList[i])))
+		auto name = GetProcessName(id);
+
+		for (size_t i = 0; i < handleList.size(); i++)
 		{
-			return true;
+			if (regex_search(name, wregex(handleList[i])))
+			{
+				return true;
+			}
 		}
+	}
+
+	if (filterParent)
+	{
+		PROCESSENTRY32W PE;
+		memset(&PE, 0, sizeof(PROCESSENTRY32W));
+		PE.dwSize = sizeof(PROCESSENTRY32W);
+
+		auto hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnapshot == INVALID_HANDLE_VALUE)
+		{
+			return false;
+		}
+
+		if (!Process32FirstW(hSnapshot, &PE))
+		{
+			CloseHandle(hSnapshot);
+			return false;
+		}
+
+		do {
+			if (PE.th32ProcessID == id)
+			{
+				auto name = GetProcessName(PE.th32ParentProcessID);
+
+				for (size_t i = 0; i < handleList.size(); i++)
+				{
+					if (regex_search(name, wregex(handleList[i])))
+					{
+						CloseHandle(hSnapshot);
+						return true;
+					}
+				}
+			}
+		} while (Process32NextW(hSnapshot, &PE));
+
+		CloseHandle(hSnapshot);
 	}
 
 	return false;

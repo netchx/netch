@@ -17,6 +17,7 @@
 #include <WinSock2.h>
 #include <ws2ipdef.h>
 #include <WS2tcpip.h>
+#include <tlhelp32.h>
 #include <Windows.h>
 
 #include <nfapi.h>
@@ -26,6 +27,7 @@ using namespace std;
 typedef enum _AIO_TYPE {
 	AIO_FILTERLOOPBACK,
 	AIO_FILTERINTRANET,
+	AIO_FILTERPARENT,
 	AIO_FILTERICMP,
 	AIO_FILTERTCP,
 	AIO_FILTERUDP,

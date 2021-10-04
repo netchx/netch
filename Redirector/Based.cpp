@@ -2,6 +2,7 @@
 
 bool filterLoopback = false;
 bool filterIntranet = false;
+bool filterParent = false;
 bool filterICMP = true;
 bool filterTCP = true;
 bool filterUDP = true;

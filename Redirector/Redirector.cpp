@@ -5,6 +5,7 @@
 
 extern bool filterLoopback;
 extern bool filterIntranet;
+extern bool filterParent;
 extern bool filterICMP;
 extern bool filterTCP;
 extern bool filterUDP;
@@ -79,6 +80,9 @@ extern "C" {
 			break;
 		case AIO_FILTERINTRANET:
 			filterIntranet = (wstring(value).find(L"false") == string::npos);
+			break;
+		case AIO_FILTERPARENT:
+			filterParent = (wstring(value).find(L"false") == string::npos);
 			break;
 		case AIO_FILTERICMP:
 			filterICMP = (wstring(value).find(L"false") == string::npos);
