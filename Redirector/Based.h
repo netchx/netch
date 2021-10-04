@@ -33,7 +33,6 @@ typedef enum _AIO_TYPE {
 
 	AIO_ICMPING,
 
-	AIO_DNSPROX,
 	AIO_DNSHOST,
 	AIO_DNSPORT,
 
