@@ -146,12 +146,12 @@ bool eh_init()
 		return false;
 	}
 
-	return TCPHandler::Init();
+	return TCPHandler::INIT();
 }
 
 void eh_free()
 {
-	TCPHandler::Free();
+	TCPHandler::FREE();
 
 	UP = 0;
 	DL = 0;
