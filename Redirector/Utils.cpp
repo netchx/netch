@@ -1,6 +1,6 @@
 #include "Utils.h"
 
-string ws2s(const wstring str)
+string ws2s(wstring str)
 {
 	auto length = WideCharToMultiByte(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), NULL, 0, NULL, NULL);
 	auto buffer = new char[length + 1]();
@@ -13,7 +13,7 @@ string ws2s(const wstring str)
 	return data;
 }
 
-wstring s2ws(const string str)
+wstring s2ws(string str)
 {
 	auto length = MultiByteToWideChar(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), NULL, 0);
 	auto buffer = new wchar_t[length + 1]();
