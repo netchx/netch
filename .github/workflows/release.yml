@@ -28,7 +28,7 @@ jobs:
           profile: minimal
 
       - name: MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
+        uses: microsoft/setup-msbuild@v1.0.3
 
       - name: Checkout
         uses: actions/checkout@v2
