@@ -13,6 +13,7 @@ bool TCPHandler::INIT()
 	if (tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(tcpSocket);
+
 		tcpSocket = INVALID_SOCKET;
 	}
 
@@ -94,11 +95,9 @@ void TCPHandler::CreateHandler(SOCKADDR_IN6 client, SOCKADDR_IN6 remote)
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
-	auto id = (client.sin6_family == AF_INET6) ? client.sin6_port : ((PSOCKADDR_IN)&client)->sin_port;
+	auto id = (client.sin6_family == AF_INET) ? ((PSOCKADDR_IN)&client)->sin_port : client.sin6_port;
 	if (tcpContext.find(id) != tcpContext.end())
-	{
 		tcpContext.erase(id);
-	}
 
 	tcpContext[id] = remote;
 }
@@ -107,11 +106,9 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
-	auto id = (client.sin6_family == AF_INET6) ? client.sin6_port : ((PSOCKADDR_IN)&client)->sin_port;
+	auto id = (client.sin6_family == AF_INET) ? ((PSOCKADDR_IN)&client)->sin_port : client.sin6_port;
 	if (tcpContext.find(id) != tcpContext.end())
-	{
 		tcpContext.erase(id);
-	}
 }
 
 void TCPHandler::Accept()
@@ -132,16 +129,18 @@ void TCPHandler::Accept()
 void TCPHandler::Handle(SOCKET client)
 {
 	USHORT id = 0;
+
 	{
 		SOCKADDR_IN6 addr;
 		int addrLength = sizeof(SOCKADDR_IN6);
+
 		if (getpeername(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
 		{
 			closesocket(client);
 			return;
 		}
 
-		id = (addr.sin6_family == AF_INET6) ? addr.sin6_port : ((PSOCKADDR_IN)&addr)->sin_port;
+		id = (addr.sin6_family == AF_INET) ? ((PSOCKADDR_IN)&addr)->sin_port : addr.sin6_port;
 	}
 
 	tcpLock.lock();
@@ -180,14 +179,10 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 	{
 		int length = remote->Read(buffer, sizeof(buffer));
 		if (length == 0 || length == SOCKET_ERROR)
-		{
 			return;
-		}
 
 		if (send(client, buffer, length, 0) != length)
-		{
 			return;
-		}
 	}
 }
 
@@ -199,13 +194,9 @@ void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
 	{
 		int length = recv(client, buffer, sizeof(buffer), 0);
 		if (length == 0 || length == SOCKET_ERROR)
-		{
 			return;
-		}
 
 		if (remote->Send(buffer, length) != length)
-		{
 			return;
-		}
 	}
 }

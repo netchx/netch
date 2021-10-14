@@ -7,8 +7,6 @@ SOCKADDR_IN6 dnsAddr;
 
 void HandleDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
-	char buffer[1024];
-
 	auto remote = new SocksHelper::UDP();
 	if (remote->Associate())
 	{
@@ -16,14 +14,14 @@ void HandleDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, P
 		{
 			if (remote->Send(&dnsAddr, packet, length) == length)
 			{
+				char buffer[1024];
+
 				timeval timeout{};
 				timeout.tv_sec = 4;
 
 				int size = remote->Read(NULL, buffer, sizeof(buffer), &timeout);
 				if (size != 0 && size != SOCKET_ERROR)
-				{
 					nf_udpPostReceive(id, (unsigned char*)target, buffer, size, option);
-				}
 			}
 		}
 	}
@@ -54,7 +52,6 @@ bool DNSHandler::INIT()
 		return true;
 	}
 
-	cout << "[Redirector][DNSHandler::INIT] Convert address failed: " << WSAGetLastError() << " [" << dnsHost << ":" << dnsPort << "]" << endl;
 	return false;
 }
 
@@ -64,8 +61,10 @@ bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)
 	{
 		return ((PSOCKADDR_IN)target)->sin_port == htons(53);
 	}
-
-	return target->sin6_port == htons(53);
+	else
+	{
+		return target->sin6_port == htons(53);
+	}
 }
 
 void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)

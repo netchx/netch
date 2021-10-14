@@ -12,7 +12,7 @@ SOCKET SocksHelper::Connect()
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 	if (client == INVALID_SOCKET)
 	{
-		printf("[Redirector][SocksHelper::Utils::Connect] Create socket failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::Connect] Create socket failed: %d\n", WSAGetLastError());
 		return INVALID_SOCKET;
 	}
 
@@ -20,7 +20,7 @@ SOCKET SocksHelper::Connect()
 		int v6only = 0;
 		if (setsockopt(client, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only)) == SOCKET_ERROR)
 		{
-			printf("[Redirector][SocksHelper::Utils::Connect] Set socket option failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Connect] Set socket option failed: %d\n", WSAGetLastError());
 
 			closesocket(client);
 			return INVALID_SOCKET;
@@ -32,7 +32,7 @@ SOCKET SocksHelper::Connect()
 
 	if (!WSAConnectByNameW(client, (LPWSTR)tgtHost.c_str(), (LPWSTR)tgtPort.c_str(), NULL, NULL, NULL, NULL, &timeout, NULL))
 	{
-		printf("[Redirector][SocksHelper::Utils::Connect] Connect to remote server failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::Connect] Connect to remote server failed: %d\n", WSAGetLastError());
 
 		closesocket(client);
 		return INVALID_SOCKET;
@@ -53,14 +53,14 @@ bool SocksHelper::Handshake(SOCKET client)
 	buffer[3] = 0x02;
 	if (send(client, buffer, 4, 0) != 4)
 	{
-		printf("[Redirector][SocksHelper::Utils::Handshake] Send client hello failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::Handshake] Send client hello failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
 	/* Server Choice */
 	if (recv(client, buffer, 2, 0) != 2)
 	{
-		printf("[Redirector][SocksHelper::Utils::Handshake] Receive server choice failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::Handshake] Receive server choice failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
@@ -92,20 +92,20 @@ bool SocksHelper::Handshake(SOCKET client)
 		auto length = 1 + 1 + ulength + 1 + plength;
 		if (send(client, buffer, length, 0) != length)
 		{
-			printf("[Redirector][SocksHelper::Utils::Handshake] Send authentication request failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Handshake] Send authentication request failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		/* Server Response */
 		if (recv(client, buffer, 2, 0) != 2)
 		{
-			printf("[Redirector][SocksHelper::Utils::Handshake] Receive server response failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::Handshake] Receive server response failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		if (buffer[1] != 0x00)
 		{
-			puts("[Redirector][SocksHelper::Utils::Handshake] Authentication failed");
+			puts("[Redirector][SocksHelper::Handshake] Authentication failed");
 			return false;
 		}
 	}
@@ -122,7 +122,7 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 	char addressType;
 	if (recv(client, (char*)&addressType, 1, 0) != 1)
 	{
-		printf("[Redirector][SocksHelper::Utils::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
@@ -133,13 +133,13 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 
 		if (recv(client, (char*)&address->sin_addr, 4, 0) != 4)
 		{
-			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		if (recv(client, (char*)&address->sin_port, 2, 0) != 2)
 		{
-			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
 	}
@@ -149,19 +149,19 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 
 		if (recv(client, (char*)&addr->sin6_addr, 16, 0) != 16)
 		{
-			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv6 address failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::SplitAddr] Read IPv6 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		if (recv(client, (char*)&addr->sin6_port, 2, 0) != 2)
 		{
-			printf("[Redirector][SocksHelper::Utils::SplitAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
+			printf("[Redirector][SocksHelper::SplitAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
 	}
 	else
 	{
-		printf("[Redirector][SocksHelper::Utils::SplitAddr] Unsupported address family: %d\n", addressType);
+		printf("[Redirector][SocksHelper::SplitAddr] Unsupported address family: %d\n", addressType);
 		return false;
 	}
 
@@ -393,6 +393,9 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 	if (this->udpSocket == INVALID_SOCKET)
 		return SOCKET_ERROR;
 
+	if (target->sin6_family != AF_INET && target->sin6_family != AF_INET6)
+		return SOCKET_ERROR;
+
 	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
 	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
 
@@ -403,17 +406,10 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		memcpy(data + 4, &ipv4->sin_addr, 4);
 		memcpy(data + 8, &ipv4->sin_port, 2);
 	}
-	else if (target->sin6_family == AF_INET6)
+	else
 	{
 		memcpy(data + 4, &target->sin6_addr, 16);
 		memcpy(data + 20, &target->sin6_port, 2);
-	}
-	else
-	{
-		delete[] data;
-
-		puts("[Redirector][SocksHelper::UDP::Send] Unsupported address family");
-		return length;
 	}
 
 	memcpy(data + 3 + 1 + (target->sin6_family == AF_INET ? 4 : 16) + 2, buffer, length);
@@ -442,14 +438,14 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 		FD_ZERO(&fds);
 		FD_SET(this->udpSocket, &fds);
 
-		int code = select(NULL, &fds, NULL, NULL, timeout);
-		if (code == 0 || code == SOCKET_ERROR)
-			return code;
+		int size = select(NULL, &fds, NULL, NULL, timeout);
+		if (size == 0 || size == SOCKET_ERROR)
+			return size;
 	}
 
-	int bufferLength = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
-	if (bufferLength == 0 || bufferLength == SOCKET_ERROR)
-		return bufferLength;
+	int size = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
+	if (size == 0 || size == SOCKET_ERROR)
+		return size;
 
 	SOCKADDR_IN6 addr;
 	if (buffer[3] == 0x01)
@@ -460,20 +456,24 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 		memcpy(&ipv4->sin_addr, buffer + 4, 4);
 		memcpy(&ipv4->sin_port, buffer + 8, 2);
 
-		memcpy(buffer, buffer + 10, (ULONG64)bufferLength - 10);
+		memcpy(buffer, buffer + 10, (ULONG64)size - 10);
 	}
-	else
+	else if (buffer[3] == 0x04)
 	{
 		addr.sin6_family = AF_INET6;
 
 		memcpy(&addr.sin6_addr, buffer + 4, 16);
 		memcpy(&addr.sin6_port, buffer + 20, 2);
 
-		memcpy(buffer, buffer + 22, (ULONG64)bufferLength - 22);
+		memcpy(buffer, buffer + 22, (ULONG64)size - 22);
+	}
+	else
+	{
+		return SOCKET_ERROR;
 	}
 
 	if (target != NULL)
 		memcpy(target, &addr, sizeof(SOCKADDR_IN6));
 
-	return bufferLength - (addr.sin6_family == AF_INET ? 10 : 22);
+	return size - (addr.sin6_family == AF_INET ? 10 : 22);
 }

@@ -348,10 +348,10 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		if (!remote->CreateUDP())
 			return;
 
-		auto data = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength]();
-		memcpy(data, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
+		auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength]();
+		memcpy(option, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
 
-		thread(udpReceiveHandler, id, remote, data).detach();
+		thread(udpReceiveHandler, id, remote, option).detach();
 	}
 
 	if (remote->Send((PSOCKADDR_IN6)target, buffer, length) != length)
