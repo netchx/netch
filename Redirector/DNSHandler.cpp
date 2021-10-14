@@ -5,38 +5,31 @@ extern USHORT dnsPort;
 
 SOCKADDR_IN6 dnsAddr;
 
-void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
+void HandleDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
 	char buffer[1024];
 
-	auto tcpSocket = SocksHelper::Utils::Connect();
-	if (tcpSocket != INVALID_SOCKET)
+	auto remote = new SocksHelper::UDP();
+	if (remote->Associate())
 	{
-		if (SocksHelper::Utils::Handshake(tcpSocket))
+		if (remote->CreateUDP())
 		{
-			SocksHelper::UDP udpConn;
-			udpConn.tcpSocket = tcpSocket;
-
-			if (udpConn.Associate())
+			if (remote->Send(&dnsAddr, packet, length) == length)
 			{
-				if (udpConn.CreateUDP())
-				{
-					if (udpConn.Send(&dnsAddr, packet, length) == length)
-					{
-						timeval timeout{};
-						timeout.tv_sec = 4;
+				timeval timeout{};
+				timeout.tv_sec = 4;
 
-						int size = udpConn.Read(NULL, buffer, sizeof(buffer), &timeout);
-						if (size != 0 && size != SOCKET_ERROR)
-						{
-							nf_udpPostReceive(id, (unsigned char*)&target, buffer, size, option);
-						}
-					}
+				int size = remote->Read(NULL, buffer, sizeof(buffer), &timeout);
+				if (size != 0 && size != SOCKET_ERROR)
+				{
+					nf_udpPostReceive(id, (unsigned char*)target, buffer, size, option);
 				}
 			}
 		}
 	}
 
+	delete remote;
+	delete target;
 	delete[] packet;
 	delete[] option;
 }
@@ -77,13 +70,13 @@ bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)
 
 void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
 {
-	SOCKADDR_IN6 remote;
+	auto remote = new SOCKADDR_IN6();
 	auto buffer = new char[length]();
 	auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength];
 
-	memcpy(&remote, target, sizeof(SOCKADDR_IN6));
+	memcpy(remote, target, sizeof(SOCKADDR_IN6));
 	memcpy(buffer, packet, length);
 	memcpy(option, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
 
-	thread(ProcessPacket, id, remote, buffer, length, option).detach();
+	thread(HandleDNS, id, remote, buffer, length, option).detach();
 }

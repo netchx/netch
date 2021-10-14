@@ -144,20 +144,6 @@ void TCPHandler::Handle(SOCKET client)
 		id = (addr.sin6_family == AF_INET6) ? addr.sin6_port : ((PSOCKADDR_IN)&addr)->sin_port;
 	}
 
-	auto remote = SocksHelper::Utils::Connect();
-	if (remote == INVALID_SOCKET)
-	{
-		closesocket(client);
-		return;
-	}
-
-	if (!SocksHelper::Utils::Handshake(remote))
-	{
-		closesocket(client);
-		closesocket(remote);
-		return;
-	}
-
 	tcpLock.lock();
 	if (tcpContext.find(id) == tcpContext.end())
 	{
@@ -170,23 +156,20 @@ void TCPHandler::Handle(SOCKET client)
 	auto target = tcpContext[id];
 	tcpLock.unlock();
 
-	auto conn = new SocksHelper::TCP();
-	conn->tcpSocket = remote;
-
-	if (!conn->Connect(&target))
+	auto remote = new SocksHelper::TCP();
+	if (!remote->Connect(&target))
 	{
-		delete conn;
-
 		closesocket(client);
+
+		delete remote;
 		return;
 	}
 
-	thread(TCPHandler::Send, client, conn).detach();
-	TCPHandler::Read(client, conn);
+	thread(TCPHandler::Send, client, remote).detach();
+	TCPHandler::Read(client, remote);
 
 	closesocket(client);
-	closesocket(remote);
-	delete conn;
+	delete remote;
 }
 
 void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)

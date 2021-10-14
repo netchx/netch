@@ -5,12 +5,9 @@
 
 namespace SocksHelper
 {
-	namespace Utils
-	{
-		SOCKET Connect();
-		bool Handshake(SOCKET client);
-		bool SplitAddr(SOCKET client, PSOCKADDR_IN6 addr);
-	}
+	SOCKET Connect();
+	bool Handshake(SOCKET client);
+	bool SplitAddr(SOCKET client, PSOCKADDR_IN6 addr);
 
 	typedef class TCP
 	{
@@ -30,6 +27,8 @@ namespace SocksHelper
 	public:
 		~UDP();
 
+		static void Run(SOCKET tcpSocket, SOCKET udpSocket);
+
 		bool Associate();
 		bool CreateUDP();
 
@@ -38,11 +37,8 @@ namespace SocksHelper
 
 		SOCKET tcpSocket = INVALID_SOCKET;
 		SOCKET udpSocket = INVALID_SOCKET;
-	private:
-		static void Run(SOCKET tcpSocket, SOCKET udpSocket);
 
 		SOCKADDR_IN6 address = { 0 };
-		thread tcpThread;
 	} *PUDP;
 };
 

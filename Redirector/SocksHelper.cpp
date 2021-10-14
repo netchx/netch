@@ -7,7 +7,7 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
-SOCKET SocksHelper::Utils::Connect()
+SOCKET SocksHelper::Connect()
 {
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 	if (client == INVALID_SOCKET)
@@ -27,7 +27,7 @@ SOCKET SocksHelper::Utils::Connect()
 		}
 	}
 
-	timeval timeout;
+	timeval timeout{};
 	timeout.tv_sec = 4;
 
 	if (!WSAConnectByNameW(client, (LPWSTR)tgtHost.c_str(), (LPWSTR)tgtPort.c_str(), NULL, NULL, NULL, NULL, &timeout, NULL))
@@ -41,7 +41,7 @@ SOCKET SocksHelper::Utils::Connect()
 	return client;
 }
 
-bool SocksHelper::Utils::Handshake(SOCKET client)
+bool SocksHelper::Handshake(SOCKET client)
 {
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
@@ -117,7 +117,7 @@ bool SocksHelper::Utils::Handshake(SOCKET client)
 	return true;
 }
 
-bool SocksHelper::Utils::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
+bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
 	char addressType;
 	if (recv(client, (char*)&addressType, 1, 0) != 1)
@@ -180,6 +180,13 @@ SocksHelper::TCP::~TCP()
 
 bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 {
+	this->tcpSocket = SocksHelper::Connect();
+	if (this->tcpSocket == INVALID_SOCKET)
+		return false;
+
+	if (!SocksHelper::Handshake(this->tcpSocket))
+		return false;
+
 	/* Connect Request */
 	if (target->sin6_family == AF_INET)
 	{
@@ -230,7 +237,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		return false;
 
 	SOCKADDR_IN6 addr;
-	return SocksHelper::Utils::SplitAddr(this->tcpSocket, &addr);
+	return SocksHelper::SplitAddr(this->tcpSocket, &addr);
 }
 
 int SocksHelper::TCP::Send(const char* buffer, int length)
@@ -264,16 +271,43 @@ SocksHelper::UDP::~UDP()
 
 		this->udpSocket = INVALID_SOCKET;
 	}
+}
 
-	if (this->tcpThread.joinable())
+void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
+{
+	char buffer[1];
+
+	while (tcpSocket != INVALID_SOCKET)
 	{
-		this->tcpThread.join();
+		if (recv(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+			break;
+
+		if (send(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+			break;
+	}
+
+	if (tcpSocket != INVALID_SOCKET)
+	{
+		closesocket(tcpSocket);
+
+		tcpSocket = INVALID_SOCKET;
+	}
+
+	if (udpSocket != INVALID_SOCKET)
+	{
+		closesocket(udpSocket);
+
+		udpSocket = INVALID_SOCKET;
 	}
 }
 
 bool SocksHelper::UDP::Associate()
 {
+	this->tcpSocket = SocksHelper::Connect();
 	if (this->tcpSocket == INVALID_SOCKET)
+		return false;
+
+	if (!SocksHelper::Handshake(this->tcpSocket))
 		return false;
 
 	char buffer[10];
@@ -306,7 +340,7 @@ bool SocksHelper::UDP::Associate()
 		return false;
 	}
 
-	return SocksHelper::Utils::SplitAddr(this->tcpSocket, &this->address);
+	return SocksHelper::SplitAddr(this->tcpSocket, &this->address);
 }
 
 bool SocksHelper::UDP::CreateUDP()
@@ -350,8 +384,7 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
-	this->tcpThread = thread(SocksHelper::UDP::Run, this->tcpSocket, this->udpSocket);
-	this->tcpThread.detach();
+	thread(SocksHelper::UDP::Run, this->tcpSocket, this->udpSocket).detach();
 	return true;
 }
 
@@ -443,32 +476,4 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 		memcpy(target, &addr, sizeof(SOCKADDR_IN6));
 
 	return bufferLength - (addr.sin6_family == AF_INET ? 10 : 22);
-}
-
-void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
-{
-	char buffer[1];
-
-	while (tcpSocket != INVALID_SOCKET)
-	{
-		if (recv(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-			break;
-
-		if (send(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-			break;
-	}
-
-	if (tcpSocket != INVALID_SOCKET)
-	{
-		closesocket(tcpSocket);
-
-		tcpSocket = INVALID_SOCKET;
-	}
-
-	if (udpSocket != INVALID_SOCKET)
-	{
-		closesocket(udpSocket);
-
-		udpSocket = INVALID_SOCKET;
-	}
 }
