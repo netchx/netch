@@ -152,7 +152,7 @@ namespace Netch.Servers
                 var tlsSettings = new TlsSettings
                 {
                     allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                    serverName = server.ServerName.ValueOrDefault() ?? server.Hostname
+                    serverName = server.ServerName.ValueOrDefault() ?? server.Host.SplitOrDefault()?[0]
                 };
 
                 switch (server.TLSSecureType)
