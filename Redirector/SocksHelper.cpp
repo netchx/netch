@@ -173,6 +173,7 @@ SocksHelper::TCP::~TCP()
 	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->tcpSocket);
+
 		this->tcpSocket = INVALID_SOCKET;
 	}
 }
@@ -226,9 +227,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 	}
 
 	if (buffer[1] != 0x00)
-	{
 		return false;
-	}
 
 	SOCKADDR_IN6 addr;
 	return SocksHelper::Utils::SplitAddr(this->tcpSocket, &addr);
@@ -237,9 +236,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 int SocksHelper::TCP::Send(const char* buffer, int length)
 {
 	if (this->tcpSocket != INVALID_SOCKET)
-	{
 		return send(this->tcpSocket, buffer, length, 0);
-	}
 
 	return SOCKET_ERROR;
 }
@@ -247,9 +244,7 @@ int SocksHelper::TCP::Send(const char* buffer, int length)
 int SocksHelper::TCP::Read(char* buffer, int length)
 {
 	if (this->tcpSocket != INVALID_SOCKET)
-	{
 		return recv(this->tcpSocket, buffer, length, 0);
-	}
 
 	return SOCKET_ERROR;
 }
@@ -259,12 +254,14 @@ SocksHelper::UDP::~UDP()
 	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->tcpSocket);
+
 		this->tcpSocket = INVALID_SOCKET;
 	}
 
 	if (this->udpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->udpSocket);
+
 		this->udpSocket = INVALID_SOCKET;
 	}
 }
@@ -272,9 +269,7 @@ SocksHelper::UDP::~UDP()
 bool SocksHelper::UDP::Associate()
 {
 	if (this->tcpSocket == INVALID_SOCKET)
-	{
 		return false;
-	}
 
 	char buffer[10];
 	buffer[0] = 0x05;
@@ -357,9 +352,7 @@ bool SocksHelper::UDP::CreateUDP()
 int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 {
 	if (this->udpSocket == INVALID_SOCKET)
-	{
 		return SOCKET_ERROR;
-	}
 
 	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
 	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
@@ -402,15 +395,11 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 {
 	if (!this->udpSocket)
-	{
 		return SOCKET_ERROR;
-	}
 
 	int bufferLength = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
 	if (bufferLength == 0 || bufferLength == SOCKET_ERROR)
-	{
 		return bufferLength;
-	}
 
 	SOCKADDR_IN6 addr;
 	if (buffer[3] == 0x01)
@@ -434,9 +423,7 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
 	}
 
 	if (target != NULL)
-	{
 		memcpy(target, &addr, sizeof(SOCKADDR_IN6));
-	}
 
 	return bufferLength - (addr.sin6_family == AF_INET ? 10 : 22);
 }
@@ -448,25 +435,23 @@ void SocksHelper::UDP::Run()
 	while (this->tcpSocket != INVALID_SOCKET)
 	{
 		if (recv(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-		{
 			break;
-		}
 
 		if (send(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-		{
 			break;
-		}
 	}
 
 	if (this->tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->tcpSocket);
+
 		this->tcpSocket = INVALID_SOCKET;
 	}
 
 	if (this->udpSocket != INVALID_SOCKET)
 	{
 		closesocket(this->udpSocket);
+
 		this->udpSocket = INVALID_SOCKET;
 	}
 }
