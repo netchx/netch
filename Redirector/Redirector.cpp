@@ -103,7 +103,7 @@ extern "C" {
 			dnsHost = ws2s(value);
 			break;
 		case AIO_DNSPORT:
-			dnsPort = (USHORT)atoi(ws2s(value).c_str());
+			dnsPort = static_cast<USHORT>(atoi(ws2s(value).c_str()));
 			break;
 		case AIO_TGTHOST:
 			tgtHost = wstring(value);

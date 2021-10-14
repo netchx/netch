@@ -58,7 +58,7 @@ bool DNSHandler::INIT()
 		return true;
 	}
 
-	printf("[Redirector][DNSHandler::INIT] Convert string to address failed: %d\n", WSAGetLastError());
+	cout << "[Redirector][DNSHandler::INIT] Convert address failed: " << WSAGetLastError() << " [" << dnsHost << ":" << dnsPort << "]" << endl;
 	return false;
 }
 
