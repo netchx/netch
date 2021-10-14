@@ -350,7 +350,7 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
-	this->tcpThread = thread(&SocksHelper::UDP::Run, this);
+	this->tcpThread = thread(SocksHelper::UDP::Run, this->tcpSocket, this->udpSocket);
 	this->tcpThread.detach();
 	return true;
 }
@@ -445,30 +445,30 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 	return bufferLength - (addr.sin6_family == AF_INET ? 10 : 22);
 }
 
-void SocksHelper::UDP::Run()
+void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
 {
 	char buffer[1];
 
-	while (this->tcpSocket != INVALID_SOCKET)
+	while (tcpSocket != INVALID_SOCKET)
 	{
-		if (recv(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+		if (recv(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
 			break;
 
-		if (send(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+		if (send(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
 			break;
 	}
 
-	if (this->tcpSocket != INVALID_SOCKET)
+	if (tcpSocket != INVALID_SOCKET)
 	{
-		closesocket(this->tcpSocket);
+		closesocket(tcpSocket);
 
-		this->tcpSocket = INVALID_SOCKET;
+		tcpSocket = INVALID_SOCKET;
 	}
 
-	if (this->udpSocket != INVALID_SOCKET)
+	if (udpSocket != INVALID_SOCKET)
 	{
-		closesocket(this->udpSocket);
+		closesocket(udpSocket);
 
-		this->udpSocket = INVALID_SOCKET;
+		udpSocket = INVALID_SOCKET;
 	}
 }

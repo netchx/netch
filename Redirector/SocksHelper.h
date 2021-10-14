@@ -39,7 +39,7 @@ namespace SocksHelper
 		SOCKET tcpSocket = INVALID_SOCKET;
 		SOCKET udpSocket = INVALID_SOCKET;
 	private:
-		void Run();
+		static void Run(SOCKET tcpSocket, SOCKET udpSocket);
 
 		SOCKADDR_IN6 address = { 0 };
 		thread tcpThread;
