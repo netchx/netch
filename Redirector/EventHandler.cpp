@@ -142,9 +142,7 @@ bool eh_init()
 	CurrentID = GetCurrentProcessId();
 
 	if (!DNSHandler::INIT())
-	{
 		return false;
-	}
 
 	return TCPHandler::INIT();
 }
