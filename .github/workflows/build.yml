@@ -4,7 +4,7 @@ on: [push, pull_request]
 jobs:
   build:
     name: Build
-    runs-on: windows-latest
+    runs-on: windows-2022
     steps:
       - name: Go
         uses: actions/setup-go@v2
@@ -26,6 +26,8 @@ jobs:
 
       - name: MSBuild
         uses: microsoft/setup-msbuild@v1.0.3
+        with:
+          vs-prerelease: true
 
       - name: Checkout
         uses: actions/checkout@v2
