@@ -58,7 +58,7 @@ bool DNSHandler::INIT()
 		return true;
 	}
 
-	printf("[Redirector][DNSHandler::Init] Convert string to address failed: %d\n", WSAGetLastError());
+	printf("[Redirector][DNSHandler::INIT] Convert string to address failed: %d\n", WSAGetLastError());
 	return false;
 }
 

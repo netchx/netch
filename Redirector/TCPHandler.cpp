@@ -19,7 +19,7 @@ bool TCPHandler::INIT()
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
 	if (client == INVALID_SOCKET)
 	{
-		printf("[Redirector][TCPHandler::Init] Create socket failed: %d\n", WSAGetLastError());
+		printf("[Redirector][TCPHandler::INIT] Create socket failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
@@ -27,7 +27,7 @@ bool TCPHandler::INIT()
 		int v6only = 0;
 		if (setsockopt(client, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only)) == SOCKET_ERROR)
 		{
-			printf("[Redirector][TCPHandler::Init] Set socket option failed: %d\n", WSAGetLastError());
+			printf("[Redirector][TCPHandler::INIT] Set socket option failed: %d\n", WSAGetLastError());
 
 			closesocket(client);
 			return false;
@@ -40,7 +40,7 @@ bool TCPHandler::INIT()
 
 		if (bind(client, (PSOCKADDR)&addr, sizeof(SOCKADDR_IN6)) == SOCKET_ERROR)
 		{
-			printf("[Redirector][TCPHandler::Init] Bind socket failed: %d\n", WSAGetLastError());
+			printf("[Redirector][TCPHandler::INIT] Bind socket failed: %d\n", WSAGetLastError());
 
 			closesocket(client);
 			return false;
@@ -49,7 +49,7 @@ bool TCPHandler::INIT()
 	
 	if (listen(client, 1024) == SOCKET_ERROR)
 	{
-		printf("[Redirector][TCPHandler::Init] Listen socket failed: %d\n", WSAGetLastError());
+		printf("[Redirector][TCPHandler::INIT] Listen socket failed: %d\n", WSAGetLastError());
 
 		closesocket(client);
 		return false;
@@ -60,7 +60,7 @@ bool TCPHandler::INIT()
 		int addrLength = sizeof(SOCKADDR_IN6);
 		if (getsockname(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
 		{
-			printf("[Redirector][TCPHandler::Init] Get listen address failed: %d\n", WSAGetLastError());
+			printf("[Redirector][TCPHandler::INIT] Get listen address failed: %d\n", WSAGetLastError());
 
 			closesocket(client);
 			return false;
