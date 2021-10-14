@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/v2fly/domain-list-community/releases/download/20211001023210/dlc.dat' `
+        -Uri 'https://github.com/v2fly/domain-list-community/releases/download/20211013090609/dlc.dat' `
         -OutFile 'geosite.dat'
 }
 catch {

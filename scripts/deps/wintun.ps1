@@ -5,7 +5,7 @@ param (
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://www.wintun.net/builds/wintun-0.13.zip' `
+        -Uri 'https://www.wintun.net/builds/wintun-0.14.zip' `
         -OutFile 'wintun.zip'
 }
 catch {
