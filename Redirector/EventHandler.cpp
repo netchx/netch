@@ -141,7 +141,7 @@ bool eh_init()
 {
 	CurrentID = GetCurrentProcessId();
 
-	if (!DNSHandler::Init())
+	if (!DNSHandler::INIT())
 	{
 		return false;
 	}

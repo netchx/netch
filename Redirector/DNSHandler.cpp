@@ -38,10 +38,10 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, char* packet, int length
 	delete[] option;
 }
 
-bool DNSHandler::Init()
+bool DNSHandler::INIT()
 {
-	memset(&dnsAddr, 0, sizeof(SOCKADDR_IN6));
-	
+	memset(&dnsAddr, 0, sizeof(dnsAddr));
+
 	auto ipv4 = (PSOCKADDR_IN)&dnsAddr;
 	if (inet_pton(AF_INET, dnsHost.c_str(), &ipv4->sin_addr) == 1)
 	{
@@ -50,14 +50,15 @@ bool DNSHandler::Init()
 		return true;
 	}
 
-	if (inet_pton(AF_INET6, dnsHost.c_str(), &dnsAddr.sin6_addr) == 1)
+	auto ipv6 = (PSOCKADDR_IN6)&dnsAddr;
+	if (inet_pton(AF_INET6, dnsHost.c_str(), &ipv6->sin6_addr) == 1)
 	{
-		dnsAddr.sin6_family = AF_INET6;
-		dnsAddr.sin6_port = htons(dnsPort);
+		ipv6->sin6_family = AF_INET6;
+		ipv6->sin6_port = htons(dnsPort);
 		return true;
 	}
 
-	puts("[Redirector][DNSHandler::Init] Call WSAStringToAddress failed");
+	printf("[Redirector][DNSHandler::Init] Convert string to address failed: %d\n", WSAGetLastError());
 	return false;
 }
 

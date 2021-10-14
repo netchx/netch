@@ -6,7 +6,7 @@ USHORT tcpListen = 0;
 mutex tcpLock;
 map<USHORT, SOCKADDR_IN6> tcpContext;
 
-bool TCPHandler::Init()
+bool TCPHandler::INIT()
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
@@ -75,13 +75,14 @@ bool TCPHandler::Init()
 	return true;
 }
 
-void TCPHandler::Free()
+void TCPHandler::FREE()
 {
 	auto lg = lock_guard<mutex>(tcpLock);
 
 	if (tcpSocket != INVALID_SOCKET)
 	{
 		closesocket(tcpSocket);
+
 		tcpSocket = INVALID_SOCKET;
 	}
 	tcpListen = 0;
