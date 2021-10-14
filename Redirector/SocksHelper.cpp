@@ -264,6 +264,11 @@ SocksHelper::UDP::~UDP()
 
 		this->udpSocket = INVALID_SOCKET;
 	}
+
+	if (this->tcpThread.joinable())
+	{
+		this->tcpThread.join();
+	}
 }
 
 bool SocksHelper::UDP::Associate()
@@ -345,7 +350,8 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
-	thread(&SocksHelper::UDP::Run, this).detach();
+	this->tcpThread = thread(&SocksHelper::UDP::Run, this);
+	this->tcpThread.detach();
 	return true;
 }
 

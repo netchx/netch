@@ -42,6 +42,7 @@ namespace SocksHelper
 		void Run();
 
 		SOCKADDR_IN6 address = { 0 };
+		thread tcpThread;
 	} *PUDP;
 };
 
