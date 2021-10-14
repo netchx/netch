@@ -425,7 +425,7 @@ void udpBeginReceive(ENDPOINT_ID id, SocksHelper::PUDP udpConn, PNF_UDP_OPTIONS 
 	{
 		SOCKADDR_IN6 target;
 
-		int length = udpConn->Read(&target, buffer, sizeof(buffer));
+		int length = udpConn->Read(&target, buffer, sizeof(buffer), NULL);
 		if (length == 0 || length == SOCKET_ERROR)
 		{
 			break;
