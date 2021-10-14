@@ -398,10 +398,21 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 	return length;
 }
 
-int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length)
+int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIMEVAL timeout = NULL)
 {
 	if (!this->udpSocket)
 		return SOCKET_ERROR;
+
+	if (timeout != NULL)
+	{
+		fd_set fds;
+		FD_ZERO(&fds);
+		FD_SET(this->udpSocket, &fds);
+
+		int code = select(this->udpSocket, &fds, NULL, NULL, timeout);
+		if (code == 0 || code == SOCKET_ERROR)
+			return code;
+	}
 
 	int bufferLength = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
 	if (bufferLength == 0 || bufferLength == SOCKET_ERROR)

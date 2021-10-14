@@ -34,7 +34,7 @@ namespace SocksHelper
 		bool CreateUDP();
 
 		int Send(PSOCKADDR_IN6 target, const char* buffer, int length);
-		int Read(PSOCKADDR_IN6 target, char* buffer, int length);
+		int Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIMEVAL timeout = NULL);
 
 		SOCKET tcpSocket = INVALID_SOCKET;
 		SOCKET udpSocket = INVALID_SOCKET;

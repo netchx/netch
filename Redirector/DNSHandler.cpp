@@ -23,7 +23,10 @@ void ProcessPacket(ENDPOINT_ID id, SOCKADDR_IN6 target, char* packet, int length
 				{
 					if (udpConn.Send(&dnsAddr, packet, length) == length)
 					{
-						int size = udpConn.Read(NULL, buffer, sizeof(buffer));
+						timeval timeout;
+						timeout.tv_sec = 4;
+
+						int size = udpConn.Read(NULL, buffer, sizeof(buffer), &timeout);
 						if (size != 0 && size != SOCKET_ERROR)
 						{
 							nf_udpPostReceive(id, (unsigned char*)&target, buffer, size, option);
