@@ -34,7 +34,8 @@ namespace Netch.Controllers
             CheckDriver();
 
             Dial(NameList.AIO_FILTERLOOPBACK, "false");
-            Dial(NameList.AIO_FILTERINTRANET, "false");
+            Dial(NameList.AIO_FILTERINTRANET, "true");
+            Dial(NameList.AIO_FILTERPARENT, _rdrConfig.ChildProcessHandle.ToString().ToLower());
             Dial(NameList.AIO_FILTERICMP, _rdrConfig.FilterICMP.ToString().ToLower());
             Dial(NameList.AIO_ICMPING, _rdrConfig.ICMPDelay.ToString());
 
@@ -50,8 +51,14 @@ namespace Netch.Controllers
             // Mode Rule
             DialRule(_mode);
 
-            // Features TODO
-            // Dial(NameList.AIO_DNSHOST, _rdrConfig.DNSHijack ? _rdrConfig.DNSHijackHost : "");
+            // DNS
+            Dial(NameList.AIO_FILTERDNS, _rdrConfig.DNSHijack.ToString().ToLower());
+            if (_rdrConfig.DNSHijack)
+            {
+                var dns = new Uri(DnsUtils.AppendScheme(DnsUtils.AppendPort(_rdrConfig.DNSHijackHost), "udp"));
+                Dial(NameList.AIO_DNSHOST, dns.Host);
+                Dial(NameList.AIO_DNSPORT, dns.Port.ToString());
+            }
 
             if (!await InitAsync())
                 throw new MessageException("Redirector start failed.");

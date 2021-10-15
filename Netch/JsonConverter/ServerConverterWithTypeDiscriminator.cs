@@ -2,8 +2,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.Models;
+using Netch.Utils;
 
-namespace Netch.Utils
+namespace Netch.JsonConverter
 {
     public class ServerConverterWithTypeDiscriminator : JsonConverter<Server>
     {

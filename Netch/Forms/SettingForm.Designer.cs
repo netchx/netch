@@ -95,9 +95,9 @@ namespace Netch.Forms
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
             this.StartWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.MinimizeWhenStartedCheckBox = new System.Windows.Forms.CheckBox();
-            this.NoSupportDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.RunAtStartupCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckUpdateWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.NoSupportDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.UpdateServersWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
             this.AioDNSTabPage = new System.Windows.Forms.TabPage();
@@ -109,6 +109,7 @@ namespace Netch.Forms
             this.AioDNSListenPortTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.DNSHijackLabel = new System.Windows.Forms.Label();
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -324,6 +325,7 @@ namespace Netch.Forms
             this.NFTabPage.Controls.Add(this.ProcessFilterProtocolLabel);
             this.NFTabPage.Controls.Add(this.ProcessFilterProtocolComboBox);
             this.NFTabPage.Controls.Add(this.FilterICMPCheckBox);
+            this.NFTabPage.Controls.Add(this.DNSHijackLabel);
             this.NFTabPage.Controls.Add(this.ICMPDelayLabel);
             this.NFTabPage.Controls.Add(this.ICMPDelayTextBox);
             this.NFTabPage.Controls.Add(this.DNSHijackCheckBox);
@@ -367,7 +369,7 @@ namespace Netch.Forms
             // ICMPDelayLabel
             // 
             this.ICMPDelayLabel.AutoSize = true;
-            this.ICMPDelayLabel.Location = new System.Drawing.Point(30, 80);
+            this.ICMPDelayLabel.Location = new System.Drawing.Point(65, 80);
             this.ICMPDelayLabel.Name = "ICMPDelayLabel";
             this.ICMPDelayLabel.Size = new System.Drawing.Size(100, 17);
             this.ICMPDelayLabel.TabIndex = 3;
@@ -387,33 +389,29 @@ namespace Netch.Forms
             this.DNSHijackCheckBox.AutoSize = true;
             this.DNSHijackCheckBox.Location = new System.Drawing.Point(15, 110);
             this.DNSHijackCheckBox.Name = "DNSHijackCheckBox";
-            this.DNSHijackCheckBox.Size = new System.Drawing.Size(196, 21);
+            this.DNSHijackCheckBox.Size = new System.Drawing.Size(92, 21);
             this.DNSHijackCheckBox.TabIndex = 5;
-            this.DNSHijackCheckBox.Text = "Handle process\'s DNS Hijack";
+            this.DNSHijackCheckBox.Text = "DNS Hijack";
             this.DNSHijackCheckBox.UseVisualStyleBackColor = true;
-            this.DNSHijackCheckBox.Visible = false;
             // 
             // DNSHijackHostTextBox
             // 
             this.DNSHijackHostTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.DNSHijackCheckBox, "Checked", true));
-            this.DNSHijackHostTextBox.Location = new System.Drawing.Point(237, 108);
+            this.DNSHijackHostTextBox.Location = new System.Drawing.Point(237, 138);
             this.DNSHijackHostTextBox.Name = "DNSHijackHostTextBox";
             this.DNSHijackHostTextBox.Size = new System.Drawing.Size(191, 23);
             this.DNSHijackHostTextBox.TabIndex = 6;
             this.DNSHijackHostTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.DNSHijackHostTextBox.Visible = false;
             // 
             // ChildProcessHandleCheckBox
             // 
             this.ChildProcessHandleCheckBox.AutoSize = true;
-            this.ChildProcessHandleCheckBox.Enabled = false;
-            this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(15, 140);
+            this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(15, 170);
             this.ChildProcessHandleCheckBox.Name = "ChildProcessHandleCheckBox";
             this.ChildProcessHandleCheckBox.Size = new System.Drawing.Size(150, 21);
             this.ChildProcessHandleCheckBox.TabIndex = 7;
             this.ChildProcessHandleCheckBox.Text = "Child Process Handle";
             this.ChildProcessHandleCheckBox.UseVisualStyleBackColor = true;
-            this.ChildProcessHandleCheckBox.Visible = false;
             // 
             // WinTUNTabPage
             // 
@@ -785,16 +783,6 @@ namespace Netch.Forms
             this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
             this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
             // 
-            // NoSupportDialogCheckBox
-            // 
-            this.NoSupportDialogCheckBox.AutoSize = true;
-            this.NoSupportDialogCheckBox.Location = new System.Drawing.Point(6, 72);
-            this.NoSupportDialogCheckBox.Name = "NoSupportDialogCheckBox";
-            this.NoSupportDialogCheckBox.Size = new System.Drawing.Size(174, 21);
-            this.NoSupportDialogCheckBox.TabIndex = 6;
-            this.NoSupportDialogCheckBox.Text = "Disable Support Warning";
-            this.NoSupportDialogCheckBox.UseVisualStyleBackColor = true;
-            // 
             // RunAtStartupCheckBox
             // 
             this.RunAtStartupCheckBox.AutoSize = true;
@@ -815,6 +803,16 @@ namespace Netch.Forms
             this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
             this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // NoSupportDialogCheckBox
+            // 
+            this.NoSupportDialogCheckBox.AutoSize = true;
+            this.NoSupportDialogCheckBox.Location = new System.Drawing.Point(6, 72);
+            this.NoSupportDialogCheckBox.Name = "NoSupportDialogCheckBox";
+            this.NoSupportDialogCheckBox.Size = new System.Drawing.Size(174, 21);
+            this.NoSupportDialogCheckBox.TabIndex = 6;
+            this.NoSupportDialogCheckBox.Text = "Disable Support Warning";
+            this.NoSupportDialogCheckBox.UseVisualStyleBackColor = true;
             // 
             // CheckBetaUpdateCheckBox
             // 
@@ -928,6 +926,15 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 0;
+            // 
+            // DNSHijackLabel
+            // 
+            this.DNSHijackLabel.AutoSize = true;
+            this.DNSHijackLabel.Location = new System.Drawing.Point(65, 140);
+            this.DNSHijackLabel.Name = "DNSHijackLabel";
+            this.DNSHijackLabel.Size = new System.Drawing.Size(34, 17);
+            this.DNSHijackLabel.TabIndex = 3;
+            this.DNSHijackLabel.Text = "DNS";
             // 
             // SettingForm
             // 
@@ -1047,5 +1054,6 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox ICMPDelayTextBox;
         private System.Windows.Forms.Label ICMPDelayLabel;
         private System.Windows.Forms.CheckBox NoSupportDialogCheckBox;
+        private System.Windows.Forms.Label DNSHijackLabel;
     }
 }

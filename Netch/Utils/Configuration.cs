@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
+using Netch.JsonConverter;
 using Netch.Models;
 using Serilog;
 
@@ -90,8 +91,8 @@ namespace Netch.Utils
                 for (var i = 0; i < settings.Profiles.Count; i++)
                     settings.Profiles[i].Index = i;
 
-            settings.AioDNS.ChinaDNS = Utils.HostAppendPort(settings.AioDNS.ChinaDNS);
-            settings.AioDNS.OtherDNS = Utils.HostAppendPort(settings.AioDNS.OtherDNS);
+            settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
+            settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
         }
 
         /// <summary>

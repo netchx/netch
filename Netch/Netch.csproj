@@ -70,6 +70,10 @@
         </Compile>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="NativeMethods.txt" />
+    </ItemGroup>
+
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
         <ItemGroup>
             <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\build\native\x86\**" />

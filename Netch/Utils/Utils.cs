@@ -246,14 +246,6 @@ namespace Netch.Utils
             return subnet.GetAddressBytes().Sum(b => Convert.ToString(b, 2).Count(c => c == '1'));
         }
 
-        public static string HostAppendPort(string host, ushort port = 53)
-        {
-            if (!host.Contains(':'))
-                host += $":{port}";
-
-            return host;
-        }
-
         public static string GetHostFromUri(string str)
         {
             var startIndex = str.LastIndexOf('/');

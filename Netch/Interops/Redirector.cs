@@ -10,11 +10,16 @@ namespace Netch.Interops
         {
             AIO_FILTERLOOPBACK,
             AIO_FILTERINTRANET, // LAN
+            AIO_FILTERPARENT,
             AIO_FILTERICMP,
             AIO_FILTERTCP,
             AIO_FILTERUDP,
+            AIO_FILTERDNS,
 
             AIO_ICMPING,
+
+            AIO_DNSHOST,
+            AIO_DNSPORT,
 
             AIO_TGTHOST,
             AIO_TGTPORT,

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Netch.Utils;
 
 namespace Netch.Models
@@ -111,7 +110,6 @@ namespace Netch.Models
         /// <summary>
         ///     是否代理子进程
         /// </summary>
-        [JsonIgnore]
         public bool ChildProcessHandle { get; set; } = false;
     }
 

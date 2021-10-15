@@ -101,5 +101,21 @@ namespace Netch.Utils
         {
             return string.Join(",", dns);
         }
+
+        public static string AppendPort(string host, ushort port = 53)
+        {
+            if (!host.Contains(':'))
+                return host + $":{port}";
+
+            return host;
+        }
+
+        public static string AppendScheme(string value, string scheme = "tcp")
+        {
+            if (!value.Contains(Uri.SchemeDelimiter))
+                return scheme + Uri.SchemeDelimiter + value;
+
+            return value;
+        }
     }
 }
