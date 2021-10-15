@@ -66,10 +66,10 @@ msbuild `
 	'.\RouteHelper\RouteHelper.vcxproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-cp -Force '.\other\release\*.bin'             "$OutputPath\bin"
-cp -Force '.\other\release\*.exe'             "$OutputPath\bin"
-cp -Force '.\Redirector\bin\Redirector.bin'   "$OutputPath\bin"
-cp -Force '.\RouteHelper\bin\RouteHelper.bin' "$OutputPath\bin"
+cp -Force '.\other\release\*.bin'                            "$OutputPath\bin"
+cp -Force '.\other\release\*.exe'                            "$OutputPath\bin"
+cp -Force ".\Redirector\bin\$Configuration\Redirector.bin"   "$OutputPath\bin"
+cp -Force ".\RouteHelper\bin\$Configuration\RouteHelper.bin" "$OutputPath\bin"
 
 if ( $Configuration.Equals('Release') ) {
 	rm -Force "$OutputPath\*.pdb"
