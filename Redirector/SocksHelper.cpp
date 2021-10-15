@@ -41,7 +41,7 @@ SOCKET SocksHelper::Connect()
 	{
 		DWORD returned = 0;
 
-		tcp_keepalive data = { 1, 120, 10 };
+		tcp_keepalive data = { 1, 120000, 10000 };
 		WSAIoctl(client, SIO_KEEPALIVE_VALS, &data, sizeof(data), NULL, 0, &returned, NULL, NULL);
 	}
 
