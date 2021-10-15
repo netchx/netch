@@ -59,7 +59,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY /Y $(SolutionDir)Redirector\bin\$(Configuration)\Redirector.bin $(TargetDir) &gt; NUL 2&gt;&amp;1
+    <PostBuildEvent>COPY /Y $(SolutionDir)Redirector\bin\$(Configuration)\nfapi.dll $(TargetDir) &gt; NUL 2&gt;&amp;1
+COPY /Y $(SolutionDir)Redirector\bin\$(Configuration)\Redirector.bin $(TargetDir) &gt; NUL 2&gt;&amp;1
 COPY /Y $(SolutionDir)Redirector\bin\$(Configuration)\Redirector.pdb $(TargetDir) &gt; NUL 2&gt;&amp;1</PostBuildEvent>
   </PropertyGroup>
 </Project>
