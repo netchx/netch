@@ -38,6 +38,13 @@ SOCKET SocksHelper::Connect()
 		return INVALID_SOCKET;
 	}
 
+	{
+		DWORD returned = 0;
+
+		tcp_keepalive data = { 1, 120, 10 };
+		WSAIoctl(client, SIO_KEEPALIVE_VALS, &data, sizeof(data), NULL, 0, &returned, NULL, NULL);
+	}
+
 	return client;
 }
 

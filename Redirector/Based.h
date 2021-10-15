@@ -18,6 +18,7 @@
 #include <ws2ipdef.h>
 #include <WS2tcpip.h>
 #include <tlhelp32.h>
+#include <mstcpip.h>
 #include <Windows.h>
 
 #include <nfapi.h>
