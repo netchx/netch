@@ -286,19 +286,8 @@ void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
 			break;
 	}
 
-	if (tcpSocket != INVALID_SOCKET)
-	{
-		closesocket(tcpSocket);
-
-		tcpSocket = INVALID_SOCKET;
-	}
-
-	if (udpSocket != INVALID_SOCKET)
-	{
-		closesocket(udpSocket);
-
-		udpSocket = INVALID_SOCKET;
-	}
+	if (tcpSocket != INVALID_SOCKET) closesocket(tcpSocket);
+	if (udpSocket != INVALID_SOCKET) closesocket(udpSocket);
 }
 
 bool SocksHelper::UDP::Associate()
