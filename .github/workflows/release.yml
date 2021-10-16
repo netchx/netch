@@ -9,13 +9,38 @@ jobs:
     name: Build
     runs-on: windows-2022
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash=$(.\other\sha256.ps1)
+          echo "OTHER_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: .\other\release
+          key: ${{ runner.os }}-${{ env.OTHER_SHA256 }}
+
+      - name: Checking
+        id: checks
+        uses: andstor/file-existence-action@v1
+        with:
+          files: .\other\release\aiodns.bin
+
       - name: Go
         uses: actions/setup-go@v2
+        if: steps.checks.outputs.files_exits == 'false'
         with:
           go-version: 1.17.2
 
       - name: C++
         uses: msys2/setup-msys2@v2
+        if: steps.checks.outputs.files_exits == 'false'
         with:
           update: true
           release: true
@@ -23,19 +48,10 @@ jobs:
 
       - name: Rust
         uses: actions-rs/toolchain@v1
+        if: steps.checks.outputs.files_exits == 'false'
         with:
           toolchain: nightly
           profile: minimal
-
-      - name: MSBuild
-        uses: microsoft/setup-msbuild@v1.0.3
-        with:
-          vs-prerelease: true
-
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
 
       - name: Build
         shell: pwsh
