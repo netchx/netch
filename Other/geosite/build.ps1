@@ -2,7 +2,7 @@ Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://github.com/v2fly/domain-list-community/releases/download/20211013090609/dlc.dat' `
+        -Uri 'https://github.com/v2fly/domain-list-community/releases/download/20211016052758/dlc.dat' `
         -OutFile 'geosite.dat'
 }
 catch {
