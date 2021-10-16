@@ -50,26 +50,26 @@ if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
 	Write-Host 'Building Netch'
 
 	dotnet publish `
-		-c "$Configuration" `
+		-c $Configuration `
 		-r 'win-x64' `
 		-p:Platform='x64' `
-		-p:SelfContained="$SelfContained" `
-		-p:PublishTrimmed="$SelfContained" `
-		-p:PublishReadyToRun="$PublishReadyToRun" `
-		-p:PublishSingleFile="$PublishSingleFile" `
-		-p:IncludeNativeLibrariesForSelfExtract="$SelfContained" `
+		-p:SelfContained=$SelfContained `
+		-p:PublishTrimmed=$SelfContained `
+		-p:PublishReadyToRun=$PublishReadyToRun `
+		-p:PublishSingleFile=$PublishSingleFile `
+		-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
 		-o ".\Netch\bin\$Configuration" `
 		'.\Netch\Netch.csproj'
 	if ( -Not $? ) { exit $lastExitCode }
 }
-cp -Force ".\Netch\bin\$Configuration\Netch.exe" "$OutputPath\bin"
+cp -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
 
 if ( -Not ( Test-Path ".\Redirector\bin\$Configuration" ) ) {
 	Write-Host
 	Write-Host 'Building Redirector'
 
 	msbuild `
-		-property:Configuration="$Configuration" `
+		-property:Configuration=$Configuration `
 		-property:Platform=x64 `
 		'.\Redirector\Redirector.vcxproj'
 	if ( -Not $? ) { exit $lastExitCode }
@@ -82,7 +82,7 @@ if ( -Not ( Test-Path ".\RouteHelper\bin\$Configuration" ) ) {
 	Write-Host 'Building RouteHelper'
 
 	msbuild `
-		-property:Configuration="$Configuration" `
+		-property:Configuration=$Configuration `
 		-property:Platform=x64 `
 		'.\RouteHelper\RouteHelper.vcxproj'
 	if ( -Not $? ) { exit $lastExitCode }
