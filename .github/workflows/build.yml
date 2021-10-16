@@ -24,21 +24,21 @@ jobs:
           path: .\other\release
           key: ${{ runner.os }}-${{ env.OTHER_SHA256 }}
 
-      - name: Checking
-        id: checks
+      - name: Check
+        id: check
         uses: andstor/file-existence-action@v1
         with:
           files: .\other\release\aiodns.bin
 
       - name: Go
         uses: actions/setup-go@v2
-        if: steps.checks.outputs.files_exits == 'true'
+        if: steps.check.outputs.files_exists == 'false'
         with:
           go-version: 1.17.2
 
       - name: C++
         uses: msys2/setup-msys2@v2
-        if: steps.checks.outputs.files_exits == 'true'
+        if: steps.check.outputs.files_exists == 'false'
         with:
           update: true
           release: true
@@ -46,7 +46,7 @@ jobs:
 
       - name: Rust
         uses: actions-rs/toolchain@v1
-        if: steps.checks.outputs.files_exits == 'true'
+        if: steps.check.outputs.files_exists == 'false'
         with:
           toolchain: nightly
           profile: minimal
