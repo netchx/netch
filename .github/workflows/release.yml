@@ -14,34 +14,41 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Checksum
+      - name: Checksum Other
         shell: pwsh
         run: |
-          $otherHash=$(.\Other\sha256.ps1)
-          $redirHash=$(.\Redirector\sha256.ps1)
-          $routeHash=$(.\RouteHelper\sha256.ps1)
+          echo "OTHER_SHA256=$(.\Other\sha256.ps1)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
-          echo "OTHER_SHA256=$otherHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "REDIR_SHA256=$redirHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "ROUTE_SHA256=$routeHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+      - name: Checksum Redirector
+        shell: pwsh
+        run: |
+          echo "REDIRECTOR_SHA256=$(.\sha256.ps1 .\Redirector)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: Checksum RouteHelper
+        shell: pwsh
+        run: |
+          echo "ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache Other
         uses: actions/cache@v2
         with:
           key: Netch-${{ runner.os }}-Other-${{ env.OTHER_SHA256 }}
-          path: .\Other\release
+          path: |
+            .\Other\release
 
       - name: Cache Redirector
         uses: actions/cache@v2
         with:
-          key: Netch-${{ runner.os }}-Redirector-${{ env.REDIR_SHA256 }}
-          path: .\Redirector\bin
+          key: Netch-${{ runner.os }}-Redirector-${{ env.REDIRECTOR_SHA256 }}
+          path: |
+            .\Redirector\bin
 
       - name: Cache RouteHelper
         uses: actions/cache@v2
         with:
-          key: Netch-${{ runner.os }}-RouteHelper-${{ env.ROUTE_SHA256 }}
-          path: .\RouteHelper\bin
+          key: Netch-${{ runner.os }}-RouteHelper-${{ env.ROUTEHELPER_SHA256 }}
+          path: |
+            .\RouteHelper\bin
 
       - name: Check Other
         id: check_other
