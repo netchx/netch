@@ -17,31 +17,51 @@ jobs:
       - name: Checksum
         shell: pwsh
         run: |
-          $hash=$(.\other\sha256.ps1)
-          echo $hash
-          echo "OTHER_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          $otherHash=$(.\Other\sha256.ps1)
+          $redirHash=$(.\Redirector\sha256.ps1)
+          $routeHash=$(.\RouteHelper\sha256.ps1)
+          
+          echo "Other $otherHash"
+          echo "Redir $redirHash"
+          echo "Route $routeHash"
 
-      - name: Cache
+          echo "OTHER_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "REDIR_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "ROUTE_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: Cache Other
         uses: actions/cache@v2
         with:
-          path: .\other\release
           key: ${{ runner.os }}-${{ env.OTHER_SHA256 }}
+          path: .\Other\release
 
-      - name: Check
-        id: check
+      - name: Cache Redirector
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.REDIR_SHA256 }}
+          path: .\Redirector\bin
+
+      - name: Cache RouteHelper
+        uses: actions/cache@v2
+        with:
+          key: ${{ runner.os }}-${{ env.ROUTE_SHA256 }}
+          path: .\RouteHelper\bin
+
+      - name: Check Other
+        id: check_other
         uses: andstor/file-existence-action@v1
         with:
           files: .\other\release\aiodns.bin
 
       - name: Go
         uses: actions/setup-go@v2
-        if: steps.check.outputs.files_exists == 'false'
+        if: steps.check_other.outputs.files_exists == 'false'
         with:
           go-version: 1.17.2
 
       - name: C++
         uses: msys2/setup-msys2@v2
-        if: steps.check.outputs.files_exists == 'false'
+        if: steps.check_other.outputs.files_exists == 'false'
         with:
           update: true
           release: true
@@ -49,7 +69,7 @@ jobs:
 
       - name: Rust
         uses: actions-rs/toolchain@v1
-        if: steps.check.outputs.files_exists == 'false'
+        if: steps.check_other.outputs.files_exists == 'false'
         with:
           toolchain: nightly
           profile: minimal
