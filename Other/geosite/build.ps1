@@ -1,7 +1,4 @@
-param (
-    [string]
-    $OutputPath
-)
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
@@ -12,5 +9,5 @@ catch {
     exit 1
 }
 
-mv -Force 'geosite.dat' $OutputPath
+mv -Force 'geosite.dat' '..\release\geosite.dat'
 exit 0

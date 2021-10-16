@@ -1,7 +1,4 @@
-param (
-    [string]
-    $OutputPath
-)
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
@@ -12,5 +9,5 @@ catch {
     exit 1
 }
 
-mv -Force 'geoip.dat' $OutputPath
+mv -Force 'geoip.dat' '..\release\geoip.dat'
 exit 0

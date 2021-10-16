@@ -1,7 +1,4 @@
-param (
-    [string]
-    $OutputPath
-)
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
@@ -15,7 +12,7 @@ catch {
 7z x 'wintun.zip'
 if ( -Not $? ) { exit $lastExitCode }
 
-mv -Force 'wintun\bin\amd64\wintun.dll' $OutputPath
+mv -Force 'wintun\bin\amd64\wintun.dll' '..\release\wintun.dll'
 
 rm -Recurse -Force 'wintun'
 rm -Recurse -Force 'wintun.zip'

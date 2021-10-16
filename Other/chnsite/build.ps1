@@ -1,7 +1,4 @@
-param (
-    [string]
-    $OutputPath
-)
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
@@ -21,7 +18,6 @@ foreach ( $data in (Get-Content -Path 'chnsite.txt') ) {
         Add-Content -Path 'newsite.txt' -Value $data
     }
 }
-mv -Force 'newsite.txt' 'chnsite.txt'
 
-mv -Force 'chnsite.txt' $OutputPath
+mv -Force 'newsite.txt' '..\release\chnsite.txt'
 exit 0
