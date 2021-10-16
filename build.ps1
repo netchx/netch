@@ -32,8 +32,8 @@ New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
 .\deps.ps1 "$OutputPath"
 if ( -Not $? ) { exit $lastExitCode }
 
-if ( -Not (Test-Path '.\other\release\aiodns.bin') ) {
-	.\other\build.ps1
+if ( -Not ( Test-Path '.\Other\release\aiodns.bin' ) ) {
+	.\Other\build.ps1
 	if ( -Not $? ) {
 		exit $lastExitCode
 	}
