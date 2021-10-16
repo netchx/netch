@@ -63,12 +63,26 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 extern "C" {
 	__declspec(dllexport) BOOL __cdecl aio_register(LPWSTR value)
 	{
-		return nf_registerDriver(ws2s(value).c_str()) == NF_STATUS_SUCCESS;
+		auto status = nf_registerDriver(ws2s(value).c_str());
+		if (status != NF_STATUS_SUCCESS)
+		{
+			printf("[Redirector][aio_register] nf_registerDriver: %d\n", status);
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 	__declspec(dllexport) BOOL __cdecl aio_unregister(LPWSTR value)
 	{
-		return nf_unRegisterDriver(ws2s(value).c_str()) == NF_STATUS_SUCCESS;
+		auto status = nf_unRegisterDriver(ws2s(value).c_str());
+		if (status != NF_STATUS_SUCCESS)
+		{
+			printf("[Redirector][aio_unregister] nf_unRegisterDriver: %d\n", status);
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 	__declspec(dllexport) BOOL __cdecl aio_dial(int name, LPWSTR value)
