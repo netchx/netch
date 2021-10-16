@@ -27,8 +27,8 @@ jobs:
           path: .\other\release
           key: ${{ runner.os }}-${{ env.OTHER_SHA256 }}
 
-      - name: Checking
-        id: checks
+      - name: Check
+        id: check
         uses: andstor/file-existence-action@v1
         with:
           files: .\other\release\aiodns.bin
