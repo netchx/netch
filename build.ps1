@@ -24,20 +24,26 @@ param (
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-if ( Test-Path -Path "$OutputPath" ) {
-    rm -Recurse -Force "$OutputPath"
+if ( Test-Path -Path $OutputPath ) {
+    rm -Recurse -Force $OutputPath
 }
-New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
+New-Item -ItemType Directory -Name $OutputPath | Out-Null
 
-.\deps.ps1 "$OutputPath"
-if ( -Not $? ) { exit $lastExitCode }
+Push-Location $OutputPath
+New-Item -ItemType Directory -Name 'bin'  | Out-Null
+New-Item -ItemType Directory -Name 'mode' | Out-Null
+New-Item -ItemType Directory -Name 'i18n' | Out-Null
+Pop-Location
 
-if ( -Not ( Test-Path '.\Other\release\aiodns.bin' ) ) {
+if ( -Not ( Test-Path '.\Other\release' ) ) {
 	.\Other\build.ps1
 	if ( -Not $? ) {
 		exit $lastExitCode
 	}
 }
+cp -Force '.\Other\release\*.bin' "$OutputPath\bin"
+cp -Force '.\Other\release\*.dll' "$OutputPath\bin"
+cp -Force '.\Other\release\*.exe' "$OutputPath\bin"
 
 Write-Host
 Write-Host 'Building Netch'
@@ -54,7 +60,7 @@ dotnet publish `
 	'.\Netch\Netch.csproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-if ( -Not (Test-Path ".\Redirector\bin\$Configuration\Redirector.bin" ) ) {
+if ( -Not ( Test-Path ".\Redirector\bin\$Configuration" ) ) {
 	Write-Host
 	Write-Host 'Building Redirector'
 
@@ -64,8 +70,10 @@ if ( -Not (Test-Path ".\Redirector\bin\$Configuration\Redirector.bin" ) ) {
 		'.\Redirector\Redirector.vcxproj'
 	if ( -Not $? ) { exit $lastExitCode }
 }
+cp -Force ".\Redirector\bin\$Configuration\nfapi.dll"      "$OutputPath\bin"
+cp -Force ".\Redirector\bin\$Configuration\Redirector.bin" "$OutputPath\bin"
 
-if ( -Not (Test-Path ".\RouteHelper\bin\$Configuration\RouteHelper.bin" ) ) {
+if ( -Not ( Test-Path ".\RouteHelper\bin\$Configuration" ) ) {
 	Write-Host
 	Write-Host 'Building RouteHelper'
 
@@ -75,12 +83,6 @@ if ( -Not (Test-Path ".\RouteHelper\bin\$Configuration\RouteHelper.bin" ) ) {
 		'.\RouteHelper\RouteHelper.vcxproj'
 	if ( -Not $? ) { exit $lastExitCode }
 }
-
-cp -Force '.\Other\release\*.bin'                            "$OutputPath\bin"
-cp -Force '.\Other\release\*.dll'                            "$OutputPath\bin"
-cp -Force '.\Other\release\*.exe'                            "$OutputPath\bin"
-cp -Force ".\Redirector\bin\$Configuration\nfapi.dll"        "$OutputPath\bin"
-cp -Force ".\Redirector\bin\$Configuration\Redirector.bin"   "$OutputPath\bin"
 cp -Force ".\RouteHelper\bin\$Configuration\RouteHelper.bin" "$OutputPath\bin"
 
 if ( $Configuration.Equals('Release') ) {
