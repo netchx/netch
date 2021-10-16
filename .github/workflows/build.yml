@@ -25,19 +25,19 @@ jobs:
       - name: Cache Other
         uses: actions/cache@v2
         with:
-          key: Other-${{ runner.os }}-${{ env.OTHER_SHA256 }}
+          key: Netch-${{ runner.os }}-Other-${{ env.OTHER_SHA256 }}
           path: .\other\release
 
       - name: Cache Redirector
         uses: actions/cache@v2
         with:
-          key: Redirector-${{ runner.os }}-${{ env.REDIR_SHA256 }}
+          key: Netch-${{ runner.os }}-Redirector-${{ env.REDIR_SHA256 }}
           path: .\Redirector\bin
 
       - name: Cache RouteHelper
         uses: actions/cache@v2
         with:
-          key: RouteHelper-${{ runner.os }}-${{ env.ROUTE_SHA256 }}
+          key: Netch-${{ runner.os }}-RouteHelper-${{ env.ROUTE_SHA256 }}
           path: .\RouteHelper\bin
 
       - name: Check Other
