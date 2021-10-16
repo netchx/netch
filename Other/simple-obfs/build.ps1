@@ -11,5 +11,5 @@ if ( -Not $? ) {
     exit $lastExitCode
 }
 
-cp -Force '.\simple-obfs.exe' '..\..\release\simple-obfs.exe'
+cp -Force '.\obfs-local.exe' '..\..\release\obfs-local.exe'
 exit 0
