@@ -5,7 +5,7 @@ param (
 
 Push-Location $Location
 
-$global:data = ""
+$global:data = ''
 function Scan {
     param (
         [string]
