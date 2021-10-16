@@ -5,31 +5,28 @@ param (
 
 Push-Location $Location
 
-$ms = [System.IO.MemoryStream]::new();
-$wr = [System.IO.StreamWriter]::new($ms);
-
+$global:data = ""
 function Scan {
     param (
         [string]
         $path = ''
     )
 
-    foreach ( $item in ( Get-ChildItem -Path $path ) ) {
+    foreach ( $item in ( Get-ChildItem -Path $path -File ) ) {
         $name = $item.Name
 
-        if ( Test-Path -Path ".\$path\$name" -PathType Container ) {
-            Scan -Path ".\$path\$name"
-            continue
-        }
+        $global:data += (Get-FileHash -Path ".\$path\$name" -Algorithm SHA256).Hash.ToLower()
+    }
 
-        if ( Test-Path -Path ".\$path\$name" -PathType Leaf ) {
-            $wr.Write((Get-FileHash -Path ".\$path\$name" -Algorithm SHA256).Hash.ToLower())
-        }
+    foreach ( $item in ( Get-ChildItem -Path $path -Directory ) ) {
+        $name = $item.Name
+
+        Scan -Path ".\$path\$name"
     }
 }
 
 Scan -Path '.'
-Write-Output (Get-FileHash -InputStream $ms).Hash.ToLower()
+Write-Output (Get-FileHash -InputStream ([System.IO.MemoryStream]::New([System.Text.Encoding]::UTF8.GetBytes($data)))).Hash.ToLower()
 
 Pop-Location
 exit 0
