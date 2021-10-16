@@ -25,9 +25,9 @@ jobs:
           echo "Redir $redirHash"
           echo "Route $routeHash"
 
-          echo "OTHER_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "REDIR_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "ROUTE_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "OTHER_SHA256=$otherHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "REDIR_SHA256=$redirHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "ROUTE_SHA256=$routeHash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache Other
         uses: actions/cache@v2
