@@ -54,12 +54,12 @@ namespace RedirectorTester
         public static void Main(string[] args)
         {
             aio_dial(NameList.AIO_FILTERLOOPBACK, "false");
-            aio_dial(NameList.AIO_FILTERINTRANET, "false");
-            aio_dial(NameList.AIO_FILTERPARENT, "false");
+            aio_dial(NameList.AIO_FILTERINTRANET, "true");
+            aio_dial(NameList.AIO_FILTERPARENT, "true");
             aio_dial(NameList.AIO_FILTERICMP, "true");
             aio_dial(NameList.AIO_FILTERTCP, "true");
             aio_dial(NameList.AIO_FILTERUDP, "true");
-            aio_dial(NameList.AIO_FILTERDNS, "false");
+            aio_dial(NameList.AIO_FILTERDNS, "true");
 
             aio_dial(NameList.AIO_ICMPING, "10");
 
