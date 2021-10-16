@@ -15,7 +15,7 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $False,
+	$PublishReadyToRun = $True,
 
 	[Parameter()]
 	[bool]
@@ -45,20 +45,24 @@ cp -Force '.\Other\release\*.bin' "$OutputPath\bin"
 cp -Force '.\Other\release\*.dll' "$OutputPath\bin"
 cp -Force '.\Other\release\*.exe' "$OutputPath\bin"
 
-Write-Host
-Write-Host 'Building Netch'
-dotnet publish `
-	-c "$Configuration" `
-	-r 'win-x64' `
-	-p:Platform='x64' `
-	-p:SelfContained="$SelfContained" `
-	-p:PublishTrimmed="$SelfContained" `
-	-p:PublishReadyToRun="$PublishReadyToRun" `
-	-p:PublishSingleFile="$PublishSingleFile" `
-	-p:IncludeNativeLibrariesForSelfExtract="$SelfContained" `
-	-o "$OutputPath" `
-	'.\Netch\Netch.csproj'
-if ( -Not $? ) { exit $lastExitCode }
+if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
+	Write-Host
+	Write-Host 'Building Netch'
+
+	dotnet publish `
+		-c "$Configuration" `
+		-r 'win-x64' `
+		-p:Platform='x64' `
+		-p:SelfContained="$SelfContained" `
+		-p:PublishTrimmed="$SelfContained" `
+		-p:PublishReadyToRun="$PublishReadyToRun" `
+		-p:PublishSingleFile="$PublishSingleFile" `
+		-p:IncludeNativeLibrariesForSelfExtract="$SelfContained" `
+		-o ".\Netch\bin\$Configuration" `
+		'.\Netch\Netch.csproj'
+	if ( -Not $? ) { exit $lastExitCode }
+}
+cp -Force ".\Netch\bin\$Configuration\Netch.exe" "$OutputPath\bin"
 
 if ( -Not ( Test-Path ".\Redirector\bin\$Configuration" ) ) {
 	Write-Host

@@ -14,9 +14,17 @@ jobs:
       - name: Checksum
         shell: pwsh
         run: |
+          echo "SOURCE_NETCH_SHA256=$(.\sha256.ps1 .\Netch)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_OTHER_SHA256=$(.\sha256.ps1 .\Other)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_REDIRECTOR_SHA256=$(.\sha256.ps1 .\Redirector)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+
+      - name: Cache Netch
+        uses: actions/cache@v2
+        with:
+          key: Netch-${{ runner.os }}-Netch-${{ env.SOURCE_NETCH_SHA256 }}
+          path: |
+            .\Netch\bin
 
       - name: Cache Other
         uses: actions/cache@v2
