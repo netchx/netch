@@ -31,13 +31,13 @@ jobs:
 
       - name: Go
         uses: actions/setup-go@v2
-        if: steps.checks.outputs.files_exits == 'false'
+        if: steps.checks.outputs.files_exits == 'true'
         with:
           go-version: 1.17.2
 
       - name: C++
         uses: msys2/setup-msys2@v2
-        if: steps.checks.outputs.files_exits == 'false'
+        if: steps.checks.outputs.files_exits == 'true'
         with:
           update: true
           release: true
@@ -45,7 +45,7 @@ jobs:
 
       - name: Rust
         uses: actions-rs/toolchain@v1
-        if: steps.checks.outputs.files_exits == 'false'
+        if: steps.checks.outputs.files_exits == 'true'
         with:
           toolchain: nightly
           profile: minimal
