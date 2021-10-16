@@ -18,6 +18,7 @@ jobs:
         shell: pwsh
         run: |
           $hash=$(.\other\sha256.ps1)
+          echo $hash
           echo "OTHER_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache
