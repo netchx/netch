@@ -32,8 +32,12 @@ New-Item -ItemType Directory -Name "$OutputPath" | Out-Null
 .\deps.ps1 "$OutputPath"
 if ( -Not $? ) { exit $lastExitCode }
 
-.\other\build.ps1
-if ( -Not $? ) { exit $lastExitCode }
+if ( -Not (Test-Path '.\other\release\aiodns.bin') ) {
+	.\other\build.ps1
+	if ( -Not $? ) {
+		exit $lastExitCode
+	}
+}
 
 Write-Host
 Write-Host 'Building Netch'
@@ -50,25 +54,31 @@ dotnet publish `
 	'.\Netch\Netch.csproj'
 if ( -Not $? ) { exit $lastExitCode }
 
-Write-Host
-Write-Host 'Building Redirector'
-msbuild `
-	-property:Configuration="$Configuration" `
-	-property:Platform=x64 `
-	'.\Redirector\Redirector.vcxproj'
-if ( -Not $? ) { exit $lastExitCode }
+if ( -Not (Test-Path ".\Redirector\bin\$Configuration\Redirector.bin" ) ) {
+	Write-Host
+	Write-Host 'Building Redirector'
 
-Write-Host
-Write-Host 'Building RouteHelper'
-msbuild `
-	-property:Configuration="$Configuration" `
-	-property:Platform=x64 `
-	'.\RouteHelper\RouteHelper.vcxproj'
-if ( -Not $? ) { exit $lastExitCode }
+	msbuild `
+		-property:Configuration="$Configuration" `
+		-property:Platform=x64 `
+		'.\Redirector\Redirector.vcxproj'
+	if ( -Not $? ) { exit $lastExitCode }
+}
 
-cp -Force '.\other\release\*.bin'                            "$OutputPath\bin"
-cp -Force '.\other\release\*.dll'                            "$OutputPath\bin"
-cp -Force '.\other\release\*.exe'                            "$OutputPath\bin"
+if ( -Not (Test-Path ".\RouteHelper\bin\$Configuration\RouteHelper.bin" ) ) {
+	Write-Host
+	Write-Host 'Building RouteHelper'
+
+	msbuild `
+		-property:Configuration="$Configuration" `
+		-property:Platform=x64 `
+		'.\RouteHelper\RouteHelper.vcxproj'
+	if ( -Not $? ) { exit $lastExitCode }
+}
+
+cp -Force '.\Other\release\*.bin'                            "$OutputPath\bin"
+cp -Force '.\Other\release\*.dll'                            "$OutputPath\bin"
+cp -Force '.\Other\release\*.exe'                            "$OutputPath\bin"
 cp -Force ".\Redirector\bin\$Configuration\nfapi.dll"        "$OutputPath\bin"
 cp -Force ".\Redirector\bin\$Configuration\Redirector.bin"   "$OutputPath\bin"
 cp -Force ".\RouteHelper\bin\$Configuration\RouteHelper.bin" "$OutputPath\bin"
