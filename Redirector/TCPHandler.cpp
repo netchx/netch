@@ -118,7 +118,11 @@ void TCPHandler::Accept()
 		auto client = accept(tcpSocket, NULL, NULL);
 		if (client == INVALID_SOCKET)
 		{
-			printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", WSAGetLastError());
+			int lasterr = WSAGetLastError();
+			if (lasterr == 10004)
+				return;
+
+			printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", lasterr);
 			return;
 		}
 
