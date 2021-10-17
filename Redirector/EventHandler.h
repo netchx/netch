@@ -24,6 +24,6 @@ void udpCanReceive(ENDPOINT_ID id);
 void udpReceive(ENDPOINT_ID id, const unsigned char* target, const char* buffer, int length, PNF_UDP_OPTIONS options);
 void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info);
 
-void udpReceiveHandler(ENDPOINT_ID id, SocksHelper::PUDP conn, PNF_UDP_OPTIONS options);
+void udpReceiveHandler(ENDPOINT_ID id, SocksHelper::PUDP remote, PNF_UDP_OPTIONS options);
 
 #endif

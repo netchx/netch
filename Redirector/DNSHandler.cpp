@@ -1,5 +1,7 @@
 #include "DNSHandler.h"
 
+#include "SocksHelper.h"
+
 extern string dnsHost;
 extern USHORT dnsPort;
 

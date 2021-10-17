@@ -2,7 +2,6 @@
 #ifndef DNSHANDLER_H
 #define DNSHANDLER_H
 #include "Based.h"
-#include "SocksHelper.h"
 
 namespace DNSHandler
 {
