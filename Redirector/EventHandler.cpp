@@ -295,6 +295,8 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 		return;
 	}
 
+	wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << GetProcessName(info->processId) << endl;
+
 	lock_guard<mutex> lg(udpContextLock);
 	udpContext[id] = new SocksHelper::UDP();
 }
