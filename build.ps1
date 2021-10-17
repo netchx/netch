@@ -31,8 +31,8 @@ New-Item -ItemType Directory -Name $OutputPath | Out-Null
 
 Push-Location $OutputPath
 New-Item -ItemType Directory -Name 'bin'  | Out-Null
-New-Item -ItemType Directory -Name 'mode' | Out-Null
-New-Item -ItemType Directory -Name 'i18n' | Out-Null
+cp -Recurse -Force '..\Storage\i18n' '.'  | Out-Null
+cp -Recurse -Force '..\Storage\mode' '.'  | Out-Null
 Pop-Location
 
 if ( -Not ( Test-Path '.\Other\release' ) ) {

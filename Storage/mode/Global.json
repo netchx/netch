@@ -1,0 +1,15 @@
+{
+    "type": 0,
+    "filterLoopback": false,
+    "filterIntranet": true,
+    "filterICMP": true,
+    "filterTCP": true,
+    "filterUDP": true,
+    "filterDNS": true,
+    "bypass": [
+        "\\Netch\\"
+    ],
+    "handle": [
+        ".*"
+    ]
+}
