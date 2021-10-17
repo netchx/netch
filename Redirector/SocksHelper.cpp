@@ -126,31 +126,31 @@ bool SocksHelper::Handshake(SOCKET client)
 
 bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
-	char addressType;
-	if (recv(client, (char*)&addressType, 1, 0) != 1)
+	char addrType;
+	if (recv(client, (char*)&addrType, 1, 0) != 1)
 	{
 		printf("[Redirector][SocksHelper::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
-	if (addressType == 0x01)
+	if (addrType == 0x01)
 	{
-		auto address = (PSOCKADDR_IN)addr;
-		address->sin_family = AF_INET;
+		auto ipv4 = (PSOCKADDR_IN)addr;
+		ipv4->sin_family = AF_INET;
 
-		if (recv(client, (char*)&address->sin_addr, 4, 0) != 4)
+		if (recv(client, (char*)&ipv4->sin_addr, 4, 0) != 4)
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
-		if (recv(client, (char*)&address->sin_port, 2, 0) != 2)
+		if (recv(client, (char*)&ipv4->sin_port, 2, 0) != 2)
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
 	}
-	else if (addressType == 0x04)
+	else if (addrType == 0x04)
 	{
 		addr->sin6_family = AF_INET6;
 
@@ -168,7 +168,7 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 	}
 	else
 	{
-		printf("[Redirector][SocksHelper::SplitAddr] Unsupported address family: %d\n", addressType);
+		printf("[Redirector][SocksHelper::SplitAddr] Unsupported address family: %d\n", addrType);
 		return false;
 	}
 
@@ -306,17 +306,10 @@ bool SocksHelper::UDP::Associate()
 	if (!SocksHelper::Handshake(this->tcpSocket))
 		return false;
 
-	char buffer[10];
+	char buffer[10]{};
 	buffer[0] = 0x05;
 	buffer[1] = 0x03;
-	buffer[2] = 0x00;
 	buffer[3] = 0x01;
-	buffer[4] = 0x00;
-	buffer[5] = 0x00;
-	buffer[6] = 0x00;
-	buffer[7] = 0x00;
-	buffer[8] = 0x00;
-	buffer[9] = 0x00;
 
 	if (send(this->tcpSocket, buffer, 10, 0) != 10)
 	{
@@ -332,7 +325,7 @@ bool SocksHelper::UDP::Associate()
 
 	if (buffer[1] != 0x00)
 	{
-		puts("[Redirector][SocksHelper::UDP::Associate] UDP associate failed");
+		printf("[Redirector][SocksHelper::UDP::Associate] UDP associate failed: %d\n", buffer[1]);
 		return false;
 	}
 
