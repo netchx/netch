@@ -322,13 +322,23 @@ void udpCanSend(ENDPOINT_ID id)
 
 void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, int length, PNF_UDP_OPTIONS options)
 {
-	if (filterDNS && DNSHandler::IsDNS((PSOCKADDR_IN6)target))
+	if (DNSHandler::IsDNS((PSOCKADDR_IN6)target))
 	{
-		UP += length;
-		DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
+		if (!filterDNS)
+		{
+			nf_udpPostSend(id, target, buffer, length, options);
 
-		wcout << "[Redirector][EventHandler][udpSend][" << id << "] DNS to " << ConvertIP((PSOCKADDR)target) << endl;
-		return;
+			wcout << "[Redirector][EventHandler][udpSend][" << id << "] B DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+			return;
+		}
+		else
+		{
+			UP += length;
+			DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
+
+			wcout << "[Redirector][EventHandler][udpSend][" << id << "] H DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+			return;
+		}
 	}
 
 	udpContextLock.lock();
