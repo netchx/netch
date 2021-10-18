@@ -11,11 +11,11 @@ param (
 
 	[Parameter()]
 	[bool]
-	$SelfContained = $False,
+	$SelfContained = $True,
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $False,
+	$PublishReadyToRun = $True,
 
 	[Parameter()]
 	[bool]
@@ -26,21 +26,16 @@ Remove-Item -Recurse -Force $OutputPath -Confirm:$false -ErrorAction Ignore
 
 .\scripts\download.ps1 $OutputPath
 
-# if ( -Not $? ) {
-# 	Exit 1
-# }
-
 Write-Host "Building $Configuration to $OutputPath"
 dotnet publish `
 	-c $Configuration `
-	-r "win-x64" `
-	-p:Platform="x64" `
-	-p:PublishSingleFile=$PublishSingleFile `
+	-r 'win-x64' `
+	-p:Platform='x64' `
 	-p:SelfContained=$SelfContained `
 	-p:PublishTrimmed=$SelfContained `
 	-p:PublishReadyToRun=$PublishReadyToRun `
+	-p:PublishSingleFile=$PublishSingleFile `
+	-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
 	-o $OutputPath `
-	Netch\Netch.csproj
-
-if ($lastExitCode) { exit $lastExitCode } 
-exit 0
+	'.\Netch\Netch.csproj'
+exit $lastExitCode
