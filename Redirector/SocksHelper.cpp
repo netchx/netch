@@ -197,7 +197,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 	/* Connect Request */
 	if (target->sin6_family == AF_INET)
 	{
-		char buffer[10];
+		char buffer[10]{};
 		buffer[0] = 0x05;
 		buffer[1] = 0x01;
 		buffer[2] = 0x00;
@@ -215,7 +215,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 	}
 	else
 	{
-		char buffer[22];
+		char buffer[22]{};
 		buffer[0] = 0x05;
 		buffer[1] = 0x01;
 		buffer[2] = 0x00;

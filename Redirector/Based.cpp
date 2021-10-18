@@ -10,6 +10,8 @@ bool filterDNS = true;
 
 DWORD icmping = 0;
 
+bool dnsOnly = false;
+bool dnsProx = true;
 string dnsHost = "1.1.1.1";
 USHORT dnsPort = 53;
 

@@ -13,6 +13,8 @@ extern bool filterDNS;
 
 extern DWORD icmping;
 
+extern bool dnsOnly;
+extern bool dnsProx;
 extern string dnsHost;
 extern USHORT dnsPort;
 
@@ -112,6 +114,12 @@ extern "C" {
 			break;
 		case AIO_ICMPING:
 			icmping = atoi(ws2s(value).c_str());
+			break;
+		case AIO_DNSONLY:
+			dnsOnly = (wstring(value).find(L"false") == string::npos);
+			break;
+		case AIO_DNSPROX:
+			dnsProx = (wstring(value).find(L"false") == string::npos);
 			break;
 		case AIO_DNSHOST:
 			dnsHost = ws2s(value);

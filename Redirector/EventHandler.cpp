@@ -8,6 +8,8 @@ extern bool filterTCP;
 extern bool filterUDP;
 extern bool filterDNS;
 
+extern bool dnsOnly;
+
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
@@ -279,18 +281,24 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	if (!filterUDP)
 	{
+		if (!filterDNS) nf_udpDisableFiltering(id);
+
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << GetProcessName(info->processId) << endl;
 		return;
 	}
 
 	if (checkBypassName(info->processId))
 	{
+		if (dnsOnly) nf_udpDisableFiltering(id);
+
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << GetProcessName(info->processId) << endl;
 		return;
 	}
 
 	if (!checkHandleName(info->processId))
 	{
+		if (dnsOnly) nf_udpDisableFiltering(id);
+
 		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << GetProcessName(info->processId) << endl;
 		return;
 	}

@@ -11,6 +11,8 @@ typedef enum _AIO_TYPE {
 
 	AIO_ICMPING,
 
+	AIO_DNSONLY,
+	AIO_DNSPROX,
 	AIO_DNSHOST,
 	AIO_DNSPORT,
 
@@ -46,6 +48,8 @@ private enum NameList : int
 
 	AIO_ICMPING,
 
+	AIO_DNSONLY,
+	AIO_DNSPROX,
 	AIO_DNSHOST,
 	AIO_DNSPORT,
 
