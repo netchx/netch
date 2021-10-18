@@ -40,6 +40,12 @@ namespace Netch.Models.Mode.ProcessMode
         public bool UDP = true;
 
         /// <summary>
+        ///     过滤 DNS 流量
+        /// </summary>
+        [Newtonsoft.Json.JsonProperty("filterDNS")]
+        public bool DNS = true;
+
+        /// <summary>
         ///     绕过列表
         /// </summary>
         [Newtonsoft.Json.JsonProperty("bypass")]

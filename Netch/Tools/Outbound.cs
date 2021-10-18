@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 
-namespace Netch.Tools.TunTap
+namespace Netch.Tools
 {
     public class Outbound
     {
@@ -39,23 +39,24 @@ namespace Netch.Tools.TunTap
         /// <returns></returns>
         public bool Get()
         {
-            if (Vanara.PInvoke.Win32Error.NO_ERROR != Vanara.PInvoke.IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var route))
-            {
+            if (Vanara.PInvoke.IpHlpApi.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse("114.114.114.114").GetAddressBytes(), 0), 0, out var route) != Vanara.PInvoke.Win32Error.NO_ERROR)
                 return false;
-            }
 
             this.Index = route.dwForwardIfIndex;
-            this.Interface = NetworkInterface.GetAllNetworkInterfaces()
-                .First(nic =>
-                {
-                    var ipp = nic.GetIPProperties();
-                    if (nic.Supports(NetworkInterfaceComponent.IPv4))
-                    {
-                        return ipp.GetIPv4Properties().Index == this.Index;
-                    }
+            this.Interface = NetworkInterface.GetAllNetworkInterfaces().First(nic =>
+            {
+                var ipp = nic.GetIPProperties();
 
-                    return false;
-                });
+                if (nic.Supports(NetworkInterfaceComponent.IPv4))
+                {
+                    return ipp.GetIPv4Properties().Index == this.Index;
+                }
+
+                return false;
+            });
+
+            if (this.Interface == null)
+                return false;
 
             var addr = this.Interface.GetIPProperties().UnicastAddresses.First(ipf =>
             {

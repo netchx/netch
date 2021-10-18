@@ -45,7 +45,16 @@ namespace Netch.Models.Server
         ///     解析地址
         /// </summary>
         /// <returns></returns>
-        public string Resolve() => (Utils.DNS.Fetch(this.Host) != IPAddress.Any) ? Utils.DNS.Fetch(this.Host).ToString() : this.Host;
+        public string Resolve()
+        {
+            var addr = Utils.DNS.Fetch(this.Host);
+            while (addr == IPAddress.Any)
+            {
+                addr = Utils.DNS.Fetch(this.Host);
+            }
+
+            return addr.ToString();
+        }
 
         /// <summary>
         ///     获取备注

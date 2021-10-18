@@ -12,7 +12,7 @@ namespace Netch.Controllers.Server
         {
             StartInfo = new ProcessStartInfo()
             {
-                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\Shadowsocks.exe"),
+                FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\ss-local.exe"),
                 WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin"),
                 CreateNoWindow = true,
                 UseShellExecute = false,

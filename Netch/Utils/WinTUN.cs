@@ -6,7 +6,7 @@ namespace Netch.Utils
     public static class WinTUN
     {
         public static string oPath = Path.Combine(Environment.SystemDirectory, "wintun.dll");
-        public static string nPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\wintun.bin");
+        public static string nPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin\\wintun.dll");
 
         /// <summary>
         ///     注册 WinTUN 驱动

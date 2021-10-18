@@ -12,6 +12,14 @@ namespace Netch.Controllers.Mode
             AIO_FILTERICMP,
             AIO_FILTERTCP,
             AIO_FILTERUDP,
+            AIO_FILTERDNS,
+
+            AIO_ICMPING,
+
+            AIO_DNSONLY,
+            AIO_DNSPROX,
+            AIO_DNSHOST,
+            AIO_DNSPORT,
 
             AIO_TGTHOST,
             AIO_TGTPORT,
@@ -46,10 +54,21 @@ namespace Netch.Controllers.Mode
             Global.Logger.Info(String.Format("{0:x} Redirector.bin", Utils.FileHelper.Checksum("bin\\Redirector.bin")));
 
             var mode = m as Models.Mode.ProcessMode.ProcessMode;
-            Methods.aio_dial(NameList.AIO_FILTERLOOPBACK, mode.Loopback ? "true" : "false");
-            Methods.aio_dial(NameList.AIO_FILTERINTRANET, mode.Intranet ? "true" : "false");
-            Methods.aio_dial(NameList.AIO_FILTERTCP, mode.TCP ? "true" : "false");
-            Methods.aio_dial(NameList.AIO_FILTERUDP, mode.UDP ? "true" : "false");
+            Methods.aio_dial(NameList.AIO_FILTERLOOPBACK, mode.Loopback.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_FILTERINTRANET, mode.Intranet.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_FILTERTCP, mode.TCP.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_FILTERUDP, mode.UDP.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_FILTERDNS, mode.DNS.ToString().ToLower());
+
+            Methods.aio_dial(NameList.AIO_ICMPING, Global.Config.ProcessMode.Icmping.ToString());
+
+            Methods.aio_dial(NameList.AIO_DNSONLY, Global.Config.ProcessMode.DNSOnly.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_DNSPROX, Global.Config.ProcessMode.DNSProx.ToString().ToLower());
+            Methods.aio_dial(NameList.AIO_DNSHOST, Global.Config.ProcessMode.DNSHost);
+            Methods.aio_dial(NameList.AIO_DNSPORT, Global.Config.ProcessMode.DNSPort.ToString());
+
+            Methods.aio_dial(NameList.AIO_TGTUSER, "");
+            Methods.aio_dial(NameList.AIO_TGTPASS, "");
 
             Methods.aio_dial(NameList.AIO_CLRNAME, "");
             Methods.aio_dial(NameList.AIO_BYPNAME, AppDomain.CurrentDomain.BaseDirectory.Replace("\\", "\\\\"));
@@ -65,14 +84,10 @@ namespace Netch.Controllers.Mode
                         Methods.aio_dial(NameList.AIO_TGTPORT, node.Port.ToString());
 
                         if (!String.IsNullOrEmpty(node.Username))
-                        {
                             Methods.aio_dial(NameList.AIO_TGTUSER, node.Username);
-                        }
 
                         if (!String.IsNullOrEmpty(node.Password))
-                        {
                             Methods.aio_dial(NameList.AIO_TGTPASS, node.Password);
-                        }
                     }
                     break;
                 default:

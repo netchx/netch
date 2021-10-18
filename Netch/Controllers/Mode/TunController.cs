@@ -60,7 +60,7 @@ namespace Netch.Controllers.Mode
             public static extern ulong tun_getDL();
         }
 
-        private Tools.TunTap.Outbound Outbound = new();
+        private Tools.Outbound Outbound = new();
         private Interface.IController DNSController;
 
         private bool AssignInterface()
@@ -70,9 +70,7 @@ namespace Netch.Controllers.Mode
             var address = Global.Config.TunMode.Network.Split('/')[0];
             var netmask = byte.Parse(Global.Config.TunMode.Network.Split('/')[1]);
             if (!Utils.RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork, address, netmask, index))
-            {
                 return false;
-            }
 
             NetworkInterface adapter = Utils.RouteHelper.GetInterfaceByIndex(index);
             if (adapter == null)
@@ -197,43 +195,28 @@ namespace Netch.Controllers.Mode
             }
 
             if (!Methods.tun_init())
-            {
                 return false;
-            }
 
             if (Global.Config.Generic.AioDNS)
-            {
                 this.DNSController = new Other.DNS.AioDNSController();
-            }
             else
-            {
                 this.DNSController = new Other.DNS.DNSProxyController();
-            }
 
             if (!this.DNSController.Create(s, m))
-            {
                 return false;
-            }
 
             if (!this.AssignInterface())
-            {
                 return false;
-            }
 
             if (!this.CreateServerRoute(s))
-            {
                 return false;
-            }
 
             if (!this.CreateHandleRoute(mode))
-            {
                 return false;
-            }
 
             if (File.Exists("ipcidr.txt"))
-            {
                 File.Delete("ipcidr.txt");
-            }
+
             return true;
         }
 
