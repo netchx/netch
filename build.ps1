@@ -15,11 +15,11 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $True,
+	$PublishSingleFile = $True,
 
 	[Parameter()]
 	[bool]
-	$PublishSingleFile = $True
+	$PublishReadyToRun = $True
 )
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
@@ -55,8 +55,9 @@ if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
 		-p:Platform='x64' `
 		-p:SelfContained=$SelfContained `
 		-p:PublishTrimmed=$SelfContained `
-		-p:PublishReadyToRun=$PublishReadyToRun `
 		-p:PublishSingleFile=$PublishSingleFile `
+		-p:PublishReadyToRun=$PublishReadyToRun `
+		-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
 		-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
 		-o ".\Netch\bin\$Configuration" `
 		'.\Netch\Netch.csproj'
