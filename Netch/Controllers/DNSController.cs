@@ -23,8 +23,8 @@ namespace Netch.Controllers
             var listenAddress = Global.Settings.LocalAddress;
 
             Dial(NameList.TYPE_REST, "");
-            Dial(NameList.TYPE_ADDR, $"{listenAddress}:{aioDnsConfig.ListenPort}");
             Dial(NameList.TYPE_LIST, Path.GetFullPath(Constants.AioDnsRuleFile));
+            Dial(NameList.TYPE_LISN, $"{listenAddress}:{aioDnsConfig.ListenPort}");
             Dial(NameList.TYPE_CDNS, $"{aioDnsConfig.ChinaDNS}");
             Dial(NameList.TYPE_ODNS, $"{aioDnsConfig.OtherDNS}");
 

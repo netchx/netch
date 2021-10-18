@@ -37,8 +37,8 @@ namespace Netch.Interops
         public enum NameList
         {
             TYPE_REST,
-            TYPE_ADDR,
             TYPE_LIST,
+            TYPE_LISN,
             TYPE_CDNS,
             TYPE_ODNS
         }
