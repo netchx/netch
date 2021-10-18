@@ -15,7 +15,7 @@ namespace Netch.Servers
 
         protected override IEnumerable<string> StartedKeywords => new[] { "listening at" };
 
-        protected override IEnumerable<string> FailedKeywords => new[] { "Invalid config path", "usage", "plugin service exit unexpectedly" };
+        protected override IEnumerable<string> FailedKeywords => new[] { "error", "failed to start plguin" };
 
         public override string Name => "Shadowsocks";
 
@@ -29,13 +29,10 @@ namespace Netch.Servers
 
             var arguments = new object?[]
             {
-                "-s", await server.AutoResolveHostnameAsync(),
-                "-p", server.Port,
-                "-b", this.LocalAddress(),
-                "-l", this.Socks5LocalPort(),
+                "-s", $"{await server.AutoResolveHostnameAsync()}:{server.Port}",
+                "-b", $"{this.LocalAddress()}:{this.Socks5LocalPort()}",
                 "-m", server.EncryptMethod,
                 "-k", server.Password,
-                "-u", SpecialArgument.Flag,
                 "--plugin", server.Plugin,
                 "--plugin-opts", server.PluginOption
             };
