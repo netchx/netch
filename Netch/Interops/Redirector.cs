@@ -18,6 +18,8 @@ namespace Netch.Interops
 
             AIO_ICMPING,
 
+            AIO_DNSONLY,
+            AIO_DNSPROX,
             AIO_DNSHOST,
             AIO_DNSPORT,
 
@@ -50,6 +52,12 @@ namespace Netch.Interops
         private const string Redirector_bin = "Redirector.bin";
 
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_register([MarshalAs(UnmanagedType.LPWStr)] string value);
+
+        [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool aio_unregister([MarshalAs(UnmanagedType.LPWStr)] string value);
+
+        [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool aio_dial(NameList name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
@@ -58,12 +66,10 @@ namespace Netch.Interops
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern bool aio_free();
 
-        /*
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong aio_getUP();
 
         [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong aio_getDL();
-        */
     }
 }

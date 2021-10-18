@@ -53,6 +53,8 @@ namespace Netch.Controllers
 
             // DNS
             Dial(NameList.AIO_FILTERDNS, _rdrConfig.DNSHijack.ToString().ToLower());
+            Dial(NameList.AIO_DNSONLY, "false");
+            Dial(NameList.AIO_DNSPROX, "true");
             if (_rdrConfig.DNSHijack)
             {
                 var dns = new Uri(DnsUtils.AppendScheme(DnsUtils.AppendPort(_rdrConfig.DNSHijackHost), "udp"));
@@ -202,15 +204,13 @@ namespace Netch.Controllers
             }
 
             // 注册驱动文件
-            var result = NFAPI.nf_registerDriver("netfilter2");
-            if (result == NF_STATUS.NF_STATUS_SUCCESS)
+            if (Redirector.aio_register("netfilter2"))
             {
                 Log.Information("Install netfilter2 driver finished");
             }
             else
             {
-                Log.Error("Register netfilter2 failed: {Result}", result);
-                throw new MessageException($"Register netfilter2 failed\n{result}");
+                Log.Error("Register netfilter2 failed");
             }
         }
 
@@ -237,7 +237,7 @@ namespace Netch.Controllers
             if (!File.Exists(SystemDriver))
                 return true;
 
-            NFAPI.nf_unRegisterDriver("netfilter2");
+            Redirector.aio_unregister("netfilter2");
             File.Delete(SystemDriver);
 
             return true;
