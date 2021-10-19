@@ -352,19 +352,11 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 	auto remote = udpContext[id];
 	udpContextLock.unlock();
 
-	UP += length;
+	if (remote->tcpSocket == INVALID_SOCKET && !remote->Associate())
+		return;
 
-	if (remote->tcpSocket == INVALID_SOCKET || remote->udpSocket == INVALID_SOCKET)
+	if (remote->udpSocket == INVALID_SOCKET)
 	{
-		if (remote->tcpSocket) closesocket(remote->tcpSocket);
-		if (remote->udpSocket) closesocket(remote->udpSocket);
-
-		remote->tcpSocket = INVALID_SOCKET;
-		remote->udpSocket = INVALID_SOCKET;
-
-		if (!remote->Associate())
-			return;
-
 		if (!remote->CreateUDP())
 			return;
 
@@ -374,14 +366,8 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		thread(udpReceiveHandler, id, remote, option).detach();
 	}
 
-	if (remote->Send((PSOCKADDR_IN6)target, buffer, length) != length)
-	{
-		if (remote->tcpSocket) closesocket(remote->tcpSocket);
-		if (remote->udpSocket) closesocket(remote->udpSocket);
-
-		remote->tcpSocket = INVALID_SOCKET;
-		remote->udpSocket = INVALID_SOCKET;
-	}
+	if (remote->Send((PSOCKADDR_IN6)target, buffer, length) == length)
+		UP += length;
 }
 
 void udpCanReceive(ENDPOINT_ID id)
