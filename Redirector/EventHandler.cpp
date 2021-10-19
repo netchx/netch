@@ -146,12 +146,21 @@ bool eh_init()
 	if (!DNSHandler::INIT())
 		return false;
 
-	return TCPHandler::INIT();
+	if (!TCPHandler::INIT())
+		return false;
+
+	return true;
 }
 
 void eh_free()
 {
+	lock_guard<mutex> lg(udpContextLock);
+
 	TCPHandler::FREE();
+
+	for (auto i : udpContext)
+		delete i.second;
+	udpContext.clear();
 
 	UP = 0;
 	DL = 0;
