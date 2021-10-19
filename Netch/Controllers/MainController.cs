@@ -115,8 +115,8 @@ namespace Netch.Controllers
 
             var tasks = new[]
             {
-                Task.Run(() => ServerController?.StopAsync()),
-                Task.Run(() => ModeController?.StopAsync())
+                ServerController?.StopAsync() ?? Task.CompletedTask,
+                ModeController?.StopAsync() ?? Task.CompletedTask
             };
 
             try
