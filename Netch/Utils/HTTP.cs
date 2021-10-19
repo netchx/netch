@@ -6,6 +6,15 @@ namespace Netch.Utils
 {
     public static class HTTP
     {
+        static HTTP()
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls;
+
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls11;
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls13;
+        }
+
         /// <summary>
         ///     User Agent
         /// </summary>
@@ -19,7 +28,7 @@ namespace Netch.Utils
         /// <returns></returns>
         public static HttpWebRequest CreateRequest(string url, int timeout = 0)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
+            var request = WebRequest.Create(url) as HttpWebRequest;
             request.UserAgent = DefaultUA;
             request.Accept = "*/*";
             request.KeepAlive = true;
@@ -31,7 +40,7 @@ namespace Netch.Utils
         public static string GetString(string url)
         {
             var request = CreateRequest(url, 10000);
-            var response = (HttpWebResponse)request.GetResponse();
+            var response = request.GetResponse() as HttpWebResponse;
 
             using (var rs = response.GetResponseStream())
             {
@@ -45,7 +54,7 @@ namespace Netch.Utils
         public static string GetString(string url, int timeout)
         {
             var request = CreateRequest(url, timeout);
-            var response = (HttpWebResponse)request.GetResponse();
+            var response = request.GetResponse() as HttpWebResponse;
 
             using (var rs = response.GetResponseStream())
             {
@@ -58,7 +67,7 @@ namespace Netch.Utils
 
         public static string GetString(HttpWebRequest request)
         {
-            var response = (HttpWebResponse)request.GetResponse();
+            var response = request.GetResponse() as HttpWebResponse;
 
             using (var rs = response.GetResponseStream())
             {
