@@ -11,11 +11,11 @@ param (
 
 	[Parameter()]
 	[bool]
-	$SelfContained = $True,
+	$SelfContained = $False,
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $True,
+	$PublishReadyToRun = $False,
 
 	[Parameter()]
 	[bool]
@@ -32,7 +32,7 @@ dotnet publish `
 	-r 'win-x64' `
 	-p:Platform='x64' `
 	-p:SelfContained=$SelfContained `
-	-p:PublishTrimmed=$SelfContained `
+	-p:PublishTrimmed=$False `
 	-p:PublishReadyToRun=$PublishReadyToRun `
 	-p:PublishSingleFile=$PublishSingleFile `
 	-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
