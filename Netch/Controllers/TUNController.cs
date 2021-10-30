@@ -37,6 +37,8 @@ namespace Netch.Controllers
 
             if (server is Socks5LocalServer socks5Bridge)
                 _serverRemoteAddress = await DnsUtils.LookupAsync(socks5Bridge.RemoteHostname);
+            else
+                _serverRemoteAddress = await DnsUtils.LookupAsync(server.Hostname);
 
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
                 _serverRemoteAddress = null;
