@@ -19,6 +19,7 @@ using Netch.Enums;
 using Netch.Forms.ModeForms;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Models.Modes;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
@@ -57,7 +58,7 @@ namespace Netch.Forms
         private void AddAddServerToolStripMenuItems()
         {
             foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.OrderBy(i => i.Priority)
-                .Where(i => !string.IsNullOrEmpty(i.FullName)))
+                         .Where(i => !string.IsNullOrEmpty(i.FullName)))
             {
                 var fullName = serversUtil.FullName;
                 var control = new ToolStripMenuItem
@@ -83,10 +84,7 @@ namespace Netch.Forms
             SelectLastServer();
             DelayTestHelper.UpdateTick(true);
 
-            ModeHelper.InitWatcher();
-            ModeHelper.Load();
-            LoadModes();
-            SelectLastMode();
+            ModeService.Instance.Load();
 
             // 加载翻译
             TranslateControls();
@@ -109,7 +107,7 @@ namespace Netch.Forms
             if (Global.Settings.StartWhenOpened)
                 ControlButton.PerformClick();
 
-            Netch.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
+            Program.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
         }
 
         private void RecordSize()
@@ -262,6 +260,19 @@ namespace Netch.Forms
             Show();
         }
 
+        private void ReloadModesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Enabled = false;
+            try
+            {
+                ModeService.Instance.Load();
+            }
+            finally
+            {
+                Enabled = true;
+            }
+        }
+
         #endregion
 
         #region Subscription
@@ -395,9 +406,9 @@ namespace Netch.Forms
 
         private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Netch.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Program.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
             var visible = windowStyles.HasFlag(WINDOW_STYLE.WS_VISIBLE);
-            PInvoke.ShowWindow(Netch.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
+            PInvoke.ShowWindow(Program.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
         }
 
         #endregion
@@ -467,7 +478,6 @@ namespace Netch.Forms
                         throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
                 }
 
-                ModeHelper.SuspendWatcher = true;
                 await StopAsync();
                 await Configuration.SaveAsync();
 
@@ -475,7 +485,7 @@ namespace Netch.Forms
                 await Task.Run(updater.ApplyUpdate);
 
                 // release mutex, exit
-                Netch.SingleInstance.Dispose();
+                Program.SingleInstance.Dispose();
                 Process.Start(Global.NetchExecutable);
                 Environment.Exit(0);
             }
@@ -768,25 +778,26 @@ namespace Netch.Forms
             var mode = (Mode)ModeComboBox.SelectedItem;
             if (ModifierKeys == Keys.Control)
             {
-                Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                Utils.Utils.Open(mode.FullName);
                 return;
             }
 
             switch (mode.Type)
             {
-                case ModeType.Process:
+                case ModeType.ProcessMode:
                     Hide();
                     new ProcessForm(mode).ShowDialog();
                     Show();
                     break;
-                case ModeType.ProxyRuleIPs:
-                case ModeType.BypassRuleIPs:
+                case ModeType.TunMode:
                     Hide();
                     new RouteForm(mode).ShowDialog();
                     Show();
                     break;
+                case ModeType.ShareMode:
+                // throw new NotImplementedException();
                 default:
-                    Utils.Utils.Open(ModeHelper.GetFullPath(mode.RelativePath!));
+                    Utils.Utils.Open(mode.FullName);
                     break;
             }
         }
@@ -800,7 +811,7 @@ namespace Netch.Forms
                 return;
             }
 
-            ModeHelper.Delete((Mode)ModeComboBox.SelectedItem);
+            ModeService.Delete((Mode)ModeComboBox.SelectedItem);
             SelectLastMode();
         }
 
@@ -1492,6 +1503,7 @@ namespace Netch.Forms
                 }
                 case Mode item:
                 {
+                    /*
                     // 绘制 模式Box 底色
                     e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
@@ -1502,6 +1514,7 @@ namespace Netch.Forms
                         new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
                         Color.Black,
                         TextFormatFlags.Left);
+                        */
 
                     break;
                 }

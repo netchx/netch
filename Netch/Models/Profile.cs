@@ -1,4 +1,6 @@
-﻿namespace Netch.Models
+﻿using Netch.Models.Modes;
+
+namespace Netch.Models
 {
     public class Profile
     {
@@ -13,7 +15,7 @@
         public Profile(Server server, Mode mode, string name, int index)
         {
             ServerRemark = server.Remark;
-            ModeRemark = mode.Remark;
+            ModeRemark = mode.i18NRemark;
             ProfileName = name;
             Index = index;
         }

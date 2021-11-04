@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +8,8 @@ using Microsoft.VisualStudio.Threading;
 using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Models.Modes;
+using Netch.Models.Modes.ShareMode;
 using Netch.Servers;
 using Netch.Utils;
 
@@ -18,8 +18,8 @@ namespace Netch.Controllers
     public class PcapController : Guard, IModeController
     {
         private readonly LogForm _form;
-        private Mode? _mode;
-        private Server? _server;
+        private ShareMode _mode = null!;
+        private Socks5Server _server = null!;
 
         public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)
         {
@@ -31,20 +31,25 @@ namespace Netch.Controllers
 
         public override string Name => "pcap2socks";
 
+        public ModeFeature Features => 0;
+
         public async Task StartAsync(Socks5Server server, Mode mode)
         {
+            if (mode is not ShareMode shareMode)
+                throw new InvalidOperationException();
+
             _server = server;
-            _mode = mode;
+            _mode = shareMode;
 
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
             var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
-            if (_server is Socks5Server socks5 && !socks5.Auth())
-                argument.Append($" --destination  {await socks5.AutoResolveHostnameAsync()}:{socks5.Port}");
+            if (!_server.Auth())
+                argument.Append($" --destination  {await _server.AutoResolveHostnameAsync()}:{_server.Port}");
             else
-                Trace.Assert(false);
+                throw new InvalidOperationException();
 
-            argument.Append($" {_mode.GetRules().FirstOrDefault() ?? "-P n"}");
+            argument.Append($" {_mode.Argument}");
             await StartGuardAsync(argument.ToString());
         }
 

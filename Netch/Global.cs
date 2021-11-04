@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 using System.Windows.Forms;
 using Netch.Forms;
 using Netch.Models;
+using Netch.Models.Modes;
 
 namespace Netch
 {

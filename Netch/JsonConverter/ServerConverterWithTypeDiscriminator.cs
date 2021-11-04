@@ -8,8 +8,6 @@ namespace Netch.JsonConverter
 {
     public class ServerConverterWithTypeDiscriminator : JsonConverter<Server>
     {
-        public override bool CanConvert(Type typeToConvert) => typeToConvert == typeof(Server);
-
         public override Server Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var jsonElement = JsonSerializer.Deserialize<JsonElement>(ref reader);

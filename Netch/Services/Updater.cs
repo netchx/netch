@@ -13,19 +13,13 @@ namespace Netch.Services
 {
     public class Updater
     {
-        #region Static
-
-        #endregion
-
-        #region Class
-
         private string UpdateFile { get; }
 
         private string InstallDirectory { get; }
 
         private readonly string _tempDirectory;
         private static readonly string[] KeepDirectories = { "data", "mode\\Custom", "logging" };
-        private static readonly string[] KeepFiles = { ModeHelper.DisableModeDirectoryFileName };
+        private static readonly string[] KeepFiles = { Constants.DisableModeDirectoryFileName };
 
         internal Updater(string updateFile, string installDirectory)
         {
@@ -140,8 +134,6 @@ namespace Netch.Services
                     // ignored
                 }
         }
-
-        #endregion
 
         #endregion
     }

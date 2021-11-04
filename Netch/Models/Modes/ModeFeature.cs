@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Netch.Enums
+namespace Netch.Models.Modes
 {
     [Flags]
     public enum ModeFeature

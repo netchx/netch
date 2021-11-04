@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -64,8 +62,7 @@ namespace Netch.Utils
                         Cache6.Add(hostname, result);
                         break;
                     default:
-                        Trace.Assert(false);
-                        break;
+                        throw new ArgumentOutOfRangeException();
                 }
 
                 return result;
@@ -74,32 +71,10 @@ namespace Netch.Utils
             return null;
         }
 
-        /// <summary>
-        ///     查询
-        /// </summary>
-        /// <param name="hostname">主机名</param>
-        /// <returns></returns>
         public static void ClearCache()
         {
             Cache.Clear();
             Cache6.Clear();
-        }
-
-        public static IEnumerable<string> Split(string dns)
-        {
-            return dns.SplitRemoveEmptyEntriesAndTrimEntries(',');
-        }
-
-        public static bool TrySplit(string value, out IEnumerable<string> result, ushort maxCount = 0)
-        {
-            result = Split(value).ToArray();
-
-            return maxCount == 0 || result.Count() <= maxCount && result.All(ip => IPAddress.TryParse(ip, out _));
-        }
-
-        public static string Join(IEnumerable<string> dns)
-        {
-            return string.Join(",", dns);
         }
 
         public static string AppendPort(string host, ushort port = 53)
@@ -108,14 +83,6 @@ namespace Netch.Utils
                 return host + $":{port}";
 
             return host;
-        }
-
-        public static string AppendScheme(string value, string scheme = "tcp")
-        {
-            if (!value.Contains(Uri.SchemeDelimiter))
-                return scheme + Uri.SchemeDelimiter + value;
-
-            return value;
         }
     }
 }

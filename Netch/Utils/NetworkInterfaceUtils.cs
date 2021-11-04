@@ -5,8 +5,8 @@ using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using Netch.Models;
 using Windows.Win32;
+using Netch.Models;
 
 namespace Netch.Utils
 {
@@ -15,14 +15,15 @@ namespace Netch.Utils
         public static NetworkInterface GetBest(AddressFamily addressFamily = AddressFamily.InterNetwork)
         {
             string ipAddress;
-            if (addressFamily == AddressFamily.InterNetwork)
+            switch (addressFamily)
             {
-                ipAddress = "114.114.114.114";
-            }
-            else
-            {
-                Trace.Assert(addressFamily == AddressFamily.InterNetworkV6);
-                throw new NotImplementedException();
+                case AddressFamily.InterNetwork:
+                    ipAddress = "114.114.114.114";
+                    break;
+                case AddressFamily.InterNetworkV6:
+                    throw new NotImplementedException();
+                default:
+                    throw new InvalidOperationException();
             }
 
             if (PInvoke.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)

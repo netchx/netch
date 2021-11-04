@@ -86,6 +86,7 @@
             this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.ButtomControlContainerControl = new System.Windows.Forms.ContainerControl();
+            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuStrip.SuspendLayout();
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
@@ -144,7 +145,8 @@
             // 
             this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.CreateProcessModeToolStripMenuItem,
-            this.CreateRouteTableRuleToolStripMenuItem});
+            this.CreateRouteTableRuleToolStripMenuItem,
+            this.ReloadModesToolStripMenuItem});
             this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
             this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
@@ -620,19 +622,19 @@
             this.ExitToolStripButton});
             this.NotifyMenu.Name = "NotifyMenu";
             this.NotifyMenu.ShowItemToolTips = false;
-            this.NotifyMenu.Size = new System.Drawing.Size(181, 70);
+            this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
             // 
             // ShowMainFormToolStripButton
             // 
             this.ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
-            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(180, 22);
+            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(107, 22);
             this.ShowMainFormToolStripButton.Text = "Show";
             this.ShowMainFormToolStripButton.Click += new System.EventHandler(this.ShowMainFormToolStripButton_Click);
             // 
             // ExitToolStripButton
             // 
             this.ExitToolStripButton.Name = "ExitToolStripButton";
-            this.ExitToolStripButton.Size = new System.Drawing.Size(180, 22);
+            this.ExitToolStripButton.Size = new System.Drawing.Size(107, 22);
             this.ExitToolStripButton.Text = "Exit";
             this.ExitToolStripButton.Click += new System.EventHandler(this.ExitToolStripButton_Click);
             // 
@@ -696,6 +698,13 @@
             this.ButtomControlContainerControl.TabIndex = 14;
             this.ButtomControlContainerControl.TabStop = false;
             this.ButtomControlContainerControl.Text = "groupBox1";
+            // 
+            // ReloadModesToolStripMenuItem
+            // 
+            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
+            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
+            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -804,5 +813,6 @@
         private System.Windows.Forms.ContainerControl ButtomControlContainerControl;
         private System.Windows.Forms.ToolStripMenuItem ShowHideConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel HttpStatusLabel;
+        private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
     }
 }

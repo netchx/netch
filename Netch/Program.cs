@@ -25,9 +25,9 @@ using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Netch
 {
-    public static class Netch
+    public static class Program
     {
-        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
+        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Program)}");
 
         internal static HWND ConsoleHwnd { get; private set; }
 
@@ -115,12 +115,14 @@ namespace Netch
             Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
             Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
 
+#if RELEASE
             if (Log.IsEnabled(LogEventLevel.Debug))
             {
                 // TODO log level setting
                 Task.Run(() => Log.Debug("Third-party Drivers:\n{Drivers}", string.Join(Constants.EOF, SystemInfo.SystemDrivers(false)))).Forget();
                 Task.Run(() => Log.Debug("Running Processes: \n{Processes}", string.Join(Constants.EOF, SystemInfo.Processes(false)))).Forget();
             }
+#endif
         }
 
         private static void CheckClr()

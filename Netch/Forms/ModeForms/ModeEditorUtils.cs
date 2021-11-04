@@ -20,7 +20,7 @@ namespace Netch.Forms.ModeForms
                 return string.Empty;
 
             var safeFileName = ToSafeFileName(name);
-            var relativePath = $"Custom\\{safeFileName}.txt";
+            var relativePath = $"Custom\\{safeFileName}.json";
             return relativePath;
         }
     }

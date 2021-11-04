@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using Netch.Interfaces;
-using Netch.Interops;
 using Netch.Models;
+using Netch.Models.Modes;
+using Netch.Models.Modes.ProcessMode;
 using Netch.Servers;
 using Netch.Utils;
 using Serilog;
@@ -17,7 +19,7 @@ namespace Netch.Controllers
     public class NFController : IModeController
     {
         private Server? _server;
-        private Mode? _mode;
+        private Redirector _mode = null!;
         private RedirectorConfig _rdrConfig = null!;
 
         private static readonly ServiceController NFService = new("netfilter2");
@@ -26,41 +28,55 @@ namespace Netch.Controllers
 
         public string Name => "Redirector";
 
+        public ModeFeature Features => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth;
+
         public async Task StartAsync(Socks5Server server, Mode mode)
         {
+            if (mode is not Redirector processMode)
+                throw new InvalidOperationException();
+
             _server = server;
-            _mode = mode;
+            _mode = processMode;
             _rdrConfig = Global.Settings.Redirector;
+
             CheckDriver();
 
-            Dial(NameList.AIO_FILTERLOOPBACK, "false");
-            Dial(NameList.AIO_FILTERINTRANET, "true");
-            Dial(NameList.AIO_FILTERPARENT, _rdrConfig.ChildProcessHandle.ToString().ToLower());
-            Dial(NameList.AIO_FILTERICMP, _rdrConfig.FilterICMP.ToString().ToLower());
-            Dial(NameList.AIO_ICMPING, _rdrConfig.ICMPDelay.ToString());
+            Dial(NameList.AIO_FILTERLOOPBACK, _mode.FilterLoopback);
+            Dial(NameList.AIO_FILTERINTRANET, _mode.FilterIntranet);
+            Dial(NameList.AIO_FILTERPARENT, _mode.FilterParent ?? _rdrConfig.HandleOnlyDNS);
+            Dial(NameList.AIO_FILTERICMP, _mode.FilterICMP ?? _rdrConfig.FilterICMP);
+            if (_mode.FilterICMP ?? _rdrConfig.FilterICMP)
+                Dial(NameList.AIO_ICMPING, (_mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay).ToString());
+
+            Dial(NameList.AIO_FILTERTCP, _mode.FilterTCP ?? _rdrConfig.FilterTCP);
+            Dial(NameList.AIO_FILTERUDP, _mode.FilterUDP ?? _rdrConfig.FilterUDP);
+
+            // DNS
+            Dial(NameList.AIO_FILTERDNS, _mode.FilterDNS ?? _rdrConfig.FilterDNS);
+            Dial(NameList.AIO_DNSONLY, _mode.HandleOnlyDNS ?? _rdrConfig.HandleOnlyDNS);
+            Dial(NameList.AIO_DNSPROX, _mode.DNSProxy ?? _rdrConfig.DNSProxy);
+            if (_mode.FilterDNS ?? _rdrConfig.FilterDNS)
+            {
+                var dnsStr = _mode.FilterDNS != null ? _mode.DNSHost : _rdrConfig.DNSHost;
+
+                dnsStr = dnsStr.ValueOrDefault() ?? Constants.DefaultPrimaryDNS;
+
+                var dns = IPEndPoint.Parse(dnsStr);
+                if (dns.Port == 0)
+                    dns.Port = 53;
+
+                Dial(NameList.AIO_DNSHOST, dns.Address.ToString());
+                Dial(NameList.AIO_DNSPORT, dns.Port.ToString());
+            }
 
             // Server
-            Dial(NameList.AIO_FILTERUDP, _rdrConfig.FilterProtocol.HasFlag(PortType.UDP).ToString().ToLower());
-            Dial(NameList.AIO_FILTERTCP, _rdrConfig.FilterProtocol.HasFlag(PortType.TCP).ToString().ToLower());
-
             Dial(NameList.AIO_TGTHOST, await server.AutoResolveHostnameAsync());
             Dial(NameList.AIO_TGTPORT, server.Port.ToString());
             Dial(NameList.AIO_TGTUSER, server.Username ?? string.Empty);
             Dial(NameList.AIO_TGTPASS, server.Password ?? string.Empty);
 
             // Mode Rule
-            DialRule(_mode);
-
-            // DNS
-            Dial(NameList.AIO_FILTERDNS, _rdrConfig.DNSHijack.ToString().ToLower());
-            Dial(NameList.AIO_DNSONLY, "false");
-            Dial(NameList.AIO_DNSPROX, "true");
-            if (_rdrConfig.DNSHijack)
-            {
-                var dns = new Uri(DnsUtils.AppendScheme(DnsUtils.AppendPort(_rdrConfig.DNSHijackHost), "udp"));
-                Dial(NameList.AIO_DNSHOST, dns.Host);
-                Dial(NameList.AIO_DNSPORT, dns.Port.ToString());
-            }
+            DialRule();
 
             if (!await InitAsync())
                 throw new MessageException("Redirector start failed.");
@@ -113,20 +129,18 @@ namespace Netch.Controllers
 
         #endregion
 
-        private void DialRule(Mode mode)
+        private void DialRule()
         {
             Dial(NameList.AIO_CLRNAME, "");
             var invalidList = new List<string>();
-            foreach (var s in mode.GetRules())
+            foreach (var s in _mode.Bypass)
             {
-                if (s.StartsWith("!"))
-                {
-                    if (!Dial(NameList.AIO_BYPNAME, s.Substring(1)))
-                        invalidList.Add(s);
+                if (!Dial(NameList.AIO_BYPNAME, s))
+                    invalidList.Add(s);
+            }
 
-                    continue;
-                }
-
+            foreach (var s in _mode.Handle)
+            {
                 if (!Dial(NameList.AIO_ADDNAME, s))
                     invalidList.Add(s);
             }
@@ -204,7 +218,7 @@ namespace Netch.Controllers
             }
 
             // 注册驱动文件
-            if (Redirector.aio_register("netfilter2"))
+            if (Interops.Redirector.aio_register("netfilter2"))
             {
                 Log.Information("Install netfilter2 driver finished");
             }
@@ -237,7 +251,7 @@ namespace Netch.Controllers
             if (!File.Exists(SystemDriver))
                 return true;
 
-            Redirector.aio_unregister("netfilter2");
+            Interops.Redirector.aio_unregister("netfilter2");
             File.Delete(SystemDriver);
 
             return true;

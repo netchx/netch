@@ -4,10 +4,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Threading;
-using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Models.Modes;
 using Netch.Servers;
+using Netch.Services;
 using Netch.Utils;
 using Serilog;
 
@@ -24,8 +25,6 @@ namespace Netch.Controllers
         public static IServerController? ServerController { get; private set; }
 
         public static IModeController? ModeController { get; private set; }
-
-        public static ModeFeature ModeFeatures { get; private set; }
 
         private static readonly AsyncSemaphore Lock = new(1);
 
@@ -49,12 +48,12 @@ namespace Netch.Controllers
 
             try
             {
-                (ModeController, ModeFeatures) = ModeHelper.GetModeControllerByType(mode.Type, out var modePort, out var portName);
+                ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
 
                 if (modePort != null)
                     TryReleaseTcpPort((ushort)modePort, portName);
 
-                if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeFeatures.HasFlag(ModeFeature.SupportSocks5Auth)))
+                if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
                 {
                     Socks5Server = socks5;
                 }
@@ -75,6 +74,7 @@ namespace Netch.Controllers
 
                 // Start Mode Controller
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+
                 await ModeController.StartAsync(Socks5Server, mode);
             }
             catch (Exception e)
@@ -130,7 +130,6 @@ namespace Netch.Controllers
 
             ServerController = null;
             ModeController = null;
-            ModeFeatures = 0;
         }
 
         public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)

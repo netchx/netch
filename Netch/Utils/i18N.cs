@@ -13,12 +13,10 @@ namespace Netch.Utils
 {
     public static class i18N
     {
-#if NET
         static i18N()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
-#endif
 
         /// <summary>
         ///     数据

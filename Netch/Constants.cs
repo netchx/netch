@@ -23,5 +23,9 @@
         }
 
         public const string WintunDllFile = "bin\\wintun.dll";
+        public const string DisableModeDirectoryFileName = "disabled";
+
+        public const string DefaultPrimaryDNS = "1.1.1.1:53";
+        public const string DefaultCNPrimaryDNS = "223.5.5.5:53";
     }
 }

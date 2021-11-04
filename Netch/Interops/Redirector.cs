@@ -33,6 +33,12 @@ namespace Netch.Interops
             AIO_BYPNAME
         }
 
+        public static bool Dial(NameList name, bool value)
+        {
+            Log.Verbose($"[Redirector] Dial {name}: {value}");
+            return aio_dial(name, value.ToString().ToLower());
+        }
+
         public static bool Dial(NameList name, string value)
         {
             Log.Verbose($"[Redirector] Dial {name}: {value}");

@@ -1,23 +1,17 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
 using Serilog;
 
 namespace Netch.Forms
 {
-    public partial class SettingForm : Form
+    public partial class SettingForm : BindingForm
     {
-        private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();
-
-        private readonly Dictionary<Control, Action<Control>> _saveActions = new();
-
         public SettingForm()
         {
             InitializeComponent();
@@ -89,22 +83,25 @@ namespace Netch.Forms
 
             #region Process Mode
 
-            BindListComboBox(ProcessFilterProtocolComboBox,
-                s => Global.Settings.Redirector.FilterProtocol = (PortType)Enum.Parse(typeof(PortType), s.ToString(), false),
-                Enum.GetNames(typeof(PortType)),
-                Global.Settings.Redirector.FilterProtocol.ToString());
+            BindCheckBox(FilterTCPCheckBox, b => Global.Settings.Redirector.FilterTCP = b, Global.Settings.Redirector.FilterTCP);
+
+            BindCheckBox(FilterUDPCheckBox, b => Global.Settings.Redirector.FilterUDP = b, Global.Settings.Redirector.FilterUDP);
 
             BindCheckBox(FilterICMPCheckBox, b => Global.Settings.Redirector.FilterICMP = b, Global.Settings.Redirector.FilterICMP);
 
             BindTextBox<int>(ICMPDelayTextBox, s => true, s => Global.Settings.Redirector.ICMPDelay = s, Global.Settings.Redirector.ICMPDelay);
 
-            BindCheckBox(DNSHijackCheckBox, b => Global.Settings.Redirector.DNSHijack = b, Global.Settings.Redirector.DNSHijack);
+            BindCheckBox(FilterDNSCheckBox, b => Global.Settings.Redirector.FilterDNS = b, Global.Settings.Redirector.FilterDNS);
 
-            BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHijackHost = s, Global.Settings.Redirector.DNSHijackHost);
+            BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHost = s, Global.Settings.Redirector.DNSHost);
 
             BindCheckBox(ChildProcessHandleCheckBox,
-                s => Global.Settings.Redirector.ChildProcessHandle = s,
-                Global.Settings.Redirector.ChildProcessHandle);
+                s => Global.Settings.Redirector.FilterParent = s,
+                Global.Settings.Redirector.FilterParent);
+
+            BindCheckBox(DNSProxyCheckBox, b => Global.Settings.Redirector.DNSProxy = b, Global.Settings.Redirector.DNSProxy);
+
+            BindCheckBox(HandleProcDNSCheckBox, b => Global.Settings.Redirector.HandleOnlyDNS = b, Global.Settings.Redirector.HandleOnlyDNS);
 
             #endregion
 
@@ -237,7 +234,7 @@ namespace Netch.Forms
 
             #region Check
 
-            var checkNotPassControl = _checkActions.Where(pair => !pair.Value.Invoke(pair.Key.Text)).Select(pair => pair.Key).ToList();
+            var checkNotPassControl = GetCheckFailedControls();
             foreach (Control control in checkNotPassControl)
                 Utils.Utils.ChangeControlForeColor(control, Color.Red);
 
@@ -248,8 +245,7 @@ namespace Netch.Forms
 
             #region Save
 
-            foreach (var pair in _saveActions)
-                pair.Value.Invoke(pair.Key);
+            SaveBinds();
 
             #endregion
 
@@ -259,71 +255,5 @@ namespace Netch.Forms
             MessageBoxX.Show(i18N.Translate("Saved"));
             Close();
         }
-
-        #region BindUtils
-
-        private void BindTextBox(TextBox control, Func<string, bool> check, Action<string> save, object value)
-        {
-            BindTextBox<string>(control, check, save, value);
-        }
-
-        private void BindTextBox<T>(TextBox control, Func<T, bool> check, Action<T> save, object value)
-        {
-            control.Text = value.ToString();
-            _checkActions.Add(control,
-                s =>
-                {
-                    try
-                    {
-                        return check.Invoke((T)Convert.ChangeType(s, typeof(T)));
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-                });
-
-            _saveActions.Add(control, c => save.Invoke((T)Convert.ChangeType(((TextBox)c).Text, typeof(T))));
-        }
-
-        private void BindCheckBox(CheckBox control, Action<bool> save, bool value)
-        {
-            control.Checked = value;
-            _saveActions.Add(control, c => save.Invoke(((CheckBox)c).Checked));
-        }
-
-        private void BindRadioBox(RadioButton control, Action<bool> save, bool value)
-        {
-            control.Checked = value;
-            _saveActions.Add(control, c => save.Invoke(((RadioButton)c).Checked));
-        }
-
-        private void BindListComboBox<T>(ComboBox comboBox, Action<T> save, IEnumerable<T> values, T value) where T : notnull
-        {
-            if (comboBox.DropDownStyle != ComboBoxStyle.DropDownList)
-                throw new ArgumentOutOfRangeException();
-
-            var tagItems = values.Select(o => new TagItem<T>(o, o.ToString()!)).ToArray();
-            comboBox.Items.AddRange(tagItems.Cast<object>().ToArray());
-
-            comboBox.ValueMember = nameof(TagItem<T>.Value);
-            comboBox.DisplayMember = nameof(TagItem<T>.Text);
-
-            _saveActions.Add(comboBox, c => save.Invoke(((TagItem<T>)((ComboBox)c).SelectedItem).Value));
-            Load += (_, _) => { comboBox.SelectedItem = tagItems.SingleOrDefault(t => t.Value.Equals(value)); };
-        }
-
-        private void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)
-        {
-            if (values != null)
-                control.Items.AddRange(values);
-
-            _saveActions.Add(control, c => save.Invoke(((ComboBox)c).Text));
-            _checkActions.Add(control, check.Invoke);
-
-            Load += (_, _) => { control.Text = value; };
-        }
-
-        #endregion
     }
 }
