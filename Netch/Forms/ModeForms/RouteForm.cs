@@ -51,10 +51,10 @@ namespace Netch.Forms.ModeForms
                 RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
                 RemarkTextBox.Text = _mode.i18NRemark;
                 FilenameTextBox.Text = ModeService.Instance.GetRelativePath(_mode.FullName);
-            }
 
-            if (!_mode.FullName.EndsWith(".json"))
-                ControlButton.Enabled = false;
+                if (!_mode.FullName.EndsWith(".json"))
+                    ControlButton.Enabled = false;
+            }
 
             i18N.TranslateForm(this);
         }
@@ -93,7 +93,13 @@ namespace Netch.Forms.ModeForms
 
         private void RemarkTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
+            if (!IsHandleCreated)
+                return;
+
+            BeginInvoke(new Action(() =>
+            {
+                FilenameTextBox.Text = FilenameTextBox.Text = ModeEditorUtils.GetCustomModeRelativePath(RemarkTextBox.Text);
+            }));
         }
     }
 }

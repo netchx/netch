@@ -14,7 +14,7 @@ namespace Netch.Models.Modes
         [JsonIgnore]
         // File FullName
         // TODO maybe make it becomes mode dictionary key
-        public string FullName { get; set; } = null!;
+        public string FullName { get; set; } = string.Empty;
 
         public override string ToString() => $"[{(int)Type + 1}] {i18NRemark}";
 

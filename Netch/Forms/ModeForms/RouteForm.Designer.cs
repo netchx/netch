@@ -255,6 +255,7 @@ namespace Netch.Forms.ModeForms
             this.RemarkTextBox.Name = "RemarkTextBox";
             this.RemarkTextBox.Size = new System.Drawing.Size(341, 23);
             this.RemarkTextBox.TabIndex = 1;
+            this.RemarkTextBox.TextChanged += new System.EventHandler(this.RemarkTextBox_TextChanged);
             // 
             // FilenameLabel
             // 
