@@ -6,7 +6,7 @@ if ( -Not $? ) {
 }
 Set-Location src
 
-cargo build --release
+cargo build --features logging,trust-dns,local,utility,local-http,local-tunnel,local-socks4,multi-threaded,stream-cipher --release
 if ( -Not $? ) {
     exit $lastExitCode
 }
