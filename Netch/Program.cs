@@ -27,24 +27,29 @@ namespace Netch
 {
     public static class Program
     {
-        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Program)}");
+        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
         internal static HWND ConsoleHwnd { get; private set; }
 
-        /// <summary>
-        ///     应用程序的主入口点
-        /// </summary>
+#pragma warning disable VSTHRD002
+        // VSTHRD002: Avoid problematic synchronous waits
+        // Main never re-called, so we can ignore this
+
         [STAThread]
         public static void Main(string[] args)
         {
+            // handle arguments
             if (args.Contains(Constants.Parameter.ForceUpdate))
                 Flags.AlwaysShowNewVersionFound = true;
 
-            // 设置当前目录
+            // set working directory
             Directory.SetCurrentDirectory(Global.NetchDir);
+
+            // append .\bin to PATH
             var binPath = Path.Combine(Global.NetchDir, "bin");
             Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
 
+            // check if .\bin directory exists
             if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
             {
                 i18N.Load("System");
@@ -52,19 +57,19 @@ namespace Netch
                 Environment.Exit(2);
             }
 
+            // clean up old files
             Updater.CleanOld(Global.NetchDir);
 
-            // 预创建目录
+            // pre-create directories
             var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };
             foreach (var item in directories)
                 if (!Directory.Exists(item))
                     Directory.CreateDirectory(item);
 
-            // 加载配置
-#pragma warning disable VSTHRD002
+            // load configuration
             Configuration.LoadAsync().Wait();
-#pragma warning restore VSTHRD002
 
+            // check if the program is already running
             if (!SingleInstance.IsFirstInstance)
             {
                 SingleInstance.PassArgumentsToFirstInstance(args.Append(Constants.Parameter.Show));
@@ -74,7 +79,7 @@ namespace Netch
 
             SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
 
-            // 清理上一次的日志文件，防止淤积占用磁盘空间
+            // clean up old logs
             if (Directory.Exists("logging"))
             {
                 var directory = new DirectoryInfo("logging");
@@ -90,14 +95,15 @@ namespace Netch
 
             CreateLogger();
 
-            // 加载语言
+            // load i18n
             i18N.Load(Global.Settings.Language);
 
+            // log environment information
             Task.Run(LogEnvironment).Forget();
             CheckClr();
             CheckOS();
 
-            // 绑定错误捕获
+            // handle exceptions
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.ThreadException += Application_OnException;
             Application.ApplicationExit += Application_OnExit;
@@ -107,6 +113,8 @@ namespace Netch
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
         }
+
+#pragma warning restore VSTHRD002
 
         private static void LogEnvironment()
         {
@@ -167,6 +175,7 @@ namespace Netch
 
             ConsoleHwnd = PInvoke.GetConsoleWindow();
 #if RELEASE
+            // hide console window
             PInvoke.ShowWindow(ConsoleHwnd, SHOW_WINDOW_CMD.SW_HIDE);
 #endif
         }
@@ -202,7 +211,7 @@ namespace Netch
         {
             if (args.Contains(Constants.Parameter.Show))
             {
-                Global.MainForm.ShowMainFormToolStripButton_Click(null!, null!);
+                Utils.Utils.ActivateVisibleWindows();
             }
         }
     }

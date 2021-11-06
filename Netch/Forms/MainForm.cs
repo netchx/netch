@@ -884,82 +884,53 @@ namespace Netch.Forms
             }
         }
 
-        private void ActiveProfile(Profile profile)
-        {
-            ProfileNameText.Text = profile.ProfileName;
-
-            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
-            var mode = ModeComboBox.Items.Cast<Mode>().FirstOrDefault(m => m.Remark.Equals(profile.ModeRemark));
-
-            if (server == null)
-                throw new Exception("Server not found.");
-
-            if (mode == null)
-                throw new Exception("Mode not found.");
-
-            ServerComboBox.SelectedItem = server;
-            ModeComboBox.SelectedItem = mode;
-        }
-
-        private Profile CreateProfileAtIndex(int index)
-        {
-            var server = (Server)ServerComboBox.SelectedItem;
-            var mode = (Mode)ModeComboBox.SelectedItem;
-            var name = ProfileNameText.Text;
-
-            Profile? profile;
-            if ((profile = Global.Settings.Profiles.SingleOrDefault(p => p.Index == index)) != null)
-                Global.Settings.Profiles.Remove(profile);
-
-            profile = new Profile(server, mode, name, index);
-            Global.Settings.Profiles.Add(profile);
-            return profile;
-        }
-
         private async void ProfileButton_Click([NotNull] object? sender, EventArgs? e)
         {
             if (sender == null)
-                throw new ArgumentNullException(nameof(sender));
+                throw new InvalidOperationException();
 
-            var profileButton = (Button)sender;
-            var profile = (Profile?)profileButton.Tag;
-            var index = ProfileTable.Controls.IndexOf(profileButton);
+            var button = (Button)sender;
+            var profile = (Profile?)button.Tag;
+            var index = ProfileTable.Controls.IndexOf(button);
 
             switch (ModifierKeys)
             {
                 case Keys.Control:
-                    if (ServerComboBox.SelectedIndex == -1)
+                    // Save Profile
+                    if (ServerComboBox.SelectedItem is not Server server)
                     {
                         MessageBoxX.Show(i18N.Translate("Please select a server first"));
                         return;
                     }
 
-                    if (ModeComboBox.SelectedIndex == -1)
+                    if (ModeComboBox.SelectedItem is not Mode mode)
                     {
                         MessageBoxX.Show(i18N.Translate("Please select a mode first"));
                         return;
                     }
 
-                    if (ProfileNameText.Text == "")
-                    {
-                        MessageBoxX.Show(i18N.Translate("Please enter a profile name first"));
-                        ProfileNameText.Focus();
-                        return;
-                    }
+                    var name = ProfileNameText.Text;
 
-                    profileButton.Tag = profile = CreateProfileAtIndex(index);
-                    profileButton.Text = profile.ProfileName;
+                    Global.Settings.Profiles.RemoveAll(p => p.Index == index);
+                    profile = new Profile(server, mode, name, index);
+                    Global.Settings.Profiles.Add(profile);
+                    button.Tag = profile;
+                    button.Text = profile.ProfileName;
+
                     ProfileNameText.Clear();
                     return;
                 case Keys.Shift:
+                    // Delete Profile
                     if (profile == null)
                         return;
 
                     Global.Settings.Profiles.Remove(profile);
-                    profileButton.Tag = null;
-                    profileButton.Text = i18N.Translate("None");
+                    button.Tag = null;
+                    button.Text = i18N.Translate("None");
                     return;
             }
+
+            // Activate Profile
 
             if (profile == null)
             {
@@ -969,23 +940,29 @@ namespace Netch.Forms
 
             try
             {
-                ActiveProfile(profile);
+                ProfileNameText.Text = profile.ProfileName;
+
+                var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
+                var mode = ModeComboBox.Items.Cast<Mode>().FirstOrDefault(m => m.Remark.Any(s => s.Value.Equals(profile.ModeRemark)));
+
+                if (server == null)
+                    throw new MessageException("Server not found.");
+
+                if (mode == null)
+                    throw new MessageException("Mode not found.");
+
+                // set active server and mode
+                ServerComboBox.SelectedItem = server;
+                ModeComboBox.SelectedItem = mode;
             }
-            catch (Exception exception)
+            catch (MessageException exception)
             {
                 MessageBoxX.Show(exception.Message, LogLevel.ERROR);
                 return;
             }
 
-            // start the profile
-            ControlButton_Click(null, null);
-            if (State == State.Stopping || State == State.Stopped)
-            {
-                while (State != State.Stopped)
-                    await Task.Delay(250);
-
-                ControlButton_Click(null, null);
-            }
+            await StopAsync();
+            ControlButton.PerformClick();
         }
 
         #endregion
@@ -1259,7 +1236,7 @@ namespace Netch.Forms
 
         private bool _resumeFlag;
 
-        private void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
+        private async void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             switch (e.Mode)
             {
@@ -1268,7 +1245,7 @@ namespace Netch.Forms
                     {
                         _resumeFlag = true;
                         Log.Information("OS Suspend, Stop");
-                        ControlButton_Click(null, null);
+                        await StopAsync();
                     }
 
                     break;
@@ -1277,7 +1254,7 @@ namespace Netch.Forms
                     {
                         _resumeFlag = false;
                         Log.Information("OS Resume, Restart");
-                        ControlButton_Click(null, null);
+                        ControlButton.PerformClick();
                     }
 
                     break;
@@ -1307,7 +1284,7 @@ namespace Netch.Forms
             {
                 MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
 
-                NotifyIcon_MouseDoubleClick(null, null);
+                ShowMainFormToolStripButton.PerformClick();
                 return;
             }
 
@@ -1417,26 +1394,9 @@ namespace Netch.Forms
 
         #region NotifyIcon
 
-        public void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
+        private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new Action(() => ShowMainFormToolStripButton_Click(sender, e)));
-                return;
-            }
-
-            var forms = Application.OpenForms.Cast<Form>().ToList();
-            var anyWindowOpened = forms.Any(f => f is not (MainForm or LogForm));
-
-            forms.ForEach(f =>
-            {
-                if (anyWindowOpened && f is MainForm or LogForm)
-                    return;
-
-                f.Show();
-                f.WindowState = FormWindowState.Normal;
-                f.Activate();
-            });
+            Utils.Utils.ActivateVisibleWindows();
         }
 
         /// <summary>

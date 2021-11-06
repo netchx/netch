@@ -255,5 +255,17 @@ namespace Netch.Utils
             var endIndex = str.IndexOf(':');
             return endIndex == -1 ? str : str[..endIndex];
         }
+
+        public static void ActivateVisibleWindows()
+        {
+            foreach (var f in Application.OpenForms.Cast<Form>())
+            {
+                if (!f.Visible)
+                    continue;
+
+                f.WindowState = FormWindowState.Normal;
+                f.Activate();
+            }
+        }
     }
 }

@@ -66,13 +66,20 @@ namespace Netch.Forms
             _parent.LocationChanged += Parent_Move;
             _parent.SizeChanged += Parent_Move;
             _parent.Activated += Parent_Activated;
+            _parent.VisibleChanged += Parent_VisibleChanged;
+        }
+
+        private void Parent_VisibleChanged(object? sender, EventArgs e)
+        {
+            Visible = _parent.Visible;
         }
 
         protected override void OnClosing(CancelEventArgs? e)
         {
-            _parent.Activated -= Parent_Activated;
             _parent.LocationChanged -= Parent_Move;
             _parent.SizeChanged -= Parent_Move;
+            _parent.Activated -= Parent_Activated;
+            _parent.VisibleChanged -= Parent_VisibleChanged;
             base.OnClosing(e!);
         }
     }

@@ -32,7 +32,7 @@ namespace Netch.Controllers
         {
             using var releaser = await Lock.EnterAsync();
 
-            Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.Remark}");
+            Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.i18NRemark}");
 
             if (await DnsUtils.LookupAsync(server.Hostname) == null)
                 throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
