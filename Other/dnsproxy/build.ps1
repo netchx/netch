@@ -1,6 +1,6 @@
 Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/AdguardTeam/dnsproxy -b 'v0.39.8' src
+git clone https://github.com/AdguardTeam/dnsproxy -b 'v0.39.9' src
 if ( -Not $? ) {
     exit $lastExitCode
 }
