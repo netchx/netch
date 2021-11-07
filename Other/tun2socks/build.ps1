@@ -1,6 +1,6 @@
 Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/xjasonlyu/tun2socks -b 'v2.3.1-1' src
+git clone https://github.com/xjasonlyu/tun2socks -b 'v2.3.2' src
 if ( -Not $? ) {
     exit $lastExitCode
 }
