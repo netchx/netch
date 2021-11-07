@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
@@ -9,11 +10,11 @@ namespace Netch.Servers
 {
     public class ShadowsocksController : Guard, IServerController
     {
-        public ShadowsocksController() : base("Shadowsocks.exe")
+        public ShadowsocksController() : base("Shadowsocks.exe", encoding: Encoding.UTF8)
         {
         }
 
-        protected override IEnumerable<string> StartedKeywords => new[] { "listening at" };
+        protected override IEnumerable<string> StartedKeywords => new[] { "listening on" };
 
         protected override IEnumerable<string> FailedKeywords => new[] { "error", "failed to start plguin" };
 
@@ -34,7 +35,8 @@ namespace Netch.Servers
                 "-m", server.EncryptMethod,
                 "-k", server.Password,
                 "--plugin", server.Plugin,
-                "--plugin-opts", server.PluginOption
+                "--plugin-opts", server.PluginOption,
+                "-U", SpecialArgument.Flag
             };
 
             await StartGuardAsync(Arguments.Format(arguments));
