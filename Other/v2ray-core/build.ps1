@@ -1,6 +1,6 @@
 Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
-git clone https://github.com/v2fly/v2ray-core -b 'v4.42.2' src
+git clone https://github.com/v2fly/v2ray-core -b 'v4.43.0' src
 if ( -Not $? ) {
     exit $lastExitCode
 }
