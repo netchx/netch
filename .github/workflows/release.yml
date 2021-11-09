@@ -37,14 +37,14 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        prerelease: ${{ contains(github.ref, '-') }}
+        prerelease: true
         draft: false
         files: |
           Netch.7z
         body: |
           [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
 
-          [**第一次使用请务必先安装 .NET 5.0 运行库**](https://aka.ms/dotnet/5.0/windowsdesktop-runtime-win-x64.exe)
+          [**第一次使用请务必先安装 .NET 6.0 运行库，不支持 .NET 5.0**](https://aka.ms/dotnet/6.0/windowsdesktop-runtime-win-x64.exe)
 
           ## Changelogs
           * This is an automated deployment of GitHub Actions, the change log should be updated manually soon

@@ -32,7 +32,7 @@ Some features may not be implemented in version 1
 
 ### Others
 - UDP NAT FullCone (May limited by your server)
-- .NET 5.0 x64
+- .NET 6.0 x64
 
 ## Sponsor
 <a href="https://www.jetbrains.com/?from=Netch"><img src="https://cdn.jsdelivr.net/gh/netchx/netch/jetbrains.svg" alt="JetBrains" width="200"/></a>

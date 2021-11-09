@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <TargetFramework>net5.0-windows</TargetFramework>
+        <TargetFramework>net6.0-windows</TargetFramework>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
         <Platforms>x64</Platforms>
         <LangVersion>latest</LangVersion>

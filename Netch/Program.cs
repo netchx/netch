@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -27,7 +26,7 @@ namespace Netch
 {
     public static class Program
     {
-        public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
+        public static readonly ISingleInstanceService SingleInstance = new SingleInstanceService($"Global\\{nameof(Netch)}");
 
         internal static HWND ConsoleHwnd { get; private set; }
 
@@ -70,14 +69,14 @@ namespace Netch
             Configuration.LoadAsync().Wait();
 
             // check if the program is already running
-            if (!SingleInstance.IsFirstInstance)
+            if (!SingleInstance.TryStartSingleInstance())
             {
-                SingleInstance.PassArgumentsToFirstInstance(args.Append(Constants.Parameter.Show));
+                SingleInstance.SendMessageToFirstInstanceAsync(Constants.Parameter.Show).GetAwaiter().GetResult();
                 Environment.Exit(0);
                 return;
             }
 
-            SingleInstance.ArgumentsReceived.Subscribe(SingleInstance_ArgumentsReceived);
+            SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
 
             // clean up old logs
             if (Directory.Exists("logging"))
@@ -108,7 +107,7 @@ namespace Netch
             Application.ThreadException += Application_OnException;
             Application.ApplicationExit += Application_OnExit;
 
-            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(Global.MainForm);
@@ -207,12 +206,15 @@ namespace Netch
             Log.CloseAndFlush();
         }
 
-        private static void SingleInstance_ArgumentsReceived(IEnumerable<string> args)
+        private static void SingleInstance_ArgumentsReceived((string, Action<string>) receive)
         {
-            if (args.Contains(Constants.Parameter.Show))
+            var (arg, endFunc) = receive;
+            if (arg == Constants.Parameter.Show)
             {
                 Utils.Utils.ActivateVisibleWindows();
             }
+
+            endFunc(string.Empty);
         }
     }
 }

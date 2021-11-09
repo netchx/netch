@@ -107,7 +107,7 @@ namespace Netch.Forms
             if (Global.Settings.StartWhenOpened)
                 ControlButton.PerformClick();
 
-            Program.SingleInstance.ListenForArgumentsFromSuccessiveInstances();
+            Program.SingleInstance.StartListenServer();
         }
 
         private void RecordSize()

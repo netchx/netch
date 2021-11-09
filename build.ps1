@@ -32,6 +32,7 @@ dotnet publish `
 	-r 'win-x64' `
 	-p:Platform='x64' `
 	-p:SelfContained=$SelfContained `
+	$('--self-contained', '--no-self-contained')[$SelfContained] `
 	-p:PublishTrimmed=$False `
 	-p:PublishReadyToRun=$PublishReadyToRun `
 	-p:PublishSingleFile=$PublishSingleFile `

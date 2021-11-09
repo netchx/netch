@@ -30,10 +30,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="HMBSbige.SingleInstance" Version="5.0.7" />
+        <PackageReference Include="HMBSbige.SingleInstance" Version="6.0.0" />
         <PackageReference Include="MaxMind.GeoIP2" Version="4.0.1" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.73" GeneratePathProperty="true" />
-        <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.0.63" />
+        <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.0.64" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.588-beta">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -43,17 +43,16 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Serilog" Version="2.10.0" />
-        <PackageReference Include="Serilog.Extensions.Hosting" Version="4.1.2" />
+        <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
         <PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
-        <PackageReference Include="Stun.Net" Version="5.0.0" />
-        <PackageReference Include="System.Management" Version="5.0.0" />
-        <PackageReference Include="System.Text.Json" Version="6.0.0-rc.2.21480.5" />
+        <PackageReference Include="Stun.Net" Version="6.0.0" />
+        <PackageReference Include="System.Management" Version="6.0.0" />
         <PackageReference Include="TaskScheduler" Version="2.9.2" />
         <PackageReference Include="WindowsFirewallHelper" Version="2.1.4.81" />
-        <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
-        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -78,13 +77,6 @@
     <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">
         <ItemGroup>
             <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\build\native\x86\**" />
-            <!--      .NET 6 SDK fixes MSB4018 "Multiple entries with the same BundleRelativePath", 
-                      if still retain the following properties,
-                      you will encounter a "lib/netstandard2.0/Dial2Lib.dll not found" error
-            -->
-            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\Dia2Lib.dll" />
-            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\OSExtensions.dll" />
-            <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\lib\netstandard1.6\TraceReloggerLib.dll" />
         </ItemGroup>
     </Target>
 </Project>
