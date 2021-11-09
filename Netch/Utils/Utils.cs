@@ -258,13 +258,20 @@ namespace Netch.Utils
 
         public static void ActivateVisibleWindows()
         {
-            foreach (var f in Application.OpenForms.Cast<Form>())
+            var forms = Application.OpenForms.Cast<Form>().Where(f => f.Visible).ToList();
+            if (!forms.Any())
             {
-                if (!f.Visible)
-                    continue;
-
-                f.WindowState = FormWindowState.Normal;
-                f.Activate();
+                Global.MainForm.Show();
+                Global.MainForm.WindowState = FormWindowState.Normal;
+                Global.MainForm.Activate();
+            }
+            else
+            {
+                foreach (var f in forms)
+                {
+                    f.WindowState = FormWindowState.Normal;
+                    f.Activate();
+                }
             }
         }
     }
