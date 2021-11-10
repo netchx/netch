@@ -14,5 +14,16 @@
     <ClCompile Include="RouteHelper.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="WaitGroup.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WaitGroup.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Based.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

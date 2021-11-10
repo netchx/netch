@@ -93,6 +93,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="RouteHelper.cpp" />
+    <ClCompile Include="WaitGroup.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Based.h" />
+    <ClInclude Include="WaitGroup.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

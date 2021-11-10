@@ -1,9 +1,5 @@
-#include <WinSock2.h>
-#include <WS2tcpip.h>
-#include <ws2ipdef.h>
-#include <iphlpapi.h>
-#include <netioapi.h>
-#include <Windows.h>
+#include "Based.h"
+#include "WaitGroup.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
@@ -12,6 +8,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     UNREFERENCED_PARAMETER(ul_reason_for_call);
 
     return TRUE;
+}
+
+WaitGroup wg;
+void UnicastIPChangeCallback(PVOID ctx, PMIB_UNICASTIPADDRESS_ROW row, MIB_NOTIFICATION_TYPE type)
+{
+    UNREFERENCED_PARAMETER(ctx);
+    UNREFERENCED_PARAMETER(row);
+    UNREFERENCED_PARAMETER(type);
+
+    wg.Done();
 }
 
 bool make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric)
@@ -76,6 +82,18 @@ extern "C" {
         return index;
     }
 
+    __declspec(dllexport) void __cdecl WaitForUnicastIP()
+    {
+        wg.Add(1);
+
+        HANDLE hCallback = NULL;
+        NotifyUnicastIpAddressChange(AF_INET, UnicastIPChangeCallback, NULL, FALSE, &hCallback);
+
+        wg.Wait();
+
+        CancelMibChangeNotify2(hCallback);
+    }
+
     __declspec(dllexport) BOOL __cdecl CreateIPv4(const char* address, const char* netmask, ULONG index)
     {
         ULONG addr = 0;
@@ -125,16 +143,6 @@ extern "C" {
         }
 
         return (NO_ERROR == CreateUnicastIpAddressEntry(&addr)) ? TRUE : FALSE;
-    }
-
-    __declspec(dllexport) BOOL __cdecl RefreshIPTable(USHORT inet, ULONG index)
-    {
-        if (NO_ERROR != FlushIpPathTable(inet))
-        {
-            return FALSE;
-        }
-
-        return (NO_ERROR == FlushIpNetTable2(inet, index)) ? TRUE : FALSE;
     }
 
     __declspec(dllexport) BOOL __cdecl CreateRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
