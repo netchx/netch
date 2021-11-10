@@ -102,7 +102,11 @@ namespace Netch.Controllers
             if (Lock.CurrentCount == 0)
             {
                 (await Lock.EnterAsync()).Dispose();
-                return;
+                if (ServerController == null && ModeController == null)
+                    // stopped
+                    return;
+
+                // else begin stop
             }
 
             using var _ = await Lock.EnterAsync();

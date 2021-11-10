@@ -129,9 +129,9 @@ namespace Netch.Forms
                 s =>
                 {
                     if (UseCustomDNSCheckBox.Checked)
-                        Global.Settings.TUNTAP.HijackDNS = s;
+                        Global.Settings.TUNTAP.DNS = s;
                 },
-                Global.Settings.TUNTAP.HijackDNS);
+                Global.Settings.TUNTAP.DNS);
 
             BindCheckBox(ProxyDNSCheckBox, b => Global.Settings.TUNTAP.ProxyDNS = b, Global.Settings.TUNTAP.ProxyDNS);
 
@@ -216,7 +216,7 @@ namespace Netch.Forms
         private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
         {
             if (UseCustomDNSCheckBox.Checked)
-                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.HijackDNS;
+                TUNTAPDNSTextBox.Text = Global.Settings.TUNTAP.DNS;
             else
                 TUNTAPDNSTextBox.Text = "AioDNS";
         }

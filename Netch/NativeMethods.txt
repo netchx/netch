@@ -3,6 +3,11 @@ GetBestRoute
 GetExtendedTcpTable
 MIB_TCPTABLE_OWNER_PID
 ADDRESS_FAMILY
+MIB_UNICASTIPADDRESS_ROW
+InitializeUnicastIpAddressEntry
+CreateUnicastIpAddressEntry
+NotifyUnicastIpAddressChange
+CancelMibChangeNotify2
 
 // User32.dll
 SetWindowPos
@@ -16,6 +21,7 @@ GetConsoleWindow
 
 // Ws2_32.dll
 ntohs
+inet_pton
 
 // Windows.h
 // WIN32_ERROR

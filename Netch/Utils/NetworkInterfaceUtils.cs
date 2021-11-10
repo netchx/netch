@@ -32,19 +32,14 @@ namespace Netch.Utils
             return Get((int)route.dwForwardIfIndex);
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="interfaceIndex"></param>
-        /// <exception cref="InvalidOperationException"></exception>
-        /// <returns></returns>
         public static NetworkInterface Get(int interfaceIndex)
         {
             return NetworkInterface.GetAllNetworkInterfaces().First(n => n.GetIndex() == interfaceIndex);
         }
 
-        public static NetworkInterface Get(string description)
+        public static NetworkInterface Get(Func<NetworkInterface, bool> expression)
         {
-            return NetworkInterface.GetAllNetworkInterfaces().First(n => n.Description == description);
+            return NetworkInterface.GetAllNetworkInterfaces().First(expression);
         }
 
         public static void SetInterfaceMetric(int interfaceIndex, int? metric = null)

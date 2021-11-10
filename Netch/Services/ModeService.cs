@@ -63,7 +63,7 @@ namespace Netch.Services
             }
         }
 
-        private static void Sort()
+        private static void SortCollection()
         {
             // TODO better sort need to discuss
             // TODO replace Mode Collection type
@@ -80,6 +80,12 @@ namespace Netch.Services
             Global.MainForm.ModeComboBox.Items.Insert(Global.Modes.IndexOf(mode), mode);
 
             mode.WriteFile();
+        }
+
+        public void Sort()
+        {
+            SortCollection();
+            Global.MainForm.LoadModes();
         }
 
         public static void Delete(Mode mode)

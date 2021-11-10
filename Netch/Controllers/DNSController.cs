@@ -1,7 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Netch.Interfaces;
+using Netch.Models;
 using static Netch.Interops.AioDNS;
 
 namespace Netch.Controllers
@@ -10,26 +10,24 @@ namespace Netch.Controllers
     {
         public string Name => "DNS Service";
 
-        public async Task StopAsync()
+        public async Task StartAsync(string listenAddress)
         {
-            await FreeAsync();
-        }
-
-        public async Task StartAsync()
-        {
-            MainController.PortCheck(Global.Settings.AioDNS.ListenPort, "DNS");
-
             var aioDnsConfig = Global.Settings.AioDNS;
-            var listenAddress = Global.Settings.LocalAddress;
 
             Dial(NameList.TYPE_REST, "");
             Dial(NameList.TYPE_LIST, Path.GetFullPath(Constants.AioDnsRuleFile));
+            // TODO remove ListenPort setting
             Dial(NameList.TYPE_LISN, $"{listenAddress}:{aioDnsConfig.ListenPort}");
             Dial(NameList.TYPE_CDNS, $"{aioDnsConfig.ChinaDNS}");
             Dial(NameList.TYPE_ODNS, $"{aioDnsConfig.OtherDNS}");
 
             if (!await InitAsync())
-                throw new Exception("AioDNS start failed.");
+                throw new MessageException("AioDNS start failed.");
+        }
+
+        public async Task StopAsync()
+        {
+            await FreeAsync();
         }
     }
 }

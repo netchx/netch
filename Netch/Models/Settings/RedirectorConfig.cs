@@ -14,7 +14,7 @@
 
         public bool DNSProxy { get; set; } = true;
 
-        public string DNSHost { get; set; } = Constants.DefaultPrimaryDNS;
+        public string DNSHost { get; set; } = $"{Constants.DefaultPrimaryDNS}:53";
 
         public int ICMPDelay { get; set; } = 10;
 

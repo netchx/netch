@@ -15,7 +15,7 @@ namespace Netch.Models
         /// <summary>
         ///     DNS
         /// </summary>
-        public string HijackDNS { get; set; } = $"tcp://{Constants.DefaultPrimaryDNS}";
+        public string DNS { get; set; } = Constants.DefaultPrimaryDNS;
 
         /// <summary>
         ///     网关

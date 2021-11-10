@@ -59,8 +59,8 @@ namespace Netch.Forms
             this.ICMPDelayTextBox = new System.Windows.Forms.TextBox();
             this.FilterDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.DNSHijackHostTextBox = new System.Windows.Forms.TextBox();
-            this.DNSProxyCheckBox = new System.Windows.Forms.CheckBox();
             this.HandleProcDNSCheckBox = new System.Windows.Forms.CheckBox();
+            this.DNSProxyCheckBox = new System.Windows.Forms.CheckBox();
             this.ChildProcessHandleCheckBox = new System.Windows.Forms.CheckBox();
             this.WinTUNTabPage = new System.Windows.Forms.TabPage();
             this.WinTUNGroupBox = new System.Windows.Forms.GroupBox();
@@ -347,7 +347,7 @@ namespace Netch.Forms
             this.FilterTCPCheckBox.AutoSize = true;
             this.FilterTCPCheckBox.Location = new System.Drawing.Point(16, 16);
             this.FilterTCPCheckBox.Name = "FilterTCPCheckBox";
-            this.FilterTCPCheckBox.Size = new System.Drawing.Size(81, 21);
+            this.FilterTCPCheckBox.Size = new System.Drawing.Size(94, 21);
             this.FilterTCPCheckBox.TabIndex = 1;
             this.FilterTCPCheckBox.Text = "Handle TCP";
             this.FilterTCPCheckBox.UseVisualStyleBackColor = true;
@@ -357,7 +357,7 @@ namespace Netch.Forms
             this.FilterUDPCheckBox.AutoSize = true;
             this.FilterUDPCheckBox.Location = new System.Drawing.Point(216, 16);
             this.FilterUDPCheckBox.Name = "FilterUDPCheckBox";
-            this.FilterUDPCheckBox.Size = new System.Drawing.Size(84, 21);
+            this.FilterUDPCheckBox.Size = new System.Drawing.Size(97, 21);
             this.FilterUDPCheckBox.TabIndex = 2;
             this.FilterUDPCheckBox.Text = "Handle UDP";
             this.FilterUDPCheckBox.UseVisualStyleBackColor = true;
@@ -367,7 +367,7 @@ namespace Netch.Forms
             this.FilterICMPCheckBox.AutoSize = true;
             this.FilterICMPCheckBox.Location = new System.Drawing.Point(16, 48);
             this.FilterICMPCheckBox.Name = "FilterICMPCheckBox";
-            this.FilterICMPCheckBox.Size = new System.Drawing.Size(90, 21);
+            this.FilterICMPCheckBox.Size = new System.Drawing.Size(103, 21);
             this.FilterICMPCheckBox.TabIndex = 3;
             this.FilterICMPCheckBox.Text = "Handle ICMP";
             this.FilterICMPCheckBox.UseVisualStyleBackColor = true;
@@ -386,7 +386,7 @@ namespace Netch.Forms
             this.ICMPDelayLabel.AutoSize = true;
             this.ICMPDelayLabel.Location = new System.Drawing.Point(48, 80);
             this.ICMPDelayLabel.Name = "ICMPDelayLabel";
-            this.ICMPDelayLabel.Size = new System.Drawing.Size(100, 17);
+            this.ICMPDelayLabel.Size = new System.Drawing.Size(99, 17);
             this.ICMPDelayLabel.TabIndex = 3;
             this.ICMPDelayLabel.Text = "ICMP delay(ms)";
             // 
@@ -404,7 +404,7 @@ namespace Netch.Forms
             this.FilterDNSCheckBox.AutoSize = true;
             this.FilterDNSCheckBox.Location = new System.Drawing.Point(16, 112);
             this.FilterDNSCheckBox.Name = "FilterDNSCheckBox";
-            this.FilterDNSCheckBox.Size = new System.Drawing.Size(85, 21);
+            this.FilterDNSCheckBox.Size = new System.Drawing.Size(191, 21);
             this.FilterDNSCheckBox.TabIndex = 5;
             this.FilterDNSCheckBox.Text = "Handle DNS (DNS hijacking)";
             this.FilterDNSCheckBox.UseVisualStyleBackColor = true;
@@ -418,34 +418,34 @@ namespace Netch.Forms
             this.DNSHijackHostTextBox.TabIndex = 6;
             this.DNSHijackHostTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // DNSProxyCheckBox
-            // 
-            this.DNSProxyCheckBox.AutoSize = true;
-            this.DNSProxyCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
-            this.DNSProxyCheckBox.Location = new System.Drawing.Point(16, 208);
-            this.DNSProxyCheckBox.Name = "DNSProxyCheckBox";
-            this.DNSProxyCheckBox.Size = new System.Drawing.Size(184, 21);
-            this.DNSProxyCheckBox.TabIndex = 8;
-            this.DNSProxyCheckBox.Text = "Handle DNS through proxy";
-            this.DNSProxyCheckBox.UseVisualStyleBackColor = true;
-            // 
             // HandleProcDNSCheckBox
             // 
             this.HandleProcDNSCheckBox.AutoSize = true;
             this.HandleProcDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
             this.HandleProcDNSCheckBox.Location = new System.Drawing.Point(16, 176);
             this.HandleProcDNSCheckBox.Name = "HandleProcDNSCheckBox";
-            this.HandleProcDNSCheckBox.Size = new System.Drawing.Size(203, 21);
+            this.HandleProcDNSCheckBox.Size = new System.Drawing.Size(208, 21);
             this.HandleProcDNSCheckBox.TabIndex = 7;
-            this.HandleProcDNSCheckBox.Text = "Handle handled process's DNS";
+            this.HandleProcDNSCheckBox.Text = "Handle handled process\'s DNS";
             this.HandleProcDNSCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // DNSProxyCheckBox
+            // 
+            this.DNSProxyCheckBox.AutoSize = true;
+            this.DNSProxyCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
+            this.DNSProxyCheckBox.Location = new System.Drawing.Point(16, 208);
+            this.DNSProxyCheckBox.Name = "DNSProxyCheckBox";
+            this.DNSProxyCheckBox.Size = new System.Drawing.Size(185, 21);
+            this.DNSProxyCheckBox.TabIndex = 8;
+            this.DNSProxyCheckBox.Text = "Handle DNS through proxy";
+            this.DNSProxyCheckBox.UseVisualStyleBackColor = true;
             // 
             // ChildProcessHandleCheckBox
             // 
             this.ChildProcessHandleCheckBox.AutoSize = true;
             this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(16, 240);
             this.ChildProcessHandleCheckBox.Name = "ChildProcessHandleCheckBox";
-            this.ChildProcessHandleCheckBox.Size = new System.Drawing.Size(150, 21);
+            this.ChildProcessHandleCheckBox.Size = new System.Drawing.Size(149, 21);
             this.ChildProcessHandleCheckBox.TabIndex = 9;
             this.ChildProcessHandleCheckBox.Text = "Handle child process";
             this.ChildProcessHandleCheckBox.UseVisualStyleBackColor = true;
@@ -536,9 +536,9 @@ namespace Netch.Forms
             this.TUNTAPDNSLabel.AutoSize = true;
             this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
             this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
-            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(73, 17);
+            this.TUNTAPDNSLabel.Size = new System.Drawing.Size(34, 17);
             this.TUNTAPDNSLabel.TabIndex = 6;
-            this.TUNTAPDNSLabel.Text = "DNS Hijack";
+            this.TUNTAPDNSLabel.Text = "DNS";
             // 
             // TUNTAPDNSTextBox
             // 
@@ -554,7 +554,7 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox.AutoSize = true;
             this.UseCustomDNSCheckBox.Location = new System.Drawing.Point(10, 139);
             this.UseCustomDNSCheckBox.Name = "UseCustomDNSCheckBox";
-            this.UseCustomDNSCheckBox.Size = new System.Drawing.Size(127, 21);
+            this.UseCustomDNSCheckBox.Size = new System.Drawing.Size(125, 21);
             this.UseCustomDNSCheckBox.TabIndex = 8;
             this.UseCustomDNSCheckBox.Text = "Use custom DNS";
             this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
@@ -562,12 +562,13 @@ namespace Netch.Forms
             // 
             // ProxyDNSCheckBox
             // 
+            this.ProxyDNSCheckBox.DataBindings.Add((new System.Windows.Forms.Binding("Visible", UseCustomDNSCheckBox, "Checked", true)));
             this.ProxyDNSCheckBox.AutoSize = true;
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(175, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
-            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(228, 21);
+            this.ProxyDNSCheckBox.Size = new System.Drawing.Size(89, 21);
             this.ProxyDNSCheckBox.TabIndex = 9;
-            this.ProxyDNSCheckBox.Text = "Proxy DNS in Proxy Rule IPs Mode";
+            this.ProxyDNSCheckBox.Text = "Proxy DNS";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
             // 
             // GlobalBypassIPsButton
@@ -931,6 +932,7 @@ namespace Netch.Forms
             this.AioDNSListenPortLabel.Size = new System.Drawing.Size(69, 17);
             this.AioDNSListenPortLabel.TabIndex = 4;
             this.AioDNSListenPortLabel.Text = "Listen Port";
+            this.AioDNSListenPortLabel.Visible = false;
             // 
             // AioDNSListenPortTextBox
             // 
@@ -939,6 +941,7 @@ namespace Netch.Forms
             this.AioDNSListenPortTextBox.Size = new System.Drawing.Size(80, 23);
             this.AioDNSListenPortTextBox.TabIndex = 5;
             this.AioDNSListenPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.AioDNSListenPortTextBox.Visible = false;
             // 
             // ControlButton
             // 

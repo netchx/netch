@@ -67,6 +67,8 @@ namespace Netch.Forms.ModeForms
                 return;
             }
 
+            SaveBinds();
+
             if (IsCreateMode)
             {
                 var relativePath = FilenameTextBox.Text;
@@ -86,8 +88,10 @@ namespace Netch.Forms.ModeForms
             {
                 _mode.WriteFile();
                 MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
+                ModeService.Instance.Sort();
             }
 
+            Global.MainForm.ModeComboBox.SelectedItem = _mode;
             Close();
         }
 

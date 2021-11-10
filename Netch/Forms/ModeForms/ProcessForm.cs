@@ -49,7 +49,7 @@ namespace Netch.Forms.ModeForms
             BindSyncGlobalCheckBox(HandleTCPCheckBox, b => _mode.FilterTCP = b, _mode.FilterTCP, g.FilterTCP);
             BindSyncGlobalCheckBox(HandleUDPCheckBox, b => _mode.FilterUDP = b, _mode.FilterUDP, g.FilterUDP);
             BindSyncGlobalCheckBox(HandleDNSCheckBox, b => _mode.FilterDNS = b, _mode.FilterDNS, g.FilterDNS);
-            BindTextBox(DNSTextBox, s => IPEndPoint.TryParse(s, out _), s => _mode.DNSHost = s, _mode.DNSHost ?? Constants.DefaultPrimaryDNS);
+            BindTextBox(DNSTextBox, s => IPEndPoint.TryParse(s, out _), s => _mode.DNSHost = s, _mode.DNSHost ?? $"{Constants.DefaultPrimaryDNS}:53");
 
             BindSyncGlobalCheckBox(HandleProcDNSCheckBox, b => _mode.HandleOnlyDNS = b, _mode.HandleOnlyDNS, g.HandleOnlyDNS);
             BindSyncGlobalCheckBox(ProxyDNSCheckBox, b => _mode.DNSProxy = b, _mode.DNSProxy, g.DNSProxy);

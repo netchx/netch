@@ -19,7 +19,7 @@ namespace Netch.Interops
         {
             return await Task.Run(Init).ConfigureAwait(false);
         }
-        
+
         public static async Task FreeAsync()
         {
             await Task.Run(Free).ConfigureAwait(false);

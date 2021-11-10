@@ -1,11 +1,14 @@
-﻿namespace Netch.Models
+﻿using System.Text.Json.Serialization;
+
+namespace Netch.Models
 {
     public class AioDNSConfig
     {
-        public string ChinaDNS { get; set; } = $"tcp://{Constants.DefaultCNPrimaryDNS}";
+        public string ChinaDNS { get; set; } = $"tcp://{Constants.DefaultCNPrimaryDNS}:53";
 
-        public string OtherDNS { get; set; } = $"tcp://{Constants.DefaultPrimaryDNS}";
+        public string OtherDNS { get; set; } = $"tcp://{Constants.DefaultPrimaryDNS}:53";
 
-        public ushort ListenPort { get; set; } = 253;
+        [JsonIgnore]
+        public ushort ListenPort { get; set; } = 53;
     }
 }

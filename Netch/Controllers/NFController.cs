@@ -59,7 +59,7 @@ namespace Netch.Controllers
             {
                 var dnsStr = _mode.FilterDNS != null ? _mode.DNSHost : _rdrConfig.DNSHost;
 
-                dnsStr = dnsStr.ValueOrDefault() ?? Constants.DefaultPrimaryDNS;
+                dnsStr = dnsStr.ValueOrDefault() ?? $"{Constants.DefaultPrimaryDNS}:53";
 
                 var dns = IPEndPoint.Parse(dnsStr);
                 if (dns.Port == 0)
