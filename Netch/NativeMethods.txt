@@ -6,6 +6,7 @@ ADDRESS_FAMILY
 MIB_UNICASTIPADDRESS_ROW
 InitializeUnicastIpAddressEntry
 CreateUnicastIpAddressEntry
+GetUnicastIpAddressEntry
 NotifyUnicastIpAddressChange
 CancelMibChangeNotify2
 

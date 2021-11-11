@@ -1,8 +1,11 @@
+using System;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Windows.Win32.Foundation;
+using Windows.Win32.Networking.WinSock;
 using Windows.Win32.NetworkManagement.IpHelper;
+using Serilog;
 using static Windows.Win32.PInvoke;
 
 namespace Netch.Interops
@@ -40,25 +43,56 @@ namespace Netch.Interops
                 return false;
             }
 
-            // Create a Handle to be notified of IP address changes
+            // https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-createunicastipaddressentry#remarks
+
             HANDLE handle = default;
-            using var obj = new Semaphore(1, 1);
-            void Callback(void* context, MIB_UNICASTIPADDRESS_ROW* row, MIB_NOTIFICATION_TYPE type) => obj.Release(1);
+            using var obj = new Semaphore(0, 1);
 
-            // Use NotifyUnicastIpAddressChange to determine when the address is ready
-            obj.WaitOne();
-            NotifyUnicastIpAddressChange((ushort)ADDRESS_FAMILY.AF_INET, Callback, null, new BOOLEAN(), ref handle);
-
-            if (CreateUnicastIpAddressEntry(&addr) != 0)
+            void Callback(void* context, MIB_UNICASTIPADDRESS_ROW* row, MIB_NOTIFICATION_TYPE type)
             {
-                // ignored return state because i feel great
-                CancelMibChangeNotify2(handle);
-                return false;
+                if (type != MIB_NOTIFICATION_TYPE.MibInitialNotification)
+                {
+                    // TODO pass error
+                    NTSTATUS state;
+                    if ((state = GetUnicastIpAddressEntry(row)) != 0)
+                    {
+                        Log.Error("CreateUnicastIpAddressEntry failed: {0}", state);
+                        return;
+                    }
+
+                    if (row -> DadState == NL_DAD_STATE.IpDadStatePreferred)
+                    {
+                        try
+                        {
+                            obj.Release();
+                        }
+                        catch (Exception e)
+                        {
+                            // i don't trust win32 api
+                            Log.Error(e, "semaphore disposed");
+                        }
+                    }
+                }
             }
 
-            obj.WaitOne();
+            NotifyUnicastIpAddressChange((ushort)ADDRESS_FAMILY.AF_INET, Callback, null, new BOOLEAN(byte.MaxValue), ref handle);
 
-            return true;
+            try
+            {
+                NTSTATUS state;
+                if ((state = CreateUnicastIpAddressEntry(&addr)) != 0)
+                {
+                    Log.Error("CreateUnicastIpAddressEntry failed: {0}", state);
+                    return false;
+                }
+
+                obj.WaitOne();
+                return true;
+            }
+            finally
+            {
+                CancelMibChangeNotify2(handle);
+            }
         }
 
         [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]

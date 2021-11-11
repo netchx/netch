@@ -61,13 +61,6 @@ namespace Netch.Controllers
 
         public Process Instance { get; }
 
-        ~Guard()
-        {
-            _logFileStream?.Dispose();
-            _logStreamWriter?.Dispose();
-            Instance.Dispose();
-        }
-
         protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
         {
             State = State.Starting;
@@ -83,8 +76,12 @@ namespace Netch.Controllers
 
             if (RedirectOutput)
             {
-                Task.Run(() => ReadOutput(Instance.StandardOutput)).Forget();
-                Task.Run(() => ReadOutput(Instance.StandardError)).Forget();
+                WaitAllReadOutputTaskAsync(new[]
+                    {
+                        ReadOutputAsync(Instance.StandardOutput),
+                        ReadOutputAsync(Instance.StandardError)
+                    })
+                    .Forget();
 
                 if (!StartedKeywords.Any())
                 {
@@ -114,12 +111,21 @@ namespace Netch.Controllers
             }
         }
 
-        private void ReadOutput(TextReader reader)
+        private async Task WaitAllReadOutputTaskAsync(Task[] tasks)
+        {
+            await Task.WhenAll(tasks);
+            _logStreamWriter?.Close();
+            _logFileStream?.Close();
+            Instance.Dispose();
+            State = State.Stopped;
+        }
+
+        private async Task ReadOutputAsync(TextReader reader)
         {
             string? line;
-            while ((line = reader.ReadLine()) != null)
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                _logStreamWriter!.WriteLine(line);
+                await _logStreamWriter!.WriteLineAsync(line);
                 OnReadNewLine(line);
 
                 if (State == State.Starting)
@@ -133,8 +139,6 @@ namespace Netch.Controllers
                     }
                 }
             }
-
-            State = State.Stopped;
         }
 
         public virtual async Task StopAsync()
@@ -144,9 +148,6 @@ namespace Netch.Controllers
 
         protected async Task StopGuardAsync()
         {
-            _logStreamWriter?.Close();
-            _logFileStream?.Close();
-
             try
             {
                 if (Instance is { HasExited: false })

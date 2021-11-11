@@ -96,10 +96,14 @@ namespace Netch.Controllers
             var tunIndex = _tunNetworkInterface.GetIndex();
             _tun = NetRoute.TemplateBuilder(_tunConfig.Gateway, tunIndex);
 
-            RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
-                _tunConfig.Address,
-                (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
-                (ulong)tunIndex);
+            if (!RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
+                    _tunConfig.Address,
+                    (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
+                    (ulong)tunIndex))
+            {
+                Log.Error("Create Unicast IP failed");
+                throw new MessageException("Create Unicast IP failed");
+            }
 
             await SetupRouteTableAsync();
         }
