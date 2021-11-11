@@ -53,6 +53,7 @@
         <PackageReference Include="WindowsFirewallHelper" Version="2.1.4.81" />
         <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
         <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+        <PackageReference Include="WindowsJobAPI" Version="5.0.1" />
     </ItemGroup>
 
     <ItemGroup>

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Netch.Forms;
 using Netch.Models;
 using Netch.Models.Modes;
+using WindowsJobAPI;
 
 namespace Netch
 {
@@ -21,6 +22,8 @@ namespace Netch
         ///     用于读取和写入的配置
         /// </summary>
         public static Setting Settings = new();
+
+        public static readonly JobObject Job = new();
 
         /// <summary>
         ///     用于存储模式

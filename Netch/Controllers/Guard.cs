@@ -70,6 +70,7 @@ namespace Netch.Controllers
 
             Instance.StartInfo.Arguments = argument;
             Instance.Start();
+            Global.Job.AddProcess(Instance);
 
             if (priority != ProcessPriorityClass.Normal)
                 Instance.PriorityClass = priority;
