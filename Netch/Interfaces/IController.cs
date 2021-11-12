@@ -1,11 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿namespace Netch.Interfaces;
 
-namespace Netch.Interfaces
+public interface IController
 {
-    public interface IController
-    {
-        public string Name { get; }
+    public string Name { get; }
 
-        public Task StopAsync();
-    }
+    public Task StopAsync();
 }

@@ -1,133 +1,127 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
 using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
-using Serilog;
 
-namespace Netch.Utils
+namespace Netch.Utils;
+
+public static class Bandwidth
 {
-    public static class Bandwidth
+    public static ulong received;
+    public static TraceEventSession? tSession;
+
+    private static readonly string[] Suffix = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
+
+    /// <summary>
+    ///     计算流量
+    /// </summary>
+    /// <param name="d"></param>
+    /// <returns>带单位的流量字符串</returns>
+    public static string Compute(ulong d)
     {
-        public static ulong received;
-        public static TraceEventSession? tSession;
+        const double step = 1024.00;
 
-        private static readonly string[] Suffix = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
-
-        /// <summary>
-        ///     计算流量
-        /// </summary>
-        /// <param name="d"></param>
-        /// <returns>带单位的流量字符串</returns>
-        public static string Compute(ulong d)
+        byte level = 0;
+        double? size = null;
+        while ((size ?? d) > step)
         {
-            const double step = 1024.00;
+            if (level >= 6) // Suffix.Length - 1
+                break;
 
-            byte level = 0;
-            double? size = null;
-            while ((size ?? d) > step)
-            {
-                if (level >= 6) // Suffix.Length - 1
-                    break;
-
-                level++;
-                size = (size ?? d) / step;
-            }
-
-            return $@"{size ?? 0:0.##} {Suffix[level]}";
+            level++;
+            size = (size ?? d) / step;
         }
 
-        /// <summary>
-        ///     根据程序名统计流量
-        /// </summary>
-        public static void NetTraffic()
+        return $@"{size ?? 0:0.##} {Suffix[level]}";
+    }
+
+    /// <summary>
+    ///     根据程序名统计流量
+    /// </summary>
+    public static void NetTraffic()
+    {
+        if (!Flags.IsWindows10Upper)
+            return;
+
+        var counterLock = new object();
+        //int sent = 0;
+
+        var processes = new List<Process>();
+        switch (MainController.ServerController)
         {
-            if (!Flags.IsWindows10Upper)
-                return;
+            case null:
+                break;
+            case Guard guard:
+                processes.Add(guard.Instance);
+                break;
+        }
 
-            var counterLock = new object();
-            //int sent = 0;
-
-            var processes = new List<Process>();
-            switch (MainController.ServerController)
+        if (!processes.Any())
+            switch (MainController.ModeController)
             {
                 case null:
+                    break;
+                case NFController or TUNController:
+                    processes.Add(Process.GetCurrentProcess());
                     break;
                 case Guard guard:
                     processes.Add(guard.Instance);
                     break;
             }
 
-            if (!processes.Any())
-                switch (MainController.ModeController)
-                {
-                    case null:
-                        break;
-                    case NFController or TUNController:
-                        processes.Add(Process.GetCurrentProcess());
-                        break;
-                    case Guard guard:
-                        processes.Add(guard.Instance);
-                        break;
-                }
+        var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 
-            var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
+        Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
-            Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
+        received = 0;
 
-            received = 0;
+        if (!processes.Any())
+            return;
 
-            if (!processes.Any())
-                return;
+        Global.MainForm.BandwidthState(true);
 
-            Global.MainForm.BandwidthState(true);
-
-            Task.Run(() =>
-                {
-                    tSession = new TraceEventSession("KernelAndClrEventsSession");
-                    tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
-
-                    //这玩意儿上传和下载得到的data是一样的:)
-                    //所以暂时没办法区分上传下载流量
-                    tSession.Source.Kernel.TcpIpRecv += data =>
-                    {
-                        if (pidHastSet.Contains(data.ProcessID))
-                            lock (counterLock)
-                                received += (ulong)data.size;
-
-                        // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
-                    };
-
-                    tSession.Source.Kernel.UdpIpRecv += data =>
-                    {
-                        if (pidHastSet.Contains(data.ProcessID))
-                            lock (counterLock)
-                                received += (ulong)data.size;
-
-                        // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
-                    };
-
-                    tSession.Source.Process();
-                })
-                .Forget();
-
-            while (Global.MainForm.State != State.Stopped)
+        Task.Run(() =>
             {
-                Thread.Sleep(1000);
-                lock (counterLock)
-                    Global.MainForm.OnBandwidthUpdated(received);
-            }
-        }
+                tSession = new TraceEventSession("KernelAndClrEventsSession");
+                tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
 
-        public static void Stop()
+                //这玩意儿上传和下载得到的data是一样的:)
+                //所以暂时没办法区分上传下载流量
+                tSession.Source.Kernel.TcpIpRecv += data =>
+                {
+                    if (pidHastSet.Contains(data.ProcessID))
+                        lock (counterLock)
+                            received += (ulong)data.size;
+
+                    // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
+                };
+
+                tSession.Source.Kernel.UdpIpRecv += data =>
+                {
+                    if (pidHastSet.Contains(data.ProcessID))
+                        lock (counterLock)
+                            received += (ulong)data.size;
+
+                    // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
+                };
+
+                tSession.Source.Process();
+            })
+            .Forget();
+
+        while (Global.MainForm.State != State.Stopped)
         {
-            tSession?.Dispose();
-            received = 0;
+            Thread.Sleep(1000);
+            lock (counterLock)
+                Global.MainForm.OnBandwidthUpdated(received);
         }
+    }
+
+    public static void Stop()
+    {
+        tSession?.Dispose();
+        received = 0;
     }
 }

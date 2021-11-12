@@ -1,45 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using Netch.Models;
+﻿using Netch.Models;
 
-namespace Netch.Interfaces
+namespace Netch.Interfaces;
+
+public interface IServerUtil
 {
-    public interface IServerUtil
-    {
-        /// <summary>
-        ///     Collection order basis
-        /// </summary>
-        ushort Priority { get; }
+    /// <summary>
+    ///     Collection order basis
+    /// </summary>
+    ushort Priority { get; }
 
-        /// <summary>
-        ///     Server.Type
-        /// </summary>
-        string TypeName { get; }
+    /// <summary>
+    ///     Server.Type
+    /// </summary>
+    string TypeName { get; }
 
-        /// <summary>
-        ///     Protocol Name
-        /// </summary>
-        string FullName { get; }
+    /// <summary>
+    ///     Protocol Name
+    /// </summary>
+    string FullName { get; }
 
-        string ShortName { get; }
+    string ShortName { get; }
 
-        /// <summary>
-        ///     Support URI
-        /// </summary>
-        string[] UriScheme { get; }
+    /// <summary>
+    ///     Support URI
+    /// </summary>
+    string[] UriScheme { get; }
 
-        public Type ServerType { get; }
+    public Type ServerType { get; }
 
-        public void Edit(Server s);
+    public void Edit(Server s);
 
-        public void Create();
+    public void Create();
 
-        string GetShareLink(Server s);
+    string GetShareLink(Server s);
 
-        public IServerController GetController();
+    public IServerController GetController();
 
-        public IEnumerable<Server> ParseUri(string text);
+    public IEnumerable<Server> ParseUri(string text);
 
-        bool CheckServer(Server s);
-    }
+    bool CheckServer(Server s);
 }

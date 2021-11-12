@@ -1,10 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Netch
+namespace Netch;
+
+public static class NativeMethods
 {
-    public static class NativeMethods
-    {
-        [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
-        public static extern uint RefreshDNSCache();
-    }
+    [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+    public static extern uint RefreshDNSCache();
 }

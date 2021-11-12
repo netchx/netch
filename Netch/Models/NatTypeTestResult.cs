@@ -1,9 +1,8 @@
-﻿namespace Netch.Models
+﻿namespace Netch.Models;
+
+public struct NatTypeTestResult
 {
-    public struct NatTypeTestResult
-    {
-        public string? Result;
-        public string? LocalEnd;
-        public string? PublicEnd;
-    }
+    public string? Result;
+    public string? LocalEnd;
+    public string? PublicEnd;
 }

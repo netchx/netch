@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace Netch;
 
-namespace Netch
+public static class Flags
 {
-    public static class Flags
-    {
-        public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
+    public static readonly bool IsWindows10Upper = Environment.OSVersion.Version.Major >= 10;
 
-        public static bool AlwaysShowNewVersionFound { get; set; }
+    public static bool AlwaysShowNewVersionFound { get; set; }
 
-        public static bool NoSupport { get; set; }
-    }
+    public static bool NoSupport { get; set; }
 }

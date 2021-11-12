@@ -1,9 +1,8 @@
-namespace Netch.Enums
+namespace Netch.Enums;
+
+public enum LogLevel
 {
-    public enum LogLevel
-    {
-        INFO,
-        WARNING,
-        ERROR
-    }
+    INFO,
+    WARNING,
+    ERROR
 }

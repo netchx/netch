@@ -1,20 +1,19 @@
-namespace Netch.Models
+namespace Netch.Models;
+
+public readonly struct NumberRange
 {
-    public readonly struct NumberRange
+    public int Start { get; }
+
+    public int End { get; }
+
+    public NumberRange(int start, int end)
     {
-        public int Start { get; }
+        Start = start;
+        End = end;
+    }
 
-        public int End { get; }
-
-        public NumberRange(int start, int end)
-        {
-            Start = start;
-            End = end;
-        }
-
-        public bool InRange(int num)
-        {
-            return Start <= num && num <= End;
-        }
+    public bool InRange(int num)
+    {
+        return Start <= num && num <= End;
     }
 }

@@ -1,19 +1,18 @@
 using Netch.Utils;
 
-namespace Netch.Models
+namespace Netch.Models;
+
+internal class TagItem<T>
 {
-    internal class TagItem<T>
+    private readonly string _text;
+
+    public TagItem(T value, string text)
     {
-        private readonly string _text;
-
-        public TagItem(T value, string text)
-        {
-            _text = text;
-            Value = value;
-        }
-
-        public string Text => i18N.Translate(_text);
-
-        public T Value { get; }
+        _text = text;
+        Value = value;
     }
+
+    public string Text => i18N.Translate(_text);
+
+    public T Value { get; }
 }

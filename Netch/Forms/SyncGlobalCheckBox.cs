@@ -1,92 +1,87 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
+﻿namespace Netch.Forms;
 
-namespace Netch.Forms
+public class SyncGlobalCheckBox : CheckBox
 {
-    public class SyncGlobalCheckBox : CheckBox
+    public SyncGlobalCheckBox()
     {
-        public SyncGlobalCheckBox()
+        AutoCheck = false;
+        OnSyncGlobalChanged();
+    }
+
+    private bool _syncGlobal;
+
+    private bool _globalValue;
+
+    public bool SyncGlobal
+    {
+        get => _syncGlobal;
+        set
         {
-            AutoCheck = false;
+            if (value == _syncGlobal)
+                return;
+
+            _syncGlobal = value;
+
             OnSyncGlobalChanged();
         }
+    }
 
-        private bool _syncGlobal;
-
-        private bool _globalValue;
-
-        public bool SyncGlobal
+    public bool GlobalValue
+    {
+        get => _globalValue;
+        set
         {
-            get => _syncGlobal;
-            set
-            {
-                if (value == _syncGlobal)
-                    return;
+            if (value == _globalValue)
+                return;
 
-                _syncGlobal = value;
+            _globalValue = value;
 
-                OnSyncGlobalChanged();
-            }
+            if (SyncGlobal)
+                Checked = value;
+        }
+    }
+
+    protected override void OnClick(EventArgs e)
+    {
+        if (Checked == GlobalValue)
+        {
+            SyncGlobal = !SyncGlobal;
+            if (SyncGlobal)
+                return;
         }
 
-        public bool GlobalValue
+        Checked = !Checked;
+        base.OnClick(e);
+    }
+
+    public bool? Value
+    {
+        get => _syncGlobal ? null : Checked;
+        set
         {
-            get => _globalValue;
-            set
+            if (value == null)
             {
-                if (value == _globalValue)
-                    return;
-
-                _globalValue = value;
-
-                if (SyncGlobal)
-                    Checked = value;
-            }
-        }
-
-        protected override void OnClick(EventArgs e)
-        {
-            if (Checked == GlobalValue)
-            {
-                SyncGlobal = !SyncGlobal;
-                if (SyncGlobal)
-                    return;
-            }
-
-            Checked = !Checked;
-            base.OnClick(e);
-        }
-
-        public bool? Value
-        {
-            get => _syncGlobal ? null : Checked;
-            set
-            {
-                if (value == null)
-                {
-                    SyncGlobal = true;
-                }
-                else
-                {
-                    SyncGlobal = false;
-                    Checked = (bool)value;
-                }
-            }
-        }
-
-        private void OnSyncGlobalChanged()
-        {
-            if (_syncGlobal)
-            {
-                Font = new Font(Font, FontStyle.Regular);
-                BackColor = SystemColors.Control;
+                SyncGlobal = true;
             }
             else
             {
-                Font = new Font(Font, FontStyle.Bold | FontStyle.Italic);
-                BackColor = Color.Yellow;
+                SyncGlobal = false;
+                Checked = (bool)value;
             }
+        }
+    }
+
+    private void OnSyncGlobalChanged()
+    {
+        if (_syncGlobal)
+        {
+            Font = new Font(Font, FontStyle.Regular);
+            BackColor = SystemColors.Control;
+        }
+        else
+        {
+            Font = new Font(Font, FontStyle.Bold | FontStyle.Italic);
+            BackColor = Color.Yellow;
         }
     }
 }

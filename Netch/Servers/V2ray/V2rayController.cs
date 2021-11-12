@@ -1,41 +1,37 @@
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
 
-namespace Netch.Servers
+namespace Netch.Servers;
+
+public class V2rayController : Guard, IServerController
 {
-    public class V2rayController : Guard, IServerController
+    public V2rayController() : base("xray.exe")
     {
-        public V2rayController() : base("xray.exe")
+        if (!Global.Settings.V2RayConfig.XrayCone)
+            Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+    }
+
+    protected override IEnumerable<string> StartedKeywords => new[] { "started" };
+
+    protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
+
+    public override string Name => "Xray";
+
+    public ushort? Socks5LocalPort { get; set; }
+
+    public string? LocalAddress { get; set; }
+
+    public virtual async Task<Socks5LocalServer> StartAsync(Server s)
+    {
+        await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
-            if (!Global.Settings.V2RayConfig.XrayCone)
-                Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+            await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
         }
 
-        protected override IEnumerable<string> StartedKeywords => new[] { "started" };
-
-        protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
-
-        public override string Name => "Xray";
-
-        public ushort? Socks5LocalPort { get; set; }
-
-        public string? LocalAddress { get; set; }
-
-        public virtual async Task<Socks5LocalServer> StartAsync(Server s)
-        {
-            await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
-            {
-                await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
-            }
-
-            await StartGuardAsync("-config ..\\data\\last.json");
-            return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
-        }
+        await StartGuardAsync("-config ..\\data\\last.json");
+        return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }
 }
