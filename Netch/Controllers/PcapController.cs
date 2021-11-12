@@ -43,14 +43,21 @@ namespace Netch.Controllers
 
             var outboundNetworkInterface = NetworkInterfaceUtils.GetBest();
 
-            var argument = new StringBuilder($@"-i \Device\NPF_{outboundNetworkInterface.Id}");
-            if (!_server.Auth())
-                argument.Append($" --destination  {await _server.AutoResolveHostnameAsync()}:{_server.Port}");
-            else
-                throw new InvalidOperationException();
+            var arguments = new List<object?>
+            {
+                "--interface", $@"\Device\NPF_{outboundNetworkInterface.Id}",
+                "--destination", $"{await _server.AutoResolveHostnameAsync()}:{_server.Port}",
+                _mode.Argument, SpecialArgument.Flag
+            };
 
-            argument.Append($" {_mode.Argument}");
-            await StartGuardAsync(argument.ToString());
+            if (_server.Auth())
+                arguments.AddRange(new[]
+                {
+                    "--username", server.Username,
+                    "--password", server.Password
+                });
+
+            await StartGuardAsync(Arguments.Format(arguments));
         }
 
         public override async Task StopAsync()
