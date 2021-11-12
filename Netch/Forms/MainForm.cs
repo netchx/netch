@@ -548,11 +548,7 @@ namespace Netch.Forms
 
             try
             {
-                // "async all the way"
-                // https://docs.microsoft.com/en-us/archive/msdn-magazine/2013/march/async-await-best-practices-in-asynchronous-programming#async-all-the-way
-
-                // here is a dirty hack because the MainController don't need to switch back to UI thread, let it run in threadpool
-                await Task.Run(async () => await MainController.StartAsync(server, mode));
+                await MainController.StartAsync(server, mode);
             }
             catch (Exception exception)
             {
