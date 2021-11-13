@@ -49,11 +49,10 @@ public static unsafe class RouteHelper
         {
             if (type != MIB_NOTIFICATION_TYPE.MibInitialNotification)
             {
-                // TODO pass error
                 NTSTATUS state;
                 if ((state = GetUnicastIpAddressEntry(row)) != 0)
                 {
-                    Log.Error("CreateUnicastIpAddressEntry failed: {0}", state);
+                    Log.Error("GetUnicastIpAddressEntry failed: {State}", state.Value);
                     return;
                 }
 
@@ -79,11 +78,16 @@ public static unsafe class RouteHelper
             NTSTATUS state;
             if ((state = CreateUnicastIpAddressEntry(&addr)) != 0)
             {
-                Log.Error("CreateUnicastIpAddressEntry failed: {0}", state);
+                Log.Error("CreateUnicastIpAddressEntry failed: {State}", state.Value);
                 return false;
             }
 
-            obj.WaitOne();
+            if (!obj.WaitOne(TimeSpan.FromSeconds(10)))
+            {
+                Log.Error("Wait unicast IP usable timeout");
+                return false;
+            }
+
             return true;
         }
         finally

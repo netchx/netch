@@ -91,6 +91,7 @@ public class TUNController : Guard, IModeController
         var tunIndex = _tunNetworkInterface.GetIndex();
         _tun = NetRoute.TemplateBuilder(_tunConfig.Gateway, tunIndex);
 
+        Global.MainForm.StatusText(i18N.Translate("Assign Unicast IP"));
         if (!RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 _tunConfig.Address,
                 (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
