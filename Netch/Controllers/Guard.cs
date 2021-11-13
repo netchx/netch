@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using Microsoft.VisualStudio.Threading;
@@ -55,13 +54,6 @@ public abstract class Guard
     private bool RedirectOutput { get; }
 
     public Process Instance { get; }
-
-    ~Guard()
-    {
-        _logFileStream?.Dispose();
-        _logStreamWriter?.Dispose();
-        Instance.Dispose();
-    }
 
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {
@@ -129,8 +121,6 @@ public abstract class Guard
                 }
             }
         }
-
-        State = State.Stopped;
     }
 
     public virtual Task StopAsync()
@@ -140,9 +130,6 @@ public abstract class Guard
 
     protected async Task StopGuardAsync()
     {
-        _logStreamWriter?.Close();
-        _logFileStream?.Close();
-
         try
         {
             if (Instance is { HasExited: false })
@@ -151,13 +138,21 @@ public abstract class Guard
                 await Instance.WaitForExitAsync();
             }
         }
-        catch (Win32Exception e)
+        catch (Exception e)
         {
             Log.Error(e, "Stop {Name} failed", Instance.ProcessName);
         }
-        catch
+        finally
         {
-            // ignored
+            if (_logStreamWriter != null)
+                await _logStreamWriter.DisposeAsync();
+
+            if (_logFileStream != null)
+                await _logFileStream.DisposeAsync();
+
+            Instance.Dispose();
+
+            State = State.Stopped;
         }
     }
 
