@@ -40,6 +40,7 @@ public abstract class Server : ICloneable
     /// <summary>
     ///     代理类型
     /// </summary>
+    [JsonPropertyOrder(int.MinValue)]
     public abstract string Type { get; }
 
     public object Clone()

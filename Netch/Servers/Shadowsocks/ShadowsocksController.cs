@@ -22,7 +22,7 @@ public class ShadowsocksController : Guard, IServerController
 
     public string? LocalAddress { get; set; }
 
-    public async Task<Socks5LocalServer> StartAsync(Server s)
+    public async Task<Socks5Server> StartAsync(Server s)
     {
         var server = (ShadowsocksServer)s;
 
@@ -38,6 +38,6 @@ public class ShadowsocksController : Guard, IServerController
         };
 
         await StartGuardAsync(Arguments.Format(arguments));
-        return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
+        return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
     }
 }

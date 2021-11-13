@@ -78,7 +78,7 @@ public abstract class ServerForm : Form
         PerformLayout();
     }
 
-    protected void CreateTextBox(string name,
+    protected (Label,TextBox) CreateTextBox(string name,
         string remark,
         Func<string, bool> check,
         Action<string> save,
@@ -98,18 +98,21 @@ public abstract class ServerForm : Form
 
         _checkActions.Add(textBox, check);
         _saveActions.Add(textBox, o => save.Invoke((string)o));
+        var label = new Label
+        {
+            AutoSize = true,
+            Location = new Point(10, ControlLineHeight * _controlLines),
+            Name = $"{name}Label",
+            Size = new Size(56, 17),
+            Text = remark
+        };
+
         ConfigurationGroupBox.Controls.AddRange(new Control[]
         {
-            textBox,
-            new Label
-            {
-                AutoSize = true,
-                Location = new Point(10, ControlLineHeight * _controlLines),
-                Name = $"{name}Label",
-                Size = new Size(56, 17),
-                Text = remark
-            }
+            label,
+            textBox
         });
+        return (label, textBox);
     }
 
     protected void CreateComboBox(string name, string remark, List<string> values, Action<string> save, string value, int width = InputBoxWidth)

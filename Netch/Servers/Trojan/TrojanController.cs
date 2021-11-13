@@ -23,7 +23,7 @@ public class TrojanController : Guard, IServerController
 
     public string? LocalAddress { get; set; }
 
-    public async Task<Socks5LocalServer> StartAsync(Server s)
+    public async Task<Socks5Server> StartAsync(Server s)
     {
         var server = (TrojanServer)s;
         var trojanConfig = new TrojanConfig
@@ -48,6 +48,6 @@ public class TrojanController : Guard, IServerController
         }
 
         await StartGuardAsync("-c ..\\data\\last.json");
-        return new Socks5LocalServer(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
+        return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
     }
 }

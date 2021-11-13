@@ -44,8 +44,8 @@ public class TUNController : Guard, IModeController
         _mode = tunMode;
         _tunConfig = Global.Settings.TUNTAP;
 
-        if (server is Socks5LocalServer socks5Bridge)
-            _serverRemoteAddress = await DnsUtils.LookupAsync(socks5Bridge.RemoteHostname);
+        if (server.RemoteHostname.ValueOrDefault() != null)
+            _serverRemoteAddress = await DnsUtils.LookupAsync(server.RemoteHostname!);
         else
             _serverRemoteAddress = await DnsUtils.LookupAsync(server.Hostname);
 
@@ -93,10 +93,9 @@ public class TUNController : Guard, IModeController
 
         Global.MainForm.StatusText(i18N.Translate("Assigning unicast IP"));
         if (!await Task.Run(() => RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
-                    _tunConfig.Address,
-                    (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
-                    (ulong)tunIndex))
-                )
+                _tunConfig.Address,
+                (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
+                (ulong)tunIndex)))
         {
             Log.Error("Create unicast IP failed");
             throw new MessageException("Create unicast IP failed");

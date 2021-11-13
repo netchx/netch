@@ -4,6 +4,8 @@ namespace Netch.Servers;
 
 public class Socks5Server : Server
 {
+    public override string Type { get; } = "Socks5";
+
     /// <summary>
     ///     密码
     /// </summary>
@@ -14,7 +16,7 @@ public class Socks5Server : Server
     /// </summary>
     public string? Username { get; set; }
 
-    public override string Type { get; } = "Socks5";
+    public string? RemoteHostname { get; set; }
 
     public override string MaskedData()
     {
@@ -35,6 +37,11 @@ public class Socks5Server : Server
     {
         Username = username;
         Password = password;
+    }
+
+    public Socks5Server(string hostname, ushort port, string remoteHostname) : this(hostname, port)
+    {
+        RemoteHostname = remoteHostname;
     }
 
     public bool Auth()
