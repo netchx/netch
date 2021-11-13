@@ -31,10 +31,7 @@ public partial class SettingForm : BindingForm
             i => Global.Settings.DetectionTick = i,
             Global.Settings.DetectionTick);
 
-        BindTextBox<int>(StartedPingIntervalTextBox,
-            _ => true,
-            i => Global.Settings.StartedPingInterval = i,
-            Global.Settings.StartedPingInterval);
+        BindTextBox<int>(StartedPingIntervalTextBox, _ => true, i => Global.Settings.StartedPingInterval = i, Global.Settings.StartedPingInterval);
 
         object[]? stuns;
         try
@@ -88,11 +85,10 @@ public partial class SettingForm : BindingForm
 
         BindCheckBox(FilterDNSCheckBox, b => Global.Settings.Redirector.FilterDNS = b, Global.Settings.Redirector.FilterDNS);
 
+        // TODO validate Redirector AioDNS DNS
         BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHost = s, Global.Settings.Redirector.DNSHost);
 
-        BindCheckBox(ChildProcessHandleCheckBox,
-            s => Global.Settings.Redirector.FilterParent = s,
-            Global.Settings.Redirector.FilterParent);
+        BindCheckBox(ChildProcessHandleCheckBox, s => Global.Settings.Redirector.FilterParent = s, Global.Settings.Redirector.FilterParent);
 
         BindCheckBox(DNSProxyCheckBox, b => Global.Settings.Redirector.DNSProxy = b, Global.Settings.Redirector.DNSProxy);
 
@@ -102,20 +98,11 @@ public partial class SettingForm : BindingForm
 
         #region TUN/TAP
 
-        BindTextBox(TUNTAPAddressTextBox,
-            s => IPAddress.TryParse(s, out _),
-            s => Global.Settings.TUNTAP.Address = s,
-            Global.Settings.TUNTAP.Address);
+        BindTextBox(TUNTAPAddressTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Address = s, Global.Settings.TUNTAP.Address);
 
-        BindTextBox(TUNTAPNetmaskTextBox,
-            s => IPAddress.TryParse(s, out _),
-            s => Global.Settings.TUNTAP.Netmask = s,
-            Global.Settings.TUNTAP.Netmask);
+        BindTextBox(TUNTAPNetmaskTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Netmask = s, Global.Settings.TUNTAP.Netmask);
 
-        BindTextBox(TUNTAPGatewayTextBox,
-            s => IPAddress.TryParse(s, out _),
-            s => Global.Settings.TUNTAP.Gateway = s,
-            Global.Settings.TUNTAP.Gateway);
+        BindTextBox(TUNTAPGatewayTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Gateway = s, Global.Settings.TUNTAP.Gateway);
 
         BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
@@ -161,9 +148,7 @@ public partial class SettingForm : BindingForm
             i => Global.Settings.V2RayConfig.KcpConfig.writeBufferSize = i,
             Global.Settings.V2RayConfig.KcpConfig.writeBufferSize);
 
-        BindCheckBox(congestionCheckBox,
-            b => Global.Settings.V2RayConfig.KcpConfig.congestion = b,
-            Global.Settings.V2RayConfig.KcpConfig.congestion);
+        BindCheckBox(congestionCheckBox, b => Global.Settings.V2RayConfig.KcpConfig.congestion = b, Global.Settings.V2RayConfig.KcpConfig.congestion);
 
         #endregion
 
@@ -208,6 +193,39 @@ public partial class SettingForm : BindingForm
         TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
     }
 
+    protected override void BindTextBox<T>(TextBoxBase control, Func<T, bool> check, Action<T> save, object value)
+    {
+        base.BindTextBox(control, check, save, value);
+        control.TextChanged += (_, _) =>
+        {
+            if (Validate(control))
+            {
+                errorProvider.SetError(control, null);
+            }
+            else
+            {
+                errorProvider.SetError(control, i18N.Translate("Invalid value"));
+            }
+        };
+    }
+
+    protected new void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)
+    {
+        base.BindComboBox(control, check, save, value, values);
+
+        control.TextChanged += (_, _) =>
+        {
+            if (Validate(control))
+            {
+                errorProvider.SetError(control, null);
+            }
+            else
+            {
+                errorProvider.SetError(control, i18N.Translate("Invalid value"));
+            }
+        };
+    }
+
     private void TUNTAPUseCustomDNSCheckBox_CheckedChanged(object? sender, EventArgs? e)
     {
         if (UseCustomDNSCheckBox.Checked)
@@ -229,12 +247,27 @@ public partial class SettingForm : BindingForm
 
         #region Check
 
-        var checkNotPassControl = GetCheckFailedControls();
-        foreach (Control control in checkNotPassControl)
-            Utils.Utils.ChangeControlForeColor(control, Color.Red);
+        var checkNotPassControl = GetInvalidateValueControls();
 
         if (checkNotPassControl.Any())
+        {
+            var failControl = checkNotPassControl.First();
+
+            // switch to fail control's tab page
+            var p = failControl.Parent;
+            while (p != null)
+            {
+                if (p is TabPage tabPage)
+                {
+                    TabControl.SelectedTab = tabPage;
+                    break;
+                }
+
+                p = p.Parent;
+            }
+
             return;
+        }
 
         #endregion
 

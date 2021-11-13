@@ -31,6 +31,7 @@ namespace Netch.Forms
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
@@ -112,6 +113,7 @@ namespace Netch.Forms
             this.AioDNSListenPortTextBox = new System.Windows.Forms.TextBox();
             this.ControlButton = new System.Windows.Forms.Button();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             this.TabControl.SuspendLayout();
             this.GeneralTabPage.SuspendLayout();
             this.PortGroupBox.SuspendLayout();
@@ -123,6 +125,7 @@ namespace Netch.Forms
             this.OtherTabPage.SuspendLayout();
             this.AioDNSTabPage.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
             // 
             // TabControl
@@ -476,7 +479,7 @@ namespace Netch.Forms
             this.WinTUNGroupBox.Controls.Add(this.ProxyDNSCheckBox);
             this.WinTUNGroupBox.Location = new System.Drawing.Point(6, 6);
             this.WinTUNGroupBox.Name = "WinTUNGroupBox";
-            this.WinTUNGroupBox.Size = new System.Drawing.Size(420, 175);
+            this.WinTUNGroupBox.Size = new System.Drawing.Size(450, 175);
             this.WinTUNGroupBox.TabIndex = 0;
             this.WinTUNGroupBox.TabStop = false;
             // 
@@ -562,8 +565,8 @@ namespace Netch.Forms
             // 
             // ProxyDNSCheckBox
             // 
-            this.ProxyDNSCheckBox.DataBindings.Add((new System.Windows.Forms.Binding("Visible", UseCustomDNSCheckBox, "Checked", true)));
             this.ProxyDNSCheckBox.AutoSize = true;
+            this.ProxyDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Visible", this.UseCustomDNSCheckBox, "Checked", true));
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(175, 139);
             this.ProxyDNSCheckBox.Name = "ProxyDNSCheckBox";
             this.ProxyDNSCheckBox.Size = new System.Drawing.Size(89, 21);
@@ -642,7 +645,7 @@ namespace Netch.Forms
             this.KCPGroupBox.Controls.Add(this.congestionCheckBox);
             this.KCPGroupBox.Location = new System.Drawing.Point(9, 75);
             this.KCPGroupBox.Name = "KCPGroupBox";
-            this.KCPGroupBox.Size = new System.Drawing.Size(427, 204);
+            this.KCPGroupBox.Size = new System.Drawing.Size(447, 204);
             this.KCPGroupBox.TabIndex = 3;
             this.KCPGroupBox.TabStop = false;
             this.KCPGroupBox.Text = "KCP";
@@ -967,6 +970,11 @@ namespace Netch.Forms
             this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
+            // errorProvider
+            // 
+            this.errorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.NeverBlink;
+            this.errorProvider.ContainerControl = this;
+            // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1000,6 +1008,7 @@ namespace Netch.Forms
             this.AioDNSTabPage.ResumeLayout(false);
             this.AioDNSTabPage.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1088,5 +1097,6 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox FilterTCPCheckBox;
         private System.Windows.Forms.CheckBox FilterUDPCheckBox;
         private System.Windows.Forms.CheckBox DNSProxyCheckBox;
+        private ErrorProvider errorProvider;
     }
 }
