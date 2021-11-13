@@ -5,6 +5,7 @@ using Netch.Models;
 
 namespace Netch.Utils;
 
+// #define DEBUG_TUN
 public static class RouteUtils
 {
     public static void CreateRouteFill(NetRoute template, IEnumerable<string> rules, int? metric = null)
@@ -26,6 +27,7 @@ public static class RouteUtils
 
     public static bool CreateRoute(NetRoute o)
     {
+#if DEBUG_TUN
         Log.Verbose("CreateRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric}",
             AddressFamily.InterNetwork,
             o.Network,
@@ -34,6 +36,7 @@ public static class RouteUtils
             (ulong)o.InterfaceIndex,
             o.Metric);
 
+#endif
         return RouteHelper.CreateRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
     }
 
@@ -56,6 +59,7 @@ public static class RouteUtils
 
     public static bool DeleteRoute(NetRoute o)
     {
+#if DEBUG_TUN
         Log.Verbose("DeleteRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric}",
             AddressFamily.InterNetwork,
             o.Network,
@@ -64,6 +68,7 @@ public static class RouteUtils
             (ulong)o.InterfaceIndex,
             o.Metric);
 
+#endif
         return RouteHelper.DeleteRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
     }
 
