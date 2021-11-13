@@ -120,7 +120,7 @@ public partial class SettingForm : BindingForm
         BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
         BindTextBox(TUNTAPDNSTextBox,
-            _ => true,
+            s => IPAddress.TryParse(s, out _),
             s =>
             {
                 if (UseCustomDNSCheckBox.Checked)
