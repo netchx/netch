@@ -3,6 +3,7 @@ using Netch.Utils;
 
 namespace Netch.Servers;
 
+[Fody.ConfigureAwait(true)]
 public class ShadowsocksForm : ServerForm
 {
     public ShadowsocksForm(ShadowsocksServer? server = default)

@@ -39,7 +39,7 @@ public static class DnsUtils
     private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
         using var task = Dns.GetHostAddressesAsync(hostname);
-        using var resTask = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
+        using var resTask = await Task.WhenAny(task, Task.Delay(timeout));
 
         if (resTask == task)
         {

@@ -2,6 +2,7 @@
 
 namespace Netch.Servers;
 
+[Fody.ConfigureAwait(true)]
 public class VMessForm : ServerForm
 {
     public VMessForm(VMessServer? server = default)

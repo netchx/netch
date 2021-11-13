@@ -64,7 +64,7 @@ public static class Configuration
 
             await using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
             {
-                settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions).ConfigureAwait(false))!;
+                settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions))!;
             }
 
             CheckSetting(settings);
@@ -126,7 +126,7 @@ public static class Configuration
     {
         if (!File.Exists(FileFullName))
         {
-            await File.Create(FileFullName).DisposeAsync();
+            await using var fs = new FileStream(FileFullName, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096, true);
         }
     }
 }

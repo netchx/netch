@@ -43,14 +43,14 @@ public static class Redirector
         return aio_dial(name, value);
     }
 
-    public static async Task<bool> InitAsync()
+    public static Task<bool> InitAsync()
     {
-        return await Task.Run(aio_init).ConfigureAwait(false);
+        return Task.Run(aio_init);
     }
 
-    public static async Task<bool> FreeAsync()
+    public static Task<bool> FreeAsync()
     {
-        return await Task.Run(aio_free).ConfigureAwait(false);
+        return Task.Run(aio_free);
     }
 
     private const string Redirector_bin = "Redirector.bin";

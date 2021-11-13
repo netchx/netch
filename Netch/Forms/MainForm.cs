@@ -18,6 +18,7 @@ using Netch.Utils;
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public partial class MainForm : Form
 {
     #region Start
@@ -447,10 +448,13 @@ public partial class MainForm : Form
 
             var downloaded = false;
             if (File.Exists(updateFileFullName))
-                if (Utils.Utils.SHA256CheckSum(updateFileFullName) == sha256)
+            {
+                var fileHash = await Utils.Utils.Sha256CheckSumAsync(updateFileFullName);
+                if (fileHash == sha256)
                     downloaded = true;
                 else
                     File.Delete(updateFileFullName);
+            }
 
             if (!downloaded)
             {
@@ -464,7 +468,8 @@ public partial class MainForm : Form
                     throw new MessageException($"Download Update File Failed: {e1.Message}");
                 }
 
-                if (Utils.Utils.SHA256CheckSum(updateFileFullName) != sha256)
+                var fileHash = await Utils.Utils.Sha256CheckSumAsync(updateFileFullName);
+                if (fileHash != sha256)
                     throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
             }
 

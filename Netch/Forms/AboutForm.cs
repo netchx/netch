@@ -3,6 +3,7 @@ using Netch.Utils;
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public partial class AboutForm : Form
 {
     public AboutForm()

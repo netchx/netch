@@ -23,8 +23,8 @@ public class DNSController : IController
             throw new MessageException("AioDNS start failed.");
     }
 
-    public async Task StopAsync()
+    public Task StopAsync()
     {
-        await FreeAsync();
+        return FreeAsync();
     }
 }

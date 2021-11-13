@@ -2,6 +2,7 @@ using Netch.Forms;
 
 namespace Netch.Servers;
 
+[Fody.ConfigureAwait(true)]
 internal class VLESSForm : ServerForm
 {
     public VLESSForm(VLESSServer? server = default)

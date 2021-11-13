@@ -4,6 +4,7 @@ using Netch.Utils;
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public partial class GlobalBypassIPForm : Form
 {
     public GlobalBypassIPForm()

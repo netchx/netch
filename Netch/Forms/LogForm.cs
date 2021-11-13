@@ -5,6 +5,7 @@ using static Windows.Win32.PInvoke;
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public partial class LogForm : Form
 {
     private readonly Form _parent;

@@ -67,7 +67,7 @@ public abstract class Guard
     {
         State = State.Starting;
 
-        _logFileStream = File.Open(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+        _logFileStream = new FileStream(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, true);
         _logStreamWriter = new StreamWriter(_logFileStream) { AutoFlush = true };
 
         Instance.StartInfo.Arguments = argument;
@@ -79,8 +79,8 @@ public abstract class Guard
 
         if (RedirectOutput)
         {
-            Task.Run(() => ReadOutput(Instance.StandardOutput)).Forget();
-            Task.Run(() => ReadOutput(Instance.StandardError)).Forget();
+            ReadOutputAsync(Instance.StandardOutput).Forget();
+            ReadOutputAsync(Instance.StandardError).Forget();
 
             if (!StartedKeywords.Any())
             {
@@ -110,12 +110,12 @@ public abstract class Guard
         }
     }
 
-    private void ReadOutput(TextReader reader)
+    private async Task ReadOutputAsync(TextReader reader)
     {
         string? line;
-        while ((line = reader.ReadLine()) != null)
+        while ((line = await reader.ReadLineAsync()) != null)
         {
-            _logStreamWriter!.WriteLine(line);
+            await _logStreamWriter!.WriteLineAsync(line);
             OnReadNewLine(line);
 
             if (State == State.Starting)
@@ -133,9 +133,9 @@ public abstract class Guard
         State = State.Stopped;
     }
 
-    public virtual async Task StopAsync()
+    public virtual Task StopAsync()
     {
-        await StopGuardAsync();
+        return StopGuardAsync();
     }
 
     protected async Task StopGuardAsync()

@@ -2,6 +2,7 @@
 
 namespace Netch.Servers;
 
+[Fody.ConfigureAwait(true)]
 public class Socks5Form : ServerForm
 {
     public Socks5Form(Socks5Server? server = default)

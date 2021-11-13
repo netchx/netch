@@ -9,6 +9,7 @@ using Netch.Utils;
 
 namespace Netch.Forms.ModeForms;
 
+[Fody.ConfigureAwait(true)]
 public partial class ProcessForm : BindingForm
 {
     private readonly bool IsCreateMode;

@@ -4,6 +4,7 @@ using Netch.Utils;
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public partial class SubscriptionForm : Form
 {
     public SubscriptionForm()

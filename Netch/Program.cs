@@ -91,7 +91,7 @@ public static class Program
         i18N.Load(Global.Settings.Language);
 
         // log environment information
-        Task.Run(LogEnvironment).Forget();
+        LogEnvironmentAsync().Forget();
         CheckClr();
         CheckOS();
 
@@ -108,11 +108,11 @@ public static class Program
 
 #pragma warning restore VSTHRD002
 
-    private static void LogEnvironment()
+    private static async Task LogEnvironmentAsync()
     {
         Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
         Log.Information("OS: {OSVersion}", Environment.OSVersion);
-        Log.Information("SHA256: {Hash}", $"{Utils.Utils.SHA256CheckSum(Global.NetchExecutable)}");
+        Log.Information("SHA256: {Hash}", $"{await Utils.Utils.Sha256CheckSumAsync(Global.NetchExecutable)}");
         Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
 
 #if RELEASE

@@ -13,14 +13,14 @@ public static class AioDNS
         return aiodns_dial(name, Encoding.UTF8.GetBytes(value));
     }
 
-    public static async Task<bool> InitAsync()
+    public static Task<bool> InitAsync()
     {
-        return await Task.Run(Init).ConfigureAwait(false);
+        return Task.Run(Init);
     }
 
-    public static async Task FreeAsync()
+    public static Task FreeAsync()
     {
-        await Task.Run(Free).ConfigureAwait(false);
+        return Task.Run(Free);
     }
 
     [DllImport(aiodns_bin, CallingConvention = CallingConvention.Cdecl)]

@@ -169,18 +169,18 @@ public static class MainController
         PortCheck(port, portName, PortType.TCP);
     }
 
-    public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
+    public static Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
-        return await Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
+        return Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
     }
 
-    public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
+    public static Task<int?> HttpConnectAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
         try
         {
-            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
+            return Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
         }
         catch (OperationCanceledException)
         {
@@ -191,6 +191,6 @@ public static class MainController
             Log.Warning(e, "Unhandled Socks5ServerTestUtils.HttpConnectAsync Exception");
         }
 
-        return null;
+        return Task.FromResult<int?>(null);
     }
 }

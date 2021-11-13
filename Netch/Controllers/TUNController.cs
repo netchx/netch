@@ -92,10 +92,11 @@ public class TUNController : Guard, IModeController
         _tun = NetRoute.TemplateBuilder(_tunConfig.Gateway, tunIndex);
 
         Global.MainForm.StatusText(i18N.Translate("Assign Unicast IP"));
-        if (!RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
-                _tunConfig.Address,
-                (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
-                (ulong)tunIndex))
+        if (!await Task.Run(() => RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
+                    _tunConfig.Address,
+                    (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
+                    (ulong)tunIndex))
+                )
         {
             Log.Error("Create Unicast IP failed");
             throw new MessageException("Create Unicast IP failed");

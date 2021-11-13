@@ -7,9 +7,9 @@ public static class SubscriptionUtil
 {
     private static readonly object ServerLock = new();
 
-    public static async Task UpdateServersAsync(string? proxyServer = default)
+    public static Task UpdateServersAsync(string? proxyServer = default)
     {
-        await Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, proxyServer)));
+        return Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, proxyServer)));
     }
 
     private static async Task UpdateServerCoreAsync(Subscription item, string? proxyServer)

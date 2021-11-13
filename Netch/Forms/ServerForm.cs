@@ -7,6 +7,7 @@ using Netch.Utils;
 namespace Netch.Forms;
 
 [DesignerCategory(@"Code")]
+[Fody.ConfigureAwait(true)]
 public abstract class ServerForm : Form
 {
     private const int ControlLineHeight = 28;

@@ -2,6 +2,7 @@
 
 namespace Netch.Servers;
 
+[Fody.ConfigureAwait(true)]
 public class TrojanForm : ServerForm
 {
     public TrojanForm(TrojanServer? server = default)

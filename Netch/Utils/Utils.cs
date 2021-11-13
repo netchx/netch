@@ -92,12 +92,12 @@ public static class Utils
         return country;
     }
 
-    public static string SHA256CheckSum(string filePath)
+    public static async Task<string> Sha256CheckSumAsync(string filePath)
     {
         try
         {
-            using var fileStream = File.OpenRead(filePath);
-            return SHA256ComputeCore(fileStream);
+            await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+            return await Sha256ComputeCoreAsync(fileStream);
         }
         catch (Exception e)
         {
@@ -106,10 +106,11 @@ public static class Utils
         }
     }
 
-    private static string SHA256ComputeCore(Stream stream)
+    private static async Task<string> Sha256ComputeCoreAsync(Stream stream)
     {
         using var sha256 = SHA256.Create();
-        return string.Concat(sha256.ComputeHash(stream).Select(b => b.ToString("x2")));
+        var hash = await sha256.ComputeHashAsync(stream);
+        return string.Concat(hash.Select(b => b.ToString("x2")));
     }
 
     public static string GetFileVersion(string file)

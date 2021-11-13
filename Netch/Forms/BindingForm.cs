@@ -2,6 +2,7 @@
 
 namespace Netch.Forms;
 
+[Fody.ConfigureAwait(true)]
 public class BindingForm : Form
 {
     private readonly Dictionary<Control, Func<string, bool>> _checkActions = new();

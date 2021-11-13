@@ -28,69 +28,55 @@ public static class WebUtil
         return req;
     }
 
-    /// <summary>
-    ///     异步下载
-    /// </summary>
-    /// <param name="req"></param>
-    /// <returns></returns>
     public static async Task<byte[]> DownloadBytesAsync(HttpWebRequest req)
     {
         using var webResponse = await req.GetResponseAsync();
-        await using var memoryStream = new MemoryStream();
-        await using var input = webResponse.GetResponseStream();
-
-        await input.CopyToAsync(memoryStream);
-        return memoryStream.ToArray();
+        var memoryStream = new MemoryStream();
+        await using (memoryStream)
+        {
+            var input = webResponse.GetResponseStream();
+            await using (input)
+            {
+                await input.CopyToAsync(memoryStream);
+                return memoryStream.ToArray();
+            }
+        }
     }
 
-    /// <summary>
-    ///     异步下载并编码为字符串
-    /// </summary>
-    /// <param name="req"></param>
-    /// <param name="encoding">编码，默认UTF-8</param>
-    /// <returns></returns>
-    public static (HttpStatusCode, string) DownloadString(HttpWebRequest req, Encoding? encoding = null)
-    {
-        encoding ??= Encoding.UTF8;
-        using var rep = (HttpWebResponse)req.GetResponse();
-        using var responseStream = rep.GetResponseStream();
-        using var streamReader = new StreamReader(responseStream, encoding);
-
-        return (rep.StatusCode, streamReader.ReadToEnd());
-    }
-
-    /// <summary>
-    ///     异步下载并编码为字符串
-    /// </summary>
-    /// <param name="req"></param>
-    /// <param name="encoding">编码，默认UTF-8</param>
-    /// <returns></returns>
     public static async Task<(HttpStatusCode, string)> DownloadStringAsync(HttpWebRequest req, Encoding? encoding = null)
     {
         encoding ??= Encoding.UTF8;
         using var webResponse = (HttpWebResponse)await req.GetResponseAsync();
-        await using var responseStream = webResponse.GetResponseStream();
-        using var streamReader = new StreamReader(responseStream, encoding);
 
-        return (webResponse.StatusCode, await streamReader.ReadToEndAsync());
+        var responseStream = webResponse.GetResponseStream();
+        await using (responseStream)
+        {
+            using var streamReader = new StreamReader(responseStream, encoding);
+
+            return (webResponse.StatusCode, await streamReader.ReadToEndAsync());
+        }
     }
 
-    public static async Task DownloadFileAsync(string address, string fileFullPath, IProgress<int>? progress = null)
+    public static Task DownloadFileAsync(string address, string fileFullPath, IProgress<int>? progress = null)
     {
-        await DownloadFileAsync(CreateRequest(address), fileFullPath, progress);
+        return DownloadFileAsync(CreateRequest(address), fileFullPath, progress);
     }
 
     public static async Task DownloadFileAsync(HttpWebRequest req, string fileFullPath, IProgress<int>? progress)
     {
-        await using (var fileStream = File.Open(fileFullPath, FileMode.Create, FileAccess.Write))
-        using (var webResponse = (HttpWebResponse)await req.GetResponseAsync())
-        await using (var input = webResponse.GetResponseStream())
-        using (var downloadTask = input.CopyToAsync(fileStream))
+        var fileStream = new FileStream(fileFullPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+        await using (fileStream)
         {
-            if (progress != null)
-                ReportProgressAsync(webResponse.ContentLength, downloadTask, fileStream, progress, 200).Forget();
+            using var webResponse = (HttpWebResponse)await req.GetResponseAsync();
+            var input = webResponse.GetResponseStream();
+            await using (input)
+            {
+                using var downloadTask = input.CopyToAsync(fileStream);
+                if (progress != null)
+                    ReportProgressAsync(webResponse.ContentLength, downloadTask, fileStream, progress, 200).Forget();
 
-            await downloadTask;
+                await downloadTask;
+            }
         }
 
         progress?.Report(100);
@@ -108,7 +94,7 @@ public static class WebUtil
                 progress.Report(n);
             }
 
-            await Task.Delay(interval).ConfigureAwait(false);
+            await Task.Delay(interval);
         }
     }
 }

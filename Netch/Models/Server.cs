@@ -77,17 +77,15 @@ public abstract class Server : ICloneable
             var list = new Task<int>[3];
             for (var i = 0; i < 3; i++)
             {
-                async Task<int> PingCoreAsync()
+                Task<int> PingCoreAsync()
                 {
                     try
                     {
-                        return Global.Settings.ServerTCPing
-                            ? await Utils.Utils.TCPingAsync(destination, Port)
-                            : await Utils.Utils.ICMPingAsync(destination);
+                        return Global.Settings.ServerTCPing ? Utils.Utils.TCPingAsync(destination, Port) : Utils.Utils.ICMPingAsync(destination);
                     }
                     catch (Exception)
                     {
-                        return -4;
+                        return Task.FromResult(-4);
                     }
                 }
 

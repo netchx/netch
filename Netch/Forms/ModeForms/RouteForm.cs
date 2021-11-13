@@ -6,6 +6,7 @@ using Netch.Utils;
 
 namespace Netch.Forms.ModeForms;
 
+[Fody.ConfigureAwait(true)]
 public partial class RouteForm : BindingForm
 {
     private readonly bool IsCreateMode;
