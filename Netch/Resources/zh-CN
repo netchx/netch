@@ -21,6 +21,7 @@
     "Updating servers": "正在更新服务器",
     "Servers updated": "服务器更新完毕",
     "Installing netfilter2 driver": "正在安装 netfilter2 驱动",
+    "Assigning unicast IP": "正在分配单播 IP",
 
     "Server": "服务器",
     "Import Servers From Clipboard": "从剪贴板导入服务器",
