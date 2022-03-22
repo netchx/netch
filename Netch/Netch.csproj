@@ -13,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Management" Version="6.0.0" />
-    <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.3.14" />
+    <PackageReference Include="Vanara.PInvoke.IpHlpApi" Version="3.4.0" />
   </ItemGroup>
 
 </Project>
