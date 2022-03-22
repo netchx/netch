@@ -28,37 +28,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutForm));
-            this.SponsorGroupBox = new System.Windows.Forms.GroupBox();
-            this.SponsorPictureBox = new System.Windows.Forms.PictureBox();
             this.ChannelLabel = new System.Windows.Forms.LinkLabel();
             this.NetchPictureBox = new System.Windows.Forms.PictureBox();
-            this.SponsorGroupBox.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.SponsorPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.NetchPictureBox)).BeginInit();
             this.SuspendLayout();
-            // 
-            // SponsorGroupBox
-            // 
-            this.SponsorGroupBox.Controls.Add(this.SponsorPictureBox);
-            this.SponsorGroupBox.Location = new System.Drawing.Point(12, 235);
-            this.SponsorGroupBox.Name = "SponsorGroupBox";
-            this.SponsorGroupBox.Size = new System.Drawing.Size(314, 229);
-            this.SponsorGroupBox.TabIndex = 2;
-            this.SponsorGroupBox.TabStop = false;
-            this.SponsorGroupBox.Text = "Sponsor";
-            // 
-            // SponsorPictureBox
-            // 
-            this.SponsorPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SponsorPictureBox.Image = global::Netch.Properties.Resources.Sponsor;
-            this.SponsorPictureBox.Location = new System.Drawing.Point(6, 22);
-            this.SponsorPictureBox.Name = "SponsorPictureBox";
-            this.SponsorPictureBox.Size = new System.Drawing.Size(300, 200);
-            this.SponsorPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.SponsorPictureBox.TabIndex = 1;
-            this.SponsorPictureBox.TabStop = false;
-            this.SponsorPictureBox.Click += new System.EventHandler(this.SponsorPictureBox_Click);
             // 
             // ChannelLabel
             // 
@@ -87,11 +60,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.ClientSize = new System.Drawing.Size(338, 474);
+            this.ClientSize = new System.Drawing.Size(338, 244);
             this.Controls.Add(this.ChannelLabel);
-            this.Controls.Add(this.SponsorGroupBox);
             this.Controls.Add(this.NetchPictureBox);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.MaximizeBox = false;
@@ -99,8 +71,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "About";
             this.Load += new System.EventHandler(this.AboutForm_Load);
-            this.SponsorGroupBox.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.SponsorPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.NetchPictureBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -110,8 +80,6 @@
         #endregion
 
         private System.Windows.Forms.PictureBox NetchPictureBox;
-        private System.Windows.Forms.PictureBox SponsorPictureBox;
-        private System.Windows.Forms.GroupBox SponsorGroupBox;
         private System.Windows.Forms.LinkLabel ChannelLabel;
     }
 }
