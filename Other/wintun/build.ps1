@@ -2,7 +2,7 @@ Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `
-        -Uri 'https://www.wintun.net/builds/wintun-0.14.1.zip' `
+        -Uri 'https://www.wintun.net/builds/wintun-0.13.zip' `
         -OutFile 'wintun.zip'
 }
 catch {

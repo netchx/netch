@@ -1,0 +1,5 @@
+# Halo The Master Chief Collection
+mcclauncher.exe
+MCC-Win64-Shipping.exe
+easyanticheat_setup.exe
+UnrealCEFSubProcess.exe

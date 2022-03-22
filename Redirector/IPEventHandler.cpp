@@ -78,7 +78,8 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 	data[options->ipHeaderSize + 2] = icmpsum & 0xff;
 	data[options->ipHeaderSize + 3] = (icmpsum >> 8);
 
-	this_thread::sleep_for(chrono::microseconds(icmping));
+	if (icmping > 0)
+		this_thread::sleep_for(chrono::milliseconds(icmping));
 	printf("[Redirector][IPEventHandler][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
 
 	nf_ipPostReceive((char*)data, length, options);

@@ -1,34 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Netch.Forms;
+using Netch.Models;
+using Netch.Models.Modes;
+using WindowsJobAPI;
 
-namespace Netch
+namespace Netch;
+
+public static class Global
 {
-    public static class Global
+    /// <summary>
+    ///     主窗体的静态实例
+    /// </summary>
+    private static readonly Lazy<MainForm> LazyMainForm = new(() => new MainForm());
+
+    /// <summary>
+    ///     用于读取和写入的配置
+    /// </summary>
+    public static Setting Settings = new();
+
+    public static readonly JobObject Job = new();
+
+    /// <summary>
+    ///     用于存储模式
+    /// </summary>
+    public static readonly List<Mode> Modes = new();
+
+    public static readonly string NetchDir;
+    public static readonly string NetchExecutable;
+
+    static Global()
     {
-        /// <summary>
-        ///     版本号
-        /// </summary>
-        public static readonly string VerCode = "2.0.0";
-
-        /// <summary>
-        ///     日志记录
-        /// </summary>
-        public static Tools.Logger Logger = new() { SavePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Netch.log") };
-
-        /// <summary>
-        ///      配置文件
-        /// </summary>
-        public static Models.Config.Config Config;
-
-        /// <summary>
-        ///     节点列表
-        /// </summary>
-        public static List<Models.Server.ServerList> NodeList;
-
-        /// <summary>
-        ///     模式列表
-        /// </summary>
-        public static List<Models.Mode.Mode> ModeList;
+        NetchExecutable = Application.ExecutablePath;
+        NetchDir = Application.StartupPath;
     }
+
+    /// <summary>
+    ///     主窗体的静态实例
+    /// </summary>
+    public static MainForm MainForm => LazyMainForm.Value;
+
+    public static JsonSerializerOptions NewCustomJsonSerializerOptions() => new()
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 }

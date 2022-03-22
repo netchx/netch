@@ -1,0 +1,22 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "COD18"
+  },
+  "handle": [
+    "\\\\Battlestate Games\\\\",
+    "\\\\Battle.net\\\\"
+  ],
+  "bypass": [],
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "dnsHost": "1.1.1.1:53",
+  "handleOnlyDNS": null,
+  "icmpDelay": 100,
+  "filterParent": true,
+  "filterDNS": null,
+  "filterUDP": null,
+  "filterTCP": null,
+  "filterICMP": true,
+  "dnsProxy": null
+}

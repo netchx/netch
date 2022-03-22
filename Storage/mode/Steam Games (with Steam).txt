@@ -1,0 +1,17 @@
+# Steam Games (with Steam), 0
+\\steamapps\\
+html5app_steam.exe
+steamwebhelper.exe
+gldriverquery.exe
+gldriverquery64.exe
+secure_desktop_capture.exe
+steamservice.exe
+steam_monitor.exe
+x64launcher.exe
+x86launcher.exe
+GameOverlayUI.exe
+steam.exe
+steamerrorreporter.exe
+steamerrorreporter64.exe
+streaming_client.exe
+WriteMiniDump.exe

@@ -1,0 +1,4 @@
+# Warframe
+\\Launcher.exe
+RemoteCrashSender.exe
+Warframe.x64.exe

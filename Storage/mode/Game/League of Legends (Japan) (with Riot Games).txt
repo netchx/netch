@@ -1,0 +1,13 @@
+# League of Legends (Japan) (with Riot Games), 0
+jpatch.exe
+RiotClientCrashHandler.exe
+RiotClientServices.exe
+RiotClientUx.exe
+RiotClientUxRender.exe
+BsSndRpt.exe
+LeagueClient.exe
+LeagueClientUx.exe
+LeagueClientUxRender.exe
+Uninstall League of Legends.exe
+League of Legends.exe
+LeagueCrashHandler.exe

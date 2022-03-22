@@ -1,0 +1,5 @@
+# San Andreas Multiplayer (SA-MP), 0
+gta_sa.exe
+rcon.exe
+samp.exe
+samp_debug.exe

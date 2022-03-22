@@ -1,0 +1,21 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "NVIDIA Corporation"
+  },
+  "handle": [
+    "\\\\NVIDIA Corporation\\\\"
+  ],
+  "bypass": [],
+  "filterIntranet": true,
+  "filterLoopback": true,
+  "dnsHost": "1.1.1.1:53",
+  "handleOnlyDNS": null,
+  "icmpDelay": 10,
+  "filterParent": null,
+  "filterDNS": null,
+  "filterUDP": null,
+  "filterTCP": null,
+  "filterICMP": null,
+  "dnsProxy": null
+}

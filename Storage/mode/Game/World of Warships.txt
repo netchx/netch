@@ -1,0 +1,10 @@
+# World Of Warships, 0, 0
+wgc_api.exe
+wgc.exe
+WorldOfWarships.exe
+WGCheck.exe
+WargamingErrorMonitor.exe
+WorldOfWarships64.exe
+cef_browser_process.exe
+cef_subprocess.exe
+WorldOfWarships32.exe

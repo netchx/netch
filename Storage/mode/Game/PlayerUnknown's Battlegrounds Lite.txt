@@ -1,0 +1,11 @@
+# PlayerUnknown's Battlegrounds Lite
+CefSharp.BrowserSubprocess.exe
+UE4PrereqSetup_x64.exe
+PUBGLite.exe
+BroCrashReporter.exe
+PUBGLite-Win64-Shipping.exe
+ucldr_bgl_se.exe
+ucsvc.exe
+\\Launcher.exe
+\\LauncherAgent.exe
+unins000.exe

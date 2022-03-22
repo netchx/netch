@@ -1,0 +1,5 @@
+# VRChat, 0
+install.exe
+VRChat.exe
+UnityCrashHandler64.exe
+youtube-dl.exe

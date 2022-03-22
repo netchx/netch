@@ -1,0 +1,7 @@
+# Nexon
+NexonPlug.exe
+NMService.exe
+NGM.exe
+NGCLIENT.AES
+NGM64.exe
+SIG.exe

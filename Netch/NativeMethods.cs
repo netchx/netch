@@ -1,13 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Netch
-{
-    public static class NativeMethods
-    {
-        [DllImport("kernel32")]
-        public static extern bool AllocConsole();
+namespace Netch;
 
-        [DllImport("kernel32")]
-        public static extern bool AttachConsole(uint dwProcessId);
-    }
+public static class NativeMethods
+{
+    [DllImport("dnsapi", EntryPoint = "DnsFlushResolverCache")]
+    public static extern uint RefreshDNSCache();
 }

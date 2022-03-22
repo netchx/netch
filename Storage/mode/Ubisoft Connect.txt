@@ -1,0 +1,8 @@
+# Ubisoft Connect
+UbisoftConnect.exe
+UbisoftGameLauncher.exe
+UbisoftGameLauncher64.exe
+upc.exe
+UplayCrashReporter.exe
+UplayService.exe
+UplayWebCore.exe

@@ -1,0 +1,5 @@
+# Geforce Experience
+courgette.exe
+NVIDIA GeForce Experience.exe
+NVIDIA Notification.exe
+NVIDIA Share.exe

@@ -7,7 +7,7 @@ jobs:
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Checksum
         shell: pwsh
@@ -18,28 +18,28 @@ jobs:
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache Netch
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: Netch-${{ runner.os }}-Netch-${{ env.SOURCE_NETCH_SHA256 }}
           path: |
             .\Netch\bin
 
       - name: Cache Other
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: Netch-${{ runner.os }}-Other-${{ env.SOURCE_OTHER_SHA256 }}
           path: |
             .\Other\release
 
       - name: Cache Redirector
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: Netch-${{ runner.os }}-Redirector-${{ env.SOURCE_REDIRECTOR_SHA256 }}
           path: |
             .\Redirector\bin
 
       - name: Cache RouteHelper
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           key: Netch-${{ runner.os }}-RouteHelper-${{ env.SOURCE_ROUTEHELPER_SHA256 }}
           path: |
@@ -63,7 +63,7 @@ jobs:
         with:
           update: true
           release: true
-          install: base-devel git mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-libevent mingw-w64-x86_64-pcre2 mingw-w64-x86_64-freetype mingw-w64-x86_64-libpng mingw-w64-x86_64-bzip2 mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls mingw-w64-x86_64-libsodium mingw-w64-x86_64-c-ares mingw-w64-x86_64-boost mingw-w64-x86_64-libmariadbclient unzip p7zip
+          install: base-devel git mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-libevent mingw-w64-x86_64-pcre2 mingw-w64-x86_64-freetype mingw-w64-x86_64-libpng mingw-w64-x86_64-bzip2 mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls mingw-w64-x86_64-libsodium mingw-w64-x86_64-c-ares mingw-w64-x86_64-boost mingw-w64-x86_64-libmariadbclient unzip p7zip autoconf automake libtool
 
       - name: Setup Rust
         uses: actions-rs/toolchain@v1

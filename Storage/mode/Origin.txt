@@ -1,0 +1,20 @@
+# Origin
+EAProxyInstaller.exe
+GetGameToken32.exe
+GetGameToken64.exe
+igoproxy.exe
+igoproxy64.exe
+EACoreServer.exe
+Login.exe
+MessageDlg.exe
+OriginLegacyCLI.exe
+OriginUninstall.exe
+PatchProgress.exe
+Origin.exe
+OriginClientService.exe
+OriginCrashReporter.exe
+OriginER.exe
+OriginThinSetupInternal.exe
+OriginWebHelperService.exe
+QtWebEngineProcess.exe
+UpdateTool.exe

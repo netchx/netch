@@ -1,0 +1,5 @@
+stun.qq.com
+stun.bige0.com
+stun.miwifi.com
+stun.syncthing.net
+stun.stunprotocol.org

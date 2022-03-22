@@ -1,0 +1,9 @@
+# Valorant, 0
+RiotClientCrashHandler.exe
+RiotClientServices.exe
+RiotClientUx.exe
+RiotClientUxRender.exe
+VALORANT.exe
+VALORANT-Win64-Shipping.exe
+CrashReportClient.exe
+UnrealCEFSubProcess.exe

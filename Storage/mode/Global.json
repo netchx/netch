@@ -1,15 +1,23 @@
 {
-    "type": 0,
-    "filterLoopback": false,
-    "filterIntranet": true,
-    "filterICMP": true,
-    "filterTCP": true,
-    "filterUDP": true,
-    "filterDNS": true,
-    "bypass": [
-        "\\Netch\\"
-    ],
-    "handle": [
-        ".*"
-    ]
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "Global"
+  },
+  "handle": [
+    ".*"
+  ],
+  "bypass": [
+    "\\Netch\\"
+  ],
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "dnsHost": "1.1.1.1:53",
+  "handleOnlyDNS": null,
+  "icmpDelay": 10,
+  "filterParent": null,
+  "filterDNS": true,
+  "filterUDP": true,
+  "filterTCP": true,
+  "filterICMP": true,
+  "dnsProxy": null
 }

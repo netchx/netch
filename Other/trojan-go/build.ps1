@@ -11,5 +11,5 @@ $Env:GOROOT_FINAL='/usr'
 
 $Env:GOOS='windows'
 $Env:GOARCH='amd64'
-go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w' -tags 'full' -o '..\..\release\trojan-go.exe'
+go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w' -tags 'full' -o '..\..\release\Trojan.exe'
 exit $lastExitCode

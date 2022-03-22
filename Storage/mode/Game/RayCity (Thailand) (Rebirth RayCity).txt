@@ -1,0 +1,3 @@
+# RayCity (Thailand) (Rebirth RayCity), 0
+\\Patcher.exe
+RebirtRaycity.exe

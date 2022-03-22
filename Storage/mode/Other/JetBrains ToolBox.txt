@@ -1,0 +1,5 @@
+# JetBrains, 0
+7z.exe
+jetbrains-toolbox-helper.exe
+jetbrains-toolbox.exe
+Uninstall.exe

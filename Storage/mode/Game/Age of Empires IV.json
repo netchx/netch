@@ -1,0 +1,21 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "Age of Empires IV"
+  },
+  "handle": [
+    "RelicCardinal_ws.exe"
+  ],
+  "bypass": [],
+  "filterIntranet": true,
+  "filterLoopback": true,
+  "dnsHost": "1.1.1.1:53",
+  "handleOnlyDNS": false,
+  "icmpDelay": 10,
+  "filterParent": null,
+  "filterDNS": false,
+  "filterUDP": null,
+  "filterTCP": null,
+  "filterICMP": false,
+  "dnsProxy": null
+}

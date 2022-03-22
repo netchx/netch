@@ -1,0 +1,21 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "PVZ Battle for Neighborville"
+  },
+  "handle": [
+    "PVZ Battle for Neighborville"
+  ],
+  "bypass": [],
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "dnsHost": "1.1.1.1:53",
+  "handleOnlyDNS": null,
+  "icmpDelay": 10,
+  "filterParent": null,
+  "filterDNS": null,
+  "filterUDP": null,
+  "filterTCP": null,
+  "filterICMP": null,
+  "dnsProxy": null
+}

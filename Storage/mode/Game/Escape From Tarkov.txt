@@ -1,0 +1,4 @@
+# Escape From Tarkov, 0
+EscapeFromTarkov.exe
+EscapeFromTarkov_BE.exe
+BsgLauncher.exe

@@ -1,0 +1,2 @@
+# [pcap2socks] Tencent(10.6.0.1) Preset, 6
+--preset tencent

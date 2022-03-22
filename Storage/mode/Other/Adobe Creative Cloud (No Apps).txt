@@ -1,0 +1,7 @@
+# Adobe Creative Cloud, 0
+Creative_Cloud_Set-Up.exe
+Adobe CEF Helper.exe
+Creative Cloud.exe
+Setup.exe
+Set-up.exe
+HDHelper.exe

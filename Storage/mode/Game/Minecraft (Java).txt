@@ -1,0 +1,4 @@
+# Minecraft (Java)
+javaw.exe
+java.exe
+MinecraftLauncher.exe

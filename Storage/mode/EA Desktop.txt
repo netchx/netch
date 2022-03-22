@@ -1,0 +1,15 @@
+# EA Desktop, 0
+EABackgroundService.exe
+EAConnect_microsoft.exe
+EACrashReporter.exe
+EADesktop.exe
+EAGEP.exe
+EALauncher.exe
+EALaunchHelper.exe
+EALocalHostSvc.exe
+ErrorReporter.exe
+GetGameToken32.exe
+GetGameToken64.exe
+IGOProxy32.exe
+OriginLegacyCompatibility.exe
+QtWebEngineProcess.exe

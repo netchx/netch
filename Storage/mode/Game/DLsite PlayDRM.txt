@@ -1,0 +1,2 @@
+# DLsite PlayDRM, 0
+startup.exe

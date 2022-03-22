@@ -1,0 +1,2 @@
+# Minecraft Bedrock (Win10 UWP)
+Minecraft.Windows.exe

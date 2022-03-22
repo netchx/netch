@@ -1,3 +1,4 @@
 /bin
 /obj
 /*.csproj.user
+FodyWeavers.xsd

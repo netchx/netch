@@ -1,0 +1,2 @@
+# qBittorrent, 0
+qbittorrent.exe

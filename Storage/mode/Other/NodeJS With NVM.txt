@@ -1,0 +1,5 @@
+# NodeJS With NVM, 0
+nvm.exe
+unins000.exe
+node64.exe
+node.exe

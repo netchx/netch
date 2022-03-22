@@ -1,0 +1,21 @@
+# League of Legends (Taiwan) (with Garena)
+wow_helper.exe
+CrashReporter.exe
+GarenaTV.exe
+gxxapphelper.exe
+gxxcef.exe
+gxxsvc.exe
+gxxsvcrev.exe
+gxxupdate.exe
+overlayhelper.exe
+capturehelper.exe
+uninst.exe
+voiceassist.exe
+Garena.exe
+BsSndRpt.exe
+League of Legends.exe
+LeagueCrashHandler.exe
+jpatch.exe
+LeagueClient.exe
+LeagueClientUx.exe
+LeagueClientUxRender.exe

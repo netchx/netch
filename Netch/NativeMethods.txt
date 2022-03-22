@@ -1,0 +1,28 @@
+﻿// IpHlpApi.dll
+GetBestRoute
+GetExtendedTcpTable
+MIB_TCPTABLE_OWNER_PID
+ADDRESS_FAMILY
+MIB_UNICASTIPADDRESS_ROW
+InitializeUnicastIpAddressEntry
+CreateUnicastIpAddressEntry
+GetUnicastIpAddressEntry
+NotifyUnicastIpAddressChange
+CancelMibChangeNotify2
+
+// User32.dll
+SetWindowPos
+GetWindowLong
+ShowWindow
+WINDOW_STYLE
+
+// Kernel32.dll
+AllocConsole
+GetConsoleWindow
+
+// Ws2_32.dll
+ntohs
+inet_pton
+
+// Windows.h
+// WIN32_ERROR

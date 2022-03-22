@@ -1,0 +1,9 @@
+# RAGE Multiplayer, 0
+cef_process.exe
+ragemp_game_ui.exe
+ragemp_ui.exe
+ragemp-server.exe
+ragemp_v.exe
+updater.exe
+GTA5.exe
+PlayGTAV.exe

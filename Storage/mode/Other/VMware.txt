@@ -1,0 +1,2 @@
+# VMware, 0, 0
+vmnat.exe

@@ -1,0 +1,13 @@
+# League of Legends (US), 0
+BsSndRpt.exe
+jpatch.exe
+LeagueClient.exe
+LeagueClientUx.exe
+LeagueClientUxRender.exe
+Uninstall League of Legends.exe
+League of Legends.exe
+LeagueCrashHandler.exe
+RiotClientServices.exe
+RiotClientUx.exe
+RiotClientUxRender.exe
+RiotClientCrashHandler.exe

@@ -11,5 +11,5 @@ if ( -Not $? ) {
     exit $lastExitCode
 }
 
-cp -Force '.\ss-local.exe' '..\..\release\ssr-local.exe'
+cp -Force '.\ss-local.exe' '..\..\release\ShadowsocksR.exe'
 exit 0
