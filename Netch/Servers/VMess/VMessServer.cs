@@ -104,7 +104,8 @@ public class VMessGlobal
         "auto",
         "none",
         "aes-128-gcm",
-        "chacha20-poly1305"
+        "chacha20-poly1305",
+        "zero"
     };
 
     public static readonly List<string> QUIC = new()
