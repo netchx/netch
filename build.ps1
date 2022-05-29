@@ -29,8 +29,6 @@ if ( Test-Path -Path $OutputPath ) {
 }
 New-Item -ItemType Directory -Name $OutputPath | Out-Null
 
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile '..\Storage\GeoLite2-Country.mmdb'
-
 Push-Location $OutputPath
 New-Item -ItemType Directory -Name 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\i18n' '.'  | Out-Null
@@ -38,7 +36,8 @@ cp -Recurse -Force '..\Storage\mode' '.'  | Out-Null
 cp -Recurse -Force '..\Storage\stun.txt' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\nfdriver.sys' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\aiodns.conf' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\GeoLite2-Country.mmdb' 'bin'  | Out-Null
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile 'bin\GeoLite2-Country.mmdb'
+#cp -Recurse -Force '..\Storage\GeoLite2-Country.mmdb' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\tun2socks.bin' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\README.md' 'bin'  | Out-Null
 Pop-Location
