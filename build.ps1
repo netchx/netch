@@ -29,7 +29,7 @@ if ( Test-Path -Path $OutputPath ) {
 }
 New-Item -ItemType Directory -Name $OutputPath | Out-Null
 
-wget -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile '..\Storage\GeoLite2-Country.mmdb'
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile '..\Storage\GeoLite2-Country.mmdb'
 
 Push-Location $OutputPath
 New-Item -ItemType Directory -Name 'bin'  | Out-Null
