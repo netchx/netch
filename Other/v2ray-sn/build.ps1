@@ -1,0 +1,28 @@
+Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+
+git clone https://github.com/SagerNet/v2ray-core.git -b 'v5.0.12' src
+if ( -Not $? ) {
+    exit $lastExitCode
+}
+Set-Location src
+
+# Download SSR plugin
+Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/H1JK/b3165a99b635dcc06101690e4c43b5fd/raw/691b471f3b395a949d03a3d064d93d319d4997b7/ssr.go' -OutFile '.\proxy\shadowsocks\plugin\self\ssr.go'
+
+# Download Simple-Obfs plugin
+Invoke-WebRequest -Uri 'https://gist.githubusercontent.com/H1JK/b3165a99b635dcc06101690e4c43b5fd/raw/691b471f3b395a949d03a3d064d93d319d4997b7/obfs.go' -OutFile '.\proxy\shadowsocks\plugin\self\obfs.go'
+
+# Enable ReadV (Use v2fly/v2ray-core's ReadV code)
+Remove-Item '.\common\buf\io.go'
+Remove-Item '.\common\buf\readv_reader.go'
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/v2fly/v2ray-core/master/common/buf/io.go' -OutFile '.\common\buf\io.go'
+Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/v2fly/v2ray-core/master/common/buf/readv_reader.go' -OutFile '.\common\buf\readv_reader.go'
+
+$Env:CGO_ENABLED='0'
+$Env:GOROOT_FINAL='/usr'
+
+$Env:GOOS='windows'
+$Env:GOARCH='amd64'
+go mod tidy # necessary
+go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w -buildid=' -o '..\..\release\v2ray-sn.exe' '.\main'
+exit $lastExitCode
