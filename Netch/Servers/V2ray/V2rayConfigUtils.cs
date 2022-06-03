@@ -13,7 +13,6 @@ public static class V2rayConfigUtils
         {
             inbounds = new object[]
             {
-                // https://www.v2fly.org/en_US/v5/config/proxy/socks.html
                 new
                 {
                     port = Global.Settings.Socks5LocalPort,
@@ -21,8 +20,8 @@ public static class V2rayConfigUtils
                     listen = Global.Settings.LocalAddress,
                     settings = new
                     {
-                        udpEnabled = true,
-                        packetEncoding = Global.Settings.V2RayConfig.XrayCone ? "packet" : "none"
+                        auth = "noauth",
+                        udp = true
                     }
                 }
             }
