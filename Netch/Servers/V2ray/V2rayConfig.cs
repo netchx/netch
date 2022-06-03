@@ -31,6 +31,8 @@ public class Outbound
 
     public StreamSettings streamSettings { get; set; }
 
+    public string packetEncoding { get; set; }
+
     public Mux mux { get; set; }
 }
 
@@ -53,6 +55,8 @@ public class VnextItem
 public class Mux
 {
     public bool enabled { get; set; }
+
+    public string packetEncoding { get; set; }
 
     public int concurrency { get; set; }
 }

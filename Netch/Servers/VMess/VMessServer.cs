@@ -125,7 +125,7 @@ public class VMessGlobal
         "none",
         "packet", // requires v2fly/v2ray-core v5.0.2+ or SagerNet/v2ray-core
         "xudp" // requires XTLS/Xray-core or SagerNet/v2ray-core
-    }
+    };
 
     /// <summary>
     ///     V2Ray 传输协议

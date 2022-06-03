@@ -89,6 +89,9 @@ public static class V2rayConfigUtils
                     }
                 };
 
+                outbound.packetEncoding = vless.PacketEncoding ?? "none";
+                outbound.mux.packetEncoding = vless.PacketEncoding ?? "none";
+
                 outbound.streamSettings = boundStreamSettings(vless);
 
                 if (vless.TLSSecureType == "xtls")
@@ -124,6 +127,9 @@ public static class V2rayConfigUtils
                         }
                     }
                 };
+
+                outbound.packetEncoding = vmess.PacketEncoding ?? "none";
+                outbound.mux.packetEncoding = vmess.PacketEncoding ?? "none";
 
                 outbound.streamSettings = boundStreamSettings(vmess);
 
