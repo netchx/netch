@@ -31,7 +31,7 @@ public class V2rayController : Guard, IServerController
             await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("-config ..\\data\\last.json");
+        await StartGuardAsync("run -c ..\\data\\last.json");
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }
 }
