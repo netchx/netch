@@ -10,8 +10,8 @@ public class V2rayController : Guard, IServerController
 {
     public V2rayController() : base("v2ray-sn.exe")
     {
-        if (!Global.Settings.V2RayConfig.XrayCone)
-            Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+        //if (!Global.Settings.V2RayConfig.XrayCone)
+        //    Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
     }
 
     protected override IEnumerable<string> StartedKeywords => new[] { "started" };
