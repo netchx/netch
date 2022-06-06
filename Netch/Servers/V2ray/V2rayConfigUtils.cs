@@ -90,8 +90,8 @@ public static class V2rayConfigUtils
                     }
                 };
 
-                outbound.packetEncoding = vless.PacketEncoding ?? "none";
-                outbound.mux.packetEncoding = vless.PacketEncoding ?? "none";
+                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
 
                 outbound.streamSettings = boundStreamSettings(vless);
 
@@ -129,8 +129,8 @@ public static class V2rayConfigUtils
                     }
                 };
 
-                outbound.packetEncoding = vmess.PacketEncoding ?? "none";
-                outbound.mux.packetEncoding = vmess.PacketEncoding ?? "none";
+                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
 
                 outbound.streamSettings = boundStreamSettings(vmess);
 

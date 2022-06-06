@@ -31,8 +31,6 @@ public class Outbound
 
     public StreamSettings streamSettings { get; set; }
 
-    public string packetEncoding { get; set; }
-
     public Mux mux { get; set; }
 }
 
@@ -41,6 +39,8 @@ public class OutboundConfiguration
     public VnextItem[] vnext { get; set; }
 
     public object[] servers { get; set; }
+
+    public string packetEncoding { get; set; }
 }
 
 public class VnextItem
