@@ -27,7 +27,7 @@ Some features may not be implemented in version 1
 - [`WireGuard`](https://www.wireguard.com)
 - [`Trojan`](https://trojan-gfw.github.io/trojan)
 - [`VMess`](https://www.v2fly.org)
-- [`VLess`](https://xtls.github.io)
+- [`VLESS`](https://xtls.github.io)
 
 ### Others
 - UDP NAT FullCone (Limited by your server)

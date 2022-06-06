@@ -154,7 +154,7 @@ public static class V2rayConfigUtils
                     },
                     plugin = ss.Plugin ?? "",
                     pluginOpts = ss.PluginOption ?? ""
-                }
+                };
                 break;
              case ShadowsocksRServer ssr:
                 outbound.protocol = "shadowsocks";
@@ -178,10 +178,10 @@ public static class V2rayConfigUtils
                         "--protocol=" + ssr.Protocol,
                         "--protocol-param=" + ssr.ProtocolParam ?? ""
                     }
-                }
+                };
                 break;
              case TrojanServer trojan:
-                outbound.protocol = "trojan_sing";
+                outbound.protocol = "trojan";
                 outbound.settings.servers = new[]
                 {
                     new ShadowsocksServerItem // I'm not serious
@@ -191,7 +191,7 @@ public static class V2rayConfigUtils
                         method = "",
                         password = trojan.Password
                     }
-                }
+                };
                 break;
 
         }
