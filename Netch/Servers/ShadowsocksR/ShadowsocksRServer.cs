@@ -18,7 +18,7 @@ public class ShadowsocksRServer : Server
     /// <summary>
     ///     加密方式
     /// </summary>
-    public string EncryptMethod { get; set; } = SSRGlobal.EncryptMethods[0];
+    public string EncryptMethod { get; set; } = SSRGlobal.EncryptMethods[4];
 
     /// <summary>
     ///     协议
@@ -49,11 +49,11 @@ public class SSRGlobal
     public static readonly List<string> Protocols = new()
     {
         "origin",
-        "verify_deflate",
         "auth_sha1_v4",
         "auth_aes128_md5",
         "auth_aes128_sha1",
-        "auth_chain_a"
+        "auth_chain_a",
+        "auth_chain_b"
     };
 
     /// <summary>
@@ -64,36 +64,14 @@ public class SSRGlobal
         "plain",
         "http_simple",
         "http_post",
-        "tls1.2_ticket_auth"
+        "tls_simple",
+        "tls1.2_ticket_auth",
+        "tls1.2_ticket_fastauth",
+        "random_head"
     };
 
     /// <summary>
     ///     SS/SSR 加密方式
     /// </summary>
-    public static readonly List<string> EncryptMethods = new()
-    {
-        "none",
-        "table",
-        "rc4",
-        "rc4-md5",
-        "rc4-md5-6",
-        "aes-128-cfb",
-        "aes-192-cfb",
-        "aes-256-cfb",
-        "aes-128-ctr",
-        "aes-192-ctr",
-        "aes-256-ctr",
-        "bf-cfb",
-        "camellia-128-cfb",
-        "camellia-192-cfb",
-        "camellia-256-cfb",
-        "cast5-cfb",
-        "des-cfb",
-        "idea-cfb",
-        "rc2-cfb",
-        "seed-cfb",
-        "salsa20",
-        "chacha20",
-        "chacha20-ietf"
-    };
+    public static readonly List<string> EncryptMethods = SSGlobal.EncryptMethods;
 }

@@ -13,7 +13,7 @@ public class ShadowsocksServer : Server
     /// <summary>
     ///     加密方式
     /// </summary>
-    public string EncryptMethod { get; set; } = SSGlobal.EncryptMethods[0];
+    public string EncryptMethod { get; set; } = SSGlobal.EncryptMethods[4];
 
     /// <summary>
     ///     密码
@@ -43,24 +43,44 @@ public static class SSGlobal
     /// </summary>
     public static readonly List<string> EncryptMethods = new()
     {
-        "rc4-md5",
-        "aes-128-gcm",
-        "aes-192-gcm",
-        "aes-256-gcm",
-        "aes-128-cfb",
-        "aes-192-cfb",
-        "aes-256-cfb",
-        "aes-128-ctr",
-        "aes-192-ctr",
-        "aes-256-ctr",
-        "camellia-128-cfb",
-        "camellia-192-cfb",
-        "camellia-256-cfb",
-        "bf-cfb",
-        "chacha20-ietf-poly1305",
-        "xchacha20-ietf-poly1305",
-        "salsa20",
-        "chacha20",
-        "chacha20-ietf"
+    'none',
+    '2022-blake3-aes-128-gcm',
+    '2022-blake3-aes-256-gcm',
+    '2022-blake3-chacha20-poly1305',
+    'aes-128-gcm',
+    'aes-192-gcm',
+    'aes-256-gcm',
+    'chacha20-ietf-poly1305',
+    'xchacha20-ietf-poly1305',
+    'rc4',
+    'rc4-md5',
+    'aes-128-ctr',
+    'aes-192-ctr',
+    'aes-256-ctr',
+    'aes-128-cfb',
+    'aes-192-cfb',
+    'aes-256-cfb',
+    'aes-128-cfb8',
+    'aes-192-cfb8',
+    'aes-256-cfb8',
+    'aes-128-ofb',
+    'aes-192-ofb',
+    'aes-256-ofb',
+    'bf-cfb',
+    'cast5-cfb',
+    'des-cfb',
+    'idea-cfb',
+    'rc2-cfb',
+    'seed-cfb',
+    'camellia-128-cfb',
+    'camellia-192-cfb',
+    'camellia-256-cfb',
+    'camellia-128-cfb8',
+    'camellia-192-cfb8',
+    'camellia-256-cfb8',
+    'salsa20',
+    'chacha20',
+    'chacha20-ietf',
+    'xchacha20'
     };
 }

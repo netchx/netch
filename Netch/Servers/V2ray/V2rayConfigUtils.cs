@@ -138,6 +138,62 @@ public static class V2rayConfigUtils
                 outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
                 break;
             }
+            case ShadowsocksServer ss:
+                outbound.protocol = "shadowsocks";
+                outbound.settings = new OutboundConfiguration
+                {
+                    servers = new[]
+                    {
+                        new ShadowsocksServerItem
+                        {
+                            address = await server.AutoResolveHostnameAsync(),
+                            port = server.Port,
+                            method = ss.EncryptMethod,
+                            password = ss.Password,
+                        }
+                    },
+                    plugin = ss.Plugin ?? "",
+                    pluginOpts = ss.PluginOption ?? ""
+                }
+                break;
+             case ShadowsocksRServer ssr:
+                outbound.protocol = "shadowsocks";
+                outbound.settings = new OutboundConfiguration
+                {
+                    servers = new[]
+                    {
+                        new ShadowsocksServerItem
+                        {
+                            address = await server.AutoResolveHostnameAsync(),
+                            port = server.Port,
+                            method = ssr.EncryptMethod,
+                            password = ssr.Password,
+                        }
+                    },
+                    plugin = "shadowsocksr",
+                    pluginArgs = new string[]
+                    {
+                        "--obfs=" + ssr.OBFS,
+                        "--obfs-param=" + ssr.OBFSParam ?? "",
+                        "--protocol=" + ssr.Protocol,
+                        "--protocol-param=" + ssr.ProtocolParam ?? ""
+                    }
+                }
+                break;
+             case TrojanServer trojan:
+                outbound.protocol = "trojan_sing";
+                outbound.settings.servers = new[]
+                {
+                    new ShadowsocksServerItem // I'm not serious
+                    {
+                        address = await server.AutoResolveHostnameAsync(),
+                        port = server.Port,
+                        method = "",
+                        password = trojan.Password
+                    }
+                }
+                break;
+
         }
 
         return outbound;
