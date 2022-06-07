@@ -4,6 +4,8 @@ namespace Netch.Servers;
 
 public class TrojanServer : Server
 {
+    private string _tlsSecureType = VLESSGlobal.TLSSecure[1];
+
     public override string Type { get; } = "Trojan";
 
     public override string MaskedData()
@@ -30,9 +32,9 @@ public class TrojanServer : Server
         set
         {
             if (value == "")
-                value = "none";
+                value = VLESSGlobal.TLSSecure[1];
 
             _tlsSecureType = value;
         }
-    } = VLESSGlobal.TLSSecure[1];
+    }
 }
