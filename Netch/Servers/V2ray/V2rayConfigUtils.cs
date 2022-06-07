@@ -196,17 +196,17 @@ public static class V2rayConfigUtils
                 var streamSettings = new StreamSettings
                 {
                     network = "tcp",
-                    security = server.TLSSecureType
+                    security = trojan.TLSSecureType
                 };
-                if (server.TLSSecureType != "none")
+                if (trojan.TLSSecureType != "none")
                 {
                     var tlsSettings = new TlsSettings
                     {
                         allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                        serverName = server.Host ?? ""
+                        serverName = trojan.Host ?? ""
                     };
 
-                    switch (server.TLSSecureType)
+                    switch (trojan.TLSSecureType)
                     {
                         case "tls":
                             outbound.streamSettings.tlsSettings = tlsSettings;
