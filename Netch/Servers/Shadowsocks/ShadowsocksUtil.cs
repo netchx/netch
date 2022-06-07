@@ -114,13 +114,13 @@ public class ShadowsocksUtil : IServerUtil
                 {
                     case "obfs-local":
                     case "simple-obfs":
-                        plugin = "simple-obfs";
+                        plugin = "obfs-local";
                         if (!pluginopts.Contains("obfs="))
                             pluginopts = "obfs=http;obfs-host=" + pluginopts;
 
                         break;
                     case "simple-obfs-tls":
-                        plugin = "simple-obfs";
+                        plugin = "obfs-local";
                         if (!pluginopts.Contains("obfs="))
                             pluginopts = "obfs=tls;obfs-host=" + pluginopts;
 
