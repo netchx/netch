@@ -34,5 +34,5 @@ public class TrojanServer : Server
 
             _tlsSecureType = value;
         }
-    }
+    } = VLESSGlobal.TLSSecure[1];
 }
