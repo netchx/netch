@@ -192,6 +192,30 @@ public static class V2rayConfigUtils
                         password = trojan.Password
                     }
                 };
+
+                var streamSettings = new StreamSettings
+                {
+                    network = "tcp",
+                    security = server.TLSSecureType
+                };
+                if (server.TLSSecureType != "none")
+                {
+                    var tlsSettings = new TlsSettings
+                    {
+                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                        serverName = server.Host ?? ""
+                    };
+
+                    switch (server.TLSSecureType)
+                    {
+                        case "tls":
+                            outbound.streamSettings.tlsSettings = tlsSettings;
+                            break;
+                        case "xtls":
+                            outbound.streamSettings.xtlsSettings = tlsSettings;
+                            break;
+                    }
+                }
                 break;
 
         }

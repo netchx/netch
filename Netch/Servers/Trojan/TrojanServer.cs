@@ -20,4 +20,19 @@ public class TrojanServer : Server
     ///     伪装域名
     /// </summary>
     public string? Host { get; set; }
+
+    /// <summary>
+    ///     TLS 底层传输安全
+    /// </summary>
+    public string TLSSecureType
+    {
+        get => _tlsSecureType;
+        set
+        {
+            if (value == "")
+                value = "none";
+
+            _tlsSecureType = value;
+        }
+    }
 }
