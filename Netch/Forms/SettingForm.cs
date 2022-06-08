@@ -121,6 +121,8 @@ public partial class SettingForm : BindingForm
 
         #region V2Ray
 
+        BindCheckBox(UDPTrafficCheckBox, b => Global.Settings.V2RayConfig.SendOnlyUDPTraffic = b, Global.Settings.V2RayConfig.SendOnlyUDPTraffic);
+
         BindCheckBox(XrayConeCheckBox, b => Global.Settings.V2RayConfig.XrayCone = b, Global.Settings.V2RayConfig.XrayCone);
 
         BindCheckBox(TLSAllowInsecureCheckBox, b => Global.Settings.V2RayConfig.AllowInsecure = b, Global.Settings.V2RayConfig.AllowInsecure);

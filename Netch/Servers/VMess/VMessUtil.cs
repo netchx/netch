@@ -66,7 +66,7 @@ public class VMessUtil : IServerUtil
 
     public IServerController GetController()
     {
-        return new V2rayController();
+        return new V2rayController("xray.exe");
     }
 
     public IEnumerable<Server> ParseUri(string text)

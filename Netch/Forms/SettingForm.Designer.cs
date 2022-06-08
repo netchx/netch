@@ -77,6 +77,7 @@ namespace Netch.Forms
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
+            this.UDPTrafficCheckBox = new System.Windows.Forms.CheckBox();
             this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
@@ -162,7 +163,7 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.LanguageComboBox);
             this.GeneralTabPage.Location = new System.Drawing.Point(4, 29);
             this.GeneralTabPage.Name = "GeneralTabPage";
-            this.GeneralTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.GeneralTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.GeneralTabPage.Size = new System.Drawing.Size(461, 321);
             this.GeneralTabPage.TabIndex = 0;
             this.GeneralTabPage.Text = "General";
@@ -340,7 +341,7 @@ namespace Netch.Forms
             this.NFTabPage.Controls.Add(this.ChildProcessHandleCheckBox);
             this.NFTabPage.Location = new System.Drawing.Point(4, 29);
             this.NFTabPage.Name = "NFTabPage";
-            this.NFTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.NFTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.NFTabPage.Size = new System.Drawing.Size(461, 321);
             this.NFTabPage.TabIndex = 1;
             this.NFTabPage.Text = "Process Mode";
@@ -460,7 +461,7 @@ namespace Netch.Forms
             this.WinTUNTabPage.Controls.Add(this.GlobalBypassIPsButton);
             this.WinTUNTabPage.Location = new System.Drawing.Point(4, 29);
             this.WinTUNTabPage.Name = "WinTUNTabPage";
-            this.WinTUNTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.WinTUNTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.WinTUNTabPage.Size = new System.Drawing.Size(461, 321);
             this.WinTUNTabPage.TabIndex = 2;
             this.WinTUNTabPage.Text = "WinTUN";
@@ -587,25 +588,37 @@ namespace Netch.Forms
             // v2rayTabPage
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.v2rayTabPage.Controls.Add(this.UDPTrafficCheckBox);
             this.v2rayTabPage.Controls.Add(this.XrayConeCheckBox);
             this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
             this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
             this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 29);
             this.v2rayTabPage.Name = "v2rayTabPage";
-            this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.v2rayTabPage.Size = new System.Drawing.Size(461, 321);
             this.v2rayTabPage.TabIndex = 3;
             this.v2rayTabPage.Text = "V2Ray";
+            // 
+            // UDPTrafficCheckBox
+            // 
+            this.UDPTrafficCheckBox.AutoSize = true;
+            this.UDPTrafficCheckBox.Location = new System.Drawing.Point(6, 69);
+            this.UDPTrafficCheckBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.UDPTrafficCheckBox.Name = "UDPTrafficCheckBox";
+            this.UDPTrafficCheckBox.Size = new System.Drawing.Size(225, 21);
+            this.UDPTrafficCheckBox.TabIndex = 0;
+            this.UDPTrafficCheckBox.Text = "Send only UDP Packet Addr traffic";
+            this.UDPTrafficCheckBox.UseVisualStyleBackColor = true;
             // 
             // XrayConeCheckBox
             // 
             this.XrayConeCheckBox.AutoSize = true;
             this.XrayConeCheckBox.Location = new System.Drawing.Point(6, 15);
             this.XrayConeCheckBox.Name = "XrayConeCheckBox";
-            this.XrayConeCheckBox.Size = new System.Drawing.Size(340, 21);
+            this.XrayConeCheckBox.Size = new System.Drawing.Size(461, 21);
             this.XrayConeCheckBox.TabIndex = 0;
-            this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+)";
+            this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+ / v2ray-core v5.0.5+)";
             this.XrayConeCheckBox.UseVisualStyleBackColor = true;
             // 
             // TLSAllowInsecureCheckBox
@@ -621,7 +634,7 @@ namespace Netch.Forms
             // UseMuxCheckBox
             // 
             this.UseMuxCheckBox.AutoSize = true;
-            this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 42);
+            this.UseMuxCheckBox.Location = new System.Drawing.Point(137, 42);
             this.UseMuxCheckBox.Name = "UseMuxCheckBox";
             this.UseMuxCheckBox.Size = new System.Drawing.Size(78, 21);
             this.UseMuxCheckBox.TabIndex = 2;
@@ -643,7 +656,7 @@ namespace Netch.Forms
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeLabel);
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeTextBox);
             this.KCPGroupBox.Controls.Add(this.congestionCheckBox);
-            this.KCPGroupBox.Location = new System.Drawing.Point(9, 75);
+            this.KCPGroupBox.Location = new System.Drawing.Point(9, 102);
             this.KCPGroupBox.Name = "KCPGroupBox";
             this.KCPGroupBox.Size = new System.Drawing.Size(447, 204);
             this.KCPGroupBox.TabIndex = 3;
@@ -776,7 +789,7 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.UpdateServersWhenOpenedCheckBox);
             this.OtherTabPage.Location = new System.Drawing.Point(4, 29);
             this.OtherTabPage.Name = "OtherTabPage";
-            this.OtherTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.OtherTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.OtherTabPage.Size = new System.Drawing.Size(461, 321);
             this.OtherTabPage.TabIndex = 4;
             this.OtherTabPage.Text = "Others";
@@ -887,7 +900,7 @@ namespace Netch.Forms
             this.AioDNSTabPage.Controls.Add(this.AioDNSListenPortTextBox);
             this.AioDNSTabPage.Location = new System.Drawing.Point(4, 29);
             this.AioDNSTabPage.Name = "AioDNSTabPage";
-            this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
             this.AioDNSTabPage.Size = new System.Drawing.Size(461, 321);
             this.AioDNSTabPage.TabIndex = 5;
             this.AioDNSTabPage.Text = "AioDNS";
@@ -1098,5 +1111,6 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox FilterUDPCheckBox;
         private System.Windows.Forms.CheckBox DNSProxyCheckBox;
         private ErrorProvider errorProvider;
+        private CheckBox UDPTrafficCheckBox;
     }
 }

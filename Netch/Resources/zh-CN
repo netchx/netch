@@ -69,6 +69,12 @@
     "Plugin": "插件",
     "Plugin Options": "插件参数",
     "Remote Address": "远端地址",
+    "Scramble Packet": "数据包混淆",
+    "Fec": "前向错误修复",
+    "Stabilization": "通用连接稳定",
+    "Renegotiation": "通用连接稳定重协议",
+    "Handshake Mask-\ning Padding Size": "混淆通用连接\n稳定握手消息",
+    "Send only UDP Packet Addr traffic": "仅转发 UDP Packet Addr 流量",
 
     "Subscription": "订阅",
     "Manage Subscriptions": "管理订阅",
@@ -177,7 +183,7 @@
     "Detection Tick(sec)": "检测心跳（秒）",
     "STUN Server": "STUN 服务器",
     "Language": "语言",
-    "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
+    "FullCone Support (Required Server Xray-core v1.3.0+ / v2ray-core v5.0.5+)": "FullCone 支持（需服务端 Xray-core v1.3.0+ / v2ray-core v5.0.5+）",
     "Disable Support Warning": "停用支持警告",
 
     "Profile": "配置名",

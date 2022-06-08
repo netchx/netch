@@ -10,6 +10,15 @@ public struct V2rayConfig
     public Outbound[] outbounds { get; set; }
 }
 
+public struct VLiteConfig
+{
+    public object[] inbounds { get; set; }
+
+    public object[] outbounds { get; set; }
+
+    public object router { get; set; }
+}
+
 public class User
 {
     public string id { get; set; }

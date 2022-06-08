@@ -38,7 +38,7 @@ public class Socks5Util : IServerUtil
 
     public IServerController GetController()
     {
-        return new Socks5Controller();
+        return new Socks5Controller("xray.exe");
     }
 
     public IEnumerable<Server> ParseUri(string text)

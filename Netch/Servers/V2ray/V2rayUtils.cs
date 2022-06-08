@@ -80,6 +80,10 @@ public static class V2rayUtils
         parameter.Add("type", server.TransferProtocol);
         parameter.Add("encryption", server.EncryptMethod);
 
+        // no official share link format for vlite protocol
+        if (s.Type == "VLite")
+            return "";
+
         // transport-specific fields
         switch (server.TransferProtocol)
         {
