@@ -93,7 +93,7 @@ namespace Netch.Controllers
 
             if (_tunConfig.UseCustomDNS)
             {
-                Dial(NameList.TYPE_DNSADDR, _tunConfig.DNS);
+                Dial(NameList.TYPE_DNSADDR, DnsUtils.AppendPort(_tunConfig.DNS));
             }
             else
             {
@@ -175,8 +175,13 @@ namespace Netch.Controllers
 
             if (_tunConfig.UseCustomDNS)
             {
-                // NOTICE: DNS metric is network interface metric
-                RouteUtils.CreateRoute(_tun.FillTemplate(_tunConfig.DNS, 32));
+                if (_tunConfig.ProxyDNS)
+                {
+                    // NOTICE: DNS metric is network interface metric
+                    RouteUtils.CreateRoute(_tun.FillTemplate(_tunConfig.DNS, 32));
+                }
+
+                tunNetworkInterface.SetDns(_tunConfig.DNS);
             }
             else
             {
