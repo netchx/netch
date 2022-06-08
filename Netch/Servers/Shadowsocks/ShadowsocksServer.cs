@@ -61,6 +61,9 @@ public static class SSGlobal
         "xchacha20-ietf-poly1305",
         "salsa20",
         "chacha20",
-        "chacha20-ietf"
+        "chacha20-ietf",
+        "2022-blake3-aes-128-gcm",
+        "2022-blake3-aes-256-gcm",
+        "2022-blake3-chacha20-poly1305"
     };
 }
