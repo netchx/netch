@@ -52,7 +52,7 @@ jobs:
           files: .\other\release\aiodns.bin
 
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         if: steps.check_other.outputs.files_exists == 'false'
         with:
           go-version: ^1.18.3
@@ -83,7 +83,7 @@ jobs:
           .\build.ps1 -Configuration Release -OutputPath release
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release
           path: release
