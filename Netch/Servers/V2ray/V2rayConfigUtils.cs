@@ -193,7 +193,7 @@ public static class V2rayConfigUtils
                     }
                 };
 
-                var streamSettings = new StreamSettings
+                outbound.streamSettings = new StreamSettings
                 {
                     network = "tcp",
                     security = trojan.TLSSecureType
