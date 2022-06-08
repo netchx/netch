@@ -41,6 +41,12 @@ public class TrojanConfig
     public TrojanSSL ssl { get; set; } = new();
 
     public TrojanTCP tcp { get; set; } = new();
+
+    public TrojanWebsocket websocket { get; set; } = new();
+
+    public TrojanShadowsocks shadowsocks { get; set; } = new();
+
+    public TrojanMux mux { get; set; } = new();
 }
 
 public class TrojanSSL
@@ -82,4 +88,31 @@ public class TrojanTCP
     public bool no_delay { get; set; } = false;
 
     public bool reuse_port { get; set; } = false;
+}
+
+public class TrojanWebsocket
+{
+    public bool enabled { get; set; } = false;
+
+    public string path { get; set; } = string.Empty;
+
+    public string host { get; set; } = string.Empty;
+}
+
+public class TrojanShadowsocks
+{
+    public bool enabled { get; set; } = false;
+
+    public string method { get; set; } = string.Empty;
+
+    public string password { get; set; } = string.Empty;
+}
+
+public class TrojanMux
+{
+    public bool enabled { get; set; } = false;
+
+    public int concurrency { get; set; } = 8;
+
+    public int idle_timeout { get; set; } = 0;
 }

@@ -39,6 +39,24 @@ public class TrojanController : Guard, IServerController
             ssl = new TrojanSSL
             {
                 sni = server.Host.ValueOrDefault() ?? server.Hostname
+            },
+            websocket = new TrojanWebsocket
+            {
+                enabled = server.Protocol == "ws" ? true : false,
+                path = server.WebsocketPath,
+                host = server.WebsocketHost ?? server.Hostname
+            },
+            shadowsocks = new TrojanShadowsocks
+            {
+                enabled = server.Encryption == "ss" ? true : false,
+                method = server.ShadowsocksEncryption.ToUpper(),
+                password = server.ShadowsocksPassword
+            },
+            mux = new TrojanMux
+            {
+                enabled = Global.Settings.V2RayConfig.UseMux,
+                concurrency = 8,
+                idle_timeout = 0
             }
         };
 

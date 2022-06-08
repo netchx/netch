@@ -26,6 +26,7 @@ Some features may not be implemented in version 1
 - [`ShadowsocksR`](https://github.com/shadowsocksrr/shadowsocksr-libev)
 - [`WireGuard`](https://www.wireguard.com)
 - [`Trojan`](https://trojan-gfw.github.io/trojan)
+- [`Trojan-Go`](https://p4gefau1t.github.io/trojan-go)
 - [`VMess`](https://www.v2fly.org)
 - [`VLess`](https://xtls.github.io)
 

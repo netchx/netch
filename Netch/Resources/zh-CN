@@ -69,6 +69,8 @@
     "Plugin": "插件",
     "Plugin Options": "插件参数",
     "Remote Address": "远端地址",
+    "Encryption": "加密",
+    "Websocket Host": "Websocket 主机",
 
     "Subscription": "订阅",
     "Manage Subscriptions": "管理订阅",

@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
@@ -15,7 +16,7 @@ public class TrojanUtil : IServerUtil
 
     public string ShortName { get; } = "TR";
 
-    public string[] UriScheme { get; } = { "trojan" };
+    public string[] UriScheme { get; } = { "trojan", "trojan-go" };
 
     public Type ServerType { get; } = typeof(TrojanServer);
 
@@ -32,7 +33,19 @@ public class TrojanUtil : IServerUtil
     public string GetShareLink(Server s)
     {
         var server = (TrojanServer)s;
-        return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
+
+        string Type = server.Protocol == "ws" ? ("ws&host=" + HttpUtility.UrlEncode((server.WebsocketHost.ValueOrDefault() ?? server.Hostname)) + "&path=" + HttpUtility.UrlEncode(server.WebsocketPath)) : "original";
+        string Encryption = server.Encryption == "ss" ? HttpUtility.UrlEncode(("ss;" + server.ShadowsocksEncryption + ';' + server.ShadowsocksPassword)) : "none";
+
+        if (Type == "original" && Encryption == "none")
+        {
+            return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
+        }
+        else
+        {
+            // https://p4gefau1t.github.io/trojan-go/developer/url/
+            return $"trojan-go://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}/?sni={HttpUtility.UrlEncode(server.Host.ValueOrDefault() ?? server.Hostname)}&type={Type}&encryption={Encryption}#{HttpUtility.UrlEncode(server.Remark)}";
+        }
     }
 
     public IServerController GetController()
@@ -53,21 +66,32 @@ public class TrojanUtil : IServerUtil
 
         if (text.Contains("?"))
         {
-            var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
-            var regmatch = reg.Match(text);
+            var parameter = HttpUtility.ParseQueryString(text.Split("?")[1]);
+            text = text.Substring(0, text.IndexOf("?", StringComparison.Ordinal));
 
-            if (!regmatch.Success)
-                throw new FormatException();
+            data.Host = (HttpUtility.UrlDecode(parameter.Get("sni")) ?? HttpUtility.UrlDecode(parameter.Get("peer"))) ?? data.Hostname;
 
-            var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
+            data.Protocol = parameter.Get("type") ?? "original";
+            data.WebsocketHost = HttpUtility.UrlDecode(parameter.Get("host")) ?? data.Hostname;
+            data.WebsocketPath = HttpUtility.UrlDecode(parameter.Get("path")) ?? "";
 
-            if (peer != null)
-                data.Host = peer;
+            string EncryptStr = HttpUtility.UrlDecode(parameter.Get("encryption")) ?? "none";
 
-            text = regmatch.Groups["data"].Value;
+            if (EncryptStr == "none")
+            {
+                data.Encryption = "none";
+                data.ShadowsocksEncryption = "aes-128-gcm";
+                data.ShadowsocksPassword = "";
+            }
+            else
+            {
+                data.Encryption = "ss";
+                data.ShadowsocksEncryption = EncryptStr.Split(';')[1];
+                data.ShadowsocksPassword = EncryptStr.Split(';')[2];
+            }
         }
 
-        var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
+        var finder = new Regex(@"^((trojan-go)|(trojan))://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
         var match = finder.Match(text);
         if (!match.Success)
             throw new FormatException();
