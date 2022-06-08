@@ -111,6 +111,10 @@ public static class V2rayConfigUtils
             case VMessServer vmess:
             {
                 outbound.protocol = "vmess";
+                if (vmess.EncryptMethod == "auto" && vmess.TLSSecureType != "none" && !Global.Settings.V2RayConfig.AllowInsecure)
+                {
+                    vmess.EncryptMethod = "zero";
+                }
                 outbound.settings.vnext = new[]
                 {
                     new VnextItem
