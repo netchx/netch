@@ -186,14 +186,17 @@ public static class V2rayConfigUtils
                 break;
              case TrojanServer trojan:
                 outbound.protocol = "trojan";
-                outbound.settings.servers = new[]
+                outbound.settings = new OutboundConfiguration
                 {
-                    new ShadowsocksServerItem // I'm not serious
+                    servers = new[]
                     {
-                        address = await server.AutoResolveHostnameAsync(),
-                        port = server.Port,
-                        method = "",
-                        password = trojan.Password
+                            new ShadowsocksServerItem // I'm not serious
+                            {
+                                address = await server.AutoResolveHostnameAsync(),
+                                port = server.Port,
+                                method = "",
+                                password = trojan.Password
+                            }
                     }
                 };
 
@@ -220,6 +223,19 @@ public static class V2rayConfigUtils
                             break;
                     }
                 }
+                break;
+            case WireGuardServer wg:
+                outbound.protocol = "wireguard";
+                outbound.settings = new OutboundConfiguration
+                {
+                    address = await server.AutoResolveHostnameAsync(),
+                    port = server.Port,
+                    localAddresses = wg.LocalAddresses.SplitOrDefault(),
+                    peerPublicKey = wg.PeerPublicKey,
+                    privateKey = wg.PrivateKey,
+                    preSharedKey = wg.PreSharedKey,
+                    mtu = wg.MTU
+                };
                 break;
 
         }

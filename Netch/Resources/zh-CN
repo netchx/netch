@@ -69,6 +69,10 @@
     "Plugin": "插件",
     "Plugin Options": "插件参数",
     "Remote Address": "远端地址",
+    "Local Addresses": "本地地址(可多个)",
+    "Public Key": "节点公钥",
+    "Private Key": "私钥",
+    "PSK": "节点预共享密钥",
 
     "Subscription": "订阅",
     "Manage Subscriptions": "管理订阅",

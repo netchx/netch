@@ -47,6 +47,16 @@ public class OutboundConfiguration
     public string pluginOpts { get; set; }
 
     public string[] pluginArgs { get; set; }
+
+    public string[] localAddresses { get; set; }
+
+    public string peerPublicKey { get; set; }
+
+    public string privateKey { get; set; }
+
+    public string preSharedKey { get; set; }
+
+    public int mtu { get; set; }
 }
 
 public class VnextItem
