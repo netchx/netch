@@ -29,9 +29,9 @@ public class Outbound
 
     public OutboundConfiguration settings { get; set; }
 
-    public StreamSettings streamSettings { get; set; }
+    public StreamSettings? streamSettings { get; set; }
 
-    public Mux mux { get; set; }
+    public Mux? mux { get; set; }
 }
 
 public class OutboundConfiguration
@@ -39,6 +39,28 @@ public class OutboundConfiguration
     public VnextItem[] vnext { get; set; }
 
     public object[] servers { get; set; }
+
+    public string address { get; set; }
+
+    public ushort port { get; set; }
+
+    public string packetEncoding { get; set; }
+
+    public string plugin { get; set; }
+
+    public string pluginOpts { get; set; }
+
+    public string[] pluginArgs { get; set; }
+
+    public string[] localAddresses { get; set; }
+
+    public string peerPublicKey { get; set; }
+
+    public string privateKey { get; set; }
+
+    public string preSharedKey { get; set; }
+
+    public int mtu { get; set; }
 }
 
 public class VnextItem
@@ -50,9 +72,22 @@ public class VnextItem
     public User[] users { get; set; }
 }
 
+public class ShadowsocksServerItem
+{
+    public string address { get; set; }
+    
+    public ushort port { get; set; }
+
+    public string method { get; set; }
+
+    public string password { get; set; }
+ }
+
 public class Mux
 {
     public bool enabled { get; set; }
+
+    public string packetEncoding { get; set; }
 
     public int concurrency { get; set; }
 }

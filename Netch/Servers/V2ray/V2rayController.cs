@@ -8,17 +8,17 @@ namespace Netch.Servers;
 
 public class V2rayController : Guard, IServerController
 {
-    public V2rayController() : base("xray.exe")
+    public V2rayController() : base("v2ray-sn.exe")
     {
-        if (!Global.Settings.V2RayConfig.XrayCone)
-            Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
+        //if (!Global.Settings.V2RayConfig.XrayCone)
+        //    Instance.StartInfo.Environment["XRAY_CONE_DISABLED"] = "true";
     }
 
     protected override IEnumerable<string> StartedKeywords => new[] { "started" };
 
     protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
 
-    public override string Name => "Xray";
+    public override string Name => "V2Ray (SagerNet)";
 
     public ushort? Socks5LocalPort { get; set; }
 
@@ -31,7 +31,7 @@ public class V2rayController : Guard, IServerController
             await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("-config ..\\data\\last.json");
+        await StartGuardAsync("run -c ..\\data\\last.json");
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }
 }

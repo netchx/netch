@@ -32,7 +32,7 @@ public class TrojanUtil : IServerUtil
     public string GetShareLink(Server s)
     {
         var server = (TrojanServer)s;
-        return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}#{server.Remark}";
+        return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}?sni={server.Host}#{server.Remark}";
     }
 
     public IServerController GetController()
@@ -61,8 +61,13 @@ public class TrojanUtil : IServerUtil
 
             var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
 
-            if (peer != null)
+            if (peer != null) {
                 data.Host = peer;
+            } else {
+                peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("sni"));
+                if (peer != null)
+                    data.Host = peer;
+            }
 
             text = regmatch.Groups["data"].Value;
         }

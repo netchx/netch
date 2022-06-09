@@ -20,6 +20,7 @@ public static class V2rayConfigUtils
                     listen = Global.Settings.LocalAddress,
                     settings = new
                     {
+                        auth = "noauth",
                         udp = true
                     }
                 }
@@ -89,6 +90,9 @@ public static class V2rayConfigUtils
                     }
                 };
 
+                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+
                 outbound.streamSettings = boundStreamSettings(vless);
 
                 if (vless.TLSSecureType == "xtls")
@@ -107,6 +111,10 @@ public static class V2rayConfigUtils
             case VMessServer vmess:
             {
                 outbound.protocol = "vmess";
+                if (vmess.EncryptMethod == "auto" && vmess.TLSSecureType != "none" && !Global.Settings.V2RayConfig.AllowInsecure)
+                {
+                    vmess.EncryptMethod = "zero";
+                }
                 outbound.settings.vnext = new[]
                 {
                     new VnextItem
@@ -125,12 +133,111 @@ public static class V2rayConfigUtils
                     }
                 };
 
+                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+
                 outbound.streamSettings = boundStreamSettings(vmess);
 
                 outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
                 outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
                 break;
             }
+            case ShadowsocksServer ss:
+                outbound.protocol = "shadowsocks";
+                outbound.settings = new OutboundConfiguration
+                {
+                    servers = new[]
+                    {
+                        new ShadowsocksServerItem
+                        {
+                            address = await server.AutoResolveHostnameAsync(),
+                            port = server.Port,
+                            method = ss.EncryptMethod,
+                            password = ss.Password,
+                        }
+                    },
+                    plugin = ss.Plugin ?? "",
+                    pluginOpts = ss.PluginOption ?? ""
+                };
+                break;
+             case ShadowsocksRServer ssr:
+                outbound.protocol = "shadowsocks";
+                outbound.settings = new OutboundConfiguration
+                {
+                    servers = new[]
+                    {
+                        new ShadowsocksServerItem
+                        {
+                            address = await server.AutoResolveHostnameAsync(),
+                            port = server.Port,
+                            method = ssr.EncryptMethod,
+                            password = ssr.Password,
+                        }
+                    },
+                    plugin = "shadowsocksr",
+                    pluginArgs = new string[]
+                    {
+                        "--obfs=" + ssr.OBFS,
+                        "--obfs-param=" + ssr.OBFSParam ?? "",
+                        "--protocol=" + ssr.Protocol,
+                        "--protocol-param=" + ssr.ProtocolParam ?? ""
+                    }
+                };
+                break;
+             case TrojanServer trojan:
+                outbound.protocol = "trojan";
+                outbound.settings = new OutboundConfiguration
+                {
+                    servers = new[]
+                    {
+                            new ShadowsocksServerItem // I'm not serious
+                            {
+                                address = await server.AutoResolveHostnameAsync(),
+                                port = server.Port,
+                                method = "",
+                                password = trojan.Password
+                            }
+                    }
+                };
+
+                outbound.streamSettings = new StreamSettings
+                {
+                    network = "tcp",
+                    security = trojan.TLSSecureType
+                };
+                if (trojan.TLSSecureType != "none")
+                {
+                    var tlsSettings = new TlsSettings
+                    {
+                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                        serverName = trojan.Host ?? ""
+                    };
+
+                    switch (trojan.TLSSecureType)
+                    {
+                        case "tls":
+                            outbound.streamSettings.tlsSettings = tlsSettings;
+                            break;
+                        case "xtls":
+                            outbound.streamSettings.xtlsSettings = tlsSettings;
+                            break;
+                    }
+                }
+                break;
+            case WireGuardServer wg:
+                outbound.protocol = "wireguard";
+                outbound.settings = new OutboundConfiguration
+                {
+                    address = await server.AutoResolveHostnameAsync(),
+                    port = server.Port,
+                    localAddresses = wg.LocalAddresses.SplitOrDefault(),
+                    peerPublicKey = wg.PeerPublicKey,
+                    privateKey = wg.PrivateKey,
+                    preSharedKey = wg.PreSharedKey,
+                    mtu = wg.MTU
+                };
+                break;
+
         }
 
         return outbound;

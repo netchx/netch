@@ -10,7 +10,7 @@ public class VMessServer : Server
 
     public override string MaskedData()
     {
-        var maskedData = $"{EncryptMethod} + {TransferProtocol} + {FakeType}";
+        var maskedData = $"{EncryptMethod} + {TransferProtocol} + {PacketEncoding} + {FakeType}";
         switch (TransferProtocol)
         {
             case "tcp":
@@ -48,6 +48,11 @@ public class VMessServer : Server
     ///     传输协议
     /// </summary>
     public virtual string TransferProtocol { get; set; } = VMessGlobal.TransferProtocols[0];
+
+    /// <summary>
+    ///     包传输格式
+    /// </summary>
+    public virtual string PacketEncoding { get; set; } = VMessGlobal.PacketEncodings[2];
 
     /// <summary>
     ///     伪装类型
@@ -113,6 +118,13 @@ public class VMessGlobal
         "none",
         "aes-128-gcm",
         "chacha20-poly1305"
+    };
+
+    public static readonly List<string> PacketEncodings = new()
+    {
+        "none",
+        "packet", // requires v2fly/v2ray-core v5.0.2+ or SagerNet/v2ray-core
+        "xudp" // requires XTLS/Xray-core or SagerNet/v2ray-core
     };
 
     /// <summary>

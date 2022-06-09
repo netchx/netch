@@ -21,7 +21,7 @@ public class VLESSServer : VMessServer
 
     /// <summary>
     /// </summary>
-    public string? Flow { get; set; }
+    public string? Flow { get; set; } = "xtls-rprx-direct";
 }
 
 public class VLESSGlobal

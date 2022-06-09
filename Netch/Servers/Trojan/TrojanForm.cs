@@ -11,6 +11,7 @@ public class TrojanForm : ServerForm
         Server = server;
         CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password);
         CreateTextBox("Host", "Host", s => true, s => server.Host = s, server.Host);
+        CreateComboBox("TLSSecure", "TLS Secure", VLESSGlobal.TLSSecure, s => server.TLSSecureType = s, server.TLSSecureType);
     }
 
     protected override string TypeName { get; } = "Trojan";

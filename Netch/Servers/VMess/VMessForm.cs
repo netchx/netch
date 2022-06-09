@@ -18,6 +18,12 @@ public class VMessForm : ServerForm
             VMessGlobal.TransferProtocols,
             s => server.TransferProtocol = s,
             server.TransferProtocol);
+        CreateComboBox("PacketEncoding",
+            "Packet Encoding",
+            VMessGlobal.PacketEncodings,
+            s => server.PacketEncoding = s,
+            server.PacketEncoding);
+        
 
         CreateComboBox("FakeType", "Fake Type", VMessGlobal.FakeTypes, s => server.FakeType = s, server.FakeType);
         CreateTextBox("Host", "Host", s => true, s => server.Host = s, server.Host);

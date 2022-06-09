@@ -22,6 +22,7 @@ public static class V2rayUtils
             var parameter = HttpUtility.ParseQueryString(text.Split('?')[1]);
             text = text.Substring(0, text.IndexOf("?", StringComparison.Ordinal));
             server.TransferProtocol = parameter.Get("type") ?? "tcp";
+            server.PacketEncoding = parameter.Get("packetEncoding") ?? "xudp";
             server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
             switch (server.TransferProtocol)
             {
@@ -55,7 +56,7 @@ public static class V2rayUtils
             {
                 server.ServerName = parameter.Get("sni") ?? "";
                 if (server.TLSSecureType == "xtls")
-                    ((VLESSServer)server).Flow = parameter.Get("flow") ?? "";
+                    ((VLESSServer)server).Flow = "xtls-rprx-direct"; // splice doesn't support Windows
             }
         }
 
@@ -79,6 +80,7 @@ public static class V2rayUtils
         // protocol-specific fields
         parameter.Add("type", server.TransferProtocol);
         parameter.Add("encryption", server.EncryptMethod);
+        parameter.Add("packetEncoding", server.PacketEncoding);
 
         // transport-specific fields
         switch (server.TransferProtocol)
