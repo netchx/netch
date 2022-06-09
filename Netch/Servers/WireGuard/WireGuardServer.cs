@@ -8,7 +8,7 @@ public class WireGuardServer : Server
     
     public override string MaskedData()
     {
-        return $"{LocalAddress} + {MTU}";
+        return $"{LocalAddresses} + {MTU}";
     }
 
     /// <summary>
