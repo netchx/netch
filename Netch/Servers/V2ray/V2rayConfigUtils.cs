@@ -83,7 +83,7 @@ public static class V2rayConfigUtils
                         {
                             new User
                             {
-                                id = vless.UserID,
+                                id = getUUID(vless.UserID),
                                 flow = vless.Flow.ValueOrDefault(),
                                 encryption = vless.EncryptMethod
                             }
@@ -126,7 +126,7 @@ public static class V2rayConfigUtils
                         {
                             new User
                             {
-                                id = vmess.UserID,
+                                id = getUUID(vmess.UserID),
                                 alterId = vmess.AlterID,
                                 security = vmess.EncryptMethod
                             }
@@ -366,5 +366,14 @@ public static class V2rayConfigUtils
         }
 
         return streamSettings;
+    }
+
+    public static string getUUID(string uuid)
+    {
+        if (uuid.Length == 36 || uuid.Length == 32)
+        {
+            return uuid;
+        }
+        return uuid.GenerateUUIDv5();
     }
 }
