@@ -55,8 +55,6 @@ public static class V2rayUtils
             if (server.TLSSecureType != "none")
             {
                 server.ServerName = parameter.Get("sni") ?? "";
-                if (server.TLSSecureType == "xtls")
-                    ((VLESSServer)server).Flow = "xtls-rprx-direct"; // splice doesn't support Windows
             }
         }
 
@@ -137,9 +135,7 @@ public static class V2rayUtils
 
             if (server.TLSSecureType == "xtls")
             {
-                var flow = ((VLESSServer)server).Flow;
-                if (!flow.IsNullOrWhiteSpace())
-                    parameter.Add("flow", flow!.Replace("-udp443", ""));
+                parameter.Add("flow", "xtls-rprx-direct");
             }
         }
 
