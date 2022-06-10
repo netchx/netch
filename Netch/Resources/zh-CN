@@ -48,6 +48,7 @@
     "Address": "地址",
     "Username": "用户名",
     "Password": "密码",
+    "Version": "版本",
     "User ID": "用户 ID",
     "Alter ID": "额外 ID",
     "Transfer Protocol": "传输协议",
