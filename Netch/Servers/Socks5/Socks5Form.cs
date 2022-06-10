@@ -12,6 +12,11 @@ public class Socks5Form : ServerForm
         Server = server;
         CreateTextBox("Username", "Username", s => true, s => server.Username = s, server.Username.ValueOrDefault());
         CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password.ValueOrDefault());
+        CreateComboBox("Version",
+            "Version",
+            SOCKSGlobal.Versions,
+            s => server.Version = s,
+            server.Version);
         (_remoteHostnameLabel, _remoteHostnameTextBox) = CreateTextBox("RemoteHostname",
             "Remote Address",
             s => true,

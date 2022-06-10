@@ -40,6 +40,8 @@ public class OutboundConfiguration
 
     public object[] servers { get; set; }
 
+    public string version { get; set; }
+
     public string address { get; set; }
 
     public ushort port { get; set; }

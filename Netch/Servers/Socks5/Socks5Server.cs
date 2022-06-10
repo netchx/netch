@@ -4,7 +4,7 @@ namespace Netch.Servers;
 
 public class Socks5Server : Server
 {
-    public override string Type { get; } = "Socks5";
+    public override string Type { get; } = "SOCKS";
 
     /// <summary>
     ///     密码
@@ -17,6 +17,11 @@ public class Socks5Server : Server
     public string? Username { get; set; }
 
     public string? RemoteHostname { get; set; }
+
+    /// <summary>
+    ///     版本
+    /// </summary>
+    public string Version { get; set; } = SOCKSGlobal.Versions[0];
 
     public override string MaskedData()
     {
@@ -48,4 +53,14 @@ public class Socks5Server : Server
     {
         return !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
     }
+}
+
+public class SOCKSGlobal
+{
+    public static readonly List<string> Versions = new()
+    {
+        "5",
+        "4a",
+        "4"
+    };
 }
