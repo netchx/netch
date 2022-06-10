@@ -60,7 +60,7 @@ if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
 		-c $Configuration `
 		-r 'win-x64' `
 		-p:Platform='x64' `
-		-p:SelfContained=$False `
+		-p:SelfContained=$SelfContained `
 		-p:PublishTrimmed=$PublishReadyToRun `
 		-p:PublishSingleFile=$PublishSingleFile `
 		-p:PublishReadyToRun=$PublishReadyToRun `
