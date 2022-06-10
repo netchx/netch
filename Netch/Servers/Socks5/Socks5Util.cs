@@ -7,11 +7,11 @@ public class Socks5Util : IServerUtil
 {
     public ushort Priority { get; } = 0;
 
-    public string TypeName { get; } = "Socks5";
+    public string TypeName { get; } = "SOCKS";
 
-    public string FullName { get; } = "Socks5";
+    public string FullName { get; } = "SOCKS";
 
-    public string ShortName { get; } = "S5";
+    public string ShortName { get; } = "SOCKS";
 
     public string[] UriScheme { get; } = { };
 

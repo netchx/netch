@@ -42,7 +42,7 @@ public static class V2rayConfigUtils
 
         switch (server)
         {
-            case Socks5Server socks5:
+            case Socks5Server socks:
             {
                 outbound.protocol = "socks";
                 outbound.settings.servers = new object[]
@@ -51,19 +51,20 @@ public static class V2rayConfigUtils
                     {
                         address = await server.AutoResolveHostnameAsync(),
                         port = server.Port,
-                        users = socks5.Auth()
+                        users = socks.Auth()
                             ? new[]
                             {
                                 new
                                 {
-                                    user = socks5.Username,
-                                    pass = socks5.Password,
+                                    user = socks.Username,
+                                    pass = socks.Password,
                                     level = 1
                                 }
                             }
                             : null
                     }
                 };
+                outbound.settings.version = socks.Version;
 
                 outbound.mux.enabled = false;
                 outbound.mux.concurrency = -1;
