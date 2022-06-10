@@ -18,10 +18,6 @@ public class VLESSServer : VMessServer
     ///     伪装类型
     /// </summary>
     public override string FakeType { get; set; } = VLESSGlobal.FakeTypes[0];
-
-    /// <summary>
-    /// </summary>
-    public string? Flow { get; set; } = "xtls-rprx-direct";
 }
 
 public class VLESSGlobal
