@@ -17,7 +17,6 @@ internal class VLESSForm : ServerForm
             s => server.EncryptMethod = !string.IsNullOrWhiteSpace(s) ? s : "none",
             server.EncryptMethod);
 
-        CreateTextBox("Flow", "Flow", s => true, s => server.Flow = s, server.Flow);
         CreateComboBox("TransferProtocol",
             "Transfer Protocol",
             VLESSGlobal.TransferProtocols,

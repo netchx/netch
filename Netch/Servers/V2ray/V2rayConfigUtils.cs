@@ -84,7 +84,7 @@ public static class V2rayConfigUtils
                             new User
                             {
                                 id = getUUID(vless.UserID),
-                                flow = vless.Flow.ValueOrDefault(),
+                                flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
                                 encryption = vless.EncryptMethod
                             }
                         }
@@ -196,7 +196,8 @@ public static class V2rayConfigUtils
                                 address = await server.AutoResolveHostnameAsync(),
                                 port = server.Port,
                                 method = "",
-                                password = trojan.Password
+                                password = trojan.Password,
+                                flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
                             }
                     }
                 };
