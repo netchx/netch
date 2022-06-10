@@ -78,4 +78,30 @@ public static class StringExtension
     {
         return !string.IsNullOrWhiteSpace(value) ? value.Split(',') : default;
     }
+
+    public static string GenerateUUIDv5(this string str)
+    {
+        // https://github.com/XTLS/Xray-core/discussions/715
+        // https://xray-uuid.ducksoft.site/
+
+        SHA1 sha1 = new SHA1CryptoServiceProvider();
+
+        // example string: "example"
+        List<byte> byteSource = new List<byte>();
+        byteSource.AddRange(new byte[16]);
+        byteSource.AddRange(Encoding.UTF8.GetBytes(str));
+
+        byte[] Sha1Bytes = sha1.ComputeHash(byteSource.ToArray()).Skip(0).Take(16).ToArray();
+        sha1.Dispose();
+
+        //UUIDv5: [254 181 68 49 48 27 82 187 166 221 225 233 62 129 187 158]
+
+        Sha1Bytes[6] = (byte)((Sha1Bytes[6] & 0x0f) | (5 << 4));
+        Sha1Bytes[8] = (byte)(Sha1Bytes[8] & (0xff >> 2) | (0x02 << 6));
+
+        return BitConverter.ToString(Sha1Bytes).Replace("-", "")
+            .Insert(8, "-").Insert(13, "-").Insert(18, "-").Insert(23, "-")
+            .ToLower();
+        //UUIDv5: feb54431-301b-52bb-a6dd-e1e93e81bb9e
+    }
 }
