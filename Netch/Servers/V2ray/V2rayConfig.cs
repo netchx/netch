@@ -117,6 +117,8 @@ public class StreamSettings
     public TlsSettings xtlsSettings { get; set; }
 
     public GrpcSettings grpcSettings { get; set; }
+
+    public Sockopt sockopt { get; set; }
 }
 
 #region Transport
@@ -182,6 +184,11 @@ public class GrpcSettings
     public string serviceName { get; set; }
 
     public bool multiMode { get; set; }
+}
+
+public class Sockopt
+{
+    public bool tcpFastOpen { get; set; }
 }
 
 #endregion

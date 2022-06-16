@@ -160,6 +160,17 @@ public static class V2rayConfigUtils
                     plugin = ss.Plugin ?? "",
                     pluginOpts = ss.PluginOption ?? ""
                 };
+                
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings = new StreamSettings
+                    {
+                        sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
                 break;
              case ShadowsocksRServer ssr:
                 outbound.protocol = "shadowsocks";
@@ -184,6 +195,17 @@ public static class V2rayConfigUtils
                         "--protocol-param=" + ssr.ProtocolParam ?? ""
                     }
                 };
+
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings = new StreamSettings
+                    {
+                        sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
                 break;
              case TrojanServer trojan:
                 outbound.protocol = "trojan";
@@ -225,6 +247,15 @@ public static class V2rayConfigUtils
                             break;
                     }
                 }
+
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings.sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
                 break;
             case WireGuardServer wg:
                 outbound.protocol = "wireguard";
@@ -238,6 +269,17 @@ public static class V2rayConfigUtils
                     preSharedKey = wg.PreSharedKey,
                     mtu = wg.MTU
                 };
+
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings = new StreamSettings
+                    {
+                        sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
                 break;
 
         }
@@ -364,6 +406,14 @@ public static class V2rayConfigUtils
                 break;
             default:
                 throw new MessageException($"transfer protocol \"{server.TransferProtocol}\" not implemented yet");
+        }
+
+        if (Global.Settings.V2RayConfig.TCPFastOpen)
+        {
+            streamSettings.sockopt = new Sockopt
+            {
+                tcpFastOpen = true
+            };
         }
 
         return streamSettings;

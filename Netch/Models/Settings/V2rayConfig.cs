@@ -11,4 +11,6 @@ public class V2rayConfig
     public bool V2rayNShareLink { get; set; } = true;
 
     public bool XrayCone { get; set; } = true;
+
+    public bool TCPFastOpen { get; set; } = false;
 }
