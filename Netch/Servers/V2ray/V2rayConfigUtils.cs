@@ -251,9 +251,8 @@ public static class V2rayConfigUtils
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
                     outbound.streamSettings.sockopt = new Sockopt
-                        {
-                            tcpFastOpen = true
-                        }
+                    {
+                        tcpFastOpen = true
                     };
                 }
                 break;
