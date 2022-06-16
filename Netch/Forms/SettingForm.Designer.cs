@@ -80,6 +80,7 @@ namespace Netch.Forms
             this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
+            this.TCPFastOpenBox = new System.Windows.Forms.CheckBox();
             this.KCPGroupBox = new System.Windows.Forms.GroupBox();
             this.mtuLabel = new System.Windows.Forms.Label();
             this.mtuTextBox = new System.Windows.Forms.TextBox();
@@ -590,6 +591,7 @@ namespace Netch.Forms
             this.v2rayTabPage.Controls.Add(this.XrayConeCheckBox);
             this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
             this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
+            this.v2rayTabPage.Controls.Add(this.TCPFastOpenBox);
             this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 29);
             this.v2rayTabPage.Name = "v2rayTabPage";
@@ -627,6 +629,16 @@ namespace Netch.Forms
             this.UseMuxCheckBox.TabIndex = 2;
             this.UseMuxCheckBox.Text = "Use Mux";
             this.UseMuxCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // TCPFastOpenBox
+            // 
+            this.TCPFastOpenBox.AutoSize = true;
+            this.TCPFastOpenBox.Location = new System.Drawing.Point(300, 42);
+            this.TCPFastOpenBox.Name = "TCPFastOpenBox";
+            this.TCPFastOpenBox.Size = new System.Drawing.Size(131, 21);
+            this.TCPFastOpenBox.TabIndex = 3;
+            this.TCPFastOpenBox.Text = "TCP FastOpen";
+            this.TCPFastOpenBox.UseVisualStyleBackColor = true;
             // 
             // KCPGroupBox
             // 
@@ -1063,6 +1075,7 @@ namespace Netch.Forms
         private System.Windows.Forms.GroupBox KCPGroupBox;
         private System.Windows.Forms.CheckBox congestionCheckBox;
         private System.Windows.Forms.CheckBox TLSAllowInsecureCheckBox;
+        private System.Windows.Forms.CheckBox TCPFastOpenBox;
         private System.Windows.Forms.Label mtuLabel;
         private System.Windows.Forms.TextBox mtuTextBox;
         private System.Windows.Forms.Label writeBufferSizeLabel;

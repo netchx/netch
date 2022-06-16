@@ -183,6 +183,7 @@
     "STUN Server": "STUN 服务器",
     "Language": "语言",
     "FullCone Support (Required Server Xray-core v1.3.0+)": "FullCone 支持（需服务端 Xray-core v1.3.0+）",
+    "TCP FastOpen": "TCP 快速打开",
     "Disable Support Warning": "停用支持警告",
 
     "Profile": "配置名",
