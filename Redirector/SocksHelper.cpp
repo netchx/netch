@@ -89,10 +89,10 @@ bool SocksHelper::Handshake(SOCKET client)
 		}
 
 		/* Password */
-		buffer[1 + plength] = 0x00;
+		buffer[1 + 1 + ulength] = 0x00;
 		if (plength != 0)
 		{
-			buffer[1 + ulength] = plength;
+			buffer[1 + 1 + ulength] = plength;
 			memcpy(buffer + 1 + 1 + ulength + 1, tgtPassword.c_str(), plength);
 		}
 
