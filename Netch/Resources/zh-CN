@@ -47,6 +47,7 @@
 
     "Address": "地址",
     "Username": "用户名",
+    "User": "用户",
     "Password": "密码",
     "Version": "版本",
     "User ID": "用户 ID",
@@ -71,7 +72,7 @@
     "Plugin Options": "插件参数",
     "Remote Address": "远端地址",
     "Local Addresses": "本地地址(可多个)",
-    "Public Key": "节点公钥",
+    "Public Key": "公钥",
     "Private Key": "私钥",
     "PSK": "节点预共享密钥",
 

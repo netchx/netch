@@ -269,6 +269,26 @@ public static class V2rayConfigUtils
                 }
                 break;
 
+            case SSHServer ssh:
+                outbound.protocol = "ssh";
+                outbound.settings.address = await server.AutoResolveHostnameAsync();
+                outbound.settings.port = server.Port;
+                outbound.settings.user = ssh.User;
+                outbound.settings.password = ssh.Password;
+                outbound.settings.privateKey = ssh.PrivateKey;
+                outbound.settings.publicKey = ssh.PublicKey;
+                
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings = new StreamSettings
+                    {
+                        sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
+                break;
         }
 
         return outbound;
