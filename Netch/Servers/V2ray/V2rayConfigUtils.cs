@@ -145,21 +145,18 @@ public static class V2rayConfigUtils
             }
             case ShadowsocksServer ss:
                 outbound.protocol = "shadowsocks";
-                outbound.settings = new OutboundConfiguration
+                outbound.settings.servers = new[]
                 {
-                    servers = new[]
+                    new ShadowsocksServerItem
                     {
-                        new ShadowsocksServerItem
-                        {
-                            address = await server.AutoResolveHostnameAsync(),
-                            port = server.Port,
-                            method = ss.EncryptMethod,
-                            password = ss.Password,
-                        }
-                    },
-                    plugin = ss.Plugin ?? "",
-                    pluginOpts = ss.PluginOption ?? ""
+                        address = await server.AutoResolveHostnameAsync(),
+                        port = server.Port,
+                        method = ss.EncryptMethod,
+                        password = ss.Password
+                    }
                 };
+                outbound.settings.plugin = ss.Plugin ?? "";
+                outbound.settings.pluginOpts = ss.PluginOption ?? "";
                 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -174,26 +171,23 @@ public static class V2rayConfigUtils
                 break;
              case ShadowsocksRServer ssr:
                 outbound.protocol = "shadowsocks";
-                outbound.settings = new OutboundConfiguration
+                outbound.settings.servers = new[]
                 {
-                    servers = new[]
+                    new ShadowsocksServerItem
                     {
-                        new ShadowsocksServerItem
-                        {
-                            address = await server.AutoResolveHostnameAsync(),
-                            port = server.Port,
-                            method = ssr.EncryptMethod,
-                            password = ssr.Password,
-                        }
-                    },
-                    plugin = "shadowsocksr",
-                    pluginArgs = new string[]
-                    {
-                        "--obfs=" + ssr.OBFS,
-                        "--obfs-param=" + ssr.OBFSParam ?? "",
-                        "--protocol=" + ssr.Protocol,
-                        "--protocol-param=" + ssr.ProtocolParam ?? ""
+                        address = await server.AutoResolveHostnameAsync(),
+                        port = server.Port,
+                        method = ssr.EncryptMethod,
+                        password = ssr.Password,
                     }
+                };
+                outbound.settings.plugin = "shadowsocksr";
+                outbound.settings.pluginArgs = new string[]
+                {
+                    "--obfs=" + ssr.OBFS,
+                    "--obfs-param=" + ssr.OBFSParam ?? "",
+                    "--protocol=" + ssr.Protocol,
+                    "--protocol-param=" + ssr.ProtocolParam ?? ""
                 };
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
@@ -209,18 +203,15 @@ public static class V2rayConfigUtils
                 break;
              case TrojanServer trojan:
                 outbound.protocol = "trojan";
-                outbound.settings = new OutboundConfiguration
+                outbound.settings.servers = new[]
                 {
-                    servers = new[]
+                    new ShadowsocksServerItem // I'm not serious
                     {
-                            new ShadowsocksServerItem // I'm not serious
-                            {
-                                address = await server.AutoResolveHostnameAsync(),
-                                port = server.Port,
-                                method = "",
-                                password = trojan.Password,
-                                flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
-                            }
+                        address = await server.AutoResolveHostnameAsync(),
+                        port = server.Port,
+                        method = "",
+                        password = trojan.Password,
+                        flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
                     }
                 };
 
@@ -258,16 +249,13 @@ public static class V2rayConfigUtils
                 break;
             case WireGuardServer wg:
                 outbound.protocol = "wireguard";
-                outbound.settings = new OutboundConfiguration
-                {
-                    address = await server.AutoResolveHostnameAsync(),
-                    port = server.Port,
-                    localAddresses = wg.LocalAddresses.SplitOrDefault(),
-                    peerPublicKey = wg.PeerPublicKey,
-                    privateKey = wg.PrivateKey,
-                    preSharedKey = wg.PreSharedKey,
-                    mtu = wg.MTU
-                };
+                outbound.settings.address = await server.AutoResolveHostnameAsync();
+                outbound.settings.port = server.Port;
+                outbound.settings.localAddresses = wg.LocalAddresses.SplitOrDefault();
+                outbound.settings.peerPublicKey = wg.PeerPublicKey;
+                outbound.settings.privateKey = wg.PrivateKey;
+                outbound.settings.preSharedKey = wg.PreSharedKey;
+                outbound.settings.mtu = wg.MTU;
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -281,6 +269,26 @@ public static class V2rayConfigUtils
                 }
                 break;
 
+            case SSHServer ssh:
+                outbound.protocol = "ssh";
+                outbound.settings.address = await server.AutoResolveHostnameAsync();
+                outbound.settings.port = server.Port;
+                outbound.settings.user = ssh.User;
+                outbound.settings.password = ssh.Password;
+                outbound.settings.privateKey = ssh.PrivateKey;
+                outbound.settings.publicKey = ssh.PublicKey;
+                
+                if (Global.Settings.V2RayConfig.TCPFastOpen)
+                {
+                    outbound.streamSettings = new StreamSettings
+                    {
+                        sockopt = new Sockopt
+                        {
+                            tcpFastOpen = true
+                        }
+                    };
+                }
+                break;
         }
 
         return outbound;

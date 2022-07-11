@@ -44,7 +44,11 @@ public class OutboundConfiguration
 
     public string address { get; set; }
 
+    public string user { get; set; }
+
     public ushort port { get; set; }
+
+    public string password { get; set; }
 
     public string packetEncoding { get; set; }
 
@@ -57,6 +61,8 @@ public class OutboundConfiguration
     public string[] localAddresses { get; set; }
 
     public string peerPublicKey { get; set; }
+
+    public string publicKey { get; set; }
 
     public string privateKey { get; set; }
 
