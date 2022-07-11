@@ -2,4 +2,4 @@
 install.exe
 VRChat.exe
 UnityCrashHandler64.exe
-youtube-dl.exe
+yt-dlp.exe
