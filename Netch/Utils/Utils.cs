@@ -94,6 +94,9 @@ public static class Utils
 
     public static async Task<string> Sha256CheckSumAsync(string filePath)
     {
+        if (!File.Exists(filePath))
+            return "";
+
         try
         {
             await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);

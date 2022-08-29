@@ -37,7 +37,7 @@ public class NFController : IModeController
 
         Dial(NameList.AIO_FILTERLOOPBACK, _mode.FilterLoopback);
         Dial(NameList.AIO_FILTERINTRANET, _mode.FilterIntranet);
-        Dial(NameList.AIO_FILTERPARENT, _mode.FilterParent ?? _rdrConfig.HandleOnlyDNS);
+        Dial(NameList.AIO_FILTERPARENT, _mode.FilterParent ?? _rdrConfig.FilterParent);
         Dial(NameList.AIO_FILTERICMP, _mode.FilterICMP ?? _rdrConfig.FilterICMP);
         if (_mode.FilterICMP ?? _rdrConfig.FilterICMP)
             Dial(NameList.AIO_ICMPING, (_mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay).ToString());
