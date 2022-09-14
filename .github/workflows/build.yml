@@ -54,8 +54,6 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         if: steps.check_other.outputs.files_exists == 'false'
-        with:
-          go-version: ^1.18.3
 
       - name: Setup C++
         uses: msys2/setup-msys2@v2
