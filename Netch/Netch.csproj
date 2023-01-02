@@ -67,7 +67,7 @@
     <PackageReference Include="TaskScheduler" Version="2.10.1" />
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
     <PackageReference Include="WindowsJobAPI" Version="6.0.0" />
   </ItemGroup>
 
