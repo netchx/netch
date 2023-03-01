@@ -47,7 +47,7 @@
     </PackageReference>
     <PackageReference Include="HMBSbige.SingleInstance" Version="6.0.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.8" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.5.22" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.588-beta">
       <PrivateAssets>all</PrivateAssets>
