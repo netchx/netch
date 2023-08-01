@@ -156,7 +156,7 @@
     "Use Custom DNS": "使用自訂 DNS",
     "Proxy DNS in Proxy Rule IPs Mode": "在 代理規則IP 模式下代理 DNS",
     "Use Fake DNS": "使用 Fake DNS",
-    "Exit when closed": "停止加速時結束程式",
+    "Exit when closed": "關閉窗口時結束程式",
     "Stop when exited": "結束程式時停止加速",
     "Global Bypass IPs": "全域直連 IP",
     "Check update when opened": "開啟軟體時自動檢查更新",
