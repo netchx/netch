@@ -162,7 +162,7 @@
     "Use custom DNS": "使用自定义 DNS",
     "Proxy DNS": "代理 DNS",
     "Exit when closed": "关闭窗口时退出程序",
-    "Stop when exited": "退出程序时自动停止加速",
+    "Stop when exited": "退出程序时停止加速",
     "Global Bypass IPs": "全局直连 IP",
     "Check update when opened": "打开软件时检查更新",
     "Check Beta update": "检查 Beta 更新",
