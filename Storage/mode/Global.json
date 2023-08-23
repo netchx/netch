@@ -1,7 +1,10 @@
 {
   "type": "ProcessMode",
   "remark": {
-    "zh-CN": "Global"
+    "zh-CN": "Global",
+    "zh-TW": "Global",
+    "en-US": "Global",
+    "ja-JP": "Global",
   },
   "handle": [
     ".*"
