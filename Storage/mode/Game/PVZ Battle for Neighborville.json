@@ -1,7 +1,10 @@
 {
   "type": "ProcessMode",
   "remark": {
-    "zh-CN": "PVZ Battle for Neighborville"
+    "zh-CN": "PVZ Battle for Neighborville",
+    "zh-TW": "PVZ Battle for Neighborville",
+    "en-US": "PVZ Battle for Neighborville",
+    "ja-JP": "PVZ Battle for Neighborville",
   },
   "handle": [
     "PVZ Battle for Neighborville"
