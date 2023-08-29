@@ -1,7 +1,10 @@
 {
   "type": "ProcessMode",
   "remark": {
-    "zh-CN": "NVIDIA Corporation"
+    "zh-CN": "NVIDIA Corporation",
+    "zh-TW": "NVIDIA Corporation",
+    "en-US": "NVIDIA Corporation",
+    "ja-JP": "NVIDIA Corporation"
   },
   "handle": [
     "\\\\NVIDIA Corporation\\\\"
