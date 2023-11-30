@@ -13,7 +13,9 @@ namespace Netch.Controllers;
 public class PcapController : Guard, IModeController
 {
     private readonly LogForm _form;
+    // ! TODO:
     private ShareMode _mode = null!;
+    // ! TODO:
     private Socks5Server _server = null!;
 
     public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)

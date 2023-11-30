@@ -24,6 +24,7 @@ public class Socks5Form : ServerForm
             server.RemoteHostname.ValueOrDefault());
 
         AddressTextBox.TextChanged += AddressTextBoxOnTextChanged;
+        // ! TODO:
         AddressTextBoxOnTextChanged(null!, null!);
     }
 
@@ -35,7 +36,7 @@ public class Socks5Form : ServerForm
         _remoteHostnameLabel.Visible = _remoteHostnameTextBox.Visible = IsPrivateAddress(AddressTextBox.Text);
     }
 
-    private bool IsPrivateAddress(string address)
+    private static bool IsPrivateAddress(string address)
     {
         // https://en.wikipedia.org/wiki/Private_network#Private_IPv4_addresses
         return address.StartsWith("10.") || address.StartsWith("192.168.") || address.StartsWith("172.") || address.StartsWith("127.");

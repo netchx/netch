@@ -69,12 +69,12 @@ public class ShadowsocksRUtil : IServerUtil
         var paramStartPos = data.IndexOf("?", StringComparison.Ordinal);
         if (paramStartPos > 0)
         {
-            paramsDict = ShareLink.ParseParam(data.Substring(paramStartPos + 1));
-            data = data.Substring(0, paramStartPos);
+            paramsDict = ShareLink.ParseParam(data[(paramStartPos + 1)..]);
+            data = data[..paramStartPos];
         }
 
-        if (data.IndexOf("/", StringComparison.Ordinal) >= 0)
-            data = data.Substring(0, data.LastIndexOf("/", StringComparison.Ordinal));
+        if (data.Contains('/'))
+            data = data[..data.LastIndexOf("/", StringComparison.Ordinal)];
 
         var urlFinder = new Regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
         var match = urlFinder.Match(data);

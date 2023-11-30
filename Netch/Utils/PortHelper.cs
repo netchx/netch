@@ -31,7 +31,7 @@ public static class PortHelper
     internal static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port, AddressFamily inet = AddressFamily.InterNetwork)
     {
         if (port == 0)
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(port), "Port cannot be 0");
 
         switch (inet)
         {
@@ -56,9 +56,11 @@ public static class PortHelper
                         if (row.dwOwningPid is 0 or 4)
                             continue;
 
-                        if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                            #pragma warning disable CA1416 // 验证平台兼容性
+                            if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
                             process.Add(Process.GetProcessById((int)row.dwOwningPid));
-                    }
+                            #pragma warning restore CA1416 // 验证平台兼容性
+                        }
                 }
 
                 return process;

@@ -8,7 +8,7 @@ public class DNSController : IController
 {
     public string Name => "DNS Service";
 
-    public async Task StartAsync()
+    public static async Task StartAsync()
     {
         var aioDnsConfig = Global.Settings.AioDNS;
 

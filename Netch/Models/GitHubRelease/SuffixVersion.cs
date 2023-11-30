@@ -68,7 +68,7 @@ public struct SuffixVersion : IComparable, IComparable<SuffixVersion>
     public int CompareTo(object? obj)
     {
         if (obj is not SuffixVersion version)
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(obj), "Object must be of type SuffixVersion");
 
         return CompareTo(version);
     }

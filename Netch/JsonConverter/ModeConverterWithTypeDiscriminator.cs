@@ -17,6 +17,7 @@ public class ModeConverterWithTypeDiscriminator : JsonConverter<Mode>
         if (!jsonElement.TryGetProperty(modeTypePropertyName, out var modeTypeToken))
             throw new JsonException();
 
+        // ! TODO:
         var modeTypeEnum = modeTypeToken.ValueKind switch
         {
             JsonValueKind.Number => (ModeType)modeTypeToken.GetInt32(),
@@ -29,7 +30,7 @@ public class ModeConverterWithTypeDiscriminator : JsonConverter<Mode>
             ModeType.ProcessMode => typeof(Redirector),
             ModeType.TunMode => typeof(TunMode),
             ModeType.ShareMode => typeof(ShareMode),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(modeTypeEnum), "Invalid ModeType value.")
         };
 
         return (Mode?)jsonElement.Deserialize(modeType, options);

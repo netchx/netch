@@ -24,7 +24,7 @@ public class WireGuardServer : Server
     /// <summary>
     ///     私钥
     /// </summary>
-    public string PrivateKey { get; set; }
+    public string? PrivateKey { get; set; }
 
     /// <summary>
     ///     节点预共享密钥

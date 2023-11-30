@@ -16,7 +16,7 @@ public static class i18N
     /// <summary>
     ///     数据
     /// </summary>
-    public static Hashtable Data = new();
+    internal static Hashtable Data = new();
 
     public static string LangCode { get; private set; } = "en-US";
 
@@ -50,7 +50,7 @@ public static class i18N
                 text = File.ReadAllText($"i18n\\{LangCode}");
                 break;
         }
-
+        // ! TODO
         var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text)!;
 
         if (!dictionary.Any())
@@ -69,7 +69,7 @@ public static class i18N
         if (!culture.Contains('-'))
             return "";
 
-        return culture.Substring(0, culture.IndexOf('-'));
+        return culture[..culture.IndexOf('-')];
     }
 
     /// <summary>
@@ -92,8 +92,8 @@ public static class i18N
     public static string TranslateFormat(string format, params object[] args)
     {
         for (var i = 0; i < args.Length; i++)
-            if (args[i] is string)
-                args[i] = Translate((string)args[i]);
+            if (args[i] is string @string)
+                args[i] = Translate(@string);
 
         return string.Format(Translate(format), args);
     }
@@ -105,7 +105,7 @@ public static class i18N
         if (!Directory.Exists("i18n"))
             return translateFile;
 
-        translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
+        translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName[5..]));
         return translateFile;
     }
 

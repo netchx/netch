@@ -85,6 +85,7 @@ public class Updater
             File.WriteAllBytes(temp7za, Resources._7za);
 
         var argument = new StringBuilder($" x \"{UpdateFile}\" -o\"{destDirName}\" -y");
+        // ! TODO:
         var process = Process.Start(new ProcessStartInfo(temp7za, argument.ToString())
         {
             UseShellExecute = false

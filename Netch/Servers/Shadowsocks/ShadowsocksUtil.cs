@@ -69,7 +69,8 @@ public class ShadowsocksUtil : IServerUtil
 
     public IEnumerable<Server> ParseSsdUri(string s)
     {
-        var json = JsonSerializer.Deserialize<SSDJObject>(ShareLink.URLSafeBase64Decode(s.Substring(6)))!;
+        // ! TODO:
+        var json = JsonSerializer.Deserialize<SSDJObject>(ShareLink.URLSafeBase64Decode(s[6..]))!;
 
         return json.servers.Select(server => new ShadowsocksServer
             {
@@ -91,13 +92,13 @@ public class ShadowsocksUtil : IServerUtil
         var data = new ShadowsocksServer();
 
         text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        if (text.Contains('#'))
         {
             data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
             text = text.Split('#')[0];
         }
 
-        if (text.Contains("?"))
+        if (text.Contains('?'))
         {
             var finder = new Regex(@"^(?<data>.+?)\?(.+)$");
             var match = finder.Match(text);
@@ -108,8 +109,8 @@ public class ShadowsocksUtil : IServerUtil
             var plugins = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin"));
             if (plugins != null)
             {
-                var plugin = plugins.Substring(0, plugins.IndexOf(";", StringComparison.Ordinal));
-                var pluginopts = plugins.Substring(plugins.IndexOf(";", StringComparison.Ordinal) + 1);
+                var plugin = plugins[..plugins.IndexOf(";", StringComparison.Ordinal)];
+                var pluginopts = plugins[(plugins.IndexOf(";", StringComparison.Ordinal) + 1)..];
                 switch (plugin)
                 {
                     case "obfs-local":
@@ -134,7 +135,7 @@ public class ShadowsocksUtil : IServerUtil
             text = match.Groups["data"].Value;
         }
 
-        if (text.Contains("@"))
+        if (text.Contains('@'))
         {
             var finder = new Regex(@"^ss://(?<base64>.+?)@(?<server>.+):(?<port>\d+)");
             var parser = new Regex(@"^(?<method>.+?):(?<password>.+)$");

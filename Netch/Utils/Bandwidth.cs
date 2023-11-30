@@ -9,8 +9,8 @@ namespace Netch.Utils;
 
 public static class Bandwidth
 {
-    public static ulong received;
-    public static TraceEventSession? tSession;
+    private static ulong received;
+    private static TraceEventSession? tSession;
 
     private static readonly string[] Suffix = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
 
@@ -73,7 +73,42 @@ public static class Bandwidth
 
         var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 
-        Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
+        var processInfoList = processes.Select(v =>
+        {
+            var fileName = v.MainModule?.FileName;
+
+            if (fileName == null)
+            {
+                // 提前返回，减少嵌套深度
+                return new
+                {
+                    Process = v,
+                    Version = (string?)null,  // 使用 string? 表示可空
+                    ModificationDate = DateTime.MinValue
+                };
+            }
+
+            var versionInfo = FileVersionInfo.GetVersionInfo(fileName);
+            var modificationDate = File.GetLastWriteTime(fileName);
+
+            return new
+            {
+                Process = v,
+                Version = versionInfo.ProductVersion,
+                ModificationDate = modificationDate
+            };
+        }).ToList();
+
+        Log.Information("Net traffic processes: {Processes}", string.Join(',', processInfoList.Select(v =>
+        {
+            var versionOrDate = !string.IsNullOrEmpty(v.Version)
+                ? $"Ver: {v.Version}"
+                : $"Mod Date: {v.ModificationDate:yyyy-MM-dd HH:mm:ss}";
+
+            return $"({v.Process.Id}) {v.Process.ProcessName} ({versionOrDate})";
+        })));
+
+        //      Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
         received = 0;
 

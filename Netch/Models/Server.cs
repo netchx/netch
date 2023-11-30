@@ -26,6 +26,8 @@ public abstract class Server : ICloneable
     ///     端口
     /// </summary>
     public ushort Port { get; set; }
+//    public bool Sniffing { get; set; } = true;
+//    public bool AllowHttp { get; set; } = true;
 
     /// <summary>
     ///     倍率

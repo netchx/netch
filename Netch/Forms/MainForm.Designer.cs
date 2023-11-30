@@ -39,6 +39,7 @@
             this.SubscriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ManageSubscriptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.UpdateServersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.UpdateBypassIpStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.OpenDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ShowHideConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -164,7 +165,7 @@
             this.CreateRouteTableRuleToolStripMenuItem.Name = "CreateRouteTableRuleToolStripMenuItem";
             this.CreateRouteTableRuleToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
-            this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.createRouteTableModeToolStripMenuItem_Click);
+            this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.CreateRouteTableModeToolStripMenuItem_Click);
             // 
             // ReloadModesToolStripMenuItem
             // 
@@ -177,7 +178,8 @@
             // 
             this.SubscriptionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ManageSubscriptionsToolStripMenuItem,
-            this.UpdateServersToolStripMenuItem});
+            this.UpdateServersToolStripMenuItem,
+            this.UpdateBypassIpStripMenuItem});
             this.SubscriptionToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
             this.SubscriptionToolStripMenuItem.Name = "SubscriptionToolStripMenuItem";
             this.SubscriptionToolStripMenuItem.Size = new System.Drawing.Size(92, 21);
@@ -196,6 +198,13 @@
             this.UpdateServersToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
             this.UpdateServersToolStripMenuItem.Text = "Update Servers";
             this.UpdateServersToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscriptionLinksToolStripMenuItem_Click);
+            // 
+            // UpdateBypassIpStripMenuItem
+            // 
+            this.UpdateBypassIpStripMenuItem.Name = "UpdateBypassIpStripMenuItem";
+            this.UpdateBypassIpStripMenuItem.Size = new System.Drawing.Size(206, 22);
+            this.UpdateBypassIpStripMenuItem.Text = "Update Bypass IPs";
+            this.UpdateBypassIpStripMenuItem.Click += new System.EventHandler(this.UpdateBypassIPsFromUrlLinksToolStripMenuItem_Click);
             // 
             // OptionsToolStripMenuItem
             // 
@@ -267,7 +276,7 @@
             this.FAQToolStripMenuItem.Name = "FAQToolStripMenuItem";
             this.FAQToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.FAQToolStripMenuItem.Text = "FAQ";
-            this.FAQToolStripMenuItem.Click += new System.EventHandler(this.fAQToolStripMenuItem_Click);
+            this.FAQToolStripMenuItem.Click += new System.EventHandler(this.FAQToolStripMenuItem_Click);
             // 
             // ForceExitToolStripMenuItem
             // 
@@ -799,6 +808,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem UpdateServersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UpdateBypassIpStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
         private System.Windows.Forms.ToolStripLabel NewVersionLabel;

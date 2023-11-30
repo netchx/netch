@@ -12,8 +12,10 @@ namespace Netch.Controllers;
 
 public class NFController : IModeController
 {
-    private Server? _server;
+    internal Server? _server;
+    // ! TODO:
     private Redirector _mode = null!;
+    // ! TODO:
     private RedirectorConfig _rdrConfig = null!;
 
     private static readonly ServiceController NFService = new("netfilter2");
@@ -93,7 +95,7 @@ public class NFController : IModeController
         try
         {
             if (r.StartsWith("!"))
-                return Dial(NameList.AIO_ADDNAME, r.Substring(1));
+                return Dial(NameList.AIO_ADDNAME, r[1..]);
 
             return Dial(NameList.AIO_ADDNAME, r);
         }
@@ -228,27 +230,60 @@ public class NFController : IModeController
     /// <returns>是否成功卸载</returns>
     public static bool UninstallDriver()
     {
-        Log.Information("Uninstall netfilter2");
         try
         {
+            // 记录卸载过程开始
+            Log.Information("Uninstall netfilter2");
+
             if (NFService.Status == ServiceControllerStatus.Running)
             {
                 NFService.Stop();
                 NFService.WaitForStatus(ServiceControllerStatus.Stopped);
+                Log.Information("NFService has been stopped");
+            }
+            else
+            {
+                Log.Information("NFService is not running. No need to stop.");
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            // 记录停止服务过程中的异常
+            Log.Error($"Error occurred while stopping the service: {ex.Message}");
+            // 在出现异常时返回 false 表示卸载失败
+            return false;
         }
 
+        // 检查驱动文件是否存在
         if (!File.Exists(SystemDriver))
+        {
+            // 记录警告日志，表示驱动文件未找到，并跳过卸载过程
+            Log.Warning($"Driver file {SystemDriver} not found. Skipping uninstallation.");
+            // 返回 true 表示卸载成功，因为不需要执行下面的步骤
             return true;
+        }
 
-        Interops.Redirector.aio_unregister("netfilter2");
-        File.Delete(SystemDriver);
+        try
+        {
+            // 调用Interop函数注销驱动
+            Interops.Redirector.aio_unregister("netfilter2");
 
-        return true;
+            // 删除驱动文件
+            File.Delete(SystemDriver);
+
+            // 记录卸载成功的消息
+            Log.Information("netfilter2 driver has been successfully uninstalled");
+
+            // 在卸载成功时返回 true
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // 记录卸载过程中的异常
+            Log.Error($"Error occurred during driver uninstallation: {ex.Message}");
+            // 返回 false 表示卸载失败
+            return false;
+        }
     }
 
     #endregion

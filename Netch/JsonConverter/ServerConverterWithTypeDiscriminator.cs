@@ -10,7 +10,9 @@ public class ServerConverterWithTypeDiscriminator : JsonConverter<Server>
     public override Server Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var jsonElement = JsonSerializer.Deserialize<JsonElement>(ref reader);
+        // ! TODO:
         var type = ServerHelper.GetTypeByTypeName(jsonElement.GetProperty("Type").GetString()!);
+        // ! TODO:
         return (Server)jsonElement.Deserialize(type)!;
     }
 

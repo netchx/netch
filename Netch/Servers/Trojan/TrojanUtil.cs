@@ -45,13 +45,13 @@ public class TrojanUtil : IServerUtil
         var data = new TrojanServer();
 
         text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        if (text.Contains('#'))
         {
             data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
             text = text.Split('#')[0];
         }
 
-        if (text.Contains("?"))
+        if (text.Contains('?'))
         {
             var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
             var regmatch = reg.Match(text);

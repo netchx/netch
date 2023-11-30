@@ -1,5 +1,4 @@
-﻿#nullable disable
-namespace Netch.Servers;
+﻿namespace Netch.Servers;
 
 public class TrojanConfig
 {
@@ -21,12 +20,12 @@ public class TrojanConfig
     /// <summary>
     ///     密码
     /// </summary>
-    public List<string> password { get; set; }
+    public List<string> password { get; set; } = new List<string>();
 
     /// <summary>
     ///     远端地址
     /// </summary>
-    public string remote_addr { get; set; }
+    public string remote_addr { get; set; } = string.Empty;
 
     /// <summary>
     ///     远端端口
@@ -48,10 +47,11 @@ public class TrojanSSL
     public List<string> alpn { get; set; } = new()
     {
         "h2",
-        "http/1.1"
+        "http/1.1", 
+        "h2,http/1.1"
     };
 
-    public string cert { get; set; }
+    public string cert { get; set; } = string.Empty;
 
     public string cipher { get; set; } =
         "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES128-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA:AES128-SHA:AES256-SHA:DES-CBC3-SHA";

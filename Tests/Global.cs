@@ -26,7 +26,7 @@ namespace Tests
             SHA1 sha1 = new SHA1CryptoServiceProvider();
             byte[] StrBytes = Encoding.UTF8.GetBytes(str);
 
-            List<byte> byteSource = new List<byte>();
+            List<byte> byteSource = new();
             byteSource.AddRange(bytes);
             byteSource.AddRange(StrBytes);
 

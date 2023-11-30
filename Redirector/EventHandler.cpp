@@ -158,7 +158,7 @@ void eh_free()
 
 	TCPHandler::FREE();
 
-	for (auto i : udpContext)
+	for (auto &i : udpContext)
 		delete i.second;
 	udpContext.clear();
 

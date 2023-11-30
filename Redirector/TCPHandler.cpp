@@ -57,7 +57,7 @@ bool TCPHandler::INIT()
 	}
 
 	{
-		SOCKADDR_IN6 addr;
+		SOCKADDR_IN6 addr{};
 		int addrLength = sizeof(SOCKADDR_IN6);
 		if (getsockname(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
 		{
@@ -135,7 +135,7 @@ void TCPHandler::Handle(SOCKET client)
 	USHORT id = 0;
 
 	{
-		SOCKADDR_IN6 addr;
+		SOCKADDR_IN6 addr{};
 		int addrLength = sizeof(SOCKADDR_IN6);
 
 		if (getpeername(client, (PSOCKADDR)&addr, &addrLength) == SOCKET_ERROR)
@@ -156,7 +156,7 @@ void TCPHandler::Handle(SOCKET client)
 		return;
 	}
 
-	auto target = tcpContext[id];
+	auto &target = tcpContext[id];
 	tcpLock.unlock();
 
 	auto remote = new SocksHelper::TCP();

@@ -5,7 +5,7 @@ using Serilog;
 
 namespace Netch.Interops
 {
-    public static class tun2socks
+    public static class Tun2socks
     {
         public enum NameList
         {
@@ -64,7 +64,7 @@ namespace Netch.Interops
         private static extern bool tun_free();
 
         [DllImport(tun2socks_bin, CallingConvention = CallingConvention.Cdecl)]
-        public static extern ulong tun_luid();
+        internal static extern ulong tun_luid();
 
         [DllImport(tun2socks_bin, CallingConvention = CallingConvention.Cdecl)]
         private static extern ulong tun_getUP();

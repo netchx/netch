@@ -12,18 +12,12 @@ public static class NetworkInterfaceUtils
 {
     public static NetworkInterface GetBest(AddressFamily addressFamily = AddressFamily.InterNetwork)
     {
-        string ipAddress;
-        switch (addressFamily)
+        string ipAddress = addressFamily switch
         {
-            case AddressFamily.InterNetwork:
-                ipAddress = "114.114.114.114";
-                break;
-            case AddressFamily.InterNetworkV6:
-                throw new NotImplementedException();
-            default:
-                throw new InvalidOperationException();
-        }
-
+            AddressFamily.InterNetwork => "114.114.114.114",
+            AddressFamily.InterNetworkV6 => throw new NotImplementedException(),
+            _ => throw new InvalidOperationException(),
+        };
         if (PInvoke.GetBestRoute(BitConverter.ToUInt32(IPAddress.Parse(ipAddress).GetAddressBytes(), 0), 0, out var route) != 0)
             throw new MessageException("GetBestRoute 搜索失败");
 
@@ -46,6 +40,7 @@ public static class NetworkInterfaceUtils
         if (metric != null)
             arguments += $"metric={metric} ";
 
+        // ! TODO:
         Process.Start(new ProcessStartInfo("netsh.exe", arguments)
         {
             UseShellExecute = false,

@@ -1,0 +1,5 @@
+# 选择大小写敏感性
+# all: 大小写敏感
+# suggestion: 提示（默认）
+# none: 大小写不敏感
+dotnet_style_case_sensitivity = none

@@ -126,7 +126,7 @@ bool SocksHelper::Handshake(SOCKET client)
 
 bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
-	char addrType;
+	char addrType = 0;
 	if (recv(client, (char*)&addrType, 1, 0) != 1)
 	{
 		printf("[Redirector][SocksHelper::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
@@ -423,7 +423,7 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 
 	if (timeout != NULL)
 	{
-		fd_set fds;
+		fd_set fds{};
 		FD_ZERO(&fds);
 		FD_SET(this->udpSocket, &fds);
 
@@ -436,7 +436,7 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 	if (size == 0 || size == SOCKET_ERROR)
 		return size;
 
-	SOCKADDR_IN6 addr;
+	SOCKADDR_IN6 addr{};
 	if (buffer[3] == 0x01)
 	{
 		auto ipv4 = (PSOCKADDR_IN)&addr;

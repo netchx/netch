@@ -10,17 +10,25 @@ public static class V2rayUtils
     public static IEnumerable<Server> ParseVUri(string text)
     {
         var scheme = ShareLink.GetUriScheme(text).ToLower();
-        var server = scheme switch { "vmess" => new VMessServer(), "vless" => new VLESSServer(), _ => throw new ArgumentOutOfRangeException() };
-        if (text.Contains("#"))
+
+        var server = scheme switch 
+        { 
+            "vless" => new VLESSServer(), 
+            "vmess" => new VMessServer(),
+            "vision" => new VisionServer(),
+            _ => throw new ArgumentOutOfRangeException(nameof(text), $"Invalid scheme value: {scheme}") 
+        };
+
+        if (text.Contains('#'))
         {
             server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
             text = text.Split('#')[0];
         }
 
-        if (text.Contains("?"))
+        if (text.Contains('?'))
         {
             var parameter = HttpUtility.ParseQueryString(text.Split('?')[1]);
-            text = text.Substring(0, text.IndexOf("?", StringComparison.Ordinal));
+            text = text[..text.IndexOf("?", StringComparison.Ordinal)];
             server.TransferProtocol = parameter.Get("type") ?? "tcp";
             server.PacketEncoding = parameter.Get("packetEncoding") ?? "xudp";
             server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
@@ -74,11 +82,13 @@ public static class V2rayUtils
     {
         // https://github.com/XTLS/Xray-core/issues/91
         var server = (VMessServer)s;
-        var parameter = new Dictionary<string, string>();
-        // protocol-specific fields
-        parameter.Add("type", server.TransferProtocol);
-        parameter.Add("encryption", server.EncryptMethod);
-        parameter.Add("packetEncoding", server.PacketEncoding);
+        var parameter = new Dictionary<string, string>
+        {
+            // protocol-specific fields
+            { "type", server.TransferProtocol },
+            { "encryption", server.EncryptMethod },
+            { "packetEncoding", server.PacketEncoding }
+        };
 
         // transport-specific fields
         switch (server.TransferProtocol)
@@ -90,18 +100,21 @@ public static class V2rayUtils
                     parameter.Add("headerType", server.FakeType);
 
                 if (!server.Path.IsNullOrWhiteSpace())
+                    // ! TODO:
                     parameter.Add("seed", Uri.EscapeDataString(server.Path!));
 
                 break;
             case "ws":
                 parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
                 if (!server.Host.IsNullOrWhiteSpace())
+                    // ! TODO:
                     parameter.Add("host", Uri.EscapeDataString(server.Host!));
 
                 break;
             case "h2":
                 parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
                 if (!server.Host.IsNullOrWhiteSpace())
+                    // ! TODO:
                     parameter.Add("host", Uri.EscapeDataString(server.Host!));
 
                 break;
@@ -109,6 +122,7 @@ public static class V2rayUtils
                 if (server.QUICSecure is not (null or "none"))
                 {
                     parameter.Add("quicSecurity", server.QUICSecure);
+                    // ! TODO:
                     parameter.Add("key", server.QUICSecret!);
                 }
 
@@ -131,6 +145,7 @@ public static class V2rayUtils
             parameter.Add("security", server.TLSSecureType);
 
             if (!server.Host.IsNullOrWhiteSpace())
+                // ! TODO:
                 parameter.Add("sni", server.Host!);
 
             if (server.TLSSecureType == "xtls")

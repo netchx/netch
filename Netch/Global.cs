@@ -18,7 +18,7 @@ public static class Global
     /// <summary>
     ///     用于读取和写入的配置
     /// </summary>
-    public static Setting Settings = new();
+    internal static Setting Settings = new();
 
     public static readonly JobObject Job = new();
 

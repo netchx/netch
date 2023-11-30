@@ -24,7 +24,7 @@ public class SSHServer : Server
     /// <summary>
     ///     私钥
     /// </summary>
-    public string PrivateKey { get; set; }
+    public string? PrivateKey { get; set; }
 
     /// <summary>
     ///     主机公钥

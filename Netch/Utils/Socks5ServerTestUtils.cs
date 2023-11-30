@@ -61,23 +61,17 @@ public static class Socks5ServerTestUtils
 
     private static string GetSimpleResult(StunResult5389 res)
     {
-        switch (res.BindingTestResult, res.MappingBehavior, res.FilteringBehavior)
+        return (res.BindingTestResult, res.MappingBehavior, res.FilteringBehavior)
+switch
         {
-            case (BindingTestResult.Fail, _, _):
-                return "NoUDP";
-            case (not BindingTestResult.Success, _, _):
-                return res.BindingTestResult.ToString();
-            case (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.EndpointIndependent):
-                return "1";
-            case (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, _):
-                return "2";
-            case (_, MappingBehavior.AddressDependent or MappingBehavior.AddressAndPortDependent, _):
-                return "3";
-            case (_, MappingBehavior.Fail, _):
-                return MappingBehavior.Fail.ToString();
-            default:
-                return res.FilteringBehavior.ToString();
-        }
+            (BindingTestResult.Fail, _, _) => "NoUDP",
+            (not BindingTestResult.Success, _, _) => res.BindingTestResult.ToString(),
+            (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.EndpointIndependent) => "1",
+            (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, _) => "2",
+            (_, MappingBehavior.AddressDependent or MappingBehavior.AddressAndPortDependent, _) => "3",
+            (_, MappingBehavior.Fail, _) => MappingBehavior.Fail.ToString(),
+            _ => res.FilteringBehavior.ToString(),
+        };
     }
 
     public static async Task<int?> HttpConnectAsync(Socks5Server socks5, CancellationToken ctx)

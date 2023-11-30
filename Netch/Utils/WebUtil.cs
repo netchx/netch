@@ -18,7 +18,9 @@ public static class WebUtil
 
     public static HttpWebRequest CreateRequest(string url, int? timeout = null, string? userAgent = null)
     {
+        #pragma warning disable SYSLIB0014 // 类型或成员已过时
         var req = (HttpWebRequest)WebRequest.Create(url);
+        #pragma warning restore SYSLIB0014 // 类型或成员已过时
         req.UserAgent = string.IsNullOrWhiteSpace(userAgent) ? DefaultUserAgent : userAgent;
         req.Accept = "*/*";
         req.KeepAlive = true;

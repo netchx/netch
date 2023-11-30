@@ -127,6 +127,12 @@ public class Setting
     public int STUN_Server_Port { get; set; } = 3478;
 
     /// <summary>
+    ///     BILU服务器
+    /// </summary>
+    /// 
+    public string BILU_Server { get; set; } = string.Empty;
+
+    /// <summary>
     ///     订阅链接列表
     /// </summary>
     public List<Subscription> Subscription { get; set; } = new();
@@ -147,12 +153,14 @@ public class Setting
 
     #region Migration
 
-    [Obsolete]
+    [Obsolete("The SubscribeLink property is deprecated. Use the Subscribe property.")]
     public JsonElement SubscribeLink
     {
         set
         {
+            // ! TODO:
             if (Subscription == null! || !Subscription.Any())
+                // ! TODO:
                 Subscription = value.Deserialize<List<Subscription>>()!;
         }
     }

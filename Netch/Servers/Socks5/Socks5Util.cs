@@ -13,7 +13,7 @@ public class Socks5Util : IServerUtil
 
     public string ShortName { get; } = "SOCKS";
 
-    public string[] UriScheme { get; } = { };
+    public string[] UriScheme { get; } = Array.Empty<string>();
 
     public Type ServerType { get; } = typeof(Socks5Server);
 

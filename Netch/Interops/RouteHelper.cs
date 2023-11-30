@@ -10,13 +10,13 @@ namespace Netch.Interops;
 public static unsafe class RouteHelper
 {
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern ulong ConvertLuidToIndex(ulong id);
+    internal static extern ulong ConvertLuidToIndex(ulong id);
 
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool CreateIPv4(string address, string netmask, ulong index);
+    internal static extern bool CreateIPv4(string address, string netmask, ulong index);
 
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, ulong index);
+    internal static extern bool CreateUnicastIP(AddressFamily inet, string address, byte cidr, ulong index);
 
     public static bool CreateUnicastIPCS(AddressFamily inet, string address, byte cidr, ulong index)
     {
@@ -29,14 +29,18 @@ public static unsafe class RouteHelper
         if (inet == AddressFamily.InterNetwork)
         {
             addr.Address.Ipv4.sin_family = (ushort)ADDRESS_FAMILY.AF_INET;
+            #pragma warning disable CA1416 // 验证平台兼容性
             if (inet_pton((int)inet, address, &addr.Address.Ipv4.sin_addr) == 0)
                 return false;
+            #pragma warning restore CA1416 // 验证平台兼容性
         }
         else if (inet == AddressFamily.InterNetworkV6)
         {
             addr.Address.Ipv6.sin6_family = (ushort)ADDRESS_FAMILY.AF_INET6;
+            #pragma warning disable CA1416 // 验证平台兼容性
             if (inet_pton((int)inet, address, &addr.Address.Ipv6.sin6_addr) == 0)
                 return false;
+            #pragma warning restore CA1416 // 验证平台兼容性
         }
         else
         {
@@ -100,11 +104,11 @@ public static unsafe class RouteHelper
     }
 
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool RefreshIPTable(AddressFamily inet, ulong index);
+    internal static extern bool RefreshIPTable(AddressFamily inet, ulong index);
 
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, int metric);
+    internal static extern bool CreateRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, int metric);
 
     [DllImport("RouteHelper.bin", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool DeleteRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, int metric);
+    internal static extern bool DeleteRoute(AddressFamily inet, string address, byte cidr, string gateway, ulong index, int metric);
 }

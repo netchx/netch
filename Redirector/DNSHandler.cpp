@@ -27,7 +27,7 @@ void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 					timeval timeout{};
 					timeout.tv_sec = 4;
 
-					fd_set fds;
+					fd_set fds{};
 					FD_ZERO(&fds);
 					FD_SET(remote, &fds);
 

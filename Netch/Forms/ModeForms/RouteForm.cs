@@ -26,7 +26,7 @@ public partial class RouteForm : BindingForm
                 _mode = tunMode;
                 break;
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(mode), "Invalid Mode value.");
         }
 
         InitializeComponent();
@@ -48,7 +48,7 @@ public partial class RouteForm : BindingForm
 
             RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
             RemarkTextBox.Text = _mode.i18NRemark;
-            FilenameTextBox.Text = ModeService.Instance.GetRelativePath(_mode.FullName);
+            FilenameTextBox.Text = ModeService.GetRelativePath(_mode.FullName);
 
             if (!_mode.FullName.EndsWith(".json"))
                 ControlButton.Enabled = false;
@@ -70,7 +70,7 @@ public partial class RouteForm : BindingForm
         if (IsCreateMode)
         {
             var relativePath = FilenameTextBox.Text;
-            var fullName = ModeService.Instance.GetFullPath(relativePath);
+            var fullName = ModeService.GetFullPath(relativePath);
             if (File.Exists(fullName))
             {
                 MessageBoxX.Show(i18N.Translate("File already exists.\n Please Change the filename"));
@@ -79,7 +79,7 @@ public partial class RouteForm : BindingForm
 
             _mode.FullName = fullName;
 
-            ModeService.Instance.Add(_mode);
+            ModeService.Add(_mode);
             MessageBoxX.Show(i18N.Translate("Mode added successfully"));
         }
         else

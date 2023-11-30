@@ -8,7 +8,7 @@ using Netch.Models.Modes;
 using Netch.Models.Modes.TunMode;
 using Netch.Servers;
 using Netch.Utils;
-using static Netch.Interops.tun2socks;
+using static Netch.Interops.Tun2socks;
 
 namespace Netch.Controllers
 {
@@ -16,15 +16,17 @@ namespace Netch.Controllers
     {
         private readonly DNSController _aioDnsController = new();
 
+        // ! TODO:
         private TunMode _mode = null!;
         private IPAddress? _serverRemoteAddress;
+        // ! TODO:
         private TUNConfig _tunConfig = null!;
 
         private NetRoute _tun;
         private NetRoute _outbound;
 
         public string Name => "tun2socks";
-        public string interfaceName => "netch";
+        public static string InterfaceName => "netch";
 
         public ModeFeature Features => ModeFeature.SupportSocks5Auth;
 
@@ -37,6 +39,7 @@ namespace Netch.Controllers
             _tunConfig = Global.Settings.TUNTAP;
 
             if (server.RemoteHostname.ValueOrDefault() != null)
+                // ! TODO:
                 _serverRemoteAddress = await DnsUtils.LookupAsync(server.RemoteHostname!);
             else
                 _serverRemoteAddress = await DnsUtils.LookupAsync(server.Hostname);
@@ -45,7 +48,7 @@ namespace Netch.Controllers
                 _serverRemoteAddress = null;
 
             _outbound = NetRoute.GetBestRouteTemplate();
-            CheckDriver();
+            await CheckDriverAsync();
 
             // Wait for adapter to be created
             for (var i = 0; i < 20; i++)
@@ -53,7 +56,7 @@ namespace Netch.Controllers
                 await Task.Delay(300);
                 try
                 {
-                    _tun.InterfaceIndex = NetworkInterfaceUtils.Get(ni => ni.Name.StartsWith(interfaceName)).GetIndex();
+                    _tun.InterfaceIndex = NetworkInterfaceUtils.Get(ni => ni.Name.StartsWith(InterfaceName)).GetIndex();
                     break;
                 }
                 catch
@@ -80,10 +83,13 @@ namespace Netch.Controllers
 
             if (server.Auth())
             {
+                // ! TODO:
                 Dial(NameList.TYPE_TCPUSER, server.Username!);
+                // ! TODO:
                 Dial(NameList.TYPE_TCPPASS, server.Password!);
-
+                // ! TODO:
                 Dial(NameList.TYPE_UDPUSER, server.Username!);
+                // ! TODO:
                 Dial(NameList.TYPE_UDPPASS, server.Password!);
             }
 
@@ -97,7 +103,7 @@ namespace Netch.Controllers
             }
             else
             {
-                await _aioDnsController.StartAsync();
+                await DNSController.StartAsync();
                 Dial(NameList.TYPE_DNSADDR, $"127.0.0.1:{Global.Settings.AioDNS.ListenPort}");
             }
 
@@ -129,22 +135,23 @@ namespace Netch.Controllers
             await Task.WhenAll(tasks);
         }
 
-        private void CheckDriver()
+        private static async Task CheckDriverAsync()
         {
             string binDriver = Path.Combine(Global.NetchDir, Constants.WintunDllFile);
             string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
 
-            var binHash = Utils.Utils.Sha256CheckSumAsync(binDriver).Result;
-            var sysHash = Utils.Utils.Sha256CheckSumAsync(sysDriver).Result;
-            Log.Information("Built-in  wintun.dll Hash: {Hash}", binHash);
+            var binHash = await Utils.Utils.Sha256CheckSumAsync(binDriver);
+            var sysHash = await Utils.Utils.Sha256CheckSumAsync(sysDriver);
+            Log.Information("Built-in wintun.dll Hash: {Hash}", binHash);
             Log.Information("Installed wintun.dll Hash: {Hash}", sysHash);
+
             if (binHash == sysHash)
                 return;
 
             try
             {
                 Log.Information("Copy wintun.dll to System Directory");
-                File.Copy(binDriver, sysDriver, true);
+                await Task.Run(() => File.Copy(binDriver, sysDriver, true));
             }
             catch (Exception e)
             {

@@ -13,14 +13,15 @@ public static class UpdateChecker
     public const string Repo = @"Netch";
 
     public const string Name = @"Netch";
-    public const string Copyright = @"Copyright © 2019 - 2022";
+    public const string Copyright = @"Copyright © 2019 - 2023";
 
     public const string AssemblyVersion = @"1.9.7";
-    private const string Suffix = @"";
+    private const string Suffix = @"b41";
 
     public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
 
-    public static Release LatestRelease = null!;
+    // ! TODO:
+    internal static Release LatestRelease = null!;
 
     public static string LatestVersionNumber => LatestRelease.tag_name;
 
@@ -41,6 +42,7 @@ public static class UpdateChecker
 
             var (_, json) = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
 
+            // ! TODO:
             var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
             LatestRelease = GetLatestRelease(releases, isPreRelease);
             Log.Information("Github latest release: {Version}", LatestRelease.tag_name);

@@ -37,6 +37,7 @@ namespace Netch.Forms
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.Socks5PortLabel = new System.Windows.Forms.Label();
             this.Socks5PortTextBox = new System.Windows.Forms.TextBox();
+            this.AllowHttpCheckBox = new System.Windows.Forms.CheckBox();
             this.AllowDevicesCheckBox = new System.Windows.Forms.CheckBox();
             this.ServerPingTypeLabel = new System.Windows.Forms.Label();
             this.ICMPingRadioBtn = new System.Windows.Forms.RadioButton();
@@ -49,6 +50,8 @@ namespace Netch.Forms
             this.StartedPingIntervalTextBox = new System.Windows.Forms.TextBox();
             this.STUNServerLabel = new System.Windows.Forms.Label();
             this.STUN_ServerComboBox = new System.Windows.Forms.ComboBox();
+            this.BILUServerLabel = new System.Windows.Forms.Label();
+            this.BILU_ServerComboBox = new System.Windows.Forms.ComboBox();
             this.LanguageLabel = new System.Windows.Forms.Label();
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
             this.NFTabPage = new System.Windows.Forms.TabPage();
@@ -77,6 +80,7 @@ namespace Netch.Forms
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
             this.v2rayTabPage = new System.Windows.Forms.TabPage();
+            this.SniffingCheckBox = new System.Windows.Forms.CheckBox();
             this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.UseMuxCheckBox = new System.Windows.Forms.CheckBox();
@@ -159,6 +163,8 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.StartedPingIntervalTextBox);
             this.GeneralTabPage.Controls.Add(this.STUNServerLabel);
             this.GeneralTabPage.Controls.Add(this.STUN_ServerComboBox);
+            this.GeneralTabPage.Controls.Add(this.BILUServerLabel);
+            this.GeneralTabPage.Controls.Add(this.BILU_ServerComboBox);
             this.GeneralTabPage.Controls.Add(this.LanguageLabel);
             this.GeneralTabPage.Controls.Add(this.LanguageComboBox);
             this.GeneralTabPage.Location = new System.Drawing.Point(4, 29);
@@ -172,6 +178,7 @@ namespace Netch.Forms
             // 
             this.PortGroupBox.Controls.Add(this.Socks5PortLabel);
             this.PortGroupBox.Controls.Add(this.Socks5PortTextBox);
+            this.PortGroupBox.Controls.Add(this.AllowHttpCheckBox);
             this.PortGroupBox.Controls.Add(this.AllowDevicesCheckBox);
             this.PortGroupBox.Location = new System.Drawing.Point(8, 6);
             this.PortGroupBox.Name = "PortGroupBox";
@@ -197,10 +204,21 @@ namespace Netch.Forms
             this.Socks5PortTextBox.TabIndex = 1;
             this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // AllowHttpCheckBox
+            // 
+            this.AllowHttpCheckBox.AutoSize = true;
+            this.AllowHttpCheckBox.Location = new System.Drawing.Point(6, 84);
+            this.AllowHttpCheckBox.Name = "AllowHttpCheckBox";
+            this.AllowHttpCheckBox.Size = new System.Drawing.Size(206, 21);
+            this.AllowHttpCheckBox.TabIndex = 4;
+            this.AllowHttpCheckBox.Text = "Allow http protocol (Socks port + 1)";
+            this.AllowHttpCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.AllowHttpCheckBox.UseVisualStyleBackColor = true;
+            // 
             // AllowDevicesCheckBox
             // 
             this.AllowDevicesCheckBox.AutoSize = true;
-            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 84);
+            this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 58);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
             this.AllowDevicesCheckBox.Size = new System.Drawing.Size(206, 21);
             this.AllowDevicesCheckBox.TabIndex = 4;
@@ -307,10 +325,27 @@ namespace Netch.Forms
             this.STUN_ServerComboBox.Size = new System.Drawing.Size(264, 25);
             this.STUN_ServerComboBox.TabIndex = 12;
             // 
+            // BILUServerLabel
+            // 
+            this.BILUServerLabel.AutoSize = true;
+            this.BILUServerLabel.Location = new System.Drawing.Point(15, 260);
+            this.BILUServerLabel.Name = "BILUServerLabel";
+            this.BILUServerLabel.Size = new System.Drawing.Size(82, 17);
+            this.BILUServerLabel.TabIndex = 11;
+            this.BILUServerLabel.Text = "BILU Server"; //  Bypass IP List Update Server
+            // 
+            // BPIP_ServerComboBox
+            // 
+            this.BILU_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.BILU_ServerComboBox.Location = new System.Drawing.Point(182, 257);
+            this.BILU_ServerComboBox.Name = "BILU_ServerComboBox";
+            this.BILU_ServerComboBox.Size = new System.Drawing.Size(264, 25);
+            this.BILU_ServerComboBox.TabIndex = 12;
+            // 
             // LanguageLabel
             // 
             this.LanguageLabel.AutoSize = true;
-            this.LanguageLabel.Location = new System.Drawing.Point(15, 260);
+            this.LanguageLabel.Location = new System.Drawing.Point(15, 290);
             this.LanguageLabel.Name = "LanguageLabel";
             this.LanguageLabel.Size = new System.Drawing.Size(65, 17);
             this.LanguageLabel.TabIndex = 13;
@@ -320,7 +355,7 @@ namespace Netch.Forms
             // 
             this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.LanguageComboBox.FormattingEnabled = true;
-            this.LanguageComboBox.Location = new System.Drawing.Point(182, 257);
+            this.LanguageComboBox.Location = new System.Drawing.Point(182, 287);
             this.LanguageComboBox.Name = "LanguageComboBox";
             this.LanguageComboBox.Size = new System.Drawing.Size(110, 25);
             this.LanguageComboBox.TabIndex = 14;
@@ -588,6 +623,7 @@ namespace Netch.Forms
             // v2rayTabPage
             // 
             this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.v2rayTabPage.Controls.Add(this.SniffingCheckBox);
             this.v2rayTabPage.Controls.Add(this.XrayConeCheckBox);
             this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
             this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
@@ -600,10 +636,20 @@ namespace Netch.Forms
             this.v2rayTabPage.TabIndex = 3;
             this.v2rayTabPage.Text = "V2Ray";
             // 
+            // SniffingCheckBox
+            // 
+            this.SniffingCheckBox.AutoSize = true;
+            this.SniffingCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.SniffingCheckBox.Name = "SniffingCheckBox";
+            this.SniffingCheckBox.Size = new System.Drawing.Size(340, 21);
+            this.SniffingCheckBox.TabIndex = 0;
+            this.SniffingCheckBox.Text = "Traffic Sniffing";
+            this.SniffingCheckBox.UseVisualStyleBackColor = true;
+            // 
             // XrayConeCheckBox
             // 
             this.XrayConeCheckBox.AutoSize = true;
-            this.XrayConeCheckBox.Location = new System.Drawing.Point(6, 15);
+            this.XrayConeCheckBox.Location = new System.Drawing.Point(123, 15);
             this.XrayConeCheckBox.Name = "XrayConeCheckBox";
             this.XrayConeCheckBox.Size = new System.Drawing.Size(340, 21);
             this.XrayConeCheckBox.TabIndex = 0;
@@ -1025,6 +1071,7 @@ namespace Netch.Forms
             this.PerformLayout();
 
         }
+        private System.Windows.Forms.CheckBox SniffingCheckBox;
         private System.Windows.Forms.CheckBox XrayConeCheckBox;
         private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
 
@@ -1036,6 +1083,7 @@ namespace Netch.Forms
         private System.Windows.Forms.TabPage WinTUNTabPage;
         private System.Windows.Forms.TabPage v2rayTabPage;
         private System.Windows.Forms.GroupBox PortGroupBox;
+        private System.Windows.Forms.CheckBox AllowHttpCheckBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
         private System.Windows.Forms.Label Socks5PortLabel;
         private System.Windows.Forms.TextBox Socks5PortTextBox;
@@ -1070,6 +1118,8 @@ namespace Netch.Forms
         private System.Windows.Forms.Label StartedPingLabel;
         private System.Windows.Forms.Label STUNServerLabel;
         private System.Windows.Forms.ComboBox STUN_ServerComboBox;
+        private System.Windows.Forms.Label BILUServerLabel;
+        private System.Windows.Forms.ComboBox BILU_ServerComboBox;
         private System.Windows.Forms.Label ProfileCountLabel;
         private System.Windows.Forms.TextBox ProfileCountTextBox;
         private System.Windows.Forms.GroupBox KCPGroupBox;

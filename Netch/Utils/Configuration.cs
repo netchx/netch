@@ -64,6 +64,7 @@ public static class Configuration
 
             await using (var fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true))
             {
+                // ! TODO:
                 settings = (await JsonSerializer.DeserializeAsync<Setting>(fs, JsonSerializerOptions))!;
             }
 

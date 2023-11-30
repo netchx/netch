@@ -51,7 +51,7 @@ namespace RedirectorTester
         [DllImport("Redirector.bin", CallingConvention = CallingConvention.Cdecl)]
         public static extern ulong aio_getDL();
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             aio_dial(NameList.AIO_FILTERLOOPBACK, "false");
             aio_dial(NameList.AIO_FILTERINTRANET, "true");

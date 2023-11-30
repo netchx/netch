@@ -1,6 +1,7 @@
 ﻿namespace Netch.Models.Modes;
 
 [Flags]
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "CA1069:Enums values should not be duplicated", Justification = "Intentional duplication for specific scenario.")]
 public enum ModeFeature
 {
     SupportSocks5 = 0,

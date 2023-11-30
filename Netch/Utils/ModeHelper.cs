@@ -35,7 +35,16 @@ public static class ModeHelper
     private static Mode LoadJsonMode(string file)
     {
         using var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
-        var mode = JsonSerializer.Deserialize<Mode>(fs, JsonSerializerOptions) ?? throw new ArgumentNullException();
+
+        // 先声明变量，再进行赋值
+        var mode = JsonSerializer.Deserialize<Mode>(fs, JsonSerializerOptions);
+
+        // 检查是否为null，如果是，则抛出异常
+        if (mode == null)
+        {
+            throw new ArgumentNullException(nameof(mode), "Deserialization result is null.");
+        }
+
         mode.FullName = file;
         return mode;
     }
@@ -48,7 +57,6 @@ public static class ModeHelper
 
     private static Mode ReadTxtMode(string file)
     {
-        Mode mode;
         var ls = File.ReadAllLines(file);
         string modeTypeNum;
 
@@ -56,22 +64,13 @@ public static class ModeHelper
             throw new FormatException("Not a valid txt mode that begins with meta line");
 
         var heads = ls[0][1..].Split(",", StringSplitOptions.TrimEntries);
-        switch (modeTypeNum = heads.ElementAtOrDefault(1) ?? "0")
+        Mode mode = (modeTypeNum = heads.ElementAtOrDefault(1) ?? "0") switch
         {
-            case "0":
-                mode = new Redirector { FullName = file };
-                break;
-            case "1":
-            case "2":
-                mode = new TunMode { FullName = file };
-                break;
-            case "6":
-                mode = new ShareMode { FullName = file };
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-
+            "0" => new Redirector { FullName = file },
+            "1" or "2" => new TunMode { FullName = file },
+            "6" => new ShareMode { FullName = file },
+            _ => throw new ArgumentOutOfRangeException(nameof(modeTypeNum), "Invalid modeTypeNum value"),
+        };
         mode.Remark.Add("en", heads[0]);
 
         foreach (var l in ls.Skip(1))
@@ -86,7 +85,7 @@ public static class ModeHelper
             if (l.StartsWith("#include"))
             {
                 var relativePath = l["#include ".Length..].Replace("<", "").Replace(">", "").Replace(".h", ".txt").Trim();
-                includeMode = ReadTxtMode(ModeService.Instance.GetFullPath(relativePath));
+                includeMode = ReadTxtMode(ModeService.GetFullPath(relativePath));
             }
 
             switch (mode)
@@ -126,7 +125,7 @@ public static class ModeHelper
 
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(mode), "Invalid mode value");
             }
         }
 

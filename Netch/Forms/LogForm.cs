@@ -19,6 +19,7 @@ public partial class LogForm : Form
     protected override void OnLoad(EventArgs? e)
     {
         base.OnLoad(e);
+        // ! TODO:
         Parent_Move(null!, null!);
     }
 
@@ -51,7 +52,7 @@ public partial class LogForm : Form
             SET_WINDOW_POS_FLAGS.SWP_NOACTIVATE | SET_WINDOW_POS_FLAGS.SWP_NOMOVE | SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_SHOWWINDOW);
     }
 
-    private void richTextBox1_TextChanged(object? sender, EventArgs? e)
+    private void RichTextBox1_TextChanged(object? sender, EventArgs? e)
     {
         if (!checkBox1.Checked)
             return;
@@ -79,6 +80,7 @@ public partial class LogForm : Form
         _parent.SizeChanged -= Parent_Move;
         _parent.Activated -= Parent_Activated;
         _parent.VisibleChanged -= Parent_VisibleChanged;
+        // ! TODO:
         base.OnClosing(e!);
     }
 }

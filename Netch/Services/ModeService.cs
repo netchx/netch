@@ -10,18 +10,18 @@ public class ModeService
 {
     public static readonly ModeService Instance = new();
 
-    public string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
+    public static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
 
-    public string GetRelativePath(string fullName)
+    public static string GetRelativePath(string fullName)
     {
         var length = ModeDirectoryFullName.Length;
         if (!ModeDirectoryFullName.EndsWith("\\"))
             length++;
 
-        return fullName.Substring(length);
+        return fullName[length..];
     }
 
-    public string GetFullPath(string relativeName)
+    public static string GetFullPath(string relativeName)
     {
         return Path.Combine(ModeDirectoryFullName, relativeName);
     }
@@ -67,7 +67,7 @@ public class ModeService
         Global.Modes.Sort((a, b) => string.Compare(a.i18NRemark, b.i18NRemark, StringComparison.Ordinal));
     }
 
-    public void Add(Mode mode)
+    public static void Add(Mode mode)
     {
         if (mode.FullName == null)
             throw new InvalidOperationException();
@@ -78,7 +78,7 @@ public class ModeService
         mode.WriteFile();
     }
 
-    public void Sort()
+    public static void Sort()
     {
         SortCollection();
         Global.MainForm.LoadModes();

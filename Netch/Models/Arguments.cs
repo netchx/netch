@@ -30,6 +30,7 @@ public static class Arguments
                     continue;
                 default:
                     tokens.Add(key);
+                    // ! TODO:
                     tokens.Add(valueObj.ToString()!);
                     break;
             }

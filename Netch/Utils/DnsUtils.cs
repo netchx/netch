@@ -25,7 +25,7 @@ public static class DnsUtils
                 AddressFamily.Unspecified => (IPAddress?)(Cache[hostname] ?? Cache6[hostname]),
                 AddressFamily.InterNetwork => (IPAddress?)Cache[hostname],
                 AddressFamily.InterNetworkV6 => (IPAddress?)Cache6[hostname],
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(inet))
             };
 
             if (cacheResult != null)
@@ -62,7 +62,7 @@ public static class DnsUtils
                     Cache6.Add(hostname, result);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(inet));
             }
 
             return result;

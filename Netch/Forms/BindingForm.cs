@@ -55,8 +55,9 @@ public class BindingForm : Form
     protected void BindListComboBox<T>(ComboBox comboBox, Action<T> save, IEnumerable<T> values, T value) where T : notnull
     {
         if (comboBox.DropDownStyle != ComboBoxStyle.DropDownList)
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(comboBox), "Invalid ComboBoxStyle. Must be DropDownList.");
 
+        // ! TODO:
         var tagItems = values.Select(o => new TagItem<T>(o, o.ToString()!)).ToArray();
         comboBox.Items.AddRange(tagItems.Cast<object>().ToArray());
 
@@ -86,7 +87,7 @@ public class BindingForm : Form
     protected bool Validate(Control c)
     {
         if (!_checkActions.ContainsKey(c))
-            throw new ArgumentException();
+            throw new ArgumentException("Invalid control provided.", nameof(c));
 
         return _checkActions[c](c.Text);
     }

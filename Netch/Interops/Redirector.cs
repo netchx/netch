@@ -56,10 +56,10 @@ public static class Redirector
     private const string Redirector_bin = "Redirector.bin";
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool aio_register([MarshalAs(UnmanagedType.LPWStr)] string value);
+    internal static extern bool aio_register([MarshalAs(UnmanagedType.LPWStr)] string value);
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool aio_unregister([MarshalAs(UnmanagedType.LPWStr)] string value);
+    internal static extern bool aio_unregister([MarshalAs(UnmanagedType.LPWStr)] string value);
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
     private static extern bool aio_dial(NameList name, [MarshalAs(UnmanagedType.LPWStr)] string value);

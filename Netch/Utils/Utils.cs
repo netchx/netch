@@ -271,3 +271,18 @@ public static class Utils
         }
     }
 }
+
+public class BiluServer
+{
+    // 将字段设置为只读
+    public static readonly Dictionary<string, string> NamesAndUrls = new()
+    {
+        { "Clang.CN", "https://ispip.clang.cn/all_cn.txt" },
+        { "Clang.CN.CIDR", "https://ispip.clang.cn/all_cn_cidr.txt" },
+        { "china-operator-ip", "https://fastly.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china.txt" },
+        // 如果需要，可以添加更多的显示名称和URL
+    };
+}
+
+
+

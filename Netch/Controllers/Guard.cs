@@ -107,6 +107,7 @@ public abstract class Guard
         string? line;
         while ((line = await reader.ReadLineAsync()) != null)
         {
+            // ! TODO:
             await _logStreamWriter!.WriteLineAsync(line);
             OnReadNewLine(line);
 

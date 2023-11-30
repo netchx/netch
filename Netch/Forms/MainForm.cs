@@ -115,30 +115,18 @@ public partial class MainForm : Form
 
     private void TranslateControls()
     {
-        #region Record English
-
+        // Record English
         if (!_textRecorded)
         {
             void RecordText(Component component)
             {
                 try
                 {
-                    switch (component)
-                    {
-                        case TextBoxBase:
-                        case ListControl:
-                            break;
-                        case Control c:
-                            _mainFormText.Add(c.Name, c.Text);
-                            break;
-                        case ToolStripItem c:
-                            _mainFormText.Add(c.Name, c.Text);
-                            break;
-                    }
+                    RecordControlText(component);
                 }
                 catch (ArgumentException)
                 {
-                    // ignored
+                    // Handle the exception appropriately, if needed.
                 }
             }
 
@@ -147,50 +135,66 @@ public partial class MainForm : Form
             _textRecorded = true;
         }
 
-        #endregion
-
-        #region Translate
-
+        // Translate
         void TranslateText(Component component)
         {
-            switch (component)
-            {
-                case TextBoxBase:
-                case ListControl:
-                    break;
-                case Control c:
-                    if (_mainFormText.ContainsKey(c.Name))
-                        c.Text = ControlText(c.Name);
-
-                    break;
-                case ToolStripItem c:
-                    if (_mainFormText.ContainsKey(c.Name))
-                        c.Text = ControlText(c.Name);
-
-                    break;
-            }
-
-            string ControlText(string name)
-            {
-                var value = _mainFormText[name];
-                if (value.Equals(string.Empty))
-                    return string.Empty;
-
-                if (value is object[] values)
-                    return i18N.TranslateFormat((string)values.First(), values.Skip(1).ToArray());
-
-                return i18N.Translate(value);
-            }
+            TranslateControlText(component);
         }
 
         Utils.Utils.ComponentIterator(this, TranslateText);
         Utils.Utils.ComponentIterator(NotifyMenu, TranslateText);
 
-        #endregion
-
-        UsedBandwidthLabel.Text = $@"{i18N.Translate("Used", ": ")}0 KB";
-        State = State;
+        UsedBandwidthLabel.Text = $"{i18N.Translate("Used", ": ")}0 KB";
+//      State = State; // Consider removing this line if it's not necessary
         VersionLabel.Text = UpdateChecker.Version;
+    }
+
+    private void RecordControlText(Component component)
+    {
+        switch (component)
+        {
+            case TextBoxBase:
+            case ListControl:
+                break;
+            case Control c:
+                _mainFormText.Add(c.Name, c.Text);
+                break;
+            case ToolStripItem c:
+                _mainFormText.Add(c.Name, c.Text);
+                break;
+        }
+    }
+
+    private void TranslateControlText(Component component)
+    {
+        switch (component)
+        {
+            case TextBoxBase:
+            case ListControl:
+                break;
+            case Control c:
+                if (_mainFormText.ContainsKey(c.Name))
+                    c.Text = ControlText(c.Name);
+
+                break;
+            case ToolStripItem c:
+                if (_mainFormText.ContainsKey(c.Name))
+                    c.Text = ControlText(c.Name);
+
+                break;
+        }
+    }
+
+    private string ControlText(string name)
+    {
+        var value = _mainFormText[name];
+        if (value.Equals(string.Empty))
+            return string.Empty;
+
+        if (value is object[] values)
+            return i18N.TranslateFormat((string)values.First(), values.Skip(1).ToArray());
+
+        return i18N.Translate(value);
     }
 
     #endregion
@@ -244,7 +248,7 @@ public partial class MainForm : Form
         Show();
     }
 
-    private void createRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
+    private void CreateRouteTableModeToolStripMenuItem_Click(object sender, EventArgs e)
     {
         Hide();
         new RouteForm().ShowDialog();
@@ -294,7 +298,7 @@ public partial class MainForm : Form
             return;
         }
 
-        StatusText(i18N.Translate("Updating servers"));
+        StatusText(i18N.Translate("Updating..."));
         DisableItems(false);
 
         try
@@ -313,6 +317,156 @@ public partial class MainForm : Form
         finally
         {
             DisableItems(true);
+        }
+    }
+
+    private async void UpdateBypassIPsFromUrlLinksToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        await UpdateBypassIPsFromUrlAsync();
+    }
+
+    private async Task UpdateBypassIPsFromUrlAsync()
+    {
+        // 根据传入的布尔值 v 来禁用或启用一些 UI 元素
+        void DisableItems(bool v)
+        {
+            // 更新 UI 元素的可用状态
+            MenuStrip.Enabled = ConfigurationGroupBox.Enabled = ProfileGroupBox.Enabled = ControlButton.Enabled = v;
+        }
+
+        // 显示状态文本
+        StatusText(i18N.Translate("Updating..."));
+        DisableItems(false);
+
+        try
+        {
+            // 获取远程绕过 IP 内容
+            string displayName = Global.Settings.BILU_Server;
+            if (!BiluServer.NamesAndUrls.TryGetValue(displayName, out string? url))
+            {
+                MessageBoxX.Show(i18N.Translate("Invalid update link"));
+                return;
+            }
+
+#if DEBUG
+            if (!string.IsNullOrEmpty(url))
+            {
+                // 使用 Url 执行相应的检查
+                Console.WriteLine($"The URL for selected server ({displayName}) is: {url}");
+            }
+            else
+            {
+                // 处理未找到匹配项的情况
+                Console.WriteLine($"No URL found for selected server ({displayName})");
+            }
+#endif
+
+            string remoteContent = await DownloadStringAsync(url);
+
+            // 获取本地文件内容
+            string localFilePath = "mode\\Bypass LAN and China.txt";
+            string localContent = File.Exists(localFilePath) ? File.ReadAllText(localFilePath) ?? string.Empty : string.Empty;
+
+            // 跳过本地文件的前2行
+            string[] localLines = localContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Skip(2).ToArray();
+            localContent = string.Join("\n", localLines);
+
+            // 比较本地和远程内容
+            int updatedEntries = 0;
+            if (localContent != remoteContent)
+            {
+                // 检查并更新本地文件及获取更新的条目数量
+                updatedEntries = UpdateLocalFile(localFilePath, remoteContent);
+                // 如果更新的条目数量为0
+                if (updatedEntries == 0)
+                {
+                    // 本地内容与远程内容一致时的提示
+                    StatusText(i18N.Translate("Bypass IPs are already up-to-date"));
+                    return;
+                }
+            }
+            else
+            {
+                // 本地内容与远程内容一致时的提示
+                StatusText(i18N.Translate("Bypass IPs are already up-to-date"));
+                return;
+            }
+
+            // 显示更新信息和行数
+            StatusText(i18N.TranslateFormat("Bypass IPs updated {0} entries", updatedEntries));
+        }
+        catch (Exception e)
+        {
+            // 异常处理
+            NotifyTip("Unhandled update bypass IPs error\n" + e.Message, info: false);
+            Log.Error(e, "Unhandled Update bypass IPs error");
+        }
+        finally
+        {
+            // 恢复 UI 元素的可用状态
+            DisableItems(true);
+        }
+    }
+
+    private static int UpdateLocalFile(string filePath, string newContent, int skipLines = 2)
+    {
+        // 将新内容分割成行
+        string[] newLines = newContent?.Split('\n') ?? Array.Empty<string>();
+        int updatedEntries = 0;
+
+        if (File.Exists(filePath))
+        {
+            // 获取本地文件的内容并分割成行
+            string[] oldLines = File.ReadAllLines(filePath);
+
+            // 确保本地文件行数至少为skipLines
+            if (oldLines.Length < skipLines)
+            {
+                // 如果本地文件行数不够，直接用新内容覆盖
+                File.WriteAllText(filePath, newContent);
+                return newLines.Length;
+            }
+
+            // 只比较从第3行开始的内容
+            for (int i = skipLines; i < oldLines.Length; i++)
+            {
+                if (oldLines[i] != newLines[i - skipLines])
+                {
+                    // 从第3行开始不一致时，删除从第3行开始的内容
+                    List<string> updatedContent = oldLines.Take(skipLines).ToList();
+                    updatedContent.AddRange(newLines);
+                    File.WriteAllLines(filePath, updatedContent);
+                    return newLines.Length;
+                }
+            }
+        }
+        else
+        {
+            // 如果文件不存在，直接写入新内容
+            File.WriteAllText(filePath, newContent);
+            updatedEntries = newLines.Length;
+        }
+
+        return updatedEntries;
+    }
+
+    private static async Task<string> DownloadStringAsync(string url)
+    {
+        using HttpClient httpClient = new();
+        try
+        {
+            // 发送 GET 请求获取内容
+            HttpResponseMessage response = await httpClient.GetAsync(url);
+
+            // 确保请求成功
+            response.EnsureSuccessStatusCode();
+
+            // 读取并返回内容
+            return await response.Content.ReadAsStringAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new Exception($"HTTP request error: {ex.Message}");
         }
     }
 
@@ -356,7 +510,17 @@ public partial class MainForm : Form
         {
             await Task.Run(() =>
             {
-                NativeMethods.RefreshDNSCache();
+                // 捕获 RefreshDNSCache 的结果
+                int result = (int)NativeMethods.RefreshDNSCache();
+
+                // 检查结果并处理任何错误
+                if (result != 0)
+                {
+                    // 处理错误，记录错误，或采取适当的行动
+                    // 例如：throw new SomeException("DNS缓存清理失败");
+                }
+
+                // 继续执行其他代码
                 DnsUtils.ClearCache();
             });
 
@@ -381,7 +545,13 @@ public partial class MainForm : Form
             var task = Task.Run(NFController.UninstallDriver);
 
             if (await task)
+            {
                 NotifyTip(i18N.TranslateFormat("{0} has been uninstalled", "NF Service"));
+            }
+            else
+            {
+                NotifyTip(i18N.TranslateFormat("Failed to uninstall {0}", "NF Service"));
+            }
         }
         finally
         {
@@ -392,7 +562,7 @@ public partial class MainForm : Form
 
     private void RemoveNetchFirewallRulesToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        Firewall.RemoveNetchFwRules();
+        Firewall.RemoveNetchFwRules(true);
     }
 
     private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
@@ -419,8 +589,10 @@ public partial class MainForm : Form
 
     private async void NewVersionLabel_Click(object sender, EventArgs e)
     {
+        // ! TODO:
         if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
         {
+            // ! TODO:
             Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
             return;
         }
@@ -441,6 +613,7 @@ public partial class MainForm : Form
             string downloadDirectory = Path.Combine(Global.NetchDir, "data");
 
             var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
+            // ! TODO:
             var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url!;
 
             var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
@@ -507,7 +680,7 @@ public partial class MainForm : Form
         Show();
     }
 
-    private void fAQToolStripMenuItem_Click(object sender, EventArgs e)
+    private void FAQToolStripMenuItem_Click(object sender, EventArgs e)
     {
         Utils.Utils.Open("https://docs.netch.org");
     }
@@ -643,7 +816,7 @@ public partial class MainForm : Form
     private async void EditServerPictureBox_Click(object sender, EventArgs e)
     {
         // 当前ServerComboBox中至少有一项
-        if (!(ServerComboBox.SelectedItem is Server server))
+        if (ServerComboBox.SelectedItem is not Server server)
         {
             MessageBoxX.Show(i18N.Translate("Please select a server first"));
             return;
@@ -683,7 +856,7 @@ public partial class MainForm : Form
     private void CopyLinkPictureBox_Click(object sender, EventArgs e)
     {
         // 当前ServerComboBox中至少有一项
-        if (!(ServerComboBox.SelectedItem is Server server))
+        if (ServerComboBox.SelectedItem is not Server server)
         {
             MessageBoxX.Show(i18N.Translate("Please select a server first"));
             return;
@@ -709,7 +882,7 @@ public partial class MainForm : Form
     private void DeleteServerPictureBox_Click(object sender, EventArgs e)
     {
         // 当前 ServerComboBox 中至少有一项
-        if (!(ServerComboBox.SelectedItem is Server server))
+        if (ServerComboBox.SelectedItem is not Server server)
         {
             MessageBoxX.Show(i18N.Translate("Please select a server first"));
             return;
@@ -1331,6 +1504,7 @@ public partial class MainForm : Form
             UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
             await UpdateChecker.CheckAsync(Global.Settings.CheckBetaUpdate);
             if (Flags.AlwaysShowNewVersionFound)
+                // ! TODO:
                 OnUpdateCheckerOnNewVersionFound(null!, null!);
         }
         finally
@@ -1456,7 +1630,8 @@ public partial class MainForm : Form
 
                 break;
             }
-            case Mode item:
+            case Mode:
+
             {
                 /*
                 // 绘制 模式Box 底色
@@ -1464,12 +1639,12 @@ public partial class MainForm : Form
 
                 // 绘制 模式行数 字符串
                 TextRenderer.DrawText(e.Graphics,
-                    item.Content.Count.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
-                    */
+                item.Content.Count.ToString(),
+                cbx.Font,
+                new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                Color.Black,
+                TextFormatFlags.Left);
+                */
 
                 break;
             }

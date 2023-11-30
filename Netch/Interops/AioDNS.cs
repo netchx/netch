@@ -27,10 +27,10 @@ public static class AioDNS
     private static extern bool aiodns_dial(NameList name, byte[] value);
 
     [DllImport(aiodns_bin, EntryPoint = "aiodns_init", CallingConvention = CallingConvention.Cdecl)]
-    public static extern bool Init();
+    private static extern bool Init();
 
     [DllImport(aiodns_bin, EntryPoint = "aiodns_free", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void Free();
+    private static extern void Free();
 
     public enum NameList
     {

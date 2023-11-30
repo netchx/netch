@@ -23,10 +23,6 @@ public static class Program
 
     internal static HWND ConsoleHwnd { get; private set; }
 
-#pragma warning disable VSTHRD002
-    // VSTHRD002: Avoid problematic synchronous waits
-    // Main never re-called, so we can ignore this
-
     [STAThread]
     public static void Main(string[] args)
     {
@@ -60,12 +56,19 @@ public static class Program
                 Directory.CreateDirectory(item);
 
         // load configuration
-        Configuration.LoadAsync().Wait();
+        Task.Run(async () =>
+        {
+            await Configuration.LoadAsync();
+        }).ConfigureAwait(false).GetAwaiter().GetResult();
 
         // check if the program is already running
         if (!SingleInstance.TryStartSingleInstance())
         {
-            SingleInstance.SendMessageToFirstInstanceAsync(Constants.Parameter.Show).GetAwaiter().GetResult();
+            Task.Run(async () =>
+            {
+                await SingleInstance.SendMessageToFirstInstanceAsync(Constants.Parameter.Show);
+            }).ConfigureAwait(false).GetAwaiter().GetResult(); // 使用 ConfigureAwait(false)
+
             Environment.Exit(0);
             return;
         }
@@ -106,8 +109,6 @@ public static class Program
         Application.SetCompatibleTextRenderingDefault(false);
         Application.Run(Global.MainForm);
     }
-
-#pragma warning restore VSTHRD002
 
     private static async Task LogEnvironmentAsync()
     {

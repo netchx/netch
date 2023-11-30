@@ -41,7 +41,7 @@ public static class Firewall
     /// <summary>
     ///     清除防火墙规则 (Netch 自带程序)
     /// </summary>
-    public static void RemoveNetchFwRules()
+    public static void RemoveNetchFwRules(bool showNotification = false)
     {
         if (!FirewallWAS.IsLocallySupported)
             return;
@@ -50,7 +50,13 @@ public static class Firewall
         {
             foreach (var rule in FirewallManager.Instance.Rules.Where(r
                          => r.ApplicationName?.StartsWith(Global.NetchDir, StringComparison.OrdinalIgnoreCase) ?? r.Name == Netch))
+            { 
                 FirewallManager.Instance.Rules.Remove(rule);
+            }
+            if (showNotification)
+            {
+                Global.MainForm.NotifyTip(i18N.Translate("Remove Netch Firewall Rules succeeded"));
+            }
         }
         catch (Exception e)
         {

@@ -70,7 +70,7 @@ bool make(PMIB_IPFORWARD_ROW2 rule, USHORT inet, const char* address, UINT8 cidr
 extern "C" {
     __declspec(dllexport) ULONG __cdecl ConvertLuidToIndex(ULONG64 id)
     {
-        NET_LUID luid;
+        NET_LUID luid{};
         luid.Value = id;
 
         NET_IFINDEX index = 0;

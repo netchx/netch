@@ -100,6 +100,8 @@ public class VMessServer : Server
     public bool? UseMux { get; set; }
 
     public string? ServerName { get; set; } = string.Empty;
+
+    public string Alpn { get; set; } = VisionGlobal.Alpns[2];
 }
 
 public class VMessGlobal

@@ -21,6 +21,8 @@ public partial class SettingForm : BindingForm
             c => Global.Settings.LocalAddress = AllowDevicesCheckBox.Checked ? "0.0.0.0" : "127.0.0.1",
             Global.Settings.LocalAddress switch { "127.0.0.1" => false, "0.0.0.0" => true, _ => false });
 
+        BindCheckBox(AllowHttpCheckBox, b => Global.Settings.V2RayConfig.AllowHttp = b, Global.Settings.V2RayConfig.AllowHttp);
+
         BindRadioBox(ICMPingRadioBtn, _ => { }, !Global.Settings.ServerTCPing);
 
         BindRadioBox(TCPingRadioBtn, c => Global.Settings.ServerTCPing = c, Global.Settings.ServerTCPing);
@@ -69,6 +71,29 @@ public partial class SettingForm : BindingForm
             Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
             stuns);
 
+        // 获取上次选择的 BILU Server
+        var lastSelected = Global.Settings.BILU_Server;
+        // 绑定 ComboBox，使用 BILU_ServerComboBox 控件、BiluServer.Bilu_Items 字典、
+        // 上次选择的值（如果为空，则使用空字符串）、BiluServer.NamesAndUrls 的键作为可选项
+        BindComboBox(BILU_ServerComboBox,
+            // 验证是否存在于字典的键集合中
+            s => BiluServer.NamesAndUrls.ContainsKey(s),
+            // 保存选择的项到全局设置
+            o =>
+            {
+                if (o is string displayName)
+                {
+                    Global.Settings.BILU_Server = displayName;
+                }
+            },
+            // 提供 ComboBox 的初始值，使用上次选择的值（如果为空，则使用空字符串）
+            lastSelected ?? string.Empty,
+            // 提供 ComboBox 的值列表，使用 BiluServer.NamesAndUrls 的键
+            BiluServer.NamesAndUrls.Keys.Cast<object>().ToArray()
+        );
+        // 设置 ComboBox 选中项为上次选的 BILU Server
+        BILU_ServerComboBox.SelectedItem = lastSelected;
+
         BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
 
         #endregion
@@ -107,7 +132,7 @@ public partial class SettingForm : BindingForm
         BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
         BindTextBox(TUNTAPDNSTextBox,
-            s => UseCustomDNSCheckBox.Checked ? IPAddress.TryParse(s, out _) : true,
+            s => !UseCustomDNSCheckBox.Checked || IPAddress.TryParse(s, out _),
             s =>
             {
                 if (UseCustomDNSCheckBox.Checked)
@@ -120,7 +145,8 @@ public partial class SettingForm : BindingForm
         #endregion
 
         #region V2Ray
-        BindCheckBox(XrayConeCheckBox, b => Global.Settings.V2RayConfig.XrayCone = b, Global.Settings.V2RayConfig.XrayCone);
+        BindCheckBox(SniffingCheckBox, b => Global.Settings.V2RayConfig.Sniffing = b, Global.Settings.V2RayConfig.Sniffing);
+        BindCheckBox(XrayConeCheckBox, b => Global.Settings.V2RayConfig.XrayFullCone = b, Global.Settings.V2RayConfig.XrayFullCone);
 
         BindCheckBox(TLSAllowInsecureCheckBox, b => Global.Settings.V2RayConfig.AllowInsecure = b, Global.Settings.V2RayConfig.AllowInsecure);
         BindCheckBox(UseMuxCheckBox, b => Global.Settings.V2RayConfig.UseMux = b, Global.Settings.V2RayConfig.UseMux);

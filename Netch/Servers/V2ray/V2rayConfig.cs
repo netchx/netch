@@ -1,9 +1,6 @@
-﻿#nullable disable
-// ReSharper disable InconsistentNaming
+﻿namespace Netch.Servers;
 
-namespace Netch.Servers;
-
-public struct V2rayConfig
+public struct Configuration
 {
     public object[] inbounds { get; set; }
 
@@ -12,26 +9,27 @@ public struct V2rayConfig
 
 public class User
 {
-    public string id { get; set; }
+    public string? id { get; set; }
 
-    public int alterId { get; set; }
+    public int? alterId { get; set; } = null;
 
-    public string security { get; set; }
+    public string? security { get; set; }
 
-    public string encryption { get; set; }
+    public string? encryption { get; set; }
 
-    public string flow { get; set; }
+    public string? flow { get; set; } = null;
 }
 
 public class Outbound
 {
-    public string protocol { get; set; }
+    public string? protocol { get; set; }
 
-    public OutboundConfiguration settings { get; set; }
-
+    public OutboundConfiguration? settings { get; set; }
+    #nullable enable
     public StreamSettings? streamSettings { get; set; }
 
-    public Mux? mux { get; set; }
+    public Mux? mux { get; set; } = null;
+    #nullable disable
 }
 
 public class OutboundConfiguration
@@ -46,7 +44,7 @@ public class OutboundConfiguration
 
     public string user { get; set; }
 
-    public ushort port { get; set; }
+    public ushort? port { get; set; } = null;
 
     public string password { get; set; }
 
@@ -68,7 +66,7 @@ public class OutboundConfiguration
 
     public string preSharedKey { get; set; }
 
-    public int mtu { get; set; }
+    public int? mtu { get; set; } = null;
 }
 
 public class VnextItem
@@ -122,6 +120,8 @@ public class StreamSettings
 
     public TlsSettings xtlsSettings { get; set; }
 
+    public TlsSettings realitySettings { get; set; }
+
     public GrpcSettings grpcSettings { get; set; }
 
     public Sockopt sockopt { get; set; }
@@ -131,9 +131,19 @@ public class StreamSettings
 
 public class TlsSettings
 {
-    public bool allowInsecure { get; set; }
+    public bool? allowInsecure { get; set; } = null;
+
+    public string fingerprint { get; set; }
 
     public string serverName { get; set; }
+
+    public string publicKey { get; set; }
+
+    public string spiderX { get; set; }
+
+    public string shortId { get; set; }
+
+    public string[] alpn { get; set; }
 }
 
 public class TcpSettings

@@ -28,6 +28,7 @@ public static class ShareLink
 
         try
         {
+            // ! TODO:
             list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new ShadowsocksServer
             {
                 Hostname = server.server,
@@ -95,12 +96,12 @@ public static class ShareLink
         if (endIndex == -1)
             throw new UriFormatException("Text is not a URI");
 
-        return text.Substring(0, endIndex);
+        return text[..endIndex];
     }
 
     private static Server ParseNetchUri(string text)
     {
-        text = URLSafeBase64Decode(text.Substring(8));
+        text = URLSafeBase64Decode(text[8..]);
 
         var NetchLink = JsonSerializer.Deserialize<JsonElement>(text);
 
@@ -110,6 +111,7 @@ public static class ShareLink
         if (!ushort.TryParse(NetchLink.GetProperty("Port").GetString(), out _))
             throw new FormatException();
 
+        // ! TODO:
         return JsonSerializer.Deserialize<Server>(text,
             new JsonSerializerOptions
             {
@@ -184,8 +186,8 @@ public static class ShareLink
             if (p.IndexOf('=') > 0)
             {
                 var index = p.IndexOf('=');
-                var key = p.Substring(0, index);
-                var val = p.Substring(index + 1);
+                var key = p[..index];
+                var val = p[(index + 1)..];
                 paramsDict[key] = val;
             }
 
