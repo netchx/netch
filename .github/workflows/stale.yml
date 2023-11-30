@@ -1,4 +1,4 @@
-name: Netch CII
+name: Close stale issues and PRs
 on:
   schedule:
     - cron: "0 0 * * *"
@@ -10,7 +10,7 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v7
         with:
           days-before-issue-stale: 30
           days-before-issue-close: 14

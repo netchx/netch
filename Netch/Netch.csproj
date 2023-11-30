@@ -38,17 +38,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.1">
+    <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Fody" Version="6.6.3">
+    <PackageReference Include="Fody" Version="6.6.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="HMBSbige.SingleInstance" Version="6.0.0" />
     <PackageReference Include="MaxMind.GeoIP2" Version="5.1.0" />
-    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.4" GeneratePathProperty="true" />
-    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.3.44" />
+    <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.0.7" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.5.22" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.588-beta">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -63,11 +63,11 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     <PackageReference Include="Stun.Net" Version="6.2.0" />
-    <PackageReference Include="System.Management" Version="6.0.0" />
+    <PackageReference Include="System.Management" Version="7.0.0" />
     <PackageReference Include="TaskScheduler" Version="2.10.1" />
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="7.0.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="7.0.0" />
     <PackageReference Include="WindowsJobAPI" Version="6.0.0" />
   </ItemGroup>
 

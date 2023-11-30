@@ -47,13 +47,15 @@ jobs:
 
       - name: Check Other
         id: check_other
-        uses: andstor/file-existence-action@v1
+        uses: andstor/file-existence-action@v2
         with:
           files: .\other\release\aiodns.bin
 
       - name: Setup Go
         uses: actions/setup-go@v3
         if: steps.check_other.outputs.files_exists == 'false'
+        with:
+          go-version: stable
 
       - name: Setup C++
         uses: msys2/setup-msys2@v2
@@ -71,7 +73,7 @@ jobs:
           profile: minimal
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.3
+        uses: microsoft/setup-msbuild@v1.3.1
         with:
           vs-prerelease: true
 
