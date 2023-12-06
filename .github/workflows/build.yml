@@ -52,7 +52,7 @@ jobs:
           files: .\other\release\aiodns.bin
 
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         if: steps.check_other.outputs.files_exists == 'false'
         with:
           go-version: stable
