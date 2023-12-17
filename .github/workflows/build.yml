@@ -83,7 +83,7 @@ jobs:
           .\build.ps1 -Configuration Release -OutputPath release
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release
           path: release
