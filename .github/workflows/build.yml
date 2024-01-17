@@ -18,28 +18,28 @@ jobs:
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache Netch
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-Netch-${{ env.SOURCE_NETCH_SHA256 }}
           path: |
             .\Netch\bin
 
       - name: Cache Other
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-Other-${{ env.SOURCE_OTHER_SHA256 }}
           path: |
             .\Other\release
 
       - name: Cache Redirector
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-Redirector-${{ env.SOURCE_REDIRECTOR_SHA256 }}
           path: |
             .\Redirector\bin
 
       - name: Cache RouteHelper
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-RouteHelper-${{ env.SOURCE_ROUTEHELPER_SHA256 }}
           path: |
