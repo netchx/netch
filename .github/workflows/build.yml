@@ -73,7 +73,7 @@ jobs:
           profile: minimal
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.3.1
+        uses: microsoft/setup-msbuild@v2.0.0
         with:
           vs-prerelease: true
 
