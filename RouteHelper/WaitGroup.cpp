@@ -8,7 +8,10 @@ void WaitGroup::Add(int size)
 void WaitGroup::Done()
 {
 	if (--this->counter <= 0)
+	{
+		std::scoped_lock lock(this->mutex);
 		this->condition.notify_all();
+	}
 }
 
 void WaitGroup::Wait()
