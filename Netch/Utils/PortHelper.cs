@@ -56,7 +56,22 @@ public static class PortHelper
                         if (row.dwOwningPid is 0 or 4)
                             continue;
 
-                        if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                                                // Replace the problematic line in GetProcessByUsedTcpPort method:
+                        // OLD: if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                        // NEW:
+                        ushort localPort;
+                        if (OperatingSystem.IsWindowsVersionAtLeast(8, 1))
+                        {
+                            localPort = PInvoke.ntohs((ushort)row.dwLocalPort);
+                        }
+                        else
+                        {
+                            // Manual byte swap for older Windows versions
+                            var portBytes = (ushort)row.dwLocalPort;
+                            localPort = (ushort)((portBytes << 8) | (portBytes >> 8));
+                        }
+
+                        if (localPort == port)
                             process.Add(Process.GetProcessById((int)row.dwOwningPid));
                     }
                 }

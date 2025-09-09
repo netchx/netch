@@ -40,49 +40,55 @@ public static class Bandwidth
     /// <summary>
     ///     根据程序名统计流量
     /// </summary>
-    public static void NetTraffic()
+    // Replace the existing NetTraffic method in Bandwidth.cs
+/// <summary>
+///     根据程序名统计流量
+/// </summary>
+public static void NetTraffic(CancellationToken cancellationToken)
+{
+    if (!Flags.IsWindows10Upper)
+        return;
+
+    var counterLock = new object();
+    //int sent = 0;
+
+    var processes = new List<Process>();
+    switch (MainController.ServerController)
     {
-        if (!Flags.IsWindows10Upper)
-            return;
+        case null:
+            break;
+        case Guard guard:
+            processes.Add(guard.Instance);
+            break;
+    }
 
-        var counterLock = new object();
-        //int sent = 0;
-
-        var processes = new List<Process>();
-        switch (MainController.ServerController)
+    if (!processes.Any())
+        switch (MainController.ModeController)
         {
             case null:
+                break;
+            case NFController or TUNController:
+                processes.Add(Process.GetCurrentProcess());
                 break;
             case Guard guard:
                 processes.Add(guard.Instance);
                 break;
         }
 
-        if (!processes.Any())
-            switch (MainController.ModeController)
-            {
-                case null:
-                    break;
-                case NFController or TUNController:
-                    processes.Add(Process.GetCurrentProcess());
-                    break;
-                case Guard guard:
-                    processes.Add(guard.Instance);
-                    break;
-            }
+    var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 
-        var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
+    Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
-        Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
+    received = 0;
 
-        received = 0;
+    if (!processes.Any())
+        return;
 
-        if (!processes.Any())
-            return;
+    Global.MainForm.BandwidthState(true);
 
-        Global.MainForm.BandwidthState(true);
-
-        Task.Run(() =>
+    Task.Run(() =>
+        {
+            try
             {
                 tSession = new TraceEventSession("KernelAndClrEventsSession");
                 tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
@@ -108,16 +114,45 @@ public static class Bandwidth
                 };
 
                 tSession.Source.Process();
-            })
-            .Forget();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error in traffic monitoring");
+            }
+        }, cancellationToken)
+        .Forget();
 
-        while (Global.MainForm.State != State.Stopped)
+    try
+    {
+        // FIXED: Use cancellation token instead of State check
+        while (!cancellationToken.IsCancellationRequested && Global.MainForm.State != State.Stopped)
         {
-            Thread.Sleep(1000);
+            // Use cancellable delay instead of Thread.Sleep
+            try
+            {
+                cancellationToken.WaitHandle.WaitOne(1000);
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            
             lock (counterLock)
                 Global.MainForm.OnBandwidthUpdated(received);
         }
     }
+    catch (OperationCanceledException)
+    {
+        // Expected when cancellation is requested
+    }
+    finally
+    {
+        // Ensure cleanup happens
+        Stop();
+    }
+}
 
     public static void Stop()
     {

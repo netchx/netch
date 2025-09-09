@@ -24,6 +24,7 @@ public partial class MainForm : Form
     #region Start
 
     private readonly Dictionary<string, object> _mainFormText = new();
+    private CancellationTokenSource? _mainCancellationTokenSource;
 
     private bool _textRecorded;
 
@@ -517,72 +518,83 @@ public partial class MainForm : Form
     #region ControlButton
 
     private async void ControlButton_Click(object? sender, EventArgs? e)
+{
+    if (!IsWaiting())
     {
-        if (!IsWaiting())
-        {
-            await StopCoreAsync();
-            return;
-        }
+        await StopCoreAsync();
+        return;
+    }
 
-        Configuration.SaveAsync().Forget();
+    Configuration.SaveAsync().Forget();
 
-        // 服务器、模式 需选择
-        if (ServerComboBox.SelectedItem is not Server server)
-        {
-            MessageBoxX.Show(i18N.Translate("Please select a server first"));
-            return;
-        }
+    // 服务器、模式 需选择
+    if (ServerComboBox.SelectedItem is not Server server)
+    {
+        MessageBoxX.Show(i18N.Translate("Please select a server first"));
+        return;
+    }
 
-        if (ModeComboBox.SelectedItem is not Mode mode)
-        {
-            MessageBoxX.Show(i18N.Translate("Please select a mode first"));
-            return;
-        }
+    if (ModeComboBox.SelectedItem is not Mode mode)
+    {
+        MessageBoxX.Show(i18N.Translate("Please select a mode first"));
+        return;
+    }
 
-        State = State.Starting;
+    State = State.Starting;
+    
+    // Create new cancellation token for this session
+    _mainCancellationTokenSource = new CancellationTokenSource();
+    var cancellationToken = _mainCancellationTokenSource.Token;
 
+    try
+    {
+        await MainController.StartAsync(server, mode);
+    }
+    catch (Exception exception)
+    {
+        State = State.Stopped;
+        StatusText(i18N.Translate("Start failed"));
+        MessageBoxX.Show(exception.Message, LogLevel.ERROR);
+        return;
+    }
+
+    State = State.Started;
+
+    Task.Run(() => Bandwidth.NetTraffic(cancellationToken), cancellationToken).Forget();
+    DiscoveryNatTypeAsync().Forget();
+    HttpConnectAsync().Forget();
+
+    if (Global.Settings.MinimizeWhenStarted)
+        Minimize();
+
+    // 自动检测延迟 - NOW WITH PROPER CANCELLATION
+    async Task StartedPingAsync()
+    {
         try
         {
-            await MainController.StartAsync(server, mode);
-        }
-        catch (Exception exception)
-        {
-            State = State.Stopped;
-            StatusText(i18N.Translate("Start failed"));
-            MessageBoxX.Show(exception.Message, LogLevel.ERROR);
-            return;
-        }
-
-        State = State.Started;
-
-        Task.Run(Bandwidth.NetTraffic).Forget();
-        DiscoveryNatTypeAsync().Forget();
-        HttpConnectAsync().Forget();
-
-        if (Global.Settings.MinimizeWhenStarted)
-            Minimize();
-
-        // 自动检测延迟
-        async Task StartedPingAsync()
-        {
-            while (State == State.Started)
+            while (State == State.Started && !cancellationToken.IsCancellationRequested)
             {
                 if (Global.Settings.StartedPingInterval >= 0)
                 {
                     await server.PingAsync();
                     ServerComboBox.Refresh();
 
-                    await Task.Delay(Global.Settings.StartedPingInterval * 1000);
+                    await Task.Delay(Global.Settings.StartedPingInterval * 1000, cancellationToken);
                 }
                 else
                 {
-                    await Task.Delay(5000);
+                    await Task.Delay(5000, cancellationToken);
                 }
             }
         }
-
-        StartedPingAsync().Forget();
+        catch (OperationCanceledException)
+        {
+            // Expected when shutting down
+        }
     }
+
+    StartedPingAsync().Forget();
+}
 
     #endregion
 
@@ -1042,13 +1054,36 @@ public partial class MainForm : Form
     }
 
     private async Task StopCoreAsync()
+{
+    State = State.Stopping;
+    
+    // Cancel all background operations
+    _mainCancellationTokenSource?.Cancel();
+    _discoveryNatCts?.Cancel();
+    _httpConnectCts?.Cancel();
+    
+    try
     {
-        State = State.Stopping;
-        _discoveryNatCts?.Cancel();
-        _httpConnectCts?.Cancel();
-        await MainController.StopAsync();
+        // Add timeout to prevent infinite hang
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        await MainController.StopAsync().WaitAsync(timeoutCts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        // Force stop if timeout reached
+        Log.Warning("MainController.StopAsync() timed out, forcing termination");
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Error during MainController.StopAsync()");
+    }
+    finally
+    {
+        _mainCancellationTokenSource?.Dispose();
+        _mainCancellationTokenSource = null;
         State = State.Stopped;
     }
+}
 
     private bool IsWaiting() => IsWaiting(_state);
 
@@ -1274,31 +1309,39 @@ public partial class MainForm : Form
     }
 
     public async void Exit(bool forceExit = false, bool saveConfiguration = true)
+{
+    if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
     {
-        if (!IsWaiting() && !Global.Settings.StopWhenExited && !forceExit)
-        {
-            MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
-
-            ShowMainFormToolStripButton.PerformClick();
-            return;
-        }
-
-        // State = State.Terminating;
-        NotifyIcon.Visible = false;
-        Hide();
-
-        if (saveConfiguration)
-            await Configuration.SaveAsync();
-
-        foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
-            if (File.Exists(file))
-                File.Delete(file);
-
-        await StopAsync();
-
-        Dispose();
-        Environment.Exit(Environment.ExitCode);
+        MessageBoxX.Show(i18N.Translate("Please press Stop button first"));
+        ShowMainFormToolStripButton.PerformClick();
+        return;
     }
+
+    // State = State.Terminating;
+    NotifyIcon.Visible = false;
+    Hide();
+
+    if (saveConfiguration)
+        await Configuration.SaveAsync();
+
+    foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
+        if (File.Exists(file))
+            File.Delete(file);
+
+    // ADD TIMEOUT HERE TOO
+    try
+    {
+        using var exitTimeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        await StopAsync().WaitAsync(exitTimeoutCts.Token);
+    }
+    catch (OperationCanceledException)
+    {
+        Log.Warning("StopAsync() timed out during exit, forcing termination");
+    }
+
+    Dispose();
+    Environment.Exit(Environment.ExitCode);
+}
 
     #region FormClosingButton
 
