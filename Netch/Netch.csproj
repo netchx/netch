@@ -5,7 +5,6 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <Configurations>Debug;Release</Configurations>
-    <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <ApplicationManifest>App.manifest</ApplicationManifest>
@@ -100,3 +99,4 @@
   </Target>
 
 </Project>
+
