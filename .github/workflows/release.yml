@@ -43,7 +43,7 @@ jobs:
 
       - name: Check Other
         id: check_other
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: .\other\release\aiodns.bin
 
