@@ -19,6 +19,8 @@
 > [!IMPORTANT]
 > 这是 Netch 1.x 的社区维护分支，并非 NetchX 官方发行版。程序需要管理员权限来加载网络驱动和修改系统路由。
 
+当前维护者：[@cbear2024](https://github.com/cbear2024) · 项目地址：[cbear2024/netch](https://github.com/cbear2024/netch)
+
 ## 主要特性
 
 - 按进程接管游戏或应用流量，无需修改目标程序。

@@ -194,7 +194,7 @@ public static class Utils
 
             var td = TaskService.Instance.NewTask();
 
-            td.RegistrationInfo.Author = "Netch";
+            td.RegistrationInfo.Author = "cbear2024/Netch";
             td.RegistrationInfo.Description = "Netch run at startup.";
             td.Principal.RunLevel = TaskRunLevel.Highest;
 

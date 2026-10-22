@@ -6,14 +6,14 @@ using Netch.Controllers;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle(UpdateChecker.Name)]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Windows game and application proxy client")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany(UpdateChecker.Author)]
 [assembly: AssemblyProduct(UpdateChecker.Name)]
 [assembly: AssemblyCopyright(UpdateChecker.Copyright)]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows7.0")]
+[assembly: System.Runtime.Versioning.SupportedOSPlatformAttribute("Windows10.0.17763")]
 [assembly: Fody.ConfigureAwait(false)]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
