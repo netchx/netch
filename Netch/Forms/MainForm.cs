@@ -1041,13 +1041,45 @@ public partial class MainForm : Form
         await StopCoreAsync();
     }
 
-    private async Task StopCoreAsync()
+    private Task? _stopTask;
+
+    private Task StopCoreAsync() => _stopTask ??= StopCoreInternalAsync();
+
+    private async Task StopCoreInternalAsync()
     {
+        // Ensure the in-flight task is recorded before a fast shutdown completes.
+        await Task.Yield();
+
         State = State.Stopping;
         _discoveryNatCts?.Cancel();
         _httpConnectCts?.Cancel();
-        await MainController.StopAsync();
-        State = State.Stopped;
+
+        try
+        {
+            // Driver and process cleanup can block synchronously on Windows 11.
+            // Keep that work off the WinForms UI thread.
+            var stopTask = Task.Run(MainController.StopAsync);
+
+            if (await Task.WhenAny(stopTask, Task.Delay(TimeSpan.FromSeconds(15))) != stopTask)
+            {
+                Log.Warning("Stopping MainController took longer than 15 seconds");
+                StatusText("Still stopping; check the Netch log for the blocked component");
+            }
+
+            // Never claim the network has stopped while driver cleanup is running.
+            await stopTask;
+            State = State.Stopped;
+        }
+        catch (Exception exception)
+        {
+            Log.Error(exception, "Failed to stop MainController");
+            StatusText("Stop failed; check the Netch log");
+            NotifyTip(exception.Message, info: false);
+        }
+        finally
+        {
+            _stopTask = null;
+        }
     }
 
     private bool IsWaiting() => IsWaiting(_state);
