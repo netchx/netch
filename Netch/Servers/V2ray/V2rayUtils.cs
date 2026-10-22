@@ -130,8 +130,9 @@ public static class V2rayUtils
         {
             parameter.Add("security", server.TLSSecureType);
 
-            if (!server.Host.IsNullOrWhiteSpace())
-                parameter.Add("sni", server.Host!);
+            var serverName = server.ServerName.ValueOrDefault() ?? server.Host.ValueOrDefault();
+            if (serverName != null)
+                parameter.Add("sni", Uri.EscapeDataString(serverName));
 
             if (server.TLSSecureType == "xtls")
             {

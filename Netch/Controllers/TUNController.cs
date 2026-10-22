@@ -25,6 +25,7 @@ namespace Netch.Controllers
         private bool _outboundReady;
         private bool _nativeInitialized;
         private bool _dnsInitialized;
+        private readonly List<NetRoute> _createdRoutes = new();
 
         public string Name => "tun2socks";
         public string interfaceName => "netch";
@@ -196,14 +197,14 @@ namespace Netch.Controllers
             var tunNetworkInterface = NetworkInterfaceUtils.Get(_tun.InterfaceIndex);
             // Server Address
             if (_serverRemoteAddress != null)
-                RouteUtils.CreateRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
+                CreateTrackedRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
 
             // Global Bypass IPs
-            RouteUtils.CreateRouteFill(_outbound, _tunConfig.BypassIPs);
+            CreateTrackedRoutes(_outbound, _tunConfig.BypassIPs);
 
             // rule
-            RouteUtils.CreateRouteFill(_tun, _mode.Handle);
-            RouteUtils.CreateRouteFill(_outbound, _mode.Bypass);
+            CreateTrackedRoutes(_tun, _mode.Handle);
+            CreateTrackedRoutes(_outbound, _mode.Bypass);
 
             // dns
 
@@ -212,15 +213,15 @@ namespace Netch.Controllers
                 if (_tunConfig.ProxyDNS)
                 {
                     // NOTICE: DNS metric is network interface metric
-                    RouteUtils.CreateRoute(_tun.FillTemplate(_tunConfig.DNS, 32));
+                    CreateTrackedRoute(_tun.FillTemplate(_tunConfig.DNS, 32));
                 }
 
                 tunNetworkInterface.SetDns(_tunConfig.DNS);
             }
             else
             {
-                RouteUtils.CreateRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
-                RouteUtils.CreateRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
+                CreateTrackedRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
+                CreateTrackedRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
             }
 
             NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0);
@@ -231,18 +232,35 @@ namespace Netch.Controllers
             if (!_outboundReady)
                 return;
 
-            if (_serverRemoteAddress != null)
-                RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
-
-            if (_outbound.Gateway != null)
+            // Delete exactly the routes created during this start, including TUN and DNS routes.
+            for (var i = _createdRoutes.Count - 1; i >= 0; i--)
             {
-                RouteUtils.DeleteRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
-                RouteUtils.DeleteRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
-                // Outbound interface metric was never changed on startup.
+                var route = _createdRoutes[i];
+                if (!RouteUtils.DeleteRoute(route))
+                    Log.Warning("Failed to delete route {Network}/{Cidr} via {Gateway}", route.Network, route.Cidr, route.Gateway);
             }
 
-            if (_mode != null)
-                RouteUtils.DeleteRouteFill(_outbound, _mode.Bypass);
+            _createdRoutes.Clear();
+            _outboundReady = false;
+        }
+
+        private void CreateTrackedRoutes(NetRoute template, IEnumerable<string> rules)
+        {
+            foreach (var rule in rules)
+            {
+                if (!RouteUtils.TryParseIPNetwork(rule, out var network, out var cidr))
+                    throw new MessageException($"Invalid TUN route: {rule}");
+
+                CreateTrackedRoute(template.FillTemplate(network, (byte)cidr));
+            }
+        }
+
+        private void CreateTrackedRoute(NetRoute route)
+        {
+            if (RouteUtils.CreateRoute(route))
+                _createdRoutes.Add(route);
+            else
+                Log.Warning("Failed to create route {Network}/{Cidr} via {Gateway}", route.Network, route.Cidr, route.Gateway);
         }
 
         #endregion

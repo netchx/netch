@@ -79,9 +79,29 @@ public static class DnsUtils
 
     public static string AppendPort(string host, ushort port = 53)
     {
-        if (!host.Contains(':'))
-            return host + $":{port}";
+        var schemeEnd = host.IndexOf("://", StringComparison.Ordinal);
+        var defaultPort = schemeEnd >= 0 && host[..schemeEnd].Equals("tls", StringComparison.OrdinalIgnoreCase) && port == 53
+            ? (ushort)853
+            : port;
+        var authorityStart = schemeEnd < 0 ? 0 : schemeEnd + 3;
+        var authorityEnd = host.IndexOfAny(new[] { '/', '?', '#' }, authorityStart);
+        if (authorityEnd < 0)
+            authorityEnd = host.Length;
 
-        return host;
+        var authority = host[authorityStart..authorityEnd];
+        if (authority.Length == 0)
+            return host;
+
+        if (IPAddress.TryParse(authority, out var address) && address.AddressFamily == AddressFamily.InterNetworkV6)
+            authority = $"[{authority}]:{defaultPort}";
+        else if (authority.StartsWith('['))
+        {
+            if (!authority.Contains("]:"))
+                authority += $":{defaultPort}";
+        }
+        else if (!authority.Contains(':'))
+            authority += $":{defaultPort}";
+
+        return host[..authorityStart] + authority + host[authorityEnd..];
     }
 }

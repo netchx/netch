@@ -98,7 +98,11 @@ public static class ModeHelper
                         processMode.Handle.AddRange(pMode.Handle);
                     }
                     else if (l.StartsWith("!"))
-                        processMode.Bypass.Add(l);
+                    {
+                        if (l.Length == 1)
+                            throw new FormatException("Empty process bypass rule");
+                        processMode.Bypass.Add(l[1..]);
+                    }
                     else
                         processMode.Handle.Add(l);
 
@@ -110,7 +114,7 @@ public static class ModeHelper
                     if (includeMode is TunMode tMode)
                     {
                         tunMode.Bypass.AddRange(tMode.Bypass);
-                        tMode.Handle.AddRange(tMode.Handle);
+                        tunMode.Handle.AddRange(tMode.Handle);
                         break;
                     }
 

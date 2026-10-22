@@ -35,6 +35,9 @@ public static class SubscriptionUtil
             else
                 throw new Exception($"{item.Remark} Response Status Code: {code}");
 
+            if (servers.Count == 0)
+                throw new FormatException($"{item.Remark} subscription contains no valid servers");
+
             foreach (var server in servers)
                 server.Group = item.Remark;
 

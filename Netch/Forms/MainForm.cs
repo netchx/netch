@@ -441,7 +441,9 @@ public partial class MainForm : Form
             string downloadDirectory = Path.Combine(Global.NetchDir, "data");
 
             var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url!;
+            var updateFileUrl = UpdateChecker.LatestRelease.assets
+                .FirstOrDefault(asset => string.Equals(asset.name, updateFileName, StringComparison.OrdinalIgnoreCase))
+                ?.browser_download_url ?? throw new MessageException($"Update asset not found: {updateFileName}");
 
             var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
             var updater = new Updater(updateFileFullName, Global.NetchDir);
