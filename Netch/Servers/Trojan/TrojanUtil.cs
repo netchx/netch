@@ -1,7 +1,6 @@
-using System.Text.RegularExpressions;
-using System.Web;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
@@ -32,7 +31,25 @@ public class TrojanUtil : IServerUtil
     public string GetShareLink(Server s)
     {
         var server = (TrojanServer)s;
-        return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}?sni={server.Host}#{server.Remark}";
+        var parameters = new Dictionary<string, string>
+        {
+            ["security"] = server.TLSSecureType,
+            ["type"] = server.TransferProtocol
+        };
+        if (!string.IsNullOrWhiteSpace(server.Host))
+            parameters["sni"] = server.Host;
+        if (!string.IsNullOrWhiteSpace(server.Alpn))
+            parameters["alpn"] = server.Alpn;
+        if (!string.IsNullOrWhiteSpace(server.TransportHost))
+            parameters["host"] = server.TransportHost;
+        if (!string.IsNullOrWhiteSpace(server.Path))
+            parameters[server.TransferProtocol == "grpc" ? "serviceName" : "path"] = server.Path;
+        if (server.TLSSecureType == "xtls")
+            parameters["flow"] = server.Flow;
+
+        var query = string.Join("&", parameters.Select(item => $"{item.Key}={Uri.EscapeDataString(item.Value)}"));
+        var remark = string.IsNullOrEmpty(server.Remark) ? "" : "#" + Uri.EscapeDataString(server.Remark);
+        return $"trojan://{Uri.EscapeDataString(server.Password)}@{ProxyUri.Host(server.Hostname)}:{server.Port}?{query}{remark}";
     }
 
     public IServerController GetController()
@@ -42,50 +59,42 @@ public class TrojanUtil : IServerUtil
 
     public IEnumerable<Server> ParseUri(string text)
     {
-        var data = new TrojanServer();
-
-        text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        var uri = ProxyUri.Parse(text, "trojan");
+        var parameters = ProxyUri.Query(uri);
+        var data = new TrojanServer
         {
-            data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
-            text = text.Split('#')[0];
-        }
+            Password = ProxyUri.UserInfo(uri),
+            Hostname = ProxyUri.HostName(uri),
+            Port = (ushort)uri.Port,
+            Remark = ProxyUri.Remark(uri),
+            Host = parameters["sni"] ?? parameters["peer"],
+            TLSSecureType = parameters["security"] ?? "tls",
+            TransferProtocol = parameters["type"] ?? "tcp",
+            TransportHost = parameters["host"],
+            Path = parameters["serviceName"] ?? parameters["path"],
+            Alpn = parameters["alpn"],
+            Flow = parameters["flow"] ?? "xtls-rprx-direct"
+        };
 
-        if (text.Contains("?"))
-        {
-            var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
-            var regmatch = reg.Match(text);
-
-            if (!regmatch.Success)
-                throw new FormatException();
-
-            var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
-
-            if (peer != null) {
-                data.Host = peer;
-            } else {
-                peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("sni"));
-                if (peer != null)
-                    data.Host = peer;
-            }
-
-            text = regmatch.Groups["data"].Value;
-        }
-
-        var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
-        var match = finder.Match(text);
-        if (!match.Success)
-            throw new FormatException();
-
-        data.Password = HttpUtility.UrlDecode(match.Groups["psk"].Value);
-        data.Hostname = match.Groups["server"].Value;
-        data.Port = ushort.Parse(match.Groups["port"].Value);
+        if (!string.IsNullOrEmpty(parameters["fp"]) || !string.IsNullOrEmpty(parameters["pbk"]) ||
+            !string.IsNullOrEmpty(parameters["sid"]))
+            throw new NotSupportedException("The bundled core does not support TLS fingerprints or REALITY.");
+        if (!string.IsNullOrEmpty(parameters["flow"]) && data.TLSSecureType != "xtls")
+            throw new NotSupportedException($"Unsupported Trojan flow: {parameters["flow"]}");
+        if (!CheckServer(data))
+            throw new NotSupportedException("Unsupported Trojan link settings");
 
         return new[] { data };
     }
 
     public bool CheckServer(Server s)
     {
-        return true;
+        var server = (TrojanServer)s;
+        return !string.IsNullOrWhiteSpace(server.Hostname) && server.Port != 0 &&
+               !string.IsNullOrWhiteSpace(server.Password) &&
+               server.TLSSecureType is "none" or "tls" or "xtls" &&
+               server.TransferProtocol is "tcp" or "ws" or "grpc" or "h2" &&
+               (server.TLSSecureType != "xtls" ||
+                server.TransferProtocol == "tcp" && VLESSGlobal.Flows.Contains(server.Flow));
     }
 }

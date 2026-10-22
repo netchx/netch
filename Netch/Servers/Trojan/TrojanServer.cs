@@ -23,6 +23,16 @@ public class TrojanServer : Server
     /// </summary>
     public string? Host { get; set; }
 
+    public string TransferProtocol { get; set; } = "tcp";
+
+    public string? TransportHost { get; set; }
+
+    public string? Path { get; set; }
+
+    public string? Alpn { get; set; }
+
+    public string Flow { get; set; } = "xtls-rprx-direct";
+
     /// <summary>
     ///     TLS 底层传输安全
     /// </summary>
@@ -31,7 +41,7 @@ public class TrojanServer : Server
         get => _tlsSecureType;
         set
         {
-            if (value == "")
+            if (string.IsNullOrWhiteSpace(value))
                 value = VLESSGlobal.TLSSecure[1];
 
             _tlsSecureType = value;

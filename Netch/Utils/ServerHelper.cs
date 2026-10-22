@@ -23,7 +23,7 @@ public static class ServerHelper
 
     public static IServerUtil? GetUtilByUriScheme(string scheme)
     {
-        return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme)));
+        return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)));
     }
 
     public static Type GetTypeByTypeName(string typeName)

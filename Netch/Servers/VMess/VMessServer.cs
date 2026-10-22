@@ -87,7 +87,7 @@ public class VMessServer : Server
         get => _tlsSecureType;
         set
         {
-            if (value == "")
+            if (string.IsNullOrWhiteSpace(value))
                 value = "none";
 
             _tlsSecureType = value;
@@ -100,6 +100,8 @@ public class VMessServer : Server
     public bool? UseMux { get; set; }
 
     public string? ServerName { get; set; } = string.Empty;
+
+    public string? Alpn { get; set; }
 }
 
 public class VMessGlobal

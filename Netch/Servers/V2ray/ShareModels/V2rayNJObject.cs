@@ -66,4 +66,6 @@ public class V2rayNJObject
     ///     serverName
     /// </summary>
     public string sni { get; set; } = string.Empty;
+
+    public string alpn { get; set; } = string.Empty;
 }

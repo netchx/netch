@@ -134,6 +134,8 @@ public class TlsSettings
     public bool allowInsecure { get; set; }
 
     public string serverName { get; set; }
+
+    public string[] alpn { get; set; }
 }
 
 public class TcpSettings

@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Web;
 using Netch.Interfaces;
 using Netch.Models;
@@ -34,13 +33,14 @@ public class ShadowsocksUtil : IServerUtil
     public string GetShareLink(Server s)
     {
         var server = (ShadowsocksServer)s;
-        // ss://method:password@server:port#Remark
+        // SIP002: ss://base64(method:password)@host:port/?plugin=...#remark
+        var userInfo = ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}");
         var plugin = string.IsNullOrWhiteSpace(server.Plugin)
             ? ""
             : "?plugin=" + Uri.EscapeDataString(server.Plugin +
                 (string.IsNullOrEmpty(server.PluginOption) ? "" : ";" + server.PluginOption));
-        return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") +
-               plugin + "#" + HttpUtility.UrlEncode(server.Remark);
+        var remark = string.IsNullOrEmpty(server.Remark) ? "" : "#" + Uri.EscapeDataString(server.Remark);
+        return $"ss://{userInfo}@{ProxyUri.Host(server.Hostname)}:{server.Port}/" + plugin + remark;
     }
 
     public IServerController GetController()
@@ -50,10 +50,10 @@ public class ShadowsocksUtil : IServerUtil
 
     public IEnumerable<Server> ParseUri(string text)
     {
-        if (text.StartsWith("ss://"))
+        if (text.StartsWith("ss://", StringComparison.OrdinalIgnoreCase))
             return new[] { ParseSsUri(text) };
 
-        if (text.StartsWith("ssd://"))
+        if (text.StartsWith("ssd://", StringComparison.OrdinalIgnoreCase))
             return ParseSsdUri(text);
 
         throw new FormatException();
@@ -62,9 +62,10 @@ public class ShadowsocksUtil : IServerUtil
     public bool CheckServer(Server s)
     {
         var server = (ShadowsocksServer)s;
-        if (!SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
+        if (string.IsNullOrWhiteSpace(server.Hostname) || server.Port == 0 ||
+            !SSGlobal.EncryptMethods.Contains(server.EncryptMethod))
         {
-            Log.Warning("Unsupported SS Encrypt Method: {Method}", server.EncryptMethod);
+            Log.Warning("Invalid Shadowsocks server or unsupported method: {Method}", server.EncryptMethod);
             return false;
         }
 
@@ -94,22 +95,17 @@ public class ShadowsocksUtil : IServerUtil
     {
         var data = new ShadowsocksServer();
 
-        text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        var fragment = text.IndexOf('#');
+        if (fragment >= 0)
         {
-            data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
-            text = text.Split('#')[0];
+            data.Remark = Uri.UnescapeDataString(text[(fragment + 1)..]);
+            text = text[..fragment];
         }
 
-        if (text.Contains("?"))
+        var queryStart = text.IndexOf('?');
+        if (queryStart >= 0)
         {
-            var finder = new Regex(@"^(?<data>.+?)\?(.+)$");
-            var match = finder.Match(text);
-
-            if (!match.Success)
-                throw new FormatException();
-
-            var plugins = HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin");
+            var plugins = HttpUtility.ParseQueryString(text[(queryStart + 1)..]).Get("plugin");
             if (plugins != null)
             {
                 var separator = plugins.IndexOf(';');
@@ -117,18 +113,15 @@ public class ShadowsocksUtil : IServerUtil
                 var pluginopts = separator < 0 ? "" : plugins[(separator + 1)..];
                 switch (plugin)
                 {
-                    case "obfs-local":
                     case "simple-obfs":
                         plugin = "obfs-local";
                         if (!pluginopts.Contains("obfs="))
                             pluginopts = "obfs=http;obfs-host=" + pluginopts;
-
                         break;
                     case "simple-obfs-tls":
                         plugin = "obfs-local";
                         if (!pluginopts.Contains("obfs="))
                             pluginopts = "obfs=tls;obfs-host=" + pluginopts;
-
                         break;
                 }
 
@@ -136,40 +129,44 @@ public class ShadowsocksUtil : IServerUtil
                 data.PluginOption = pluginopts;
             }
 
-            text = match.Groups["data"].Value;
+            text = text[..queryStart];
         }
 
-        if (text.Contains("@"))
+        var authority = text["ss://".Length..].TrimEnd('/');
+        string credentials;
+        Uri endpoint;
+        if (authority.Contains('@'))
         {
-            var finder = new Regex(@"^ss://(?<base64>.+?)@(?<server>.+):(?<port>\d+)");
-            var parser = new Regex(@"^(?<method>.+?):(?<password>.+)$");
-            var match = finder.Match(text);
-            if (!match.Success)
-                throw new FormatException();
-
-            data.Hostname = match.Groups["server"].Value;
-            data.Port = ushort.Parse(match.Groups["port"].Value);
-
-            var base64 = ShareLink.URLSafeBase64Decode(match.Groups["base64"].Value);
-            match = parser.Match(base64);
-            if (!match.Success)
-                throw new FormatException();
-
-            data.EncryptMethod = match.Groups["method"].Value;
-            data.Password = match.Groups["password"].Value;
+            endpoint = ProxyUri.Parse("ss://" + authority, "ss");
+            credentials = endpoint.UserInfo;
         }
         else
         {
-            var parser = new Regex(@"^((?<method>.+?):(?<password>.+)@(?<server>.+):(?<port>\d+))");
-            var match = parser.Match(ShareLink.URLSafeBase64Decode(text.Replace("ss://", "")));
-            if (!match.Success)
-                throw new FormatException();
-
-            data.Hostname = match.Groups["server"].Value;
-            data.Port = ushort.Parse(match.Groups["port"].Value);
-            data.EncryptMethod = match.Groups["method"].Value;
-            data.Password = match.Groups["password"].Value;
+            var decoded = ShareLink.URLSafeBase64Decode(authority);
+            var separator = decoded.LastIndexOf('@');
+            if (separator < 1)
+                throw new FormatException("Invalid legacy Shadowsocks link");
+            credentials = decoded[..separator];
+            endpoint = ProxyUri.Parse("ss://user@" + decoded[(separator + 1)..], "ss");
         }
+
+        try
+        {
+            credentials = ShareLink.URLSafeBase64Decode(credentials);
+        }
+        catch (FormatException)
+        {
+            credentials = Uri.UnescapeDataString(credentials);
+        }
+
+        var methodEnd = credentials.IndexOf(':');
+        if (methodEnd < 1)
+            throw new FormatException("Invalid Shadowsocks credentials");
+
+        data.Hostname = ProxyUri.HostName(endpoint);
+        data.Port = (ushort)endpoint.Port;
+        data.EncryptMethod = credentials[..methodEnd];
+        data.Password = credentials[(methodEnd + 1)..];
 
         return CheckServer(data) ? data : throw new FormatException();
     }
