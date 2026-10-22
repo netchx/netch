@@ -81,7 +81,7 @@ public partial class SettingForm : BindingForm
 
         BindCheckBox(FilterICMPCheckBox, b => Global.Settings.Redirector.FilterICMP = b, Global.Settings.Redirector.FilterICMP);
 
-        BindTextBox<int>(ICMPDelayTextBox, s => true, s => Global.Settings.Redirector.ICMPDelay = s, Global.Settings.Redirector.ICMPDelay);
+        BindTextBox<int>(ICMPDelayTextBox, s => s >= 0, s => Global.Settings.Redirector.ICMPDelay = s, Global.Settings.Redirector.ICMPDelay);
 
         BindCheckBox(FilterDNSCheckBox, b => Global.Settings.Redirector.FilterDNS = b, Global.Settings.Redirector.FilterDNS);
 
@@ -98,16 +98,26 @@ public partial class SettingForm : BindingForm
 
         #region TUN/TAP
 
-        BindTextBox(TUNTAPAddressTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Address = s, Global.Settings.TUNTAP.Address);
+        BindTextBox(TUNTAPAddressTextBox,
+            s => IPAddress.TryParse(s, out var address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork,
+            s => Global.Settings.TUNTAP.Address = s,
+            Global.Settings.TUNTAP.Address);
 
-        BindTextBox(TUNTAPNetmaskTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Netmask = s, Global.Settings.TUNTAP.Netmask);
+        BindTextBox(TUNTAPNetmaskTextBox,
+            s => IPAddress.TryParse(s, out var address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork,
+            s => Global.Settings.TUNTAP.Netmask = s,
+            Global.Settings.TUNTAP.Netmask);
 
-        BindTextBox(TUNTAPGatewayTextBox, s => IPAddress.TryParse(s, out _), s => Global.Settings.TUNTAP.Gateway = s, Global.Settings.TUNTAP.Gateway);
+        BindTextBox(TUNTAPGatewayTextBox,
+            s => IPAddress.TryParse(s, out var address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork,
+            s => Global.Settings.TUNTAP.Gateway = s,
+            Global.Settings.TUNTAP.Gateway);
 
         BindCheckBox(UseCustomDNSCheckBox, b => { Global.Settings.TUNTAP.UseCustomDNS = b; }, Global.Settings.TUNTAP.UseCustomDNS);
 
         BindTextBox(TUNTAPDNSTextBox,
-            s => UseCustomDNSCheckBox.Checked ? IPAddress.TryParse(s, out _) : true,
+            s => !UseCustomDNSCheckBox.Checked ||
+                 IPAddress.TryParse(s, out var address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork,
             s =>
             {
                 if (UseCustomDNSCheckBox.Checked)

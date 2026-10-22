@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Net;
 using System.Net.Sockets;
 using Netch.Interops;
 using Netch.Models;
@@ -82,11 +84,14 @@ public static class RouteUtils
         cidr = 0;
 
         var s = ipNetwork.Split('/');
-        if (s.Length != 2)
+        if (s.Length != 2 ||
+            !IPAddress.TryParse(s[0], out var address) ||
+            address.AddressFamily != AddressFamily.InterNetwork ||
+            !int.TryParse(s[1], NumberStyles.None, CultureInfo.InvariantCulture, out cidr) ||
+            cidr is < 0 or > 32)
             return false;
 
-        ip = s[0];
-        cidr = int.Parse(s[1]);
+        ip = address.ToString();
         return true;
     }
 }

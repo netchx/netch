@@ -39,6 +39,17 @@ namespace Netch.Controllers
             _mode = tunMode;
             _tunConfig = Global.Settings.TUNTAP;
 
+            if (!IsIPv4(_tunConfig.Address) || !IsIPv4(_tunConfig.Netmask) || !IsIPv4(_tunConfig.Gateway) ||
+                (_tunConfig.UseCustomDNS && !IsIPv4(_tunConfig.DNS)))
+                throw new MessageException("TUN mode requires IPv4 address, netmask, gateway, and DNS settings.");
+
+            var invalidRoute = _tunConfig.BypassIPs
+                .Concat(_mode.Handle)
+                .Concat(_mode.Bypass)
+                .FirstOrDefault(rule => !RouteUtils.TryParseIPNetwork(rule, out _, out _));
+            if (invalidRoute != null)
+                throw new MessageException($"TUN mode only supports IPv4 CIDR routes: {invalidRoute}");
+
             if (server.RemoteHostname.ValueOrDefault() != null)
                 _serverRemoteAddress = await DnsUtils.LookupAsync(server.RemoteHostname!, AddressFamily.InterNetwork);
             else
@@ -116,12 +127,16 @@ namespace Netch.Controllers
                 throw new MessageException("tun2socks start failed.");
 
             var tunIndex = (int)RouteHelper.ConvertLuidToIndex(tun_luid());
+            if (tunIndex == 0)
+                throw new MessageException("Failed to locate the TUN network interface.");
+
             _tun = NetRoute.TemplateBuilder(_tunConfig.Gateway, tunIndex);
 
-            RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
+            if (!RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 _tunConfig.Address,
                 (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
-                (ulong)tunIndex);
+                (ulong)tunIndex))
+                throw new MessageException("Failed to configure the TUN IPv4 address.");
 
             SetupRouteTable();
         }
@@ -231,5 +246,10 @@ namespace Netch.Controllers
         }
 
         #endregion
+
+        private static bool IsIPv4(string value)
+        {
+            return IPAddress.TryParse(value, out var address) && address.AddressFamily == AddressFamily.InterNetwork;
+        }
     }
 }
