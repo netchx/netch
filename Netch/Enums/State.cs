@@ -31,6 +31,11 @@ public enum State
     Stopped,
 
     /// <summary>
+    ///     停止失败，可以重试
+    /// </summary>
+    StopFailed,
+
+    /// <summary>
     ///     退出中
     /// </summary>
     Terminating

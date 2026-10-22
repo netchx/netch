@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.ComponentModel;
+using System.Net;
 using System.ServiceProcess;
 using Netch.Interfaces;
 using Netch.Models;
@@ -219,6 +220,7 @@ public class NFController : IModeController
         else
         {
             Log.Error("Register netfilter2 failed");
+            throw new MessageException("Register netfilter2 driver failed. Check the Netch log and Windows driver permissions.");
         }
     }
 
@@ -231,15 +233,26 @@ public class NFController : IModeController
         Log.Information("Uninstall netfilter2");
         try
         {
-            if (NFService.Status == ServiceControllerStatus.Running)
+            NFService.Refresh();
+            var status = NFService.Status;
+            if (status is ServiceControllerStatus.Running or ServiceControllerStatus.Paused or ServiceControllerStatus.StopPending)
             {
-                NFService.Stop();
-                NFService.WaitForStatus(ServiceControllerStatus.Stopped);
+                if (status != ServiceControllerStatus.StopPending)
+                    NFService.Stop();
+
+                // A stuck Windows driver must not block the UI indefinitely.
+                NFService.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(15));
             }
         }
-        catch (Exception)
+        catch (InvalidOperationException e) when (e.InnerException is Win32Exception { NativeErrorCode: 1060 })
         {
-            // ignored
+            // The driver service is already unregistered; remove any stale file.
+            Log.Information("netfilter2 service is already unregistered");
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Stopping netfilter2 service failed");
+            throw new MessageException($"Stopping netfilter2 driver failed: {e.Message}");
         }
 
         if (!File.Exists(SystemDriver))
