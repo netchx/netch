@@ -112,10 +112,13 @@ public static class MainController
         Log.Information("Stop Main Controller");
         StatusPortInfoText.Reset();
 
+        var serverController = ServerController;
+        var modeController = ModeController;
+
         var tasks = new[]
         {
-            ServerController?.StopAsync() ?? Task.CompletedTask,
-            ModeController?.StopAsync() ?? Task.CompletedTask
+            serverController == null ? Task.CompletedTask : StopComponentAsync(serverController.Name, serverController.StopAsync),
+            modeController == null ? Task.CompletedTask : StopComponentAsync(modeController.Name, modeController.StopAsync)
         };
 
         try
@@ -129,6 +132,21 @@ public static class MainController
 
         ServerController = null;
         ModeController = null;
+    }
+
+    private static async Task StopComponentAsync(string name, Func<Task> stop)
+    {
+        Log.Information("Stopping {Controller}", name);
+        try
+        {
+            await stop();
+            Log.Information("Stopped {Controller}", name);
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Failed to stop {Controller}", name);
+            throw;
+        }
     }
 
     public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)
