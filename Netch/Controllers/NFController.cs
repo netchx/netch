@@ -41,7 +41,13 @@ public class NFController : IModeController
         Dial(NameList.AIO_FILTERPARENT, _mode.FilterParent ?? _rdrConfig.FilterParent);
         Dial(NameList.AIO_FILTERICMP, _mode.FilterICMP ?? _rdrConfig.FilterICMP);
         if (_mode.FilterICMP ?? _rdrConfig.FilterICMP)
-            Dial(NameList.AIO_ICMPING, (_mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay).ToString());
+        {
+            var icmpDelay = _mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay;
+            if (icmpDelay < 0)
+                throw new MessageException("ICMP delay must be zero or greater.");
+
+            Dial(NameList.AIO_ICMPING, icmpDelay.ToString());
+        }
 
         Dial(NameList.AIO_FILTERTCP, _mode.FilterTCP ?? _rdrConfig.FilterTCP);
         Dial(NameList.AIO_FILTERUDP, _mode.FilterUDP ?? _rdrConfig.FilterUDP);

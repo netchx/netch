@@ -29,7 +29,7 @@ public partial class GlobalBypassIPForm : Form
     {
         if (!string.IsNullOrEmpty(IPTextBox.Text))
         {
-            if (IPAddress.TryParse(IPTextBox.Text, out var address))
+            if (IPAddress.TryParse(IPTextBox.Text, out var address) && address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 IPListBox.Items.Add($"{address}/{PrefixComboBox.SelectedItem}");
             else
                 MessageBoxX.Show(i18N.Translate("Please enter a correct IP address"));
