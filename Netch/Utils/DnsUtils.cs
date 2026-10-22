@@ -1,30 +1,35 @@
 ﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.VisualStudio.Threading;
 
 namespace Netch.Utils;
 
 public static class DnsUtils
 {
-    private static readonly AsyncSemaphore Lock = new(1);
-
     /// <summary>
     ///     缓存
     /// </summary>
-    private static readonly Hashtable Cache = new();
-    private static readonly Hashtable Cache6 = new();
+    private static readonly ConcurrentDictionary<string, IPAddress> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, IPAddress> Cache6 = new(StringComparer.OrdinalIgnoreCase);
 
     public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
-        using var _ = await Lock.EnterAsync();
+        // Local proxy endpoints are normally IP literals. Avoid serializing them
+        // behind a DNS request and do not let a temporary resolver failure break
+        // UDP detection for an already resolved address.
+        if (IPAddress.TryParse(hostname, out var literalAddress))
+            return inet == AddressFamily.Unspecified || literalAddress.AddressFamily == inet
+                ? literalAddress
+                : null;
+
         try
         {
             var cacheResult = inet switch
             {
-                AddressFamily.Unspecified => (IPAddress?)(Cache[hostname] ?? Cache6[hostname]),
-                AddressFamily.InterNetwork => (IPAddress?)Cache[hostname],
-                AddressFamily.InterNetworkV6 => (IPAddress?)Cache6[hostname],
+                AddressFamily.Unspecified => GetCachedAddress(Cache, hostname) ?? GetCachedAddress(Cache6, hostname),
+                AddressFamily.InterNetwork => GetCachedAddress(Cache, hostname),
+                AddressFamily.InterNetworkV6 => GetCachedAddress(Cache6, hostname),
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -56,10 +61,10 @@ public static class DnsUtils
             switch (result.AddressFamily)
             {
                 case AddressFamily.InterNetwork:
-                    Cache.Add(hostname, result);
+                    Cache.TryAdd(hostname, result);
                     break;
                 case AddressFamily.InterNetworkV6:
-                    Cache6.Add(hostname, result);
+                    Cache6.TryAdd(hostname, result);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -69,6 +74,11 @@ public static class DnsUtils
         }
 
         return null;
+    }
+
+    private static IPAddress? GetCachedAddress(ConcurrentDictionary<string, IPAddress> cache, string hostname)
+    {
+        return cache.TryGetValue(hostname, out var address) ? address : null;
     }
 
     public static void ClearCache()

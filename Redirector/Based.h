@@ -17,6 +17,7 @@
 #include <atomic>
 
 #include <WinSock2.h>
+#include <MSWSock.h>
 #include <ws2ipdef.h>
 #include <WS2tcpip.h>
 #include <tlhelp32.h>
