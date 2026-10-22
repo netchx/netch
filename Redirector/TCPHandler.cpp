@@ -135,6 +135,10 @@ void TCPHandler::Accept()
 			return;
 		}
 
+		BOOL noDelay = TRUE;
+		if (setsockopt(client, IPPROTO_TCP, TCP_NODELAY, (char*)&noDelay, sizeof(noDelay)) == SOCKET_ERROR)
+			printf("[Redirector][TCPHandler::Accept] Disable Nagle failed: %d\n", WSAGetLastError());
+
 		thread(TCPHandler::Handle, client).detach();
 	}
 }

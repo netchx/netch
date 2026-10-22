@@ -433,19 +433,21 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_UDP_OPTIONS options)
 {
-	char buffer[1458];
+	// SOCKS5 adds up to 22 bytes before the game payload. Keep a full
+	// datagram per association so a large packet cannot tear down the relay.
+	vector<char> buffer(65535);
 
 	while (!remote->stopping && remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
 
-		int length = remote->Read(&target, buffer, sizeof(buffer), NULL);
-		if (length == 0 || length == SOCKET_ERROR)
+		int length = remote->Read(&target, buffer.data(), static_cast<int>(buffer.size()), NULL);
+		if (length == SOCKET_ERROR)
 			break;
 
 		DL += length;
 
-		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
+		nf_udpPostReceive(id, (unsigned char*)&target, buffer.data(), length, options);
 	}
 
 	remote->Stop();
