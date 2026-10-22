@@ -147,7 +147,19 @@ public abstract class Guard
         if (_guardStopped)
             return;
 
-        if (Instance is { HasExited: false })
+        // Process.HasExited throws when StartGuardAsync failed before
+        // Process.Start(), e.g. while generating a proxy configuration.
+        var processRunning = false;
+        try
+        {
+            processRunning = !Instance.HasExited;
+        }
+        catch (InvalidOperationException)
+        {
+            // The process was never started; still dispose its log streams.
+        }
+
+        if (processRunning)
         {
             Instance.Kill(entireProcessTree: true);
             await Instance.WaitForExitAsync();

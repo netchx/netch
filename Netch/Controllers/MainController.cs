@@ -74,10 +74,11 @@ public static class MainController
         }
         catch (Exception e)
         {
-            releaser.Dispose();
             try
             {
-                await StopAsync();
+                // We already hold Lock. Stop the partially started controllers
+                // without reacquiring it or releasing the same permit twice.
+                await StopComponentsCoreAsync();
             }
             catch (Exception stopException)
             {
@@ -103,18 +104,13 @@ public static class MainController
 
     public static async Task StopAsync()
     {
-        if (Lock.CurrentCount == 0)
-        {
-            (await Lock.EnterAsync()).Dispose();
-            if (ServerController == null && ModeController == null)
-                // stopped
-                return;
-
-            // else begin stop
-        }
-
         using var _ = await Lock.EnterAsync();
+        await StopComponentsCoreAsync();
+    }
 
+    // Caller must hold Lock. Startup-failure cleanup uses this directly.
+    private static async Task StopComponentsCoreAsync()
+    {
         if (ServerController == null && ModeController == null)
             return;
 

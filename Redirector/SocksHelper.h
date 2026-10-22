@@ -22,12 +22,13 @@ namespace SocksHelper
 		SOCKET tcpSocket = INVALID_SOCKET;
 	} *PTCP;
 
-	typedef class UDP
+		typedef class UDP : public std::enable_shared_from_this<UDP>
 	{
 	public:
 		~UDP();
 
-		static void Run(SOCKET tcpSocket, SOCKET udpSocket);
+			static void Run(std::shared_ptr<UDP> remote);
+			void Stop();
 
 		bool Associate();
 		bool CreateUDP();
@@ -35,8 +36,10 @@ namespace SocksHelper
 		int Send(PSOCKADDR_IN6 target, const char* buffer, int length);
 		int Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIMEVAL timeout);
 
-		SOCKET tcpSocket = INVALID_SOCKET;
-		SOCKET udpSocket = INVALID_SOCKET;
+			std::atomic<SOCKET> tcpSocket{ INVALID_SOCKET };
+			std::atomic<SOCKET> udpSocket{ INVALID_SOCKET };
+			std::atomic<bool> stopping{ false };
+			std::mutex sendLock;
 
 		SOCKADDR_IN6 address = { 0 };
 	} *PUDP;

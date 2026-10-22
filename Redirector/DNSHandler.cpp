@@ -55,7 +55,7 @@ void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 
 void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
-	auto remote = new SocksHelper::UDP();
+	auto remote = std::make_shared<SocksHelper::UDP>();
 	if (remote->Associate())
 	{
 		if (remote->CreateUDP())
@@ -74,7 +74,7 @@ void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 		}
 	}
 
-	delete remote;
+	remote->Stop();
 	delete target;
 	delete[] packet;
 	delete[] option;

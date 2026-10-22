@@ -43,21 +43,32 @@ public static class PortHelper
                     uint err;
                     uint size = 0;
                     PInvoke.GetExtendedTcpTable(default, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0); // get size
-                    var tcpTable = (MIB_TCPTABLE_OWNER_PID*)Marshal.AllocHGlobal((int)size);
-
-                    if ((err = PInvoke.GetExtendedTcpTable(tcpTable, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0)) !=
-                        0)
-                        throw new Win32Exception((int)err);
-
-                    for (var i = 0; i < tcpTable -> dwNumEntries; i++)
+                    var memory = Marshal.AllocHGlobal((int)size);
+                    try
                     {
-                        var row = tcpTable -> table.ReadOnlyItemRef(i);
+                        var tcpTable = (MIB_TCPTABLE_OWNER_PID*)memory;
+                        if ((err = PInvoke.GetExtendedTcpTable(tcpTable, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0)) != 0)
+                            throw new Win32Exception((int)err);
 
-                        if (row.dwOwningPid is 0 or 4)
-                            continue;
+                        for (var i = 0; i < tcpTable -> dwNumEntries; i++)
+                        {
+                            var row = tcpTable -> table.ReadOnlyItemRef(i);
+                            if (row.dwOwningPid is 0 or 4 || PInvoke.ntohs((ushort)row.dwLocalPort) != port)
+                                continue;
 
-                        if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
-                            process.Add(Process.GetProcessById((int)row.dwOwningPid));
+                            try
+                            {
+                                process.Add(Process.GetProcessById((int)row.dwOwningPid));
+                            }
+                            catch (ArgumentException)
+                            {
+                                // The process exited between reading the table and looking it up.
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        Marshal.FreeHGlobal(memory);
                     }
                 }
 

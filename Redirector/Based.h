@@ -13,6 +13,8 @@
 #include <vector>
 #include <thread>
 #include <iostream>
+#include <memory>
+#include <atomic>
 
 #include <WinSock2.h>
 #include <ws2ipdef.h>

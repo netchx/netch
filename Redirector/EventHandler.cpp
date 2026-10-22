@@ -13,12 +13,12 @@ extern bool dnsOnly;
 extern vector<wstring> bypassList;
 extern vector<wstring> handleList;
 
-extern USHORT tcpListen;
+extern atomic<USHORT> tcpListen;
 
 DWORD CurrentID = 0;
 
 mutex udpContextLock;
-map<ENDPOINT_ID, SocksHelper::PUDP> udpContext;
+map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> udpContext;
 
 atomic_ullong UP = { 0 };
 atomic_ullong DL = { 0 };
@@ -154,13 +154,15 @@ bool eh_init()
 
 void eh_free()
 {
-	lock_guard<mutex> lg(udpContextLock);
-
 	TCPHandler::FREE();
 
-	for (auto i : udpContext)
-		delete i.second;
-	udpContext.clear();
+	map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> connections;
+	{
+		lock_guard<mutex> lg(udpContextLock);
+		connections.swap(udpContext);
+	}
+	for (const auto& connection : connections)
+		connection.second->Stop();
 
 	UP = 0;
 	DL = 0;
@@ -315,7 +317,7 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << GetProcessName(info->processId) << endl;
 
 	lock_guard<mutex> lg(udpContextLock);
-	udpContext[id] = new SocksHelper::UDP();
+	udpContext[id] = make_shared<SocksHelper::UDP>();
 }
 
 void udpConnectRequest(ENDPOINT_ID id, PNF_UDP_CONN_REQUEST info)
@@ -350,24 +352,42 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		}
 	}
 
-	udpContextLock.lock();
-	if (udpContext.find(id) == udpContext.end())
+	shared_ptr<SocksHelper::UDP> remote;
 	{
-		udpContextLock.unlock();
-
+		lock_guard<mutex> lg(udpContextLock);
+		auto it = udpContext.find(id);
+		if (it != udpContext.end())
+		{
+			// If the SOCKS control connection died, retry with a fresh
+			// association instead of discarding this game's UDP forever.
+			if (it->second->stopping)
+				it->second = make_shared<SocksHelper::UDP>();
+			remote = it->second;
+		}
+	}
+	if (!remote)
+	{
 		nf_udpPostSend(id, target, buffer, length, options);
 		return;
 	}
-	auto remote = udpContext[id];
-	udpContextLock.unlock();
+	// Serialize session creation and sends for the same UDP endpoint.
+	lock_guard<mutex> sendGuard(remote->sendLock);
+	if (remote->stopping)
+		return;
 
 	if (remote->tcpSocket == INVALID_SOCKET && !remote->Associate())
+	{
+		remote->Stop();
 		return;
+	}
 
 	if (remote->udpSocket == INVALID_SOCKET)
 	{
 		if (!remote->CreateUDP())
+		{
+			remote->Stop();
 			return;
+		}
 
 		auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength]();
 		memcpy(option, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
@@ -395,20 +415,27 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	printf("[Redirector][EventHandler][udpClosed][%llu]\n", id);
 
-	lock_guard<mutex> lg(udpContextLock);
-	if (udpContext.find(id) != udpContext.end())
+	shared_ptr<SocksHelper::UDP> remote;
 	{
-		delete udpContext[id];
-
-		udpContext.erase(id);
+		lock_guard<mutex> lg(udpContextLock);
+		auto it = udpContext.find(id);
+		if (it != udpContext.end())
+		{
+			remote = it->second;
+			udpContext.erase(it);
+		}
+	}
+	if (remote)
+	{
+		remote->Stop();
 	}
 }
 
-void udpReceiveHandler(ENDPOINT_ID id, SocksHelper::PUDP remote, PNF_UDP_OPTIONS options)
+void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_UDP_OPTIONS options)
 {
 	char buffer[1458];
 
-	while (remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
+	while (!remote->stopping && remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
 
@@ -421,5 +448,6 @@ void udpReceiveHandler(ENDPOINT_ID id, SocksHelper::PUDP remote, PNF_UDP_OPTIONS
 		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
 	}
 
+	remote->Stop();
 	delete[] options;
 }

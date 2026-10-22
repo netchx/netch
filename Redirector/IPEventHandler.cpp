@@ -5,7 +5,7 @@ extern DWORD icmping;
 USHORT IPv4Checksum(PBYTE buffer, ULONG64 size)
 {
 	UINT32 sum = 0;
-	for (int i = 0; i < size; i += 2)
+	for (ULONG64 i = 0; i + 1 < size; i += 2)
 	{
 		sum += (buffer[i] << 8) + buffer[i + 1];
 	}
@@ -26,7 +26,7 @@ USHORT IPv4Checksum(PBYTE buffer, ULONG64 size)
 USHORT ICMPChecksum(PBYTE buffer, ULONG64 size)
 {
 	UINT32 sum = 0;
-	for (int i = 0; i < size; i += 2)
+	for (ULONG64 i = 0; i + 1 < size; i += 2)
 	{
 		sum += buffer[i] + (buffer[i + 1] << 8);
 	}

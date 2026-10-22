@@ -1,10 +1,11 @@
 #include "TCPHandler.h"
 
-SOCKET tcpSocket = INVALID_SOCKET;
-USHORT tcpListen = 0;
+atomic<SOCKET> tcpSocket{ INVALID_SOCKET };
+atomic<USHORT> tcpListen{ 0 };
 
 mutex tcpLock;
 map<USHORT, SOCKADDR_IN6> tcpContext;
+map<SOCKET, shared_ptr<SocksHelper::TCP>> activeConnections;
 
 bool TCPHandler::INIT()
 {
@@ -87,6 +88,14 @@ void TCPHandler::FREE()
 		tcpSocket = INVALID_SOCKET;
 	}
 	tcpListen = 0;
+	// Closing the listening socket is not enough: accepted connections may
+	// still be blocked in recv() on either the game or the SOCKS server.
+	for (const auto& connection : activeConnections)
+	{
+		shutdown(connection.first, SD_BOTH);
+		if (connection.second->tcpSocket != INVALID_SOCKET)
+			shutdown(connection.second->tcpSocket, SD_BOTH);
+	}
 
 	tcpContext.clear();
 }
@@ -159,20 +168,34 @@ void TCPHandler::Handle(SOCKET client)
 	auto target = tcpContext[id];
 	tcpLock.unlock();
 
-	auto remote = new SocksHelper::TCP();
+	auto remote = make_shared<SocksHelper::TCP>();
 	if (!remote->Connect(&target))
 	{
 		closesocket(client);
-
-		delete remote;
 		return;
+	}
+	{
+		lock_guard<mutex> lg(tcpLock);
+		if (tcpSocket == INVALID_SOCKET)
+		{
+			closesocket(client);
+			return;
+		}
+		activeConnections[client] = remote;
 	}
 
 	thread(TCPHandler::Send, client, remote).detach();
-	TCPHandler::Read(client, remote);
+	TCPHandler::Read(client, remote.get());
 
+	// Wake the detached sender before closing the client socket. It retains
+	// shared ownership of the upstream connection until it finishes.
+	shutdown(client, SD_BOTH);
+	shutdown(remote->tcpSocket, SD_BOTH);
+	{
+		lock_guard<mutex> lg(tcpLock);
+		activeConnections.erase(client);
+	}
 	closesocket(client);
-	delete remote;
 }
 
 void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
@@ -185,12 +208,18 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 		if (length == 0 || length == SOCKET_ERROR)
 			return;
 
-		if (send(client, buffer, length, 0) != length)
-			return;
+		int sent = 0;
+		while (sent < length)
+		{
+			const int count = send(client, buffer + sent, length - sent, 0);
+			if (count <= 0)
+				return;
+			sent += count;
+		}
 	}
 }
 
-void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
+void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 {
 	char buffer[1446];
 
