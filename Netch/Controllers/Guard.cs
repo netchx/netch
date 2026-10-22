@@ -140,7 +140,7 @@ public abstract class Guard
         }
         catch (Exception e)
         {
-            Log.Error(e, "Stop {Name} failed", Instance.ProcessName);
+            Log.Error(e, "Stop {Name} failed", Name);
         }
         finally
         {
