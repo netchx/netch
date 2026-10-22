@@ -154,7 +154,7 @@ func handleServerName(w dns.ResponseWriter, m *dns.Msg) {
 			return
 		}
 
-		r.Answer = append(m.Answer, rr)
+		r.Answer = append(r.Answer, rr)
 	}
 
 	_ = w.WriteMsg(r)
@@ -162,8 +162,12 @@ func handleServerName(w dns.ResponseWriter, m *dns.Msg) {
 
 func handleChinaDNS(w dns.ResponseWriter, m *dns.Msg) {
 	r, _, err := CDNS.Exchange(m, ChinaDNS)
-	if err != nil {
+	if err != nil || r == nil {
 		fmt.Printf("[aiodns] handleChinaDNS: %v\n", err)
+		failure := new(dns.Msg)
+		failure.SetRcode(m, dns.RcodeServerFailure)
+		_ = w.WriteMsg(failure)
+		return
 	}
 
 	_ = w.WriteMsg(r)
@@ -171,8 +175,12 @@ func handleChinaDNS(w dns.ResponseWriter, m *dns.Msg) {
 
 func handleOtherDNS(w dns.ResponseWriter, m *dns.Msg) {
 	r, _, err := ODNS.Exchange(m, OtherDNS)
-	if err != nil {
+	if err != nil || r == nil {
 		fmt.Printf("[aiodns] handleOtherDNS: %v\n", err)
+		failure := new(dns.Msg)
+		failure.SetRcode(m, dns.RcodeServerFailure)
+		_ = w.WriteMsg(failure)
+		return
 	}
 
 	_ = w.WriteMsg(r)

@@ -35,8 +35,12 @@ public class ShadowsocksUtil : IServerUtil
     {
         var server = (ShadowsocksServer)s;
         // ss://method:password@server:port#Remark
-        return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") + "#" +
-               HttpUtility.UrlEncode(server.Remark);
+        var plugin = string.IsNullOrWhiteSpace(server.Plugin)
+            ? ""
+            : "?plugin=" + Uri.EscapeDataString(server.Plugin +
+                (string.IsNullOrEmpty(server.PluginOption) ? "" : ";" + server.PluginOption));
+        return "ss://" + ShareLink.URLSafeBase64Encode($"{server.EncryptMethod}:{server.Password}@{server.Hostname}:{server.Port}") +
+               plugin + "#" + HttpUtility.UrlEncode(server.Remark);
     }
 
     public IServerController GetController()
@@ -105,11 +109,12 @@ public class ShadowsocksUtil : IServerUtil
             if (!match.Success)
                 throw new FormatException();
 
-            var plugins = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin"));
+            var plugins = HttpUtility.ParseQueryString(new Uri(text).Query).Get("plugin");
             if (plugins != null)
             {
-                var plugin = plugins.Substring(0, plugins.IndexOf(";", StringComparison.Ordinal));
-                var pluginopts = plugins.Substring(plugins.IndexOf(";", StringComparison.Ordinal) + 1);
+                var separator = plugins.IndexOf(';');
+                var plugin = separator < 0 ? plugins : plugins[..separator];
+                var pluginopts = separator < 0 ? "" : plugins[(separator + 1)..];
                 switch (plugin)
                 {
                     case "obfs-local":

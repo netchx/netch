@@ -1,4 +1,5 @@
-﻿using Netch.Interfaces;
+﻿using System.Web;
+using Netch.Interfaces;
 using Netch.Models;
 
 namespace Netch.Servers;
@@ -31,9 +32,9 @@ public class Socks5Util : IServerUtil
     {
         var server = (Socks5Server)s;
         // https://t.me/socks?server=1.1.1.1&port=443
-        return $"https://t.me/socks?server={server.Hostname}&port={server.Port}" +
-               $"{(!string.IsNullOrWhiteSpace(server.Username) ? $"&user={server.Username}" : "")}" +
-               $"{(server.Auth() ? $"&user={server.Password}" : "")}";
+        return $"https://t.me/socks?server={Uri.EscapeDataString(server.Hostname)}&port={server.Port}" +
+               $"{(!string.IsNullOrWhiteSpace(server.Username) ? $"&user={Uri.EscapeDataString(server.Username)}" : "")}" +
+               $"{(server.Auth() ? $"&pass={Uri.EscapeDataString(server.Password!)}" : "")}";
     }
 
     public IServerController GetController()
@@ -43,26 +44,21 @@ public class Socks5Util : IServerUtil
 
     public IEnumerable<Server> ParseUri(string text)
     {
-        var dict = text.Replace("tg://socks?", "")
-            .Replace("https://t.me/socks?", "")
-            .Split('&')
-            .Select(str => str.Split('='))
-            .ToDictionary(splited => splited[0], splited => splited[1]);
-
-        if (!dict.ContainsKey("server") || !dict.ContainsKey("port"))
+        var query = HttpUtility.ParseQueryString(new Uri(text).Query);
+        if (string.IsNullOrWhiteSpace(query["server"]) || !ushort.TryParse(query["port"], out var port))
             throw new FormatException();
 
         var data = new Socks5Server
         {
-            Hostname = dict["server"],
-            Port = ushort.Parse(dict["port"])
+            Hostname = query["server"]!,
+            Port = port
         };
 
-        if (dict.ContainsKey("user") && !string.IsNullOrWhiteSpace(dict["user"]))
-            data.Username = dict["user"];
+        if (!string.IsNullOrWhiteSpace(query["user"]))
+            data.Username = query["user"];
 
-        if (dict.ContainsKey("pass") && !string.IsNullOrWhiteSpace(dict["pass"]))
-            data.Password = dict["pass"];
+        if (!string.IsNullOrWhiteSpace(query["pass"]))
+            data.Password = query["pass"];
 
         return new[] { data };
     }

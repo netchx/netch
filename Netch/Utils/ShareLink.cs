@@ -107,7 +107,24 @@ public static class ShareLink
         if (string.IsNullOrEmpty(NetchLink.GetProperty("Hostname").GetString()))
             throw new FormatException();
 
-        if (!ushort.TryParse(NetchLink.GetProperty("Port").GetString(), out _))
+        var portElement = NetchLink.GetProperty("Port");
+        ushort port;
+        if (portElement.ValueKind == JsonValueKind.Number)
+        {
+            if (!portElement.TryGetUInt16(out port))
+                throw new FormatException();
+        }
+        else if (portElement.ValueKind == JsonValueKind.String)
+        {
+            if (!ushort.TryParse(portElement.GetString(), out port))
+                throw new FormatException();
+        }
+        else
+        {
+            throw new FormatException();
+        }
+
+        if (port == 0)
             throw new FormatException();
 
         return JsonSerializer.Deserialize<Server>(text,
@@ -121,7 +138,7 @@ public static class ShareLink
     {
         var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
         jsonSerializerOptions.WriteIndented = false;
-        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
+        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, s.GetType(), jsonSerializerOptions));
     }
 
     #region Utils

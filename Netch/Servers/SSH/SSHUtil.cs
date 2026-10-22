@@ -17,7 +17,7 @@ public class SSHUtil : IServerUtil
 
     public string ShortName { get; } = "SSH";
 
-    public string[] UriScheme { get; } = { "ssh" };
+    public string[] UriScheme { get; } = Array.Empty<string>();
 
     public Type ServerType { get; } = typeof(SSHServer);
 
@@ -33,7 +33,7 @@ public class SSHUtil : IServerUtil
 
     public string GetShareLink(Server s)
     {
-        return V2rayUtils.GetVShareLink(s, "ssh");
+        return ShareLink.GetNetchLink(s);
     }
 
     public IServerController GetController()
@@ -43,7 +43,7 @@ public class SSHUtil : IServerUtil
 
     public IEnumerable<Server> ParseUri(string text)
     {
-        return V2rayUtils.ParseVUri(text);
+        throw new NotSupportedException("Use a Netch:// link for SSH servers.");
     }
 
     public bool CheckServer(Server s)

@@ -136,7 +136,8 @@ public class NFController : IModeController
         var invalidList = new List<string>();
         foreach (var s in _mode.Bypass)
         {
-            if (!Dial(NameList.AIO_BYPNAME, s))
+            var rule = s.StartsWith("!") ? s[1..] : s;
+            if (rule.Length == 0 || !Dial(NameList.AIO_BYPNAME, rule))
                 invalidList.Add(s);
         }
 

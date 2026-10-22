@@ -7,6 +7,7 @@ extern string dnsHost;
 extern USHORT dnsPort;
 
 SOCKADDR_IN6 dnsAddr;
+constexpr size_t DnsResponseBufferSize = 65535;
 
 void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
@@ -34,7 +35,7 @@ void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 					int size = select(NULL, &fds, NULL, NULL, &timeout);
 					if (size != 0 && size != SOCKET_ERROR)
 					{
-						char buffer[1024];
+						char buffer[DnsResponseBufferSize];
 
 						size = recvfrom(remote, buffer, sizeof(buffer), 0, NULL, NULL);
 						if (size != 0 && size != SOCKET_ERROR)
@@ -62,7 +63,7 @@ void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 		{
 			if (remote->Send(&dnsAddr, packet, length) == length)
 			{
-				char buffer[1024];
+				char buffer[DnsResponseBufferSize];
 
 				timeval timeout{};
 				timeout.tv_sec = 4;

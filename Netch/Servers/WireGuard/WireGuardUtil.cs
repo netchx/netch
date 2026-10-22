@@ -17,7 +17,7 @@ public class WireGuardUtil : IServerUtil
 
     public string ShortName { get; } = "WG";
 
-    public string[] UriScheme { get; } = { "wireguard" };
+    public string[] UriScheme { get; } = Array.Empty<string>();
 
     public Type ServerType { get; } = typeof(WireGuardServer);
 
@@ -33,7 +33,7 @@ public class WireGuardUtil : IServerUtil
 
     public string GetShareLink(Server s)
     {
-        return V2rayUtils.GetVShareLink(s, "wireguard");
+        return ShareLink.GetNetchLink(s);
     }
 
     public IServerController GetController()
@@ -43,7 +43,7 @@ public class WireGuardUtil : IServerUtil
 
     public IEnumerable<Server> ParseUri(string text)
     {
-        return V2rayUtils.ParseVUri(text);
+        throw new NotSupportedException("Use a Netch:// link for WireGuard servers.");
     }
 
     public bool CheckServer(Server s)

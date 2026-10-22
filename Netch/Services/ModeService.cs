@@ -36,12 +36,12 @@ public class ModeService
 
     private void LoadCore(string modeDirectory)
     {
-        foreach (var directory in Directory.GetDirectories(modeDirectory))
-            LoadCore(directory);
-
-        // skip Directory with a disabled file in
+        // A disabled directory also disables all of its descendants.
         if (File.Exists(Path.Combine(modeDirectory, Constants.DisableModeDirectoryFileName)))
             return;
+
+        foreach (var directory in Directory.GetDirectories(modeDirectory))
+            LoadCore(directory);
 
         foreach (var file in Directory.GetFiles(modeDirectory))
         {
