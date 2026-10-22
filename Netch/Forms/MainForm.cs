@@ -518,6 +518,18 @@ public partial class MainForm : Form
 
     private async void ControlButton_Click(object? sender, EventArgs? e)
     {
+        if (State == State.Stopping && _stopTimedOut)
+        {
+            // Native driver cleanup cannot be safely cancelled. Offer an explicit
+            // escape hatch only after the normal stop has exceeded its timeout.
+            if (MessageBox.Show(this,
+                    "The network driver has not finished stopping. Force Exit will close Netch without completing cleanup. Continue?",
+                    "Netch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                Environment.Exit(1);
+
+            return;
+        }
+
         if (!IsWaiting())
         {
             await StopCoreAsync();
@@ -547,8 +559,16 @@ public partial class MainForm : Form
         }
         catch (Exception exception)
         {
-            State = State.Stopped;
-            StatusText(i18N.Translate("Start failed"));
+            if (MainController.ServerController != null || MainController.ModeController != null)
+            {
+                State = State.StopFailed;
+                StatusText("Start failed; cleanup incomplete. Press Retry Stop.");
+            }
+            else
+            {
+                State = State.Stopped;
+                StatusText(i18N.Translate("Start failed"));
+            }
             MessageBoxX.Show(exception.Message, LogLevel.ERROR);
             return;
         }
@@ -1018,6 +1038,11 @@ public partial class MainForm : Form
                     BandwidthState(false);
                     ConnectivityStatusVisible(false);
                     break;
+                case State.StopFailed:
+                    ControlButton.Enabled = true;
+                    ControlButton.Text = i18N.Translate("Retry Stop");
+                    ProfileGroupBox.Enabled = false;
+                    break;
                 case State.Stopped:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Start");
@@ -1042,6 +1067,7 @@ public partial class MainForm : Form
     }
 
     private Task? _stopTask;
+    private bool _stopTimedOut;
 
     private Task StopCoreAsync() => _stopTask ??= StopCoreInternalAsync();
 
@@ -1051,6 +1077,7 @@ public partial class MainForm : Form
         await Task.Yield();
 
         State = State.Stopping;
+        _stopTimedOut = false;
         _discoveryNatCts?.Cancel();
         _httpConnectCts?.Cancel();
 
@@ -1063,7 +1090,10 @@ public partial class MainForm : Form
             if (await Task.WhenAny(stopTask, Task.Delay(TimeSpan.FromSeconds(15))) != stopTask)
             {
                 Log.Warning("Stopping MainController took longer than 15 seconds");
-                StatusText("Still stopping; check the Netch log for the blocked component");
+                StatusText("Still stopping; check the Netch log. Force Exit is available.");
+                _stopTimedOut = true;
+                ControlButton.Text = i18N.Translate("Force Exit");
+                ControlButton.Enabled = true;
             }
 
             // Never claim the network has stopped while driver cleanup is running.
@@ -1073,11 +1103,13 @@ public partial class MainForm : Form
         catch (Exception exception)
         {
             Log.Error(exception, "Failed to stop MainController");
-            StatusText("Stop failed; check the Netch log");
+            State = State.StopFailed;
+            StatusText("Stop failed; press Retry Stop after checking the Netch log");
             NotifyTip(exception.Message, info: false);
         }
         finally
         {
+            _stopTimedOut = false;
             _stopTask = null;
         }
     }

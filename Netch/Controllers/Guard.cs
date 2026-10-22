@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text;
-using Microsoft.VisualStudio.Threading;
 using Netch.Enums;
 using Netch.Models;
 using Netch.Utils;
@@ -11,6 +10,9 @@ public abstract class Guard
 {
     private FileStream? _logFileStream;
     private StreamWriter? _logStreamWriter;
+    private readonly SemaphoreSlim _logWriteLock = new(1, 1);
+    private Task[] _outputTasks = Array.Empty<Task>();
+    private bool _guardStopped;
 
     /// <param name="mainFile">application path relative of Netch\bin</param>
     /// <param name="redirectOutput"></param>
@@ -71,8 +73,12 @@ public abstract class Guard
 
         if (RedirectOutput)
         {
-            ReadOutputAsync(Instance.StandardOutput).Forget();
-            ReadOutputAsync(Instance.StandardError).Forget();
+            // Both streams share one log writer; track their lifetime for shutdown.
+            _outputTasks = new[]
+            {
+                ReadOutputAsync(Instance.StandardOutput),
+                ReadOutputAsync(Instance.StandardError)
+            };
 
             if (!StartedKeywords.Any())
             {
@@ -107,7 +113,15 @@ public abstract class Guard
         string? line;
         while ((line = await reader.ReadLineAsync()) != null)
         {
-            await _logStreamWriter!.WriteLineAsync(line);
+            await _logWriteLock.WaitAsync();
+            try
+            {
+                await _logStreamWriter!.WriteLineAsync(line);
+            }
+            finally
+            {
+                _logWriteLock.Release();
+            }
             OnReadNewLine(line);
 
             if (State == State.Starting)
@@ -130,17 +144,23 @@ public abstract class Guard
 
     protected async Task StopGuardAsync()
     {
+        if (_guardStopped)
+            return;
+
+        if (Instance is { HasExited: false })
+        {
+            Instance.Kill(entireProcessTree: true);
+            await Instance.WaitForExitAsync();
+        }
+
+        // Finish both redirected-output readers before disposing their writer.
         try
         {
-            if (Instance is { HasExited: false })
-            {
-                Instance.Kill();
-                await Instance.WaitForExitAsync();
-            }
+            await Task.WhenAll(_outputTasks);
         }
         catch (Exception e)
         {
-            Log.Error(e, "Stop {Name} failed", Name);
+            Log.Warning(e, "Reading remaining output from {Name} failed", Name);
         }
         finally
         {
@@ -153,6 +173,7 @@ public abstract class Guard
             Instance.Dispose();
 
             State = State.Stopped;
+            _guardStopped = true;
         }
     }
 

@@ -241,7 +241,7 @@ extern "C" {
 			/* 172.16.0.0/12 */
 			memset(&rule, 0, sizeof(NF_RULE));
 			rule.ip_family = AF_INET;
-			inet_pton(AF_INET, "100.64.0.0", rule.remoteIpAddress);
+			inet_pton(AF_INET, "172.16.0.0", rule.remoteIpAddress);
 			inet_pton(AF_INET, "255.240.0.0", rule.remoteIpAddressMask);
 			rule.filteringFlag = NF_ALLOW;
 			nf_addRule(&rule, FALSE);

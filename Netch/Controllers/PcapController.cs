@@ -57,13 +57,12 @@ public class PcapController : Guard, IModeController
 
     public override async Task StopAsync()
     {
-        Global.MainForm.Invoke(() => { _form.Close(); });
+        Global.MainForm.Invoke(() =>
+        {
+            _form.Close();
+            _form.Dispose();
+        });
         await StopGuardAsync();
-    }
-
-    ~PcapController()
-    {
-        _form.Dispose();
     }
 
     protected override void OnReadNewLine(string line)

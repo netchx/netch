@@ -75,7 +75,16 @@ public static class MainController
         catch (Exception e)
         {
             releaser.Dispose();
-            await StopAsync();
+            try
+            {
+                await StopAsync();
+            }
+            catch (Exception stopException)
+            {
+                // Preserve the original startup error while keeping any failed
+                // controller available for a subsequent stop attempt.
+                Log.Error(stopException, "Cleanup after failed start did not complete");
+            }
 
             switch (e)
             {
@@ -115,23 +124,30 @@ public static class MainController
         var serverController = ServerController;
         var modeController = ModeController;
 
-        var tasks = new[]
-        {
-            serverController == null ? Task.CompletedTask : StopComponentAsync(serverController.Name, serverController.StopAsync),
-            modeController == null ? Task.CompletedTask : StopComponentAsync(modeController.Name, modeController.StopAsync)
-        };
+        var serverStopTask = serverController == null
+            ? Task.CompletedTask
+            : StopComponentAsync(serverController.Name, serverController.StopAsync);
+        var modeStopTask = modeController == null
+            ? Task.CompletedTask
+            : StopComponentAsync(modeController.Name, modeController.StopAsync);
 
         try
         {
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(serverStopTask, modeStopTask);
         }
         catch (Exception e)
         {
             Log.Error(e, "MainController Stop Error");
+            throw;
         }
-
-        ServerController = null;
-        ModeController = null;
+        finally
+        {
+            // Keep failed controllers so the user can retry stopping them.
+            if (serverStopTask.IsCompletedSuccessfully)
+                ServerController = null;
+            if (modeStopTask.IsCompletedSuccessfully)
+                ModeController = null;
+        }
     }
 
     private static async Task StopComponentAsync(string name, Func<Task> stop)
