@@ -44,6 +44,16 @@ public class VLESSUtil : IServerUtil
 
     public bool CheckServer(Server s)
     {
-        return true;
+        var server = (VLESSServer)s;
+        return !string.IsNullOrWhiteSpace(server.Hostname) && server.Port != 0 &&
+               !string.IsNullOrWhiteSpace(server.UserID) && server.EncryptMethod == "none" &&
+               VLESSGlobal.TransferProtocols.Contains(server.TransferProtocol) &&
+               VLESSGlobal.TLSSecure.Contains(server.TLSSecureType) &&
+               VMessGlobal.PacketEncodings.Contains(server.PacketEncoding) &&
+               (server.TransferProtocol != "tcp" || server.FakeType is "none" or "http") &&
+               (server.TransferProtocol != "grpc" || server.FakeType is "gun" or "multi") &&
+               (server.TransferProtocol != "quic" || VLESSGlobal.QUIC.Contains(server.QUICSecure ?? "none")) &&
+               (server.TLSSecureType != "xtls" ||
+                server.TransferProtocol == "tcp" && VLESSGlobal.Flows.Contains(server.Flow));
     }
 }

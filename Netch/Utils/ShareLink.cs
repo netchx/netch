@@ -24,6 +24,20 @@ public static class ShareLink
             // ignored
         }
 
+        if (text.Contains("[Interface]", StringComparison.OrdinalIgnoreCase) &&
+            text.Contains("[Peer]", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                return new List<Server> { WireGuardUtil.ParseConfig(text) };
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Parse WireGuard configuration error");
+                return new List<Server>();
+            }
+        }
+
         var list = new List<Server>();
 
         try
@@ -65,9 +79,10 @@ public static class ShareLink
     {
         var list = new List<Server>();
 
-        if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
+        if (text.StartsWith("tg://socks?", StringComparison.OrdinalIgnoreCase) ||
+            text.StartsWith("https://t.me/socks?", StringComparison.OrdinalIgnoreCase))
         {
-            list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
+            list.AddRange(ServerHelper.GetUtilByTypeName("SOCKS").ParseUri(text));
         }
         else if (text.StartsWith("Netch://"))
         {

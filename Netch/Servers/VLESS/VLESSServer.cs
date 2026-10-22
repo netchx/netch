@@ -4,6 +4,8 @@ public class VLESSServer : VMessServer
 {
     public override string Type { get; } = "VLESS";
 
+    public string Flow { get; set; } = "xtls-rprx-direct";
+
     /// <summary>
     ///     加密方式
     /// </summary>
@@ -22,6 +24,8 @@ public class VLESSServer : VMessServer
 
 public class VLESSGlobal
 {
+    public static readonly List<string> Flows = new() { "xtls-rprx-direct", "xtls-rprx-origin", "xtls-rprx-splice" };
+
     public static readonly List<string> TLSSecure = new()
     {
         "none",

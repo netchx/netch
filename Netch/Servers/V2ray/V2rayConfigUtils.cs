@@ -84,7 +84,7 @@ public static class V2rayConfigUtils
                             new User
                             {
                                 id = getUUID(vless.UserID),
-                                flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
+                                flow = vless.TLSSecureType == "xtls" ? vless.Flow : "",
                                 encryption = vless.EncryptMethod
                             }
                         }
@@ -185,9 +185,9 @@ public static class V2rayConfigUtils
                 outbound.settings.pluginArgs = new string[]
                 {
                     "--obfs=" + ssr.OBFS,
-                    "--obfs-param=" + ssr.OBFSParam ?? "",
+                    "--obfs-param=" + (ssr.OBFSParam ?? ""),
                     "--protocol=" + ssr.Protocol,
-                    "--protocol-param=" + ssr.ProtocolParam ?? ""
+                    "--protocol-param=" + (ssr.ProtocolParam ?? "")
                 };
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
@@ -202,6 +202,9 @@ public static class V2rayConfigUtils
                 }
                 break;
              case TrojanServer trojan:
+                if (!new TrojanUtil().CheckServer(trojan))
+                    throw new MessageException("Unsupported Trojan server settings.");
+
                 outbound.protocol = "trojan";
                 outbound.settings.servers = new[]
                 {
@@ -211,21 +214,50 @@ public static class V2rayConfigUtils
                         port = server.Port,
                         method = "",
                         password = trojan.Password,
-                        flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
+                        flow = trojan.TLSSecureType == "xtls" ? trojan.Flow : ""
                     }
                 };
 
                 outbound.streamSettings = new StreamSettings
                 {
-                    network = "tcp",
+                    network = trojan.TransferProtocol,
                     security = trojan.TLSSecureType
                 };
+                switch (trojan.TransferProtocol)
+                {
+                    case "tcp":
+                        break;
+                    case "ws":
+                        outbound.streamSettings.wsSettings = new WsSettings
+                        {
+                            path = trojan.Path.ValueOrDefault() ?? "/",
+                            headers = new { Host = trojan.TransportHost.ValueOrDefault() }
+                        };
+                        break;
+                    case "grpc":
+                        outbound.streamSettings.grpcSettings = new GrpcSettings
+                        {
+                            serviceName = trojan.Path ?? "",
+                            multiMode = false
+                        };
+                        break;
+                    case "h2":
+                        outbound.streamSettings.httpSettings = new HttpSettings
+                        {
+                            path = trojan.Path.ValueOrDefault() ?? "/",
+                            host = trojan.TransportHost.SplitOrDefault()
+                        };
+                        break;
+                    default:
+                        throw new MessageException($"Unsupported Trojan transport: {trojan.TransferProtocol}");
+                }
                 if (trojan.TLSSecureType != "none")
                 {
                     var tlsSettings = new TlsSettings
                     {
                         allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                        serverName = trojan.Host ?? ""
+                        serverName = trojan.Host.ValueOrDefault() ?? trojan.Hostname,
+                        alpn = SplitAlpn(trojan.Alpn)
                     };
 
                     switch (trojan.TLSSecureType)
@@ -298,6 +330,9 @@ public static class V2rayConfigUtils
     {
         // https://xtls.github.io/config/transports
 
+        if (server is VLESSServer vless ? !new VLESSUtil().CheckServer(vless) : !new VMessUtil().CheckServer(server))
+            throw new MessageException("Unsupported VMess/VLESS server settings.");
+
         var streamSettings = new StreamSettings
         {
             network = server.TransferProtocol,
@@ -309,7 +344,8 @@ public static class V2rayConfigUtils
             var tlsSettings = new TlsSettings
             {
                 allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                serverName = server.ServerName.ValueOrDefault() ?? server.Host.SplitOrDefault()?[0]
+                serverName = server.ServerName.ValueOrDefault() ?? server.Host.SplitOrDefault()?[0],
+                alpn = SplitAlpn(server.Alpn)
             };
 
             switch (server.TLSSecureType)
@@ -433,5 +469,12 @@ public static class V2rayConfigUtils
             return uuid;
         }
         return uuid.GenerateUUIDv5();
+    }
+
+    private static string[]? SplitAlpn(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value)
+            ? null
+            : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 }

@@ -10,6 +10,7 @@ public class VMessForm : ServerForm
         server ??= new VMessServer();
         Server = server;
         CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
+        CreateTextBox("Alpn", "ALPN", s => true, s => server.Alpn = s, server.Alpn);
         CreateTextBox("UserId", "User ID", s => true, s => server.UserID = s, server.UserID);
         CreateTextBox("AlterId", "Alter ID", s => int.TryParse(s, out _), s => server.AlterID = int.Parse(s), server.AlterID.ToString(), 76);
         CreateComboBox("EncryptMethod", "Encrypt Method", VMessGlobal.EncryptMethods, s => server.EncryptMethod = s, server.EncryptMethod);

@@ -36,7 +36,7 @@ public class ShadowsocksRUtil : IServerUtil
         // https://github.com/shadowsocksr-backup/shadowsocks-rss/wiki/SSR-QRcode-scheme
         // ssr://base64(host:port:protocol:method:obfs:base64pass/?obfsparam=base64param&protoparam=base64param&remarks=base64remarks&group=base64group&udpport=0&uot=0)
         var paraStr =
-            $"/?obfsparam={ShareLink.URLSafeBase64Encode(server.OBFSParam ?? "")}&protoparam={ShareLink.URLSafeBase64Encode(server.ProtocolParam ?? "")}&remarks={ShareLink.URLSafeBase64Encode(server.Remark)}";
+            $"/?obfsparam={ShareLink.URLSafeBase64Encode(server.OBFSParam ?? "")}&protoparam={ShareLink.URLSafeBase64Encode(server.ProtocolParam ?? "")}&remarks={ShareLink.URLSafeBase64Encode(server.Remark)}&group={ShareLink.URLSafeBase64Encode(server.Group)}";
 
         return "ssr://" +
                ShareLink.URLSafeBase64Encode(
@@ -59,11 +59,10 @@ public class ShadowsocksRUtil : IServerUtil
     public IEnumerable<Server> ParseUri(string text)
     {
         // ssr://host:port:protocol:method:obfs:base64pass/?obfsparam=base64&remarks=base64&group=base64&udpport=0&uot=1
-        var ssr = Regex.Match(text, "ssr://([A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
-        if (!ssr.Success)
+        if (!text.StartsWith("ssr://", StringComparison.OrdinalIgnoreCase))
             throw new FormatException();
 
-        var data = ShareLink.URLSafeBase64Decode(ssr.Groups[1].Value);
+        var data = ShareLink.URLSafeBase64Decode(text["ssr://".Length..].Trim());
         var paramsDict = new Dictionary<string, string>();
 
         var paramStartPos = data.IndexOf("?", StringComparison.Ordinal);
@@ -79,7 +78,7 @@ public class ShadowsocksRUtil : IServerUtil
         var urlFinder = new Regex("^(.+):([^:]+):([^:]*):([^:]+):([^:]*):([^:]+)");
         var match = urlFinder.Match(data);
 
-        if (match == null || !match.Success)
+        if (!match.Success)
             throw new FormatException();
 
         var serverAddr = match.Groups[1].Value;
@@ -119,22 +118,20 @@ public class ShadowsocksRUtil : IServerUtil
                 }
             };
 
-        return new[]
+        var server = new ShadowsocksRServer
         {
-            new ShadowsocksRServer
-            {
-                Hostname = serverAddr,
-                Port = serverPort,
-                Protocol = protocol,
-                EncryptMethod = method,
-                OBFS = obfs,
-                Password = password,
-                ProtocolParam = protocolParam,
-                OBFSParam = obfsParam,
-                Remark = remarks,
-                Group = group
-            }
+            Hostname = serverAddr,
+            Port = serverPort,
+            Protocol = protocol,
+            EncryptMethod = method,
+            OBFS = obfs,
+            Password = password,
+            ProtocolParam = protocolParam,
+            OBFSParam = obfsParam,
+            Remark = remarks,
+            Group = group
         };
+        return CheckServer(server) ? new[] { server } : throw new FormatException("Unsupported ShadowsocksR settings");
     }
 
     public bool CheckServer(Server s)

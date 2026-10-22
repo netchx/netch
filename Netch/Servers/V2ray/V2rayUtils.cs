@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-using System.Web;
 using Netch.Models;
 using Netch.Utils;
 
@@ -9,63 +7,79 @@ public static class V2rayUtils
 {
     public static IEnumerable<Server> ParseVUri(string text)
     {
-        var scheme = ShareLink.GetUriScheme(text).ToLower();
-        var server = scheme switch { "vmess" => new VMessServer(), "vless" => new VLESSServer(), _ => throw new ArgumentOutOfRangeException() };
-        if (text.Contains("#"))
+        var uri = ProxyUri.Parse(text, "vmess", "vless");
+        var scheme = uri.Scheme.ToLowerInvariant();
+        var parameter = ProxyUri.Query(uri);
+        VMessServer server = scheme == "vless" ? new VLESSServer() : new VMessServer();
+        server.UserID = ProxyUri.UserInfo(uri);
+        server.Hostname = ProxyUri.HostName(uri);
+        server.Port = (ushort)uri.Port;
+        server.Remark = ProxyUri.Remark(uri);
+        server.TransferProtocol = (parameter["type"] ?? "tcp").ToLowerInvariant();
+        server.PacketEncoding = parameter["packetEncoding"] ?? "xudp";
+        server.EncryptMethod = parameter["encryption"] ?? (scheme == "vless" ? "none" : "auto");
+        server.TLSSecureType = (parameter["security"] ?? "none").ToLowerInvariant();
+        server.ServerName = parameter["sni"];
+        server.Alpn = parameter["alpn"];
+
+        if (!string.IsNullOrEmpty(parameter["fp"]) || !string.IsNullOrEmpty(parameter["pbk"]) ||
+            !string.IsNullOrEmpty(parameter["sid"]) || server.TLSSecureType == "reality")
+            throw new NotSupportedException("The bundled core does not support TLS fingerprints or REALITY.");
+
+        if (string.IsNullOrWhiteSpace(server.UserID) ||
+            !VMessGlobal.TransferProtocols.Contains(server.TransferProtocol) ||
+            !VMessGlobal.PacketEncodings.Contains(server.PacketEncoding) ||
+            (scheme == "vless" && server.EncryptMethod != "none") ||
+            (scheme == "vmess" && !VMessGlobal.EncryptMethods.Contains(server.EncryptMethod)) ||
+            server.TLSSecureType is not ("none" or "tls" or "xtls") ||
+            (scheme == "vmess" && server.TLSSecureType == "xtls"))
+            throw new NotSupportedException("Unsupported VMess/VLESS link settings");
+
+        var flow = parameter["flow"];
+        if (!string.IsNullOrEmpty(flow) && (scheme != "vless" || server.TLSSecureType != "xtls" || !VLESSGlobal.Flows.Contains(flow)))
+            throw new NotSupportedException($"Unsupported VLESS flow: {flow}");
+        if (server is VLESSServer vless && !string.IsNullOrEmpty(flow))
+            vless.Flow = flow;
+        if (server.TLSSecureType == "xtls" && server.TransferProtocol != "tcp")
+            throw new NotSupportedException("XTLS requires TCP transport.");
+
+        if (scheme == "vmess" && !string.IsNullOrEmpty(parameter["aid"]) &&
+            (!int.TryParse(parameter["aid"], out var alterId) || alterId < 0))
+            throw new FormatException("Invalid VMess alter ID");
+        if (scheme == "vmess" && int.TryParse(parameter["aid"], out var parsedAlterId))
+            server.AlterID = parsedAlterId;
+
+        switch (server.TransferProtocol)
         {
-            server.Remark = Uri.UnescapeDataString(text.Split('#')[1]);
-            text = text.Split('#')[0];
+            case "tcp":
+                server.FakeType = parameter["headerType"] ?? "none";
+                server.Path = parameter["path"];
+                server.Host = parameter["host"];
+                break;
+            case "kcp":
+                server.FakeType = parameter["headerType"] ?? "none";
+                server.Path = parameter["seed"];
+                break;
+            case "ws":
+            case "h2":
+                server.Path = parameter["path"] ?? "/";
+                server.Host = parameter["host"];
+                break;
+            case "quic":
+                server.QUICSecure = parameter["quicSecurity"] ?? "none";
+                server.QUICSecret = parameter["key"];
+                server.FakeType = parameter["headerType"] ?? "none";
+                break;
+            case "grpc":
+                server.FakeType = parameter["mode"] ?? "gun";
+                server.Path = parameter["serviceName"];
+                if (server.FakeType is not ("gun" or "multi"))
+                    throw new NotSupportedException($"Unsupported gRPC mode: {server.FakeType}");
+                break;
         }
 
-        if (text.Contains("?"))
-        {
-            var parameter = HttpUtility.ParseQueryString(text.Split('?')[1]);
-            text = text.Substring(0, text.IndexOf("?", StringComparison.Ordinal));
-            server.TransferProtocol = parameter.Get("type") ?? "tcp";
-            server.PacketEncoding = parameter.Get("packetEncoding") ?? "xudp";
-            server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
-            switch (server.TransferProtocol)
-            {
-                case "tcp":
-                    break;
-                case "kcp":
-                    server.FakeType = parameter.Get("headerType") ?? "none";
-                    server.Path = Uri.UnescapeDataString(parameter.Get("seed") ?? "");
-                    break;
-                case "ws":
-                    server.Path = Uri.UnescapeDataString(parameter.Get("path") ?? "/");
-                    server.Host = Uri.UnescapeDataString(parameter.Get("host") ?? "");
-                    break;
-                case "h2":
-                    server.Path = Uri.UnescapeDataString(parameter.Get("path") ?? "/");
-                    server.Host = Uri.UnescapeDataString(parameter.Get("host") ?? "");
-                    break;
-                case "quic":
-                    server.QUICSecure = parameter.Get("quicSecurity") ?? "none";
-                    server.QUICSecret = parameter.Get("key") ?? "";
-                    server.FakeType = parameter.Get("headerType") ?? "none";
-                    break;
-                case "grpc":
-                    server.FakeType = parameter.Get("mode") ?? "gun";
-                    server.Path = parameter.Get("serviceName") ?? "";
-                    break;
-            }
-
-            server.TLSSecureType = parameter.Get("security") ?? "none";
-            if (server.TLSSecureType != "none")
-            {
-                server.ServerName = parameter.Get("sni") ?? "";
-            }
-        }
-
-        var finder = new Regex(@$"^{scheme}://(?<guid>.+?)@(?<server>.+):(?<port>\d+)");
-        var match = finder.Match(text.Split('?')[0]);
-        if (!match.Success)
-            throw new FormatException();
-
-        server.UserID = match.Groups["guid"].Value;
-        server.Hostname = match.Groups["server"].Value;
-        server.Port = ushort.Parse(match.Groups["port"].Value);
+        if (server is VLESSServer parsedVless ? !new VLESSUtil().CheckServer(parsedVless) : !new VMessUtil().CheckServer(server))
+            throw new NotSupportedException("Unsupported VMess/VLESS transport settings");
 
         return new[] { server };
     }
@@ -79,37 +93,45 @@ public static class V2rayUtils
         parameter.Add("type", server.TransferProtocol);
         parameter.Add("encryption", server.EncryptMethod);
         parameter.Add("packetEncoding", server.PacketEncoding);
+        if (scheme == "vmess" && server.AlterID > 0)
+            parameter.Add("aid", server.AlterID.ToString());
 
         // transport-specific fields
         switch (server.TransferProtocol)
         {
             case "tcp":
+                if (server.FakeType != "none")
+                    parameter.Add("headerType", server.FakeType);
+                if (!server.Path.IsNullOrWhiteSpace())
+                    parameter.Add("path", server.Path!);
+                if (!server.Host.IsNullOrWhiteSpace())
+                    parameter.Add("host", server.Host!);
                 break;
             case "kcp":
                 if (server.FakeType != "none")
                     parameter.Add("headerType", server.FakeType);
 
                 if (!server.Path.IsNullOrWhiteSpace())
-                    parameter.Add("seed", Uri.EscapeDataString(server.Path!));
+                    parameter.Add("seed", server.Path!);
 
                 break;
             case "ws":
-                parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
+                parameter.Add("path", server.Path.ValueOrDefault() ?? "/");
                 if (!server.Host.IsNullOrWhiteSpace())
-                    parameter.Add("host", Uri.EscapeDataString(server.Host!));
+                    parameter.Add("host", server.Host!);
 
                 break;
             case "h2":
-                parameter.Add("path", Uri.EscapeDataString(server.Path.ValueOrDefault() ?? "/"));
+                parameter.Add("path", server.Path.ValueOrDefault() ?? "/");
                 if (!server.Host.IsNullOrWhiteSpace())
-                    parameter.Add("host", Uri.EscapeDataString(server.Host!));
+                    parameter.Add("host", server.Host!);
 
                 break;
             case "quic":
                 if (server.QUICSecure is not (null or "none"))
                 {
                     parameter.Add("quicSecurity", server.QUICSecure);
-                    parameter.Add("key", server.QUICSecret!);
+                    parameter.Add("key", server.QUICSecret ?? "");
                 }
 
                 if (server.FakeType != "none")
@@ -132,15 +154,17 @@ public static class V2rayUtils
 
             var serverName = server.ServerName.ValueOrDefault() ?? server.Host.ValueOrDefault();
             if (serverName != null)
-                parameter.Add("sni", Uri.EscapeDataString(serverName));
+                parameter.Add("sni", serverName);
+            if (!server.Alpn.IsNullOrWhiteSpace())
+                parameter.Add("alpn", server.Alpn!);
 
             if (server.TLSSecureType == "xtls")
             {
-                parameter.Add("flow", "xtls-rprx-direct");
+                parameter.Add("flow", server is VLESSServer vless ? vless.Flow : "xtls-rprx-direct");
             }
         }
 
         return
-            $"{scheme}://{server.UserID}@{server.Hostname}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={p.Value}"))}{(!server.Remark.IsNullOrWhiteSpace() ? $"#{Uri.EscapeDataString(server.Remark)}" : "")}";
+            $"{scheme}://{Uri.EscapeDataString(server.UserID)}@{ProxyUri.Host(server.Hostname)}:{server.Port}?{string.Join("&", parameter.Select(p => $"{p.Key}={Uri.EscapeDataString(p.Value)}"))}{(!server.Remark.IsNullOrWhiteSpace() ? $"#{Uri.EscapeDataString(server.Remark)}" : "")}";
     }
 }

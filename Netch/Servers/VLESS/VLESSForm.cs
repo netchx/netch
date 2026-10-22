@@ -10,6 +10,7 @@ internal class VLESSForm : ServerForm
         server ??= new VLESSServer();
         Server = server;
         CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
+        CreateTextBox("Alpn", "ALPN", s => true, s => server.Alpn = s, server.Alpn);
         CreateTextBox("UUID", "UUID", s => true, s => server.UserID = s, server.UserID);
         CreateTextBox("EncryptMethod",
             "Encrypt Method",
@@ -40,6 +41,7 @@ internal class VLESSForm : ServerForm
             server.UseMux?.ToString().ToLower() ?? "");
 
         CreateComboBox("TLSSecure", "TLS Secure", VLESSGlobal.TLSSecure, s => server.TLSSecureType = s, server.TLSSecureType);
+        CreateComboBox("Flow", "XTLS Flow", VLESSGlobal.Flows, s => server.Flow = s, server.Flow);
     }
 
     protected override string TypeName { get; } = "VLESS";
