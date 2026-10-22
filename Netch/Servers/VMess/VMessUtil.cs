@@ -36,6 +36,14 @@ public class VMessUtil : IServerUtil
         if (Global.Settings.V2RayConfig.V2rayNShareLink)
         {
             var server = (VMessServer)s;
+            JsonElement? extra = null;
+            if (!string.IsNullOrWhiteSpace(server.TransportExtra))
+            {
+                using var document = JsonDocument.Parse(server.TransportExtra);
+                if (document.RootElement.ValueKind != JsonValueKind.Object)
+                    throw new FormatException("XHTTP extra must be a JSON object");
+                extra = document.RootElement.Clone();
+            }
 
             var vmessJson = JsonSerializer.Serialize(new V2rayNJObject
                 {
@@ -52,7 +60,13 @@ public class VMessUtil : IServerUtil
                     path = server.Path ?? "",
                     tls = server.TLSSecureType,
                     sni = server.ServerName ?? "",
-                    alpn = server.Alpn ?? ""
+                    alpn = server.Alpn ?? "",
+                    fp = server.Fingerprint ?? "",
+                    pbk = server.PublicKey ?? "",
+                    sid = server.ShortId ?? "",
+                    spx = server.SpiderX ?? "",
+                    mode = server.TransportMode ?? "",
+                    extra = extra
                 },
                 new JsonSerializerOptions
                 {
@@ -76,11 +90,6 @@ public class VMessUtil : IServerUtil
         try
         {
             var json = ShareLink.URLSafeBase64Decode(text["vmess://".Length..]);
-            using var document = JsonDocument.Parse(json);
-            if (new[] { "fp", "pbk", "sid" }.Any(name =>
-                    document.RootElement.TryGetProperty(name, out var value) &&
-                    value.ValueKind == JsonValueKind.String && !string.IsNullOrEmpty(value.GetString())))
-                throw new NotSupportedException("The bundled core does not support TLS fingerprints or REALITY.");
             vmess = JsonSerializer.Deserialize<V2rayNJObject>(json,
                 new JsonSerializerOptions { NumberHandling = JsonNumberHandling.AllowReadingFromString })
                 ?? throw new FormatException();
@@ -99,9 +108,28 @@ public class VMessUtil : IServerUtil
         data.UserID = vmess.id;
         data.AlterID = vmess.aid;
         data.TransferProtocol = string.IsNullOrWhiteSpace(vmess.net) ? "tcp" : vmess.net;
+        data.TransferProtocol = data.TransferProtocol.ToLowerInvariant() switch
+        {
+            "raw" => "tcp",
+            "websocket" => "ws",
+            "splithttp" => "xhttp",
+            var transport => transport
+        };
         data.FakeType = string.IsNullOrWhiteSpace(vmess.type) ? "none" : vmess.type;
         data.ServerName = vmess.sni;
         data.Alpn = vmess.alpn;
+        data.Fingerprint = vmess.fp;
+        data.PublicKey = vmess.pbk;
+        data.ShortId = vmess.sid;
+        data.SpiderX = vmess.spx;
+        data.TransportMode = vmess.mode;
+        data.TransportExtra = vmess.extra?.ValueKind switch
+        {
+            JsonValueKind.Object => vmess.extra.Value.GetRawText(),
+            JsonValueKind.String => vmess.extra.Value.GetString(),
+            JsonValueKind.Null or null => null,
+            _ => throw new FormatException("Invalid XHTTP extra")
+        };
 
         if (data.TransferProtocol == "quic")
         {
@@ -127,6 +155,17 @@ public class VMessUtil : IServerUtil
                VMessGlobal.EncryptMethods.Contains(server.EncryptMethod) &&
                VMessGlobal.TransferProtocols.Contains(server.TransferProtocol) &&
                VMessGlobal.TLSSecure.Contains(server.TLSSecureType) &&
+               (server.TLSSecureType != "reality" || CoreSelector.ValidReality(server.PublicKey, server.ShortId) &&
+                server.TransferProtocol is ("tcp" or "grpc" or "xhttp")) &&
+               (server.TLSSecureType == "reality" || string.IsNullOrWhiteSpace(server.PublicKey) &&
+                string.IsNullOrWhiteSpace(server.ShortId) && string.IsNullOrWhiteSpace(server.SpiderX)) &&
+               (server.TLSSecureType != "reality" || string.IsNullOrWhiteSpace(server.Alpn)) &&
+               (server.TLSSecureType != "none" || string.IsNullOrWhiteSpace(server.Fingerprint)) &&
+               (string.IsNullOrWhiteSpace(server.Fingerprint) || CoreSelector.UseXray(server)) &&
+               (server.TLSSecureType != "reality" || CoreSelector.UseXray(server)) &&
+               (server.TransferProtocol is not ("xhttp" or "httpupgrade") || CoreSelector.UseXray(server)) &&
+               (server.TransferProtocol == "xhttp" ? CoreSelector.ValidXhttpExtra(server.TransportExtra) :
+                string.IsNullOrWhiteSpace(server.TransportExtra)) &&
                VMessGlobal.PacketEncodings.Contains(server.PacketEncoding) &&
                (server.TransferProtocol != "tcp" || server.FakeType is "none" or "http") &&
                (server.TransferProtocol != "grpc" || server.FakeType is "gun" or "multi") &&

@@ -30,6 +30,9 @@ Some features may not be implemented in version 1
 - [`VMess`](https://www.v2fly.org)
 - [`VLESS`](https://xtls.github.io)
 
+### Proxy cores
+The build packages the official Xray-core `v26.10.21` Windows x64 binary, verified against pinned SHA-256 digests. Netch uses Xray for compatible TLS, REALITY, Vision, XHTTP and WireGuard profiles. The existing SagerNet core remains for ShadowsocksR, SSH, plugins and legacy transports removed by Xray. Recent Xray releases reject `Allow Insecure` for TLS; disable that option for profiles that require Xray.
+
 ### Others
 - UDP NAT FullCone (Limited by your server)
 - .NET 6.0 x64
