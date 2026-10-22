@@ -40,6 +40,8 @@ namespace SocksHelper
 			std::atomic<SOCKET> udpSocket{ INVALID_SOCKET };
 			std::atomic<bool> stopping{ false };
 			std::mutex sendLock;
+			// Reused by Send; callers serialize sends for each association.
+			std::vector<char> sendBuffer;
 
 		SOCKADDR_IN6 address = { 0 };
 	} *PUDP;

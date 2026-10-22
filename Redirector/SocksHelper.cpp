@@ -65,6 +65,12 @@ SOCKET SocksHelper::Connect()
 		return INVALID_SOCKET;
 	}
 
+	// Game traffic often consists of small writes; avoid Nagle delays on the
+	// connection from Redirector to the SOCKS server.
+	BOOL noDelay = TRUE;
+	if (setsockopt(client, IPPROTO_TCP, TCP_NODELAY, (char*)&noDelay, sizeof(noDelay)) == SOCKET_ERROR)
+		printf("[Redirector][SocksHelper::Connect] Disable Nagle failed: %d\n", WSAGetLastError());
+
 	{
 		DWORD returned = 0;
 
@@ -400,6 +406,12 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
+	// An ICMP error for one game destination must not break the shared UDP relay.
+	BOOL reportConnectionReset = FALSE;
+	DWORD returned = 0;
+	WSAIoctl(this->udpSocket, SIO_UDP_CONNRESET, &reportConnectionReset,
+		sizeof(reportConnectionReset), NULL, 0, &returned, NULL, NULL);
+
 	thread(SocksHelper::UDP::Run, shared_from_this()).detach();
 	return true;
 }
@@ -412,7 +424,14 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 	if (target->sin6_family != AF_INET && target->sin6_family != AF_INET6)
 		return SOCKET_ERROR;
 
-	auto data = new char[3 + 1 + 16 + 2 + (ULONG64)length]();
+	const int headerLength = target->sin6_family == AF_INET ? 10 : 22;
+	if (length < 0 || length > 65535 - headerLength)
+		return SOCKET_ERROR;
+
+	const int dataLength = headerLength + length;
+	this->sendBuffer.resize(dataLength);
+	auto data = this->sendBuffer.data();
+	data[0] = data[1] = data[2] = 0;
 	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
 
 	if (target->sin6_family == AF_INET)
@@ -428,18 +447,15 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		memcpy(data + 20, &target->sin6_port, 2);
 	}
 
-	memcpy(data + 3 + 1 + (target->sin6_family == AF_INET ? 4 : 16) + 2, buffer, length);
-	auto dataLength = 3 + 1 + (target->sin6_family == AF_INET ? 4 : 16) + 2 + length;
+	if (length > 0)
+		memcpy(data + headerLength, buffer, length);
 
 	if (sendto(this->udpSocket, data, dataLength, 0, (PSOCKADDR)&this->address, (this->address.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6))) != dataLength)
 	{
-		delete[] data;
-
 		printf("[Redirector][SocksHelper::UDP::Send] Send packet failed: %d\n", WSAGetLastError());
 		return SOCKET_ERROR;
 	}
 
-	delete[] data;
 	return length;
 }
 
@@ -448,54 +464,72 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 	if (this->udpSocket == INVALID_SOCKET || length < 4)
 		return SOCKET_ERROR;
 
-	if (timeout != NULL)
+	const auto deadline = timeout == NULL ? chrono::steady_clock::time_point{} :
+		chrono::steady_clock::now() + chrono::seconds(timeout->tv_sec) + chrono::microseconds(timeout->tv_usec);
+
+	for (;;)
 	{
-		fd_set fds;
-		FD_ZERO(&fds);
-		FD_SET(this->udpSocket, &fds);
+		if (timeout != NULL)
+		{
+			const auto remaining = chrono::duration_cast<chrono::microseconds>(deadline - chrono::steady_clock::now()).count();
+			if (remaining <= 0)
+				return 0;
 
-		int size = select(NULL, &fds, NULL, NULL, timeout);
-		if (size == 0 || size == SOCKET_ERROR)
-			return size;
-	}
+			timeval wait{};
+			wait.tv_sec = static_cast<long>(remaining / 1000000);
+			wait.tv_usec = static_cast<long>(remaining % 1000000);
+			fd_set fds;
+			FD_ZERO(&fds);
+			FD_SET(this->udpSocket, &fds);
 
-	int size = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
-	if (size == 0 || size == SOCKET_ERROR)
-		return size;
-	if (size < 4 || buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
-		return SOCKET_ERROR;
+			const int ready = select(NULL, &fds, NULL, NULL, &wait);
+			if (ready == 0 || ready == SOCKET_ERROR)
+				return ready;
+		}
 
-	SOCKADDR_IN6 addr;
-	if (buffer[3] == 0x01)
-	{
-		if (size < 10)
+		const int size = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
+		if (size == SOCKET_ERROR)
+		{
+			// A truncated or malformed datagram does not invalidate the association.
+			if (WSAGetLastError() == WSAEMSGSIZE)
+				continue;
 			return SOCKET_ERROR;
-		auto ipv4 = (PSOCKADDR_IN)&addr;
-		ipv4->sin_family = AF_INET;
+		}
+		if (size < 4 || buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
+			continue;
 
-		memcpy(&ipv4->sin_addr, buffer + 4, 4);
-		memcpy(&ipv4->sin_port, buffer + 8, 2);
+		SOCKADDR_IN6 addr{};
+		int headerLength;
+		if (buffer[3] == 0x01)
+		{
+			if (size < 10)
+				continue;
+			auto ipv4 = (PSOCKADDR_IN)&addr;
+			ipv4->sin_family = AF_INET;
 
-		memmove(buffer, buffer + 10, (size_t)size - 10);
+			memcpy(&ipv4->sin_addr, buffer + 4, 4);
+			memcpy(&ipv4->sin_port, buffer + 8, 2);
+			headerLength = 10;
+		}
+		else if (buffer[3] == 0x04)
+		{
+			if (size < 22)
+				continue;
+			addr.sin6_family = AF_INET6;
+
+			memcpy(&addr.sin6_addr, buffer + 4, 16);
+			memcpy(&addr.sin6_port, buffer + 20, 2);
+			headerLength = 22;
+		}
+		else
+		{
+			continue;
+		}
+
+		memmove(buffer, buffer + headerLength, size - headerLength);
+		if (target != NULL)
+			memcpy(target, &addr, sizeof(SOCKADDR_IN6));
+
+		return size - headerLength;
 	}
-	else if (buffer[3] == 0x04)
-	{
-		if (size < 22)
-			return SOCKET_ERROR;
-		addr.sin6_family = AF_INET6;
-
-		memcpy(&addr.sin6_addr, buffer + 4, 16);
-		memcpy(&addr.sin6_port, buffer + 20, 2);
-
-		memmove(buffer, buffer + 22, (size_t)size - 22);
-	}
-	else
-	{
-		return SOCKET_ERROR;
-	}
-
-	if (target != NULL)
-		memcpy(target, &addr, sizeof(SOCKADDR_IN6));
-
-	return size - (addr.sin6_family == AF_INET ? 10 : 22);
 }
