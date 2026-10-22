@@ -68,6 +68,11 @@ jobs:
           toolchain: nightly
           profile: minimal
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
+        with:
+          vs-prerelease: true
+
       - name: Build
         shell: pwsh
         run: |
@@ -105,4 +110,4 @@ jobs:
             ## 校验和
             | 文件名 | SHA256 |
             | :- | :- |
-            | Netch.7z | ${{ env.Netch_SHA256 }} |
+            | Netch.7z | ${{ env.NETCH_SHA256 }} |
