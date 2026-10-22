@@ -11,6 +11,12 @@ public class VMessForm : ServerForm
         Server = server;
         CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
         CreateTextBox("Alpn", "ALPN", s => true, s => server.Alpn = s, server.Alpn);
+        CreateTextBox("Fingerprint", "TLS Fingerprint", s => true, s => server.Fingerprint = s, server.Fingerprint);
+        CreateTextBox("PublicKey", "REALITY Public Key", s => true, s => server.PublicKey = s, server.PublicKey);
+        CreateTextBox("ShortId", "REALITY Short ID", s => true, s => server.ShortId = s, server.ShortId);
+        CreateTextBox("SpiderX", "REALITY SpiderX", s => true, s => server.SpiderX = s, server.SpiderX);
+        CreateTextBox("TransportMode", "XHTTP Mode", s => true, s => server.TransportMode = s, server.TransportMode);
+        CreateTextBox("TransportExtra", "XHTTP Extra (JSON)", s => true, s => server.TransportExtra = s, server.TransportExtra);
         CreateTextBox("UserId", "User ID", s => true, s => server.UserID = s, server.UserID);
         CreateTextBox("AlterId", "Alter ID", s => int.TryParse(s, out _), s => server.AlterID = int.Parse(s), server.AlterID.ToString(), 76);
         CreateComboBox("EncryptMethod", "Encrypt Method", VMessGlobal.EncryptMethods, s => server.EncryptMethod = s, server.EncryptMethod);

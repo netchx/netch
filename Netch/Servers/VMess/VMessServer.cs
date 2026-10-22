@@ -102,6 +102,18 @@ public class VMessServer : Server
     public string? ServerName { get; set; } = string.Empty;
 
     public string? Alpn { get; set; }
+
+    public string? Fingerprint { get; set; }
+
+    public string? PublicKey { get; set; }
+
+    public string? ShortId { get; set; }
+
+    public string? SpiderX { get; set; }
+
+    public string? TransportMode { get; set; }
+
+    public string? TransportExtra { get; set; }
 }
 
 public class VMessGlobal
@@ -139,7 +151,9 @@ public class VMessGlobal
         "ws",
         "h2",
         "quic",
-        "grpc"
+        "grpc",
+        "httpupgrade",
+        "xhttp"
     };
 
     /// <summary>
@@ -164,6 +178,7 @@ public class VMessGlobal
     public static readonly List<string> TLSSecure = new()
     {
         "none",
-        "tls"
+        "tls",
+        "reality"
     };
 }

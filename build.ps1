@@ -42,7 +42,9 @@ cp -Recurse -Force '..\Storage\tun2socks.bin' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\README.md' 'bin'  | Out-Null
 Pop-Location
 
-if ( -Not ( Test-Path '.\Other\release' ) ) {
+$xrayBinary = '.\Other\release\xray.exe'
+$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
+if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
 	.\Other\build.ps1
 	if ( -Not $? ) {
 		exit $lastExitCode

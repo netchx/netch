@@ -1,4 +1,5 @@
-﻿using Netch.Models;
+﻿using System.Text.Json;
+using Netch.Models;
 using Netch.Utils;
 
 #pragma warning disable VSTHRD200
@@ -7,8 +8,12 @@ namespace Netch.Servers;
 
 public static class V2rayConfigUtils
 {
-    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server)
+    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server, bool useXray = false)
     {
+        if (useXray && Global.Settings.V2RayConfig.AllowInsecure &&
+            (server is VMessServer { TLSSecureType: "tls" } || server is TrojanServer { TLSSecureType: "tls" }))
+            throw new MessageException("This Xray version does not support Allow Insecure for TLS. Disable it in V2Ray settings.");
+
         var v2rayConfig = new V2rayConfig
         {
             inbounds = new object[]
@@ -27,16 +32,17 @@ public static class V2rayConfigUtils
             }
         };
 
-        v2rayConfig.outbounds = new[] { await outbound(server) };
+        v2rayConfig.outbounds = new[] { await outbound(server, useXray) };
 
         return v2rayConfig;
     }
 
-    private static async Task<Outbound> outbound(Server server)
+    private static async Task<Outbound> outbound(Server server, bool useXray)
     {
+        var settings = new OutboundConfiguration();
         var outbound = new Outbound
         {
-            settings = new OutboundConfiguration(),
+            settings = settings,
             mux = new Mux()
         };
 
@@ -45,7 +51,7 @@ public static class V2rayConfigUtils
             case Socks5Server socks:
             {
                 outbound.protocol = "socks";
-                outbound.settings.servers = new object[]
+                settings.servers = new object[]
                 {
                     new
                     {
@@ -64,7 +70,8 @@ public static class V2rayConfigUtils
                             : null
                     }
                 };
-                outbound.settings.version = socks.Version;
+                if (!useXray)
+                    settings.version = socks.Version;
 
                 outbound.mux.enabled = false;
                 outbound.mux.concurrency = -1;
@@ -73,7 +80,7 @@ public static class V2rayConfigUtils
             case VLESSServer vless:
             {
                 outbound.protocol = "vless";
-                outbound.settings.vnext = new[]
+                settings.vnext = new[]
                 {
                     new VnextItem
                     {
@@ -84,19 +91,22 @@ public static class V2rayConfigUtils
                             new User
                             {
                                 id = getUUID(vless.UserID),
-                                flow = vless.TLSSecureType == "xtls" ? vless.Flow : "",
+                                flow = vless.TLSSecureType == "xtls" || vless.Flow == "xtls-rprx-vision" ? vless.Flow : "",
                                 encryption = vless.EncryptMethod
                             }
                         }
                     }
                 };
 
-                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
-                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+                if (!useXray)
+                {
+                    settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+                    outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
+                }
 
-                outbound.streamSettings = boundStreamSettings(vless);
+                outbound.streamSettings = boundStreamSettings(vless, useXray);
 
-                if (vless.TLSSecureType == "xtls")
+                if (vless.TLSSecureType == "xtls" || vless.Flow == "xtls-rprx-vision")
                 {
                     outbound.mux.enabled = false;
                     outbound.mux.concurrency = -1;
@@ -112,11 +122,11 @@ public static class V2rayConfigUtils
             case VMessServer vmess:
             {
                 outbound.protocol = "vmess";
-                if (vmess.EncryptMethod == "auto" && vmess.TLSSecureType != "none" && !Global.Settings.V2RayConfig.AllowInsecure)
+                if (!useXray && vmess.EncryptMethod == "auto" && vmess.TLSSecureType != "none" && !Global.Settings.V2RayConfig.AllowInsecure)
                 {
                     vmess.EncryptMethod = "zero";
                 }
-                outbound.settings.vnext = new[]
+                settings.vnext = new[]
                 {
                     new VnextItem
                     {
@@ -134,10 +144,13 @@ public static class V2rayConfigUtils
                     }
                 };
 
-                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
-                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                if (!useXray)
+                {
+                    settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                    outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                }
 
-                outbound.streamSettings = boundStreamSettings(vmess);
+                outbound.streamSettings = boundStreamSettings(vmess, useXray);
 
                 outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
                 outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
@@ -145,7 +158,7 @@ public static class V2rayConfigUtils
             }
             case ShadowsocksServer ss:
                 outbound.protocol = "shadowsocks";
-                outbound.settings.servers = new[]
+                settings.servers = new[]
                 {
                     new ShadowsocksServerItem
                     {
@@ -155,8 +168,11 @@ public static class V2rayConfigUtils
                         password = ss.Password
                     }
                 };
-                outbound.settings.plugin = ss.Plugin ?? "";
-                outbound.settings.pluginOpts = ss.PluginOption ?? "";
+                if (!useXray)
+                {
+                    settings.plugin = ss.Plugin ?? "";
+                    settings.pluginOpts = ss.PluginOption ?? "";
+                }
                 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -171,7 +187,7 @@ public static class V2rayConfigUtils
                 break;
              case ShadowsocksRServer ssr:
                 outbound.protocol = "shadowsocks";
-                outbound.settings.servers = new[]
+                settings.servers = new[]
                 {
                     new ShadowsocksServerItem
                     {
@@ -181,8 +197,8 @@ public static class V2rayConfigUtils
                         password = ssr.Password,
                     }
                 };
-                outbound.settings.plugin = "shadowsocksr";
-                outbound.settings.pluginArgs = new string[]
+                settings.plugin = "shadowsocksr";
+                settings.pluginArgs = new string[]
                 {
                     "--obfs=" + ssr.OBFS,
                     "--obfs-param=" + (ssr.OBFSParam ?? ""),
@@ -206,7 +222,7 @@ public static class V2rayConfigUtils
                     throw new MessageException("Unsupported Trojan server settings.");
 
                 outbound.protocol = "trojan";
-                outbound.settings.servers = new[]
+                settings.servers = new[]
                 {
                     new ShadowsocksServerItem // I'm not serious
                     {
@@ -248,6 +264,22 @@ public static class V2rayConfigUtils
                             host = trojan.TransportHost.SplitOrDefault()
                         };
                         break;
+                    case "httpupgrade":
+                        outbound.streamSettings.httpupgradeSettings = new HttpUpgradeSettings
+                        {
+                            host = trojan.TransportHost,
+                            path = trojan.Path.ValueOrDefault() ?? "/"
+                        };
+                        break;
+                    case "xhttp":
+                        outbound.streamSettings.xhttpSettings = new XhttpSettings
+                        {
+                            host = trojan.TransportHost,
+                            path = trojan.Path.ValueOrDefault() ?? "/",
+                            mode = trojan.TransportMode,
+                            extra = XhttpExtra(trojan.TransportExtra)
+                        };
+                        break;
                     default:
                         throw new MessageException($"Unsupported Trojan transport: {trojan.TransferProtocol}");
                 }
@@ -255,9 +287,10 @@ public static class V2rayConfigUtils
                 {
                     var tlsSettings = new TlsSettings
                     {
-                        allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                        allowInsecure = !useXray && Global.Settings.V2RayConfig.AllowInsecure,
                         serverName = trojan.Host.ValueOrDefault() ?? trojan.Hostname,
-                        alpn = SplitAlpn(trojan.Alpn)
+                        alpn = SplitAlpn(trojan.Alpn),
+                        fingerprint = trojan.Fingerprint
                     };
 
                     switch (trojan.TLSSecureType)
@@ -267,6 +300,10 @@ public static class V2rayConfigUtils
                             break;
                         case "xtls":
                             outbound.streamSettings.xtlsSettings = tlsSettings;
+                            break;
+                        case "reality":
+                            outbound.streamSettings.realitySettings = Reality(trojan.Host, trojan.Hostname,
+                                trojan.Fingerprint, trojan.PublicKey, trojan.ShortId, trojan.SpiderX);
                             break;
                     }
                 }
@@ -281,13 +318,34 @@ public static class V2rayConfigUtils
                 break;
             case WireGuardServer wg:
                 outbound.protocol = "wireguard";
-                outbound.settings.address = await server.AutoResolveHostnameAsync();
-                outbound.settings.port = server.Port;
-                outbound.settings.localAddresses = wg.LocalAddresses.SplitOrDefault();
-                outbound.settings.peerPublicKey = wg.PeerPublicKey;
-                outbound.settings.privateKey = wg.PrivateKey;
-                outbound.settings.preSharedKey = wg.PreSharedKey;
-                outbound.settings.mtu = wg.MTU;
+                var wireGuardAddress = await server.AutoResolveHostnameAsync();
+                var localAddresses = wg.LocalAddresses.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                if (useXray)
+                {
+                    outbound.settings = new
+                    {
+                        noKernelTun = true,
+                        secretKey = wg.PrivateKey,
+                        address = localAddresses,
+                        peers = new[] { new
+                        {
+                            publicKey = wg.PeerPublicKey,
+                            preSharedKey = wg.PreSharedKey,
+                            endpoint = $"{ProxyUri.Host(wireGuardAddress)}:{server.Port}"
+                        } },
+                        mtu = wg.MTU
+                    };
+                }
+                else
+                {
+                    settings.address = wireGuardAddress;
+                    settings.port = server.Port;
+                    settings.localAddresses = localAddresses;
+                    settings.peerPublicKey = wg.PeerPublicKey;
+                    settings.privateKey = wg.PrivateKey;
+                    settings.preSharedKey = wg.PreSharedKey;
+                    settings.mtu = wg.MTU;
+                }
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -303,12 +361,12 @@ public static class V2rayConfigUtils
 
             case SSHServer ssh:
                 outbound.protocol = "ssh";
-                outbound.settings.address = await server.AutoResolveHostnameAsync();
-                outbound.settings.port = server.Port;
-                outbound.settings.user = ssh.User;
-                outbound.settings.password = ssh.Password;
-                outbound.settings.privateKey = ssh.PrivateKey;
-                outbound.settings.publicKey = ssh.PublicKey;
+                settings.address = await server.AutoResolveHostnameAsync();
+                settings.port = server.Port;
+                settings.user = ssh.User;
+                settings.password = ssh.Password;
+                settings.privateKey = ssh.PrivateKey;
+                settings.publicKey = ssh.PublicKey;
                 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -326,7 +384,7 @@ public static class V2rayConfigUtils
         return outbound;
     }
 
-    private static StreamSettings boundStreamSettings(VMessServer server)
+    private static StreamSettings boundStreamSettings(VMessServer server, bool useXray)
     {
         // https://xtls.github.io/config/transports
 
@@ -343,9 +401,10 @@ public static class V2rayConfigUtils
         {
             var tlsSettings = new TlsSettings
             {
-                allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                allowInsecure = !useXray && Global.Settings.V2RayConfig.AllowInsecure,
                 serverName = server.ServerName.ValueOrDefault() ?? server.Host.SplitOrDefault()?[0],
-                alpn = SplitAlpn(server.Alpn)
+                alpn = SplitAlpn(server.Alpn),
+                fingerprint = server.Fingerprint
             };
 
             switch (server.TLSSecureType)
@@ -355,6 +414,10 @@ public static class V2rayConfigUtils
                     break;
                 case "xtls":
                     streamSettings.xtlsSettings = tlsSettings;
+                    break;
+                case "reality":
+                    streamSettings.realitySettings = Reality(server.ServerName, server.Hostname,
+                        server.Fingerprint, server.PublicKey, server.ShortId, server.SpiderX);
                     break;
             }
         }
@@ -447,6 +510,22 @@ public static class V2rayConfigUtils
                 };
 
                 break;
+            case "httpupgrade":
+                streamSettings.httpupgradeSettings = new HttpUpgradeSettings
+                {
+                    host = server.Host,
+                    path = server.Path.ValueOrDefault() ?? "/"
+                };
+                break;
+            case "xhttp":
+                streamSettings.xhttpSettings = new XhttpSettings
+                {
+                    host = server.Host,
+                    path = server.Path.ValueOrDefault() ?? "/",
+                    mode = server.TransportMode,
+                    extra = XhttpExtra(server.TransportExtra)
+                };
+                break;
             default:
                 throw new MessageException($"transfer protocol \"{server.TransferProtocol}\" not implemented yet");
         }
@@ -476,5 +555,29 @@ public static class V2rayConfigUtils
         return string.IsNullOrWhiteSpace(value)
             ? null
             : value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+    }
+
+    private static RealitySettings Reality(string? serverName, string hostname, string? fingerprint,
+        string? publicKey, string? shortId, string? spiderX)
+    {
+        return new RealitySettings
+        {
+            serverName = serverName.ValueOrDefault() ?? hostname,
+            fingerprint = fingerprint.ValueOrDefault() ?? "chrome",
+            publicKey = publicKey ?? "",
+            shortId = shortId ?? "",
+            spiderX = spiderX ?? ""
+        };
+    }
+
+    private static JsonElement? XhttpExtra(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        using var document = JsonDocument.Parse(value);
+        if (document.RootElement.ValueKind != JsonValueKind.Object)
+            throw new MessageException("XHTTP extra must be a JSON object.");
+        return document.RootElement.Clone();
     }
 }

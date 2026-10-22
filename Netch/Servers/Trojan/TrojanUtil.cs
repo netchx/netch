@@ -40,10 +40,24 @@ public class TrojanUtil : IServerUtil
             parameters["sni"] = server.Host;
         if (!string.IsNullOrWhiteSpace(server.Alpn))
             parameters["alpn"] = server.Alpn;
+        if (!string.IsNullOrWhiteSpace(server.Fingerprint))
+            parameters["fp"] = server.Fingerprint;
+        if (server.TLSSecureType == "reality")
+        {
+            parameters["pbk"] = server.PublicKey ?? "";
+            if (!string.IsNullOrWhiteSpace(server.ShortId))
+                parameters["sid"] = server.ShortId;
+            if (!string.IsNullOrWhiteSpace(server.SpiderX))
+                parameters["spx"] = server.SpiderX;
+        }
         if (!string.IsNullOrWhiteSpace(server.TransportHost))
             parameters["host"] = server.TransportHost;
         if (!string.IsNullOrWhiteSpace(server.Path))
             parameters[server.TransferProtocol == "grpc" ? "serviceName" : "path"] = server.Path;
+        if (server.TransferProtocol == "xhttp" && !string.IsNullOrWhiteSpace(server.TransportMode))
+            parameters["mode"] = server.TransportMode;
+        if (server.TransferProtocol == "xhttp" && !string.IsNullOrWhiteSpace(server.TransportExtra))
+            parameters["extra"] = server.TransportExtra;
         if (server.TLSSecureType == "xtls")
             parameters["flow"] = server.Flow;
 
@@ -68,17 +82,28 @@ public class TrojanUtil : IServerUtil
             Port = (ushort)uri.Port,
             Remark = ProxyUri.Remark(uri),
             Host = parameters["sni"] ?? parameters["peer"],
-            TLSSecureType = parameters["security"] ?? "tls",
-            TransferProtocol = parameters["type"] ?? "tcp",
+            TLSSecureType = (parameters["security"] ?? "tls").ToLowerInvariant(),
+            TransferProtocol = (parameters["type"] ?? "tcp").ToLowerInvariant(),
             TransportHost = parameters["host"],
             Path = parameters["serviceName"] ?? parameters["path"],
             Alpn = parameters["alpn"],
+            Fingerprint = parameters["fp"],
+            PublicKey = parameters["pbk"],
+            ShortId = parameters["sid"],
+            SpiderX = parameters["spx"],
+            TransportMode = parameters["mode"],
+            TransportExtra = parameters["extra"],
             Flow = parameters["flow"] ?? "xtls-rprx-direct"
         };
 
-        if (!string.IsNullOrEmpty(parameters["fp"]) || !string.IsNullOrEmpty(parameters["pbk"]) ||
-            !string.IsNullOrEmpty(parameters["sid"]))
-            throw new NotSupportedException("The bundled core does not support TLS fingerprints or REALITY.");
+        data.TransferProtocol = data.TransferProtocol switch
+        {
+            "raw" => "tcp",
+            "websocket" => "ws",
+            "splithttp" => "xhttp",
+            _ => data.TransferProtocol
+        };
+
         if (!string.IsNullOrEmpty(parameters["flow"]) && data.TLSSecureType != "xtls")
             throw new NotSupportedException($"Unsupported Trojan flow: {parameters["flow"]}");
         if (!CheckServer(data))
@@ -92,9 +117,19 @@ public class TrojanUtil : IServerUtil
         var server = (TrojanServer)s;
         return !string.IsNullOrWhiteSpace(server.Hostname) && server.Port != 0 &&
                !string.IsNullOrWhiteSpace(server.Password) &&
-               server.TLSSecureType is "none" or "tls" or "xtls" &&
-               server.TransferProtocol is "tcp" or "ws" or "grpc" or "h2" &&
+               server.TLSSecureType is "none" or "tls" or "xtls" or "reality" &&
+               server.TransferProtocol is "tcp" or "ws" or "grpc" or "h2" or "xhttp" or "httpupgrade" &&
+               (server.TLSSecureType != "reality" ||
+                CoreSelector.ValidReality(server.PublicKey, server.ShortId) && server.TransferProtocol is ("tcp" or "grpc" or "xhttp")) &&
+               (server.TLSSecureType == "reality" || string.IsNullOrWhiteSpace(server.PublicKey) &&
+                string.IsNullOrWhiteSpace(server.ShortId) && string.IsNullOrWhiteSpace(server.SpiderX)) &&
+               (server.TLSSecureType != "reality" || string.IsNullOrWhiteSpace(server.Alpn)) &&
+               (server.TLSSecureType != "none" || string.IsNullOrWhiteSpace(server.Fingerprint)) &&
+               (string.IsNullOrWhiteSpace(server.Fingerprint) || CoreSelector.UseXray(server)) &&
+               (server.TransferProtocol is not ("xhttp" or "httpupgrade") || CoreSelector.UseXray(server)) &&
+               (server.TransferProtocol == "xhttp" ? CoreSelector.ValidXhttpExtra(server.TransportExtra) :
+                string.IsNullOrWhiteSpace(server.TransportExtra)) &&
                (server.TLSSecureType != "xtls" ||
-                server.TransferProtocol == "tcp" && VLESSGlobal.Flows.Contains(server.Flow));
+                server.TransferProtocol == "tcp" && server.Flow is ("xtls-rprx-direct" or "xtls-rprx-origin" or "xtls-rprx-splice"));
     }
 }

@@ -16,32 +16,48 @@ public static class V2rayUtils
         server.Port = (ushort)uri.Port;
         server.Remark = ProxyUri.Remark(uri);
         server.TransferProtocol = (parameter["type"] ?? "tcp").ToLowerInvariant();
+        server.TransferProtocol = server.TransferProtocol switch
+        {
+            "raw" => "tcp",
+            "websocket" => "ws",
+            "splithttp" => "xhttp",
+            _ => server.TransferProtocol
+        };
         server.PacketEncoding = parameter["packetEncoding"] ?? "xudp";
         server.EncryptMethod = parameter["encryption"] ?? (scheme == "vless" ? "none" : "auto");
         server.TLSSecureType = (parameter["security"] ?? "none").ToLowerInvariant();
         server.ServerName = parameter["sni"];
         server.Alpn = parameter["alpn"];
-
-        if (!string.IsNullOrEmpty(parameter["fp"]) || !string.IsNullOrEmpty(parameter["pbk"]) ||
-            !string.IsNullOrEmpty(parameter["sid"]) || server.TLSSecureType == "reality")
-            throw new NotSupportedException("The bundled core does not support TLS fingerprints or REALITY.");
+        server.Fingerprint = parameter["fp"] ?? parameter["fingerprint"];
+        server.PublicKey = parameter["pbk"];
+        server.ShortId = parameter["sid"];
+        server.SpiderX = parameter["spx"];
 
         if (string.IsNullOrWhiteSpace(server.UserID) ||
             !VMessGlobal.TransferProtocols.Contains(server.TransferProtocol) ||
             !VMessGlobal.PacketEncodings.Contains(server.PacketEncoding) ||
             (scheme == "vless" && server.EncryptMethod != "none") ||
             (scheme == "vmess" && !VMessGlobal.EncryptMethods.Contains(server.EncryptMethod)) ||
-            server.TLSSecureType is not ("none" or "tls" or "xtls") ||
+            server.TLSSecureType is not ("none" or "tls" or "xtls" or "reality") ||
             (scheme == "vmess" && server.TLSSecureType == "xtls"))
             throw new NotSupportedException("Unsupported VMess/VLESS link settings");
 
         var flow = parameter["flow"];
-        if (!string.IsNullOrEmpty(flow) && (scheme != "vless" || server.TLSSecureType != "xtls" || !VLESSGlobal.Flows.Contains(flow)))
+        if (!string.IsNullOrEmpty(flow) && (scheme != "vless" || !VLESSGlobal.Flows.Contains(flow) ||
+            (flow == "xtls-rprx-vision" ? server.TLSSecureType is not ("tls" or "reality") : server.TLSSecureType != "xtls")))
             throw new NotSupportedException($"Unsupported VLESS flow: {flow}");
         if (server is VLESSServer vless && !string.IsNullOrEmpty(flow))
             vless.Flow = flow;
         if (server.TLSSecureType == "xtls" && server.TransferProtocol != "tcp")
             throw new NotSupportedException("XTLS requires TCP transport.");
+        if (flow == "xtls-rprx-vision" && server.TransferProtocol != "tcp")
+            throw new NotSupportedException("Vision flow requires TCP transport.");
+        if (server.TLSSecureType == "reality" && server.TransferProtocol is not ("tcp" or "grpc" or "xhttp"))
+            throw new NotSupportedException("REALITY requires TCP, gRPC or XHTTP transport.");
+        if (server.TLSSecureType == "reality" && string.IsNullOrWhiteSpace(server.PublicKey))
+            throw new FormatException("REALITY public key is missing.");
+        if (!string.IsNullOrWhiteSpace(parameter["extra"]) && server.TransferProtocol != "xhttp")
+            throw new NotSupportedException("XHTTP extra is only supported with XHTTP transport.");
 
         if (scheme == "vmess" && !string.IsNullOrEmpty(parameter["aid"]) &&
             (!int.TryParse(parameter["aid"], out var alterId) || alterId < 0))
@@ -62,8 +78,15 @@ public static class V2rayUtils
                 break;
             case "ws":
             case "h2":
+            case "httpupgrade":
+            case "xhttp":
                 server.Path = parameter["path"] ?? "/";
                 server.Host = parameter["host"];
+                if (server.TransferProtocol == "xhttp")
+                {
+                    server.TransportMode = parameter["mode"];
+                    server.TransportExtra = parameter["extra"];
+                }
                 break;
             case "quic":
                 server.QUICSecure = parameter["quicSecurity"] ?? "none";
@@ -127,6 +150,16 @@ public static class V2rayUtils
                     parameter.Add("host", server.Host!);
 
                 break;
+            case "httpupgrade":
+            case "xhttp":
+                parameter.Add("path", server.Path.ValueOrDefault() ?? "/");
+                if (!server.Host.IsNullOrWhiteSpace())
+                    parameter.Add("host", server.Host!);
+                if (server.TransferProtocol == "xhttp" && !server.TransportMode.IsNullOrWhiteSpace())
+                    parameter.Add("mode", server.TransportMode!);
+                if (server.TransferProtocol == "xhttp" && !server.TransportExtra.IsNullOrWhiteSpace())
+                    parameter.Add("extra", server.TransportExtra!);
+                break;
             case "quic":
                 if (server.QUICSecure is not (null or "none"))
                 {
@@ -158,7 +191,18 @@ public static class V2rayUtils
             if (!server.Alpn.IsNullOrWhiteSpace())
                 parameter.Add("alpn", server.Alpn!);
 
-            if (server.TLSSecureType == "xtls")
+            if (!server.Fingerprint.IsNullOrWhiteSpace())
+                parameter.Add("fp", server.Fingerprint!);
+            if (server.TLSSecureType == "reality")
+            {
+                parameter.Add("pbk", server.PublicKey ?? "");
+                if (!server.ShortId.IsNullOrWhiteSpace())
+                    parameter.Add("sid", server.ShortId!);
+                if (!server.SpiderX.IsNullOrWhiteSpace())
+                    parameter.Add("spx", server.SpiderX!);
+            }
+
+            if (server.TLSSecureType == "xtls" || server is VLESSServer { Flow: "xtls-rprx-vision" })
             {
                 parameter.Add("flow", server is VLESSServer vless ? vless.Flow : "xtls-rprx-direct");
             }

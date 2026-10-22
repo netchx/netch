@@ -24,13 +24,14 @@ public class VLESSServer : VMessServer
 
 public class VLESSGlobal
 {
-    public static readonly List<string> Flows = new() { "xtls-rprx-direct", "xtls-rprx-origin", "xtls-rprx-splice" };
+    public static readonly List<string> Flows = new() { "xtls-rprx-direct", "xtls-rprx-origin", "xtls-rprx-splice", "xtls-rprx-vision" };
 
     public static readonly List<string> TLSSecure = new()
     {
         "none",
         "tls",
-        "xtls"
+        "xtls",
+        "reality"
     };
 
     public static List<string> FakeTypes => VMessGlobal.FakeTypes;

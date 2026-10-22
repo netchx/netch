@@ -31,6 +31,18 @@ public class TrojanServer : Server
 
     public string? Alpn { get; set; }
 
+    public string? Fingerprint { get; set; }
+
+    public string? PublicKey { get; set; }
+
+    public string? ShortId { get; set; }
+
+    public string? SpiderX { get; set; }
+
+    public string? TransportMode { get; set; }
+
+    public string? TransportExtra { get; set; }
+
     public string Flow { get; set; } = "xtls-rprx-direct";
 
     /// <summary>

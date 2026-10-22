@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using System.Text.Json;
 // ReSharper disable InconsistentNaming
 
 namespace Netch.Servers;
@@ -27,7 +28,7 @@ public class Outbound
 {
     public string protocol { get; set; }
 
-    public OutboundConfiguration settings { get; set; }
+    public object settings { get; set; }
 
     public StreamSettings? streamSettings { get; set; }
 
@@ -124,6 +125,12 @@ public class StreamSettings
 
     public GrpcSettings grpcSettings { get; set; }
 
+    public HttpUpgradeSettings httpupgradeSettings { get; set; }
+
+    public XhttpSettings xhttpSettings { get; set; }
+
+    public RealitySettings realitySettings { get; set; }
+
     public Sockopt sockopt { get; set; }
 }
 
@@ -136,6 +143,31 @@ public class TlsSettings
     public string serverName { get; set; }
 
     public string[] alpn { get; set; }
+
+    public string fingerprint { get; set; }
+}
+
+public class RealitySettings
+{
+    public string serverName { get; set; }
+    public string fingerprint { get; set; }
+    public string publicKey { get; set; }
+    public string shortId { get; set; }
+    public string spiderX { get; set; }
+}
+
+public class HttpUpgradeSettings
+{
+    public string host { get; set; }
+    public string path { get; set; }
+}
+
+public class XhttpSettings
+{
+    public string host { get; set; }
+    public string path { get; set; }
+    public string mode { get; set; }
+    public JsonElement? extra { get; set; }
 }
 
 public class TcpSettings
