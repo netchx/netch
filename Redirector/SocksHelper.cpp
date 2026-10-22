@@ -7,6 +7,33 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
+// A blocking TCP socket can still read or write fewer bytes than requested.
+static bool SendAll(SOCKET socket, const char* buffer, int length)
+{
+	int sent = 0;
+	while (sent < length)
+	{
+		const int count = send(socket, buffer + sent, length - sent, 0);
+		if (count <= 0)
+			return false;
+		sent += count;
+	}
+	return true;
+}
+
+static bool ReceiveExactly(SOCKET socket, char* buffer, int length)
+{
+	int received = 0;
+	while (received < length)
+	{
+		const int count = recv(socket, buffer + received, length - received, 0);
+		if (count <= 0)
+			return false;
+		received += count;
+	}
+	return true;
+}
+
 SOCKET SocksHelper::Connect()
 {
 	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
@@ -58,14 +85,14 @@ bool SocksHelper::Handshake(SOCKET client)
 	buffer[1] = 0x02;
 	buffer[2] = 0x00;
 	buffer[3] = 0x02;
-	if (send(client, buffer, 4, 0) != 4)
+	if (!SendAll(client, buffer, 4))
 	{
 		printf("[Redirector][SocksHelper::Handshake] Send client hello failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
 	/* Server Choice */
-	if (recv(client, buffer, 2, 0) != 2)
+	if (!ReceiveExactly(client, buffer, 2))
 	{
 		printf("[Redirector][SocksHelper::Handshake] Receive server choice failed: %d\n", WSAGetLastError());
 		return false;
@@ -97,14 +124,14 @@ bool SocksHelper::Handshake(SOCKET client)
 		}
 
 		auto length = 1 + 1 + ulength + 1 + plength;
-		if (send(client, buffer, length, 0) != length)
+		if (!SendAll(client, buffer, length))
 		{
 			printf("[Redirector][SocksHelper::Handshake] Send authentication request failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
 		/* Server Response */
-		if (recv(client, buffer, 2, 0) != 2)
+		if (!ReceiveExactly(client, buffer, 2))
 		{
 			printf("[Redirector][SocksHelper::Handshake] Receive server response failed: %d\n", WSAGetLastError());
 			return false;
@@ -127,7 +154,7 @@ bool SocksHelper::Handshake(SOCKET client)
 bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
 	char addrType;
-	if (recv(client, (char*)&addrType, 1, 0) != 1)
+	if (!ReceiveExactly(client, (char*)&addrType, 1))
 	{
 		printf("[Redirector][SocksHelper::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
 		return false;
@@ -138,13 +165,13 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 		auto ipv4 = (PSOCKADDR_IN)addr;
 		ipv4->sin_family = AF_INET;
 
-		if (recv(client, (char*)&ipv4->sin_addr, 4, 0) != 4)
+		if (!ReceiveExactly(client, (char*)&ipv4->sin_addr, 4))
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
-		if (recv(client, (char*)&ipv4->sin_port, 2, 0) != 2)
+		if (!ReceiveExactly(client, (char*)&ipv4->sin_port, 2))
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
 			return false;
@@ -154,13 +181,13 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 	{
 		addr->sin6_family = AF_INET6;
 
-		if (recv(client, (char*)&addr->sin6_addr, 16, 0) != 16)
+		if (!ReceiveExactly(client, (char*)&addr->sin6_addr, 16))
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv6 address failed: %d\n", WSAGetLastError());
 			return false;
 		}
 
-		if (recv(client, (char*)&addr->sin6_port, 2, 0) != 2)
+		if (!ReceiveExactly(client, (char*)&addr->sin6_port, 2))
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
 			return false;
@@ -207,7 +234,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		memcpy(buffer + 4, &addr->sin_addr, 4);
 		memcpy(buffer + 8, &addr->sin_port, 2);
 
-		if (send(this->tcpSocket, buffer, 10, 0) != 10)
+		if (!SendAll(this->tcpSocket, buffer, 10))
 		{
 			printf("[Redirector][SocksHelper::TCP::Connect] Send connect request failed: %d\n", WSAGetLastError());
 			return false;
@@ -225,7 +252,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		memcpy(buffer + 4, &addr->sin6_addr, 16);
 		memcpy(buffer + 20, &addr->sin6_port, 2);
 
-		if (send(this->tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+		if (!SendAll(this->tcpSocket, buffer, sizeof(buffer)))
 		{
 			printf("[Redirector][SocksHelper::TCP::Connect] Send connect request failed: %d\n", WSAGetLastError());
 			return false;
@@ -234,7 +261,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 
 	/* Server Response */
 	char buffer[3];
-	if (recv(this->tcpSocket, buffer, 3, 0) != 3)
+	if (!ReceiveExactly(this->tcpSocket, buffer, 3))
 	{
 		printf("[Redirector][SocksHelper::TCP::Connect] Receive server response failed: %d\n", WSAGetLastError());
 		return false;
@@ -250,7 +277,7 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 int SocksHelper::TCP::Send(const char* buffer, int length)
 {
 	if (this->tcpSocket != INVALID_SOCKET)
-		return send(this->tcpSocket, buffer, length, 0);
+		return SendAll(this->tcpSocket, buffer, length) ? length : SOCKET_ERROR;
 
 	return SOCKET_ERROR;
 }
@@ -265,36 +292,36 @@ int SocksHelper::TCP::Read(char* buffer, int length)
 
 SocksHelper::UDP::~UDP()
 {
-	if (this->tcpSocket != INVALID_SOCKET)
-	{
-		closesocket(this->tcpSocket);
-
-		this->tcpSocket = INVALID_SOCKET;
-	}
-
-	if (this->udpSocket != INVALID_SOCKET)
-	{
-		closesocket(this->udpSocket);
-
-		this->udpSocket = INVALID_SOCKET;
-	}
+	Stop();
 }
 
-void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
+void SocksHelper::UDP::Stop()
 {
-	char buffer[1];
+	stopping = true;
 
-	while (tcpSocket != INVALID_SOCKET)
+	const SOCKET tcp = tcpSocket.exchange(INVALID_SOCKET);
+	if (tcp != INVALID_SOCKET)
 	{
-		if (recv(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-			break;
+		shutdown(tcp, SD_BOTH);
+		closesocket(tcp);
+	}
+	const SOCKET udp = udpSocket.exchange(INVALID_SOCKET);
+	if (udp != INVALID_SOCKET)
+		closesocket(udp);
+}
 
-		if (send(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+void SocksHelper::UDP::Run(std::shared_ptr<UDP> remote)
+{
+	// SOCKS5 UDP ASSOCIATE keeps its control TCP connection open; it does
+	// not echo incoming control bytes. Observe closure to end the session.
+	char buffer[1];
+	while (!remote->stopping)
+	{
+		const SOCKET tcp = remote->tcpSocket;
+		if (tcp == INVALID_SOCKET || recv(tcp, buffer, sizeof(buffer), 0) <= 0)
 			break;
 	}
-
-	if (tcpSocket != INVALID_SOCKET) closesocket(tcpSocket);
-	if (udpSocket != INVALID_SOCKET) closesocket(udpSocket);
+	remote->Stop();
 }
 
 bool SocksHelper::UDP::Associate()
@@ -311,13 +338,13 @@ bool SocksHelper::UDP::Associate()
 	buffer[1] = 0x03;
 	buffer[3] = 0x01;
 
-	if (send(this->tcpSocket, buffer, 10, 0) != 10)
+	if (!SendAll(this->tcpSocket, buffer, 10))
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] Send udp associate request failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
-	if (recv(this->tcpSocket, buffer, 3, 0) != 3)
+	if (!ReceiveExactly(this->tcpSocket, buffer, 3))
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] Receive udp associate response failed: %d\n", WSAGetLastError());
 		return false;
@@ -373,7 +400,7 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
-	thread(SocksHelper::UDP::Run, this->tcpSocket, this->udpSocket).detach();
+	thread(SocksHelper::UDP::Run, shared_from_this()).detach();
 	return true;
 }
 
@@ -418,7 +445,7 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 
 int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIMEVAL timeout)
 {
-	if (!this->udpSocket)
+	if (this->udpSocket == INVALID_SOCKET || length < 4)
 		return SOCKET_ERROR;
 
 	if (timeout != NULL)
@@ -435,26 +462,32 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 	int size = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
 	if (size == 0 || size == SOCKET_ERROR)
 		return size;
+	if (size < 4 || buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
+		return SOCKET_ERROR;
 
 	SOCKADDR_IN6 addr;
 	if (buffer[3] == 0x01)
 	{
+		if (size < 10)
+			return SOCKET_ERROR;
 		auto ipv4 = (PSOCKADDR_IN)&addr;
 		ipv4->sin_family = AF_INET;
 
 		memcpy(&ipv4->sin_addr, buffer + 4, 4);
 		memcpy(&ipv4->sin_port, buffer + 8, 2);
 
-		memcpy(buffer, buffer + 10, (ULONG64)size - 10);
+		memmove(buffer, buffer + 10, (size_t)size - 10);
 	}
 	else if (buffer[3] == 0x04)
 	{
+		if (size < 22)
+			return SOCKET_ERROR;
 		addr.sin6_family = AF_INET6;
 
 		memcpy(&addr.sin6_addr, buffer + 4, 16);
 		memcpy(&addr.sin6_port, buffer + 20, 2);
 
-		memcpy(buffer, buffer + 22, (ULONG64)size - 22);
+		memmove(buffer, buffer + 22, (size_t)size - 22);
 	}
 	else
 	{

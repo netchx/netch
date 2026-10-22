@@ -22,6 +22,9 @@ namespace Netch.Controllers
 
         private NetRoute _tun;
         private NetRoute _outbound;
+        private bool _outboundReady;
+        private bool _nativeInitialized;
+        private bool _dnsInitialized;
 
         public string Name => "tun2socks";
         public string interfaceName => "netch";
@@ -37,14 +40,18 @@ namespace Netch.Controllers
             _tunConfig = Global.Settings.TUNTAP;
 
             if (server.RemoteHostname.ValueOrDefault() != null)
-                _serverRemoteAddress = await DnsUtils.LookupAsync(server.RemoteHostname!);
+                _serverRemoteAddress = await DnsUtils.LookupAsync(server.RemoteHostname!, AddressFamily.InterNetwork);
             else
-                _serverRemoteAddress = await DnsUtils.LookupAsync(server.Hostname);
+                _serverRemoteAddress = await DnsUtils.LookupAsync(server.Hostname, AddressFamily.InterNetwork);
+
+            if (_serverRemoteAddress == null)
+                throw new MessageException("TUN mode requires an IPv4 address for the proxy server bypass route.");
 
             if (_serverRemoteAddress != null && IPAddress.IsLoopback(_serverRemoteAddress))
                 _serverRemoteAddress = null;
 
             _outbound = NetRoute.GetBestRouteTemplate();
+            _outboundReady = true;
             CheckDriver();
 
             // Wait for adapter to be created
@@ -74,9 +81,9 @@ namespace Netch.Controllers
             Dial(NameList.TYPE_UDPREST, "");
             Dial(NameList.TYPE_UDPTYPE, "Socks5");
 
-            Dial(NameList.TYPE_TCPHOST, $"{await server.AutoResolveHostnameAsync()}:{server.Port}");
+            Dial(NameList.TYPE_TCPHOST, $"{await server.AutoResolveHostnameAsync(AddressFamily.InterNetwork)}:{server.Port}");
 
-            Dial(NameList.TYPE_UDPHOST, $"{await server.AutoResolveHostnameAsync()}:{server.Port}");
+            Dial(NameList.TYPE_UDPHOST, $"{await server.AutoResolveHostnameAsync(AddressFamily.InterNetwork)}:{server.Port}");
 
             if (server.Auth())
             {
@@ -97,12 +104,14 @@ namespace Netch.Controllers
             }
             else
             {
+                _dnsInitialized = true;
                 await _aioDnsController.StartAsync();
                 Dial(NameList.TYPE_DNSADDR, $"127.0.0.1:{Global.Settings.AioDNS.ListenPort}");
             }
 
             #endregion
 
+            _nativeInitialized = true;
             if (!Init())
                 throw new MessageException("tun2socks start failed.");
 
@@ -119,14 +128,24 @@ namespace Netch.Controllers
 
         public async Task StopAsync()
         {
-            var tasks = new[]
+            // Remove network routes before releasing the adapter they depend on.
+            // Native shutdown still runs if route/DNS cleanup fails.
+            var dnsStop = _dnsInitialized ? _aioDnsController.StopAsync() : Task.CompletedTask;
+            try
             {
-                FreeAsync(),
-                Task.Run(ClearRouteTable),
-                _aioDnsController.StopAsync()
-            };
-
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(Task.Run(ClearRouteTable), dnsStop);
+            }
+            finally
+            {
+                if (dnsStop.IsCompletedSuccessfully)
+                    _dnsInitialized = false;
+                if (_nativeInitialized)
+                {
+                    if (!await FreeAsync())
+                        throw new MessageException("tun2socks stop failed.");
+                    _nativeInitialized = false;
+                }
+            }
         }
 
         private void CheckDriver()
@@ -194,6 +213,9 @@ namespace Netch.Controllers
 
         private void ClearRouteTable()
         {
+            if (!_outboundReady)
+                return;
+
             if (_serverRemoteAddress != null)
                 RouteUtils.DeleteRoute(_outbound.FillTemplate(_serverRemoteAddress.ToString(), 32));
 
@@ -201,7 +223,7 @@ namespace Netch.Controllers
             {
                 RouteUtils.DeleteRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
                 RouteUtils.DeleteRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
-                NetworkInterfaceUtils.SetInterfaceMetric(_outbound.InterfaceIndex);
+                // Outbound interface metric was never changed on startup.
             }
 
             if (_mode != null)
