@@ -48,7 +48,7 @@ public static class Redirector
         return Task.Run(aio_init);
     }
 
-    public static Task<bool> FreeAsync()
+    public static Task FreeAsync()
     {
         return Task.Run(aio_free);
     }
@@ -68,7 +68,7 @@ public static class Redirector
     private static extern bool aio_init();
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
-    private static extern bool aio_free();
+    private static extern void aio_free();
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]
     private static extern ulong aio_getUP();
