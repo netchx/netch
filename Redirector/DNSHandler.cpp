@@ -64,13 +64,14 @@ void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 			if (remote->Send(&dnsAddr, packet, length) == length)
 			{
 				char buffer[DnsResponseBufferSize];
+				int payloadOffset = 0;
 
 				timeval timeout{};
 				timeout.tv_sec = 4;
 
-				int size = remote->Read(NULL, buffer, sizeof(buffer), &timeout);
+				int size = remote->Read(NULL, buffer, sizeof(buffer), &payloadOffset, &timeout);
 				if (size != 0 && size != SOCKET_ERROR)
-					nf_udpPostReceive(id, (PBYTE)target, buffer, size, option);
+					nf_udpPostReceive(id, (PBYTE)target, buffer + payloadOffset, size, option);
 			}
 		}
 	}

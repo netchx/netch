@@ -1226,12 +1226,13 @@ public partial class MainForm : Form
         NatTypeStatusLabel.Enabled = false;
         UpdateNatTypeStatusLabelText(i18N.Translate("Testing NAT Type"));
 
-        _discoveryNatCts = new CancellationTokenSource();
+        var cancellation = new CancellationTokenSource();
+        _discoveryNatCts = cancellation;
 
         try
         {
-            var res = await MainController.DiscoveryNatTypeAsync(_discoveryNatCts.Token);
-            if (_discoveryNatCts.IsCancellationRequested)
+            var res = await MainController.DiscoveryNatTypeAsync(cancellation.Token);
+            if (cancellation.IsCancellationRequested)
                 return;
 
             if (!string.IsNullOrEmpty(res.PublicEnd))
@@ -1250,10 +1251,21 @@ public partial class MainForm : Form
                 NatTypeStatusLightLabel.Visible = false;
             }
         }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            // Stopping the proxy cancels an in-flight UDP detection.
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "UDP NAT detection UI update failed");
+            UpdateNatTypeStatusLabelText("Error");
+            UpdateNatTypeLight();
+        }
         finally
         {
-            _discoveryNatCts.Dispose();
-            _discoveryNatCts = null;
+            if (ReferenceEquals(_discoveryNatCts, cancellation))
+                _discoveryNatCts = null;
+            cancellation.Dispose();
             NatTypeStatusLabel.Enabled = true;
         }
     }

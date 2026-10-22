@@ -440,14 +440,15 @@ void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_
 	while (!remote->stopping && remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
+		int payloadOffset = 0;
 
-		int length = remote->Read(&target, buffer.data(), static_cast<int>(buffer.size()), NULL);
+		int length = remote->Read(&target, buffer.data(), static_cast<int>(buffer.size()), &payloadOffset, NULL);
 		if (length == SOCKET_ERROR)
 			break;
 
 		DL += length;
 
-		nf_udpPostReceive(id, (unsigned char*)&target, buffer.data(), length, options);
+		nf_udpPostReceive(id, (unsigned char*)&target, buffer.data() + payloadOffset, length, options);
 	}
 
 	remote->Stop();

@@ -425,44 +425,62 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		return SOCKET_ERROR;
 
 	const int headerLength = target->sin6_family == AF_INET ? 10 : 22;
-	if (length < 0 || length > 65535 - headerLength)
+	// The SOCKS5 envelope is part of the UDP payload sent to the proxy.
+	// Keep the complete datagram within the IPv4 UDP payload limit, which is
+	// also safe when the proxy address is IPv6.
+	constexpr int maxUdpPayloadLength = 65507;
+	if (length < 0 || length > maxUdpPayloadLength - headerLength)
 		return SOCKET_ERROR;
 
-	const int dataLength = headerLength + length;
-	this->sendBuffer.resize(dataLength);
-	auto data = this->sendBuffer.data();
-	data[0] = data[1] = data[2] = 0;
-	data[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
+	char header[22]{};
+	header[3] = (target->sin6_family == AF_INET) ? 0x01 : 0x04;
 
 	if (target->sin6_family == AF_INET)
 	{
 		auto ipv4 = (PSOCKADDR_IN)target;
 
-		memcpy(data + 4, &ipv4->sin_addr, 4);
-		memcpy(data + 8, &ipv4->sin_port, 2);
+		memcpy(header + 4, &ipv4->sin_addr, 4);
+		memcpy(header + 8, &ipv4->sin_port, 2);
 	}
 	else
 	{
-		memcpy(data + 4, &target->sin6_addr, 16);
-		memcpy(data + 20, &target->sin6_port, 2);
+		memcpy(header + 4, &target->sin6_addr, 16);
+		memcpy(header + 20, &target->sin6_port, 2);
 	}
 
-	if (length > 0)
-		memcpy(data + headerLength, buffer, length);
-
-	if (sendto(this->udpSocket, data, dataLength, 0, (PSOCKADDR)&this->address, (this->address.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6))) != dataLength)
+	// Send the SOCKS5 header and game payload as one datagram without copying
+	// the payload into a temporary contiguous buffer on every packet.
+	WSABUF buffers[2] = {
+		{ static_cast<ULONG>(headerLength), header },
+		{ static_cast<ULONG>(length), const_cast<char*>(buffer) }
+	};
+	DWORD bytesSent = 0;
+	const DWORD bufferCount = length > 0 ? 2 : 1;
+	const int dataLength = headerLength + length;
+	const int sendResult = WSASendTo(this->udpSocket, buffers, bufferCount, &bytesSent, 0,
+		(PSOCKADDR)&this->address,
+		(this->address.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6)),
+		NULL, NULL);
+	if (sendResult == SOCKET_ERROR)
 	{
 		printf("[Redirector][SocksHelper::UDP::Send] Send packet failed: %d\n", WSAGetLastError());
+		return SOCKET_ERROR;
+	}
+	if (bytesSent != static_cast<DWORD>(dataLength))
+	{
+		printf("[Redirector][SocksHelper::UDP::Send] Incomplete datagram: %lu/%d\n", bytesSent, dataLength);
 		return SOCKET_ERROR;
 	}
 
 	return length;
 }
 
-int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIMEVAL timeout)
+int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, int* payloadOffset, PTIMEVAL timeout)
 {
 	if (this->udpSocket == INVALID_SOCKET || length < 4)
 		return SOCKET_ERROR;
+	if (payloadOffset != NULL)
+		*payloadOffset = 0;
 
 	const auto deadline = timeout == NULL ? chrono::steady_clock::time_point{} :
 		chrono::steady_clock::now() + chrono::seconds(timeout->tv_sec) + chrono::microseconds(timeout->tv_usec);
@@ -526,9 +544,10 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 			continue;
 		}
 
-		memmove(buffer, buffer + headerLength, size - headerLength);
 		if (target != NULL)
 			memcpy(target, &addr, sizeof(SOCKADDR_IN6));
+		if (payloadOffset != NULL)
+			*payloadOffset = headerLength;
 
 		return size - headerLength;
 	}
