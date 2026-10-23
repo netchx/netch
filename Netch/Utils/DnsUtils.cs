@@ -7,11 +7,13 @@ namespace Netch.Utils;
 
 public static class DnsUtils
 {
+    private readonly record struct CacheEntry(IPAddress Address, DateTimeOffset ExpiresAt);
+    private static readonly TimeSpan CacheLifetime = TimeSpan.FromMinutes(5);
     /// <summary>
     ///     缓存
     /// </summary>
-    private static readonly ConcurrentDictionary<string, IPAddress> Cache = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly ConcurrentDictionary<string, IPAddress> Cache6 = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, CacheEntry> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, CacheEntry> Cache6 = new(StringComparer.OrdinalIgnoreCase);
 
     public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
@@ -47,38 +49,38 @@ public static class DnsUtils
 
     private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
-        using var task = Dns.GetHostAddressesAsync(hostname);
-        using var resTask = await Task.WhenAny(task, Task.Delay(timeout));
+        // A timed-out DNS operation may finish later; do not dispose its Task.
+        var addresses = await Dns.GetHostAddressesAsync(hostname)
+            .WaitAsync(TimeSpan.FromMilliseconds(Math.Max(1, timeout)));
 
-        if (resTask == task)
+        var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
+        if (result == null)
+            return null;
+
+        var entry = new CacheEntry(result, DateTimeOffset.UtcNow.Add(CacheLifetime));
+        switch (result.AddressFamily)
         {
-            var addresses = await task;
-
-            var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
-            if (result == null)
-                return null;
-
-            switch (result.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                    Cache.TryAdd(hostname, result);
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    Cache6.TryAdd(hostname, result);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return result;
+            case AddressFamily.InterNetwork:
+                Cache[hostname] = entry;
+                break;
+            case AddressFamily.InterNetworkV6:
+                Cache6[hostname] = entry;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
-        return null;
+        return result;
     }
 
-    private static IPAddress? GetCachedAddress(ConcurrentDictionary<string, IPAddress> cache, string hostname)
+    private static IPAddress? GetCachedAddress(ConcurrentDictionary<string, CacheEntry> cache, string hostname)
     {
-        return cache.TryGetValue(hostname, out var address) ? address : null;
+        if (!cache.TryGetValue(hostname, out var entry))
+            return null;
+        if (entry.ExpiresAt > DateTimeOffset.UtcNow)
+            return entry.Address;
+        cache.TryRemove(hostname, out _);
+        return null;
     }
 
     public static void ClearCache()

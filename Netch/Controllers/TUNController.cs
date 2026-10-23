@@ -64,22 +64,10 @@ namespace Netch.Controllers
 
             _outbound = NetRoute.GetBestRouteTemplate();
             _outboundReady = true;
-            CheckDriver();
+            await CheckDriverAsync();
 
-            // Wait for adapter to be created
-            for (var i = 0; i < 20; i++)
-            {
-                await Task.Delay(300);
-                try
-                {
-                    _tun.InterfaceIndex = NetworkInterfaceUtils.Get(ni => ni.Name.StartsWith(interfaceName)).GetIndex();
-                    break;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
+            // Init() creates the adapter. Its index is obtained from tun_luid()
+            // below; looking for it before Init() only delayed startup.
 
             Dial(NameList.TYPE_ADAPMTU, "1500");
             Dial(NameList.TYPE_BYPBIND, _outbound.Gateway);
@@ -146,14 +134,16 @@ namespace Netch.Controllers
         {
             // Remove network routes before releasing the adapter they depend on.
             // Native shutdown still runs if route/DNS cleanup fails.
-            var dnsStop = _dnsInitialized ? _aioDnsController.StopAsync() : Task.CompletedTask;
+            Task? dnsStop = null;
             try
             {
-                await Task.WhenAll(Task.Run(ClearRouteTable), dnsStop);
+                if (_dnsInitialized)
+                    dnsStop = _aioDnsController.StopAsync();
+                await Task.WhenAll(Task.Run(ClearRouteTable), dnsStop ?? Task.CompletedTask);
             }
             finally
             {
-                if (dnsStop.IsCompletedSuccessfully)
+                if (dnsStop?.IsCompletedSuccessfully == true)
                     _dnsInitialized = false;
                 if (_nativeInitialized)
                 {
@@ -164,13 +154,13 @@ namespace Netch.Controllers
             }
         }
 
-        private void CheckDriver()
+        private async Task CheckDriverAsync()
         {
             string binDriver = Path.Combine(Global.NetchDir, Constants.WintunDllFile);
             string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
 
-            var binHash = Utils.Utils.Sha256CheckSumAsync(binDriver).Result;
-            var sysHash = Utils.Utils.Sha256CheckSumAsync(sysDriver).Result;
+            var binHash = await Utils.Utils.Sha256CheckSumAsync(binDriver);
+            var sysHash = await Utils.Utils.Sha256CheckSumAsync(sysDriver);
             Log.Information("Built-in  wintun.dll Hash: {Hash}", binHash);
             Log.Information("Installed wintun.dll Hash: {Hash}", sysHash);
             if (binHash == sysHash)

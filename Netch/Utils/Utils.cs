@@ -16,12 +16,13 @@ public static class Utils
     {
         try
         {
-            Process.Start(new ProcessStartInfo
+            var startInfo = new ProcessStartInfo
             {
                 FileName = "explorer.exe",
-                Arguments = path,
                 UseShellExecute = true
-            });
+            };
+            startInfo.ArgumentList.Add(path);
+            Process.Start(startInfo);
         }
         catch (Exception e)
         {
@@ -61,14 +62,12 @@ public static class Utils
 
     public static async Task<string> GetCityCodeAsync(string address)
     {
-        var i = address.IndexOf(':');
-        if (i != -1)
-            address = address[..i];
+        address = GetHostFromUri(address);
 
         string? country = null;
         try
         {
-            var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
+            using var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
 
             if (IPAddress.TryParse(address, out _))
             {
@@ -244,12 +243,28 @@ public static class Utils
 
     public static string GetHostFromUri(string str)
     {
-        var startIndex = str.LastIndexOf('/');
-        if (startIndex != -1)
-            str = str[(startIndex + 1)..];
+        str = str.Trim();
+        if (IPAddress.TryParse(str, out _))
+            return str;
+        if (Uri.TryCreate(str, UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host))
+            return uri.Host;
 
-        var endIndex = str.IndexOf(':');
-        return endIndex == -1 ? str : str[..endIndex];
+        // Support [IPv6]:port and unbracketed host:port without splitting a
+        // literal IPv6 address on its first colon.
+        if (str.StartsWith('['))
+        {
+            var close = str.IndexOf(']');
+            if (close > 1)
+                return str[1..close];
+        }
+
+        var slash = str.IndexOf('/');
+        if (slash >= 0)
+            str = str[..slash];
+        var colon = str.LastIndexOf(':');
+        return colon >= 0 && ushort.TryParse(str[(colon + 1)..], out _)
+            ? str[..colon]
+            : str;
     }
 
     public static void ActivateVisibleWindows()

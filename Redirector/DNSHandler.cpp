@@ -11,36 +11,41 @@ constexpr size_t DnsResponseBufferSize = 65535;
 
 void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
-	auto remote = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
+	// Windows does not reliably accept an AF_INET destination on an AF_INET6
+	// sendto socket, even when IPV6_V6ONLY is disabled.
+	const int family = dnsAddr.sin6_family;
+	auto remote = socket(family, SOCK_DGRAM, IPPROTO_UDP);
 	if (remote != INVALID_SOCKET)
 	{
-		int v6only = 0;
-
-		if (setsockopt(remote, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only)) != SOCKET_ERROR)
+		SOCKADDR_IN6 addr{};
+		if (family == AF_INET)
 		{
-			SOCKADDR_IN6 addr;
-			IN6ADDR_SETANY(&addr);
-
-			if (bind(remote, (PSOCKADDR)&addr, sizeof(SOCKADDR_IN6)) != SOCKET_ERROR)
+			((PSOCKADDR_IN)&addr)->sin_family = AF_INET;
+		}
+		else
+		{
+			addr.sin6_family = AF_INET6;
+		}
+		const int addressLength = family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
+		if (bind(remote, (PSOCKADDR)&addr, addressLength) != SOCKET_ERROR)
+		{
+			if (sendto(remote, packet, length, 0, (PSOCKADDR)&dnsAddr, addressLength) == length)
 			{
-				if (sendto(remote, packet, length, 0, (PSOCKADDR)&dnsAddr, (dnsAddr.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6))) == length)
+				timeval timeout{};
+				timeout.tv_sec = 4;
+
+				fd_set fds;
+				FD_ZERO(&fds);
+				FD_SET(remote, &fds);
+
+				int size = select(NULL, &fds, NULL, NULL, &timeout);
+				if (size != 0 && size != SOCKET_ERROR)
 				{
-					timeval timeout{};
-					timeout.tv_sec = 4;
+					char buffer[DnsResponseBufferSize];
 
-					fd_set fds;
-					FD_ZERO(&fds);
-					FD_SET(remote, &fds);
-
-					int size = select(NULL, &fds, NULL, NULL, &timeout);
+					size = recvfrom(remote, buffer, sizeof(buffer), 0, NULL, NULL);
 					if (size != 0 && size != SOCKET_ERROR)
-					{
-						char buffer[DnsResponseBufferSize];
-
-						size = recvfrom(remote, buffer, sizeof(buffer), 0, NULL, NULL);
-						if (size != 0 && size != SOCKET_ERROR)
-							nf_udpPostReceive(id, (PBYTE)target, buffer, size, option);
-					}
+						nf_udpPostReceive(id, (PBYTE)target, buffer, size, option);
 				}
 			}
 		}

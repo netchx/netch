@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using Microsoft.VisualStudio.Threading;
 using Netch.Interfaces;
@@ -179,13 +180,30 @@ public static class MainController
 
     public static void TryReleaseTcpPort(ushort port, string portName)
     {
+        // A plain prefix check would treat C:\Netch2 as a child of C:\Netch.
+        var netchDirectory = Path.GetFullPath(Global.NetchDir)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
         foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
         {
-            var fileName = p.MainModule?.FileName;
-            if (fileName == null)
+            string? fileName;
+            try
+            {
+                fileName = p.MainModule?.FileName;
+            }
+            catch (InvalidOperationException)
+            {
+                // The process exited after the TCP table was read.
                 continue;
+            }
+            catch (Win32Exception)
+            {
+                throw new MessageException($"{portName} ({port}) is used by protected process PID {p.Id}; Netch will not terminate it.");
+            }
 
-            if (fileName.StartsWith(Global.NetchDir))
+            if (fileName == null)
+                throw new MessageException($"{portName} ({port}) is used by process PID {p.Id}, but its executable path is unavailable.");
+
+            if (p.Id != Environment.ProcessId && Path.GetFullPath(fileName).StartsWith(netchDirectory, StringComparison.OrdinalIgnoreCase))
             {
                 p.Kill();
                 p.WaitForExit();
@@ -205,12 +223,12 @@ public static class MainController
         return Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
     }
 
-    public static Task<int?> HttpConnectAsync(CancellationToken ctx = default)
+    public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
         try
         {
-            return Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
+            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
         }
         catch (OperationCanceledException)
         {
@@ -221,6 +239,6 @@ public static class MainController
             Log.Warning(e, "Unhandled Socks5ServerTestUtils.HttpConnectAsync Exception");
         }
 
-        return Task.FromResult<int?>(null);
+        return null;
     }
 }

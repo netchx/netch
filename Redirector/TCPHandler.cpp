@@ -128,11 +128,13 @@ void TCPHandler::Accept()
 		if (client == INVALID_SOCKET)
 		{
 			int lasterr = WSAGetLastError();
-			if (lasterr == 10004)
+			if (tcpSocket == INVALID_SOCKET)
 				return;
 
 			printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", lasterr);
-			return;
+			if (lasterr != WSAECONNRESET && lasterr != WSAECONNABORTED)
+				this_thread::sleep_for(chrono::milliseconds(50));
+			continue;
 		}
 
 		BOOL noDelay = TRUE;
@@ -231,10 +233,23 @@ void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 	while (tcpSocket != INVALID_SOCKET)
 	{
 		int length = recv(client, buffer, sizeof(buffer), 0);
-		if (length == 0 || length == SOCKET_ERROR)
+		if (length == 0)
+		{
+			// Propagate a graceful client FIN, while preserving the receive half.
+			shutdown(remote->tcpSocket, SD_SEND);
 			return;
+		}
+		if (length == SOCKET_ERROR)
+		{
+			shutdown(remote->tcpSocket, SD_BOTH);
+			return;
+		}
 
 		if (remote->Send(buffer, length) != length)
+		{
+			shutdown(remote->tcpSocket, SD_BOTH);
 			return;
+		}
 	}
+	shutdown(remote->tcpSocket, SD_BOTH);
 }
