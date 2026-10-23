@@ -35,7 +35,7 @@ public static class Configuration
     {
         try
         {
-            if (!File.Exists(FileFullName) && !File.Exists(BackupFileFullName))
+            if (!File.Exists(FileFullName))
             {
                 await SaveAsync();
                 return;
@@ -43,35 +43,49 @@ public static class Configuration
 
             await using var _ = await _lock.ReadLockAsync();
 
-            if (File.Exists(FileFullName) && await LoadCoreAsync(FileFullName))
+            if (await LoadCoreAsync(FileFullName))
                 return;
 
             Log.Information("Load backup configuration \"{FileName}\"", BackupFileFullName);
-            if (!File.Exists(BackupFileFullName) || !await LoadCoreAsync(BackupFileFullName))
-                throw new InvalidDataException("Neither settings.json nor its backup could be loaded. Both files were preserved.");
+            if (await LoadCoreAsync(BackupFileFullName))
+                return;
 
-            string? preservedFile = null;
-            if (File.Exists(FileFullName))
-            {
-                preservedFile = $"{FileFullName}.corrupt-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}";
-                File.Move(FileFullName, preservedFile);
-            }
-
-            // Restore the readable backup before a future save rotates it.
-            File.Copy(BackupFileFullName, FileFullName);
-            MessageBox.Show(
-                preservedFile == null
-                    ? "The main configuration was missing. A valid backup has been restored."
-                    : $"The main configuration was unreadable and has been preserved as:\n{preservedFile}\n\nA valid backup has been restored.",
-                "Netch configuration recovered", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            var preservedFiles = new[] { FileFullName, BackupFileFullName }
+                .Select(PreserveCorruptFile)
+                .Where(path => path != null)
+                .ToArray();
+            var preservedMessage = preservedFiles.Length == 0
+                ? string.Empty
+                : $"\nPreserved files:\n{string.Join("\n", preservedFiles)}";
+            throw new InvalidDataException($"Both configuration files are invalid.{preservedMessage}");
         }
         catch (Exception e)
         {
             Log.Error(e, "Load configuration failed");
             MessageBox.Show(
-                $"Netch cannot load its configuration or backup. The original files have been preserved; Netch will close to prevent overwriting them.\n\n{e.Message}",
-                "Netch configuration error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                $"Netch could not load its configuration. The original files were preserved when possible.\n\n{e.Message}",
+                "Netch configuration error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
             Environment.Exit(-1);
+        }
+    }
+
+    private static string? PreserveCorruptFile(string filename)
+    {
+        if (!File.Exists(filename))
+            return null;
+
+        var preservedName = $"{filename}.corrupt.{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+        try
+        {
+            File.Move(filename, preservedName);
+            return preservedName;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Preserve corrupt configuration file \"{FileName}\" failed", filename);
+            return null;
         }
     }
 

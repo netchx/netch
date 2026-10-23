@@ -7,6 +7,16 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
+constexpr DWORD SocksHandshakeTimeoutMs = 4000;
+constexpr long long UdpRetryCooldownMs = 2000;
+
+static void ClearSocketTimeout(SOCKET socket)
+{
+	const DWORD timeout = 0;
+	setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&timeout, sizeof(timeout));
+	setsockopt(socket, SOL_SOCKET, SO_SNDTIMEO, (const char*)&timeout, sizeof(timeout));
+}
+
 // A blocking TCP socket can still read or write fewer bytes than requested.
 static bool SendAll(SOCKET socket, const char* buffer, int length)
 {
@@ -65,11 +75,12 @@ SOCKET SocksHelper::Connect()
 		return INVALID_SOCKET;
 	}
 
-	// Bound SOCKS negotiation. These timeouts are removed after negotiation,
-	// since established TCP streams and UDP control channels may be idle.
-	DWORD handshakeTimeoutMs = 2000;
-	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (char*)&handshakeTimeoutMs, sizeof(handshakeTimeoutMs));
-	setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, (char*)&handshakeTimeoutMs, sizeof(handshakeTimeoutMs));
+	// WSAConnectByName has a connect timeout, but SOCKS negotiation uses
+	// blocking recv calls. Bound both directions so an unresponsive proxy
+	// cannot pin a redirector callback thread indefinitely.
+	const DWORD ioTimeout = SocksHandshakeTimeoutMs;
+	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)&ioTimeout, sizeof(ioTimeout));
+	setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, (const char*)&ioTimeout, sizeof(ioTimeout));
 
 	// Game traffic often consists of small writes; avoid Nagle delays on the
 	// connection from Redirector to the SOCKS server.
@@ -89,11 +100,6 @@ SOCKET SocksHelper::Connect()
 
 bool SocksHelper::Handshake(SOCKET client)
 {
-	if (tgtUsername.size() > 255 || tgtPassword.size() > 255)
-	{
-		puts("[Redirector][SocksHelper::Handshake] SOCKS credentials exceed the 255-byte limit");
-		return false;
-	}
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 
@@ -116,12 +122,16 @@ bool SocksHelper::Handshake(SOCKET client)
 	}
 
 	/* Authentication */
-	if (buffer[0] != 0x05)
-		return false;
 	if (buffer[1] == 0x02)
 	{
 		memset(buffer, 0, sizeof(buffer));
 		buffer[0] = 0x01;
+
+		if (tgtUsername.length() > 255 || tgtPassword.length() > 255)
+		{
+			puts("[Redirector][SocksHelper::Handshake] SOCKS5 credentials are limited to 255 bytes");
+			return false;
+		}
 
 		BYTE ulength = static_cast<BYTE>(tgtUsername.length());
 		BYTE plength = static_cast<BYTE>(tgtPassword.length());
@@ -156,7 +166,7 @@ bool SocksHelper::Handshake(SOCKET client)
 			return false;
 		}
 
-		if (buffer[0] != 0x01 || buffer[1] != 0x00)
+		if (buffer[1] != 0x00)
 		{
 			puts("[Redirector][SocksHelper::Handshake] Authentication failed");
 			return false;
@@ -173,7 +183,7 @@ bool SocksHelper::Handshake(SOCKET client)
 bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 {
 	memset(addr, 0, sizeof(SOCKADDR_IN6));
-	char addrType;
+	unsigned char addrType;
 	if (!ReceiveExactly(client, (char*)&addrType, 1))
 	{
 		printf("[Redirector][SocksHelper::SplitAddr] Read address type failed: %d\n", WSAGetLastError());
@@ -197,42 +207,6 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 			return false;
 		}
 	}
-	else if (addrType == 0x03)
-	{
-		unsigned char hostnameLength;
-		if (!ReceiveExactly(client, (char*)&hostnameLength, 1) || hostnameLength == 0)
-			return false;
-
-		char hostname[256]{};
-		unsigned short port;
-		if (!ReceiveExactly(client, hostname, hostnameLength) ||
-			!ReceiveExactly(client, (char*)&port, 2))
-			return false;
-
-		addrinfo hints{};
-		hints.ai_family = AF_UNSPEC;
-		hints.ai_socktype = SOCK_DGRAM;
-		addrinfo* resolved = nullptr;
-		if (getaddrinfo(hostname, nullptr, &hints, &resolved) != 0 || resolved == nullptr)
-		{
-			puts("[Redirector][SocksHelper::SplitAddr] Resolve SOCKS reply hostname failed");
-			return false;
-		}
-		for (auto current = resolved; current != nullptr; current = current->ai_next)
-		{
-			if (current->ai_family != AF_INET && current->ai_family != AF_INET6)
-				continue;
-			memcpy(addr, current->ai_addr, current->ai_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6));
-			break;
-		}
-		freeaddrinfo(resolved);
-		if (addr->sin6_family == AF_INET)
-			((PSOCKADDR_IN)addr)->sin_port = port;
-		else if (addr->sin6_family == AF_INET6)
-			addr->sin6_port = port;
-		else
-			return false;
-	}
 	else if (addrType == 0x04)
 	{
 		addr->sin6_family = AF_INET6;
@@ -249,6 +223,49 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 			return false;
 		}
 	}
+	else if (addrType == 0x03)
+	{
+		unsigned char hostLength = 0;
+		if (!ReceiveExactly(client, (char*)&hostLength, 1) || hostLength == 0)
+			return false;
+
+		string host(hostLength, '\0');
+		if (!ReceiveExactly(client, host.data(), hostLength))
+			return false;
+
+		USHORT port = 0;
+		if (!ReceiveExactly(client, (char*)&port, sizeof(port)))
+			return false;
+
+		addrinfo hints{};
+		hints.ai_socktype = SOCK_DGRAM;
+		addrinfo* resolved = NULL;
+		if (getaddrinfo(host.c_str(), NULL, &hints, &resolved) != 0)
+			return false;
+
+		bool copied = false;
+		for (auto item = resolved; item != NULL; item = item->ai_next)
+		{
+			if (item->ai_family == AF_INET)
+			{
+				memcpy(addr, item->ai_addr, sizeof(SOCKADDR_IN));
+				((PSOCKADDR_IN)addr)->sin_port = port;
+				copied = true;
+				break;
+			}
+			if (item->ai_family == AF_INET6)
+			{
+				memcpy(addr, item->ai_addr, sizeof(SOCKADDR_IN6));
+				addr->sin6_port = port;
+				copied = true;
+				break;
+			}
+		}
+
+		freeaddrinfo(resolved);
+		if (!copied)
+			return false;
+	}
 	else
 	{
 		printf("[Redirector][SocksHelper::SplitAddr] Unsupported address family: %d\n", addrType);
@@ -256,6 +273,64 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 	}
 
 	return true;
+}
+
+static bool IsWildcardAddress(PSOCKADDR_IN6 address)
+{
+	if (address->sin6_family == AF_INET)
+		return ((PSOCKADDR_IN)address)->sin_addr.S_un.S_addr == htonl(INADDR_ANY);
+
+	return address->sin6_family == AF_INET6 && IN6_IS_ADDR_UNSPECIFIED(&address->sin6_addr);
+}
+
+static bool ReplaceWildcardAddressFromPeer(SOCKET client, PSOCKADDR_IN6 address)
+{
+	SOCKADDR_STORAGE peer{};
+	int peerLength = sizeof(peer);
+	if (getpeername(client, (PSOCKADDR)&peer, &peerLength) == SOCKET_ERROR)
+		return false;
+
+	const auto port = address->sin6_family == AF_INET
+		? ((PSOCKADDR_IN)address)->sin_port
+		: address->sin6_port;
+
+	if (address->sin6_family == AF_INET && peer.ss_family == AF_INET)
+	{
+		((PSOCKADDR_IN)address)->sin_addr = ((PSOCKADDR_IN)&peer)->sin_addr;
+		((PSOCKADDR_IN)address)->sin_port = port;
+		return true;
+	}
+
+	if (address->sin6_family == AF_INET6 && peer.ss_family == AF_INET6)
+	{
+		address->sin6_addr = ((PSOCKADDR_IN6)&peer)->sin6_addr;
+		address->sin6_port = port;
+		return true;
+	}
+
+	// A dual-mode socket may report an IPv4 peer as an IPv4-mapped IPv6
+	// address. Preserve the family returned by SOCKS and copy only the IP.
+	if (address->sin6_family == AF_INET && peer.ss_family == AF_INET6 &&
+		IN6_IS_ADDR_V4MAPPED(&((PSOCKADDR_IN6)&peer)->sin6_addr))
+	{
+		memcpy(&((PSOCKADDR_IN)address)->sin_addr,
+			((PSOCKADDR_IN6)&peer)->sin6_addr.u.Byte + 12, sizeof(IN_ADDR));
+		((PSOCKADDR_IN)address)->sin_port = port;
+		return true;
+	}
+
+	if (address->sin6_family == AF_INET6 && peer.ss_family == AF_INET)
+	{
+		memset(&address->sin6_addr, 0, sizeof(address->sin6_addr));
+		address->sin6_addr.u.Byte[10] = 0xff;
+		address->sin6_addr.u.Byte[11] = 0xff;
+		memcpy(address->sin6_addr.u.Byte + 12,
+			&((PSOCKADDR_IN)&peer)->sin_addr, sizeof(IN_ADDR));
+		address->sin6_port = port;
+		return true;
+	}
+
+	return false;
 }
 
 SocksHelper::TCP::~TCP()
@@ -327,12 +402,10 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		return false;
 
 	SOCKADDR_IN6 addr;
-	if (!SocksHelper::SplitAddr(this->tcpSocket, &addr))
-		return false;
-	DWORD noTimeout = 0;
-	setsockopt(this->tcpSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&noTimeout, sizeof(noTimeout));
-	setsockopt(this->tcpSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&noTimeout, sizeof(noTimeout));
-	return true;
+	const bool connected = SocksHelper::SplitAddr(this->tcpSocket, &addr);
+	if (connected)
+		ClearSocketTimeout(this->tcpSocket);
+	return connected;
 }
 
 int SocksHelper::TCP::Send(const char* buffer, int length)
@@ -359,6 +432,8 @@ SocksHelper::UDP::~UDP()
 void SocksHelper::UDP::Stop()
 {
 	stopping = true;
+	retryAfterMs = chrono::duration_cast<chrono::milliseconds>(
+		chrono::steady_clock::now().time_since_epoch()).count() + UdpRetryCooldownMs;
 
 	const SOCKET tcp = tcpSocket.exchange(INVALID_SOCKET);
 	if (tcp != INVALID_SOCKET)
@@ -419,45 +494,14 @@ bool SocksHelper::UDP::Associate()
 
 	if (!SocksHelper::SplitAddr(this->tcpSocket, &this->address))
 		return false;
-	// RFC 1928 permits an unspecified BND.ADDR. In that case the UDP
-	// relay lives at the same host as the SOCKS TCP control connection.
-	const bool unspecifiedV4 = this->address.sin6_family == AF_INET &&
-		((PSOCKADDR_IN)&this->address)->sin_addr.s_addr == INADDR_ANY;
-	const bool unspecifiedV6 = this->address.sin6_family == AF_INET6 &&
-		IN6_IS_ADDR_UNSPECIFIED(&this->address.sin6_addr);
-	if (unspecifiedV4 || unspecifiedV6)
-	{
-		SOCKADDR_IN6 peer{};
-		int peerLength = sizeof(peer);
-		if (getpeername(this->tcpSocket, (PSOCKADDR)&peer, &peerLength) == SOCKET_ERROR)
-			return false;
 
-		const USHORT port = this->address.sin6_family == AF_INET ?
-			((PSOCKADDR_IN)&this->address)->sin_port : this->address.sin6_port;
-		if (peer.sin6_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&peer.sin6_addr))
-		{
-			SOCKADDR_IN mapped{};
-			mapped.sin_family = AF_INET;
-			mapped.sin_port = port;
-			memcpy(&mapped.sin_addr, &peer.sin6_addr.u.Byte[12], sizeof(mapped.sin_addr));
-			memcpy(&this->address, &mapped, sizeof(mapped));
-		}
-		else if (peer.sin6_family == AF_INET6)
-		{
-			this->address = peer;
-			this->address.sin6_port = port;
-		}
-		else if (peer.sin6_family == AF_INET)
-		{
-			((PSOCKADDR_IN)&peer)->sin_port = port;
-			this->address = peer;
-		}
-		else
-			return false;
+	if (IsWildcardAddress(&this->address) && !ReplaceWildcardAddressFromPeer(this->tcpSocket, &this->address))
+	{
+		puts("[Redirector][SocksHelper::UDP::Associate] SOCKS server returned an unusable wildcard address");
+		return false;
 	}
-	DWORD noTimeout = 0;
-	setsockopt(this->tcpSocket, SOL_SOCKET, SO_RCVTIMEO, (char*)&noTimeout, sizeof(noTimeout));
-	setsockopt(this->tcpSocket, SOL_SOCKET, SO_SNDTIMEO, (char*)&noTimeout, sizeof(noTimeout));
+
+	ClearSocketTimeout(this->tcpSocket);
 	return true;
 }
 
@@ -647,4 +691,11 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, int* 
 
 		return size - headerLength;
 	}
+}
+
+bool SocksHelper::UDP::CanRetry() const
+{
+	const auto now = chrono::duration_cast<chrono::milliseconds>(
+		chrono::steady_clock::now().time_since_epoch()).count();
+	return now >= retryAfterMs.load();
 }

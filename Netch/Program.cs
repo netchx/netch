@@ -21,9 +21,6 @@ public static class Program
 {
     public static readonly ISingleInstanceService SingleInstance = new SingleInstanceService($"Global\\{nameof(Netch)}");
 
-    private static MainForm? _uiMainForm;
-    private static int _pendingActivation;
-
     internal static HWND ConsoleHwnd { get; private set; }
 
 #pragma warning disable VSTHRD002
@@ -73,8 +70,6 @@ public static class Program
             return;
         }
 
-        SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
-
         // clean up old logs
         if (Directory.Exists("logging"))
         {
@@ -102,22 +97,15 @@ public static class Program
         // handle exceptions
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += Application_OnException;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         Application.ApplicationExit += Application_OnExit;
-        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
-            Log.Fatal(eventArgs.ExceptionObject as Exception, "Unhandled application-domain exception");
-        TaskScheduler.UnobservedTaskException += (_, eventArgs) =>
-            Log.Error(eventArgs.Exception, "Unobserved background task exception");
 
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
         var mainForm = Global.MainForm;
-        mainForm.Shown += (_, _) =>
-        {
-            if (Interlocked.Exchange(ref _pendingActivation, 0) != 0)
-                Utils.Utils.ActivateVisibleWindows();
-        };
-        Volatile.Write(ref _uiMainForm, mainForm);
+        SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
         Application.Run(mainForm);
     }
 
@@ -209,6 +197,20 @@ public static class Program
         Log.Error(e.Exception, "Unhandled error");
     }
 
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception exception)
+            Log.Fatal(exception, "Unhandled application-domain exception");
+        else
+            Log.Fatal("Unhandled application-domain exception: {ExceptionObject}", e.ExceptionObject);
+    }
+
+    private static void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Log.Error(e.Exception, "Unobserved task exception");
+        e.SetObserved();
+    }
+
     private static void Application_OnExit(object? sender, EventArgs eventArgs)
     {
         Log.CloseAndFlush();
@@ -217,17 +219,24 @@ public static class Program
     private static void SingleInstance_ArgumentsReceived((string, Action<string>) receive)
     {
         var (arg, endFunc) = receive;
-        if (arg == Constants.Parameter.Show)
+        try
         {
-            // The single-instance callback may run on a worker thread. Never
-            // construct the lazy WinForms main form from that thread.
-            var form = Volatile.Read(ref _uiMainForm);
-            if (form == null || !form.IsHandleCreated || form.IsDisposed)
-                Interlocked.Exchange(ref _pendingActivation, 1);
-            else
-                form.BeginInvoke((Action)Utils.Utils.ActivateVisibleWindows);
+            if (arg == Constants.Parameter.Show)
+            {
+                var mainForm = Global.MainForm;
+                if (mainForm.IsHandleCreated && mainForm.InvokeRequired)
+                    mainForm.BeginInvoke((Action)Utils.Utils.ActivateVisibleWindows);
+                else
+                    Utils.Utils.ActivateVisibleWindows();
+            }
         }
-
-        endFunc(string.Empty);
+        catch (Exception e)
+        {
+            Log.Error(e, "Handle single-instance arguments failed");
+        }
+        finally
+        {
+            endFunc(string.Empty);
+        }
     }
 }

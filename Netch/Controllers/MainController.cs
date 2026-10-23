@@ -180,37 +180,43 @@ public static class MainController
 
     public static void TryReleaseTcpPort(ushort port, string portName)
     {
-        // A plain prefix check would treat C:\Netch2 as a child of C:\Netch.
         var netchDirectory = Path.GetFullPath(Global.NetchDir)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            + Path.DirectorySeparatorChar;
+
         foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
         {
-            string? fileName;
             try
             {
-                fileName = p.MainModule?.FileName;
+                var fileName = p.MainModule?.FileName;
+                if (fileName == null)
+                    continue;
+
+                var fullFileName = Path.GetFullPath(fileName);
+                if (fullFileName.StartsWith(netchDirectory, StringComparison.OrdinalIgnoreCase))
+                {
+                    p.Kill();
+                    p.WaitForExit();
+                }
+                else
+                {
+                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.",
+                        $"{portName} ({port})", $"({p.Id}){fileName}"));
+                }
             }
             catch (InvalidOperationException)
             {
-                // The process exited after the TCP table was read.
-                continue;
+                // The process exited between reading the TCP table and inspecting it.
             }
-            catch (Win32Exception)
+            catch (Win32Exception e)
             {
-                throw new MessageException($"{portName} ({port}) is used by protected process PID {p.Id}; Netch will not terminate it.");
+                throw new MessageException(i18N.TranslateFormat(
+                    "Unable to inspect the process using {0} (PID {1}): {2}",
+                    $"{portName} ({port})", p.Id, e.Message));
             }
-
-            if (fileName == null)
-                throw new MessageException($"{portName} ({port}) is used by process PID {p.Id}, but its executable path is unavailable.");
-
-            if (p.Id != Environment.ProcessId && Path.GetFullPath(fileName).StartsWith(netchDirectory, StringComparison.OrdinalIgnoreCase))
+            finally
             {
-                p.Kill();
-                p.WaitForExit();
-            }
-            else
-            {
-                throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.", $"{portName} ({port})", $"({p.Id}){fileName}"));
+                p.Dispose();
             }
         }
 
@@ -228,7 +234,7 @@ public static class MainController
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
         try
         {
-            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
+            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server!, ctx);
         }
         catch (OperationCanceledException)
         {

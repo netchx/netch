@@ -23,9 +23,9 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
-extern mutex nameRulesLock;
-extern vector<wregex> bypassRules;
-extern vector<wregex> handleRules;
+extern vector<wregex> bypassList;
+extern vector<wregex> handleList;
+extern mutex ruleLock;
 
 extern atomic_ullong UP;
 extern atomic_ullong DL;
@@ -93,34 +93,35 @@ extern "C" {
 		switch (name)
 		{
 		case AIO_FILTERLOOPBACK:
-			filterLoopback = (wstring(value).find(L"false") == string::npos);
+			filterLoopback = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_FILTERINTRANET:
-			filterIntranet = (wstring(value).find(L"false") == string::npos);
+			filterIntranet = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_FILTERPARENT:
-			filterParent = (wstring(value).find(L"false") == string::npos);
+			filterParent = (wstring(value).find(L"false") == wstring::npos);
+			eh_clearProcessCache();
 			break;
 		case AIO_FILTERICMP:
-			filterICMP = (wstring(value).find(L"false") == string::npos);
+			filterICMP = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_FILTERTCP:
-			filterTCP = (wstring(value).find(L"false") == string::npos);
+			filterTCP = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_FILTERUDP:
-			filterUDP = (wstring(value).find(L"false") == string::npos);
+			filterUDP = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_FILTERDNS:
-			filterDNS = (wstring(value).find(L"false") == string::npos);
+			filterDNS = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_ICMPING:
 			icmping = atoi(ws2s(value).c_str());
 			break;
 		case AIO_DNSONLY:
-			dnsOnly = (wstring(value).find(L"false") == string::npos);
+			dnsOnly = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_DNSPROX:
-			dnsProx = (wstring(value).find(L"false") == string::npos);
+			dnsProx = (wstring(value).find(L"false") == wstring::npos);
 			break;
 		case AIO_DNSHOST:
 			dnsHost = ws2s(value);
@@ -142,32 +143,35 @@ extern "C" {
 			break;
 		case AIO_CLRNAME:
 			{
-				lock_guard<mutex> lock(nameRulesLock);
-				bypassRules.clear();
-				handleRules.clear();
+				lock_guard<mutex> lg(ruleLock);
+				bypassList.clear();
+				handleList.clear();
 			}
+			eh_clearProcessCache();
 			break;
 		case AIO_BYPNAME:
 			try
 			{
-				std::wregex checker(value);
-				lock_guard<mutex> lock(nameRulesLock);
-				bypassRules.emplace_back(std::move(checker));
+				wregex checker(value);
+				lock_guard<mutex> lg(ruleLock);
+				bypassList.emplace_back(move(checker));
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
+			eh_clearProcessCache();
 			break;
 		case AIO_ADDNAME:
 			try
 			{
-				std::wregex checker(value);
-				lock_guard<mutex> lock(nameRulesLock);
-				handleRules.emplace_back(std::move(checker));
+				wregex checker(value);
+				lock_guard<mutex> lg(ruleLock);
+				handleList.emplace_back(move(checker));
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
+			eh_clearProcessCache();
 			break;
 		default:
 			return FALSE;

@@ -118,16 +118,10 @@ public class NFController : IModeController
     /// <returns>No Problem true</returns>
     public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
     {
-        try
-        {
-            var invalid = rules.Where(r => !CheckCppRegex(r, false)).ToArray();
-            results = invalid;
-            return invalid.Length == 0;
-        }
-        finally
-        {
-            Dial(NameList.AIO_CLRNAME, "");
-        }
+        var invalidRules = rules.Where(r => !CheckCppRegex(r, false)).ToList();
+        Dial(NameList.AIO_CLRNAME, "");
+        results = invalidRules;
+        return invalidRules.Count == 0;
     }
 
     public static string GenerateInvalidRulesMessage(IEnumerable<string> rules)
@@ -158,14 +152,8 @@ public class NFController : IModeController
             throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
         // Bypass Self
-        var netchPath = Path.GetFullPath(Global.NetchDir)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        // Native wregex is case-sensitive; Windows executable paths are not.
-        var escapedPath = string.Concat(netchPath.Select(c =>
-            char.IsLetter(c) && char.ToLowerInvariant(c) != char.ToUpperInvariant(c)
-                ? $"[{char.ToLowerInvariant(c)}{char.ToUpperInvariant(c)}]"
-                : c.ToString().ToRegexString()));
-        Dial(NameList.AIO_BYPNAME, "^" + escapedPath);
+        var netchDirectory = Global.NetchDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        Dial(NameList.AIO_BYPNAME, "^" + netchDirectory.ToRegexString() + @"\\");
     }
 
     #region DriverUtil
@@ -279,15 +267,18 @@ public class NFController : IModeController
         if (!File.Exists(SystemDriver))
             return true;
 
-        if (!Interops.Redirector.aio_unregister("netfilter2"))
-            throw new MessageException("Unregister netfilter2 driver failed; driver file was preserved.");
+        var unregistered = Interops.Redirector.aio_unregister("netfilter2");
+        if (!unregistered)
+            Log.Warning("Unregister netfilter2 returned false; attempting to remove the driver file");
+
         try
         {
             File.Delete(SystemDriver);
         }
-        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        catch (Exception e)
         {
-            throw new MessageException($"netfilter2 driver file is still in use: {e.Message}");
+            Log.Error(e, "Delete netfilter2 driver file failed");
+            throw new MessageException($"Delete netfilter2 driver failed: {e.Message}");
         }
 
         return true;
