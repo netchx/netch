@@ -21,6 +21,9 @@ public static class Program
 {
     public static readonly ISingleInstanceService SingleInstance = new SingleInstanceService($"Global\\{nameof(Netch)}");
 
+    private static MainForm? _uiMainForm;
+    private static int _pendingActivation;
+
     internal static HWND ConsoleHwnd { get; private set; }
 
 #pragma warning disable VSTHRD002
@@ -100,11 +103,22 @@ public static class Program
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += Application_OnException;
         Application.ApplicationExit += Application_OnExit;
+        AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+            Log.Fatal(eventArgs.ExceptionObject as Exception, "Unhandled application-domain exception");
+        TaskScheduler.UnobservedTaskException += (_, eventArgs) =>
+            Log.Error(eventArgs.Exception, "Unobserved background task exception");
 
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(Global.MainForm);
+        var mainForm = Global.MainForm;
+        mainForm.Shown += (_, _) =>
+        {
+            if (Interlocked.Exchange(ref _pendingActivation, 0) != 0)
+                Utils.Utils.ActivateVisibleWindows();
+        };
+        Volatile.Write(ref _uiMainForm, mainForm);
+        Application.Run(mainForm);
     }
 
 #pragma warning restore VSTHRD002
@@ -205,7 +219,13 @@ public static class Program
         var (arg, endFunc) = receive;
         if (arg == Constants.Parameter.Show)
         {
-            Utils.Utils.ActivateVisibleWindows();
+            // The single-instance callback may run on a worker thread. Never
+            // construct the lazy WinForms main form from that thread.
+            var form = Volatile.Read(ref _uiMainForm);
+            if (form == null || !form.IsHandleCreated || form.IsDisposed)
+                Interlocked.Exchange(ref _pendingActivation, 1);
+            else
+                form.BeginInvoke((Action)Utils.Utils.ActivateVisibleWindows);
         }
 
         endFunc(string.Empty);

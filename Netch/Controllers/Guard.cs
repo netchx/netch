@@ -91,6 +91,12 @@ public abstract class Guard
             for (var i = 0; i < 1000; i++)
             {
                 await Task.Delay(50);
+                if (Instance.HasExited)
+                {
+                    await StopGuardAsync();
+                    OnStartFailed();
+                    throw new MessageException($"{Name} 控制器进程提前退出");
+                }
                 switch (State)
                 {
                     case State.Started:
@@ -130,7 +136,8 @@ public abstract class Guard
                     State = State.Started;
                 else if (FailedKeywords.Any(s => line.Contains(s)))
                 {
-                    OnStartFailed();
+                    // Report once after output readers have stopped and the log
+                    // writer has been closed by StopGuardAsync().
                     State = State.Stopped;
                 }
             }

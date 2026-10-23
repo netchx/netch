@@ -35,7 +35,7 @@ public static class Configuration
     {
         try
         {
-            if (!File.Exists(FileFullName))
+            if (!File.Exists(FileFullName) && !File.Exists(BackupFileFullName))
             {
                 await SaveAsync();
                 return;
@@ -43,15 +43,34 @@ public static class Configuration
 
             await using var _ = await _lock.ReadLockAsync();
 
-            if (await LoadCoreAsync(FileFullName))
+            if (File.Exists(FileFullName) && await LoadCoreAsync(FileFullName))
                 return;
 
             Log.Information("Load backup configuration \"{FileName}\"", BackupFileFullName);
-            await LoadCoreAsync(BackupFileFullName);
+            if (!File.Exists(BackupFileFullName) || !await LoadCoreAsync(BackupFileFullName))
+                throw new InvalidDataException("Neither settings.json nor its backup could be loaded. Both files were preserved.");
+
+            string? preservedFile = null;
+            if (File.Exists(FileFullName))
+            {
+                preservedFile = $"{FileFullName}.corrupt-{DateTime.UtcNow:yyyyMMddHHmmss}-{Guid.NewGuid():N}";
+                File.Move(FileFullName, preservedFile);
+            }
+
+            // Restore the readable backup before a future save rotates it.
+            File.Copy(BackupFileFullName, FileFullName);
+            MessageBox.Show(
+                preservedFile == null
+                    ? "The main configuration was missing. A valid backup has been restored."
+                    : $"The main configuration was unreadable and has been preserved as:\n{preservedFile}\n\nA valid backup has been restored.",
+                "Netch configuration recovered", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         }
         catch (Exception e)
         {
             Log.Error(e, "Load configuration failed");
+            MessageBox.Show(
+                $"Netch cannot load its configuration or backup. The original files have been preserved; Netch will close to prevent overwriting them.\n\n{e.Message}",
+                "Netch configuration error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Environment.Exit(-1);
         }
     }

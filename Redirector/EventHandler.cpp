@@ -10,8 +10,9 @@ extern bool filterDNS;
 
 extern bool dnsOnly;
 
-extern vector<wstring> bypassList;
-extern vector<wstring> handleList;
+extern mutex nameRulesLock;
+extern vector<wregex> bypassRules;
+extern vector<wregex> handleRules;
 
 extern atomic<USHORT> tcpListen;
 
@@ -19,6 +20,16 @@ DWORD CurrentID = 0;
 
 mutex udpContextLock;
 map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> udpContext;
+map<ENDPOINT_ID, chrono::steady_clock::time_point> udpRetryAfter;
+
+void MarkUdpFailure(ENDPOINT_ID id, const shared_ptr<SocksHelper::UDP>& remote)
+{
+	remote->Stop();
+	lock_guard<mutex> lg(udpContextLock);
+	auto it = udpContext.find(id);
+	if (it != udpContext.end() && it->second == remote)
+		udpRetryAfter[id] = chrono::steady_clock::now() + chrono::seconds(5);
+}
 
 atomic_ullong UP = { 0 };
 atomic_ullong DL = { 0 };
@@ -74,9 +85,10 @@ bool checkBypassName(DWORD id)
 {
 	auto name = GetProcessName(id);
 
-	for (size_t i = 0; i < bypassList.size(); i++)
+	lock_guard<mutex> lock(nameRulesLock);
+	for (const auto& pattern : bypassRules)
 	{
-		if (regex_search(name, wregex(bypassList[i])))
+		if (regex_search(name, pattern))
 		{
 			return true;
 		}
@@ -90,9 +102,10 @@ bool checkHandleName(DWORD id)
 	{
 		auto name = GetProcessName(id);
 
-		for (size_t i = 0; i < handleList.size(); i++)
+		lock_guard<mutex> lock(nameRulesLock);
+		for (const auto& pattern : handleRules)
 		{
-			if (regex_search(name, wregex(handleList[i])))
+			if (regex_search(name, pattern))
 			{
 				return true;
 			}
@@ -122,9 +135,10 @@ bool checkHandleName(DWORD id)
 			{
 				auto name = GetProcessName(PE.th32ParentProcessID);
 
-				for (size_t i = 0; i < handleList.size(); i++)
+				lock_guard<mutex> lock(nameRulesLock);
+				for (const auto& pattern : handleRules)
 				{
-					if (regex_search(name, wregex(handleList[i])))
+					if (regex_search(name, pattern))
 					{
 						CloseHandle(hSnapshot);
 						return true;
@@ -160,6 +174,7 @@ void eh_free()
 	{
 		lock_guard<mutex> lg(udpContextLock);
 		connections.swap(udpContext);
+		udpRetryAfter.clear();
 	}
 	for (const auto& connection : connections)
 		connection.second->Stop();
@@ -318,6 +333,7 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	lock_guard<mutex> lg(udpContextLock);
 	udpContext[id] = make_shared<SocksHelper::UDP>();
+	udpRetryAfter.erase(id);
 }
 
 void udpConnectRequest(ENDPOINT_ID id, PNF_UDP_CONN_REQUEST info)
@@ -355,6 +371,13 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 	shared_ptr<SocksHelper::UDP> remote;
 	{
 		lock_guard<mutex> lg(udpContextLock);
+		auto retry = udpRetryAfter.find(id);
+		if (retry != udpRetryAfter.end())
+		{
+			if (chrono::steady_clock::now() < retry->second)
+				return;
+			udpRetryAfter.erase(retry);
+		}
 		auto it = udpContext.find(id);
 		if (it != udpContext.end())
 		{
@@ -377,7 +400,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 
 	if (remote->tcpSocket == INVALID_SOCKET && !remote->Associate())
 	{
-		remote->Stop();
+		MarkUdpFailure(id, remote);
 		return;
 	}
 
@@ -385,7 +408,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 	{
 		if (!remote->CreateUDP())
 		{
-			remote->Stop();
+			MarkUdpFailure(id, remote);
 			return;
 		}
 
@@ -397,6 +420,8 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 
 	if (remote->Send((PSOCKADDR_IN6)target, buffer, length) == length)
 		UP += length;
+	else
+		MarkUdpFailure(id, remote);
 }
 
 void udpCanReceive(ENDPOINT_ID id)
@@ -418,6 +443,7 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	shared_ptr<SocksHelper::UDP> remote;
 	{
 		lock_guard<mutex> lg(udpContextLock);
+		udpRetryAfter.erase(id);
 		auto it = udpContext.find(id);
 		if (it != udpContext.end())
 		{
@@ -451,6 +477,6 @@ void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_
 		nf_udpPostReceive(id, (unsigned char*)&target, buffer.data() + payloadOffset, length, options);
 	}
 
-	remote->Stop();
+	MarkUdpFailure(id, remote);
 	delete[] options;
 }

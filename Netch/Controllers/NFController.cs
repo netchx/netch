@@ -118,9 +118,16 @@ public class NFController : IModeController
     /// <returns>No Problem true</returns>
     public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
     {
-        results = rules.Where(r => !CheckCppRegex(r, false));
-        Dial(NameList.AIO_CLRNAME, "");
-        return !results.Any();
+        try
+        {
+            var invalid = rules.Where(r => !CheckCppRegex(r, false)).ToArray();
+            results = invalid;
+            return invalid.Length == 0;
+        }
+        finally
+        {
+            Dial(NameList.AIO_CLRNAME, "");
+        }
     }
 
     public static string GenerateInvalidRulesMessage(IEnumerable<string> rules)
@@ -151,7 +158,14 @@ public class NFController : IModeController
             throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
         // Bypass Self
-        Dial(NameList.AIO_BYPNAME, "^" + Global.NetchDir.ToRegexString());
+        var netchPath = Path.GetFullPath(Global.NetchDir)
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        // Native wregex is case-sensitive; Windows executable paths are not.
+        var escapedPath = string.Concat(netchPath.Select(c =>
+            char.IsLetter(c) && char.ToLowerInvariant(c) != char.ToUpperInvariant(c)
+                ? $"[{char.ToLowerInvariant(c)}{char.ToUpperInvariant(c)}]"
+                : c.ToString().ToRegexString()));
+        Dial(NameList.AIO_BYPNAME, "^" + escapedPath);
     }
 
     #region DriverUtil
@@ -265,8 +279,16 @@ public class NFController : IModeController
         if (!File.Exists(SystemDriver))
             return true;
 
-        Interops.Redirector.aio_unregister("netfilter2");
-        File.Delete(SystemDriver);
+        if (!Interops.Redirector.aio_unregister("netfilter2"))
+            throw new MessageException("Unregister netfilter2 driver failed; driver file was preserved.");
+        try
+        {
+            File.Delete(SystemDriver);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            throw new MessageException($"netfilter2 driver file is still in use: {e.Message}");
+        }
 
         return true;
     }

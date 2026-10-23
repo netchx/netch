@@ -23,8 +23,9 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
-extern vector<wstring> bypassList;
-extern vector<wstring> handleList;
+extern mutex nameRulesLock;
+extern vector<wregex> bypassRules;
+extern vector<wregex> handleRules;
 
 extern atomic_ullong UP;
 extern atomic_ullong DL;
@@ -140,30 +141,33 @@ extern "C" {
 			tgtPassword = ws2s(value);
 			break;
 		case AIO_CLRNAME:
-			bypassList.clear();
-			handleList.clear();
+			{
+				lock_guard<mutex> lock(nameRulesLock);
+				bypassRules.clear();
+				handleRules.clear();
+			}
 			break;
 		case AIO_BYPNAME:
 			try
 			{
 				std::wregex checker(value);
+				lock_guard<mutex> lock(nameRulesLock);
+				bypassRules.emplace_back(std::move(checker));
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
-
-			bypassList.emplace_back(value);
 			break;
 		case AIO_ADDNAME:
 			try
 			{
 				std::wregex checker(value);
+				lock_guard<mutex> lock(nameRulesLock);
+				handleRules.emplace_back(std::move(checker));
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
-
-			handleList.emplace_back(value);
 			break;
 		default:
 			return FALSE;
