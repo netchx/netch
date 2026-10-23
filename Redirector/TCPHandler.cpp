@@ -188,13 +188,14 @@ void TCPHandler::Handle(SOCKET client)
 		activeConnections[client] = remote;
 	}
 
-	thread(TCPHandler::Send, client, remote).detach();
+	// Keep the sender joinable: close the socket only after it stops using it.
+	thread sender(TCPHandler::Send, client, remote);
 	TCPHandler::Read(client, remote.get());
 
-	// Wake the detached sender before closing the client socket. It retains
-	// shared ownership of the upstream connection until it finishes.
+	// Unblock any pending socket I/O, then wait before reusing the socket handle.
 	shutdown(client, SD_BOTH);
 	shutdown(remote->tcpSocket, SD_BOTH);
+	sender.join();
 	{
 		lock_guard<mutex> lg(tcpLock);
 		activeConnections.erase(client);
