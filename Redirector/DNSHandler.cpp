@@ -11,25 +11,28 @@ constexpr size_t DnsResponseBufferSize = 65535;
 
 void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
-	// Windows does not reliably accept an AF_INET destination on an AF_INET6
-	// sendto socket, even when IPV6_V6ONLY is disabled.
-	const int family = dnsAddr.sin6_family;
+	const auto family = dnsAddr.sin6_family == AF_INET ? AF_INET : AF_INET6;
 	auto remote = socket(family, SOCK_DGRAM, IPPROTO_UDP);
 	if (remote != INVALID_SOCKET)
 	{
-		SOCKADDR_IN6 addr{};
+		bool bound = false;
 		if (family == AF_INET)
 		{
-			((PSOCKADDR_IN)&addr)->sin_family = AF_INET;
+			SOCKADDR_IN addr{};
+			addr.sin_family = AF_INET;
+			bound = bind(remote, (PSOCKADDR)&addr, sizeof(addr)) != SOCKET_ERROR;
 		}
 		else
 		{
-			addr.sin6_family = AF_INET6;
+			SOCKADDR_IN6 addr;
+			IN6ADDR_SETANY(&addr);
+			bound = bind(remote, (PSOCKADDR)&addr, sizeof(addr)) != SOCKET_ERROR;
 		}
-		const int addressLength = family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
-		if (bind(remote, (PSOCKADDR)&addr, addressLength) != SOCKET_ERROR)
+
+		if (bound)
 		{
-			if (sendto(remote, packet, length, 0, (PSOCKADDR)&dnsAddr, addressLength) == length)
+			const int targetLength = family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
+			if (sendto(remote, packet, length, 0, (PSOCKADDR)&dnsAddr, targetLength) == length)
 			{
 				timeval timeout{};
 				timeout.tv_sec = 4;

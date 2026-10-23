@@ -16,13 +16,12 @@ public static class Utils
     {
         try
         {
-            var startInfo = new ProcessStartInfo
+            Process.Start(new ProcessStartInfo
             {
                 FileName = "explorer.exe",
+                Arguments = $"\"{path.Replace("\"", "\\\"")}\"",
                 UseShellExecute = true
-            };
-            startInfo.ArgumentList.Add(path);
-            Process.Start(startInfo);
+            });
         }
         catch (Exception e)
         {
@@ -243,28 +242,26 @@ public static class Utils
 
     public static string GetHostFromUri(string str)
     {
-        str = str.Trim();
-        if (IPAddress.TryParse(str, out _))
-            return str;
-        if (Uri.TryCreate(str, UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.Host))
-            return uri.Host;
+        var startIndex = str.LastIndexOf('/');
+        if (startIndex != -1)
+            str = str[(startIndex + 1)..];
 
-        // Support [IPv6]:port and unbracketed host:port without splitting a
-        // literal IPv6 address on its first colon.
         if (str.StartsWith('['))
         {
-            var close = str.IndexOf(']');
-            if (close > 1)
-                return str[1..close];
+            var closingBracket = str.IndexOf(']');
+            if (closingBracket > 0)
+                return str[1..closingBracket];
         }
 
-        var slash = str.IndexOf('/');
-        if (slash >= 0)
-            str = str[..slash];
-        var colon = str.LastIndexOf(':');
-        return colon >= 0 && ushort.TryParse(str[(colon + 1)..], out _)
-            ? str[..colon]
-            : str;
+        // A raw IPv6 address contains colons but is not a host:port pair.
+        if (IPAddress.TryParse(str, out _))
+            return str;
+
+        var endIndex = str.LastIndexOf(':');
+        if (endIndex > 0 && ushort.TryParse(str[(endIndex + 1)..], out _))
+            return str[..endIndex];
+
+        return str;
     }
 
     public static void ActivateVisibleWindows()

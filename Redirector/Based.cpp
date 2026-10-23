@@ -20,6 +20,8 @@ wstring tgtPort = L"1080";
 string tgtUsername = "";
 string tgtPassword = "";
 
-mutex nameRulesLock;
-vector<wregex> bypassRules;
-vector<wregex> handleRules;
+// Rules are compiled when they are received from the managed UI. Matching
+// against these objects avoids constructing a wregex for every socket event.
+vector<wregex> bypassList;
+vector<wregex> handleList;
+mutex ruleLock;

@@ -15,6 +15,7 @@
 #include <iostream>
 #include <memory>
 #include <atomic>
+#include <unordered_map>
 
 #include <WinSock2.h>
 #include <MSWSock.h>

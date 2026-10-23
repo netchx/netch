@@ -13,6 +13,7 @@ public abstract class Guard
     private readonly SemaphoreSlim _logWriteLock = new(1, 1);
     private Task[] _outputTasks = Array.Empty<Task>();
     private bool _guardStopped;
+    private int _startFailureReported;
 
     /// <param name="mainFile">application path relative of Netch\bin</param>
     /// <param name="redirectOutput"></param>
@@ -60,6 +61,7 @@ public abstract class Guard
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {
         State = State.Starting;
+        Interlocked.Exchange(ref _startFailureReported, 0);
 
         _logFileStream = new FileStream(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, true);
         _logStreamWriter = new StreamWriter(_logFileStream) { AutoFlush = true };
@@ -83,6 +85,14 @@ public abstract class Guard
             if (!StartedKeywords.Any())
             {
                 // Skip, No started keyword
+                if (Instance.HasExited)
+                {
+                    State = State.Stopped;
+                    await StopGuardAsync();
+                    ReportStartFailedOnce();
+                    throw new MessageException($"{Name} 控制器启动失败");
+                }
+
                 State = State.Started;
                 return;
             }
@@ -93,10 +103,12 @@ public abstract class Guard
                 await Task.Delay(50);
                 if (Instance.HasExited)
                 {
+                    State = State.Stopped;
                     await StopGuardAsync();
-                    OnStartFailed();
-                    throw new MessageException($"{Name} 控制器进程提前退出");
+                    ReportStartFailedOnce();
+                    throw new MessageException($"{Name} 控制器启动失败");
                 }
+
                 switch (State)
                 {
                     case State.Started:
@@ -104,7 +116,7 @@ public abstract class Guard
                         return;
                     case State.Stopped:
                         await StopGuardAsync();
-                        OnStartFailed();
+                        ReportStartFailedOnce();
                         throw new MessageException($"{Name} 控制器启动失败");
                 }
             }
@@ -136,9 +148,8 @@ public abstract class Guard
                     State = State.Started;
                 else if (FailedKeywords.Any(s => line.Contains(s)))
                 {
-                    // Report once after output readers have stopped and the log
-                    // writer has been closed by StopGuardAsync().
                     State = State.Stopped;
+                    ReportStartFailedOnce();
                 }
             }
         }
@@ -207,5 +218,11 @@ public abstract class Guard
     protected virtual void OnStartFailed()
     {
         Utils.Utils.Open(LogPath);
+    }
+
+    private void ReportStartFailedOnce()
+    {
+        if (Interlocked.Exchange(ref _startFailureReported, 1) == 0)
+            OnStartFailed();
     }
 }

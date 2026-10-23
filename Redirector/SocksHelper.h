@@ -29,6 +29,7 @@ namespace SocksHelper
 
 		static void Run(std::shared_ptr<UDP> remote);
 		void Stop();
+		bool CanRetry() const;
 
 		bool Associate();
 		bool CreateUDP();
@@ -39,6 +40,7 @@ namespace SocksHelper
 		std::atomic<SOCKET> tcpSocket{ INVALID_SOCKET };
 		std::atomic<SOCKET> udpSocket{ INVALID_SOCKET };
 		std::atomic<bool> stopping{ false };
+		std::atomic<long long> retryAfterMs{ 0 };
 		std::mutex sendLock;
 
 		SOCKADDR_IN6 address = { 0 };
