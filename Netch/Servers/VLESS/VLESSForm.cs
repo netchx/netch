@@ -1,3 +1,4 @@
+using Netch.Enums;
 using Netch.Forms;
 
 namespace Netch.Servers;
@@ -9,38 +10,18 @@ internal class VLESSForm : ServerForm
     {
         server ??= new VLESSServer();
         Server = server;
-        CreateTextBox("Sni", "ServerName(Sni)", s => true, s => server.ServerName = s, server.ServerName);
-        CreateTextBox("UUID", "UUID", s => true, s => server.UserID = s, server.UserID);
-        CreateTextBox("EncryptMethod",
-            "Encrypt Method",
-            s => true,
-            s => server.EncryptMethod = !string.IsNullOrWhiteSpace(s) ? s : "none",
-            server.EncryptMethod);
 
-        CreateComboBox("TransferProtocol",
-            "Transfer Protocol",
-            VLESSGlobal.TransferProtocols,
-            s => server.TransferProtocol = s,
-            server.TransferProtocol);
-        CreateComboBox("PacketEncoding",
-            "Packet Encoding",
-            VMessGlobal.PacketEncodings,
-            s => server.PacketEncoding = s,
-            server.PacketEncoding);
+        CreateTextBox("UUID", "UUID", s => true, s => server.Password = s, server.Password);
+        CreateComboBox("Flow", "Flow", Constants.Flow, s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
+        CreateComboBox("EncryptMethod", "Encrypt Method", Constants.VmessSecurities, s => server.ProtoExtra.VmessSecurity = s, server.ProtoExtra.VmessSecurity);
+        CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
 
-        CreateComboBox("FakeType", "Fake Type", VLESSGlobal.FakeTypes, s => server.FakeType = s, server.FakeType);
-        CreateTextBox("Host", "Host", s => true, s => server.Host = s, server.Host);
-        CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);
-        CreateComboBox("QUICSecurity", "QUIC Security", VLESSGlobal.QUIC, s => server.QUICSecure = s, server.QUICSecure);
-        CreateTextBox("QUICSecret", "QUIC Secret", s => true, s => server.QUICSecret = s, server.QUICSecret);
-        CreateComboBox("UseMux",
-            "Use Mux",
-            new List<string> { "", "true", "false" },
-            s => server.UseMux = s switch { "" => null, "true" => true, "false" => false, _ => null },
-            server.UseMux?.ToString().ToLower() ?? "");
-
-        CreateComboBox("TLSSecure", "TLS Secure", VLESSGlobal.TLSSecure, s => server.TLSSecureType = s, server.TLSSecureType);
+        //�ײ㴫�䷽ʽ
+        CreateComboBox("Network", "Network", Constants.Networks, s => server.Network = s, server.Network);
+        CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
+        CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);
+        CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);        
     }
 
-    protected override string TypeName { get; } = "VLESS";
+    protected override EConfigType TypeName { get; } = EConfigType.VLESS;
 }

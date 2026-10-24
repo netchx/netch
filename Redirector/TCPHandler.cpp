@@ -1,10 +1,11 @@
 #include "TCPHandler.h"
 
-SOCKET tcpSocket = INVALID_SOCKET;
-USHORT tcpListen = 0;
+atomic<SOCKET> tcpSocket{ INVALID_SOCKET };
+atomic<USHORT> tcpListen{ 0 };
 
 mutex tcpLock;
 map<USHORT, SOCKADDR_IN6> tcpContext;
+map<SOCKET, shared_ptr<SocksHelper::TCP>> activeConnections;
 
 bool TCPHandler::INIT()
 {
@@ -47,7 +48,6 @@ bool TCPHandler::INIT()
 			return false;
 		}
 	}
-	
 	if (listen(client, 1024) == SOCKET_ERROR)
 	{
 		printf("[Redirector][TCPHandler::INIT] Listen socket failed: %d\n", WSAGetLastError());
@@ -87,6 +87,14 @@ void TCPHandler::FREE()
 		tcpSocket = INVALID_SOCKET;
 	}
 	tcpListen = 0;
+	// Closing the listening socket is not enough: accepted connections may
+	// still be blocked in recv() on either the game or the SOCKS server.
+	for (const auto& connection : activeConnections)
+	{
+		shutdown(connection.first, SD_BOTH);
+		if (connection.second->tcpSocket != INVALID_SOCKET)
+			shutdown(connection.second->tcpSocket, SD_BOTH);
+	}
 
 	tcpContext.clear();
 }
@@ -113,18 +121,28 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 
 void TCPHandler::Accept()
 {
-	while (tcpSocket != INVALID_SOCKET)
+	const SOCKET listener = tcpSocket;
+	while (listener != INVALID_SOCKET && tcpSocket == listener)
 	{
-		auto client = accept(tcpSocket, NULL, NULL);
+		auto client = accept(listener, NULL, NULL);
 		if (client == INVALID_SOCKET)
 		{
 			int lasterr = WSAGetLastError();
-			if (lasterr == 10004)
+			// Closing the listening socket wakes accept() with an error. Other
+			// accept failures are transient (for example, a reset client) and
+			// must not permanently disable the redirector listener.
+			if (tcpSocket != listener)
 				return;
 
-			printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", lasterr);
-			return;
+			if (lasterr != WSAECONNRESET && lasterr != WSAECONNABORTED && lasterr != WSAEINTR)
+				printf("[Redirector][TCPHandler::Accept] Accept client failed: %d\n", lasterr);
+			Sleep(1);
+			continue;
 		}
+
+		BOOL noDelay = TRUE;
+		if (setsockopt(client, IPPROTO_TCP, TCP_NODELAY, (char*)&noDelay, sizeof(noDelay)) == SOCKET_ERROR)
+			printf("[Redirector][TCPHandler::Accept] Disable Nagle failed: %d\n", WSAGetLastError());
 
 		thread(TCPHandler::Handle, client).detach();
 	}
@@ -159,48 +177,90 @@ void TCPHandler::Handle(SOCKET client)
 	auto target = tcpContext[id];
 	tcpLock.unlock();
 
-	auto remote = new SocksHelper::TCP();
+	auto remote = make_shared<SocksHelper::TCP>();
 	if (!remote->Connect(&target))
 	{
 		closesocket(client);
-
-		delete remote;
 		return;
+	}
+	{
+		lock_guard<mutex> lg(tcpLock);
+		if (tcpSocket == INVALID_SOCKET)
+		{
+			closesocket(client);
+			return;
+		}
+		activeConnections[client] = remote;
 	}
 
 	thread(TCPHandler::Send, client, remote).detach();
-	TCPHandler::Read(client, remote);
+	TCPHandler::Read(client, remote.get());
 
+	// Wake the detached sender before closing the client socket. It retains
+	// shared ownership of the upstream connection until it finishes.
+	shutdown(client, SD_BOTH);
+	shutdown(remote->tcpSocket, SD_BOTH);
+	{
+		lock_guard<mutex> lg(tcpLock);
+		activeConnections.erase(client);
+	}
 	closesocket(client);
-	delete remote;
 }
 
 void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 {
 	char buffer[1446];
-	
 	while (tcpSocket != INVALID_SOCKET)
 	{
 		int length = remote->Read(buffer, sizeof(buffer));
 		if (length == 0 || length == SOCKET_ERROR)
 			return;
 
-		if (send(client, buffer, length, 0) != length)
-			return;
+		int sent = 0;
+		while (sent < length)
+		{
+			const int count = send(client, buffer + sent, length - sent, 0);
+			if (count <= 0)
+				return;
+			sent += count;
+		}
 	}
 }
 
-void TCPHandler::Send(SOCKET client, SocksHelper::PTCP remote)
+void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 {
 	char buffer[1446];
+	bool clientClosedNormally = false;
 
 	while (tcpSocket != INVALID_SOCKET)
 	{
 		int length = recv(client, buffer, sizeof(buffer), 0);
-		if (length == 0 || length == SOCKET_ERROR)
-			return;
+		if (length == 0)
+		{
+			clientClosedNormally = true;
+			break;
+		}
+		if (length == SOCKET_ERROR)
+			break;
 
 		if (remote->Send(buffer, length) != length)
-			return;
+			break;
+	}
+
+	// A client FIN is a half-close, not a request to tear down the SOCKS
+	// connection. Forward the FIN so the target can finish its response while
+	// still allowing Handle/Read to relay data in the opposite direction.
+	const SOCKET remoteSocket = remote->tcpSocket;
+	if (remoteSocket == INVALID_SOCKET)
+		return;
+
+	if (clientClosedNormally)
+	{
+		if (shutdown(remoteSocket, SD_SEND) == SOCKET_ERROR)
+			shutdown(remoteSocket, SD_BOTH);
+	}
+	else
+	{
+		shutdown(remoteSocket, SD_BOTH);
 	}
 }

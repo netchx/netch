@@ -7,21 +7,51 @@ extern bool filterParent;
 extern bool filterTCP;
 extern bool filterUDP;
 extern bool filterDNS;
+extern mutex ruleLock;
 
 extern bool dnsOnly;
 
-extern vector<wstring> bypassList;
-extern vector<wstring> handleList;
+extern vector<wregex> bypassList;
+extern vector<wregex> handleList;
 
-extern USHORT tcpListen;
+extern atomic<USHORT> tcpListen;
 
 DWORD CurrentID = 0;
 
 mutex udpContextLock;
-map<ENDPOINT_ID, SocksHelper::PUDP> udpContext;
+map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> udpContext;
 
 atomic_ullong UP = { 0 };
 atomic_ullong DL = { 0 };
+
+struct ProcessInfo
+{
+	wstring name;
+	DWORD parentId = 0;
+};
+
+struct ProcessCacheEntry
+{
+	ProcessInfo info;
+	bool bypass = false;
+	bool handle = false;
+	bool classified = false;
+	HANDLE processHandle = NULL;
+};
+
+struct ProcessDecision
+{
+	ProcessInfo info;
+	bool bypass = false;
+	bool handle = false;
+};
+
+// Process callbacks are frequent, while process names and parent IDs are
+// stable for the lifetime of a process. Keep the expensive Win32 lookups and
+// regex matching out of the hot path. The synchronization handle also lets us
+// discard an entry when Windows reuses a PID.
+mutex processCacheLock;
+unordered_map<DWORD, ProcessCacheEntry> processCache;
 
 wstring ConvertIP(PSOCKADDR addr)
 {
@@ -40,7 +70,7 @@ wstring ConvertIP(PSOCKADDR addr)
 	return buffer;
 }
 
-wstring GetProcessName(DWORD id)
+wstring GetProcessNameUncached(DWORD id)
 {
 	if (id == 0)
 	{
@@ -70,77 +100,155 @@ wstring GetProcessName(DWORD id)
 	return name;
 }
 
-bool checkBypassName(DWORD id)
+DWORD GetParentProcessId(DWORD id)
 {
-	auto name = GetProcessName(id);
+	PROCESSENTRY32W process;
+	memset(&process, 0, sizeof(process));
+	process.dwSize = sizeof(process);
 
-	for (size_t i = 0; i < bypassList.size(); i++)
+	const auto snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if (snapshot == INVALID_HANDLE_VALUE)
+		return 0;
+
+	DWORD parentId = 0;
+	if (Process32FirstW(snapshot, &process))
 	{
-		if (regex_search(name, wregex(bypassList[i])))
+		do
 		{
-			return true;
+			if (process.th32ProcessID == id)
+			{
+				parentId = process.th32ParentProcessID;
+				break;
+			}
+		} while (Process32NextW(snapshot, &process));
+	}
+
+	CloseHandle(snapshot);
+	return parentId;
+}
+
+bool IsProcessAlive(HANDLE processHandle)
+{
+	return processHandle != NULL && WaitForSingleObject(processHandle, 0) == WAIT_TIMEOUT;
+}
+
+ProcessInfo LoadProcessInfo(DWORD id, bool includeParent)
+{
+	if (id == 0)
+		return { L"Idle", 0 };
+
+	if (id == 4)
+		return { L"System", 0 };
+
+	{
+		lock_guard<mutex> lg(processCacheLock);
+		auto it = processCache.find(id);
+		if (it != processCache.end())
+		{
+			if (IsProcessAlive(it->second.processHandle))
+				return it->second.info;
+
+			CloseHandle(it->second.processHandle);
+			processCache.erase(it);
 		}
+	}
+
+	ProcessInfo info;
+	info.name = GetProcessNameUncached(id);
+	if (includeParent)
+		info.parentId = GetParentProcessId(id);
+
+	// A process that cannot be opened is still returned to the caller, but is
+	// intentionally not cached because its lifetime cannot be tracked safely.
+	const auto processHandle = OpenProcess(SYNCHRONIZE, FALSE, id);
+	if (processHandle == NULL)
+		return info;
+
+	lock_guard<mutex> lg(processCacheLock);
+	auto it = processCache.find(id);
+	if (it != processCache.end())
+	{
+		if (IsProcessAlive(it->second.processHandle))
+		{
+			CloseHandle(processHandle);
+			return it->second.info;
+		}
+
+		CloseHandle(it->second.processHandle);
+		processCache.erase(it);
+	}
+
+	ProcessCacheEntry entry;
+	entry.info = info;
+	entry.processHandle = processHandle;
+	processCache.emplace(id, move(entry));
+	return info;
+}
+
+bool MatchesAny(const vector<wregex>& rules, const wstring& name)
+{
+	for (const auto& rule : rules)
+	{
+		if (regex_search(name, rule))
+			return true;
 	}
 
 	return false;
 }
 
-bool checkHandleName(DWORD id)
+ProcessDecision ClassifyProcess(DWORD id)
 {
-	{
-		auto name = GetProcessName(id);
+	const auto info = LoadProcessInfo(id, filterParent);
 
-		for (size_t i = 0; i < handleList.size(); i++)
+	{
+		lock_guard<mutex> lg(processCacheLock);
+		auto it = processCache.find(id);
+		if (it != processCache.end() && IsProcessAlive(it->second.processHandle) && it->second.classified)
+			return { it->second.info, it->second.bypass, it->second.handle };
+	}
+
+	bool bypass;
+	bool handle;
+	{
+		lock_guard<mutex> lg(ruleLock);
+		bypass = MatchesAny(bypassList, info.name);
+		handle = MatchesAny(handleList, info.name);
+
+		if (!handle && filterParent && info.parentId != 0)
 		{
-			if (regex_search(name, wregex(handleList[i])))
-			{
-				return true;
-			}
+			const auto parent = LoadProcessInfo(info.parentId, false);
+			handle = MatchesAny(handleList, parent.name);
 		}
 	}
 
-	if (filterParent)
+	lock_guard<mutex> lg(processCacheLock);
+	auto it = processCache.find(id);
+	if (it != processCache.end() && IsProcessAlive(it->second.processHandle))
 	{
-		PROCESSENTRY32W PE;
-		memset(&PE, 0, sizeof(PROCESSENTRY32W));
-		PE.dwSize = sizeof(PROCESSENTRY32W);
-
-		auto hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if (hSnapshot == INVALID_HANDLE_VALUE)
-		{
-			return false;
-		}
-
-		if (!Process32FirstW(hSnapshot, &PE))
-		{
-			CloseHandle(hSnapshot);
-			return false;
-		}
-
-		do {
-			if (PE.th32ProcessID == id)
-			{
-				auto name = GetProcessName(PE.th32ParentProcessID);
-
-				for (size_t i = 0; i < handleList.size(); i++)
-				{
-					if (regex_search(name, wregex(handleList[i])))
-					{
-						CloseHandle(hSnapshot);
-						return true;
-					}
-				}
-			}
-		} while (Process32NextW(hSnapshot, &PE));
-
-		CloseHandle(hSnapshot);
+		it->second.bypass = bypass;
+		it->second.handle = handle;
+		it->second.classified = true;
+		return { it->second.info, bypass, handle };
 	}
 
-	return false;
+	return { info, bypass, handle };
+}
+
+void eh_clearProcessCache()
+{
+	lock_guard<mutex> lg(processCacheLock);
+	for (auto& [id, entry] : processCache)
+	{
+		UNREFERENCED_PARAMETER(id);
+		if (entry.processHandle != NULL)
+			CloseHandle(entry.processHandle);
+	}
+	processCache.clear();
 }
 
 bool eh_init()
 {
+	eh_clearProcessCache();
 	CurrentID = GetCurrentProcessId();
 
 	if (!DNSHandler::INIT())
@@ -154,13 +262,16 @@ bool eh_init()
 
 void eh_free()
 {
-	lock_guard<mutex> lg(udpContextLock);
-
 	TCPHandler::FREE();
 
-	for (auto i : udpContext)
-		delete i.second;
-	udpContext.clear();
+	map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> connections;
+	{
+		lock_guard<mutex> lg(udpContextLock);
+		connections.swap(udpContext);
+	}
+	for (const auto& connection : connections)
+		connection.second->Stop();
+	eh_clearProcessCache();
 
 	UP = 0;
 	DL = 0;
@@ -186,25 +297,28 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 
 	if (!filterTCP)
 	{
+		const auto process = LoadProcessInfo(info->processId, false);
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!filterTCP] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!filterTCP] " << process.name << endl;
 		return;
 	}
 
-	if (checkBypassName(info->processId))
+	const auto decision = ClassifyProcess(info->processId);
+
+	if (decision.bypass)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][checkBypassName] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name << endl;
 		return;
 	}
 
-	if (!checkHandleName(info->processId))
+	if (!decision.handle)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!checkHandleName] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name << endl;
 		return;
 	}
 
@@ -212,7 +326,7 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!IPv4 && !IPv6] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!IPv4 && !IPv6] " << decision.info.name << endl;
 		return;
 	}
 
@@ -243,7 +357,8 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 
 void tcpConnected(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
-	wcout << "[Redirector][EventHandler][tcpConnected][" << id << "][" << info->processId << "][" << ConvertIP((PSOCKADDR)info->remoteAddress) << "] " << GetProcessName(info->processId) << endl;
+	const auto process = LoadProcessInfo(info->processId, false);
+	wcout << "[Redirector][EventHandler][tcpConnected][" << id << "][" << info->processId << "][" << ConvertIP((PSOCKADDR)info->remoteAddress) << "] " << process.name << endl;
 }
 
 void tcpCanSend(ENDPOINT_ID id)
@@ -290,32 +405,35 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	if (!filterUDP)
 	{
+		const auto process = LoadProcessInfo(info->processId, false);
 		if (!filterDNS) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << process.name << endl;
 		return;
 	}
 
-	if (checkBypassName(info->processId))
+	const auto decision = ClassifyProcess(info->processId);
+
+	if (decision.bypass)
 	{
 		if (dnsOnly) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name << endl;
 		return;
 	}
 
-	if (!checkHandleName(info->processId))
+	if (!decision.handle)
 	{
 		if (dnsOnly) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << GetProcessName(info->processId) << endl;
+		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name << endl;
 		return;
 	}
 
-	wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << GetProcessName(info->processId) << endl;
+	wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << decision.info.name << endl;
 
 	lock_guard<mutex> lg(udpContextLock);
-	udpContext[id] = new SocksHelper::UDP();
+	udpContext[id] = make_shared<SocksHelper::UDP>();
 }
 
 void udpConnectRequest(ENDPOINT_ID id, PNF_UDP_CONN_REQUEST info)
@@ -350,24 +468,45 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		}
 	}
 
-	udpContextLock.lock();
-	if (udpContext.find(id) == udpContext.end())
+	shared_ptr<SocksHelper::UDP> remote;
 	{
-		udpContextLock.unlock();
-
+		lock_guard<mutex> lg(udpContextLock);
+		auto it = udpContext.find(id);
+		if (it != udpContext.end())
+		{
+			// If the SOCKS control connection died, retry with a fresh
+			// association, but avoid reconnecting once per packet while the
+			// proxy is unavailable.
+			if (it->second->stopping && it->second->CanRetry())
+				it->second = make_shared<SocksHelper::UDP>();
+			else if (it->second->stopping)
+				return;
+			remote = it->second;
+		}
+	}
+	if (!remote)
+	{
 		nf_udpPostSend(id, target, buffer, length, options);
 		return;
 	}
-	auto remote = udpContext[id];
-	udpContextLock.unlock();
+	// Serialize session creation and sends for the same UDP endpoint.
+	lock_guard<mutex> sendGuard(remote->sendLock);
+	if (remote->stopping)
+		return;
 
 	if (remote->tcpSocket == INVALID_SOCKET && !remote->Associate())
+	{
+		remote->Stop();
 		return;
+	}
 
 	if (remote->udpSocket == INVALID_SOCKET)
 	{
 		if (!remote->CreateUDP())
+		{
+			remote->Stop();
 			return;
+		}
 
 		auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength]();
 		memcpy(option, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
@@ -395,31 +534,42 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	printf("[Redirector][EventHandler][udpClosed][%llu]\n", id);
 
-	lock_guard<mutex> lg(udpContextLock);
-	if (udpContext.find(id) != udpContext.end())
+	shared_ptr<SocksHelper::UDP> remote;
 	{
-		delete udpContext[id];
-
-		udpContext.erase(id);
+		lock_guard<mutex> lg(udpContextLock);
+		auto it = udpContext.find(id);
+		if (it != udpContext.end())
+		{
+			remote = it->second;
+			udpContext.erase(it);
+		}
+	}
+	if (remote)
+	{
+		remote->Stop();
 	}
 }
 
-void udpReceiveHandler(ENDPOINT_ID id, SocksHelper::PUDP remote, PNF_UDP_OPTIONS options)
+void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_UDP_OPTIONS options)
 {
-	char buffer[1458];
+	// SOCKS5 adds up to 22 bytes before the game payload. Keep a full
+	// datagram per association so a large packet cannot tear down the relay.
+	vector<char> buffer(65535);
 
-	while (remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
+	while (!remote->stopping && remote->tcpSocket != INVALID_SOCKET && remote->udpSocket != INVALID_SOCKET)
 	{
 		SOCKADDR_IN6 target;
+		int payloadOffset = 0;
 
-		int length = remote->Read(&target, buffer, sizeof(buffer), NULL);
-		if (length == 0 || length == SOCKET_ERROR)
+		int length = remote->Read(&target, buffer.data(), static_cast<int>(buffer.size()), &payloadOffset, NULL);
+		if (length == SOCKET_ERROR)
 			break;
 
 		DL += length;
 
-		nf_udpPostReceive(id, (unsigned char*)&target, buffer, length, options);
+		nf_udpPostReceive(id, (unsigned char*)&target, buffer.data() + payloadOffset, length, options);
 	}
 
+	remote->Stop();
 	delete[] options;
 }

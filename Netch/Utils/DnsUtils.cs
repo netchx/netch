@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using DnsClient;
+using Microsoft.VisualStudio.Threading;
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.VisualStudio.Threading;
 
 namespace Netch.Utils;
 
@@ -15,9 +16,16 @@ public static class DnsUtils
     private static readonly Hashtable Cache = new();
     private static readonly Hashtable Cache6 = new();
 
-    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
+    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
     {
         using var _ = await Lock.EnterAsync();
+        if (IPAddress.TryParse(hostname, out var ip))
+        {
+            // AddressFamily 过滤
+            if (inet == AddressFamily.Unspecified || ip.AddressFamily == inet)
+                return ip;
+        }
+
         try
         {
             var cacheResult = inet switch
@@ -31,7 +39,7 @@ public static class DnsUtils
             if (cacheResult != null)
                 return cacheResult;
 
-            return await LookupNoCacheAsync(hostname, inet, timeout);
+            return await LookupNoCacheAsync(hostname, inet, timeout, dns);
         }
         catch (Exception e)
         {
@@ -40,35 +48,55 @@ public static class DnsUtils
         }
     }
 
-    private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
+    private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
     {
-        using var task = Dns.GetHostAddressesAsync(hostname);
-        using var resTask = await Task.WhenAny(task, Task.Delay(timeout));
-
-        if (resTask == task)
+        IPAddress[] addresses;
+        if (string.IsNullOrWhiteSpace(dns))
         {
-            var addresses = await task;
-
-            var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
-            if (result == null)
-                return null;
-
-            switch (result.AddressFamily)
+            addresses = await Dns.GetHostAddressesAsync(hostname);
+        }
+        else
+        {
+            var endpoint = new IPEndPoint(IPAddress.Parse(dns), 53);
+            var options = new LookupClientOptions(endpoint)
             {
-                case AddressFamily.InterNetwork:
-                    Cache.Add(hostname, result);
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    Cache6.Add(hostname, result);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                Timeout = TimeSpan.FromMilliseconds(timeout),
+                UseCache = false
+            };
+            var lookup = new LookupClient(options);
+
+            var list = new List<IPAddress>();
+            if (inet is AddressFamily.Unspecified or AddressFamily.InterNetwork)
+            {
+                var r = await lookup.QueryAsync(hostname, QueryType.A);
+                list.AddRange(r.Answers.ARecords().Select(a => a.Address));
             }
 
-            return result;
+            if (inet is AddressFamily.Unspecified or AddressFamily.InterNetworkV6)
+            {
+                var r = await lookup.QueryAsync(hostname, QueryType.AAAA);
+                list.AddRange(r.Answers.AaaaRecords().Select(a => a.Address));
+            }
+
+            addresses = list.ToArray();
+        }
+        var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || i.AddressFamily == inet);
+
+        if (result == null) return null;
+
+        switch (result.AddressFamily)
+        {
+            case AddressFamily.InterNetwork:
+                Cache.Add(hostname, result);
+                break;
+            case AddressFamily.InterNetworkV6:
+                Cache6.Add(hostname, result);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
-        return null;
+        return result;
     }
 
     public static void ClearCache()

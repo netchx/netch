@@ -9,20 +9,27 @@ namespace Netch.Controllers;
 
 public static class UpdateChecker
 {
-    public const string Owner = @"NetchX";
-    public const string Repo = @"Netch";
+    public const string Owner = @"cbear2024";
+    public const string Repo = @"netch";
+    public const string ProjectUrl = @"https://github.com/cbear2024/netch";
 
     public const string Name = @"Netch";
-    public const string Copyright = @"Copyright © 2019 - 2022";
+    public const string Copyright = @"Copyright © 2019 - 2026";
 
-    public const string AssemblyVersion = @"1.9.7";
+    public const string AssemblyVersion = @"2.0.0";
     private const string Suffix = @"";
 
     public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
 
-    public static Release LatestRelease = null!;
+    public static Release LatestRelease = new();
 
-    public static string LatestVersionNumber => LatestRelease.tag_name;
+    public static string LatestVersionNumber =>
+        SuffixVersion.TryParse(LatestRelease.tag_name, out var version)
+            ? version.ToString()
+            : LatestRelease.tag_name;
+
+    public static string DisplayVersion =>
+        string.IsNullOrWhiteSpace(LatestRelease.tag_name) ? Version : LatestRelease.tag_name;
 
     public static string LatestVersionUrl => LatestRelease.html_url;
 
@@ -39,9 +46,10 @@ public static class UpdateChecker
             var updater = new GitHubRelease(Owner, Repo);
             var url = updater.AllReleaseUrl;
 
-            var (_, json) = await WebUtil.DownloadStringAsync(WebUtil.CreateRequest(url));
+            var (_, json) = await WebUtil.DownloadStringAsync(url);
 
-            var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
+            var releases = JsonSerializer.Deserialize<List<Release>>(json);
+            ArgumentNullException.ThrowIfNull(releases);
             LatestRelease = GetLatestRelease(releases, isPreRelease);
             Log.Information("Github latest release: {Version}", LatestRelease.tag_name);
             if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)

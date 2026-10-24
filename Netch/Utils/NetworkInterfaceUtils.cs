@@ -3,7 +3,9 @@ using System.Management;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Text;
 using Windows.Win32;
+using Netch.Interops;
 using Netch.Models;
 
 namespace Netch.Utils;
@@ -19,7 +21,11 @@ public static class NetworkInterfaceUtils
                 ipAddress = "114.114.114.114";
                 break;
             case AddressFamily.InterNetworkV6:
-                throw new NotImplementedException();
+                var gateway = new StringBuilder(46);
+                if (!RouteHelper.GetBestRouteTemplate(addressFamily, "2001:4860:4860::8888", gateway, (uint)gateway.Capacity, out var index))
+                    throw new MessageException("GetBestRoute IPv6 搜索失败");
+
+                return Get((int)index);
             default:
                 throw new InvalidOperationException();
         }
@@ -40,9 +46,10 @@ public static class NetworkInterfaceUtils
         return NetworkInterface.GetAllNetworkInterfaces().First(expression);
     }
 
-    public static void SetInterfaceMetric(int interfaceIndex, int? metric = null)
+    public static void SetInterfaceMetric(int interfaceIndex, int? metric = null, AddressFamily addressFamily = AddressFamily.InterNetwork)
     {
-        var arguments = $"interface ip set interface {interfaceIndex} ";
+        var family = addressFamily == AddressFamily.InterNetworkV6 ? "ipv6" : "ip";
+        var arguments = $"interface {family} set interface {interfaceIndex} ";
         if (metric != null)
             arguments += $"metric={metric} ";
 
@@ -70,16 +77,18 @@ public static class NetworkInterfaceExtension
 
     public static void SetDns(this NetworkInterface ni, string primaryDns, string? secondDns = null)
     {
-        void VerifyDns(ref string s)
+        string VerifyDns(string s)
         {
             s = s.Trim();
-            if (primaryDns.IsNullOrEmpty())
+            if (s.IsNullOrEmpty())
                 throw new ArgumentException("DNS format invalid", nameof(primaryDns));
+
+            return s;
         }
 
-        VerifyDns(ref primaryDns);
+        primaryDns = VerifyDns(primaryDns);
         if (secondDns != null)
-            VerifyDns(ref primaryDns);
+            secondDns = VerifyDns(secondDns);
 
         var wmi = new ManagementClass("Win32_NetworkAdapterConfiguration");
         var mos = wmi.GetInstances().Cast<ManagementObject>();

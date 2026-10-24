@@ -19,7 +19,9 @@ public abstract class Guard
     {
         RedirectOutput = redirectOutput;
 
-        var fileName = Path.GetFullPath($"bin\\{mainFile}");
+        var fileName = Path.IsPathRooted(mainFile)
+            ? mainFile
+            : Path.Combine(Global.NetchDir, "bin", mainFile);
 
         if (!File.Exists(fileName))
             throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
@@ -129,7 +131,7 @@ public abstract class Guard
     }
 
     protected async Task StopGuardAsync()
-    {
+    {       
         try
         {
             if (Instance is { HasExited: false })

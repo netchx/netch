@@ -12,7 +12,7 @@ namespace Netch.Utils;
 
 public static class Socks5ServerTestUtils
 {
-    public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(Socks5Server socks5, CancellationToken ctx = default)
+    public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(SocksServer socks5, CancellationToken ctx = default)
     {
         var stunServer = Global.Settings.STUN_Server;
         var port = (ushort)Global.Settings.STUN_Server_Port;
@@ -20,8 +20,8 @@ public static class Socks5ServerTestUtils
 
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Hostname),
-            Port = socks5.Port,
+            Address = await DnsUtils.LookupAsync(socks5.Address),
+            Port = (ushort)socks5.Port,
             UsernamePassword = new UsernamePassword
             {
                 UserName = socks5.Username,
@@ -80,12 +80,12 @@ public static class Socks5ServerTestUtils
         }
     }
 
-    public static async Task<int?> HttpConnectAsync(Socks5Server socks5, CancellationToken ctx)
+    public static async Task<int?> HttpConnectAsync(SocksServer socks5, CancellationToken ctx)
     {
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Hostname),
-            Port = socks5.Port,
+            Address = await DnsUtils.LookupAsync(socks5.Address),
+            Port = (ushort)socks5.Port,
             UsernamePassword = new UsernamePassword
             {
                 UserName = socks5.Username,

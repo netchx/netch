@@ -14,7 +14,7 @@ public class PcapController : Guard, IModeController
 {
     private readonly LogForm _form;
     private ShareMode _mode = null!;
-    private Socks5Server _server = null!;
+    private SocksServer _server = null!;
 
     public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)
     {
@@ -28,7 +28,7 @@ public class PcapController : Guard, IModeController
 
     public ModeFeature Features => ModeFeature.SupportSocks5Auth;
 
-    public async Task StartAsync(Socks5Server server, Mode mode)
+    public async Task StartAsync(SocksServer server, Mode mode)
     {
         if (mode is not ShareMode shareMode)
             throw new InvalidOperationException();

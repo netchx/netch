@@ -145,17 +145,60 @@ extern "C" {
         return (NO_ERROR == CreateUnicastIpAddressEntry(&addr)) ? TRUE : FALSE;
     }
 
-    __declspec(dllexport) BOOL __cdecl CreateRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
+    __declspec(dllexport) ULONG __cdecl CreateRouteStatus(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
     {
         MIB_IPFORWARD_ROW2 rule;
         InitializeIpForwardEntry(&rule);
 
         if (!make(&rule, inet, address, cidr, gateway, index, metric))
         {
+            return ERROR_INVALID_PARAMETER;
+        }
+
+        return CreateIpForwardEntry2(&rule);
+    }
+
+    __declspec(dllexport) BOOL __cdecl CreateRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)
+    {
+        return (NO_ERROR == CreateRouteStatus(inet, address, cidr, gateway, index, metric)) ? TRUE : FALSE;
+    }
+
+    __declspec(dllexport) BOOL __cdecl GetBestRouteTemplate(USHORT inet, const char* destination, char* gateway, ULONG gatewaySize, ULONG* index)
+    {
+        if (gateway == nullptr || gatewaySize == 0 || index == nullptr)
+            return FALSE;
+
+        SOCKADDR_INET destinationAddress{};
+        destinationAddress.si_family = inet;
+        if (inet == AF_INET)
+        {
+            if (inet_pton(inet, destination, &destinationAddress.Ipv4.sin_addr) != 1)
+                return FALSE;
+        }
+        else if (inet == AF_INET6)
+        {
+            if (inet_pton(inet, destination, &destinationAddress.Ipv6.sin6_addr) != 1)
+                return FALSE;
+        }
+        else
+        {
             return FALSE;
         }
 
-        return (NO_ERROR == CreateIpForwardEntry2(&rule)) ? TRUE : FALSE;
+        MIB_IPFORWARD_ROW2 route;
+        SOCKADDR_INET sourceAddress{};
+        const auto status = GetBestRoute2(nullptr, 0, nullptr, &destinationAddress, 0, &route, &sourceAddress);
+        if (status != NO_ERROR)
+            return FALSE;
+
+        const void* nextHop = inet == AF_INET
+            ? static_cast<const void*>(&route.NextHop.Ipv4.sin_addr)
+            : static_cast<const void*>(&route.NextHop.Ipv6.sin6_addr);
+        if (inet_ntop(inet, nextHop, gateway, gatewaySize) == nullptr)
+            return FALSE;
+
+        *index = route.InterfaceIndex;
+        return TRUE;
     }
 
     __declspec(dllexport) BOOL __cdecl DeleteRoute(USHORT inet, const char* address, UINT8 cidr, const char* gateway, ULONG index, ULONG metric = 1)

@@ -1,4 +1,5 @@
-﻿using Netch.Forms;
+﻿using Netch.Enums;
+using Netch.Forms;
 using Netch.Utils;
 
 namespace Netch.Servers;
@@ -11,10 +12,9 @@ public class ShadowsocksForm : ServerForm
         server ??= new ShadowsocksServer();
         Server = server;
         CreateTextBox("Password", "Password", s => !s.IsNullOrWhiteSpace(), s => server.Password = s, server.Password);
-        CreateComboBox("EncryptMethod", "Encrypt Method", SSGlobal.EncryptMethods, s => server.EncryptMethod = s, server.EncryptMethod);
-        CreateTextBox("Plugin", "Plugin", s => true, s => server.Plugin = s, server.Plugin);
-        CreateTextBox("PluginsOption", "Plugin Options", s => true, s => server.PluginOption = s, server.PluginOption);
+        CreateComboBox("EncryptMethod", "Encrypt Method", Constants.SsSecuritiesInXray, s => server.ProtoExtra.SsMethod = s, server.ProtoExtra.SsMethod);
+        CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
     }
 
-    protected override string TypeName { get; } = "Shadowsocks";
+    protected override EConfigType TypeName { get; } = EConfigType.Shadowsocks;
 }

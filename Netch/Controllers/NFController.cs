@@ -24,7 +24,7 @@ public class NFController : IModeController
 
     public ModeFeature Features => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth;
 
-    public async Task StartAsync(Socks5Server server, Mode mode)
+    public async Task StartAsync(SocksServer server, Mode mode)
     {
         if (mode is not Redirector processMode)
             throw new InvalidOperationException();

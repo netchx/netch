@@ -1,4 +1,6 @@
-﻿namespace Netch.Servers;
+﻿using System.Text.Json;
+
+namespace Netch.Servers;
 
 public class V2rayNJObject
 {
@@ -66,4 +68,18 @@ public class V2rayNJObject
     ///     serverName
     /// </summary>
     public string sni { get; set; } = string.Empty;
+
+    public string alpn { get; set; } = string.Empty;
+
+    public string fp { get; set; } = string.Empty;
+
+    public string pbk { get; set; } = string.Empty;
+
+    public string sid { get; set; } = string.Empty;
+
+    public string spx { get; set; } = string.Empty;
+
+    public string mode { get; set; } = string.Empty;
+
+    public JsonElement? extra { get; set; }
 }

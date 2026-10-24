@@ -36,13 +36,16 @@ cp -Recurse -Force '..\Storage\mode' '.'  | Out-Null
 cp -Recurse -Force '..\Storage\stun.txt' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\nfdriver.sys' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\aiodns.conf' 'bin'  | Out-Null
+cp -Recurse -Force '..\Storage\wintun.dll' 'bin'  | Out-Null
 Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile 'bin\GeoLite2-Country.mmdb'
 #cp -Recurse -Force '..\Storage\GeoLite2-Country.mmdb' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\tun2socks.bin' 'bin'  | Out-Null
+cp -Recurse -Force '..\Storage\tun2socks-windows-amd64-v3.exe' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\README.md' 'bin'  | Out-Null
 Pop-Location
 
-if ( -Not ( Test-Path '.\Other\release' ) ) {
+$xrayBinary = '.\Other\release\xray.exe'
+$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
+if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
 	.\Other\build.ps1
 	if ( -Not $? ) {
 		exit $lastExitCode
@@ -61,7 +64,6 @@ if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
 		-r 'win-x64' `
 		-p:Platform='x64' `
 		-p:SelfContained=$SelfContained `
-		-p:PublishTrimmed=$PublishReadyToRun `
 		-p:PublishSingleFile=$PublishSingleFile `
 		-p:PublishReadyToRun=$PublishReadyToRun `
 		-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `

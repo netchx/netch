@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Netch.JsonConverter;
 using Netch.Models;
-using Netch.Servers;
 
 namespace Netch.Utils;
 
@@ -10,7 +9,7 @@ public static class ShareLink
 {
     public static string GetShareLink(Server server)
     {
-        return ServerHelper.GetUtilByTypeName(server.Type).GetShareLink(server);
+        return ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
     }
 
     public static List<Server> ParseText(string text)
@@ -25,39 +24,32 @@ public static class ShareLink
         }
 
         var list = new List<Server>();
+        var lineCount = 0;
+        var failedLineCount = 0;
 
-        try
+        foreach (var line in text.GetLines())
         {
-            list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new ShadowsocksServer
+            lineCount++;
+            try
             {
-                Hostname = server.server,
-                Port = server.server_port,
-                EncryptMethod = server.method,
-                Password = server.password,
-                Remark = server.remarks,
-                Plugin = server.plugin,
-                PluginOption = server.plugin_opts
-            }));
-        }
-        catch (JsonException)
-        {
-            foreach (var line in text.GetLines())
+                var parsed = ParseUri(line).Where(node => node is not null).ToList();
+                if (parsed.Count == 0)
+                {
+                    failedLineCount++;
+                    Log.Warning("Share link line produced no server. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
+                    continue;
+                }
+
+                list.AddRange(parsed);
+            }
+            catch (Exception e)
             {
-                try
-                {
-                    list.AddRange(ParseUri(line));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "Parse servers from share link error");
-                }
+                failedLineCount++;
+                Log.Error(e, "Parse servers from share link error. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
             }
         }
-        catch (Exception e)
-        {
-            Log.Error(e, "Parse servers from share link error");
-        }
 
+        Log.Information("Parsed {ServerCount} server(s) from {LineCount} share-link line(s); {FailedLineCount} line(s) failed", list.Count, lineCount, failedLineCount);
         return list;
     }
 
@@ -78,15 +70,31 @@ public static class ShareLink
             var scheme = GetUriScheme(text);
             var util = ServerHelper.GetUtilByUriScheme(scheme);
             if (util != null)
-                list.AddRange(util.ParseUri(text));
+            {
+                var parsed = util.ParseUri(text);
+                if (parsed != null)
+                    list.AddRange(parsed.Where(node => node is not null));
+            }
             else
                 Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
         }
 
-        foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))
-            node.Remark = RemoveEmoji(node.Remark);
+        foreach (var node in list.Where(node => node is not null && !node.Remarks.IsNullOrWhiteSpace()))
+            node.Remarks = RemoveEmoji(node.Remarks);
 
         return list;
+    }
+
+    private static string GetSafeScheme(string text)
+    {
+        try
+        {
+            return GetUriScheme(text);
+        }
+        catch
+        {
+            return "<invalid>";
+        }
     }
 
     public static string GetUriScheme(string text)

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Microsoft.VisualStudio.Threading;
 using Netch.Interfaces;
 using Netch.Models;
@@ -6,12 +5,13 @@ using Netch.Models.Modes;
 using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
+using System.Diagnostics;
 
 namespace Netch.Controllers;
 
 public static class MainController
 {
-    public static Socks5Server? Socks5Server { get; private set; }
+    public static SocksServer? Socks5Server { get; private set; }
 
     public static Server? Server { get; private set; }
 
@@ -23,13 +23,13 @@ public static class MainController
 
     private static readonly AsyncSemaphore Lock = new(1);
 
-    public static async Task StartAsync(Server server, Mode mode)
+    public static async Task StartAsync(Server server, Mode? mode = null)
     {
         using var releaser = await Lock.EnterAsync();
 
-        Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.i18NRemark}");
+        Log.Information("Start MainController: {Server} {Mode}", $"{server.ConfigType}", mode == null ? "Null" : $"[{(int)mode.Type}]{mode.i18NRemark}");
 
-        if (await DnsUtils.LookupAsync(server.Hostname) == null)
+        if (await DnsUtils.LookupAsync(server.Address) == null)
             throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
         // TODO Disable NAT Type Test setting
@@ -43,19 +43,26 @@ public static class MainController
 
         try
         {
-            ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
-
-            if (modePort != null)
-                TryReleaseTcpPort((ushort)modePort, portName);
-
-            if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
+            if (mode != null)
             {
+                ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
+
+
+                if (modePort != null)
+                    TryReleaseTcpPort((ushort)modePort, portName);
+            }
+
+            //如果是 Socks5 服务器且没有密码
+            //或者如果是 Socks5 服务器，且模式控制器支持 Socks5 则直接使用该服务器
+            if (Server is SocksServer socks5 && (ModeController == null ? socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
+            {
+
                 Socks5Server = socks5;
             }
             else
             {
                 // Start Server Controller to get a local socks5 server
-                Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
+                Log.Debug("Server Information: {Data}", $"{server.ConfigType} {server.MaskedData()}");
 
                 ServerController = new V2rayController();
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
@@ -63,14 +70,16 @@ public static class MainController
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
                 Socks5Server = await ServerController.StartAsync(server);
 
-                StatusPortInfoText.Socks5Port = Socks5Server.Port;
+                StatusPortInfoText.Socks5Port = (ushort)Socks5Server.Port;
                 StatusPortInfoText.UpdateShareLan();
             }
 
             // Start Mode Controller
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-
-            await ModeController.StartAsync(Socks5Server, mode);
+            if (mode != null)
+            {
+                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                await ModeController.StartAsync(Socks5Server, mode);
+            }
         }
         catch (Exception e)
         {

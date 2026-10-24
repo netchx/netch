@@ -38,6 +38,7 @@ public static class AioDNS
         TYPE_LIST,
         TYPE_LISN,
         TYPE_CDNS,
-        TYPE_ODNS
+        TYPE_ODNS,
+        TYPE_LOG
     }
 }

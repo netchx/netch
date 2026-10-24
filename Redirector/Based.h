@@ -13,8 +13,12 @@
 #include <vector>
 #include <thread>
 #include <iostream>
+#include <memory>
+#include <atomic>
+#include <unordered_map>
 
 #include <WinSock2.h>
+#include <MSWSock.h>
 #include <ws2ipdef.h>
 #include <WS2tcpip.h>
 #include <tlhelp32.h>

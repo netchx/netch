@@ -1,13 +1,12 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Servers;
 
-public class VMessUtil : IServerUtil
+public class VMessUtil : ServerUtilBase, IServerUtil
 {
     public ushort Priority { get; } = 3;
 
@@ -33,35 +32,37 @@ public class VMessUtil : IServerUtil
 
     public string GetShareLink(Server s)
     {
-        if (Global.Settings.V2RayConfig.V2rayNShareLink)
+        var item = s as VMessServer;
+        if (item == null)
         {
-            var server = (VMessServer)s;
-
-            var vmessJson = JsonSerializer.Serialize(new V2rayNJObject
-                {
-                    v = 2,
-                    ps = server.Remark,
-                    add = server.Hostname,
-                    port = server.Port,
-                    scy = server.EncryptMethod,
-                    id = server.UserID,
-                    aid = server.AlterID,
-                    net = server.TransferProtocol,
-                    type = server.FakeType,
-                    host = server.Host ?? "",
-                    path = server.Path ?? "",
-                    tls = server.TLSSecureType,
-                    sni = server.ServerName ?? ""
-                },
-                new JsonSerializerOptions
-                {
-                    Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                });
-
-            return "vmess://" + ShareLink.URLSafeBase64Encode(vmessJson);
+            return null;
         }
 
-        return V2rayUtils.GetVShareLink(s);
+        var vmessQRCode = new VmessQRCode
+        {
+            v = 2,
+            ps = item.Remarks.TrimEx(),
+            add = item.Address,
+            port = (ushort)item.Port,
+            id = item.Password,
+            aid = item.ProtoExtra.AlterId ?? 0,
+            scy = item.ProtoExtra.VmessSecurity ?? "",
+            net = item.Network,
+            type = item.HeaderType,
+            host = item.RequestHost,
+            path = item.Path,
+            tls = item.StreamSecurity,
+            sni = item.Sni,
+            alpn = item.Alpn,
+            fp = item.Fingerprint,
+            insecure = item.AllowInsecure == true ? "1" : "0"
+        };
+
+        var url = JsonUtils.Serialize(vmessQRCode);
+        url = Utils.Utils.Base64Encode(url);
+        url = $"{Constants.ProtocolShares[EConfigType.VMess]}{url}";
+
+        return url;
     }
 
     public IServerController GetController()
@@ -69,51 +70,89 @@ public class VMessUtil : IServerUtil
         return new V2rayController();
     }
 
-    public IEnumerable<Server> ParseUri(string text)
+    public IEnumerable<Server> ParseUri(string str)
     {
-        var data = new VMessServer();
-
-        string s;
-        try
+        VMessServer? item;
+        if (str.IndexOf('@') > 0)
         {
-            s = ShareLink.URLSafeBase64Decode(text.Substring(8));
-        }
-        catch
-        {
-            return V2rayUtils.ParseVUri(text);
-        }
-
-        V2rayNJObject vmess = JsonSerializer.Deserialize<V2rayNJObject>(s,
-            new JsonSerializerOptions { NumberHandling = JsonNumberHandling.WriteAsString | JsonNumberHandling.AllowReadingFromString })!;
-
-        data.Remark = vmess.ps;
-        data.Hostname = vmess.add;
-        data.EncryptMethod = vmess.scy;
-        data.Port = vmess.port;
-        data.UserID = vmess.id;
-        data.AlterID = vmess.aid;
-        data.TransferProtocol = vmess.net;
-        data.FakeType = vmess.type;
-        data.ServerName = vmess.sni;
-
-        if (data.TransferProtocol == "quic")
-        {
-            data.QUICSecure = vmess.host;
-            data.QUICSecret = vmess.path;
+            item = ResolveStdVmess(str) ?? ResolveVmess(str);
         }
         else
         {
-            data.Host = vmess.host;
-            data.Path = vmess.path;
+            item = ResolveVmess(str);
         }
 
-        data.TLSSecureType = vmess.tls;
-
-        return new[] { data };
+        return new[] { item };
     }
 
     public bool CheckServer(Server s)
     {
         return true;
+    }
+
+    private static VMessServer? ResolveVmess(string result)
+    {
+        var item = new VMessServer();
+
+        result = result[Constants.ProtocolShares[EConfigType.VMess].Length..];
+        result = Utils.Utils.Base64Decode(result);
+
+        var vmessQRCode = JsonUtils.Deserialize<VmessQRCode>(result);
+        if (vmessQRCode == null)
+        {
+            return null;
+        }
+
+        item.Network = Constants.DefaultNetwork;
+        item.HeaderType = Constants.None;
+
+        //item.ConfigVersion = vmessQRCode.v;
+        item.Remarks = Utils.Utils.ToString(vmessQRCode.ps);
+        item.Address = Utils.Utils.ToString(vmessQRCode.add);
+        item.Port = vmessQRCode.port;
+        item.Password = Utils.Utils.ToString(vmessQRCode.id);
+        item.ProtoExtra.AlterId = vmessQRCode.aid;
+        item.ProtoExtra.VmessSecurity = vmessQRCode.scy.IsNullOrEmpty() ? Constants.DefaultSecurity : vmessQRCode.scy;
+        if (vmessQRCode.net.IsNotEmpty())
+        {
+            item.Network = vmessQRCode.net;
+        }
+        if (vmessQRCode.type.IsNotEmpty())
+        {
+            item.HeaderType = vmessQRCode.type;
+        }
+
+        item.RequestHost = Utils.Utils.ToString(vmessQRCode.host);
+        item.Path = Utils.Utils.ToString(vmessQRCode.path);
+        item.StreamSecurity = Utils.Utils.ToString(vmessQRCode.tls);
+        item.Sni = Utils.Utils.ToString(vmessQRCode.sni);
+        item.Alpn = Utils.Utils.ToString(vmessQRCode.alpn);
+        item.Fingerprint = Utils.Utils.ToString(vmessQRCode.fp);
+        item.AllowInsecure = vmessQRCode.insecure == "1" ? true : null;
+
+        return item;
+    }
+
+    public static VMessServer? ResolveStdVmess(string str)
+    {
+        var item = new VMessServer();
+
+        var url = Utils.Utils.TryUri(str);
+        if (url == null)
+        {
+            return null;
+        }
+
+        item.Address = url.IdnHost;
+        item.Port = url.Port;
+        item.Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
+        item.Password = Utils.Utils.UrlDecode(url.UserInfo);
+
+        item.ProtoExtra.VmessSecurity = "auto";
+
+        var query = Utils.Utils.ParseQueryString(url.Query);
+        ResolveUriQuery(query, ref item);
+
+        return item;
     }
 }
