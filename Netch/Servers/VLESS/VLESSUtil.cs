@@ -1,9 +1,12 @@
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Services;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
-public class VLESSUtil : IServerUtil
+public class VLESSUtil : ServerUtilBase, IServerUtil
 {
     public ushort Priority { get; } = 2;
 
@@ -29,7 +32,28 @@ public class VLESSUtil : IServerUtil
 
     public string GetShareLink(Server s)
     {
-        return V2rayUtils.GetVShareLink(s, "vless");
+
+        var item = (VLESSServer)s;
+
+        if (item == null)
+        {
+            return null;
+        }
+
+        var remark = string.Empty;
+        if (item.Remarks.IsNotEmpty())
+        {
+            remark = "#" + Utils.Utils.UrlEncode(item.Remarks);
+        }
+        var dicQuery = new Dictionary<string, string>();
+        dicQuery.Add("encryption", !item.ProtoExtra.VlessEncryption.IsNullOrWhiteSpace() ? item.ProtoExtra.VlessEncryption : Constants.None);
+        if (!item.ProtoExtra.Flow.IsNullOrWhiteSpace())
+        {
+            dicQuery.Add("flow", item.ProtoExtra.Flow);
+        }
+        ToUriQuery(item, Constants.None, ref dicQuery);
+
+        return ToUri(EConfigType.VLESS, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
     public IServerController GetController()
@@ -37,38 +61,31 @@ public class VLESSUtil : IServerUtil
         return new V2rayController();
     }
 
-    public IEnumerable<Server> ParseUri(string text)
+    public IEnumerable<Server> ParseUri(string str)
     {
-        return V2rayUtils.ParseVUri(text);
+        VLESSServer item = new();
+
+        var url = Utils.Utils.TryUri(str);
+        if (url == null)
+        {
+            return null;
+        }
+
+        item.Address = url.IdnHost;
+        item.Port = url.Port;
+        item.Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
+        item.Password = Utils.Utils.UrlDecode(url.UserInfo);
+
+        var query = Utils.Utils.ParseQueryString(url.Query);
+        item.ProtoExtra.VlessEncryption = GetQueryValue(query, "encryption", Constants.None);
+        item.ProtoExtra.Flow = GetQueryValue(query, "flow");
+        item.StreamSecurity = GetQueryValue(query, "security");
+        ResolveUriQuery(query, ref item);
+        return [item];
     }
 
     public bool CheckServer(Server s)
     {
-        var server = (VLESSServer)s;
-        return !string.IsNullOrWhiteSpace(server.Hostname) && server.Port != 0 &&
-               !string.IsNullOrWhiteSpace(server.UserID) && server.EncryptMethod == "none" &&
-               VLESSGlobal.TransferProtocols.Contains(server.TransferProtocol) &&
-               VLESSGlobal.TLSSecure.Contains(server.TLSSecureType) &&
-               (server.TLSSecureType != "reality" || CoreSelector.ValidReality(server.PublicKey, server.ShortId) &&
-                server.TransferProtocol is ("tcp" or "grpc" or "xhttp")) &&
-               (server.TLSSecureType == "reality" || string.IsNullOrWhiteSpace(server.PublicKey) &&
-                string.IsNullOrWhiteSpace(server.ShortId) && string.IsNullOrWhiteSpace(server.SpiderX)) &&
-               (server.TLSSecureType != "reality" || string.IsNullOrWhiteSpace(server.Alpn)) &&
-               (server.TLSSecureType != "none" || string.IsNullOrWhiteSpace(server.Fingerprint)) &&
-               (string.IsNullOrWhiteSpace(server.Fingerprint) || CoreSelector.UseXray(server)) &&
-               (server.TLSSecureType != "reality" || CoreSelector.UseXray(server)) &&
-               (server.Flow != "xtls-rprx-vision" || CoreSelector.UseXray(server)) &&
-               (server.TransferProtocol is not ("xhttp" or "httpupgrade") || CoreSelector.UseXray(server)) &&
-               (server.TransferProtocol == "xhttp" ? CoreSelector.ValidXhttpExtra(server.TransportExtra) :
-                string.IsNullOrWhiteSpace(server.TransportExtra)) &&
-               VMessGlobal.PacketEncodings.Contains(server.PacketEncoding) &&
-               (server.TransferProtocol != "tcp" || server.FakeType is "none" or "http") &&
-               (server.TransferProtocol != "grpc" || server.FakeType is "gun" or "multi") &&
-               (server.TransferProtocol != "quic" || VLESSGlobal.QUIC.Contains(server.QUICSecure ?? "none")) &&
-               (server.TLSSecureType == "xtls"
-                   ? server.TransferProtocol == "tcp" && server.Flow is ("xtls-rprx-direct" or "xtls-rprx-origin" or "xtls-rprx-splice")
-                   : server.Flow == "xtls-rprx-direct" ||
-                     server.Flow == "xtls-rprx-vision" && server.TransferProtocol == "tcp" &&
-                     server.TLSSecureType is ("tls" or "reality"));
+        return true;
     }
 }

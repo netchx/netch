@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Net;
+﻿using System.Net;
 using System.ServiceProcess;
 using Netch.Interfaces;
 using Netch.Models;
@@ -25,7 +24,7 @@ public class NFController : IModeController
 
     public ModeFeature Features => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth;
 
-    public async Task StartAsync(Socks5Server server, Mode mode)
+    public async Task StartAsync(SocksServer server, Mode mode)
     {
         if (mode is not Redirector processMode)
             throw new InvalidOperationException();
@@ -41,13 +40,7 @@ public class NFController : IModeController
         Dial(NameList.AIO_FILTERPARENT, _mode.FilterParent ?? _rdrConfig.FilterParent);
         Dial(NameList.AIO_FILTERICMP, _mode.FilterICMP ?? _rdrConfig.FilterICMP);
         if (_mode.FilterICMP ?? _rdrConfig.FilterICMP)
-        {
-            var icmpDelay = _mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay;
-            if (icmpDelay < 0)
-                throw new MessageException("ICMP delay must be zero or greater.");
-
-            Dial(NameList.AIO_ICMPING, icmpDelay.ToString());
-        }
+            Dial(NameList.AIO_ICMPING, (_mode.FilterICMP != null ? _mode.ICMPDelay ?? 10 : _rdrConfig.ICMPDelay).ToString());
 
         Dial(NameList.AIO_FILTERTCP, _mode.FilterTCP ?? _rdrConfig.FilterTCP);
         Dial(NameList.AIO_FILTERUDP, _mode.FilterUDP ?? _rdrConfig.FilterUDP);
@@ -118,10 +111,9 @@ public class NFController : IModeController
     /// <returns>No Problem true</returns>
     public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
     {
-        var invalidRules = rules.Where(r => !CheckCppRegex(r, false)).ToList();
+        results = rules.Where(r => !CheckCppRegex(r, false));
         Dial(NameList.AIO_CLRNAME, "");
-        results = invalidRules;
-        return invalidRules.Count == 0;
+        return !results.Any();
     }
 
     public static string GenerateInvalidRulesMessage(IEnumerable<string> rules)
@@ -137,8 +129,7 @@ public class NFController : IModeController
         var invalidList = new List<string>();
         foreach (var s in _mode.Bypass)
         {
-            var rule = s.StartsWith("!") ? s[1..] : s;
-            if (rule.Length == 0 || !Dial(NameList.AIO_BYPNAME, rule))
+            if (!Dial(NameList.AIO_BYPNAME, s))
                 invalidList.Add(s);
         }
 
@@ -152,8 +143,7 @@ public class NFController : IModeController
             throw new MessageException(GenerateInvalidRulesMessage(invalidList));
 
         // Bypass Self
-        var netchDirectory = Global.NetchDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        Dial(NameList.AIO_BYPNAME, "^" + netchDirectory.ToRegexString() + @"\\");
+        Dial(NameList.AIO_BYPNAME, "^" + Global.NetchDir.ToRegexString());
     }
 
     #region DriverUtil
@@ -229,7 +219,6 @@ public class NFController : IModeController
         else
         {
             Log.Error("Register netfilter2 failed");
-            throw new MessageException("Register netfilter2 driver failed. Check the Netch log and Windows driver permissions.");
         }
     }
 
@@ -242,44 +231,22 @@ public class NFController : IModeController
         Log.Information("Uninstall netfilter2");
         try
         {
-            NFService.Refresh();
-            var status = NFService.Status;
-            if (status is ServiceControllerStatus.Running or ServiceControllerStatus.Paused or ServiceControllerStatus.StopPending)
+            if (NFService.Status == ServiceControllerStatus.Running)
             {
-                if (status != ServiceControllerStatus.StopPending)
-                    NFService.Stop();
-
-                // A stuck Windows driver must not block the UI indefinitely.
-                NFService.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(15));
+                NFService.Stop();
+                NFService.WaitForStatus(ServiceControllerStatus.Stopped);
             }
         }
-        catch (InvalidOperationException e) when (e.InnerException is Win32Exception { NativeErrorCode: 1060 })
+        catch (Exception)
         {
-            // The driver service is already unregistered; remove any stale file.
-            Log.Information("netfilter2 service is already unregistered");
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Stopping netfilter2 service failed");
-            throw new MessageException($"Stopping netfilter2 driver failed: {e.Message}");
+            // ignored
         }
 
         if (!File.Exists(SystemDriver))
             return true;
 
-        var unregistered = Interops.Redirector.aio_unregister("netfilter2");
-        if (!unregistered)
-            Log.Warning("Unregister netfilter2 returned false; attempting to remove the driver file");
-
-        try
-        {
-            File.Delete(SystemDriver);
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Delete netfilter2 driver file failed");
-            throw new MessageException($"Delete netfilter2 driver failed: {e.Message}");
-        }
+        Interops.Redirector.aio_unregister("netfilter2");
+        File.Delete(SystemDriver);
 
         return true;
     }

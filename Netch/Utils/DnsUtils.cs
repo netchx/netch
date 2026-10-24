@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Concurrent;
+﻿using DnsClient;
+using Microsoft.VisualStudio.Threading;
+using System.Collections;
 using System.Net;
 using System.Net.Sockets;
 
@@ -7,39 +8,38 @@ namespace Netch.Utils;
 
 public static class DnsUtils
 {
+    private static readonly AsyncSemaphore Lock = new(1);
+
     /// <summary>
     ///     缓存
     /// </summary>
-    private sealed record CachedAddress(IPAddress Address, DateTimeOffset ExpiresAt);
+    private static readonly Hashtable Cache = new();
+    private static readonly Hashtable Cache6 = new();
 
-    private static readonly ConcurrentDictionary<string, CachedAddress> Cache = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly ConcurrentDictionary<string, CachedAddress> Cache6 = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
-
-    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
+    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
     {
-        // Local proxy endpoints are normally IP literals. Avoid serializing them
-        // behind a DNS request and do not let a temporary resolver failure break
-        // UDP detection for an already resolved address.
-        if (IPAddress.TryParse(hostname, out var literalAddress))
-            return inet == AddressFamily.Unspecified || literalAddress.AddressFamily == inet
-                ? literalAddress
-                : null;
+        using var _ = await Lock.EnterAsync();
+        if (IPAddress.TryParse(hostname, out var ip))
+        {
+            // AddressFamily 过滤
+            if (inet == AddressFamily.Unspecified || ip.AddressFamily == inet)
+                return ip;
+        }
 
         try
         {
             var cacheResult = inet switch
             {
-                AddressFamily.Unspecified => GetCachedAddress(Cache, hostname) ?? GetCachedAddress(Cache6, hostname),
-                AddressFamily.InterNetwork => GetCachedAddress(Cache, hostname),
-                AddressFamily.InterNetworkV6 => GetCachedAddress(Cache6, hostname),
+                AddressFamily.Unspecified => (IPAddress?)(Cache[hostname] ?? Cache6[hostname]),
+                AddressFamily.InterNetwork => (IPAddress?)Cache[hostname],
+                AddressFamily.InterNetworkV6 => (IPAddress?)Cache6[hostname],
                 _ => throw new ArgumentOutOfRangeException()
             };
 
             if (cacheResult != null)
                 return cacheResult;
 
-            return await LookupNoCacheAsync(hostname, inet, timeout);
+            return await LookupNoCacheAsync(hostname, inet, timeout, dns);
         }
         catch (Exception e)
         {
@@ -48,48 +48,55 @@ public static class DnsUtils
         }
     }
 
-    private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
+    private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
     {
-        var task = Dns.GetHostAddressesAsync(hostname);
-        var timeoutTask = Task.Delay(timeout);
-        var resTask = await Task.WhenAny(task, timeoutTask);
-
-        if (resTask == task)
+        IPAddress[] addresses;
+        if (string.IsNullOrWhiteSpace(dns))
         {
-            var addresses = await task;
-
-            var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
-            if (result == null)
-                return null;
-
-            switch (result.AddressFamily)
+            addresses = await Dns.GetHostAddressesAsync(hostname);
+        }
+        else
+        {
+            var endpoint = new IPEndPoint(IPAddress.Parse(dns), 53);
+            var options = new LookupClientOptions(endpoint)
             {
-                case AddressFamily.InterNetwork:
-                    Cache[hostname] = new CachedAddress(result, DateTimeOffset.UtcNow + CacheDuration);
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    Cache6[hostname] = new CachedAddress(result, DateTimeOffset.UtcNow + CacheDuration);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                Timeout = TimeSpan.FromMilliseconds(timeout),
+                UseCache = false
+            };
+            var lookup = new LookupClient(options);
+
+            var list = new List<IPAddress>();
+            if (inet is AddressFamily.Unspecified or AddressFamily.InterNetwork)
+            {
+                var r = await lookup.QueryAsync(hostname, QueryType.A);
+                list.AddRange(r.Answers.ARecords().Select(a => a.Address));
             }
 
-            return result;
+            if (inet is AddressFamily.Unspecified or AddressFamily.InterNetworkV6)
+            {
+                var r = await lookup.QueryAsync(hostname, QueryType.AAAA);
+                list.AddRange(r.Answers.AaaaRecords().Select(a => a.Address));
+            }
+
+            addresses = list.ToArray();
+        }
+        var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || i.AddressFamily == inet);
+
+        if (result == null) return null;
+
+        switch (result.AddressFamily)
+        {
+            case AddressFamily.InterNetwork:
+                Cache.Add(hostname, result);
+                break;
+            case AddressFamily.InterNetworkV6:
+                Cache6.Add(hostname, result);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
 
-        return null;
-    }
-
-    private static IPAddress? GetCachedAddress(ConcurrentDictionary<string, CachedAddress> cache, string hostname)
-    {
-        if (!cache.TryGetValue(hostname, out var cached))
-            return null;
-
-        if (cached.ExpiresAt > DateTimeOffset.UtcNow)
-            return cached.Address;
-
-        cache.TryRemove(hostname, out _);
-        return null;
+        return result;
     }
 
     public static void ClearCache()
@@ -100,29 +107,9 @@ public static class DnsUtils
 
     public static string AppendPort(string host, ushort port = 53)
     {
-        var schemeEnd = host.IndexOf("://", StringComparison.Ordinal);
-        var defaultPort = schemeEnd >= 0 && host[..schemeEnd].Equals("tls", StringComparison.OrdinalIgnoreCase) && port == 53
-            ? (ushort)853
-            : port;
-        var authorityStart = schemeEnd < 0 ? 0 : schemeEnd + 3;
-        var authorityEnd = host.IndexOfAny(new[] { '/', '?', '#' }, authorityStart);
-        if (authorityEnd < 0)
-            authorityEnd = host.Length;
+        if (!host.Contains(':'))
+            return host + $":{port}";
 
-        var authority = host[authorityStart..authorityEnd];
-        if (authority.Length == 0)
-            return host;
-
-        if (IPAddress.TryParse(authority, out var address) && address.AddressFamily == AddressFamily.InterNetworkV6)
-            authority = $"[{authority}]:{defaultPort}";
-        else if (authority.StartsWith('['))
-        {
-            if (!authority.Contains("]:"))
-                authority += $":{defaultPort}";
-        }
-        else if (!authority.Contains(':'))
-            authority += $":{defaultPort}";
-
-        return host[..authorityStart] + authority + host[authorityEnd..];
+        return host;
     }
 }

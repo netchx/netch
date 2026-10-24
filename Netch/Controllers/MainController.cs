@@ -1,5 +1,3 @@
-using System.ComponentModel;
-using System.Diagnostics;
 using Microsoft.VisualStudio.Threading;
 using Netch.Interfaces;
 using Netch.Models;
@@ -7,12 +5,13 @@ using Netch.Models.Modes;
 using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
+using System.Diagnostics;
 
 namespace Netch.Controllers;
 
 public static class MainController
 {
-    public static Socks5Server? Socks5Server { get; private set; }
+    public static SocksServer? Socks5Server { get; private set; }
 
     public static Server? Server { get; private set; }
 
@@ -24,13 +23,13 @@ public static class MainController
 
     private static readonly AsyncSemaphore Lock = new(1);
 
-    public static async Task StartAsync(Server server, Mode mode)
+    public static async Task StartAsync(Server server, Mode? mode = null)
     {
         using var releaser = await Lock.EnterAsync();
 
-        Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.i18NRemark}");
+        Log.Information("Start MainController: {Server} {Mode}", $"{server.ConfigType}", mode == null ? "Null" : $"[{(int)mode.Type}]{mode.i18NRemark}");
 
-        if (await DnsUtils.LookupAsync(server.Hostname) == null)
+        if (await DnsUtils.LookupAsync(server.Address) == null)
             throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
 
         // TODO Disable NAT Type Test setting
@@ -44,49 +43,48 @@ public static class MainController
 
         try
         {
-            ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
-
-            if (modePort != null)
-                TryReleaseTcpPort((ushort)modePort, portName);
-
-            if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
+            if (mode != null)
             {
+                ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
+
+
+                if (modePort != null)
+                    TryReleaseTcpPort((ushort)modePort, portName);
+            }
+
+            //如果是 Socks5 服务器且没有密码
+            //或者如果是 Socks5 服务器，且模式控制器支持 Socks5 则直接使用该服务器
+            if (Server is SocksServer socks5 && (ModeController == null ? socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
+            {
+
                 Socks5Server = socks5;
             }
             else
             {
                 // Start Server Controller to get a local socks5 server
-                Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
+                Log.Debug("Server Information: {Data}", $"{server.ConfigType} {server.MaskedData()}");
 
-                ServerController = new V2rayController(CoreSelector.UseXray(server));
+                ServerController = new V2rayController();
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
                 Socks5Server = await ServerController.StartAsync(server);
 
-                StatusPortInfoText.Socks5Port = Socks5Server.Port;
+                StatusPortInfoText.Socks5Port = (ushort)Socks5Server.Port;
                 StatusPortInfoText.UpdateShareLan();
             }
 
             // Start Mode Controller
-            Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-
-            await ModeController.StartAsync(Socks5Server, mode);
+            if (mode != null)
+            {
+                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                await ModeController.StartAsync(Socks5Server, mode);
+            }
         }
         catch (Exception e)
         {
-            try
-            {
-                // We already hold Lock. Stop the partially started controllers
-                // without reacquiring it or releasing the same permit twice.
-                await StopComponentsCoreAsync();
-            }
-            catch (Exception stopException)
-            {
-                // Preserve the original startup error while keeping any failed
-                // controller available for a subsequent stop attempt.
-                Log.Error(stopException, "Cleanup after failed start did not complete");
-            }
+            releaser.Dispose();
+            await StopAsync();
 
             switch (e)
             {
@@ -105,61 +103,41 @@ public static class MainController
 
     public static async Task StopAsync()
     {
-        using var _ = await Lock.EnterAsync();
-        await StopComponentsCoreAsync();
-    }
+        if (Lock.CurrentCount == 0)
+        {
+            (await Lock.EnterAsync()).Dispose();
+            if (ServerController == null && ModeController == null)
+                // stopped
+                return;
 
-    // Caller must hold Lock. Startup-failure cleanup uses this directly.
-    private static async Task StopComponentsCoreAsync()
-    {
+            // else begin stop
+        }
+
+        using var _ = await Lock.EnterAsync();
+
         if (ServerController == null && ModeController == null)
             return;
 
         Log.Information("Stop Main Controller");
         StatusPortInfoText.Reset();
 
-        var serverController = ServerController;
-        var modeController = ModeController;
-
-        var serverStopTask = serverController == null
-            ? Task.CompletedTask
-            : StopComponentAsync(serverController.Name, serverController.StopAsync);
-        var modeStopTask = modeController == null
-            ? Task.CompletedTask
-            : StopComponentAsync(modeController.Name, modeController.StopAsync);
+        var tasks = new[]
+        {
+            ServerController?.StopAsync() ?? Task.CompletedTask,
+            ModeController?.StopAsync() ?? Task.CompletedTask
+        };
 
         try
         {
-            await Task.WhenAll(serverStopTask, modeStopTask);
+            await Task.WhenAll(tasks);
         }
         catch (Exception e)
         {
             Log.Error(e, "MainController Stop Error");
-            throw;
         }
-        finally
-        {
-            // Keep failed controllers so the user can retry stopping them.
-            if (serverStopTask.IsCompletedSuccessfully)
-                ServerController = null;
-            if (modeStopTask.IsCompletedSuccessfully)
-                ModeController = null;
-        }
-    }
 
-    private static async Task StopComponentAsync(string name, Func<Task> stop)
-    {
-        Log.Information("Stopping {Controller}", name);
-        try
-        {
-            await stop();
-            Log.Information("Stopped {Controller}", name);
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Failed to stop {Controller}", name);
-            throw;
-        }
+        ServerController = null;
+        ModeController = null;
     }
 
     public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)
@@ -180,43 +158,20 @@ public static class MainController
 
     public static void TryReleaseTcpPort(ushort port, string portName)
     {
-        var netchDirectory = Path.GetFullPath(Global.NetchDir)
-            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-            + Path.DirectorySeparatorChar;
-
         foreach (var p in PortHelper.GetProcessByUsedTcpPort(port))
         {
-            try
-            {
-                var fileName = p.MainModule?.FileName;
-                if (fileName == null)
-                    continue;
+            var fileName = p.MainModule?.FileName;
+            if (fileName == null)
+                continue;
 
-                var fullFileName = Path.GetFullPath(fileName);
-                if (fullFileName.StartsWith(netchDirectory, StringComparison.OrdinalIgnoreCase))
-                {
-                    p.Kill();
-                    p.WaitForExit();
-                }
-                else
-                {
-                    throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.",
-                        $"{portName} ({port})", $"({p.Id}){fileName}"));
-                }
-            }
-            catch (InvalidOperationException)
+            if (fileName.StartsWith(Global.NetchDir))
             {
-                // The process exited between reading the TCP table and inspecting it.
+                p.Kill();
+                p.WaitForExit();
             }
-            catch (Win32Exception e)
+            else
             {
-                throw new MessageException(i18N.TranslateFormat(
-                    "Unable to inspect the process using {0} (PID {1}): {2}",
-                    $"{portName} ({port})", p.Id, e.Message));
-            }
-            finally
-            {
-                p.Dispose();
+                throw new MessageException(i18N.TranslateFormat("The {0} port is used by {1}.", $"{portName} ({port})", $"({p.Id}){fileName}"));
             }
         }
 
@@ -229,12 +184,12 @@ public static class MainController
         return Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
     }
 
-    public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
+    public static Task<int?> HttpConnectAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
         try
         {
-            return await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server!, ctx);
+            return Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
         }
         catch (OperationCanceledException)
         {
@@ -245,6 +200,6 @@ public static class MainController
             Log.Warning(e, "Unhandled Socks5ServerTestUtils.HttpConnectAsync Exception");
         }
 
-        return null;
+        return Task.FromResult<int?>(null);
     }
 }

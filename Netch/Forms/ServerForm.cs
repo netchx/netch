@@ -1,8 +1,8 @@
-﻿#nullable disable
-using System.ComponentModel;
+﻿using Netch.Enums;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Utils;
+using System.ComponentModel;
 
 namespace Netch.Forms;
 
@@ -17,7 +17,7 @@ public abstract class ServerForm : Form
 
     private readonly Dictionary<Control, Action<object>> _saveActions = new();
 
-    private int _controlLines = 2;
+    private int _controlLines = 13;
     private Label AddressLabel;
     protected TextBox AddressTextBox;
 
@@ -29,21 +29,56 @@ public abstract class ServerForm : Form
     private Label RemarkLabel;
     protected TextBox RemarkTextBox;
 
+    private Label TLSSecureLable, SniLable, FingerprintLable, PublicKeyLable, ShortIdLable, SpiderXLable, Mldsa65VerifyLable, AlpnLable, allowInsecureLable, EchConfigListLable, EchForceQueryLable;
+    private ComboBox TLSSecureComboBox, FingerprintComboBox, AlpnComboBox, allowInsecureComboBox, EchForceQueryComboBox;
+    private TextBox SniTextBox, PublicKeyTextBox, ShortIdTextBox, SpiderXTextBox, Mldsa65VerifyTextBox, EchConfigListTextBox;
     protected ServerForm()
     {
         InitializeComponent();
 
         _checkActions.Add(RemarkTextBox, s => true);
-        _saveActions.Add(RemarkTextBox, s => Server.Remark = (string)s);
+        _saveActions.Add(RemarkTextBox, s => Server.Remarks = (string)s);
 
         _checkActions.Add(AddressTextBox, s => s != string.Empty);
-        _saveActions.Add(AddressTextBox, s => Server.Hostname = (string)s);
+        _saveActions.Add(AddressTextBox, s => Server.Address = (string)s);
 
         _checkActions.Add(PortTextBox, s => ushort.TryParse(s, out var port) && port != 0);
         _saveActions.Add(PortTextBox, s => Server.Port = ushort.Parse((string)s));
+
+        _checkActions.Add(SniTextBox, s => true);
+        _saveActions.Add(SniTextBox, s => Server.Sni = (string)s);
+
+        _checkActions.Add(PublicKeyTextBox, s => true);
+        _saveActions.Add(PublicKeyTextBox, s => Server.PublicKey = (string)s);
+
+        _checkActions.Add(ShortIdTextBox, s => true);
+        _saveActions.Add(ShortIdTextBox, s => Server.ShortId = (string)s);
+
+        _checkActions.Add(SpiderXTextBox, s => true);
+        _saveActions.Add(SpiderXTextBox, s => Server.SpiderX = (string)s);
+
+        _checkActions.Add(Mldsa65VerifyTextBox, s => true);
+        _saveActions.Add(Mldsa65VerifyTextBox, s => Server.Mldsa65Verify = (string)s);
+
+        _checkActions.Add(EchConfigListTextBox, s => true);
+        _saveActions.Add(EchConfigListTextBox, s => Server.EchConfigList = (string)s);
+
+        _saveActions.Add(TLSSecureComboBox, s => Server.StreamSecurity = (string)s);
+        _saveActions.Add(FingerprintComboBox, s => Server.Fingerprint = (string)s);
+        _saveActions.Add(AlpnComboBox, s => Server.Alpn = (string)s);
+        _saveActions.Add(allowInsecureComboBox, s => Server.AllowInsecure = (string)s switch
+        {
+            "" => null,
+            "true" => true,
+            "false" => false,
+            _ => null
+        });
+        _saveActions.Add(EchForceQueryComboBox, s => Server.EchConfigList = (string)s);
+
+
     }
 
-    protected abstract string TypeName { get; }
+    protected abstract EConfigType TypeName { get; }
 
     protected Server Server { get; set; }
 
@@ -61,11 +96,27 @@ public abstract class ServerForm : Form
 
     private void AfterFactor()
     {
-        Text = TypeName ?? string.Empty;
+        Text = TypeName.ToString() ?? string.Empty;
 
-        RemarkTextBox.Text = Server.Remark;
-        AddressTextBox.Text = Server.Hostname;
+        RemarkTextBox.Text = Server.Remarks;
+        AddressTextBox.Text = Server.Address;
         PortTextBox.Text = Server.Port.ToString();
+        TLSSecureComboBox.SelectedIndex = Constants.TLSSecure.IndexOf(Server.StreamSecurity);
+        SniTextBox.Text = Server.Sni;
+        FingerprintComboBox.SelectedIndex = Constants.Fingerprints.IndexOf(Server.Fingerprint);
+        PublicKeyTextBox.Text = Server.PublicKey;
+        ShortIdTextBox.Text = Server.ShortId;
+        SpiderXTextBox.Text = Server.SpiderX;
+        Mldsa65VerifyTextBox.Text = Server.Mldsa65Verify;
+        AlpnComboBox.SelectedIndex = Constants.Alpn.IndexOf(Server.Alpn);
+        allowInsecureComboBox.SelectedIndex = Server.AllowInsecure switch
+        {
+            null => 0,
+            true => 1,
+            false => 2
+        };
+        EchConfigListTextBox.Text = Server.EchConfigList;
+        EchForceQueryComboBox.SelectedIndex = Constants.EchForceQuerys.IndexOf(Server.EchForceQuery);
 
         AddSaveButton();
         i18N.TranslateForm(this);
@@ -78,7 +129,7 @@ public abstract class ServerForm : Form
         PerformLayout();
     }
 
-    protected (Label,TextBox) CreateTextBox(string name,
+    protected (Label, TextBox) CreateTextBox(string name,
         string remark,
         Func<string, bool> check,
         Action<string> save,
@@ -235,6 +286,33 @@ public abstract class ServerForm : Form
         PortLabel = new Label();
         ConfigurationGroupBox.SuspendLayout();
         SuspendLayout();
+
+
+        TLSSecureLable = new Label();
+        SniLable = new Label();
+        FingerprintLable = new Label();
+        PublicKeyLable = new Label();
+        ShortIdLable = new Label();
+        SpiderXLable = new Label();
+        Mldsa65VerifyLable = new Label();
+        AlpnLable = new Label();
+        allowInsecureLable = new Label();
+        EchConfigListLable = new Label();
+        EchForceQueryLable = new Label();
+
+        TLSSecureComboBox = new ComboBox();
+        FingerprintComboBox = new ComboBox();
+        AlpnComboBox = new ComboBox();
+        allowInsecureComboBox = new ComboBox();
+        EchForceQueryComboBox = new ComboBox();
+
+        SniTextBox = new TextBox();
+        PublicKeyTextBox = new TextBox();
+        ShortIdTextBox = new TextBox();
+        SpiderXTextBox = new TextBox();
+        Mldsa65VerifyTextBox = new TextBox();
+        EchConfigListTextBox = new TextBox();
+
         // 
         // ConfigurationGroupBox
         // 
@@ -246,6 +324,28 @@ public abstract class ServerForm : Form
         ConfigurationGroupBox.Controls.Add(RemarkTextBox);
         ConfigurationGroupBox.Controls.Add(RemarkLabel);
         ConfigurationGroupBox.Controls.Add(PortLabel);
+        ConfigurationGroupBox.Controls.Add(TLSSecureLable);
+        ConfigurationGroupBox.Controls.Add(SniLable);
+        ConfigurationGroupBox.Controls.Add(FingerprintLable);
+        ConfigurationGroupBox.Controls.Add(PublicKeyLable);
+        ConfigurationGroupBox.Controls.Add(ShortIdLable);
+        ConfigurationGroupBox.Controls.Add(SpiderXLable);
+        ConfigurationGroupBox.Controls.Add(Mldsa65VerifyLable);
+        ConfigurationGroupBox.Controls.Add(AlpnLable);
+        ConfigurationGroupBox.Controls.Add(allowInsecureLable);
+        ConfigurationGroupBox.Controls.Add(EchConfigListLable);
+        ConfigurationGroupBox.Controls.Add(EchForceQueryLable);
+        ConfigurationGroupBox.Controls.Add(TLSSecureComboBox);
+        ConfigurationGroupBox.Controls.Add(FingerprintComboBox);
+        ConfigurationGroupBox.Controls.Add(AlpnComboBox);
+        ConfigurationGroupBox.Controls.Add(allowInsecureComboBox);
+        ConfigurationGroupBox.Controls.Add(EchForceQueryComboBox);
+        ConfigurationGroupBox.Controls.Add(SniTextBox);
+        ConfigurationGroupBox.Controls.Add(PublicKeyTextBox);
+        ConfigurationGroupBox.Controls.Add(ShortIdTextBox);
+        ConfigurationGroupBox.Controls.Add(SpiderXTextBox);
+        ConfigurationGroupBox.Controls.Add(Mldsa65VerifyTextBox);
+        ConfigurationGroupBox.Controls.Add(EchConfigListTextBox);
         ConfigurationGroupBox.Dock = DockStyle.Fill;
         ConfigurationGroupBox.Location = new Point(5, 5);
         ConfigurationGroupBox.Name = "ConfigurationGroupBox";
@@ -321,5 +421,190 @@ public abstract class ServerForm : Form
         Name = "ServerForm";
         Padding = new Padding(11, 5, 11, 4);
         StartPosition = FormStartPosition.CenterScreen;
+        //
+        //TLSSecureLable
+        //
+        TLSSecureLable.AutoSize = true;
+        TLSSecureLable.Location = new Point(10, ControlLineHeight * 3);
+        TLSSecureLable.Name = "TLSSecureLable";
+        TLSSecureLable.Size = new Size(56, 17);
+        TLSSecureLable.Text = "TLSSecure";
+        //
+        //TLSSecureComboBox
+        //
+        TLSSecureComboBox.Location = new Point(120, ControlLineHeight * 3);
+        TLSSecureComboBox.Name = "TLSSecureComboBox";
+        TLSSecureComboBox.Size = new Size(InputBoxWidth, 23);
+        TLSSecureComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        TLSSecureComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+        TLSSecureComboBox.FormattingEnabled = true;
+        TLSSecureComboBox.Items.AddRange(Constants.TLSSecure.ToArray());
+        TLSSecureComboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
+        //
+        //SniLable
+        //
+        SniLable.AutoSize = true;
+        SniLable.Location = new Point(10, ControlLineHeight * 4);
+        SniLable.Name = "SniLable";
+        SniLable.Size = new Size(56, 17);
+        SniLable.Text = "Server Name(Sni)";
+        //
+        //SniTextBox
+        //
+        SniTextBox.Location = new Point(120, ControlLineHeight * 4);
+        SniTextBox.Name = "SniTextBox";
+        SniTextBox.Size = new Size(InputBoxWidth, 23);
+        SniTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //FingerprintLable
+        //
+        FingerprintLable.AutoSize = true;
+        FingerprintLable.Location = new Point(10, ControlLineHeight * 5);
+        FingerprintLable.Name = "FingerprintLable";
+        FingerprintLable.Size = new Size(56, 17);
+        FingerprintLable.Text = "Fingerprint";
+        //
+        //FingerprintComboBox
+        //
+        FingerprintComboBox.Location = new Point(120, ControlLineHeight * 5);
+        FingerprintComboBox.Name = "FingerprintComboBox";
+        FingerprintComboBox.Size = new Size(InputBoxWidth, 23);
+        FingerprintComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        FingerprintComboBox.DropDownStyle = ComboBoxStyle.DropDown;
+        FingerprintComboBox.FormattingEnabled = true;
+        FingerprintComboBox.Items.AddRange(Constants.Fingerprints.ToArray());
+        FingerprintComboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
+        //
+        //PublicKeyLable
+        //
+        PublicKeyLable.AutoSize = true;
+        PublicKeyLable.Location = new Point(10, ControlLineHeight * 6);
+        PublicKeyLable.Name = "PublicKeyLable";
+        PublicKeyLable.Size = new Size(56, 17);
+        PublicKeyLable.Text = "PublicKey";
+        //
+        //PublicKeyTextBox
+        //
+        PublicKeyTextBox.Location = new Point(120, ControlLineHeight * 6);
+        PublicKeyTextBox.Name = "PublicKeyTextBox";
+        PublicKeyTextBox.Size = new Size(InputBoxWidth, 23);
+        PublicKeyTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //ShortIdLable
+        //
+        ShortIdLable.AutoSize = true;
+        ShortIdLable.Location = new Point(10, ControlLineHeight * 7);
+        ShortIdLable.Name = "ShortIdLable";
+        ShortIdLable.Size = new Size(56, 17);
+        ShortIdLable.Text = "ShortId";
+        //
+        //ShortIdTextBox
+        //
+        ShortIdTextBox.Location = new Point(120, ControlLineHeight * 7);
+        ShortIdTextBox.Name = "ShortIdTextBox";
+        ShortIdTextBox.Size = new Size(InputBoxWidth, 23);
+        ShortIdTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //SpiderXLable
+        //
+        SpiderXLable.AutoSize = true;
+        SpiderXLable.Location = new Point(10, ControlLineHeight * 8);
+        SpiderXLable.Name = "SpiderXLable";
+        SpiderXLable.Size = new Size(56, 17);
+        SpiderXLable.Text = "SpiderX";
+        //
+        //SpiderXTextBox
+        //
+        SpiderXTextBox.Location = new Point(120, ControlLineHeight * 8);
+        SpiderXTextBox.Name = "SpiderXTextBox";
+        SpiderXTextBox.Size = new Size(InputBoxWidth, 23);
+        SpiderXTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //Mldsa64VerifyLable
+        //
+        Mldsa65VerifyLable.AutoSize = true;
+        Mldsa65VerifyLable.Location = new Point(10, ControlLineHeight * 9);
+        Mldsa65VerifyLable.Name = "Mldsa64VerifyLable";
+        Mldsa65VerifyLable.Size = new Size(56, 17);
+        Mldsa65VerifyLable.Text = "Mldsa64Verify";
+        //
+        //Mldsa64VerifyTextBox
+        //
+        Mldsa65VerifyTextBox.Location = new Point(120, ControlLineHeight * 9);
+        Mldsa65VerifyTextBox.Name = "Mldsa64VerifyTextBox";
+        Mldsa65VerifyTextBox.Size = new Size(InputBoxWidth, 23);
+        Mldsa65VerifyTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //AlpnLable
+        //
+        AlpnLable.AutoSize = true;
+        AlpnLable.Location = new Point(10, ControlLineHeight * 10);
+        AlpnLable.Name = "AlpnLable";
+        AlpnLable.Size = new Size(56, 17);
+        AlpnLable.Text = "Alpn";
+        //
+        //AlpnComboBox
+        //
+        AlpnComboBox.Location = new Point(120, ControlLineHeight * 10);
+        AlpnComboBox.Name = "AlpnComboBox";
+        AlpnComboBox.Size = new Size(InputBoxWidth, 23);
+        AlpnComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        AlpnComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+        AlpnComboBox.FormattingEnabled = true;
+        AlpnComboBox.Items.AddRange(Constants.Alpn.ToArray());
+        AlpnComboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
+        //
+        //allowInsecureLable
+        //
+        allowInsecureLable.AutoSize = true;
+        allowInsecureLable.Location = new Point(10, ControlLineHeight * 11);
+        allowInsecureLable.Name = "allowInsecureLable";
+        allowInsecureLable.Size = new Size(56, 17);
+        allowInsecureLable.Text = "allowInsecure";
+        //
+        //allowInsecureComboBox
+        //
+        allowInsecureComboBox.Location = new Point(120, ControlLineHeight * 11);
+        allowInsecureComboBox.Name = "allowInsecureComboBox";
+        allowInsecureComboBox.Size = new Size(InputBoxWidth, 23);
+        allowInsecureComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        allowInsecureComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+        allowInsecureComboBox.FormattingEnabled = true;
+        allowInsecureComboBox.Items.AddRange(Constants.AllowInsecure.ToArray());
+        allowInsecureComboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
+        //
+        //EchConfigListLable
+        //
+        EchConfigListLable.AutoSize = true;
+        EchConfigListLable.Location = new Point(10, ControlLineHeight * 12);
+        EchConfigListLable.Name = "EchConfigListLable";
+        EchConfigListLable.Size = new Size(56, 17);
+        EchConfigListLable.Text = "EchConfigList";
+        //
+        //EchConfigListTextBox
+        //
+        EchConfigListTextBox.Location = new Point(120, ControlLineHeight * 12);
+        EchConfigListTextBox.Name = "EchConfigListTextBox";
+        EchConfigListTextBox.Size = new Size(InputBoxWidth, 23);
+        EchConfigListTextBox.TextAlign = HorizontalAlignment.Center;
+        //
+        //EchForceQueryLable
+        //
+        EchForceQueryLable.AutoSize = true;
+        EchForceQueryLable.Location = new Point(10, ControlLineHeight * 13);
+        EchForceQueryLable.Name = "EchForceQueryLable";
+        EchForceQueryLable.Size = new Size(56, 17);
+        EchForceQueryLable.Text = "EchForceQuery";
+        //
+        //EchForceQueryComboBox
+        //
+        EchForceQueryComboBox.Location = new Point(120, ControlLineHeight * 13);
+        EchForceQueryComboBox.Name = "EchForceQueryComboBox";
+        EchForceQueryComboBox.Size = new Size(InputBoxWidth, 23);
+        EchForceQueryComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+        EchForceQueryComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+        EchForceQueryComboBox.FormattingEnabled = true;
+        EchForceQueryComboBox.Items.AddRange(Constants.EchForceQuerys.ToArray());
+        EchForceQueryComboBox.DrawItem += Utils.Utils.DrawCenterComboBox;
     }
 }

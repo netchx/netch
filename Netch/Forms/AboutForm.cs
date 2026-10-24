@@ -1,6 +1,7 @@
 ﻿using Netch.Properties;
-using Netch.Controllers;
 using Netch.Utils;
+
+using Netch.Controllers;
 
 namespace Netch.Forms;
 
@@ -16,8 +17,6 @@ public partial class AboutForm : Form
     private void AboutForm_Load(object sender, EventArgs e)
     {
         i18N.TranslateForm(this);
-        Text = $"About {UpdateChecker.Name} {UpdateChecker.Version} — {UpdateChecker.Author}";
-        ProjectLabel.Text = $"Project: {UpdateChecker.Owner}/{UpdateChecker.Repo}";
     }
 
     private void NetchPictureBox_Click(object sender, EventArgs e)
@@ -25,7 +24,7 @@ public partial class AboutForm : Form
         Utils.Utils.Open(UpdateChecker.ProjectUrl);
     }
 
-    private void ProjectLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
         Utils.Utils.Open(UpdateChecker.ProjectUrl);
     }

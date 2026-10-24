@@ -2,7 +2,6 @@
 using System.Text.Json;
 using Netch.JsonConverter;
 using Netch.Models;
-using Netch.Servers;
 
 namespace Netch.Utils;
 
@@ -10,7 +9,7 @@ public static class ShareLink
 {
     public static string GetShareLink(Server server)
     {
-        return ServerHelper.GetUtilByTypeName(server.Type).GetShareLink(server);
+        return ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
     }
 
     public static List<Server> ParseText(string text)
@@ -24,54 +23,33 @@ public static class ShareLink
             // ignored
         }
 
-        if (text.Contains("[Interface]", StringComparison.OrdinalIgnoreCase) &&
-            text.Contains("[Peer]", StringComparison.OrdinalIgnoreCase))
+        var list = new List<Server>();
+        var lineCount = 0;
+        var failedLineCount = 0;
+
+        foreach (var line in text.GetLines())
         {
+            lineCount++;
             try
             {
-                return new List<Server> { WireGuardUtil.ParseConfig(text) };
+                var parsed = ParseUri(line).Where(node => node is not null).ToList();
+                if (parsed.Count == 0)
+                {
+                    failedLineCount++;
+                    Log.Warning("Share link line produced no server. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
+                    continue;
+                }
+
+                list.AddRange(parsed);
             }
             catch (Exception e)
             {
-                Log.Error(e, "Parse WireGuard configuration error");
-                return new List<Server>();
+                failedLineCount++;
+                Log.Error(e, "Parse servers from share link error. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
             }
         }
 
-        var list = new List<Server>();
-
-        try
-        {
-            list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new ShadowsocksServer
-            {
-                Hostname = server.server,
-                Port = server.server_port,
-                EncryptMethod = server.method,
-                Password = server.password,
-                Remark = server.remarks,
-                Plugin = server.plugin,
-                PluginOption = server.plugin_opts
-            }));
-        }
-        catch (JsonException)
-        {
-            foreach (var line in text.GetLines())
-            {
-                try
-                {
-                    list.AddRange(ParseUri(line));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "Parse servers from share link error");
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Parse servers from share link error");
-        }
-
+        Log.Information("Parsed {ServerCount} server(s) from {LineCount} share-link line(s); {FailedLineCount} line(s) failed", list.Count, lineCount, failedLineCount);
         return list;
     }
 
@@ -79,10 +57,9 @@ public static class ShareLink
     {
         var list = new List<Server>();
 
-        if (text.StartsWith("tg://socks?", StringComparison.OrdinalIgnoreCase) ||
-            text.StartsWith("https://t.me/socks?", StringComparison.OrdinalIgnoreCase))
+        if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
         {
-            list.AddRange(ServerHelper.GetUtilByTypeName("SOCKS").ParseUri(text));
+            list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
         }
         else if (text.StartsWith("Netch://"))
         {
@@ -93,15 +70,31 @@ public static class ShareLink
             var scheme = GetUriScheme(text);
             var util = ServerHelper.GetUtilByUriScheme(scheme);
             if (util != null)
-                list.AddRange(util.ParseUri(text));
+            {
+                var parsed = util.ParseUri(text);
+                if (parsed != null)
+                    list.AddRange(parsed.Where(node => node is not null));
+            }
             else
                 Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
         }
 
-        foreach (var node in list.Where(node => !node.Remark.IsNullOrWhiteSpace()))
-            node.Remark = RemoveEmoji(node.Remark);
+        foreach (var node in list.Where(node => node is not null && !node.Remarks.IsNullOrWhiteSpace()))
+            node.Remarks = RemoveEmoji(node.Remarks);
 
         return list;
+    }
+
+    private static string GetSafeScheme(string text)
+    {
+        try
+        {
+            return GetUriScheme(text);
+        }
+        catch
+        {
+            return "<invalid>";
+        }
     }
 
     public static string GetUriScheme(string text)
@@ -122,24 +115,7 @@ public static class ShareLink
         if (string.IsNullOrEmpty(NetchLink.GetProperty("Hostname").GetString()))
             throw new FormatException();
 
-        var portElement = NetchLink.GetProperty("Port");
-        ushort port;
-        if (portElement.ValueKind == JsonValueKind.Number)
-        {
-            if (!portElement.TryGetUInt16(out port))
-                throw new FormatException();
-        }
-        else if (portElement.ValueKind == JsonValueKind.String)
-        {
-            if (!ushort.TryParse(portElement.GetString(), out port))
-                throw new FormatException();
-        }
-        else
-        {
-            throw new FormatException();
-        }
-
-        if (port == 0)
+        if (!ushort.TryParse(NetchLink.GetProperty("Port").GetString(), out _))
             throw new FormatException();
 
         return JsonSerializer.Deserialize<Server>(text,
@@ -153,7 +129,7 @@ public static class ShareLink
     {
         var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
         jsonSerializerOptions.WriteIndented = false;
-        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, s.GetType(), jsonSerializerOptions));
+        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
     }
 
     #region Utils

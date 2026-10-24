@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
 using Netch.Interops;
@@ -10,6 +11,8 @@ namespace Netch.Utils;
 // #define DEBUG_TUN
 public static class RouteUtils
 {
+    private const uint ErrorObjectAlreadyExists = 5010;
+
     public static void CreateRouteFill(NetRoute template, IEnumerable<string> rules, int? metric = null)
     {
         foreach (var rule in rules)
@@ -29,11 +32,30 @@ public static class RouteUtils
 
     public static bool CreateRoute(NetRoute o)
     {
-        var Result = RouteHelper.CreateRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
+        if (!IPAddress.TryParse(o.Network, out var network))
+            return false;
+
+        var family = network.AddressFamily;
+        if (family is not (AddressFamily.InterNetwork or AddressFamily.InterNetworkV6))
+            return false;
+
+        var status = RouteHelper.CreateRouteStatus(family, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
+        var Result = status is 0 or ErrorObjectAlreadyExists;
+
+        if (status == ErrorObjectAlreadyExists)
+        {
+            Log.Information("CreateRoute already exists, reusing: {Address}/{Cidr} via {Gateway} interface {Interface} metric {Metric}",
+                o.Network, o.Cidr, o.Gateway, o.InterfaceIndex, o.Metric);
+        }
+        else if (!Result)
+        {
+            Log.Warning("CreateRoute failed: {Address}/{Cidr} via {Gateway} interface {Interface} metric {Metric}, Windows status {Status} ({StatusName})",
+                o.Network, o.Cidr, o.Gateway, o.InterfaceIndex, o.Metric, status, new Win32Exception((int)status).Message);
+        }
 
 #if DEBUG_TUN
         Log.Verbose("CreateRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric} Result: {Result}",
-            AddressFamily.InterNetwork,
+            family,
             o.Network,
             o.Cidr,
             o.Gateway,
@@ -63,11 +85,18 @@ public static class RouteUtils
 
     public static bool DeleteRoute(NetRoute o)
     {
-        var Result = RouteHelper.DeleteRoute(AddressFamily.InterNetwork, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
+        if (!IPAddress.TryParse(o.Network, out var network))
+            return false;
+
+        var family = network.AddressFamily;
+        if (family is not (AddressFamily.InterNetwork or AddressFamily.InterNetworkV6))
+            return false;
+
+        var Result = RouteHelper.DeleteRoute(family, o.Network, o.Cidr, o.Gateway, (ulong)o.InterfaceIndex, o.Metric);
 
 #if DEBUG_TUN
-        Log.Verbose("DeleteRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric} Result: {}",
-            AddressFamily.InterNetwork,
+        Log.Verbose("DeleteRoute {InterNetwork} {Address} {Cidr} {Gateway} {Interface} {Metric} Result: {Result}",
+            family,
             o.Network,
             o.Cidr,
             o.Gateway,
@@ -86,9 +115,10 @@ public static class RouteUtils
         var s = ipNetwork.Split('/');
         if (s.Length != 2 ||
             !IPAddress.TryParse(s[0], out var address) ||
-            address.AddressFamily != AddressFamily.InterNetwork ||
+            address.AddressFamily is not (AddressFamily.InterNetwork or AddressFamily.InterNetworkV6) ||
             !int.TryParse(s[1], NumberStyles.None, CultureInfo.InvariantCulture, out cidr) ||
-            cidr is < 0 or > 32)
+            cidr is < 0 || (address.AddressFamily == AddressFamily.InterNetwork && cidr > 32) ||
+            (address.AddressFamily == AddressFamily.InterNetworkV6 && cidr > 128))
             return false;
 
         ip = address.ToString();
