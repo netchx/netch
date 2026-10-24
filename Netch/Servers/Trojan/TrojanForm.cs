@@ -1,4 +1,5 @@
-﻿using Netch.Forms;
+﻿using Netch.Enums;
+using Netch.Forms;
 
 namespace Netch.Servers;
 
@@ -10,21 +11,15 @@ public class TrojanForm : ServerForm
         server ??= new TrojanServer();
         Server = server;
         CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password);
-        CreateTextBox("Host", "Host", s => true, s => server.Host = s, server.Host);
-        CreateComboBox("TransferProtocol", "Transfer Protocol", new List<string> { "tcp", "ws", "grpc", "h2", "httpupgrade", "xhttp" },
-            s => server.TransferProtocol = s, server.TransferProtocol);
-        CreateTextBox("TransportHost", "Transport Host", s => true, s => server.TransportHost = s, server.TransportHost);
-        CreateTextBox("Path", "Path / Service Name", s => true, s => server.Path = s, server.Path);
-        CreateTextBox("Alpn", "ALPN", s => true, s => server.Alpn = s, server.Alpn);
-        CreateTextBox("Fingerprint", "TLS Fingerprint", s => true, s => server.Fingerprint = s, server.Fingerprint);
-        CreateTextBox("PublicKey", "REALITY Public Key", s => true, s => server.PublicKey = s, server.PublicKey);
-        CreateTextBox("ShortId", "REALITY Short ID", s => true, s => server.ShortId = s, server.ShortId);
-        CreateTextBox("SpiderX", "REALITY SpiderX", s => true, s => server.SpiderX = s, server.SpiderX);
-        CreateTextBox("TransportMode", "XHTTP Mode", s => true, s => server.TransportMode = s, server.TransportMode);
-        CreateTextBox("TransportExtra", "XHTTP Extra (JSON)", s => true, s => server.TransportExtra = s, server.TransportExtra);
-        CreateComboBox("TLSSecure", "TLS Secure", VLESSGlobal.TLSSecure, s => server.TLSSecureType = s, server.TLSSecureType);
-        CreateComboBox("Flow", "XTLS Flow", VLESSGlobal.Flows, s => server.Flow = s, server.Flow);
+        CreateComboBox("Flow", "Flow", Constants.Flow, s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
+        CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
+
+        //底层传输方式
+        CreateComboBox("Network", "Network", Constants.Networks, s => server.Network = s, server.Network);
+        CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
+        CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);
+        CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);
     }
 
-    protected override string TypeName { get; } = "Trojan";
+    protected override EConfigType TypeName { get; } = EConfigType.Trojan;
 }

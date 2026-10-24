@@ -1,9 +1,3 @@
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Netch.Controllers;
@@ -15,6 +9,13 @@ using Netch.Models.Modes;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Versioning;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Netch.Forms;
 
@@ -38,6 +39,8 @@ public partial class MainForm : Form
 
         if (Flags.NoSupport)
             _mainFormText.Add(Name, new[] { "{0} ({1})", "Netch", "No Support" });
+
+        ArgumentException.ThrowIfNullOrEmpty(UninstallServiceToolStripMenuItem.Name);
 
         _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] { "Uninstall {0}", "NF Service" });
 
@@ -129,9 +132,20 @@ public partial class MainForm : Form
                         case ListControl:
                             break;
                         case Control c:
+                            if (string.IsNullOrWhiteSpace(c.Name) || _mainFormText.ContainsKey(c.Name) || string.IsNullOrWhiteSpace(c.Text))
+                            {
+                                //Log.Warning(c.Name + "    " + c.Text + "重复");
+                                break;
+                            }
                             _mainFormText.Add(c.Name, c.Text);
                             break;
                         case ToolStripItem c:
+                            //Log.Verbose(c.Name);
+                            if (string.IsNullOrWhiteSpace(c.Name) || _mainFormText.ContainsKey(c.Name) || string.IsNullOrWhiteSpace(c.Text))
+                            {
+                                //Log.Warning(c.Name + "    " + c.Text + "重复");
+                                break;
+                            }
                             _mainFormText.Add(c.Name, c.Text);
                             break;
                     }
@@ -164,7 +178,7 @@ public partial class MainForm : Form
 
                     break;
                 case ToolStripItem c:
-                    if (_mainFormText.ContainsKey(c.Name))
+                    if (!string.IsNullOrWhiteSpace(c.Name) && _mainFormText.ContainsKey(c.Name))
                         c.Text = ControlText(c.Name);
 
                     break;
@@ -223,10 +237,13 @@ public partial class MainForm : Form
         if (sender == null)
             throw new ArgumentNullException(nameof(sender));
 
-        var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
+        var util = (IServerUtil?)((ToolStripMenuItem)sender).Tag;
+
 
         Hide();
+        ArgumentNullException.ThrowIfNull(util);
         util.Create();
+
 
         LoadServers();
         await Configuration.SaveAsync();
@@ -276,12 +293,26 @@ public partial class MainForm : Form
         Show();
     }
 
-    private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_Click(object sender, EventArgs e)
+    private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_NoProxy_Click(object sender, EventArgs e)
     {
         await UpdateServersFromSubscriptionAsync();
     }
 
-    private async Task UpdateServersFromSubscriptionAsync()
+    [SupportedOSPlatform("windows8.1")]
+    private async void UpdateServersToolStripMenuItem_UseProxy_Click(object sender, EventArgs e)
+    {
+        if (ServerComboBox.SelectedItem is not Server server)
+        {
+            MessageBoxX.Show(i18N.Translate("Please select a server first"));
+            return;
+        }
+        await MainController.StartAsync(server);
+        await UpdateServersFromSubscriptionAsync($"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+        //await UpdateServersFromSubscriptionAsync($"127.0.0.1:10808");
+        await StopCoreAsync();
+    }
+
+    private async Task UpdateServersFromSubscriptionAsync(string? serverProxy = null)
     {
         void DisableItems(bool v)
         {
@@ -299,7 +330,7 @@ public partial class MainForm : Form
 
         try
         {
-            await SubscriptionUtil.UpdateServersAsync();
+            await SubscriptionUtil.UpdateServersAsync(serverProxy);
 
             LoadServers();
             await Configuration.SaveAsync();
@@ -343,6 +374,31 @@ public partial class MainForm : Form
             UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
             UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
         }
+    }
+
+    private void V2RayCoreToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/v2fly/v2ray-core");
+    }
+
+    private void XRayCireWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/XTLS/Xray-core");
+    }
+
+    private void TUN2SocksWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/xjasonlyu/tun2socks");
+    }
+
+    private void WinTUNWebSiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://www.wintun.net");
+    }
+
+    private void pcap2socksWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/zhxie/pcap2socks");
     }
 
     private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -397,7 +453,7 @@ public partial class MainForm : Form
 
     private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Program.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND((nint)Program.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         var visible = windowStyles.HasFlag(WINDOW_STYLE.WS_VISIBLE);
         PInvoke.ShowWindow(Program.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
     }
@@ -419,9 +475,9 @@ public partial class MainForm : Form
 
     private async void NewVersionLabel_Click(object sender, EventArgs e)
     {
-        if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
+        if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease.assets.Any())
         {
-            Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
+            Utils.Utils.Open(UpdateChecker.LatestVersionUrl);
             return;
         }
 
@@ -441,9 +497,7 @@ public partial class MainForm : Form
             string downloadDirectory = Path.Combine(Global.NetchDir, "data");
 
             var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            var updateFileUrl = UpdateChecker.LatestRelease.assets
-                .FirstOrDefault(asset => string.Equals(asset.name, updateFileName, StringComparison.OrdinalIgnoreCase))
-                ?.browser_download_url ?? throw new MessageException($"Update asset not found: {updateFileName}");
+            var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url;
 
             var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
             var updater = new Updater(updateFileFullName, Global.NetchDir);
@@ -517,21 +571,9 @@ public partial class MainForm : Form
     #endregion
 
     #region ControlButton
-
+    [SupportedOSPlatform("windows8.1")]
     private async void ControlButton_Click(object? sender, EventArgs? e)
     {
-        if (State == State.Stopping && _stopTimedOut)
-        {
-            // Native driver cleanup cannot be safely cancelled. Offer an explicit
-            // escape hatch only after the normal stop has exceeded its timeout.
-            if (MessageBox.Show(this,
-                    "The network driver has not finished stopping. Force Exit will close Netch without completing cleanup. Continue?",
-                    "Netch", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                Environment.Exit(1);
-
-            return;
-        }
-
         if (!IsWaiting())
         {
             await StopCoreAsync();
@@ -561,16 +603,8 @@ public partial class MainForm : Form
         }
         catch (Exception exception)
         {
-            if (MainController.ServerController != null || MainController.ModeController != null)
-            {
-                State = State.StopFailed;
-                StatusText("Start failed; cleanup incomplete. Press Retry Stop.");
-            }
-            else
-            {
-                State = State.Stopped;
-                StatusText(i18N.Translate("Start failed"));
-            }
+            State = State.Stopped;
+            StatusText(i18N.Translate("Start failed"));
             MessageBoxX.Show(exception.Message, LogLevel.ERROR);
             return;
         }
@@ -672,7 +706,7 @@ public partial class MainForm : Form
         }
 
         Hide();
-        ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
+        ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).Edit(server);
         LoadServers();
         await Configuration.SaveAsync();
         Show();
@@ -775,7 +809,10 @@ public partial class MainForm : Form
     {
         try
         {
-            Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
+            if (ModeComboBox.SelectedItem as Mode != null)
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
+            }
         }
         catch
         {
@@ -792,7 +829,8 @@ public partial class MainForm : Form
             return;
         }
 
-        var mode = (Mode)ModeComboBox.SelectedItem;
+        var mode = (Mode?)ModeComboBox.SelectedItem;
+        ArgumentNullException.ThrowIfNull(mode);
         if (ModifierKeys == Keys.Control)
         {
             Utils.Utils.Open(mode.FullName);
@@ -828,7 +866,10 @@ public partial class MainForm : Form
             return;
         }
 
+        ArgumentNullException.ThrowIfNull(ModeComboBox.SelectedItem as Mode);
+
         ModeService.Delete((Mode)ModeComboBox.SelectedItem);
+
         SelectLastMode();
     }
 
@@ -959,7 +1000,7 @@ public partial class MainForm : Form
         {
             ProfileNameText.Text = profile.ProfileName;
 
-            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
+            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remarks.Equals(profile.ServerRemark));
             var mode = ModeComboBox.Items.Cast<Mode>().FirstOrDefault(m => m.Remark.Any(s => s.Value.Equals(profile.ModeRemark)));
 
             if (server == null)
@@ -1040,11 +1081,6 @@ public partial class MainForm : Form
                     BandwidthState(false);
                     ConnectivityStatusVisible(false);
                     break;
-                case State.StopFailed:
-                    ControlButton.Enabled = true;
-                    ControlButton.Text = i18N.Translate("Retry Stop");
-                    ProfileGroupBox.Enabled = false;
-                    break;
                 case State.Stopped:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Start");
@@ -1068,52 +1104,13 @@ public partial class MainForm : Form
         await StopCoreAsync();
     }
 
-    private Task? _stopTask;
-    private bool _stopTimedOut;
-
-    private Task StopCoreAsync() => _stopTask ??= StopCoreInternalAsync();
-
-    private async Task StopCoreInternalAsync()
+    private async Task StopCoreAsync()
     {
-        // Ensure the in-flight task is recorded before a fast shutdown completes.
-        await Task.Yield();
-
         State = State.Stopping;
-        _stopTimedOut = false;
-        _discoveryNatCts?.Cancel();
-        _httpConnectCts?.Cancel();
-
-        try
-        {
-            // Driver and process cleanup can block synchronously on Windows 11.
-            // Keep that work off the WinForms UI thread.
-            var stopTask = Task.Run(MainController.StopAsync);
-
-            if (await Task.WhenAny(stopTask, Task.Delay(TimeSpan.FromSeconds(15))) != stopTask)
-            {
-                Log.Warning("Stopping MainController took longer than 15 seconds");
-                StatusText("Still stopping; check the Netch log. Force Exit is available.");
-                _stopTimedOut = true;
-                ControlButton.Text = i18N.Translate("Force Exit");
-                ControlButton.Enabled = true;
-            }
-
-            // Never claim the network has stopped while driver cleanup is running.
-            await stopTask;
-            State = State.Stopped;
-        }
-        catch (Exception exception)
-        {
-            Log.Error(exception, "Failed to stop MainController");
-            State = State.StopFailed;
-            StatusText("Stop failed; press Retry Stop after checking the Netch log");
-            NotifyTip(exception.Message, info: false);
-        }
-        finally
-        {
-            _stopTimedOut = false;
-            _stopTask = null;
-        }
+        _discoveryNatCts?.CancelAsync();
+        _httpConnectCts?.CancelAsync();
+        await MainController.StopAsync();
+        State = State.Stopped;
     }
 
     private bool IsWaiting() => IsWaiting(_state);
@@ -1226,13 +1223,12 @@ public partial class MainForm : Form
         NatTypeStatusLabel.Enabled = false;
         UpdateNatTypeStatusLabelText(i18N.Translate("Testing NAT Type"));
 
-        var cancellation = new CancellationTokenSource();
-        _discoveryNatCts = cancellation;
+        _discoveryNatCts = new CancellationTokenSource();
 
         try
         {
-            var res = await MainController.DiscoveryNatTypeAsync(cancellation.Token);
-            if (cancellation.IsCancellationRequested)
+            var res = await MainController.DiscoveryNatTypeAsync(_discoveryNatCts.Token);
+            if (_discoveryNatCts.IsCancellationRequested)
                 return;
 
             if (!string.IsNullOrEmpty(res.PublicEnd))
@@ -1251,21 +1247,10 @@ public partial class MainForm : Form
                 NatTypeStatusLightLabel.Visible = false;
             }
         }
-        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
-        {
-            // Stopping the proxy cancels an in-flight UDP detection.
-        }
-        catch (Exception e)
-        {
-            Log.Warning(e, "UDP NAT detection UI update failed");
-            UpdateNatTypeStatusLabelText("Error");
-            UpdateNatTypeLight();
-        }
         finally
         {
-            if (ReferenceEquals(_discoveryNatCts, cancellation))
-                _discoveryNatCts = null;
-            cancellation.Dispose();
+            _discoveryNatCts.Dispose();
+            _discoveryNatCts = null;
             NatTypeStatusLabel.Enabled = true;
         }
     }
@@ -1408,8 +1393,9 @@ public partial class MainForm : Form
         {
             UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
             await UpdateChecker.CheckAsync(Global.Settings.CheckBetaUpdate);
+            VersionLabel.Text = UpdateChecker.DisplayVersion;
             if (Flags.AlwaysShowNewVersionFound)
-                OnUpdateCheckerOnNewVersionFound(null!, null!);
+                OnUpdateCheckerOnNewVersionFound(null, null);
         }
         finally
         {
@@ -1419,7 +1405,7 @@ public partial class MainForm : Form
         void OnUpdateCheckerOnNewVersionFound(object? o, EventArgs? eventArgs)
         {
             NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
-            NewVersionLabel.Text = i18N.Translate("New version available");
+            NewVersionLabel.Text = $"{i18N.Translate("New version available")}: {UpdateChecker.LatestVersionNumber}";
             NewVersionLabel.Enabled = true;
             NewVersionLabel.Visible = true;
         }
@@ -1511,46 +1497,49 @@ public partial class MainForm : Form
         if (e.Index < 0)
             return;
 
+
+        var cbxItem = cbx.Items[e.Index];
+        ArgumentNullException.ThrowIfNull(cbxItem);
         // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
+        TextRenderer.DrawText(e.Graphics, cbxItem.ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
 
         switch (cbx.Items[e.Index])
         {
             case Server item:
-            {
-                // 计算延迟底色
-                var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+                {
+                    // 计算延迟底色
+                    var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
 
-                // 绘制延迟底色
-                e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                    // 绘制延迟底色
+                    e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制延迟字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Delay.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
+                    // 绘制延迟字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Delay.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
 
-                break;
-            }
+                    break;
+                }
             case Mode item:
-            {
-                /*
-                // 绘制 模式Box 底色
-                e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                {
+                    /*
+                    // 绘制 模式Box 底色
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制 模式行数 字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Content.Count.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
-                    */
+                    // 绘制 模式行数 字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Content.Count.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
+                        */
 
-                break;
-            }
+                    break;
+                }
         }
     }
 

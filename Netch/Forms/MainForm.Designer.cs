@@ -28,726 +28,748 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.MenuStrip = new System.Windows.Forms.MenuStrip();
-            this.ServerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ImportServersFromClipboardToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CreateProcessModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CreateRouteTableRuleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ReloadModesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.SubscriptionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ManageSubscriptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UpdateServersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.OptionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.OpenDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ShowHideConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CleanDNSCacheToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.UninstallServiceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.RemoveNetchFirewallRulesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.HelpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.CheckForUpdateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FAQToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ForceExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AboutToolStripButton = new System.Windows.Forms.ToolStripButton();
-            this.NewVersionLabel = new System.Windows.Forms.ToolStripLabel();
-            this.VersionLabel = new System.Windows.Forms.ToolStripLabel();
-            this.ConfigurationGroupBox = new System.Windows.Forms.GroupBox();
-            this.configLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.ProfileLabel = new System.Windows.Forms.Label();
-            this.ModeLabel = new System.Windows.Forms.Label();
-            this.ServerLabel = new System.Windows.Forms.Label();
-            this.ProfileNameText = new System.Windows.Forms.TextBox();
-            this.ModeComboBox = new System.Windows.Forms.ComboBox();
-            this.ServerComboBox = new System.Windows.Forms.ComboBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.EditServerPictureBox = new System.Windows.Forms.PictureBox();
-            this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
-            this.DeleteServerPictureBox = new System.Windows.Forms.PictureBox();
-            this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
-            this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.EditModePictureBox = new System.Windows.Forms.PictureBox();
-            this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
-            this.StatusStrip = new System.Windows.Forms.StatusStrip();
-            this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.blankToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.HttpStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.NatTypeStatusLightLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.ControlButton = new System.Windows.Forms.Button();
-            this.NotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.NotifyMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.ShowMainFormToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.ExitToolStripButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.SettingsButton = new System.Windows.Forms.Button();
-            this.ProfileGroupBox = new System.Windows.Forms.GroupBox();
-            this.ProfileTable = new System.Windows.Forms.TableLayoutPanel();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
-            this.ButtomControlContainerControl = new System.Windows.Forms.ContainerControl();
-            this.MenuStrip.SuspendLayout();
-            this.ConfigurationGroupBox.SuspendLayout();
-            this.configLayoutPanel.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
-            this.tableLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).BeginInit();
-            this.StatusStrip.SuspendLayout();
-            this.NotifyMenu.SuspendLayout();
-            this.ProfileGroupBox.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
-            this.ButtomControlContainerControl.SuspendLayout();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            MenuStrip = new MenuStrip();
+            ServerToolStripMenuItem = new ToolStripMenuItem();
+            ImportServersFromClipboardToolStripMenuItem = new ToolStripMenuItem();
+            ModeToolStripMenuItem = new ToolStripMenuItem();
+            CreateProcessModeToolStripMenuItem = new ToolStripMenuItem();
+            CreateRouteTableRuleToolStripMenuItem = new ToolStripMenuItem();
+            ReloadModesToolStripMenuItem = new ToolStripMenuItem();
+            SubscriptionToolStripMenuItem = new ToolStripMenuItem();
+            ManageSubscriptionsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            UpdateServersToolStripMenuItem_NoProxy = new ToolStripMenuItem();
+            UpdateServersToolStripMenuItem_UseProxy = new ToolStripMenuItem();
+            OptionsToolStripMenuItem = new ToolStripMenuItem();
+            OpenDirectoryToolStripMenuItem = new ToolStripMenuItem();
+            ShowHideConsoleToolStripMenuItem = new ToolStripMenuItem();
+            CleanDNSCacheToolStripMenuItem = new ToolStripMenuItem();
+            UninstallServiceToolStripMenuItem = new ToolStripMenuItem();
+            RemoveNetchFirewallRulesToolStripMenuItem = new ToolStripMenuItem();
+            HelpToolStripMenuItem = new ToolStripMenuItem();
+            CheckForUpdateToolStripMenuItem = new ToolStripMenuItem();
+            V2RayCoreToolStripMenuItem = new ToolStripMenuItem();
+            XRayCireWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            TUN2SocksWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            WinTUNWebSiteToolStripMenuItem = new ToolStripMenuItem();
+            pcap2socksWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            FAQToolStripMenuItem = new ToolStripMenuItem();
+            ForceExitToolStripMenuItem = new ToolStripMenuItem();
+            AboutToolStripButton = new ToolStripButton();
+            NewVersionLabel = new ToolStripLabel();
+            VersionLabel = new ToolStripLabel();
+            ConfigurationGroupBox = new GroupBox();
+            configLayoutPanel = new TableLayoutPanel();
+            ProfileLabel = new Label();
+            ModeLabel = new Label();
+            ServerLabel = new Label();
+            ProfileNameText = new TextBox();
+            ModeComboBox = new ComboBox();
+            ServerComboBox = new ComboBox();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            EditServerPictureBox = new PictureBox();
+            CopyLinkPictureBox = new PictureBox();
+            DeleteServerPictureBox = new PictureBox();
+            SpeedPictureBox = new PictureBox();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            EditModePictureBox = new PictureBox();
+            DeleteModePictureBox = new PictureBox();
+            StatusStrip = new StatusStrip();
+            StatusLabel = new ToolStripStatusLabel();
+            UsedBandwidthLabel = new ToolStripStatusLabel();
+            DownloadSpeedLabel = new ToolStripStatusLabel();
+            UploadSpeedLabel = new ToolStripStatusLabel();
+            blankToolStripStatusLabel = new ToolStripStatusLabel();
+            HttpStatusLabel = new ToolStripStatusLabel();
+            NatTypeStatusLabel = new ToolStripStatusLabel();
+            NatTypeStatusLightLabel = new ToolStripStatusLabel();
+            ControlButton = new Button();
+            NotifyIcon = new NotifyIcon(components);
+            NotifyMenu = new ContextMenuStrip(components);
+            ShowMainFormToolStripButton = new ToolStripMenuItem();
+            ExitToolStripButton = new ToolStripMenuItem();
+            SettingsButton = new Button();
+            ProfileGroupBox = new GroupBox();
+            ProfileTable = new TableLayoutPanel();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            ButtomControlContainerControl = new ContainerControl();
+            MenuStrip.SuspendLayout();
+            ConfigurationGroupBox.SuspendLayout();
+            configLayoutPanel.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)EditServerPictureBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)CopyLinkPictureBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)DeleteServerPictureBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)SpeedPictureBox).BeginInit();
+            tableLayoutPanel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)EditModePictureBox).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)DeleteModePictureBox).BeginInit();
+            StatusStrip.SuspendLayout();
+            NotifyMenu.SuspendLayout();
+            ProfileGroupBox.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
+            ButtomControlContainerControl.SuspendLayout();
+            SuspendLayout();
             // 
             // MenuStrip
             // 
-            this.MenuStrip.BackColor = System.Drawing.SystemColors.Control;
-            this.MenuStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.MenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ServerToolStripMenuItem,
-            this.ModeToolStripMenuItem,
-            this.SubscriptionToolStripMenuItem,
-            this.OptionsToolStripMenuItem,
-            this.HelpToolStripMenuItem,
-            this.ForceExitToolStripMenuItem,
-            this.AboutToolStripButton,
-            this.NewVersionLabel,
-            this.VersionLabel});
-            this.MenuStrip.Location = new System.Drawing.Point(0, 0);
-            this.MenuStrip.Name = "MenuStrip";
-            this.MenuStrip.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.MenuStrip.Size = new System.Drawing.Size(740, 26);
-            this.MenuStrip.TabIndex = 0;
+            MenuStrip.BackColor = SystemColors.Control;
+            MenuStrip.ImageScalingSize = new Size(20, 20);
+            MenuStrip.Items.AddRange(new ToolStripItem[] { ServerToolStripMenuItem, ModeToolStripMenuItem, SubscriptionToolStripMenuItem, OptionsToolStripMenuItem, HelpToolStripMenuItem, ForceExitToolStripMenuItem, AboutToolStripButton, NewVersionLabel, VersionLabel });
+            MenuStrip.Location = new Point(0, 0);
+            MenuStrip.Name = "MenuStrip";
+            MenuStrip.RenderMode = ToolStripRenderMode.Professional;
+            MenuStrip.Size = new Size(740, 26);
+            MenuStrip.TabIndex = 0;
             // 
             // ServerToolStripMenuItem
             // 
-            this.ServerToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ImportServersFromClipboardToolStripMenuItem});
-            this.ServerToolStripMenuItem.Margin = new System.Windows.Forms.Padding(3, 0, 0, 1);
-            this.ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
-            this.ServerToolStripMenuItem.Size = new System.Drawing.Size(57, 21);
-            this.ServerToolStripMenuItem.Text = "Server";
+            ServerToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ImportServersFromClipboardToolStripMenuItem });
+            ServerToolStripMenuItem.Margin = new Padding(3, 0, 0, 1);
+            ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
+            ServerToolStripMenuItem.Size = new Size(57, 21);
+            ServerToolStripMenuItem.Text = "Server";
             // 
             // ImportServersFromClipboardToolStripMenuItem
             // 
-            this.ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
-            this.ImportServersFromClipboardToolStripMenuItem.Size = new System.Drawing.Size(259, 22);
-            this.ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
-            this.ImportServersFromClipboardToolStripMenuItem.Click += new System.EventHandler(this.ImportServersFromClipboardToolStripMenuItem_Click);
+            ImportServersFromClipboardToolStripMenuItem.Name = "ImportServersFromClipboardToolStripMenuItem";
+            ImportServersFromClipboardToolStripMenuItem.Size = new Size(259, 22);
+            ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
+            ImportServersFromClipboardToolStripMenuItem.Click += ImportServersFromClipboardToolStripMenuItem_Click;
             // 
             // ModeToolStripMenuItem
             // 
-            this.ModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CreateProcessModeToolStripMenuItem,
-            this.CreateRouteTableRuleToolStripMenuItem,
-            this.ReloadModesToolStripMenuItem});
-            this.ModeToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
-            this.ModeToolStripMenuItem.Size = new System.Drawing.Size(55, 21);
-            this.ModeToolStripMenuItem.Text = "Mode";
+            ModeToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CreateProcessModeToolStripMenuItem, CreateRouteTableRuleToolStripMenuItem, ReloadModesToolStripMenuItem });
+            ModeToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
+            ModeToolStripMenuItem.Name = "ModeToolStripMenuItem";
+            ModeToolStripMenuItem.Size = new Size(55, 21);
+            ModeToolStripMenuItem.Text = "Mode";
             // 
             // CreateProcessModeToolStripMenuItem
             // 
-            this.CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
-            this.CreateProcessModeToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
-            this.CreateProcessModeToolStripMenuItem.Click += new System.EventHandler(this.CreateProcessModeToolStripButton_Click);
+            CreateProcessModeToolStripMenuItem.Name = "CreateProcessModeToolStripMenuItem";
+            CreateProcessModeToolStripMenuItem.Size = new Size(217, 22);
+            CreateProcessModeToolStripMenuItem.Text = "Create Process Mode";
+            CreateProcessModeToolStripMenuItem.Click += CreateProcessModeToolStripButton_Click;
             // 
             // CreateRouteTableRuleToolStripMenuItem
             // 
-            this.CreateRouteTableRuleToolStripMenuItem.Name = "CreateRouteTableRuleToolStripMenuItem";
-            this.CreateRouteTableRuleToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
-            this.CreateRouteTableRuleToolStripMenuItem.Click += new System.EventHandler(this.createRouteTableModeToolStripMenuItem_Click);
+            CreateRouteTableRuleToolStripMenuItem.Name = "CreateRouteTableRuleToolStripMenuItem";
+            CreateRouteTableRuleToolStripMenuItem.Size = new Size(217, 22);
+            CreateRouteTableRuleToolStripMenuItem.Text = "Create Route Table Rule";
+            CreateRouteTableRuleToolStripMenuItem.Click += createRouteTableModeToolStripMenuItem_Click;
             // 
             // ReloadModesToolStripMenuItem
             // 
-            this.ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
-            this.ReloadModesToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.ReloadModesToolStripMenuItem.Text = "Reload Modes";
-            this.ReloadModesToolStripMenuItem.Click += new System.EventHandler(this.ReloadModesToolStripMenuItem_Click);
+            ReloadModesToolStripMenuItem.Name = "ReloadModesToolStripMenuItem";
+            ReloadModesToolStripMenuItem.Size = new Size(217, 22);
+            ReloadModesToolStripMenuItem.Text = "Reload Modes";
+            ReloadModesToolStripMenuItem.Click += ReloadModesToolStripMenuItem_Click;
             // 
             // SubscriptionToolStripMenuItem
             // 
-            this.SubscriptionToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ManageSubscriptionsToolStripMenuItem,
-            this.UpdateServersToolStripMenuItem});
-            this.SubscriptionToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.SubscriptionToolStripMenuItem.Name = "SubscriptionToolStripMenuItem";
-            this.SubscriptionToolStripMenuItem.Size = new System.Drawing.Size(92, 21);
-            this.SubscriptionToolStripMenuItem.Text = "Subscription";
+            SubscriptionToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ManageSubscriptionsToolStripMenuItem, toolStripSeparator1, UpdateServersToolStripMenuItem_NoProxy, UpdateServersToolStripMenuItem_UseProxy });
+            SubscriptionToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
+            SubscriptionToolStripMenuItem.Name = "SubscriptionToolStripMenuItem";
+            SubscriptionToolStripMenuItem.Size = new Size(92, 21);
+            SubscriptionToolStripMenuItem.Text = "Subscription";
             // 
             // ManageSubscriptionsToolStripMenuItem
             // 
-            this.ManageSubscriptionsToolStripMenuItem.Name = "ManageSubscriptionsToolStripMenuItem";
-            this.ManageSubscriptionsToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.ManageSubscriptionsToolStripMenuItem.Text = "Manage Subscriptions";
-            this.ManageSubscriptionsToolStripMenuItem.Click += new System.EventHandler(this.ManageSubscriptionLinksToolStripMenuItem_Click);
+            ManageSubscriptionsToolStripMenuItem.Name = "ManageSubscriptionsToolStripMenuItem";
+            ManageSubscriptionsToolStripMenuItem.Size = new Size(236, 22);
+            ManageSubscriptionsToolStripMenuItem.Text = "Manage Subscriptions";
+            ManageSubscriptionsToolStripMenuItem.Click += ManageSubscriptionLinksToolStripMenuItem_Click;
             // 
-            // UpdateServersToolStripMenuItem
+            // toolStripSeparator1
             // 
-            this.UpdateServersToolStripMenuItem.Name = "UpdateServersToolStripMenuItem";
-            this.UpdateServersToolStripMenuItem.Size = new System.Drawing.Size(206, 22);
-            this.UpdateServersToolStripMenuItem.Text = "Update Servers";
-            this.UpdateServersToolStripMenuItem.Click += new System.EventHandler(this.UpdateServersFromSubscriptionLinksToolStripMenuItem_Click);
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(233, 6);
+            // 
+            // UpdateServersToolStripMenuItem_NoProxy
+            // 
+            UpdateServersToolStripMenuItem_NoProxy.Name = "UpdateServersToolStripMenuItem_NoProxy";
+            UpdateServersToolStripMenuItem_NoProxy.Size = new Size(236, 22);
+            UpdateServersToolStripMenuItem_NoProxy.Text = "Update Servers (No Proxy)";
+            UpdateServersToolStripMenuItem_NoProxy.Click += UpdateServersFromSubscriptionLinksToolStripMenuItem_NoProxy_Click;
+            // 
+            // UpdateServersToolStripMenuItem_UseProxy
+            // 
+            UpdateServersToolStripMenuItem_UseProxy.Name = "UpdateServersToolStripMenuItem_UseProxy";
+            UpdateServersToolStripMenuItem_UseProxy.Size = new Size(236, 22);
+            UpdateServersToolStripMenuItem_UseProxy.Text = "Update Servers (Use Proxy)";
+            UpdateServersToolStripMenuItem_UseProxy.Click += UpdateServersToolStripMenuItem_UseProxy_Click;
             // 
             // OptionsToolStripMenuItem
             // 
-            this.OptionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.OpenDirectoryToolStripMenuItem,
-            this.ShowHideConsoleToolStripMenuItem,
-            this.CleanDNSCacheToolStripMenuItem,
-            this.UninstallServiceToolStripMenuItem,
-            this.RemoveNetchFirewallRulesToolStripMenuItem});
-            this.OptionsToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
-            this.OptionsToolStripMenuItem.Size = new System.Drawing.Size(66, 21);
-            this.OptionsToolStripMenuItem.Text = "Options";
+            OptionsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { OpenDirectoryToolStripMenuItem, ShowHideConsoleToolStripMenuItem, CleanDNSCacheToolStripMenuItem, UninstallServiceToolStripMenuItem, RemoveNetchFirewallRulesToolStripMenuItem });
+            OptionsToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
+            OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem";
+            OptionsToolStripMenuItem.Size = new Size(66, 21);
+            OptionsToolStripMenuItem.Text = "Options";
             // 
             // OpenDirectoryToolStripMenuItem
             // 
-            this.OpenDirectoryToolStripMenuItem.Name = "OpenDirectoryToolStripMenuItem";
-            this.OpenDirectoryToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.OpenDirectoryToolStripMenuItem.Text = "Open Directory";
-            this.OpenDirectoryToolStripMenuItem.Click += new System.EventHandler(this.OpenDirectoryToolStripMenuItem_Click);
+            OpenDirectoryToolStripMenuItem.Name = "OpenDirectoryToolStripMenuItem";
+            OpenDirectoryToolStripMenuItem.Size = new Size(243, 22);
+            OpenDirectoryToolStripMenuItem.Text = "Open Directory";
+            OpenDirectoryToolStripMenuItem.Click += OpenDirectoryToolStripMenuItem_Click;
             // 
             // ShowHideConsoleToolStripMenuItem
             // 
-            this.ShowHideConsoleToolStripMenuItem.Name = "ShowHideConsoleToolStripMenuItem";
-            this.ShowHideConsoleToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.ShowHideConsoleToolStripMenuItem.Text = "Show/Hide Console";
-            this.ShowHideConsoleToolStripMenuItem.Click += new System.EventHandler(this.ShowHideConsoleToolStripMenuItem_Click);
+            ShowHideConsoleToolStripMenuItem.Name = "ShowHideConsoleToolStripMenuItem";
+            ShowHideConsoleToolStripMenuItem.Size = new Size(243, 22);
+            ShowHideConsoleToolStripMenuItem.Text = "Show/Hide Console";
+            ShowHideConsoleToolStripMenuItem.Click += ShowHideConsoleToolStripMenuItem_Click;
             // 
             // CleanDNSCacheToolStripMenuItem
             // 
-            this.CleanDNSCacheToolStripMenuItem.Name = "CleanDNSCacheToolStripMenuItem";
-            this.CleanDNSCacheToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.CleanDNSCacheToolStripMenuItem.Text = "Clean DNS Cache";
-            this.CleanDNSCacheToolStripMenuItem.Click += new System.EventHandler(this.CleanDNSCacheToolStripMenuItem_Click);
+            CleanDNSCacheToolStripMenuItem.Name = "CleanDNSCacheToolStripMenuItem";
+            CleanDNSCacheToolStripMenuItem.Size = new Size(243, 22);
+            CleanDNSCacheToolStripMenuItem.Text = "Clean DNS Cache";
+            CleanDNSCacheToolStripMenuItem.Click += CleanDNSCacheToolStripMenuItem_Click;
             // 
             // UninstallServiceToolStripMenuItem
             // 
-            this.UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
-            this.UninstallServiceToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.UninstallServiceToolStripMenuItem.Text = "Uninstall NF Service";
-            this.UninstallServiceToolStripMenuItem.Click += new System.EventHandler(this.UninstallServiceToolStripMenuItem_Click);
+            UninstallServiceToolStripMenuItem.Name = "UninstallServiceToolStripMenuItem";
+            UninstallServiceToolStripMenuItem.Size = new Size(243, 22);
+            UninstallServiceToolStripMenuItem.Text = "Uninstall NF Service";
+            UninstallServiceToolStripMenuItem.Click += UninstallServiceToolStripMenuItem_Click;
             // 
             // RemoveNetchFirewallRulesToolStripMenuItem
             // 
-            this.RemoveNetchFirewallRulesToolStripMenuItem.Name = "RemoveNetchFirewallRulesToolStripMenuItem";
-            this.RemoveNetchFirewallRulesToolStripMenuItem.Size = new System.Drawing.Size(243, 22);
-            this.RemoveNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
-            this.RemoveNetchFirewallRulesToolStripMenuItem.Click += new System.EventHandler(this.RemoveNetchFirewallRulesToolStripMenuItem_Click);
+            RemoveNetchFirewallRulesToolStripMenuItem.Name = "RemoveNetchFirewallRulesToolStripMenuItem";
+            RemoveNetchFirewallRulesToolStripMenuItem.Size = new Size(243, 22);
+            RemoveNetchFirewallRulesToolStripMenuItem.Text = "Remove Netch Firewall Rules";
+            RemoveNetchFirewallRulesToolStripMenuItem.Click += RemoveNetchFirewallRulesToolStripMenuItem_Click;
             // 
             // HelpToolStripMenuItem
             // 
-            this.HelpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CheckForUpdateToolStripMenuItem,
-            this.FAQToolStripMenuItem});
-            this.HelpToolStripMenuItem.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
-            this.HelpToolStripMenuItem.Size = new System.Drawing.Size(47, 21);
-            this.HelpToolStripMenuItem.Text = "Help";
+            HelpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CheckForUpdateToolStripMenuItem, V2RayCoreToolStripMenuItem, XRayCireWebsiteToolStripMenuItem, TUN2SocksWebsiteToolStripMenuItem, WinTUNWebSiteToolStripMenuItem, pcap2socksWebsiteToolStripMenuItem, FAQToolStripMenuItem });
+            HelpToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
+            HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
+            HelpToolStripMenuItem.Size = new Size(47, 21);
+            HelpToolStripMenuItem.Text = "Help";
             // 
             // CheckForUpdateToolStripMenuItem
             // 
-            this.CheckForUpdateToolStripMenuItem.Name = "CheckForUpdateToolStripMenuItem";
-            this.CheckForUpdateToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
-            this.CheckForUpdateToolStripMenuItem.Text = "Check for update";
-            this.CheckForUpdateToolStripMenuItem.Click += new System.EventHandler(this.CheckForUpdatesToolStripMenuItem_Click);
+            CheckForUpdateToolStripMenuItem.Name = "CheckForUpdateToolStripMenuItem";
+            CheckForUpdateToolStripMenuItem.Size = new Size(196, 22);
+            CheckForUpdateToolStripMenuItem.Text = "Check for update";
+            CheckForUpdateToolStripMenuItem.Click += CheckForUpdatesToolStripMenuItem_Click;
+            // 
+            // V2RayCoreToolStripMenuItem
+            // 
+            V2RayCoreToolStripMenuItem.Name = "V2RayCoreToolStripMenuItem";
+            V2RayCoreToolStripMenuItem.Size = new Size(196, 22);
+            V2RayCoreToolStripMenuItem.Text = "V2Ray Core Website";
+            V2RayCoreToolStripMenuItem.Click += V2RayCoreToolStripMenuItem_Click;
+            // 
+            // XRayCireWebsiteToolStripMenuItem
+            // 
+            XRayCireWebsiteToolStripMenuItem.Name = "XRayCireWebsiteToolStripMenuItem";
+            XRayCireWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            XRayCireWebsiteToolStripMenuItem.Text = "XRay Core Website";
+            XRayCireWebsiteToolStripMenuItem.Click += XRayCireWebsiteToolStripMenuItem_Click;
+            // 
+            // TUN2SocksWebsiteToolStripMenuItem
+            // 
+            TUN2SocksWebsiteToolStripMenuItem.Name = "TUN2SocksWebsiteToolStripMenuItem";
+            TUN2SocksWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            TUN2SocksWebsiteToolStripMenuItem.Text = "TUN2Socks Website";
+            TUN2SocksWebsiteToolStripMenuItem.Click += TUN2SocksWebsiteToolStripMenuItem_Click;
+            // 
+            // WinTUNWebSiteToolStripMenuItem
+            // 
+            WinTUNWebSiteToolStripMenuItem.Name = "WinTUNWebSiteToolStripMenuItem";
+            WinTUNWebSiteToolStripMenuItem.Size = new Size(196, 22);
+            WinTUNWebSiteToolStripMenuItem.Text = "WinTUN WebSite";
+            WinTUNWebSiteToolStripMenuItem.Click += WinTUNWebSiteToolStripMenuItem_Click;
+            // 
+            // pcap2socksWebsiteToolStripMenuItem
+            // 
+            pcap2socksWebsiteToolStripMenuItem.Name = "pcap2socksWebsiteToolStripMenuItem";
+            pcap2socksWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            pcap2socksWebsiteToolStripMenuItem.Text = "pcap2socks Website";
+            pcap2socksWebsiteToolStripMenuItem.Click += pcap2socksWebsiteToolStripMenuItem_Click;
             // 
             // FAQToolStripMenuItem
             // 
-            this.FAQToolStripMenuItem.Name = "FAQToolStripMenuItem";
-            this.FAQToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
-            this.FAQToolStripMenuItem.Text = "FAQ";
-            this.FAQToolStripMenuItem.Click += new System.EventHandler(this.fAQToolStripMenuItem_Click);
+            FAQToolStripMenuItem.Name = "FAQToolStripMenuItem";
+            FAQToolStripMenuItem.Size = new Size(196, 22);
+            FAQToolStripMenuItem.Text = "FAQ";
+            FAQToolStripMenuItem.Click += fAQToolStripMenuItem_Click;
             // 
             // ForceExitToolStripMenuItem
             // 
-            this.ForceExitToolStripMenuItem.Name = "ForceExitToolStripMenuItem";
-            this.ForceExitToolStripMenuItem.Size = new System.Drawing.Size(40, 22);
-            this.ForceExitToolStripMenuItem.Text = "Exit";
-            this.ForceExitToolStripMenuItem.Click += new System.EventHandler(this.ForceExitToolStripMenuItem_Click);
+            ForceExitToolStripMenuItem.Name = "ForceExitToolStripMenuItem";
+            ForceExitToolStripMenuItem.Size = new Size(40, 22);
+            ForceExitToolStripMenuItem.Text = "Exit";
+            ForceExitToolStripMenuItem.Click += ForceExitToolStripMenuItem_Click;
             // 
             // AboutToolStripButton
             // 
-            this.AboutToolStripButton.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.AboutToolStripButton.AutoToolTip = false;
-            this.AboutToolStripButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 1);
-            this.AboutToolStripButton.Name = "AboutToolStripButton";
-            this.AboutToolStripButton.Size = new System.Drawing.Size(47, 21);
-            this.AboutToolStripButton.Text = "About";
-            this.AboutToolStripButton.Click += new System.EventHandler(this.AboutToolStripButton_Click);
+            AboutToolStripButton.Alignment = ToolStripItemAlignment.Right;
+            AboutToolStripButton.AutoToolTip = false;
+            AboutToolStripButton.Margin = new Padding(0, 0, 3, 1);
+            AboutToolStripButton.Name = "AboutToolStripButton";
+            AboutToolStripButton.Size = new Size(47, 21);
+            AboutToolStripButton.Text = "About";
+            AboutToolStripButton.Click += AboutToolStripButton_Click;
             // 
             // NewVersionLabel
             // 
-            this.NewVersionLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.NewVersionLabel.BackColor = System.Drawing.Color.Transparent;
-            this.NewVersionLabel.ForeColor = System.Drawing.Color.Red;
-            this.NewVersionLabel.IsLink = true;
-            this.NewVersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.NewVersionLabel.LinkColor = System.Drawing.Color.Red;
-            this.NewVersionLabel.Name = "NewVersionLabel";
-            this.NewVersionLabel.Size = new System.Drawing.Size(135, 19);
-            this.NewVersionLabel.Text = "New version available";
-            this.NewVersionLabel.Visible = false;
-            this.NewVersionLabel.Click += new System.EventHandler(this.NewVersionLabel_Click);
+            NewVersionLabel.Alignment = ToolStripItemAlignment.Right;
+            NewVersionLabel.BackColor = Color.Transparent;
+            NewVersionLabel.ForeColor = Color.Red;
+            NewVersionLabel.IsLink = true;
+            NewVersionLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            NewVersionLabel.LinkColor = Color.Red;
+            NewVersionLabel.Name = "NewVersionLabel";
+            NewVersionLabel.Size = new Size(135, 19);
+            NewVersionLabel.Text = "New version available";
+            NewVersionLabel.Visible = false;
+            NewVersionLabel.Click += NewVersionLabel_Click;
             // 
             // VersionLabel
             // 
-            this.VersionLabel.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.VersionLabel.BackColor = System.Drawing.Color.Transparent;
-            this.VersionLabel.ForeColor = System.Drawing.Color.Red;
-            this.VersionLabel.IsLink = true;
-            this.VersionLabel.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.VersionLabel.Name = "VersionLabel";
-            this.VersionLabel.Size = new System.Drawing.Size(26, 19);
-            this.VersionLabel.Text = "xxx";
-            this.VersionLabel.Click += new System.EventHandler(this.VersionLabel_Click);
+            VersionLabel.Alignment = ToolStripItemAlignment.Right;
+            VersionLabel.BackColor = Color.Transparent;
+            VersionLabel.ForeColor = Color.Red;
+            VersionLabel.IsLink = true;
+            VersionLabel.LinkBehavior = LinkBehavior.NeverUnderline;
+            VersionLabel.Name = "VersionLabel";
+            VersionLabel.Size = new Size(26, 19);
+            VersionLabel.Text = "xxx";
+            VersionLabel.Click += VersionLabel_Click;
             // 
             // ConfigurationGroupBox
             // 
-            this.ConfigurationGroupBox.Controls.Add(this.configLayoutPanel);
-            this.ConfigurationGroupBox.Location = new System.Drawing.Point(3, 3);
-            this.ConfigurationGroupBox.Name = "ConfigurationGroupBox";
-            this.ConfigurationGroupBox.Size = new System.Drawing.Size(709, 115);
-            this.ConfigurationGroupBox.TabIndex = 1;
-            this.ConfigurationGroupBox.TabStop = false;
-            this.ConfigurationGroupBox.Text = "Configuration";
+            ConfigurationGroupBox.Controls.Add(configLayoutPanel);
+            ConfigurationGroupBox.Location = new Point(3, 3);
+            ConfigurationGroupBox.Name = "ConfigurationGroupBox";
+            ConfigurationGroupBox.Size = new Size(709, 115);
+            ConfigurationGroupBox.TabIndex = 1;
+            ConfigurationGroupBox.TabStop = false;
+            ConfigurationGroupBox.Text = "Configuration";
             // 
             // configLayoutPanel
             // 
-            this.configLayoutPanel.AutoSize = true;
-            this.configLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.configLayoutPanel.ColumnCount = 3;
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.Controls.Add(this.ProfileLabel, 0, 2);
-            this.configLayoutPanel.Controls.Add(this.ModeLabel, 0, 1);
-            this.configLayoutPanel.Controls.Add(this.ServerLabel, 0, 0);
-            this.configLayoutPanel.Controls.Add(this.ProfileNameText, 1, 2);
-            this.configLayoutPanel.Controls.Add(this.ModeComboBox, 1, 1);
-            this.configLayoutPanel.Controls.Add(this.ServerComboBox, 1, 0);
-            this.configLayoutPanel.Controls.Add(this.tableLayoutPanel2, 2, 0);
-            this.configLayoutPanel.Controls.Add(this.tableLayoutPanel3, 2, 1);
-            this.configLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.configLayoutPanel.Location = new System.Drawing.Point(3, 19);
-            this.configLayoutPanel.Name = "configLayoutPanel";
-            this.configLayoutPanel.RowCount = 3;
-            this.configLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.configLayoutPanel.Size = new System.Drawing.Size(703, 93);
-            this.configLayoutPanel.TabIndex = 15;
+            configLayoutPanel.AutoSize = true;
+            configLayoutPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            configLayoutPanel.ColumnCount = 3;
+            configLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+            configLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+            configLayoutPanel.ColumnStyles.Add(new ColumnStyle());
+            configLayoutPanel.Controls.Add(ProfileLabel, 0, 2);
+            configLayoutPanel.Controls.Add(ModeLabel, 0, 1);
+            configLayoutPanel.Controls.Add(ServerLabel, 0, 0);
+            configLayoutPanel.Controls.Add(ProfileNameText, 1, 2);
+            configLayoutPanel.Controls.Add(ModeComboBox, 1, 1);
+            configLayoutPanel.Controls.Add(ServerComboBox, 1, 0);
+            configLayoutPanel.Controls.Add(tableLayoutPanel2, 2, 0);
+            configLayoutPanel.Controls.Add(tableLayoutPanel3, 2, 1);
+            configLayoutPanel.Dock = DockStyle.Fill;
+            configLayoutPanel.Location = new Point(3, 19);
+            configLayoutPanel.Name = "configLayoutPanel";
+            configLayoutPanel.RowCount = 3;
+            configLayoutPanel.RowStyles.Add(new RowStyle());
+            configLayoutPanel.RowStyles.Add(new RowStyle());
+            configLayoutPanel.RowStyles.Add(new RowStyle());
+            configLayoutPanel.Size = new Size(703, 93);
+            configLayoutPanel.TabIndex = 15;
             // 
             // ProfileLabel
             // 
-            this.ProfileLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ProfileLabel.AutoSize = true;
-            this.ProfileLabel.Location = new System.Drawing.Point(3, 68);
-            this.ProfileLabel.Name = "ProfileLabel";
-            this.ProfileLabel.Size = new System.Drawing.Size(45, 17);
-            this.ProfileLabel.TabIndex = 10;
-            this.ProfileLabel.Text = "Profile";
+            ProfileLabel.Anchor = AnchorStyles.Left;
+            ProfileLabel.AutoSize = true;
+            ProfileLabel.Location = new Point(3, 68);
+            ProfileLabel.Name = "ProfileLabel";
+            ProfileLabel.Size = new Size(45, 17);
+            ProfileLabel.TabIndex = 10;
+            ProfileLabel.Text = "Profile";
             // 
             // ModeLabel
             // 
-            this.ModeLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ModeLabel.AutoSize = true;
-            this.ModeLabel.Location = new System.Drawing.Point(3, 36);
-            this.ModeLabel.Name = "ModeLabel";
-            this.ModeLabel.Size = new System.Drawing.Size(43, 17);
-            this.ModeLabel.TabIndex = 3;
-            this.ModeLabel.Text = "Mode";
+            ModeLabel.Anchor = AnchorStyles.Left;
+            ModeLabel.AutoSize = true;
+            ModeLabel.Location = new Point(3, 36);
+            ModeLabel.Name = "ModeLabel";
+            ModeLabel.Size = new Size(43, 17);
+            ModeLabel.TabIndex = 3;
+            ModeLabel.Text = "Mode";
             // 
             // ServerLabel
             // 
-            this.ServerLabel.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.ServerLabel.AutoSize = true;
-            this.ServerLabel.Location = new System.Drawing.Point(3, 6);
-            this.ServerLabel.Name = "ServerLabel";
-            this.ServerLabel.Size = new System.Drawing.Size(45, 17);
-            this.ServerLabel.TabIndex = 0;
-            this.ServerLabel.Text = "Server";
+            ServerLabel.Anchor = AnchorStyles.Left;
+            ServerLabel.AutoSize = true;
+            ServerLabel.Location = new Point(3, 6);
+            ServerLabel.Name = "ServerLabel";
+            ServerLabel.Size = new Size(45, 17);
+            ServerLabel.TabIndex = 0;
+            ServerLabel.Text = "Server";
             // 
             // ProfileNameText
             // 
-            this.ProfileNameText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ProfileNameText.Location = new System.Drawing.Point(54, 63);
-            this.ProfileNameText.Name = "ProfileNameText";
-            this.ProfileNameText.Size = new System.Drawing.Size(546, 23);
-            this.ProfileNameText.TabIndex = 11;
+            ProfileNameText.Dock = DockStyle.Fill;
+            ProfileNameText.Location = new Point(54, 63);
+            ProfileNameText.Name = "ProfileNameText";
+            ProfileNameText.Size = new Size(546, 23);
+            ProfileNameText.TabIndex = 11;
             // 
             // ModeComboBox
             // 
-            this.ModeComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ModeComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ModeComboBox.FormattingEnabled = true;
-            this.ModeComboBox.IntegralHeight = false;
-            this.ModeComboBox.Location = new System.Drawing.Point(54, 33);
-            this.ModeComboBox.Name = "ModeComboBox";
-            this.ModeComboBox.Size = new System.Drawing.Size(546, 24);
-            this.ModeComboBox.TabIndex = 2;
-            this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
-            this.ModeComboBox.SelectionChangeCommitted += new System.EventHandler(this.ModeComboBox_SelectionChangeCommitted);
+            ModeComboBox.Dock = DockStyle.Fill;
+            ModeComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+            ModeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            ModeComboBox.FormattingEnabled = true;
+            ModeComboBox.IntegralHeight = false;
+            ModeComboBox.Location = new Point(54, 33);
+            ModeComboBox.Name = "ModeComboBox";
+            ModeComboBox.Size = new Size(546, 24);
+            ModeComboBox.TabIndex = 2;
+            ModeComboBox.DrawItem += ComboBox_DrawItem;
+            ModeComboBox.SelectionChangeCommitted += ModeComboBox_SelectionChangeCommitted;
             // 
             // ServerComboBox
             // 
-            this.ServerComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ServerComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.ServerComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ServerComboBox.FormattingEnabled = true;
-            this.ServerComboBox.IntegralHeight = false;
-            this.ServerComboBox.Location = new System.Drawing.Point(54, 3);
-            this.ServerComboBox.MaxDropDownItems = 16;
-            this.ServerComboBox.Name = "ServerComboBox";
-            this.ServerComboBox.Size = new System.Drawing.Size(546, 24);
-            this.ServerComboBox.TabIndex = 1;
-            this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
-            this.ServerComboBox.SelectionChangeCommitted += new System.EventHandler(this.ServerComboBox_SelectionChangeCommitted);
+            ServerComboBox.Dock = DockStyle.Fill;
+            ServerComboBox.DrawMode = DrawMode.OwnerDrawFixed;
+            ServerComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            ServerComboBox.FormattingEnabled = true;
+            ServerComboBox.IntegralHeight = false;
+            ServerComboBox.Location = new Point(54, 3);
+            ServerComboBox.MaxDropDownItems = 16;
+            ServerComboBox.Name = "ServerComboBox";
+            ServerComboBox.Size = new Size(546, 24);
+            ServerComboBox.TabIndex = 1;
+            ServerComboBox.DrawItem += ComboBox_DrawItem;
+            ServerComboBox.SelectionChangeCommitted += ServerComboBox_SelectionChangeCommitted;
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 4;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.Controls.Add(this.EditServerPictureBox, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.CopyLinkPictureBox, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.DeleteServerPictureBox, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.SpeedPictureBox, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(606, 3);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(94, 24);
-            this.tableLayoutPanel2.TabIndex = 12;
+            tableLayoutPanel2.ColumnCount = 4;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel2.Controls.Add(EditServerPictureBox, 0, 0);
+            tableLayoutPanel2.Controls.Add(CopyLinkPictureBox, 3, 0);
+            tableLayoutPanel2.Controls.Add(DeleteServerPictureBox, 1, 0);
+            tableLayoutPanel2.Controls.Add(SpeedPictureBox, 2, 0);
+            tableLayoutPanel2.Location = new Point(606, 3);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 1;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.Size = new Size(94, 24);
+            tableLayoutPanel2.TabIndex = 12;
             // 
             // EditServerPictureBox
             // 
-            this.EditServerPictureBox.BackColor = System.Drawing.SystemColors.Control;
-            this.EditServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditServerPictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditServerPictureBox.Location = new System.Drawing.Point(3, 3);
-            this.EditServerPictureBox.Name = "EditServerPictureBox";
-            this.EditServerPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditServerPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.EditServerPictureBox.TabIndex = 7;
-            this.EditServerPictureBox.TabStop = false;
-            this.EditServerPictureBox.Click += new System.EventHandler(this.EditServerPictureBox_Click);
+            EditServerPictureBox.BackColor = SystemColors.Control;
+            EditServerPictureBox.Cursor = Cursors.Hand;
+            EditServerPictureBox.Image = Properties.Resources.edit;
+            EditServerPictureBox.Location = new Point(3, 3);
+            EditServerPictureBox.Name = "EditServerPictureBox";
+            EditServerPictureBox.Size = new Size(16, 16);
+            EditServerPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            EditServerPictureBox.TabIndex = 7;
+            EditServerPictureBox.TabStop = false;
+            EditServerPictureBox.Click += EditServerPictureBox_Click;
             // 
             // CopyLinkPictureBox
             // 
-            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.CopyLinkPictureBox.Image = global::Netch.Properties.Resources.CopyLink;
-            this.CopyLinkPictureBox.Location = new System.Drawing.Point(72, 3);
-            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
-            this.CopyLinkPictureBox.Size = new System.Drawing.Size(18, 18);
-            this.CopyLinkPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.CopyLinkPictureBox.TabIndex = 14;
-            this.CopyLinkPictureBox.TabStop = false;
-            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
+            CopyLinkPictureBox.Cursor = Cursors.Hand;
+            CopyLinkPictureBox.Image = Properties.Resources.CopyLink;
+            CopyLinkPictureBox.Location = new Point(72, 3);
+            CopyLinkPictureBox.Name = "CopyLinkPictureBox";
+            CopyLinkPictureBox.Size = new Size(18, 18);
+            CopyLinkPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            CopyLinkPictureBox.TabIndex = 14;
+            CopyLinkPictureBox.TabStop = false;
+            CopyLinkPictureBox.Click += CopyLinkPictureBox_Click;
             // 
             // DeleteServerPictureBox
             // 
-            this.DeleteServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteServerPictureBox.Image = global::Netch.Properties.Resources.delete;
-            this.DeleteServerPictureBox.Location = new System.Drawing.Point(26, 3);
-            this.DeleteServerPictureBox.Name = "DeleteServerPictureBox";
-            this.DeleteServerPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeleteServerPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.DeleteServerPictureBox.TabIndex = 8;
-            this.DeleteServerPictureBox.TabStop = false;
-            this.DeleteServerPictureBox.Click += new System.EventHandler(this.DeleteServerPictureBox_Click);
+            DeleteServerPictureBox.Cursor = Cursors.Hand;
+            DeleteServerPictureBox.Image = Properties.Resources.delete;
+            DeleteServerPictureBox.Location = new Point(26, 3);
+            DeleteServerPictureBox.Name = "DeleteServerPictureBox";
+            DeleteServerPictureBox.Size = new Size(16, 16);
+            DeleteServerPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            DeleteServerPictureBox.TabIndex = 8;
+            DeleteServerPictureBox.TabStop = false;
+            DeleteServerPictureBox.Click += DeleteServerPictureBox_Click;
             // 
             // SpeedPictureBox
             // 
-            this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Image = global::Netch.Properties.Resources.speed;
-            this.SpeedPictureBox.Location = new System.Drawing.Point(49, 3);
-            this.SpeedPictureBox.Name = "SpeedPictureBox";
-            this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.SpeedPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.SpeedPictureBox.TabIndex = 9;
-            this.SpeedPictureBox.TabStop = false;
-            this.SpeedPictureBox.Click += new System.EventHandler(this.SpeedPictureBox_Click);
+            SpeedPictureBox.Cursor = Cursors.Hand;
+            SpeedPictureBox.Image = Properties.Resources.speed;
+            SpeedPictureBox.Location = new Point(49, 3);
+            SpeedPictureBox.Name = "SpeedPictureBox";
+            SpeedPictureBox.Size = new Size(16, 16);
+            SpeedPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            SpeedPictureBox.TabIndex = 9;
+            SpeedPictureBox.TabStop = false;
+            SpeedPictureBox.Click += SpeedPictureBox_Click;
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.ColumnCount = 4;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel3.Controls.Add(this.EditModePictureBox, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.DeleteModePictureBox, 1, 0);
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(606, 33);
-            this.tableLayoutPanel3.Name = "tableLayoutPanel3";
-            this.tableLayoutPanel3.RowCount = 1;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(94, 24);
-            this.tableLayoutPanel3.TabIndex = 13;
+            tableLayoutPanel3.ColumnCount = 4;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+            tableLayoutPanel3.Controls.Add(EditModePictureBox, 0, 0);
+            tableLayoutPanel3.Controls.Add(DeleteModePictureBox, 1, 0);
+            tableLayoutPanel3.Location = new Point(606, 33);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 1;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel3.Size = new Size(94, 24);
+            tableLayoutPanel3.TabIndex = 13;
             // 
             // EditModePictureBox
             // 
-            this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.Location = new System.Drawing.Point(3, 3);
-            this.EditModePictureBox.Name = "EditModePictureBox";
-            this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditModePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.EditModePictureBox.TabIndex = 12;
-            this.EditModePictureBox.TabStop = false;
-            this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
+            EditModePictureBox.Cursor = Cursors.Hand;
+            EditModePictureBox.Image = Properties.Resources.edit;
+            EditModePictureBox.Location = new Point(3, 3);
+            EditModePictureBox.Name = "EditModePictureBox";
+            EditModePictureBox.Size = new Size(16, 16);
+            EditModePictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            EditModePictureBox.TabIndex = 12;
+            EditModePictureBox.TabStop = false;
+            EditModePictureBox.Click += EditModePictureBox_Click;
             // 
             // DeleteModePictureBox
             // 
-            this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteModePictureBox.Image = global::Netch.Properties.Resources.delete;
-            this.DeleteModePictureBox.Location = new System.Drawing.Point(26, 3);
-            this.DeleteModePictureBox.Name = "DeleteModePictureBox";
-            this.DeleteModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeleteModePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.DeleteModePictureBox.TabIndex = 13;
-            this.DeleteModePictureBox.TabStop = false;
-            this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
+            DeleteModePictureBox.Cursor = Cursors.Hand;
+            DeleteModePictureBox.Image = Properties.Resources.delete;
+            DeleteModePictureBox.Location = new Point(26, 3);
+            DeleteModePictureBox.Name = "DeleteModePictureBox";
+            DeleteModePictureBox.Size = new Size(16, 16);
+            DeleteModePictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            DeleteModePictureBox.TabIndex = 13;
+            DeleteModePictureBox.TabStop = false;
+            DeleteModePictureBox.Click += DeleteModePictureBox_Click;
             // 
             // StatusStrip
             // 
-            this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.StatusLabel,
-            this.UsedBandwidthLabel,
-            this.DownloadSpeedLabel,
-            this.UploadSpeedLabel,
-            this.blankToolStripStatusLabel,
-            this.HttpStatusLabel,
-            this.NatTypeStatusLabel,
-            this.NatTypeStatusLightLabel});
-            this.StatusStrip.Location = new System.Drawing.Point(0, 272);
-            this.StatusStrip.Name = "StatusStrip";
-            this.StatusStrip.Size = new System.Drawing.Size(740, 22);
-            this.StatusStrip.SizingGrip = false;
-            this.StatusStrip.TabIndex = 2;
+            StatusStrip.ImageScalingSize = new Size(20, 20);
+            StatusStrip.Items.AddRange(new ToolStripItem[] { StatusLabel, UsedBandwidthLabel, DownloadSpeedLabel, UploadSpeedLabel, blankToolStripStatusLabel, HttpStatusLabel, NatTypeStatusLabel, NatTypeStatusLightLabel });
+            StatusStrip.Location = new Point(0, 272);
+            StatusStrip.Name = "StatusStrip";
+            StatusStrip.Size = new Size(740, 22);
+            StatusStrip.SizingGrip = false;
+            StatusStrip.TabIndex = 2;
             // 
             // StatusLabel
             // 
-            this.StatusLabel.BackColor = System.Drawing.Color.Transparent;
-            this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(177, 17);
-            this.StatusLabel.Text = "Status: Waiting for command";
+            StatusLabel.BackColor = Color.Transparent;
+            StatusLabel.Name = "StatusLabel";
+            StatusLabel.Size = new Size(177, 17);
+            StatusLabel.Text = "Status: Waiting for command";
             // 
             // UsedBandwidthLabel
             // 
-            this.UsedBandwidthLabel.Name = "UsedBandwidthLabel";
-            this.UsedBandwidthLabel.Size = new System.Drawing.Size(72, 17);
-            this.UsedBandwidthLabel.Text = "Used: 0 KB";
-            this.UsedBandwidthLabel.Visible = false;
+            UsedBandwidthLabel.Name = "UsedBandwidthLabel";
+            UsedBandwidthLabel.Size = new Size(72, 17);
+            UsedBandwidthLabel.Text = "Used: 0 KB";
+            UsedBandwidthLabel.Visible = false;
             // 
             // DownloadSpeedLabel
             // 
-            this.DownloadSpeedLabel.Name = "DownloadSpeedLabel";
-            this.DownloadSpeedLabel.Size = new System.Drawing.Size(59, 17);
-            this.DownloadSpeedLabel.Text = "↓: 0 KB/s";
-            this.DownloadSpeedLabel.Visible = false;
+            DownloadSpeedLabel.Name = "DownloadSpeedLabel";
+            DownloadSpeedLabel.Size = new Size(59, 17);
+            DownloadSpeedLabel.Text = "↓: 0 KB/s";
+            DownloadSpeedLabel.Visible = false;
             // 
             // UploadSpeedLabel
             // 
-            this.UploadSpeedLabel.Name = "UploadSpeedLabel";
-            this.UploadSpeedLabel.Size = new System.Drawing.Size(59, 17);
-            this.UploadSpeedLabel.Text = "↑: 0 KB/s";
-            this.UploadSpeedLabel.Visible = false;
+            UploadSpeedLabel.Name = "UploadSpeedLabel";
+            UploadSpeedLabel.Size = new Size(59, 17);
+            UploadSpeedLabel.Text = "↑: 0 KB/s";
+            UploadSpeedLabel.Visible = false;
             // 
             // blankToolStripStatusLabel
             // 
-            this.blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
-            this.blankToolStripStatusLabel.Size = new System.Drawing.Size(494, 17);
-            this.blankToolStripStatusLabel.Spring = true;
+            blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
+            blankToolStripStatusLabel.Size = new Size(494, 17);
+            blankToolStripStatusLabel.Spring = true;
             // 
             // HttpStatusLabel
             // 
-            this.HttpStatusLabel.Name = "HttpStatusLabel";
-            this.HttpStatusLabel.Size = new System.Drawing.Size(41, 17);
-            this.HttpStatusLabel.Text = "HTTP:";
-            this.HttpStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.HttpStatusLabel.Visible = false;
-            this.HttpStatusLabel.Click += new System.EventHandler(this.TcpStatusLabel_Click);
+            HttpStatusLabel.Name = "HttpStatusLabel";
+            HttpStatusLabel.Size = new Size(41, 17);
+            HttpStatusLabel.Text = "HTTP:";
+            HttpStatusLabel.TextAlign = ContentAlignment.BottomLeft;
+            HttpStatusLabel.Visible = false;
+            HttpStatusLabel.Click += TcpStatusLabel_Click;
             // 
             // NatTypeStatusLabel
             // 
-            this.NatTypeStatusLabel.Name = "NatTypeStatusLabel";
-            this.NatTypeStatusLabel.Size = new System.Drawing.Size(36, 17);
-            this.NatTypeStatusLabel.Text = "NAT:";
-            this.NatTypeStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
-            this.NatTypeStatusLabel.Click += new System.EventHandler(this.NatTypeStatusLabel_Click);
+            NatTypeStatusLabel.Name = "NatTypeStatusLabel";
+            NatTypeStatusLabel.Size = new Size(36, 17);
+            NatTypeStatusLabel.Text = "NAT:";
+            NatTypeStatusLabel.TextAlign = ContentAlignment.BottomLeft;
+            NatTypeStatusLabel.Click += NatTypeStatusLabel_Click;
             // 
             // NatTypeStatusLightLabel
             // 
-            this.NatTypeStatusLightLabel.ActiveLinkColor = System.Drawing.Color.Red;
-            this.NatTypeStatusLightLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.NatTypeStatusLightLabel.ForeColor = System.Drawing.Color.Red;
-            this.NatTypeStatusLightLabel.Margin = new System.Windows.Forms.Padding(0, 0, 0, 1);
-            this.NatTypeStatusLightLabel.Name = "NatTypeStatusLightLabel";
-            this.NatTypeStatusLightLabel.Size = new System.Drawing.Size(18, 21);
-            this.NatTypeStatusLightLabel.Text = "⬤";
-            this.NatTypeStatusLightLabel.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.NatTypeStatusLightLabel.Click += new System.EventHandler(this.NatTypeStatusLabel_Click);
+            NatTypeStatusLightLabel.ActiveLinkColor = Color.Red;
+            NatTypeStatusLightLabel.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            NatTypeStatusLightLabel.ForeColor = Color.Red;
+            NatTypeStatusLightLabel.Margin = new Padding(0, 0, 0, 1);
+            NatTypeStatusLightLabel.Name = "NatTypeStatusLightLabel";
+            NatTypeStatusLightLabel.Size = new Size(18, 21);
+            NatTypeStatusLightLabel.Text = "⬤";
+            NatTypeStatusLightLabel.TextAlign = ContentAlignment.BottomCenter;
+            NatTypeStatusLightLabel.Click += NatTypeStatusLabel_Click;
             // 
             // ControlButton
             // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.ControlButton.Location = new System.Drawing.Point(631, 3);
-            this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 27);
-            this.ControlButton.TabIndex = 3;
-            this.ControlButton.Text = "Start";
-            this.ControlButton.UseVisualStyleBackColor = true;
-            this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
+            ControlButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            ControlButton.Location = new Point(631, 3);
+            ControlButton.Name = "ControlButton";
+            ControlButton.Size = new Size(75, 27);
+            ControlButton.TabIndex = 3;
+            ControlButton.Text = "Start";
+            ControlButton.UseVisualStyleBackColor = true;
+            ControlButton.Click += ControlButton_Click;
             // 
             // NotifyIcon
             // 
-            this.NotifyIcon.ContextMenuStrip = this.NotifyMenu;
-            this.NotifyIcon.Text = "Netch";
-            this.NotifyIcon.Visible = true;
-            this.NotifyIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NotifyIcon_MouseDoubleClick);
+            NotifyIcon.ContextMenuStrip = NotifyMenu;
+            NotifyIcon.Text = "Netch";
+            NotifyIcon.Visible = true;
+            NotifyIcon.MouseDoubleClick += NotifyIcon_MouseDoubleClick;
             // 
             // NotifyMenu
             // 
-            this.NotifyMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.NotifyMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.ShowMainFormToolStripButton,
-            this.ExitToolStripButton});
-            this.NotifyMenu.Name = "NotifyMenu";
-            this.NotifyMenu.ShowItemToolTips = false;
-            this.NotifyMenu.Size = new System.Drawing.Size(108, 48);
+            NotifyMenu.ImageScalingSize = new Size(20, 20);
+            NotifyMenu.Items.AddRange(new ToolStripItem[] { ShowMainFormToolStripButton, ExitToolStripButton });
+            NotifyMenu.Name = "NotifyMenu";
+            NotifyMenu.ShowItemToolTips = false;
+            NotifyMenu.Size = new Size(108, 48);
             // 
             // ShowMainFormToolStripButton
             // 
-            this.ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
-            this.ShowMainFormToolStripButton.Size = new System.Drawing.Size(107, 22);
-            this.ShowMainFormToolStripButton.Text = "Show";
-            this.ShowMainFormToolStripButton.Click += new System.EventHandler(this.ShowMainFormToolStripButton_Click);
+            ShowMainFormToolStripButton.Name = "ShowMainFormToolStripButton";
+            ShowMainFormToolStripButton.Size = new Size(107, 22);
+            ShowMainFormToolStripButton.Text = "Show";
+            ShowMainFormToolStripButton.Click += ShowMainFormToolStripButton_Click;
             // 
             // ExitToolStripButton
             // 
-            this.ExitToolStripButton.Name = "ExitToolStripButton";
-            this.ExitToolStripButton.Size = new System.Drawing.Size(107, 22);
-            this.ExitToolStripButton.Text = "Exit";
-            this.ExitToolStripButton.Click += new System.EventHandler(this.ExitToolStripButton_Click);
+            ExitToolStripButton.Name = "ExitToolStripButton";
+            ExitToolStripButton.Size = new Size(107, 22);
+            ExitToolStripButton.Text = "Exit";
+            ExitToolStripButton.Click += ExitToolStripButton_Click;
             // 
             // SettingsButton
             // 
-            this.SettingsButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.SettingsButton.Location = new System.Drawing.Point(1, 3);
-            this.SettingsButton.Name = "SettingsButton";
-            this.SettingsButton.Size = new System.Drawing.Size(72, 27);
-            this.SettingsButton.TabIndex = 4;
-            this.SettingsButton.Text = "Settings";
-            this.SettingsButton.UseVisualStyleBackColor = true;
-            this.SettingsButton.Click += new System.EventHandler(this.SettingsButton_Click);
+            SettingsButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            SettingsButton.Location = new Point(1, 3);
+            SettingsButton.Name = "SettingsButton";
+            SettingsButton.Size = new Size(72, 27);
+            SettingsButton.TabIndex = 4;
+            SettingsButton.Text = "Settings";
+            SettingsButton.UseVisualStyleBackColor = true;
+            SettingsButton.Click += SettingsButton_Click;
             // 
             // ProfileGroupBox
             // 
-            this.ProfileGroupBox.Controls.Add(this.ProfileTable);
-            this.ProfileGroupBox.Location = new System.Drawing.Point(3, 124);
-            this.ProfileGroupBox.Name = "ProfileGroupBox";
-            this.ProfileGroupBox.Size = new System.Drawing.Size(709, 65);
-            this.ProfileGroupBox.TabIndex = 13;
-            this.ProfileGroupBox.TabStop = false;
-            this.ProfileGroupBox.Text = "Profiles";
+            ProfileGroupBox.Controls.Add(ProfileTable);
+            ProfileGroupBox.Location = new Point(3, 124);
+            ProfileGroupBox.Name = "ProfileGroupBox";
+            ProfileGroupBox.Size = new Size(709, 65);
+            ProfileGroupBox.TabIndex = 13;
+            ProfileGroupBox.TabStop = false;
+            ProfileGroupBox.Text = "Profiles";
             // 
             // ProfileTable
             // 
-            this.ProfileTable.AutoSize = true;
-            this.ProfileTable.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ProfileTable.ColumnCount = 2;
-            this.ProfileTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.ProfileTable.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.ProfileTable.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ProfileTable.Location = new System.Drawing.Point(3, 19);
-            this.ProfileTable.Name = "ProfileTable";
-            this.ProfileTable.RowCount = 1;
-            this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.ProfileTable.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.ProfileTable.Size = new System.Drawing.Size(703, 43);
-            this.ProfileTable.TabIndex = 0;
+            ProfileTable.AutoSize = true;
+            ProfileTable.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ProfileTable.ColumnCount = 2;
+            ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+            ProfileTable.Dock = DockStyle.Fill;
+            ProfileTable.Location = new Point(3, 19);
+            ProfileTable.Name = "ProfileTable";
+            ProfileTable.RowCount = 1;
+            ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            ProfileTable.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            ProfileTable.Size = new Size(703, 43);
+            ProfileTable.TabIndex = 0;
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.ConfigurationGroupBox);
-            this.flowLayoutPanel1.Controls.Add(this.ProfileGroupBox);
-            this.flowLayoutPanel1.Controls.Add(this.ButtomControlContainerControl);
-            this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 29);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(715, 256);
-            this.flowLayoutPanel1.TabIndex = 14;
+            flowLayoutPanel1.AutoSize = true;
+            flowLayoutPanel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            flowLayoutPanel1.Controls.Add(ConfigurationGroupBox);
+            flowLayoutPanel1.Controls.Add(ProfileGroupBox);
+            flowLayoutPanel1.Controls.Add(ButtomControlContainerControl);
+            flowLayoutPanel1.FlowDirection = FlowDirection.TopDown;
+            flowLayoutPanel1.Location = new Point(12, 29);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            flowLayoutPanel1.Size = new Size(715, 256);
+            flowLayoutPanel1.TabIndex = 14;
             // 
             // ButtomControlContainerControl
             // 
-            this.ButtomControlContainerControl.Controls.Add(this.ControlButton);
-            this.ButtomControlContainerControl.Controls.Add(this.SettingsButton);
-            this.ButtomControlContainerControl.Location = new System.Drawing.Point(3, 195);
-            this.ButtomControlContainerControl.Name = "ButtomControlContainerControl";
-            this.ButtomControlContainerControl.Size = new System.Drawing.Size(706, 58);
-            this.ButtomControlContainerControl.TabIndex = 14;
-            this.ButtomControlContainerControl.TabStop = false;
-            this.ButtomControlContainerControl.Text = "groupBox1";
+            ButtomControlContainerControl.Controls.Add(ControlButton);
+            ButtomControlContainerControl.Controls.Add(SettingsButton);
+            ButtomControlContainerControl.Location = new Point(3, 195);
+            ButtomControlContainerControl.Name = "ButtomControlContainerControl";
+            ButtomControlContainerControl.Size = new Size(706, 58);
+            ButtomControlContainerControl.TabIndex = 14;
+            ButtomControlContainerControl.TabStop = false;
+            ButtomControlContainerControl.Text = "groupBox1";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.AutoSize = true;
-            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(740, 294);
-            this.Controls.Add(this.MenuStrip);
-            this.Controls.Add(this.StatusStrip);
-            this.Controls.Add(this.flowLayoutPanel1);
-            this.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.MaximizeBox = false;
-            this.Name = "MainForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Netch";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Load += new System.EventHandler(this.MainForm_Load);
-            this.MenuStrip.ResumeLayout(false);
-            this.MenuStrip.PerformLayout();
-            this.ConfigurationGroupBox.ResumeLayout(false);
-            this.ConfigurationGroupBox.PerformLayout();
-            this.configLayoutPanel.ResumeLayout(false);
-            this.configLayoutPanel.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
-            this.tableLayoutPanel3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).EndInit();
-            this.StatusStrip.ResumeLayout(false);
-            this.StatusStrip.PerformLayout();
-            this.NotifyMenu.ResumeLayout(false);
-            this.ProfileGroupBox.ResumeLayout(false);
-            this.ProfileGroupBox.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.ButtomControlContainerControl.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            AutoSize = true;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ClientSize = new Size(740, 294);
+            Controls.Add(MenuStrip);
+            Controls.Add(StatusStrip);
+            Controls.Add(flowLayoutPanel1);
+            Font = new Font("微软雅黑", 9F);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(3, 4, 3, 4);
+            MaximizeBox = false;
+            Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Netch";
+            FormClosing += MainForm_FormClosing;
+            Load += MainForm_Load;
+            MenuStrip.ResumeLayout(false);
+            MenuStrip.PerformLayout();
+            ConfigurationGroupBox.ResumeLayout(false);
+            ConfigurationGroupBox.PerformLayout();
+            configLayoutPanel.ResumeLayout(false);
+            configLayoutPanel.PerformLayout();
+            tableLayoutPanel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)EditServerPictureBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)CopyLinkPictureBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)DeleteServerPictureBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)SpeedPictureBox).EndInit();
+            tableLayoutPanel3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)EditModePictureBox).EndInit();
+            ((System.ComponentModel.ISupportInitialize)DeleteModePictureBox).EndInit();
+            StatusStrip.ResumeLayout(false);
+            StatusStrip.PerformLayout();
+            NotifyMenu.ResumeLayout(false);
+            ProfileGroupBox.ResumeLayout(false);
+            ProfileGroupBox.PerformLayout();
+            flowLayoutPanel1.ResumeLayout(false);
+            ButtomControlContainerControl.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -798,7 +820,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.ToolStripMenuItem UninstallServiceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem UpdateServersToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem UpdateServersToolStripMenuItem_NoProxy;
         private System.Windows.Forms.ToolStripStatusLabel UploadSpeedLabel;
         private System.Windows.Forms.ToolStripStatusLabel UsedBandwidthLabel;
         private System.Windows.Forms.ToolStripLabel NewVersionLabel;
@@ -814,5 +836,12 @@
         private System.Windows.Forms.ToolStripMenuItem ShowHideConsoleToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel HttpStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem UpdateServersToolStripMenuItem_UseProxy;
+        private ToolStripMenuItem V2RayCoreToolStripMenuItem;
+        private ToolStripMenuItem XRayCireWebsiteToolStripMenuItem;
+        private ToolStripMenuItem TUN2SocksWebsiteToolStripMenuItem;
+        private ToolStripMenuItem WinTUNWebSiteToolStripMenuItem;
+        private ToolStripMenuItem pcap2socksWebsiteToolStripMenuItem;
     }
 }

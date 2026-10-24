@@ -135,7 +135,13 @@ public static class ModeHelper
         }
 
         if (modeTypeNum == "2")
-            ((TunMode)mode).Handle.Add("0.0.0.0/0");
+        {
+            var tunMode = (TunMode)mode;
+            if (!tunMode.Handle.Contains("0.0.0.0/0"))
+                tunMode.Handle.Add("0.0.0.0/0");
+            if (!tunMode.Handle.Contains("::/0"))
+                tunMode.Handle.Add("::/0");
+        }
 
         return mode;
     }

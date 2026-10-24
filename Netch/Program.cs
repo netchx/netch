@@ -70,6 +70,8 @@ public static class Program
             return;
         }
 
+        SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
+
         // clean up old logs
         if (Directory.Exists("logging"))
         {
@@ -97,16 +99,12 @@ public static class Program
         // handle exceptions
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += Application_OnException;
-        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
-        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
         Application.ApplicationExit += Application_OnExit;
 
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        var mainForm = Global.MainForm;
-        SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
-        Application.Run(mainForm);
+        Application.Run(Global.MainForm);
     }
 
 #pragma warning restore VSTHRD002
@@ -197,20 +195,6 @@ public static class Program
         Log.Error(e.Exception, "Unhandled error");
     }
 
-    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        if (e.ExceptionObject is Exception exception)
-            Log.Fatal(exception, "Unhandled application-domain exception");
-        else
-            Log.Fatal("Unhandled application-domain exception: {ExceptionObject}", e.ExceptionObject);
-    }
-
-    private static void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
-    {
-        Log.Error(e.Exception, "Unobserved task exception");
-        e.SetObserved();
-    }
-
     private static void Application_OnExit(object? sender, EventArgs eventArgs)
     {
         Log.CloseAndFlush();
@@ -219,24 +203,11 @@ public static class Program
     private static void SingleInstance_ArgumentsReceived((string, Action<string>) receive)
     {
         var (arg, endFunc) = receive;
-        try
+        if (arg == Constants.Parameter.Show)
         {
-            if (arg == Constants.Parameter.Show)
-            {
-                var mainForm = Global.MainForm;
-                if (mainForm.IsHandleCreated && mainForm.InvokeRequired)
-                    mainForm.BeginInvoke((Action)Utils.Utils.ActivateVisibleWindows);
-                else
-                    Utils.Utils.ActivateVisibleWindows();
-            }
+            Utils.Utils.ActivateVisibleWindows();
         }
-        catch (Exception e)
-        {
-            Log.Error(e, "Handle single-instance arguments failed");
-        }
-        finally
-        {
-            endFunc(string.Empty);
-        }
+
+        endFunc(string.Empty);
     }
 }

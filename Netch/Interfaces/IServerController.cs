@@ -9,7 +9,7 @@ public interface IServerController : IController
 
     public string? LocalAddress { get; set; }
 
-    public Task<Socks5Server> StartAsync(Server s);
+    public Task<SocksServer> StartAsync(Server s);
 }
 
 public static class ServerControllerExtension

@@ -85,7 +85,7 @@ public static class StringExtension
         // https://github.com/XTLS/Xray-core/discussions/715
         // https://xray-uuid.ducksoft.site/
 
-        SHA1 sha1 = new SHA1CryptoServiceProvider();
+        SHA1 sha1 = SHA1.Create();
 
         // example string: "example"
         List<byte> byteSource = new List<byte>();

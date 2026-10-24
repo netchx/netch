@@ -7,6 +7,11 @@ namespace Netch.Models;
 /// </summary>
 public class Setting
 {
+    /// <summary>
+    /// Outbound解析用的DNS服务器地址
+    /// </summary>
+    public string OutboundDNS { get; set; } = "223.5.5.5";
+
     public RedirectorConfig Redirector { get; set; } = new();
 
     /// <summary>

@@ -1,4 +1,5 @@
 using System.Reflection;
+using Netch.Enums;
 using Netch.Interfaces;
 
 namespace Netch.Utils;
@@ -18,12 +19,15 @@ public static class ServerHelper
 
     public static IServerUtil GetUtilByTypeName(string typeName)
     {
+        if (typeName.Equals("Anytls", StringComparison.OrdinalIgnoreCase))
+            typeName = nameof(EConfigType.AnyTLS);
+
         return ServerUtilDictionary.GetValueOrDefault(typeName) ?? throw new NotSupportedException("Specified server type is not supported.");
     }
 
     public static IServerUtil? GetUtilByUriScheme(string scheme)
     {
-        return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)));
+        return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme)));
     }
 
     public static Type GetTypeByTypeName(string typeName)

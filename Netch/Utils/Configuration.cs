@@ -119,6 +119,16 @@ public static class Configuration
             for (var i = 0; i < settings.Profiles.Count; i++)
                 settings.Profiles[i].Index = i;
 
+        // The original defaults used TCP DNS for both split-DNS upstreams.
+        // Migrate only those untouched defaults; explicitly customized DNS
+        // transports remain unchanged.
+        var legacyChinaDns = $"tcp://{Constants.DefaultCNPrimaryDNS}:53";
+        var legacyOtherDns = $"tcp://{Constants.DefaultPrimaryDNS}:53";
+        if (string.Equals(settings.AioDNS.ChinaDNS, legacyChinaDns, StringComparison.OrdinalIgnoreCase))
+            settings.AioDNS.ChinaDNS = $"udp://{Constants.DefaultCNPrimaryDNS}:53";
+        if (string.Equals(settings.AioDNS.OtherDNS, legacyOtherDns, StringComparison.OrdinalIgnoreCase))
+            settings.AioDNS.OtherDNS = $"udp://{Constants.DefaultPrimaryDNS}:53";
+
         settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
         settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
     }
