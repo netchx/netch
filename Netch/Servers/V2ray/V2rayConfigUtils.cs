@@ -9,7 +9,7 @@ namespace Netch.Servers;
 
 public static class V2rayConfigUtils
 {
-    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server)
+    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server, bool useXray = true)
     {
         var v2rayConfig = new V2rayConfig();
         v2rayConfig.log = new Log4Ray
@@ -28,7 +28,7 @@ public static class V2rayConfigUtils
             ]
 
         };
-        v2rayConfig.inbounds = [GenerateInbound()];
+        v2rayConfig.inbounds = [GenerateInbound(useXray)];
 
         v2rayConfig.outbounds = [GenerateOutbound(server)];
 
@@ -576,12 +576,13 @@ public static class V2rayConfigUtils
         return uuid.GenerateUUIDv5();
     }
 
-    private static Inbounds4Ray GenerateInbound()
+    private static Inbounds4Ray GenerateInbound(bool useXray)
     {
         var inbound = new Inbounds4Ray();
-        inbound.tag = EInboundProtocol.mixed.ToString();
+        var protocol = useXray ? EInboundProtocol.mixed : EInboundProtocol.socks;
+        inbound.tag = protocol.ToString();
         inbound.port = Global.Settings.Socks5LocalPort;
-        inbound.protocol = EInboundProtocol.mixed.ToString();
+        inbound.protocol = protocol.ToString();
         inbound.listen = Global.Settings.LocalAddress;
 
         inbound.settings = new Inboundsettings4Ray();

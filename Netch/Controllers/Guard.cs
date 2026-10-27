@@ -11,6 +11,7 @@ public abstract class Guard
 {
     private FileStream? _logFileStream;
     private StreamWriter? _logStreamWriter;
+    private bool _started;
 
     /// <param name="mainFile">application path relative of Netch\bin</param>
     /// <param name="redirectOutput"></param>
@@ -55,7 +56,35 @@ public abstract class Guard
 
     private bool RedirectOutput { get; }
 
-    public Process Instance { get; }
+    public Process Instance { get; private set; }
+
+    protected void ChangeMainFile(string mainFile)
+    {
+        if (_started)
+            throw new InvalidOperationException("Cannot change the guarded process after it has started.");
+
+        var fileName = Path.IsPathRooted(mainFile)
+            ? mainFile
+            : Path.Combine(Global.NetchDir, "bin", mainFile);
+
+        if (!File.Exists(fileName))
+            throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
+
+        Instance.Dispose();
+        Instance = new Process
+        {
+            StartInfo =
+            {
+                FileName = fileName,
+                WorkingDirectory = $"{Global.NetchDir}\\bin",
+                CreateNoWindow = true,
+                UseShellExecute = !RedirectOutput,
+                RedirectStandardOutput = RedirectOutput,
+                RedirectStandardError = RedirectOutput,
+                WindowStyle = ProcessWindowStyle.Hidden
+            }
+        };
+    }
 
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {
@@ -66,6 +95,7 @@ public abstract class Guard
 
         Instance.StartInfo.Arguments = argument;
         Instance.Start();
+        _started = true;
         Global.Job.AddProcess(Instance);
 
         if (priority != ProcessPriorityClass.Normal)
@@ -134,7 +164,7 @@ public abstract class Guard
     {       
         try
         {
-            if (Instance is { HasExited: false })
+            if (_started && !Instance.HasExited)
             {
                 Instance.Kill();
                 await Instance.WaitForExitAsync();
@@ -142,7 +172,7 @@ public abstract class Guard
         }
         catch (Exception e)
         {
-            Log.Error(e, "Stop {Name} failed", Instance.ProcessName);
+            Log.Error(e, "Stop {Name} failed", Name);
         }
         finally
         {
@@ -153,6 +183,7 @@ public abstract class Guard
                 await _logFileStream.DisposeAsync();
 
             Instance.Dispose();
+            _started = false;
 
             State = State.Stopped;
         }
