@@ -4,13 +4,16 @@ on:
     tags:
       - '*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build
     runs-on: windows-2022
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checksum
         shell: pwsh
@@ -21,21 +24,21 @@ jobs:
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Cache Netch
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-Netch-${{ env.SOURCE_NETCH_SHA256 }}
           path: |
             .\Netch\bin
 
       - name: Cache Redirector
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-Redirector-${{ env.SOURCE_REDIRECTOR_SHA256 }}
           path: |
             .\Redirector\bin
 
       - name: Cache RouteHelper
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: Netch-${{ runner.os }}-RouteHelper-${{ env.SOURCE_ROUTEHELPER_SHA256 }}
           path: |
@@ -43,12 +46,12 @@ jobs:
 
       - name: Check Other
         id: check_other
-        uses: andstor/file-existence-action@v2
+        uses: andstor/file-existence-action@v3
         with:
           files: .\other\release\aiodns.bin
 
       - name: Setup Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         if: steps.check_other.outputs.files_exists == 'false'
         with:
           go-version: stable
@@ -61,22 +64,18 @@ jobs:
           release: true
           install: base-devel git mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-libevent mingw-w64-x86_64-pcre2 mingw-w64-x86_64-freetype mingw-w64-x86_64-libpng mingw-w64-x86_64-bzip2 mingw-w64-x86_64-openssl mingw-w64-x86_64-mbedtls mingw-w64-x86_64-libsodium mingw-w64-x86_64-c-ares mingw-w64-x86_64-boost mingw-w64-x86_64-libmariadbclient unzip p7zip autoconf automake libtool
 
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        if: steps.check_other.outputs.files_exists == 'false'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          toolchain: nightly
-          profile: minimal
+          dotnet-version: '10.0.x'
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.3.1
-        with:
-          vs-prerelease: true
+        uses: microsoft/setup-msbuild@v2
 
       - name: Build
         shell: pwsh
         run: |
-          .\build.ps1 -Configuration Release -OutputPath release
+          .\build.ps1 -Configuration Release -OutputPath release -UseCache
 
       - name: Package
         shell: pwsh
@@ -91,7 +90,7 @@ jobs:
           echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:

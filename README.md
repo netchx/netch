@@ -38,6 +38,10 @@
 - SOCKS 和 STUN 地址并行解析，DNS 缓存支持并发访问。
 - UDP NAT 检测使用明确的单步与总超时，支持取消、IPv4 优先和 IPv6 回退。
 - 停止代理或检测失败时能够可靠回收资源，避免界面长期停留在“Testing”。
+- 进程模式下的代理 DNS 复用同一个 SOCKS5 UDP 关联，按事务 ID 多路复用，不再为每次查询重新握手（以及在 VLESS/VMess/Trojan 等协议上重新建立 TLS 连接）。
+- Release 版 Redirector 不再在 Netfilter 回调线程上逐连接、逐 DNS 包输出日志；ICMP 模拟延迟不再阻塞回调线程；TCP 转发缓冲区扩大到 16 KiB。
+- 节点延迟取三次探测中的最佳成功结果；DNS 解析不再全局串行，同名查询会合并。
+- NAT 检测有 20 秒总超时，HTTP 检测遵循“请求超时”设置；GeoIP 数据库只加载一次。
 
 ## 工作模式
 
@@ -97,7 +101,7 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器。结果�
 
 - Windows 10/11 x64
 - Visual Studio 2022，并安装“使用 C++ 的桌面开发”和 MSBuild
-- .NET SDK 10（已使用 `10.0.402` 验证；应用目标框架为 `net6.0-windows`）
+- .NET SDK 10（已使用 `10.0.402` 验证；应用目标框架为 `net8.0-windows`）
 - PowerShell 5.1 或更高版本
 - 可访问依赖源和构建脚本所需下载地址的网络
 
@@ -111,6 +115,12 @@ dotnet restore .\Netch\Netch.csproj
 ```
 
 完整发布文件位于 `release` 目录。`build.ps1` 会构建 .NET 前端、Redirector、RouteHelper 和所需代理核心，并生成可直接运行的目录结构。
+
+默认每次都会重新编译各组件，避免打包旧二进制。CI 从缓存恢复 `Netch\bin`、`Redirector\bin`、`RouteHelper\bin` 后使用 `-UseCache` 跳过已有组件的编译：
+
+```powershell
+.\build.ps1 -Configuration Release -OutputPath release -UseCache
+```
 
 ### 分组件调试构建
 
