@@ -1,5 +1,10 @@
 #include "TCPHandler.h"
 
+#include "Utils.h"
+
+extern atomic_ullong UP;
+extern atomic_ullong DL;
+
 // recv() returns as soon as any data is available, so a larger buffer never
 // delays small game packets; it only cuts syscalls for bulk transfers.
 constexpr int TcpRelayBufferSize = 16 * 1024;
@@ -125,6 +130,8 @@ void TCPHandler::DeleteHandler(SOCKADDR_IN6 client)
 
 void TCPHandler::Accept()
 {
+	BoostRelayThread();
+
 	const SOCKET listener = tcpSocket;
 	while (listener != INVALID_SOCKET && tcpSocket == listener)
 	{
@@ -154,6 +161,8 @@ void TCPHandler::Accept()
 
 void TCPHandler::Handle(SOCKET client)
 {
+	BoostRelayThread();
+
 	USHORT id = 0;
 
 	{
@@ -220,6 +229,10 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 		if (length == 0 || length == SOCKET_ERROR)
 			return;
 
+		// TCP is redirected at connect time, so the Netfilter data callbacks
+		// never see these bytes; count them here for the traffic display.
+		DL += length;
+
 		int sent = 0;
 		while (sent < length)
 		{
@@ -233,6 +246,8 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 
 void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 {
+	BoostRelayThread();
+
 	char buffer[TcpRelayBufferSize];
 	bool clientClosedNormally = false;
 
@@ -249,6 +264,8 @@ void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 
 		if (remote->Send(buffer, length) != length)
 			break;
+
+		UP += length;
 	}
 
 	// A client FIN is a half-close, not a request to tear down the SOCKS

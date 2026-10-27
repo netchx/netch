@@ -1,5 +1,10 @@
 #include "Utils.h"
 
+void BoostRelayThread()
+{
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
+}
+
 string ws2s(wstring str)
 {
 	auto length = WideCharToMultiByte(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), NULL, 0, NULL, NULL);

@@ -79,6 +79,11 @@ public static class MainController
             {
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
                 await ModeController.StartAsync(Socks5Server, mode);
+
+                // Process mode forwards game traffic on Redirector threads inside
+                // this process; keep it responsive while games load the CPU.
+                using var current = Process.GetCurrentProcess();
+                ProcessTuning.Boost(current, "Netch");
             }
         }
         catch (Exception e)
@@ -138,6 +143,9 @@ public static class MainController
 
         ServerController = null;
         ModeController = null;
+
+        using var current = Process.GetCurrentProcess();
+        ProcessTuning.Restore(current);
     }
 
     public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)

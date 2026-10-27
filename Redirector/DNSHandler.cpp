@@ -1,6 +1,7 @@
 #include "DNSHandler.h"
 
 #include "SocksHelper.h"
+#include "Utils.h"
 
 extern bool dnsProx;
 extern string dnsHost;
@@ -82,6 +83,8 @@ namespace
 
 	void RelayReceiveLoop(shared_ptr<DnsRelay> relay)
 	{
+		BoostRelayThread();
+
 		vector<char> buffer(DnsResponseBufferSize);
 
 		while (!relay->udp->stopping)

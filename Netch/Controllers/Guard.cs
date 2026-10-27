@@ -108,6 +108,8 @@ public abstract class Guard
 
         if (priority != ProcessPriorityClass.Normal)
             Instance.PriorityClass = priority;
+        else
+            ProcessTuning.Boost(Instance, Name);
 
         if (RedirectOutput)
         {

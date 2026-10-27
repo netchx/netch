@@ -42,6 +42,24 @@ public static class Bandwidth
     /// </summary>
     public static async Task NetTrafficAsync()
     {
+        // Process mode: the redirector already counts every forwarded byte.
+        // Avoid a system-wide kernel network trace, which raises an event for
+        // every packet on the machine and costs CPU while gaming.
+        if (MainController.ModeController is NFController)
+        {
+            Interlocked.Exchange(ref received, 0UL);
+            Global.MainForm.BandwidthState(true);
+
+            while (Global.MainForm.State != State.Stopped)
+            {
+                await Task.Delay(1000);
+                if (Global.MainForm.State == State.Started)
+                    Global.MainForm.OnBandwidthUpdated(Interops.Redirector.GetTrafficBytes());
+            }
+
+            return;
+        }
+
         if (!Flags.IsWindows10Upper)
             return;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text;
+using Netch.Utils;
 using Windows.Win32;
 
 namespace Netch.Interops
@@ -73,6 +74,7 @@ namespace Netch.Interops
                 process.StandardInput.AutoFlush = true;
 
                 Global.Job.AddProcess(process);
+                ProcessTuning.Boost(process, "tun2socks");
 
                 // 可选：异步读取输出
                 _ = Task.Run(async () => ReadOutputAsync(process));

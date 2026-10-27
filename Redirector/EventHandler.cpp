@@ -2,6 +2,7 @@
 
 #include "DNSHandler.h"
 #include "TCPHandler.h"
+#include "Utils.h"
 
 extern bool filterParent;
 extern bool filterTCP;
@@ -553,6 +554,8 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 void udpReceiveHandler(ENDPOINT_ID id, shared_ptr<SocksHelper::UDP> remote, PNF_UDP_OPTIONS options)
 {
+	BoostRelayThread();
+
 	// SOCKS5 adds up to 22 bytes before the game payload. Keep a full
 	// datagram per association so a large packet cannot tear down the relay.
 	vector<char> buffer(65535);

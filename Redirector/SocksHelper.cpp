@@ -546,6 +546,12 @@ bool SocksHelper::UDP::CreateUDP()
 		}
 	}
 
+	// The default UDP buffers are small; a burst of game and voice packets can
+	// overflow them and the kernel silently drops the excess.
+	const int udpBufferSize = 1024 * 1024;
+	setsockopt(this->udpSocket, SOL_SOCKET, SO_RCVBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
+	setsockopt(this->udpSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
+
 	// An ICMP error for one game destination must not break the shared UDP relay.
 	BOOL reportConnectionReset = FALSE;
 	DWORD returned = 0;

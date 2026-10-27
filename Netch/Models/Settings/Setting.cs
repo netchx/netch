@@ -150,6 +150,11 @@ public class Setting
 
     public bool NoSupportDialog { get; set; } = false;
 
+    /// <summary>
+    ///     加速期间提升 Netch 与代理核心进程优先级，并关闭 Windows 电源节流（EcoQoS）
+    /// </summary>
+    public bool GameProcessBoost { get; set; } = true;
+
     #region Migration
 
     [Obsolete]

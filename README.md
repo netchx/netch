@@ -42,6 +42,9 @@
 - Release 版 Redirector 不再在 Netfilter 回调线程上逐连接、逐 DNS 包输出日志；ICMP 模拟延迟不再阻塞回调线程；TCP 转发缓冲区扩大到 16 KiB。
 - 节点延迟取三次探测中的最佳成功结果；DNS 解析不再全局串行，同名查询会合并。
 - NAT 检测有 20 秒总超时，HTTP 检测遵循“请求超时”设置；GeoIP 数据库只加载一次。
+- 加速期间提升 Netch 与代理核心（xray、sing-box、tun2socks、pcap2socks）的进程优先级，并关闭 Windows 电源节流（EcoQoS）；Redirector 转发线程以高优先级运行。可在 `data\settings.json` 中将 `GameProcessBoost` 设为 `false` 关闭。
+- 转发用 UDP 套接字缓冲区扩大到 1 MiB，减少游戏与语音突发流量时的丢包。
+- 进程模式的流量统计直接读取 Redirector 计数，不再启动系统级内核网络追踪。
 
 ## 工作模式
 
