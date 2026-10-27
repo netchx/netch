@@ -46,8 +46,11 @@ public class TUNController : IModeController
         ValidateConfiguration();
 
         var remoteHostname = server.RemoteHostname.IsNullOrEmpty() ? server.Address : server.RemoteHostname;
-        var remoteIPv4 = await DnsUtils.LookupAsync(remoteHostname, AddressFamily.InterNetwork);
-        var remoteIPv6 = await DnsUtils.LookupAsync(remoteHostname, AddressFamily.InterNetworkV6);
+        // A and AAAA lookups are independent; resolve them in parallel.
+        var remoteIPv4Task = DnsUtils.LookupAsync(remoteHostname, AddressFamily.InterNetwork);
+        var remoteIPv6Task = DnsUtils.LookupAsync(remoteHostname, AddressFamily.InterNetworkV6);
+        var remoteIPv4 = await remoteIPv4Task;
+        var remoteIPv6 = await remoteIPv6Task;
         if (remoteIPv4 != null)
             _serverRemoteAddresses.Add(remoteIPv4);
         if (remoteIPv6 != null && !_serverRemoteAddresses.Contains(remoteIPv6))
@@ -147,13 +150,27 @@ public class TUNController : IModeController
 
     private async Task<int> WaitForInterfaceIndexAsync()
     {
-        for (var i = 0; i < 30; i++)
+        // Check right away and then poll more often: the adapter usually exists
+        // as soon as tun2socks initialized, and every poll interval used to be
+        // added to the start time. The total wait stays at about six seconds.
+        for (var i = 0; i < 60; i++)
         {
-            await Task.Delay(200);
             var networkInterface = NetworkInterface.GetAllNetworkInterfaces()
                 .FirstOrDefault(x => x.Name.StartsWith(InterfaceName, StringComparison.OrdinalIgnoreCase));
             if (networkInterface != null)
-                return networkInterface.GetIndex();
+            {
+                try
+                {
+                    return networkInterface.GetIndex();
+                }
+                catch (Exception e)
+                {
+                    // The adapter can show up before its IP stack is bound.
+                    Log.Debug(e, "TUN adapter is not ready yet");
+                }
+            }
+
+            await Task.Delay(100);
         }
 
         Log.Error("虚拟网卡不存在");

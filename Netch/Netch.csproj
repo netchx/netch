@@ -19,6 +19,10 @@
     <AnalysisMode>Default</AnalysisMode>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- The code base uses nullable annotations (string?, T?) throughout but has
+         not been migrated to nullable warnings. "annotations" accepts the syntax
+         without reporting hundreds of CS8632 warnings on every build. -->
+    <Nullable>annotations</Nullable>
     <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <StartupObject></StartupObject>

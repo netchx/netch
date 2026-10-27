@@ -30,7 +30,8 @@ public class ModeService
     {
         Global.Modes.Clear();
         LoadCore(ModeDirectoryFullName);
-        Sort();
+        // Sort() would refresh the combo box as well; populate it only once.
+        SortCollection();
         Global.MainForm.LoadModes();
     }
 

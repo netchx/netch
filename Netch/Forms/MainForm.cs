@@ -306,10 +306,26 @@ public partial class MainForm : Form
             MessageBoxX.Show(i18N.Translate("Please select a server first"));
             return;
         }
-        await MainController.StartAsync(server);
-        await UpdateServersFromSubscriptionAsync($"127.0.0.1:{Global.Settings.Socks5LocalPort}");
-        //await UpdateServersFromSubscriptionAsync($"127.0.0.1:10808");
-        await StopCoreAsync();
+        try
+        {
+            await MainController.StartAsync(server);
+        }
+        catch (Exception exception)
+        {
+            await MainController.StopAsync();
+            MessageBoxX.Show(exception.Message, LogLevel.ERROR);
+            return;
+        }
+
+        try
+        {
+            await UpdateServersFromSubscriptionAsync($"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+        }
+        finally
+        {
+            // Never leave the temporary proxy core running.
+            await StopCoreAsync();
+        }
     }
 
     private async Task UpdateServersFromSubscriptionAsync(string? serverProxy = null)
@@ -611,7 +627,7 @@ public partial class MainForm : Form
 
         State = State.Started;
 
-        Task.Run(Bandwidth.NetTraffic).Forget();
+        Task.Run(Bandwidth.NetTrafficAsync).Forget();
         DiscoveryNatTypeAsync().Forget();
         HttpConnectAsync().Forget();
 
@@ -619,26 +635,41 @@ public partial class MainForm : Form
             Minimize();
 
         // 自动检测延迟
-        async Task StartedPingAsync()
+        async Task StartedPingAsync(CancellationToken token)
         {
-            while (State == State.Started)
+            try
             {
-                if (Global.Settings.StartedPingInterval >= 0)
+                while (State == State.Started && !token.IsCancellationRequested)
                 {
-                    await server.PingAsync();
-                    ServerComboBox.Refresh();
+                    if (Global.Settings.StartedPingInterval >= 0)
+                    {
+                        await server.PingAsync();
+                        ServerComboBox.Invalidate();
 
-                    await Task.Delay(Global.Settings.StartedPingInterval * 1000);
+                        // 0 used to spin in a tight probe loop; keep at least one
+                        // second between probes.
+                        await Task.Delay(Math.Max(1, Global.Settings.StartedPingInterval) * 1000, token);
+                    }
+                    else
+                    {
+                        await Task.Delay(5000, token);
+                    }
                 }
-                else
-                {
-                    await Task.Delay(5000);
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                // stopped or restarted
             }
         }
 
-        StartedPingAsync().Forget();
+        // A quick stop/start must not leave the previous loop running.
+        _startedPingCts?.Cancel();
+        _startedPingCts?.Dispose();
+        _startedPingCts = new CancellationTokenSource();
+        StartedPingAsync(_startedPingCts.Token).Forget();
     }
+
+    private CancellationTokenSource? _startedPingCts;
 
     #endregion
 
@@ -726,7 +757,9 @@ public partial class MainForm : Form
 
         if (!IsWaiting() || ModifierKeys == Keys.Control)
         {
-            (ServerComboBox.SelectedItem as Server)?.PingAsync();
+            if (ServerComboBox.SelectedItem is Server server)
+                await server.PingAsync();
+
             Enable();
         }
         else
@@ -1107,8 +1140,9 @@ public partial class MainForm : Form
     private async Task StopCoreAsync()
     {
         State = State.Stopping;
-        _discoveryNatCts?.CancelAsync();
-        _httpConnectCts?.CancelAsync();
+        _startedPingCts?.Cancel();
+        _discoveryNatCts?.Cancel();
+        _httpConnectCts?.Cancel();
         await MainController.StopAsync();
         State = State.Stopped;
     }
@@ -1223,12 +1257,15 @@ public partial class MainForm : Form
         NatTypeStatusLabel.Enabled = false;
         UpdateNatTypeStatusLabelText(i18N.Translate("Testing NAT Type"));
 
-        _discoveryNatCts = new CancellationTokenSource();
+        // Keep a local reference: after a quick stop/start, the previous test's
+        // finally block must not dispose or clear the new test's token source.
+        var cts = new CancellationTokenSource();
+        _discoveryNatCts = cts;
 
         try
         {
-            var res = await MainController.DiscoveryNatTypeAsync(_discoveryNatCts.Token);
-            if (_discoveryNatCts.IsCancellationRequested)
+            var res = await MainController.DiscoveryNatTypeAsync(cts.Token);
+            if (cts.IsCancellationRequested)
                 return;
 
             if (!string.IsNullOrEmpty(res.PublicEnd))
@@ -1247,10 +1284,26 @@ public partial class MainForm : Form
                 NatTypeStatusLightLabel.Visible = false;
             }
         }
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        {
+            // stopped
+        }
+        catch (Exception e)
+        {
+            // Never leave the label stuck at "Testing".
+            Log.Warning(e, "NAT type test failed");
+            if (!cts.IsCancellationRequested)
+            {
+                UpdateNatTypeStatusLabelText("Error");
+                NatTypeStatusLightLabel.Visible = false;
+            }
+        }
         finally
         {
-            _discoveryNatCts.Dispose();
-            _discoveryNatCts = null;
+            if (ReferenceEquals(_discoveryNatCts, cts))
+                _discoveryNatCts = null;
+
+            cts.Dispose();
             NatTypeStatusLabel.Enabled = true;
         }
     }
@@ -1261,12 +1314,13 @@ public partial class MainForm : Form
     {
         HttpStatusLabel.Enabled = false;
 
-        _httpConnectCts = new CancellationTokenSource();
+        var cts = new CancellationTokenSource();
+        _httpConnectCts = cts;
 
         try
         {
-            var res = await MainController.HttpConnectAsync(_httpConnectCts.Token);
-            if (_httpConnectCts.IsCancellationRequested)
+            var res = await MainController.HttpConnectAsync(cts.Token);
+            if (cts.IsCancellationRequested)
                 return;
 
             if (res != null)
@@ -1278,8 +1332,10 @@ public partial class MainForm : Form
         }
         finally
         {
-            _httpConnectCts.Dispose();
-            _httpConnectCts = null;
+            if (ReferenceEquals(_httpConnectCts, cts))
+                _httpConnectCts = null;
+
+            cts.Dispose();
             HttpStatusLabel.Enabled = true;
         }
     }
@@ -1441,7 +1497,8 @@ public partial class MainForm : Form
 
             //LastUploadBandwidth = upload;
             LastDownloadBandwidth = download;
-            Refresh();
+            // Labels repaint themselves when their text changes; a full,
+            // synchronous Refresh() of the window every second is not needed.
         }
         catch
         {

@@ -17,6 +17,24 @@ namespace Netch.Utils;
 public static class Utils
 {
     private static readonly string _tag = "Utils";
+
+    /// <summary>
+    ///     The GeoIP database is memory mapped once and shared. Opening a new
+    ///     reader for every lookup re-read the database and leaked the mapping.
+    /// </summary>
+    private static readonly Lazy<DatabaseReader?> GeoIpReader = new(() =>
+    {
+        try
+        {
+            return new DatabaseReader("bin\\GeoLite2-Country.mmdb");
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "Load GeoIP database failed");
+            return null;
+        }
+    });
+
     public static void Open(string path)
     {
         try
@@ -61,7 +79,8 @@ public static class Utils
 
     public static async Task<int> ICMPingAsync(IPAddress ip, int timeout = 1000)
     {
-        var reply = await new Ping().SendPingAsync(ip, timeout);
+        using var ping = new Ping();
+        var reply = await ping.SendPingAsync(ip, timeout);
 
         if (reply.Status == IPStatus.Success)
             return Convert.ToInt32(reply.RoundtripTime);
@@ -78,7 +97,9 @@ public static class Utils
         string? country = null;
         try
         {
-            var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
+            var databaseReader = GeoIpReader.Value;
+            if (databaseReader == null)
+                return "Unknown";
 
             if (IPAddress.TryParse(address, out _))
             {
@@ -109,7 +130,7 @@ public static class Utils
 
         try
         {
-            await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+            await using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024, true);
             return await Sha256ComputeCoreAsync(fileStream);
         }
         catch (Exception e)

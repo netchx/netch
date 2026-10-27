@@ -94,27 +94,31 @@ public abstract class Server : ICloneable
             if (destination == null)
                 return Delay = -2;
 
-            var list = new Task<int>[3];
-            for (var i = 0; i < 3; i++)
-            {
-                Task<int> PingCoreAsync()
-                {
-                    try
-                    {
-                        return Global.Settings.ServerTCPing ? Utils.Utils.TCPingAsync(destination, Port) : Utils.Utils.ICMPingAsync(destination);
-                    }
-                    catch (Exception)
-                    {
-                        return Task.FromResult(-4);
-                    }
-                }
+            const int timeout = 1000;
 
-                list[i] = PingCoreAsync();
+            async Task<int> PingCoreAsync()
+            {
+                try
+                {
+                    return Global.Settings.ServerTCPing
+                        ? await Utils.Utils.TCPingAsync(destination, Port, timeout)
+                        : await Utils.Utils.ICMPingAsync(destination, timeout);
+                }
+                catch (Exception)
+                {
+                    return -4;
+                }
             }
 
-            var resTask = await Task.WhenAny(list[0], list[1], list[2]);
+            // Take the best of three probes. Waiting for the first one to finish
+            // reported failures (refused/unreachable return immediately) even when
+            // the other probes succeeded.
+            var results = await Task.WhenAll(PingCoreAsync(), PingCoreAsync(), PingCoreAsync());
+            var succeeded = results.Where(r => r >= 0 && r < timeout).ToArray();
+            if (succeeded.Length > 0)
+                return Delay = succeeded.Min();
 
-            return Delay = await resTask;
+            return Delay = results.Contains(timeout) ? timeout : results.Max();
         }
         catch (Exception)
         {

@@ -40,13 +40,10 @@ public static class Bandwidth
     /// <summary>
     ///     根据程序名统计流量
     /// </summary>
-    public static void NetTraffic()
+    public static async Task NetTrafficAsync()
     {
         if (!Flags.IsWindows10Upper)
             return;
-
-        var counterLock = new object();
-        //int sent = 0;
 
         var processes = new List<Process>();
         switch (MainController.ServerController)
@@ -75,7 +72,7 @@ public static class Bandwidth
 
         Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
-        received = 0;
+        Interlocked.Exchange(ref received, 0UL);
 
         if (!processes.Any())
             return;
@@ -89,11 +86,12 @@ public static class Bandwidth
 
                 //这玩意儿上传和下载得到的data是一样的:)
                 //所以暂时没办法区分上传下载流量
+                // These callbacks fire for every packet on the system; keep them
+                // lock-free.
                 tSession.Source.Kernel.TcpIpRecv += data =>
                 {
                     if (pidHastSet.Contains(data.ProcessID))
-                        lock (counterLock)
-                            received += (ulong)data.size;
+                        Interlocked.Add(ref received, (ulong)data.size);
 
                     // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                 };
@@ -101,8 +99,7 @@ public static class Bandwidth
                 tSession.Source.Kernel.UdpIpRecv += data =>
                 {
                     if (pidHastSet.Contains(data.ProcessID))
-                        lock (counterLock)
-                            received += (ulong)data.size;
+                        Interlocked.Add(ref received, (ulong)data.size);
 
                     // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
                 };
@@ -111,17 +108,17 @@ public static class Bandwidth
             })
             .Forget();
 
+        // Poll without pinning a thread-pool thread for the whole session.
         while (Global.MainForm.State != State.Stopped)
         {
-            Thread.Sleep(1000);
-            lock (counterLock)
-                Global.MainForm.OnBandwidthUpdated(received);
+            await Task.Delay(1000);
+            Global.MainForm.OnBandwidthUpdated(Interlocked.Read(ref received));
         }
     }
 
     public static void Stop()
     {
         tSession?.Dispose();
-        received = 0;
+        Interlocked.Exchange(ref received, 0UL);
     }
 }

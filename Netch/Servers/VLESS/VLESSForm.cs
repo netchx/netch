@@ -1,4 +1,4 @@
-using Netch.Enums;
+﻿using Netch.Enums;
 using Netch.Forms;
 
 namespace Netch.Servers;
@@ -16,7 +16,7 @@ internal class VLESSForm : ServerForm
         CreateComboBox("EncryptMethod", "Encrypt Method", Constants.VmessSecurities, s => server.ProtoExtra.VmessSecurity = s, server.ProtoExtra.VmessSecurity);
         CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
 
-        //�ײ㴫�䷽ʽ
+        //底层传输方式
         CreateComboBox("Network", "Network", Constants.Networks, s => server.Network = s, server.Network);
         CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
         CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);

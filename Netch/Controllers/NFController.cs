@@ -111,9 +111,13 @@ public class NFController : IModeController
     /// <returns>No Problem true</returns>
     public static bool CheckRules(IEnumerable<string> rules, out IEnumerable<string> results)
     {
-        results = rules.Where(r => !CheckCppRegex(r, false));
+        // Materialize before clearing: a lazy query would dial the rules again
+        // after AIO_CLRNAME (leaving them registered) and once more for every
+        // enumeration by the caller.
+        var invalid = rules.Where(r => !CheckCppRegex(r, false)).ToList();
         Dial(NameList.AIO_CLRNAME, "");
-        return !results.Any();
+        results = invalid;
+        return invalid.Count == 0;
     }
 
     public static string GenerateInvalidRulesMessage(IEnumerable<string> rules)

@@ -12,15 +12,43 @@ namespace Netch.Utils;
 
 public static class Socks5ServerTestUtils
 {
+    /// <summary>
+    ///     Upper bound for the whole RFC 5780 test (DNS, SOCKS handshake and all
+    ///     STUN steps), so the status bar can never stay at "Testing" forever.
+    /// </summary>
+    private static readonly TimeSpan NatTestTimeout = TimeSpan.FromSeconds(20);
+
+    private static readonly TimeSpan CloseProxyTimeout = TimeSpan.FromSeconds(2);
+
     public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(SocksServer socks5, CancellationToken ctx = default)
+    {
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ctx);
+        timeoutCts.CancelAfter(NatTestTimeout);
+
+        try
+        {
+            return await DiscoveryNatTypeCoreAsync(socks5, timeoutCts.Token);
+        }
+        catch (OperationCanceledException) when (!ctx.IsCancellationRequested)
+        {
+            return new NatTypeTestResult { Result = "Timeout" };
+        }
+    }
+
+    private static async Task<NatTypeTestResult> DiscoveryNatTypeCoreAsync(SocksServer socks5, CancellationToken ctx)
     {
         var stunServer = Global.Settings.STUN_Server;
         var port = (ushort)Global.Settings.STUN_Server_Port;
         var local = new IPEndPoint(IPAddress.Any, 0);
 
+        // Resolve the SOCKS server and the STUN server in parallel.
+        var socks5AddressTask = DnsUtils.LookupAsync(socks5.Address);
+        var stunAddressTask = DnsUtils.LookupAsync(stunServer);
+        await Task.WhenAll(socks5AddressTask, stunAddressTask).WaitAsync(ctx);
+
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Address),
+            Address = await socks5AddressTask,
             Port = (ushort)socks5.Port,
             UsernamePassword = new UsernamePassword
             {
@@ -29,7 +57,7 @@ public static class Socks5ServerTestUtils
             }
         };
 
-        var ip = await DnsUtils.LookupAsync(stunServer);
+        var ip = await stunAddressTask;
         if (ip == null)
         {
             return new NatTypeTestResult { Result = "Wrong STUN Server!" };
@@ -45,7 +73,16 @@ public static class Socks5ServerTestUtils
         }
         finally
         {
-            await client.CloseProxyAsync(ctx);
+            // Close even when the test was cancelled or timed out.
+            using var closeCts = new CancellationTokenSource(CloseProxyTimeout);
+            try
+            {
+                await client.CloseProxyAsync(closeCts.Token);
+            }
+            catch (Exception e)
+            {
+                Log.Debug(e, "Close STUN proxy failed");
+            }
         }
 
         var res = client.State;
@@ -82,9 +119,13 @@ public static class Socks5ServerTestUtils
 
     public static async Task<int?> HttpConnectAsync(SocksServer socks5, CancellationToken ctx)
     {
+        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ctx);
+        timeoutCts.CancelAfter(Math.Max(1000, Global.Settings.RequestTimeout));
+        ctx = timeoutCts.Token;
+
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Address),
+            Address = await DnsUtils.LookupAsync(socks5.Address).WaitAsync(ctx),
             Port = (ushort)socks5.Port,
             UsernamePassword = new UsernamePassword
             {
