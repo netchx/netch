@@ -97,6 +97,11 @@ try {
 	$xrayBinary = '.\Other\release\xray.exe'
 	$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
 	if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
+		# Scripts extracted from a downloaded archive carry the "downloaded from
+		# the internet" mark, which a RemoteSigned execution policy refuses to
+		# run. They are part of this source tree, so clear the mark first.
+		Get-ChildItem -Path '.\Other' -Filter '*.ps1' -Recurse | Unblock-File
+
 		# The core build scripts handle their own errors; do not let the strict
 		# preference of this script turn their non-fatal messages into failures.
 		$previousPreference = $ErrorActionPreference
