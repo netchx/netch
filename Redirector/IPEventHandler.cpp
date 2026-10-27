@@ -53,37 +53,48 @@ void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)
 		return;
 	}
 
-	auto data = new BYTE[length]();
-	memcpy(data, buffer, length);
+	auto data = make_shared<vector<BYTE>>(buffer, buffer + length);
+	auto packet = data->data();
 
 	{
 		BYTE src[4];
 		BYTE dst[4];
-		memcpy(src, data + 12, 4);
-		memcpy(dst, data + 16, 4);
-		memcpy(data + 12, dst, 4);
-		memcpy(data + 16, src, 4);
+		memcpy(src, packet + 12, 4);
+		memcpy(dst, packet + 16, 4);
+		memcpy(packet + 12, dst, 4);
+		memcpy(packet + 16, src, 4);
 	}
 
-	data[10] = 0x00;
-	data[11] = 0x00;
-	auto ipv4sum = IPv4Checksum(data, options->ipHeaderSize);
-	data[10] = (ipv4sum >> 8);
-	data[11] = ipv4sum & 0xff;
+	packet[10] = 0x00;
+	packet[11] = 0x00;
+	auto ipv4sum = IPv4Checksum(packet, options->ipHeaderSize);
+	packet[10] = (ipv4sum >> 8);
+	packet[11] = ipv4sum & 0xff;
 
-	data[options->ipHeaderSize] = 0x00;
-	data[options->ipHeaderSize + 2] = 0x00;
-	data[options->ipHeaderSize + 3] = 0x00;
-	auto icmpsum = ICMPChecksum(data + options->ipHeaderSize, (ULONG64)length - options->ipHeaderSize);
-	data[options->ipHeaderSize + 2] = icmpsum & 0xff;
-	data[options->ipHeaderSize + 3] = (icmpsum >> 8);
+	packet[options->ipHeaderSize] = 0x00;
+	packet[options->ipHeaderSize + 2] = 0x00;
+	packet[options->ipHeaderSize + 3] = 0x00;
+	auto icmpsum = ICMPChecksum(packet + options->ipHeaderSize, (ULONG64)length - options->ipHeaderSize);
+	packet[options->ipHeaderSize + 2] = icmpsum & 0xff;
+	packet[options->ipHeaderSize + 3] = (icmpsum >> 8);
 
-	if (icmping > 0)
-		this_thread::sleep_for(chrono::milliseconds(icmping));
-	printf("[Redirector][IPEventHandler][ipSend] Fake ICMP response for %d.%d.%d.%d\n", data[12], data[13], data[14], data[15]);
+	REDIRECTOR_TRACE("[Redirector][IPEventHandler][ipSend] Fake ICMP response for %d.%d.%d.%d\n", packet[12], packet[13], packet[14], packet[15]);
 
-	nf_ipPostReceive((char*)data, length, options);
-	delete[] data;
+	const DWORD delay = icmping;
+	if (delay == 0)
+	{
+		nf_ipPostReceive((char*)packet, length, options);
+		return;
+	}
+
+	// Simulated latency must not stall the Netfilter IP callback thread,
+	// which would delay every other filtered packet behind this one.
+	NF_IP_PACKET_OPTIONS optionsCopy = *options;
+	thread([data, optionsCopy, delay]() mutable
+	{
+		this_thread::sleep_for(chrono::milliseconds(delay));
+		nf_ipPostReceive((char*)data->data(), static_cast<int>(data->size()), &optionsCopy);
+	}).detach();
 }
 
 void ipReceive(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options)

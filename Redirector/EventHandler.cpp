@@ -263,6 +263,7 @@ bool eh_init()
 void eh_free()
 {
 	TCPHandler::FREE();
+	DNSHandler::FREE();
 
 	map<ENDPOINT_ID, shared_ptr<SocksHelper::UDP>> connections;
 	{
@@ -297,10 +298,9 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 
 	if (!filterTCP)
 	{
-		const auto process = LoadProcessInfo(info->processId, false);
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!filterTCP] " << process.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!filterTCP] " << LoadProcessInfo(info->processId, false).name);
 		return;
 	}
 
@@ -310,7 +310,7 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name);
 		return;
 	}
 
@@ -318,7 +318,7 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name);
 		return;
 	}
 
@@ -326,7 +326,7 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	{
 		nf_tcpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!IPv4 && !IPv6] " << decision.info.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "][!IPv4 && !IPv6] " << decision.info.name);
 		return;
 	}
 
@@ -352,13 +352,15 @@ void tcpConnectRequest(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 	}
 
 	TCPHandler::CreateHandler(client, remote);
-	wcout << "[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "] " << ConvertIP((PSOCKADDR)&client) << " -> " << ConvertIP((PSOCKADDR)&remote) << endl;
+	REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnectRequest][" << id << "][" << info->processId << "] " << ConvertIP((PSOCKADDR)&client) << " -> " << ConvertIP((PSOCKADDR)&remote));
 }
 
 void tcpConnected(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 {
-	const auto process = LoadProcessInfo(info->processId, false);
-	wcout << "[Redirector][EventHandler][tcpConnected][" << id << "][" << info->processId << "][" << ConvertIP((PSOCKADDR)info->remoteAddress) << "] " << process.name << endl;
+	UNREFERENCED_PARAMETER(id);
+	UNREFERENCED_PARAMETER(info);
+
+	REDIRECTOR_TRACE_W("[Redirector][EventHandler][tcpConnected][" << id << "][" << info->processId << "][" << ConvertIP((PSOCKADDR)info->remoteAddress) << "] " << LoadProcessInfo(info->processId, false).name);
 }
 
 void tcpCanSend(ENDPOINT_ID id)
@@ -392,7 +394,7 @@ void tcpClosed(ENDPOINT_ID id, PNF_TCP_CONN_INFO info)
 
 	TCPHandler::DeleteHandler(client);
 
-	printf("[Redirector][EventHandler][tcpClosed][%llu][%lu]\n", id, info->processId);
+	REDIRECTOR_TRACE("[Redirector][EventHandler][tcpClosed][%llu][%lu]\n", id, info->processId);
 }
 
 void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
@@ -405,10 +407,9 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 
 	if (!filterUDP)
 	{
-		const auto process = LoadProcessInfo(info->processId, false);
 		if (!filterDNS) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << process.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!filterUDP] " << LoadProcessInfo(info->processId, false).name);
 		return;
 	}
 
@@ -418,7 +419,7 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	{
 		if (dnsOnly) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][checkBypassName] " << decision.info.name);
 		return;
 	}
 
@@ -426,11 +427,11 @@ void udpCreated(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 	{
 		if (dnsOnly) nf_udpDisableFiltering(id);
 
-		wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name << endl;
+		REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "][!checkHandleName] " << decision.info.name);
 		return;
 	}
 
-	wcout << "[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << decision.info.name << endl;
+	REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpCreated][" << id << "][" << info->processId << "] " << decision.info.name);
 
 	lock_guard<mutex> lg(udpContextLock);
 	udpContext[id] = make_shared<SocksHelper::UDP>();
@@ -455,7 +456,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 		{
 			nf_udpPostSend(id, target, buffer, length, options);
 
-			wcout << "[Redirector][EventHandler][udpSend][" << id << "] B DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+			REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpSend][" << id << "] B DNS to " << ConvertIP((PSOCKADDR)target));
 			return;
 		}
 		else
@@ -463,7 +464,7 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 			UP += length;
 			DNSHandler::CreateHandler(id, (PSOCKADDR_IN6)target, buffer, length, options);
 
-			wcout << "[Redirector][EventHandler][udpSend][" << id << "] H DNS to " << ConvertIP((PSOCKADDR)target) << endl;
+			REDIRECTOR_TRACE_W("[Redirector][EventHandler][udpSend][" << id << "] H DNS to " << ConvertIP((PSOCKADDR)target));
 			return;
 		}
 	}
@@ -532,7 +533,7 @@ void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info)
 {
 	UNREFERENCED_PARAMETER(info);
 
-	printf("[Redirector][EventHandler][udpClosed][%llu]\n", id);
+	REDIRECTOR_TRACE("[Redirector][EventHandler][udpClosed][%llu]\n", id);
 
 	shared_ptr<SocksHelper::UDP> remote;
 	{

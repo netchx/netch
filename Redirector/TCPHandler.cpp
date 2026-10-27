@@ -1,5 +1,9 @@
 #include "TCPHandler.h"
 
+// recv() returns as soon as any data is available, so a larger buffer never
+// delays small game packets; it only cuts syscalls for bulk transfers.
+constexpr int TcpRelayBufferSize = 16 * 1024;
+
 atomic<SOCKET> tcpSocket{ INVALID_SOCKET };
 atomic<USHORT> tcpListen{ 0 };
 
@@ -209,7 +213,7 @@ void TCPHandler::Handle(SOCKET client)
 
 void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 {
-	char buffer[1446];
+	char buffer[TcpRelayBufferSize];
 	while (tcpSocket != INVALID_SOCKET)
 	{
 		int length = remote->Read(buffer, sizeof(buffer));
@@ -229,7 +233,7 @@ void TCPHandler::Read(SOCKET client, SocksHelper::PTCP remote)
 
 void TCPHandler::Send(SOCKET client, shared_ptr<SocksHelper::TCP> remote)
 {
-	char buffer[1446];
+	char buffer[TcpRelayBufferSize];
 	bool clientClosedNormally = false;
 
 	while (tcpSocket != INVALID_SOCKET)
