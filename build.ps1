@@ -49,6 +49,31 @@ function Invoke-Native {
 	}
 }
 
+function Resolve-MSBuild {
+	# Prefer msbuild from PATH (Developer PowerShell); otherwise locate the
+	# Visual Studio installation with vswhere so a plain PowerShell works too.
+	$command = Get-Command 'msbuild' -ErrorAction SilentlyContinue
+	if ($command) {
+		return $command.Source
+	}
+
+	$vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+	if (Test-Path $vswhere) {
+		$found = & $vswhere -latest -prerelease -products * `
+			-requires Microsoft.Component.MSBuild Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+			-find 'MSBuild\**\Bin\amd64\MSBuild.exe' | Select-Object -First 1
+		if (-Not $found) {
+			$found = & $vswhere -latest -prerelease -products * -requires Microsoft.Component.MSBuild `
+				-find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+		}
+		if ($found) {
+			return $found
+		}
+	}
+
+	throw 'MSBuild not found. Install Visual Studio 2022 with "Desktop development with C++", or run from Developer PowerShell for VS.'
+}
+
 function Test-ShouldBuild {
 	param ([string] $Path)
 
@@ -144,12 +169,18 @@ try {
 	}
 	Copy-Item -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
 
+	$needsNative = (Test-ShouldBuild ".\Redirector\bin\$Configuration") -or (Test-ShouldBuild ".\RouteHelper\bin\$Configuration")
+	if ($needsNative) {
+		$msbuild = Resolve-MSBuild
+		Write-Host "Using MSBuild: $msbuild"
+	}
+
 	if ( Test-ShouldBuild ".\Redirector\bin\$Configuration" ) {
 		Write-Host
 		Write-Host 'Building Redirector'
 
 		Invoke-Native -Name 'msbuild Redirector' -Command {
-			msbuild `
+			& $msbuild `
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
@@ -164,7 +195,7 @@ try {
 		Write-Host 'Building RouteHelper'
 
 		Invoke-Native -Name 'msbuild RouteHelper' -Command {
-			msbuild `
+			& $msbuild `
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
