@@ -324,7 +324,7 @@ public static class Utils
             str = str.Replace(Environment.NewLine, string.Empty);
             return new List<string>(str.Split(',', StringSplitOptions.RemoveEmptyEntries));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }

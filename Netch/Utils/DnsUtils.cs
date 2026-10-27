@@ -1,4 +1,5 @@
 ﻿using DnsClient;
+using Microsoft.VisualStudio.Threading;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
@@ -25,7 +26,7 @@ public static class DnsUtils
     ///     hostname delayed every delay test, NAT test and start-up lookup behind
     ///     it. Lookups now run concurrently and identical requests share one query.
     /// </summary>
-    private static readonly ConcurrentDictionary<(string Hostname, AddressFamily Inet, string? Dns), Lazy<Task<IPAddress?>>> InFlight = new();
+    private static readonly ConcurrentDictionary<(string Hostname, AddressFamily Inet, string? Dns), AsyncLazy<IPAddress?>> InFlight = new();
 
     public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
     {
@@ -44,15 +45,15 @@ public static class DnsUtils
 
             var key = (hostname, inet, string.IsNullOrWhiteSpace(dns) ? null : dns);
             var lookup = InFlight.GetOrAdd(key,
-                k => new Lazy<Task<IPAddress?>>(() => LookupNoCacheAsync(k.Hostname, k.Inet, timeout, k.Dns)));
+                k => new AsyncLazy<IPAddress?>(() => LookupNoCacheAsync(k.Hostname, k.Inet, timeout, k.Dns), null));
 
             try
             {
-                return await lookup.Value;
+                return await lookup.GetValueAsync();
             }
             finally
             {
-                InFlight.TryRemove(new KeyValuePair<(string, AddressFamily, string?), Lazy<Task<IPAddress?>>>(key, lookup));
+                InFlight.TryRemove(new KeyValuePair<(string, AddressFamily, string?), AsyncLazy<IPAddress?>>(key, lookup));
             }
         }
         catch (Exception e)

@@ -663,8 +663,11 @@ public partial class MainForm : Form
         }
 
         // A quick stop/start must not leave the previous loop running.
-        _startedPingCts?.Cancel();
-        _startedPingCts?.Dispose();
+        if (_startedPingCts != null)
+        {
+            await _startedPingCts.CancelAsync();
+            _startedPingCts.Dispose();
+        }
         _startedPingCts = new CancellationTokenSource();
         StartedPingAsync(_startedPingCts.Token).Forget();
     }
@@ -1140,9 +1143,12 @@ public partial class MainForm : Form
     private async Task StopCoreAsync()
     {
         State = State.Stopping;
-        _startedPingCts?.Cancel();
-        _discoveryNatCts?.Cancel();
-        _httpConnectCts?.Cancel();
+        if (_startedPingCts != null)
+            await _startedPingCts.CancelAsync();
+        if (_discoveryNatCts != null)
+            await _discoveryNatCts.CancelAsync();
+        if (_httpConnectCts != null)
+            await _httpConnectCts.CancelAsync();
         await MainController.StopAsync();
         State = State.Stopped;
     }

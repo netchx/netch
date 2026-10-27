@@ -1,4 +1,4 @@
-﻿#nullable disable
+﻿#nullable disable warnings
 // ReSharper disable InconsistentNaming
 
 using System.Text.Json.Serialization;
