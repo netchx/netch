@@ -45,6 +45,8 @@
 - 加速期间提升 Netch 与代理核心（xray、sing-box、tun2socks、pcap2socks）的进程优先级，并关闭 Windows 电源节流（EcoQoS）；Redirector 转发线程以高优先级运行。可在 `data\settings.json` 中将 `GameProcessBoost` 设为 `false` 关闭。
 - 转发用 UDP 套接字缓冲区扩大到 1 MiB，减少游戏与语音突发流量时的丢包。
 - 进程模式的流量统计直接读取 Redirector 计数，不再启动系统级内核网络追踪。
+- 进程规则匹配不区分大小写；“包括子进程”沿父进程链最多向上追溯 6 层（用进程创建时间排除 PID 复用）。
+- 内置游戏规则（`mode\Game`）：EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2，均包含常见反作弊（EAC、BattlEye、EA AntiCheat、FACEIT）与子进程，局域网流量直连。
 
 ## 工作模式
 

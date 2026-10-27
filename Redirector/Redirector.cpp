@@ -152,7 +152,8 @@ extern "C" {
 		case AIO_BYPNAME:
 			try
 			{
-				wregex checker(value);
+				// Windows paths are case-insensitive; so are the rules.
+				wregex checker(value, regex_constants::ECMAScript | regex_constants::icase | regex_constants::optimize);
 				lock_guard<mutex> lg(ruleLock);
 				bypassList.emplace_back(move(checker));
 			}
@@ -164,7 +165,7 @@ extern "C" {
 		case AIO_ADDNAME:
 			try
 			{
-				wregex checker(value);
+				wregex checker(value, regex_constants::ECMAScript | regex_constants::icase | regex_constants::optimize);
 				lock_guard<mutex> lg(ruleLock);
 				handleList.emplace_back(move(checker));
 			}

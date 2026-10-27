@@ -1,0 +1,26 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "PUBG 绝地求生 + 反作弊（含子进程）",
+    "en": "PUBG: Battlegrounds + Anti-Cheat (with child processes)"
+  },
+  "handle": [
+    "\\\\PUBG\\\\",
+    "\\\\TslGame",
+    "\\\\ExecPubg\\.exe$",
+    "\\\\BattlEye\\\\",
+    "\\\\BEService(_x64)?\\.exe$"
+  ],
+  "bypass": [],
+  "filterIntranet": false,
+  "filterLoopback": false,
+  "filterParent": true,
+  "dnsHost": null,
+  "handleOnlyDNS": null,
+  "icmpDelay": null,
+  "filterDNS": null,
+  "filterUDP": null,
+  "filterTCP": null,
+  "filterICMP": null,
+  "dnsProxy": null
+}

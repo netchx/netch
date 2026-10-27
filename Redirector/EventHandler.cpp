@@ -4,6 +4,8 @@
 #include "TCPHandler.h"
 #include "Utils.h"
 
+#include <optional>
+
 extern bool filterParent;
 extern bool filterTCP;
 extern bool filterUDP;
@@ -29,7 +31,16 @@ struct ProcessInfo
 {
 	wstring name;
 	DWORD parentId = 0;
+	// Creation time (FILETIME ticks) detects a parent PID that was recycled by a
+	// newer, unrelated process. 0 when unknown.
+	ULONGLONG createTime = 0;
+	bool parentLoaded = false;
 };
+
+// Launchers often start games through helpers (launcher -> bootstrapper ->
+// game, or service -> anti-cheat). Follow the parent chain this far when
+// "filter parent" is enabled.
+constexpr int MaxParentDepth = 6;
 
 struct ProcessCacheEntry
 {
@@ -128,6 +139,48 @@ DWORD GetParentProcessId(DWORD id)
 	return parentId;
 }
 
+struct ProcessBasicInformationRaw
+{
+	LONG_PTR ExitStatus;
+	PVOID PebBaseAddress;
+	ULONG_PTR AffinityMask;
+	LONG_PTR BasePriority;
+	ULONG_PTR UniqueProcessId;
+	ULONG_PTR InheritedFromUniqueProcessId;
+};
+
+using NtQueryInformationProcessFn = LONG(NTAPI*)(HANDLE, ULONG, PVOID, ULONG, PULONG);
+
+// Parent PID and creation time from one process handle. Much cheaper than a
+// Toolhelp snapshot of every process on the system.
+bool QueryProcessLineage(DWORD id, DWORD& parentId, ULONGLONG& createTime)
+{
+	static const auto query = reinterpret_cast<NtQueryInformationProcessFn>(
+		GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtQueryInformationProcess"));
+
+	const auto handle = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, id);
+	if (handle == NULL)
+		return false;
+
+	bool ok = false;
+	FILETIME creation{}, exitTime{}, kernelTime{}, userTime{};
+	if (GetProcessTimes(handle, &creation, &exitTime, &kernelTime, &userTime))
+	{
+		createTime = (static_cast<ULONGLONG>(creation.dwHighDateTime) << 32) | creation.dwLowDateTime;
+
+		ProcessBasicInformationRaw basic{};
+		ULONG returned = 0;
+		if (query != NULL && query(handle, 0 /* ProcessBasicInformation */, &basic, sizeof(basic), &returned) >= 0)
+		{
+			parentId = static_cast<DWORD>(basic.InheritedFromUniqueProcessId);
+			ok = true;
+		}
+	}
+
+	CloseHandle(handle);
+	return ok;
+}
+
 bool IsProcessAlive(HANDLE processHandle)
 {
 	return processHandle != NULL && WaitForSingleObject(processHandle, 0) == WAIT_TIMEOUT;
@@ -141,23 +194,39 @@ ProcessInfo LoadProcessInfo(DWORD id, bool includeParent)
 	if (id == 4)
 		return { L"System", 0 };
 
+	optional<ProcessInfo> cached;
 	{
 		lock_guard<mutex> lg(processCacheLock);
 		auto it = processCache.find(id);
 		if (it != processCache.end())
 		{
 			if (IsProcessAlive(it->second.processHandle))
-				return it->second.info;
+			{
+				if (!includeParent || it->second.info.parentLoaded)
+					return it->second.info;
 
-			CloseHandle(it->second.processHandle);
-			processCache.erase(it);
+				// Cached by a lookup that did not need the parent; add it now.
+				cached = it->second.info;
+			}
+			else
+			{
+				CloseHandle(it->second.processHandle);
+				processCache.erase(it);
+			}
 		}
 	}
 
 	ProcessInfo info;
-	info.name = GetProcessNameUncached(id);
+	info.name = cached ? cached->name : GetProcessNameUncached(id);
 	if (includeParent)
-		info.parentId = GetParentProcessId(id);
+	{
+		if (!QueryProcessLineage(id, info.parentId, info.createTime))
+		{
+			info.parentId = GetParentProcessId(id);
+			info.createTime = 0;
+		}
+		info.parentLoaded = true;
+	}
 
 	// A process that cannot be opened is still returned to the caller, but is
 	// intentionally not cached because its lifetime cannot be tracked safely.
@@ -172,6 +241,8 @@ ProcessInfo LoadProcessInfo(DWORD id, bool includeParent)
 		if (IsProcessAlive(it->second.processHandle))
 		{
 			CloseHandle(processHandle);
+			if (info.parentLoaded && !it->second.info.parentLoaded)
+				it->second.info = info;
 			return it->second.info;
 		}
 
@@ -214,11 +285,40 @@ ProcessDecision ClassifyProcess(DWORD id)
 		lock_guard<mutex> lg(ruleLock);
 		bypass = MatchesAny(bypassList, info.name);
 		handle = MatchesAny(handleList, info.name);
+	}
 
-		if (!handle && filterParent && info.parentId != 0)
+	// Include child processes: walk up the parent chain (outside ruleLock,
+	// lookups may open processes) until an ancestor matches a handle rule.
+	if (!bypass && !handle && filterParent)
+	{
+		auto child = info;
+		for (int depth = 0; depth < MaxParentDepth && child.parentId != 0 && child.parentId != 4; depth++)
 		{
-			const auto parent = LoadProcessInfo(info.parentId, false);
-			handle = MatchesAny(handleList, parent.name);
+			const auto parent = LoadProcessInfo(child.parentId, true);
+
+			// A parent created after its child means the PID was reused by an
+			// unrelated process. Without creation times only trust the direct
+			// parent, as before.
+			const bool lineageKnown = child.createTime != 0 && parent.createTime != 0;
+			if (lineageKnown && parent.createTime > child.createTime)
+				break;
+
+			bool matched;
+			{
+				lock_guard<mutex> lg(ruleLock);
+				matched = MatchesAny(handleList, parent.name);
+			}
+
+			if (matched)
+			{
+				handle = true;
+				break;
+			}
+
+			if (!lineageKnown)
+				break;
+
+			child = parent;
 		}
 	}
 
