@@ -14,7 +14,7 @@ public class Profile
 
     public Profile(Server server, Mode mode, string name, int index)
     {
-        ServerRemark = server.Remark;
+        ServerRemark = server.Remarks;
         ModeRemark = mode.i18NRemark;
         ProfileName = name;
         Index = index;

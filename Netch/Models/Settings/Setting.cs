@@ -7,6 +7,11 @@ namespace Netch.Models;
 /// </summary>
 public class Setting
 {
+    /// <summary>
+    /// Outbound解析用的DNS服务器地址
+    /// </summary>
+    public string OutboundDNS { get; set; } = "223.5.5.5";
+
     public RedirectorConfig Redirector { get; set; } = new();
 
     /// <summary>
@@ -144,6 +149,11 @@ public class Setting
     public V2rayConfig V2RayConfig { get; set; } = new();
 
     public bool NoSupportDialog { get; set; } = false;
+
+    /// <summary>
+    ///     加速期间提升 Netch 与代理核心进程优先级，并关闭 Windows 电源节流（EcoQoS）
+    /// </summary>
+    public bool GameProcessBoost { get; set; } = true;
 
     #region Migration
 

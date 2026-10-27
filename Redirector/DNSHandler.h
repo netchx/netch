@@ -6,6 +6,7 @@
 namespace DNSHandler
 {
 	bool INIT();
+	void FREE();
 
 	bool IsDNS(PSOCKADDR_IN6 target);
 

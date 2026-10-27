@@ -19,88 +19,202 @@ param (
 
 	[Parameter()]
 	[bool]
-	$PublishReadyToRun = $False
+	$PublishReadyToRun = $False,
+
+	# Reuse existing component outputs (Netch\bin, Redirector\bin, RouteHelper\bin)
+	# instead of building them. CI restores those folders from a cache keyed by
+	# the source hash; local builds should always compile so a stale binary is
+	# never packaged.
+	[Parameter()]
+	[switch]
+	$UseCache
 )
 
-Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+$ErrorActionPreference = 'Stop'
 
-if ( Test-Path -Path $OutputPath ) {
-    rm -Recurse -Force $OutputPath
-}
-New-Item -ItemType Directory -Name $OutputPath | Out-Null
+function Invoke-Native {
+	param (
+		[Parameter(Mandatory)]
+		[scriptblock]
+		$Command,
 
-Push-Location $OutputPath
-New-Item -ItemType Directory -Name 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\i18n' '.'  | Out-Null
-cp -Recurse -Force '..\Storage\mode' '.'  | Out-Null
-cp -Recurse -Force '..\Storage\stun.txt' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\nfdriver.sys' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\aiodns.conf' 'bin'  | Out-Null
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile 'bin\GeoLite2-Country.mmdb'
-#cp -Recurse -Force '..\Storage\GeoLite2-Country.mmdb' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\tun2socks.bin' 'bin'  | Out-Null
-cp -Recurse -Force '..\Storage\README.md' 'bin'  | Out-Null
-Pop-Location
+		[Parameter(Mandatory)]
+		[string]
+		$Name
+	)
 
-if ( -Not ( Test-Path '.\Other\release' ) ) {
-	.\Other\build.ps1
-	if ( -Not $? ) {
-		exit $lastExitCode
+	& $Command
+	if ($LASTEXITCODE -ne 0) {
+		throw "$Name failed with exit code $LASTEXITCODE"
 	}
 }
-cp -Force '.\Other\release\*.bin' "$OutputPath\bin"
-cp -Force '.\Other\release\*.dll' "$OutputPath\bin"
-cp -Force '.\Other\release\*.exe' "$OutputPath\bin"
 
-if ( -Not ( Test-Path ".\Netch\bin\$Configuration" ) ) {
-	Write-Host
-	Write-Host 'Building Netch'
+function Resolve-MSBuild {
+	# Prefer msbuild from PATH (Developer PowerShell); otherwise locate the
+	# Visual Studio installation with vswhere so a plain PowerShell works too.
+	$command = Get-Command 'msbuild' -ErrorAction SilentlyContinue
+	if ($command) {
+		return $command.Source
+	}
 
-	dotnet publish `
-		-c $Configuration `
-		-r 'win-x64' `
-		-p:Platform='x64' `
-		-p:SelfContained=$SelfContained `
-		-p:PublishTrimmed=$PublishReadyToRun `
-		-p:PublishSingleFile=$PublishSingleFile `
-		-p:PublishReadyToRun=$PublishReadyToRun `
-		-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
-		-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
-		-o ".\Netch\bin\$Configuration" `
-		'.\Netch\Netch.csproj'
-	if ( -Not $? ) { exit $lastExitCode }
-}
-cp -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
+	$vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+	if (Test-Path $vswhere) {
+		$found = & $vswhere -latest -prerelease -products * `
+			-requires Microsoft.Component.MSBuild Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+			-find 'MSBuild\**\Bin\amd64\MSBuild.exe' | Select-Object -First 1
+		if (-Not $found) {
+			$found = & $vswhere -latest -prerelease -products * -requires Microsoft.Component.MSBuild `
+				-find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+		}
+		if ($found) {
+			return $found
+		}
+	}
 
-if ( -Not ( Test-Path ".\Redirector\bin\$Configuration" ) ) {
-	Write-Host
-	Write-Host 'Building Redirector'
-
-	msbuild `
-		-property:Configuration=$Configuration `
-		-property:Platform=x64 `
-		'.\Redirector\Redirector.vcxproj'
-	if ( -Not $? ) { exit $lastExitCode }
-}
-cp -Force ".\Redirector\bin\$Configuration\nfapi.dll"      "$OutputPath\bin"
-cp -Force ".\Redirector\bin\$Configuration\Redirector.bin" "$OutputPath\bin"
-
-if ( -Not ( Test-Path ".\RouteHelper\bin\$Configuration" ) ) {
-	Write-Host
-	Write-Host 'Building RouteHelper'
-
-	msbuild `
-		-property:Configuration=$Configuration `
-		-property:Platform=x64 `
-		'.\RouteHelper\RouteHelper.vcxproj'
-	if ( -Not $? ) { exit $lastExitCode }
-}
-cp -Force ".\RouteHelper\bin\$Configuration\RouteHelper.bin" "$OutputPath\bin"
-
-if ( $Configuration.Equals('Release') ) {
-	rm -Force "$OutputPath\*.pdb"
-	rm -Force "$OutputPath\*.xml"
+	throw 'MSBuild not found. Install Visual Studio 2022 with "Desktop development with C++", or run from Developer PowerShell for VS.'
 }
 
-Pop-Location
+function Test-ShouldBuild {
+	param ([string] $Path)
+
+	return (-Not $UseCache) -or (-Not (Test-Path $Path))
+}
+
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+try {
+	if ( Test-Path -Path $OutputPath ) {
+		Remove-Item -Recurse -Force $OutputPath
+	}
+	New-Item -ItemType Directory -Name $OutputPath | Out-Null
+
+	Push-Location $OutputPath
+	try {
+		New-Item -ItemType Directory -Name 'bin' | Out-Null
+		Copy-Item -Recurse -Force '..\Storage\i18n' '.'
+		Copy-Item -Recurse -Force '..\Storage\mode' '.'
+		Copy-Item -Force '..\Storage\stun.txt' 'bin'
+		Copy-Item -Force '..\Storage\nfdriver.sys' 'bin'
+		Copy-Item -Force '..\Storage\aiodns.conf' 'bin'
+		Copy-Item -Force '..\Storage\tun2socks-windows-amd64-v3.exe' 'bin'
+		Copy-Item -Force '..\Storage\README.md' 'bin'
+
+		# The GeoIP database is only used to show the exit country. A network
+		# hiccup should not fail the whole build when a local copy is available.
+		$geoIpTarget = 'bin\GeoLite2-Country.mmdb'
+		$geoIpFallback = '..\Storage\GeoLite2-Country.mmdb'
+		try {
+			Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile $geoIpTarget
+		}
+		catch {
+			if (Test-Path $geoIpFallback) {
+				Write-Warning "Download GeoIP database failed, using $geoIpFallback"
+				Copy-Item -Force $geoIpFallback $geoIpTarget
+			}
+			else {
+				Write-Warning "Download GeoIP database failed and no local copy exists: $_"
+			}
+		}
+	}
+	finally {
+		Pop-Location
+	}
+
+	$xrayBinary = '.\Other\release\xray.exe'
+	$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
+	if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
+		# Scripts extracted from a downloaded archive carry the "downloaded from
+		# the internet" mark, which a RemoteSigned execution policy refuses to
+		# run. They are part of this source tree, so clear the mark first.
+		Get-ChildItem -Path '.\Other' -Filter '*.ps1' -Recurse | Unblock-File
+
+		# The core build scripts handle their own errors; do not let the strict
+		# preference of this script turn their non-fatal messages into failures.
+		$previousPreference = $ErrorActionPreference
+		$ErrorActionPreference = 'Continue'
+		try {
+			& .\Other\build.ps1
+		}
+		finally {
+			$ErrorActionPreference = $previousPreference
+		}
+		if ($LASTEXITCODE -ne 0) {
+			throw "Building proxy cores failed with exit code $LASTEXITCODE"
+		}
+	}
+	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
+	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
+	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin"
+
+	# Copy the bundled wintun.dll last so the version kept in Storage is not
+	# replaced by the one downloaded by Other\wintun.
+	Copy-Item -Force '.\Storage\wintun.dll' "$OutputPath\bin"
+
+	if ( Test-ShouldBuild ".\Netch\bin\$Configuration" ) {
+		Write-Host
+		Write-Host 'Building Netch'
+
+		Invoke-Native -Name 'dotnet publish' -Command {
+			dotnet publish `
+				-c $Configuration `
+				-r 'win-x64' `
+				-p:Platform='x64' `
+				-p:SelfContained=$SelfContained `
+				-p:PublishSingleFile=$PublishSingleFile `
+				-p:PublishReadyToRun=$PublishReadyToRun `
+				-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
+				-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
+				-o ".\Netch\bin\$Configuration" `
+				'.\Netch\Netch.csproj'
+		}
+	}
+	Copy-Item -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
+
+	$needsNative = (Test-ShouldBuild ".\Redirector\bin\$Configuration") -or (Test-ShouldBuild ".\RouteHelper\bin\$Configuration")
+	if ($needsNative) {
+		$msbuild = Resolve-MSBuild
+		Write-Host "Using MSBuild: $msbuild"
+	}
+
+	if ( Test-ShouldBuild ".\Redirector\bin\$Configuration" ) {
+		Write-Host
+		Write-Host 'Building Redirector'
+
+		Invoke-Native -Name 'msbuild Redirector' -Command {
+			& $msbuild `
+				-nologo `
+				-property:Configuration=$Configuration `
+				-property:Platform=x64 `
+				'.\Redirector\Redirector.vcxproj'
+		}
+	}
+	Copy-Item -Force ".\Redirector\bin\$Configuration\nfapi.dll"      "$OutputPath\bin"
+	Copy-Item -Force ".\Redirector\bin\$Configuration\Redirector.bin" "$OutputPath\bin"
+
+	if ( Test-ShouldBuild ".\RouteHelper\bin\$Configuration" ) {
+		Write-Host
+		Write-Host 'Building RouteHelper'
+
+		Invoke-Native -Name 'msbuild RouteHelper' -Command {
+			& $msbuild `
+				-nologo `
+				-property:Configuration=$Configuration `
+				-property:Platform=x64 `
+				'.\RouteHelper\RouteHelper.vcxproj'
+		}
+	}
+	Copy-Item -Force ".\RouteHelper\bin\$Configuration\RouteHelper.bin" "$OutputPath\bin"
+
+	if ( $Configuration.Equals('Release') ) {
+		Remove-Item -Force "$OutputPath\*.pdb" -ErrorAction SilentlyContinue
+		Remove-Item -Force "$OutputPath\*.xml" -ErrorAction SilentlyContinue
+	}
+}
+catch {
+	Write-Host "Build failed: $_" -ForegroundColor Red
+	exit 1
+}
+finally {
+	Pop-Location
+}
+
 exit 0

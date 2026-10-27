@@ -9,8 +9,13 @@ namespace Netch.Controllers;
 
 public abstract class Guard
 {
+    private static readonly TimeSpan StartTimeout = TimeSpan.FromSeconds(50);
+
+    private readonly Encoding? _encoding;
     private FileStream? _logFileStream;
     private StreamWriter? _logStreamWriter;
+    private TaskCompletionSource<bool>? _startResult;
+    private bool _started;
 
     /// <param name="mainFile">application path relative of Netch\bin</param>
     /// <param name="redirectOutput"></param>
@@ -18,8 +23,11 @@ public abstract class Guard
     protected Guard(string mainFile, bool redirectOutput = true, Encoding? encoding = null)
     {
         RedirectOutput = redirectOutput;
+        _encoding = encoding;
 
-        var fileName = Path.GetFullPath($"bin\\{mainFile}");
+        var fileName = Path.IsPathRooted(mainFile)
+            ? mainFile
+            : Path.Combine(Global.NetchDir, "bin", mainFile);
 
         if (!File.Exists(fileName))
             throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
@@ -53,21 +61,55 @@ public abstract class Guard
 
     private bool RedirectOutput { get; }
 
-    public Process Instance { get; }
+    public Process Instance { get; private set; }
+
+    protected void ChangeMainFile(string mainFile)
+    {
+        if (_started)
+            throw new InvalidOperationException("Cannot change the guarded process after it has started.");
+
+        var fileName = Path.IsPathRooted(mainFile)
+            ? mainFile
+            : Path.Combine(Global.NetchDir, "bin", mainFile);
+
+        if (!File.Exists(fileName))
+            throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
+
+        Instance.Dispose();
+        Instance = new Process
+        {
+            StartInfo =
+            {
+                FileName = fileName,
+                WorkingDirectory = $"{Global.NetchDir}\\bin",
+                CreateNoWindow = true,
+                UseShellExecute = !RedirectOutput,
+                RedirectStandardOutput = RedirectOutput,
+                StandardOutputEncoding = RedirectOutput ? _encoding : null,
+                RedirectStandardError = RedirectOutput,
+                StandardErrorEncoding = RedirectOutput ? _encoding : null,
+                WindowStyle = ProcessWindowStyle.Hidden
+            }
+        };
+    }
 
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {
         State = State.Starting;
+        _startResult = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _logFileStream = new FileStream(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, true);
         _logStreamWriter = new StreamWriter(_logFileStream) { AutoFlush = true };
 
         Instance.StartInfo.Arguments = argument;
         Instance.Start();
+        _started = true;
         Global.Job.AddProcess(Instance);
 
         if (priority != ProcessPriorityClass.Normal)
             Instance.PriorityClass = priority;
+        else
+            ProcessTuning.Boost(Instance, Name);
 
         if (RedirectOutput)
         {
@@ -81,45 +123,60 @@ public abstract class Guard
                 return;
             }
 
-            // wait ReadOutput change State
-            for (var i = 0; i < 1000; i++)
+            // React as soon as ReadOutput sees a keyword (instead of polling every
+            // 50 ms), and fail fast when the process exits before it is ready
+            // instead of waiting for the full timeout.
+            var startResult = _startResult.Task;
+            var exited = Instance.WaitForExitAsync();
+            var timeout = Task.Delay(StartTimeout);
+            var finished = await Task.WhenAny(startResult, exited, timeout);
+
+            if (finished == startResult && await startResult)
             {
-                await Task.Delay(50);
-                switch (State)
-                {
-                    case State.Started:
-                        OnStarted();
-                        return;
-                    case State.Stopped:
-                        await StopGuardAsync();
-                        OnStartFailed();
-                        throw new MessageException($"{Name} 控制器启动失败");
-                }
+                OnStarted();
+                return;
             }
 
             await StopGuardAsync();
-            throw new MessageException($"{Name} 控制器启动超时");
+            if (finished == timeout)
+                throw new MessageException($"{Name} 控制器启动超时");
+
+            OnStartFailed();
+            throw new MessageException($"{Name} 控制器启动失败");
         }
     }
 
     private async Task ReadOutputAsync(TextReader reader)
     {
-        string? line;
-        while ((line = await reader.ReadLineAsync()) != null)
+        try
         {
-            await _logStreamWriter!.WriteLineAsync(line);
-            OnReadNewLine(line);
-
-            if (State == State.Starting)
+            string? line;
+            while ((line = await reader.ReadLineAsync()) != null)
             {
-                if (StartedKeywords.Any(s => line.Contains(s)))
-                    State = State.Started;
-                else if (FailedKeywords.Any(s => line.Contains(s)))
+                var writer = _logStreamWriter;
+                if (writer != null)
+                    await writer.WriteLineAsync(line);
+
+                OnReadNewLine(line);
+
+                if (State == State.Starting)
                 {
-                    OnStartFailed();
-                    State = State.Stopped;
+                    if (StartedKeywords.Any(s => line.Contains(s)))
+                    {
+                        State = State.Started;
+                        _startResult?.TrySetResult(true);
+                    }
+                    else if (FailedKeywords.Any(s => line.Contains(s)))
+                    {
+                        State = State.Stopped;
+                        _startResult?.TrySetResult(false);
+                    }
                 }
             }
+        }
+        catch (Exception e) when (e is ObjectDisposedException or IOException or InvalidOperationException)
+        {
+            // The guarded process was stopped while its output was being read.
         }
     }
 
@@ -129,10 +186,10 @@ public abstract class Guard
     }
 
     protected async Task StopGuardAsync()
-    {
+    {       
         try
         {
-            if (Instance is { HasExited: false })
+            if (_started && !Instance.HasExited)
             {
                 Instance.Kill();
                 await Instance.WaitForExitAsync();
@@ -140,7 +197,7 @@ public abstract class Guard
         }
         catch (Exception e)
         {
-            Log.Error(e, "Stop {Name} failed", Instance.ProcessName);
+            Log.Error(e, "Stop {Name} failed", Name);
         }
         finally
         {
@@ -151,8 +208,10 @@ public abstract class Guard
                 await _logFileStream.DisposeAsync();
 
             Instance.Dispose();
+            _started = false;
 
             State = State.Stopped;
+            _startResult?.TrySetResult(false);
         }
     }
 

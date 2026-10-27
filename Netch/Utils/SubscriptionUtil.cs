@@ -1,5 +1,5 @@
-using System.Net;
 using Netch.Models;
+using System.Net;
 
 namespace Netch.Utils;
 
@@ -19,17 +19,9 @@ public static class SubscriptionUtil
             if (!item.Enable)
                 return;
 
-            var request = WebUtil.CreateRequest(item.Link);
-
-            if (!string.IsNullOrEmpty(item.UserAgent))
-                request.UserAgent = item.UserAgent;
-
-            if (!string.IsNullOrEmpty(proxyServer))
-                request.Proxy = new WebProxy(proxyServer);
-
             List<Server> servers;
 
-            var (code, result) = await WebUtil.DownloadStringAsync(request);
+            var (code, result) = await WebUtil.DownloadStringAsync(item.Link, item.UserAgent, proxyServer);
             if (code == HttpStatusCode.OK)
                 servers = ShareLink.ParseText(result);
             else

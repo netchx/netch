@@ -1,5 +1,24 @@
+# IDE
 /.vs
 /.idea
+*.user
+
+# Build outputs
+bin/
+obj/
 /release
+/release-*
+/artifacts
+/dev
 /packages
 /TestResults
+/Other/release
+
+# Local tool caches
+/.dotnet
+/.dotnet6
+/.nuget-http
+/.tools
+
+# Logs
+*.log

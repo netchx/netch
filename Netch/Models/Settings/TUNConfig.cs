@@ -26,6 +26,26 @@ public class TUNConfig
     public string Netmask { get; set; } = "255.255.255.0";
 
     /// <summary>
+    ///     是否启用 TUN IPv6 地址和路由
+    /// </summary>
+    public bool EnableIPv6 { get; set; } = true;
+
+    /// <summary>
+    ///     TUN IPv6 地址
+    /// </summary>
+    public string IPv6Address { get; set; } = "fd00:236::10";
+
+    /// <summary>
+    ///     TUN IPv6 网关
+    /// </summary>
+    public string IPv6Gateway { get; set; } = "fd00:236::1";
+
+    /// <summary>
+    ///     TUN IPv6 前缀长度
+    /// </summary>
+    public byte IPv6PrefixLength { get; set; } = 64;
+
+    /// <summary>
     ///     模式 2 下是否代理 DNS
     /// </summary>
     public bool ProxyDNS { get; set; } = false;

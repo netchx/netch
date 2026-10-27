@@ -30,7 +30,13 @@ public struct SuffixVersion : IComparable, IComparable<SuffixVersion>
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        var strings = value.Split('-');
+        // Release tags may contain a project prefix, for example
+        // "Netch1.9.9" or "v1.9.9-beta1".
+        var versionMatch = Regex.Match(value.Trim(), @"\d+(?:\.\d+){1,3}(?:-[A-Za-z]+\d+)?");
+        if (!versionMatch.Success)
+            throw new FormatException($"Invalid version: {value}");
+
+        var strings = versionMatch.Value.Split('-');
 
         var version = Version.Parse(strings[0]);
         var suffix = strings.ElementAtOrDefault(1)?.Trim();

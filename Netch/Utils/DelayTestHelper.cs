@@ -52,7 +52,10 @@ public static class DelayTestHelper
 
         try
         {
-            var tasks = Global.Settings.Server.Select(async s =>
+            // Snapshot: subscription updates replace servers from a background
+            // continuation while this timer-driven test may be enumerating.
+            var servers = Global.Settings.Server.ToArray();
+            var tasks = servers.Select(async s =>
             {
                 using (await PoolLock.EnterAsync())
                 {

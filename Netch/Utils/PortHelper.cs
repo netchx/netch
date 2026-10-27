@@ -1,11 +1,12 @@
-﻿using System.ComponentModel;
+﻿using Netch.Models;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using Windows.Win32;
+using Windows.Win32.Foundation;
 using Windows.Win32.NetworkManagement.IpHelper;
-using Netch.Models;
 
 namespace Netch.Utils;
 
@@ -36,33 +37,56 @@ public static class PortHelper
         switch (inet)
         {
             case AddressFamily.InterNetwork:
-            {
-                var process = new List<Process>();
-                unsafe
                 {
-                    uint err;
-                    uint size = 0;
-                    PInvoke.GetExtendedTcpTable(default, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0); // get size
-                    var tcpTable = (MIB_TCPTABLE_OWNER_PID*)Marshal.AllocHGlobal((int)size);
-
-                    if ((err = PInvoke.GetExtendedTcpTable(tcpTable, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0)) !=
-                        0)
-                        throw new Win32Exception((int)err);
-
-                    for (var i = 0; i < tcpTable -> dwNumEntries; i++)
+                    var process = new List<Process>();
+                    unsafe
                     {
-                        var row = tcpTable -> table.ReadOnlyItemRef(i);
+                        uint size = 0;
 
-                        if (row.dwOwningPid is 0 or 4)
-                            continue;
+                        var err = PInvoke.GetExtendedTcpTable(default, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0);
+                        // 检查错误（应该返回 ERROR_INSUFFICIENT_BUFFER）
+                        if (err != (uint)WIN32_ERROR.ERROR_INSUFFICIENT_BUFFER)
+                        {
+                            throw new Win32Exception((int)err);
+                        }
 
-                        if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
-                            process.Add(Process.GetProcessById((int)row.dwOwningPid));
+                        byte[] buffer = new byte[size];
+
+                        err = PInvoke.GetExtendedTcpTable(buffer, ref size, false, (uint)inet, TCP_TABLE_CLASS.TCP_TABLE_OWNER_PID_LISTENER, 0);
+                        if (err != 0) throw new Win32Exception((int)err);
+                        unsafe
+                        {
+                            fixed (byte* p = buffer)
+                            {
+                                var tcpTable = (MIB_TCPTABLE_OWNER_PID*)p;
+                                var rowPtr = (MIB_TCPROW_OWNER_PID*)(&tcpTable->table);
+
+                                for (var i = 0; i < tcpTable->dwNumEntries; i++)
+                                {
+                                    var row = rowPtr[i];
+
+                                    if (row.dwOwningPid is 0 or 4)
+                                        continue;
+#pragma warning disable CA1416
+                                    if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                                    {
+                                        try
+                                        {
+                                            process.Add(Process.GetProcessById((int)row.dwOwningPid));
+                                        }
+                                        catch
+                                        {
+                                            // 进程可能已经退出
+                                        }
+                                    }
+#pragma warning restore CA1416
+                                }
+                            }
+                        }
                     }
-                }
 
-                return process;
-            }
+                    return process;
+                }
             case AddressFamily.InterNetworkV6:
                 throw new NotImplementedException();
             default:

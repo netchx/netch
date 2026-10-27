@@ -16,7 +16,7 @@ namespace TCPHandler
 	void Handle(SOCKET client);
 
 	void Read(SOCKET client, SocksHelper::PTCP remote);
-	void Send(SOCKET client, SocksHelper::PTCP remote);
+	void Send(SOCKET client, std::shared_ptr<SocksHelper::TCP> remote);
 }
 
 #endif

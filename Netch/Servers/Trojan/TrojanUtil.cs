@@ -1,11 +1,12 @@
-using System.Text.RegularExpressions;
-using System.Web;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
+using Netch.Services;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
-public class TrojanUtil : IServerUtil
+public class TrojanUtil : ServerUtilBase, IServerUtil
 {
     public ushort Priority { get; } = 3;
 
@@ -31,57 +32,54 @@ public class TrojanUtil : IServerUtil
 
     public string GetShareLink(Server s)
     {
-        var server = (TrojanServer)s;
-        return $"trojan://{HttpUtility.UrlEncode(server.Password)}@{server.Hostname}:{server.Port}?sni={server.Host}#{server.Remark}";
+        var item = (TrojanServer)s;
+        if (item == null)
+        {
+            return null;
+        }
+        var remark = string.Empty;
+        if (item.Remarks.IsNotEmpty())
+        {
+            remark = "#" + Utils.Utils.UrlEncode(item.Remarks);
+        }
+        var dicQuery = new Dictionary<string, string>();
+        if (!item.ProtoExtra.Flow.IsNullOrWhiteSpace())
+        {
+            dicQuery.Add("flow", item.ProtoExtra.Flow);
+        }
+        ToUriQuery(item, null, ref dicQuery);
+
+        return ToUri(EConfigType.Trojan, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
     public IServerController GetController()
     {
-        return new TrojanController();
+        return new V2rayController();
     }
 
-    public IEnumerable<Server> ParseUri(string text)
+    public IEnumerable<Server> ParseUri(string str)
     {
-        var data = new TrojanServer();
+        TrojanServer item = new();
 
-        text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        var url = Utils.Utils.TryUri(str);
+        if (url == null)
         {
-            data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
-            text = text.Split('#')[0];
+            return null;
         }
 
-        if (text.Contains("?"))
+        item.Address = url.IdnHost;
+        item.Port = url.Port;
+        item.Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
+        item.Password = Utils.Utils.UrlDecode(url.UserInfo);
+
+        var query = Utils.Utils.ParseQueryString(url.Query);
+        item.ProtoExtra.Flow = GetQueryValue(query, "flow");
+        ResolveUriQuery(query, ref item);
+        if (item.StreamSecurity.IsNullOrEmpty())
         {
-            var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
-            var regmatch = reg.Match(text);
-
-            if (!regmatch.Success)
-                throw new FormatException();
-
-            var peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("peer"));
-
-            if (peer != null) {
-                data.Host = peer;
-            } else {
-                peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("sni"));
-                if (peer != null)
-                    data.Host = peer;
-            }
-
-            text = regmatch.Groups["data"].Value;
+            item.StreamSecurity = Constants.StreamSecurity;
         }
-
-        var finder = new Regex(@"^trojan://(?<psk>.+?)@(?<server>.+):(?<port>\d+)");
-        var match = finder.Match(text);
-        if (!match.Success)
-            throw new FormatException();
-
-        data.Password = HttpUtility.UrlDecode(match.Groups["psk"].Value);
-        data.Hostname = match.Groups["server"].Value;
-        data.Port = ushort.Parse(match.Groups["port"].Value);
-
-        return new[] { data };
+        return new[] { item };
     }
 
     public bool CheckServer(Server s)

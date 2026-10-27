@@ -1,0 +1,41 @@
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it under certain conditions.
+Copyright (c) 2019 AmazingDM and Contributors
+
+Libraries that have been used in Netch are listed below (Not in order):
+Copyright (c) .NET Foundation and Contributors(@dotnet): .NET (MIT)
+Copyright (c) Microsoft Corporation(@microsoft): CsWin32 (MIT)
+Copyright (c) Microsoft Corporation(@microsoft): Microsoft.VisualStudio.Threading (MIT)
+Copyright (c) .NET Foundation and Contributors(@microsoft): Microsoft.Diagnostics.Tracing.TraceEvent (MIT)
+Copyright (c) 2013 Serilog Contributors(@serilog): Serilog (Apache-2.0)
+Copyright (c) 2020 Bruce Wayne(@HMBSbige): WindowsJobAPI (MIT)
+Copyright (c) 2018 Bruce Wayne(@HMBSbige): Stun.Net (MIT)
+Copyright (c) 2020 Bruce Wayne(@HMBSbige): HMBSbige.SingleInstance (MIT)
+Copyright (c) 2013 MaxMind, Inc.(@maxmind): MaxMind.GeoIP2 (Apache-2.0)
+Copyright (c) 1999 Igor Pavlov: 7-Zip (LGPL-2.1-or-later with unRAR restriction)
+Copyright (c) 2016 Soroush(@falahati): WindowsFirewallHelper (MIT)
+Copyright (c) 2003 David Hall(@dahall): TaskScheduler (MIT)
+Copyright (c) 2021 tom-englert.de(@tom-englert): Nullable.Extended.Analyzer (MIT)
+
+Copyright (c) 2009 The Go Authors(@golang): Go (BSD)
+Copyright (c) Vitaly Sidorov: NetFilterSDK
+Copyright (c) 2018 WireGuard LLC.(@WireGuard): Wintun Network Adapter (GPL-3.0)
+Copyright (c) 2019 xᴊᴀsᴏɴʟʏᴜ(@xjasonlyu): tun2socks (GPL-3.0)
+Copyright (c) 2010 Miek Gieben(@miekg): dns (BSD)
+Copyright (c) 2020 Xie Zhihao(@zhxie): pcap2socks (MIT)
+Copyright (c) MaxMind, Inc.: GeoLite2 Database (GeoLite2 EULA, CC BY-SA 4.0)
+Copyright (c) 2020 Project X Community(@XTLS): Xray-core (MPL-2.0)
+Copyright (c) 2020 Teddysun(@teddysun): v2ray-plugin (MIT)
+Copyright (c) 2021 Teddysun(@teddysun): xray-plugin (MIT)
+Copyright (c) 2017 Y. T. CHUNG(@shadowsocks): shadowsocks-rust (MIT)
+Copyright (c) 2016 Max Lv(@shadowsocks): simple-obfs (GPL-3.0)
+Copyright (c) ???(@shadowsocksrr): shadowscoksr-libev (???)
+Copyright (c) 2018 Andy Wang(@cbeuw): Cloak (GPL-3.0)
+Copyright (c) 2017 The Trojan Authors(@trojan-gfw): trojan (GPL-3.0)
+Copyright (c) 2013 Felix Yan(@felixonmars): dnsmasq-china-list (WTFPL)
+Copyright (c) IPIP.NET(@17mon): china_ip_list (CC-BY-NC-SA 4.0)
+
+Special thanks to:
+GitHub for project hosting and delivery releases
+JetBrains for the Licenses for Open Source Development to access all JetBrains tools
+Fody for weaving .net assemblies save us a lot of time

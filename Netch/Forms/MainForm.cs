@@ -1,9 +1,3 @@
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Netch.Controllers;
@@ -15,6 +9,13 @@ using Netch.Models.Modes;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Versioning;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 
 namespace Netch.Forms;
 
@@ -38,6 +39,8 @@ public partial class MainForm : Form
 
         if (Flags.NoSupport)
             _mainFormText.Add(Name, new[] { "{0} ({1})", "Netch", "No Support" });
+
+        ArgumentException.ThrowIfNullOrEmpty(UninstallServiceToolStripMenuItem.Name);
 
         _mainFormText.Add(UninstallServiceToolStripMenuItem.Name, new[] { "Uninstall {0}", "NF Service" });
 
@@ -129,9 +132,20 @@ public partial class MainForm : Form
                         case ListControl:
                             break;
                         case Control c:
+                            if (string.IsNullOrWhiteSpace(c.Name) || _mainFormText.ContainsKey(c.Name) || string.IsNullOrWhiteSpace(c.Text))
+                            {
+                                //Log.Warning(c.Name + "    " + c.Text + "重复");
+                                break;
+                            }
                             _mainFormText.Add(c.Name, c.Text);
                             break;
                         case ToolStripItem c:
+                            //Log.Verbose(c.Name);
+                            if (string.IsNullOrWhiteSpace(c.Name) || _mainFormText.ContainsKey(c.Name) || string.IsNullOrWhiteSpace(c.Text))
+                            {
+                                //Log.Warning(c.Name + "    " + c.Text + "重复");
+                                break;
+                            }
                             _mainFormText.Add(c.Name, c.Text);
                             break;
                     }
@@ -164,7 +178,7 @@ public partial class MainForm : Form
 
                     break;
                 case ToolStripItem c:
-                    if (_mainFormText.ContainsKey(c.Name))
+                    if (!string.IsNullOrWhiteSpace(c.Name) && _mainFormText.ContainsKey(c.Name))
                         c.Text = ControlText(c.Name);
 
                     break;
@@ -223,10 +237,13 @@ public partial class MainForm : Form
         if (sender == null)
             throw new ArgumentNullException(nameof(sender));
 
-        var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
+        var util = (IServerUtil?)((ToolStripMenuItem)sender).Tag;
+
 
         Hide();
+        ArgumentNullException.ThrowIfNull(util);
         util.Create();
+
 
         LoadServers();
         await Configuration.SaveAsync();
@@ -276,12 +293,42 @@ public partial class MainForm : Form
         Show();
     }
 
-    private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_Click(object sender, EventArgs e)
+    private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_NoProxy_Click(object sender, EventArgs e)
     {
         await UpdateServersFromSubscriptionAsync();
     }
 
-    private async Task UpdateServersFromSubscriptionAsync()
+    [SupportedOSPlatform("windows8.1")]
+    private async void UpdateServersToolStripMenuItem_UseProxy_Click(object sender, EventArgs e)
+    {
+        if (ServerComboBox.SelectedItem is not Server server)
+        {
+            MessageBoxX.Show(i18N.Translate("Please select a server first"));
+            return;
+        }
+        try
+        {
+            await MainController.StartAsync(server);
+        }
+        catch (Exception exception)
+        {
+            await MainController.StopAsync();
+            MessageBoxX.Show(exception.Message, LogLevel.ERROR);
+            return;
+        }
+
+        try
+        {
+            await UpdateServersFromSubscriptionAsync($"127.0.0.1:{Global.Settings.Socks5LocalPort}");
+        }
+        finally
+        {
+            // Never leave the temporary proxy core running.
+            await StopCoreAsync();
+        }
+    }
+
+    private async Task UpdateServersFromSubscriptionAsync(string? serverProxy = null)
     {
         void DisableItems(bool v)
         {
@@ -299,7 +346,7 @@ public partial class MainForm : Form
 
         try
         {
-            await SubscriptionUtil.UpdateServersAsync();
+            await SubscriptionUtil.UpdateServersAsync(serverProxy);
 
             LoadServers();
             await Configuration.SaveAsync();
@@ -343,6 +390,31 @@ public partial class MainForm : Form
             UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
             UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
         }
+    }
+
+    private void V2RayCoreToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/v2fly/v2ray-core");
+    }
+
+    private void XRayCireWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/XTLS/Xray-core");
+    }
+
+    private void TUN2SocksWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/xjasonlyu/tun2socks");
+    }
+
+    private void WinTUNWebSiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://www.wintun.net");
+    }
+
+    private void pcap2socksWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open($"https://github.com/zhxie/pcap2socks");
     }
 
     private void OpenDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
@@ -397,7 +469,7 @@ public partial class MainForm : Form
 
     private void ShowHideConsoleToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND(Program.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+        var windowStyles = (WINDOW_STYLE)PInvoke.GetWindowLong(new HWND((nint)Program.ConsoleHwnd), WINDOW_LONG_PTR_INDEX.GWL_STYLE);
         var visible = windowStyles.HasFlag(WINDOW_STYLE.WS_VISIBLE);
         PInvoke.ShowWindow(Program.ConsoleHwnd, visible ? SHOW_WINDOW_CMD.SW_HIDE : SHOW_WINDOW_CMD.SW_SHOWNOACTIVATE);
     }
@@ -419,9 +491,9 @@ public partial class MainForm : Form
 
     private async void NewVersionLabel_Click(object sender, EventArgs e)
     {
-        if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease!.assets.Any())
+        if (ModifierKeys == Keys.Control || !UpdateChecker.LatestRelease.assets.Any())
         {
-            Utils.Utils.Open(UpdateChecker.LatestVersionUrl!);
+            Utils.Utils.Open(UpdateChecker.LatestVersionUrl);
             return;
         }
 
@@ -441,7 +513,7 @@ public partial class MainForm : Form
             string downloadDirectory = Path.Combine(Global.NetchDir, "data");
 
             var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url!;
+            var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url;
 
             var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
             var updater = new Updater(updateFileFullName, Global.NetchDir);
@@ -515,7 +587,7 @@ public partial class MainForm : Form
     #endregion
 
     #region ControlButton
-
+    [SupportedOSPlatform("windows8.1")]
     private async void ControlButton_Click(object? sender, EventArgs? e)
     {
         if (!IsWaiting())
@@ -555,7 +627,7 @@ public partial class MainForm : Form
 
         State = State.Started;
 
-        Task.Run(Bandwidth.NetTraffic).Forget();
+        Task.Run(Bandwidth.NetTrafficAsync).Forget();
         DiscoveryNatTypeAsync().Forget();
         HttpConnectAsync().Forget();
 
@@ -563,26 +635,44 @@ public partial class MainForm : Form
             Minimize();
 
         // 自动检测延迟
-        async Task StartedPingAsync()
+        async Task StartedPingAsync(CancellationToken token)
         {
-            while (State == State.Started)
+            try
             {
-                if (Global.Settings.StartedPingInterval >= 0)
+                while (State == State.Started && !token.IsCancellationRequested)
                 {
-                    await server.PingAsync();
-                    ServerComboBox.Refresh();
+                    if (Global.Settings.StartedPingInterval >= 0)
+                    {
+                        await server.PingAsync();
+                        ServerComboBox.Invalidate();
 
-                    await Task.Delay(Global.Settings.StartedPingInterval * 1000);
+                        // 0 used to spin in a tight probe loop; keep at least one
+                        // second between probes.
+                        await Task.Delay(Math.Max(1, Global.Settings.StartedPingInterval) * 1000, token);
+                    }
+                    else
+                    {
+                        await Task.Delay(5000, token);
+                    }
                 }
-                else
-                {
-                    await Task.Delay(5000);
-                }
+            }
+            catch (OperationCanceledException)
+            {
+                // stopped or restarted
             }
         }
 
-        StartedPingAsync().Forget();
+        // A quick stop/start must not leave the previous loop running.
+        if (_startedPingCts != null)
+        {
+            await _startedPingCts.CancelAsync();
+            _startedPingCts.Dispose();
+        }
+        _startedPingCts = new CancellationTokenSource();
+        StartedPingAsync(_startedPingCts.Token).Forget();
     }
+
+    private CancellationTokenSource? _startedPingCts;
 
     #endregion
 
@@ -650,7 +740,7 @@ public partial class MainForm : Form
         }
 
         Hide();
-        ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
+        ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).Edit(server);
         LoadServers();
         await Configuration.SaveAsync();
         Show();
@@ -670,7 +760,9 @@ public partial class MainForm : Form
 
         if (!IsWaiting() || ModifierKeys == Keys.Control)
         {
-            (ServerComboBox.SelectedItem as Server)?.PingAsync();
+            if (ServerComboBox.SelectedItem is Server server)
+                await server.PingAsync();
+
             Enable();
         }
         else
@@ -753,7 +845,10 @@ public partial class MainForm : Form
     {
         try
         {
-            Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
+            if (ModeComboBox.SelectedItem as Mode != null)
+            {
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
+            }
         }
         catch
         {
@@ -770,7 +865,8 @@ public partial class MainForm : Form
             return;
         }
 
-        var mode = (Mode)ModeComboBox.SelectedItem;
+        var mode = (Mode?)ModeComboBox.SelectedItem;
+        ArgumentNullException.ThrowIfNull(mode);
         if (ModifierKeys == Keys.Control)
         {
             Utils.Utils.Open(mode.FullName);
@@ -806,7 +902,10 @@ public partial class MainForm : Form
             return;
         }
 
+        ArgumentNullException.ThrowIfNull(ModeComboBox.SelectedItem as Mode);
+
         ModeService.Delete((Mode)ModeComboBox.SelectedItem);
+
         SelectLastMode();
     }
 
@@ -937,7 +1036,7 @@ public partial class MainForm : Form
         {
             ProfileNameText.Text = profile.ProfileName;
 
-            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remark.Equals(profile.ServerRemark));
+            var server = ServerComboBox.Items.Cast<Server>().FirstOrDefault(s => s.Remarks.Equals(profile.ServerRemark));
             var mode = ModeComboBox.Items.Cast<Mode>().FirstOrDefault(m => m.Remark.Any(s => s.Value.Equals(profile.ModeRemark)));
 
             if (server == null)
@@ -1044,8 +1143,12 @@ public partial class MainForm : Form
     private async Task StopCoreAsync()
     {
         State = State.Stopping;
-        _discoveryNatCts?.Cancel();
-        _httpConnectCts?.Cancel();
+        if (_startedPingCts != null)
+            await _startedPingCts.CancelAsync();
+        if (_discoveryNatCts != null)
+            await _discoveryNatCts.CancelAsync();
+        if (_httpConnectCts != null)
+            await _httpConnectCts.CancelAsync();
         await MainController.StopAsync();
         State = State.Stopped;
     }
@@ -1160,12 +1263,15 @@ public partial class MainForm : Form
         NatTypeStatusLabel.Enabled = false;
         UpdateNatTypeStatusLabelText(i18N.Translate("Testing NAT Type"));
 
-        _discoveryNatCts = new CancellationTokenSource();
+        // Keep a local reference: after a quick stop/start, the previous test's
+        // finally block must not dispose or clear the new test's token source.
+        var cts = new CancellationTokenSource();
+        _discoveryNatCts = cts;
 
         try
         {
-            var res = await MainController.DiscoveryNatTypeAsync(_discoveryNatCts.Token);
-            if (_discoveryNatCts.IsCancellationRequested)
+            var res = await MainController.DiscoveryNatTypeAsync(cts.Token);
+            if (cts.IsCancellationRequested)
                 return;
 
             if (!string.IsNullOrEmpty(res.PublicEnd))
@@ -1184,10 +1290,26 @@ public partial class MainForm : Form
                 NatTypeStatusLightLabel.Visible = false;
             }
         }
+        catch (OperationCanceledException) when (cts.IsCancellationRequested)
+        {
+            // stopped
+        }
+        catch (Exception e)
+        {
+            // Never leave the label stuck at "Testing".
+            Log.Warning(e, "NAT type test failed");
+            if (!cts.IsCancellationRequested)
+            {
+                UpdateNatTypeStatusLabelText("Error");
+                NatTypeStatusLightLabel.Visible = false;
+            }
+        }
         finally
         {
-            _discoveryNatCts.Dispose();
-            _discoveryNatCts = null;
+            if (ReferenceEquals(_discoveryNatCts, cts))
+                _discoveryNatCts = null;
+
+            cts.Dispose();
             NatTypeStatusLabel.Enabled = true;
         }
     }
@@ -1198,12 +1320,13 @@ public partial class MainForm : Form
     {
         HttpStatusLabel.Enabled = false;
 
-        _httpConnectCts = new CancellationTokenSource();
+        var cts = new CancellationTokenSource();
+        _httpConnectCts = cts;
 
         try
         {
-            var res = await MainController.HttpConnectAsync(_httpConnectCts.Token);
-            if (_httpConnectCts.IsCancellationRequested)
+            var res = await MainController.HttpConnectAsync(cts.Token);
+            if (cts.IsCancellationRequested)
                 return;
 
             if (res != null)
@@ -1215,8 +1338,10 @@ public partial class MainForm : Form
         }
         finally
         {
-            _httpConnectCts.Dispose();
-            _httpConnectCts = null;
+            if (ReferenceEquals(_httpConnectCts, cts))
+                _httpConnectCts = null;
+
+            cts.Dispose();
             HttpStatusLabel.Enabled = true;
         }
     }
@@ -1330,8 +1455,9 @@ public partial class MainForm : Form
         {
             UpdateChecker.NewVersionFound += OnUpdateCheckerOnNewVersionFound;
             await UpdateChecker.CheckAsync(Global.Settings.CheckBetaUpdate);
+            VersionLabel.Text = UpdateChecker.DisplayVersion;
             if (Flags.AlwaysShowNewVersionFound)
-                OnUpdateCheckerOnNewVersionFound(null!, null!);
+                OnUpdateCheckerOnNewVersionFound(null, null);
         }
         finally
         {
@@ -1341,7 +1467,7 @@ public partial class MainForm : Form
         void OnUpdateCheckerOnNewVersionFound(object? o, EventArgs? eventArgs)
         {
             NotifyTip($"{i18N.Translate(@"New version available", ": ")}{UpdateChecker.LatestVersionNumber}");
-            NewVersionLabel.Text = i18N.Translate("New version available");
+            NewVersionLabel.Text = $"{i18N.Translate("New version available")}: {UpdateChecker.LatestVersionNumber}";
             NewVersionLabel.Enabled = true;
             NewVersionLabel.Visible = true;
         }
@@ -1377,7 +1503,8 @@ public partial class MainForm : Form
 
             //LastUploadBandwidth = upload;
             LastDownloadBandwidth = download;
-            Refresh();
+            // Labels repaint themselves when their text changes; a full,
+            // synchronous Refresh() of the window every second is not needed.
         }
         catch
         {
@@ -1433,46 +1560,49 @@ public partial class MainForm : Form
         if (e.Index < 0)
             return;
 
+
+        var cbxItem = cbx.Items[e.Index];
+        ArgumentNullException.ThrowIfNull(cbxItem);
         // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
+        TextRenderer.DrawText(e.Graphics, cbxItem.ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
 
         switch (cbx.Items[e.Index])
         {
             case Server item:
-            {
-                // 计算延迟底色
-                var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+                {
+                    // 计算延迟底色
+                    var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
 
-                // 绘制延迟底色
-                e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                    // 绘制延迟底色
+                    e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制延迟字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Delay.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
+                    // 绘制延迟字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Delay.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
 
-                break;
-            }
+                    break;
+                }
             case Mode item:
-            {
-                /*
-                // 绘制 模式Box 底色
-                e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                {
+                    /*
+                    // 绘制 模式Box 底色
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制 模式行数 字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Content.Count.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
-                    */
+                    // 绘制 模式行数 字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Content.Count.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
+                        */
 
-                break;
-            }
+                    break;
+                }
         }
     }
 

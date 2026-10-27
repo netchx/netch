@@ -19,6 +19,10 @@ WINDOW_STYLE
 // Kernel32.dll
 AllocConsole
 GetConsoleWindow
+AttachConsole
+FreeConsole
+GenerateConsoleCtrlEvent
+SetConsoleCtrlHandler
 
 // Ws2_32.dll
 ntohs

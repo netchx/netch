@@ -53,6 +53,14 @@ public static class Redirector
         return Task.Run(aio_free);
     }
 
+    /// <summary>
+    ///     Bytes forwarded by the redirector (TCP and UDP, both directions).
+    /// </summary>
+    public static ulong GetTrafficBytes()
+    {
+        return aio_getUP() + aio_getDL();
+    }
+
     private const string Redirector_bin = "Redirector.bin";
 
     [DllImport(Redirector_bin, CallingConvention = CallingConvention.Cdecl)]

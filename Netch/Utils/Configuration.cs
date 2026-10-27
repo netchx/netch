@@ -47,12 +47,45 @@ public static class Configuration
                 return;
 
             Log.Information("Load backup configuration \"{FileName}\"", BackupFileFullName);
-            await LoadCoreAsync(BackupFileFullName);
+            if (await LoadCoreAsync(BackupFileFullName))
+                return;
+
+            var preservedFiles = new[] { FileFullName, BackupFileFullName }
+                .Select(PreserveCorruptFile)
+                .Where(path => path != null)
+                .ToArray();
+            var preservedMessage = preservedFiles.Length == 0
+                ? string.Empty
+                : $"\nPreserved files:\n{string.Join("\n", preservedFiles)}";
+            throw new InvalidDataException($"Both configuration files are invalid.{preservedMessage}");
         }
         catch (Exception e)
         {
             Log.Error(e, "Load configuration failed");
+            MessageBox.Show(
+                $"Netch could not load its configuration. The original files were preserved when possible.\n\n{e.Message}",
+                "Netch configuration error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
             Environment.Exit(-1);
+        }
+    }
+
+    private static string? PreserveCorruptFile(string filename)
+    {
+        if (!File.Exists(filename))
+            return null;
+
+        var preservedName = $"{filename}.corrupt.{DateTime.UtcNow:yyyyMMddHHmmssfff}";
+        try
+        {
+            File.Move(filename, preservedName);
+            return preservedName;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Preserve corrupt configuration file \"{FileName}\" failed", filename);
+            return null;
         }
     }
 
@@ -85,6 +118,16 @@ public static class Configuration
         if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
             for (var i = 0; i < settings.Profiles.Count; i++)
                 settings.Profiles[i].Index = i;
+
+        // The original defaults used TCP DNS for both split-DNS upstreams.
+        // Migrate only those untouched defaults; explicitly customized DNS
+        // transports remain unchanged.
+        var legacyChinaDns = $"tcp://{Constants.DefaultCNPrimaryDNS}:53";
+        var legacyOtherDns = $"tcp://{Constants.DefaultPrimaryDNS}:53";
+        if (string.Equals(settings.AioDNS.ChinaDNS, legacyChinaDns, StringComparison.OrdinalIgnoreCase))
+            settings.AioDNS.ChinaDNS = $"udp://{Constants.DefaultCNPrimaryDNS}:53";
+        if (string.Equals(settings.AioDNS.OtherDNS, legacyOtherDns, StringComparison.OrdinalIgnoreCase))
+            settings.AioDNS.OtherDNS = $"udp://{Constants.DefaultPrimaryDNS}:53";
 
         settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
         settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
