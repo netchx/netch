@@ -48,6 +48,46 @@
 - 进程规则匹配不区分大小写；“包括子进程”沿父进程链最多向上追溯 6 层（用进程创建时间排除 PID 复用）。
 - 内置“游戏合集”规则（`mode\Game`）：EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2 集中在一个模式里，包含常见反作弊（EAC、BattlEye、EA AntiCheat、FACEIT）与子进程，局域网流量直连。
 
+## v2.0.1 更新说明
+
+本版本围绕游戏加速的延迟、稳定性和资源占用做了一轮全面优化，并修复了若干缺陷。
+
+### 网络转发（Redirector）
+
+- **代理 DNS 复用连接**：进程模式下的 DNS 查询共享一个长期存在的 SOCKS5 UDP 关联，按 DNS 事务 ID 多路复用。之前每次查询都要重新握手、创建套接字和两个线程，使用 VLESS/VMess/Trojan 等协议时还会额外建立一次 TLS 连接。连续多次无响应时会自动重建关联。（`Redirector/DNSHandler.cpp`）
+- **转发线程高优先级**：TCP 接入/转发、UDP 接收、DNS 转发线程以 `THREAD_PRIORITY_HIGHEST` 运行，游戏占满 CPU 时转发不再排队。（`Redirector/Utils.cpp`）
+- **UDP 缓冲区 1 MiB**：减少游戏与语音突发流量时的系统丢包。（`Redirector/SocksHelper.cpp`）
+- **TCP 转发缓冲区 16 KiB**：原为 1446 字节，降低大流量时的系统调用次数，小包延迟不变。（`Redirector/TCPHandler.cpp`）
+- **Release 版不再逐连接/逐包输出日志**，ICMP 模拟延迟不再阻塞驱动回调线程。（`Redirector/EventHandler.cpp`、`Redirector/IPEventHandler.cpp`）
+- **进程规则不区分大小写**，与 Windows 路径行为一致。（`Redirector/Redirector.cpp`）
+- **“包括子进程”沿父进程链最多追溯 6 层**：原来只检查直接父进程，启动器 → 引导程序 → 游戏的多层启动会漏掉。使用进程创建时间排除 PID 复用造成的误匹配。（`Redirector/EventHandler.cpp`）
+
+### 进程调度
+
+- 加速期间将 Netch、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch/Utils/ProcessTuning.cs`）
+- 进程模式的流量统计改为读取 Redirector 计数，不再启动系统级内核网络追踪（ETW），降低游戏时的 CPU 占用。（`Netch/Utils/Bandwidth.cs`）
+
+### 游戏规则
+
+- 新增进程模式“游戏合集”：EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2，包含 EasyAntiCheat、BattlEye、EA AntiCheat、FACEIT 等反作弊与子进程，局域网流量直连。（`Storage/mode/Game/Game Collection (EA Steam Rockstar PUBG CS2).json`）
+
+### 缺陷修复与性能
+
+- DNS 解析去掉全局锁，改为并发解析并合并相同查询，系统解析器增加超时。（`Netch/Utils/DnsUtils.cs`）
+- 节点测速取三次探测中的最佳成功结果，不再因最先返回的失败结果误报。（`Netch/Models/Server.cs`）
+- 修复进程模式规则校验的延迟求值问题，规则被清空后又被重新注册。（`Netch/Controllers/NFController.cs`）
+- 修复快速停止/启动时 NAT 与 HTTP 检测互相释放取消令牌的竞争；NAT 检测增加 20 秒总超时，HTTP 检测遵循“请求超时”设置，界面不再停留在“Testing”。（`Netch/Forms/MainForm.cs`、`Netch/Utils/Socks5ServerTestUtils.cs`、`Netch/Controllers/MainController.cs`）
+- 修复单节点测速未等待结果、启动后测速间隔为 0 时的死循环、每秒整窗重绘、通过代理更新订阅失败后代理未停止。（`Netch/Forms/MainForm.cs`）
+- 代理核心启动改为事件驱动，核心提前退出时立即报错，不再等满 50 秒。（`Netch/Controllers/Guard.cs`）
+- GeoIP 数据库只加载一次，`Ping` 对象正确释放；防火墙规则每次运行只检查一次；TUN 模式并行解析、更快检测虚拟网卡。（`Netch/Utils/Utils.cs`、`Netch/Utils/Firewall.cs`、`Netch/Controllers/TUNController.cs`）
+- 两个 GBK 编码的源文件转为 UTF-8；启用可空注解上下文，消除约 670 条 CS8632 警告。
+
+### 构建
+
+- `build.ps1` 出错即停止；本地默认总是重新编译，CI 使用 `-UseCache`；GeoIP 下载失败时回退到本地文件；自动通过 vswhere 定位 MSBuild，普通 PowerShell 也能构建；自动解除子脚本的网络下载标记。
+- CI 更新到当前版本的 Actions，显式安装 .NET SDK，移除未使用的 Rust 步骤，收紧权限。
+- 版本号更新为 2.0.1。
+
 ## 工作模式
 
 | 模式 | 说明 |
