@@ -80,33 +80,64 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
-          7z a -mx9 Netch.7z release
-          7z rn Netch.7z release Netch
+          $name = "Netch-${{ github.ref_name }}-win-x64"
+          Rename-Item -Path release -NewName Netch
+          Compress-Archive -Path Netch -DestinationPath "$name.zip" -CompressionLevel Optimal
+          Copy-Item -Path 'Netch\Netch.exe' -Destination "$name.exe"
+          echo "PACKAGE_NAME=$name" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
-      - name: Checksum
+      - name: Release notes
         shell: pwsh
         run: |
-          $hash=(Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower()
-          echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          # Release body = docs/release-notes/<version>.md (Markdown) + download
+          # instructions + SHA256 table. Tag v2.0.1 reads 2.0.1.md.
+          $name = $Env:PACKAGE_NAME
+          $version = '${{ github.ref_name }}'.TrimStart('v', 'V')
+          $notesFile = Join-Path 'docs\release-notes' "$version.md"
+
+          if (Test-Path $notesFile) {
+            $notes = (Get-Content -Path $notesFile -Raw -Encoding UTF8).TrimEnd()
+          }
+          else {
+            Write-Warning "No release notes at $notesFile; linking the README changelog."
+            $notes = "## 更新内容`n`n详见 [README 更新日志](https://github.com/${{ github.repository }}#更新日志)。"
+          }
+
+          $zipHash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $exeHash = (Get-FileHash "$name.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+
+          $lines = @(
+            $notes
+            ''
+            '## 下载与启动'
+            ''
+            "1. 下载 ``$name.zip``，解压整个压缩包并保持 ``Netch`` 文件夹内的目录结构。"
+            '2. 右键 `Netch.exe`，选择“以管理员身份运行”。'
+            ''
+            "``$name.exe`` 是单文件程序，只用于替换已有安装中的 ``Netch.exe``；首次使用请下载完整压缩包，其中包含代理核心、tun2socks、Wintun、路由组件和模式文件。"
+            ''
+            '## SHA256'
+            ''
+            '| 文件 | SHA256 |'
+            '| --- | --- |'
+            "| ``$name.zip`` | ``$zipHash`` |"
+            "| ``$name.exe`` | ``$exeHash`` |"
+            ''
+            '[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)'
+          )
+
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'release-notes.md'), ($lines -join "`n") + "`n", [System.Text.UTF8Encoding]::new($false))
+          Get-Content release-notes.md -Encoding UTF8
 
       - name: Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: Netch ${{ github.ref_name }}
           prerelease: ${{ contains(github.ref, '-') }}
           draft: false
+          body_path: release-notes.md
           files: |
-            Netch.7z
-          body: |
-            [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
-            ## Changelogs
-            * This is an automated deployment of GitHub Actions, the change log should be updated manually soon
-            
-            ## 更新日志
-            * 这是 GitHub Actions 自动化部署，更新日志应该很快会手动更新
-
-            ## 校验和
-            | 文件名 | SHA256 |
-            | :- | :- |
-            | Netch.7z | ${{ env.NETCH_SHA256 }} |
+            ${{ env.PACKAGE_NAME }}.zip
+            ${{ env.PACKAGE_NAME }}.exe

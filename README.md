@@ -142,6 +142,16 @@ msbuild .\RouteHelper\RouteHelper.vcxproj /p:Configuration=Debug /p:Platform=x64
 
 Debug 版 Redirector 会在控制台输出每个连接和 DNS 包的匹配日志，便于调试进程规则。
 
+### 发布新版本
+
+1. 在 `docs/release-notes/` 下新建 `<版本号>.md`（例如 `2.0.1.md`），用 Markdown 编写本次更新内容。
+2. 推送形如 `v2.0.1` 的标签，Release 工作流会构建程序，并把该文件内容、下载说明与 SHA256 表格一起作为 Release 正文发布。
+
+```powershell
+git tag v2.0.1
+git push origin v2.0.1
+```
+
 ## 目录结构
 
 | 目录 | 内容 |
