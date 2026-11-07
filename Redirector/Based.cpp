@@ -20,5 +20,5 @@ wstring tgtPort = L"1080";
 string tgtUsername = "";
 string tgtPassword = "";
 
-vector<wstring> bypassList;
-vector<wstring> handleList;
+vector<wregex> bypassList;
+vector<wregex> handleList;
