@@ -23,8 +23,8 @@ extern wstring tgtPort;
 extern string tgtUsername;
 extern string tgtPassword;
 
-extern vector<wstring> bypassList;
-extern vector<wstring> handleList;
+extern vector<wregex> bypassList;
+extern vector<wregex> handleList;
 
 extern atomic_ullong UP;
 extern atomic_ullong DL;
@@ -146,24 +146,20 @@ extern "C" {
 		case AIO_BYPNAME:
 			try
 			{
-				std::wregex checker(value);
+				bypassList.emplace_back(value);
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
-
-			bypassList.emplace_back(value);
 			break;
 		case AIO_ADDNAME:
 			try
 			{
-				std::wregex checker(value);
+				handleList.emplace_back(value);
 			}
 			catch (regex_error) {
 				return FALSE;
 			}
-
-			handleList.emplace_back(value);
 			break;
 		default:
 			return FALSE;

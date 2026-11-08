@@ -10,8 +10,8 @@ extern bool filterDNS;
 
 extern bool dnsOnly;
 
-extern vector<wstring> bypassList;
-extern vector<wstring> handleList;
+extern vector<wregex> bypassList;
+extern vector<wregex> handleList;
 
 extern USHORT tcpListen;
 
@@ -76,7 +76,7 @@ bool checkBypassName(DWORD id)
 
 	for (size_t i = 0; i < bypassList.size(); i++)
 	{
-		if (regex_search(name, wregex(bypassList[i])))
+		if (regex_search(name, bypassList[i]))
 		{
 			return true;
 		}
@@ -92,7 +92,7 @@ bool checkHandleName(DWORD id)
 
 		for (size_t i = 0; i < handleList.size(); i++)
 		{
-			if (regex_search(name, wregex(handleList[i])))
+			if (regex_search(name, handleList[i]))
 			{
 				return true;
 			}
@@ -124,7 +124,7 @@ bool checkHandleName(DWORD id)
 
 				for (size_t i = 0; i < handleList.size(); i++)
 				{
-					if (regex_search(name, wregex(handleList[i])))
+					if (regex_search(name, handleList[i]))
 					{
 						CloseHandle(hSnapshot);
 						return true;
