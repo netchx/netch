@@ -62,6 +62,24 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
+/* IPv4-mapped form (::ffff:0:0/96 + network) of an IPv4 network, for dual-stack IPv6 sockets */
+static void AllowIPv4Mapped(const char* address, const char* mask)
+{
+	NF_RULE rule;
+	memset(&rule, 0, sizeof(NF_RULE));
+	rule.ip_family = AF_INET6;
+
+	rule.remoteIpAddress[10] = 0xff;
+	rule.remoteIpAddress[11] = 0xff;
+	inet_pton(AF_INET, address, &rule.remoteIpAddress[12]);
+
+	memset(rule.remoteIpAddressMask, 0xff, 12);
+	inet_pton(AF_INET, mask, &rule.remoteIpAddressMask[12]);
+
+	rule.filteringFlag = NF_ALLOW;
+	nf_addRule(&rule, FALSE);
+}
+
 extern "C" {
 	__declspec(dllexport) BOOL __cdecl aio_register(LPWSTR value)
 	{
@@ -210,6 +228,9 @@ extern "C" {
 			memset(rule.remoteIpAddressMask, 0xff, sizeof(rule.remoteIpAddressMask));
 			rule.filteringFlag = NF_ALLOW;
 			nf_addRule(&rule, FALSE);
+
+			/* ::ffff:127.0.0.0/104 */
+			AllowIPv4Mapped("127.0.0.0", "255.0.0.0");
 		}
 
 		if (!filterIntranet)
@@ -269,6 +290,15 @@ extern "C" {
 			inet_pton(AF_INET, "255.254.0.0", rule.remoteIpAddressMask);
 			rule.filteringFlag = NF_ALLOW;
 			nf_addRule(&rule, FALSE);
+
+			/* The same networks through IPv4-mapped addresses */
+			AllowIPv4Mapped("10.0.0.0", "255.0.0.0");
+			AllowIPv4Mapped("100.64.0.0", "255.192.0.0");
+			AllowIPv4Mapped("169.254.0.0", "255.255.0.0");
+			AllowIPv4Mapped("172.16.0.0", "255.240.0.0");
+			AllowIPv4Mapped("192.0.0.0", "255.255.255.0");
+			AllowIPv4Mapped("192.168.0.0", "255.255.0.0");
+			AllowIPv4Mapped("198.18.0.0", "255.254.0.0");
 		}
 
 		if (filterICMP)
