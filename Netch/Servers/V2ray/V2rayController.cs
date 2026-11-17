@@ -35,7 +35,7 @@ public class V2rayController : Guard, IServerController
         // TUIC, AnyTLS, Naive and MASQUE are sing-box protocols. Keep the
         // existing controller entry point for compatibility with MainController,
         // but delegate these profiles to sing-box and forward StopAsync below.
-        if (s.ConfigType is EConfigType.TUIC or EConfigType.AnyTLS or EConfigType.Naive)
+        if (s.ConfigType is EConfigType.TUIC or EConfigType.AnyTLS or EConfigType.Naive or EConfigType.MASQUE)
         {
             _delegatedController = new SingboxController
             {

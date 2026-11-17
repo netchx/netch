@@ -96,6 +96,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Sample\SampleHttpRequest" />
     <None Remove="NativeMethods.txt" />
     <None Update="NOTICE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

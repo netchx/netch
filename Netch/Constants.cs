@@ -47,20 +47,8 @@ public static class Constants
 
     public const string None = "none";
 
-    public const string NamespaceSample = "ServiceLib.Sample.";
-    public const string V2raySampleClient = NamespaceSample + "SampleClientConfig";
+    public const string NamespaceSample = "Netch.Sample.";
     public const string V2raySampleHttpRequestFileName = NamespaceSample + "SampleHttpRequest";
-    public const string V2raySampleHttpResponseFileName = NamespaceSample + "SampleHttpResponse";
-    public const string V2raySampleInbound = NamespaceSample + "SampleInbound";
-    public const string V2raySampleOutbound = NamespaceSample + "SampleOutbound";
-    public const string CustomRoutingFileName = NamespaceSample + "custom_routing_";
-    public const string DNSV2rayNormalFileName = NamespaceSample + "dns_v2ray_normal";
-    public const string LinuxAutostartConfig = NamespaceSample + "linux_autostart_config";
-    public const string PacFileName = NamespaceSample + "pac";
-    public const string ProxySetOSXShellFileName = NamespaceSample + "proxy_set_osx_sh";
-    public const string ProxySetLinuxShellFileName = NamespaceSample + "proxy_set_linux_sh";
-    public const string KillAsSudoOSXShellFileName = NamespaceSample + "kill_as_sudo_osx_sh";
-    public const string KillAsSudoLinuxShellFileName = NamespaceSample + "kill_as_sudo_linux_sh";
 
 
     public const string LocalAppData = "V2RAYN_LOCAL_APPLICATION_DATA_V2";

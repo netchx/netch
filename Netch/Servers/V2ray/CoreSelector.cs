@@ -15,7 +15,7 @@ public static class CoreSelector
             EConfigType.VLESS => server.StreamSecurity is "tls" or "reality",
             EConfigType.VMess => server.StreamSecurity is "tls" or "reality",
             EConfigType.Trojan => server.StreamSecurity is "tls" or "reality",
-            EConfigType.WireGuard or EConfigType.Hysteria2 or EConfigType.MASQUE => true,
+            EConfigType.WireGuard or EConfigType.Hysteria2 => true,
             EConfigType.Shadowsocks => Constants.SsSecuritiesInXray.Contains(server.ProtoExtra.SsMethod),
             _ => false
         };
