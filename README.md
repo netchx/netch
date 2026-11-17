@@ -10,17 +10,17 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/cbear2024/netch/actions/workflows/build.yml"><img src="https://github.com/cbear2024/netch/actions/workflows/build.yml/badge.svg?branch=main" alt="Build" /></a>
-  <a href="https://github.com/cbear2024/netch/releases"><img src="https://img.shields.io/github/v/release/cbear2024/netch?style=flat-square" alt="Release" /></a>
+  <a href="https://github.com/NetchX/Netch/actions/workflows/build.yml"><img src="https://github.com/NetchX/Netch/actions/workflows/build.yml/badge.svg?branch=main" alt="Build" /></a>
+  <a href="https://github.com/NetchX/Netch/releases"><img src="https://img.shields.io/github/v/release/NetchX/Netch?style=flat-square" alt="Release" /></a>
   <img src="https://img.shields.io/badge/version-2.0.1-brightgreen?style=flat-square" alt="Version 2.0.1" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square" alt="GPLv3" /></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-0078D6?style=flat-square" alt="Windows x64" />
 </p>
 
 > [!IMPORTANT]
-> 这是 Netch 的社区维护分支（当前版本 **2.0.1**），并非 NetchX 官方发行版。程序需要管理员权限来加载网络驱动和修改系统路由。
+> 程序需要管理员权限来加载网络驱动和修改系统路由。
 
-当前维护者：[@cbear2024](https://github.com/cbear2024) · 项目地址：[cbear2024/netch](https://github.com/cbear2024/netch)
+项目地址：[NetchX/Netch](https://github.com/NetchX/Netch)
 
 ## 主要特性
 
@@ -57,12 +57,12 @@
 | VLESS、VMess、Trojan（TLS / REALITY） | Xray-core |
 | VLESS、VMess、Trojan（无 TLS 的旧传输） | SagerNet v2ray-core |
 | Shadowsocks | Xray-core 或 SagerNet v2ray-core（按加密方式选择） |
-| WireGuard、Hysteria2、MASQUE | Xray-core |
-| TUIC、AnyTLS、NaiveProxy | sing-box（需自行放置 `bin\sing-box.exe`） |
+| WireGuard、Hysteria2 | Xray-core |
+| TUIC、AnyTLS、NaiveProxy、MASQUE | sing-box（需自行放置 `bin\sing-box.exe`） |
 
 ## 快速开始
 
-1. 从 [Releases](https://github.com/cbear2024/netch/releases) 下载并解压程序。
+1. 从 [Releases](https://github.com/NetchX/Netch/releases) 下载并解压程序。
 2. 以管理员身份运行 `Netch.exe`。
 3. 导入订阅或手动添加节点。
 4. 选择节点和工作模式，然后点击“启动”。
@@ -116,8 +116,8 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 在普通 PowerShell 或 Developer PowerShell for Visual Studio 中执行：
 
 ```powershell
-git clone https://github.com/cbear2024/netch.git
-cd netch
+git clone https://github.com/NetchX/Netch.git
+cd Netch
 dotnet restore .\Netch\Netch.csproj
 .\build.ps1 -Configuration Release -OutputPath release
 ```
@@ -228,7 +228,6 @@ git push origin v2.0.1
 
 ## 上游与社区
 
-- 上游项目：[NetchX/Netch](https://github.com/NetchX/Netch)
 - 相关分支：[BoyceLig/Netch](https://github.com/BoyceLig/Netch)
 - Telegram：[频道](https://t.me/netch_channel) · [群组](https://t.me/netch_group)
 

@@ -26,7 +26,7 @@ public partial class AboutForm : Form
 
     private void ChannelLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
-        Utils.Utils.Open(UpdateChecker.ProjectUrl);
+        Utils.Utils.Open("https://t.me/Netch");
     }
 
     private void SponsorPictureBox_Click(object sender, EventArgs e)

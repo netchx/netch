@@ -2,13 +2,13 @@
 Prebuilt binaries for Netch version 1
 
 ## aiodns
-https://github.com/cbear2024/netch
+https://github.com/NetchX/Netch
 
 ## Redirector
-https://github.com/cbear2024/netch
+https://github.com/NetchX/Netch
 
 ## RouteHelper
-https://github.com/cbear2024/netch
+https://github.com/NetchX/Netch
 
 ## ck-client
 https://github.com/cbeuw/Cloak

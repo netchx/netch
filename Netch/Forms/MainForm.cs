@@ -513,7 +513,13 @@ public partial class MainForm : Form
             string downloadDirectory = Path.Combine(Global.NetchDir, "data");
 
             var (updateFileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            var updateFileUrl = UpdateChecker.LatestRelease.assets[0].browser_download_url;
+            var asset = UpdateChecker.LatestRelease.assets.FirstOrDefault(a =>
+                            string.Equals(a.name, updateFileName, StringComparison.OrdinalIgnoreCase))
+                        ?? UpdateChecker.LatestRelease.assets.FirstOrDefault(a =>
+                            a.name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ||
+                            a.name.EndsWith(".7z", StringComparison.OrdinalIgnoreCase))
+                        ?? UpdateChecker.LatestRelease.assets[0];
+            var updateFileUrl = asset.browser_download_url;
 
             var updateFileFullName = Path.Combine(downloadDirectory, updateFileName);
             var updater = new Updater(updateFileFullName, Global.NetchDir);
@@ -522,7 +528,7 @@ public partial class MainForm : Form
             if (File.Exists(updateFileFullName))
             {
                 var fileHash = await Utils.Utils.Sha256CheckSumAsync(updateFileFullName);
-                if (fileHash == sha256)
+                if (string.Equals(fileHash, sha256, StringComparison.OrdinalIgnoreCase))
                     downloaded = true;
                 else
                     File.Delete(updateFileFullName);
@@ -541,7 +547,7 @@ public partial class MainForm : Form
                 }
 
                 var fileHash = await Utils.Utils.Sha256CheckSumAsync(updateFileFullName);
-                if (fileHash != sha256)
+                if (!string.Equals(fileHash, sha256, StringComparison.OrdinalIgnoreCase))
                     throw new MessageException(i18N.Translate("The downloaded file has the wrong hash"));
             }
 

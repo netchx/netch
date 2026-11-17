@@ -9,9 +9,9 @@ namespace Netch.Controllers;
 
 public static class UpdateChecker
 {
-    public const string Owner = @"cbear2024";
-    public const string Repo = @"netch";
-    public const string ProjectUrl = @"https://github.com/cbear2024/netch";
+    public const string Owner = @"NetchX";
+    public const string Repo = @"Netch";
+    public const string ProjectUrl = @"https://github.com/NetchX/Netch";
 
     public const string Name = @"Netch";
     public const string Copyright = @"Copyright © 2019 - 2026";
@@ -76,25 +76,48 @@ public static class UpdateChecker
 
     public static (string fileName, string sha256) GetLatestUpdateFileNameAndHash(string? keyword = null)
     {
-        var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline).Skip(2);
-        /*
-          Skip(2)
-          
-          | 文件名 | SHA256 |
-          | :- | :- |
-       */
+        var body = LatestRelease.body ?? string.Empty;
+        var hashSectionIndex = body.IndexOf("## SHA256", StringComparison.OrdinalIgnoreCase);
+        if (hashSectionIndex < 0)
+            hashSectionIndex = body.IndexOf("校验", StringComparison.Ordinal);
 
-        Match match = keyword == null ? matches.First() : matches.First(m => m.Groups["filename"].Value.Contains(keyword));
+        var searchText = hashSectionIndex >= 0 ? body[hashSectionIndex..] : body;
+        var entries = Regex.Matches(searchText, @"^\|\s*(?<filename>[^|\r\n]+?)\s*\|\s*(?<sha256>[^|\r\n]+?)\s*\|\s*\r?$", RegexOptions.Multiline)
+            .Select(m => (
+                fileName: Path.GetFileName(m.Groups["filename"].Value.Trim().Trim('`')),
+                sha256: m.Groups["sha256"].Value.Trim().Trim('`')))
+            .Where(e => !string.IsNullOrEmpty(e.fileName) && Regex.IsMatch(e.sha256, @"^[0-9a-fA-F]{64}$"))
+            .ToList();
 
-        return (match.Groups["filename"].Value, match.Groups["sha256"].Value);
+        if (entries.Count == 0 && hashSectionIndex >= 0)
+        {
+            entries = Regex.Matches(body, @"^\|\s*(?<filename>[^|\r\n]+?)\s*\|\s*(?<sha256>[^|\r\n]+?)\s*\|\s*\r?$", RegexOptions.Multiline)
+                .Select(m => (
+                    fileName: Path.GetFileName(m.Groups["filename"].Value.Trim().Trim('`')),
+                    sha256: m.Groups["sha256"].Value.Trim().Trim('`')))
+                .Where(e => !string.IsNullOrEmpty(e.fileName) && Regex.IsMatch(e.sha256, @"^[0-9a-fA-F]{64}$"))
+                .ToList();
+        }
+
+        if (keyword != null)
+            return entries.First(e => e.fileName.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+        return entries.FirstOrDefault(e =>
+                   e.fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ||
+                   e.fileName.EndsWith(".7z", StringComparison.OrdinalIgnoreCase))
+               is { fileName: not null } archiveEntry
+            ? archiveEntry
+            : entries.First();
     }
 
     public static string GetLatestReleaseContent()
     {
         var sb = new StringBuilder();
-        foreach (string l in LatestRelease.body.GetLines(false).SkipWhile(l => l.FirstOrDefault() != '#'))
+        foreach (string l in (LatestRelease.body ?? string.Empty).GetLines(false).SkipWhile(l => l.FirstOrDefault() != '#'))
         {
-            if (l.Contains("校验和"))
+            if (l.Contains("校验和") ||
+                l.StartsWith("## SHA256", StringComparison.OrdinalIgnoreCase) ||
+                l.StartsWith("## 下载与启动", StringComparison.Ordinal))
                 break;
 
             sb.AppendLine(l);
