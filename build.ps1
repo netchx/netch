@@ -74,6 +74,59 @@ function Resolve-MSBuild {
 	throw 'MSBuild not found. Install Visual Studio 2022 with "Desktop development with C++", or run from Developer PowerShell for VS.'
 }
 
+function Resolve-PlatformToolset {
+	param (
+		[Parameter(Mandatory)]
+		[string]
+		$MSBuildPath
+	)
+
+	$dir = Split-Path $MSBuildPath -Parent
+	for ($i = 0; $i -lt 5 -and $dir; $i++) {
+		$vcRoot = Join-Path $dir 'Microsoft\VC'
+		if (Test-Path $vcRoot) {
+			$toolsets = Get-ChildItem -Path $vcRoot -Directory -Recurse -Filter 'v14*' -ErrorAction SilentlyContinue |
+				Where-Object { $_.FullName -match '\\Platforms\\x64\\PlatformToolsets\\v14\d+$' } |
+				Select-Object -ExpandProperty Name -Unique |
+				Sort-Object -Descending
+			if ($toolsets -contains 'v143') {
+				return $null
+			}
+			if ($toolsets) {
+				return $toolsets | Select-Object -First 1
+			}
+		}
+		$dir = Split-Path $dir -Parent
+	}
+
+	return $null
+}
+
+function Test-OtherCoresCurrent {
+	$expectedHashes = @{
+		'.\Other\release\aiodns.bin'                      = $null
+		'.\Other\release\pcap2socks.exe'                  = 'de84f4a32c8c9d4888197345d52ba793e4bdf510614852e76f336f627e43def3'
+		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'bc5827ca00c7f312125365e8669794fffdbdf1cb0efa948cddd94a0c800c8c31'
+		'.\Other\release\v2ray-sn.exe'                    = '62f1df5d02aa2cfb5d1f15828d3561c415a7687a2efe869ab38e6ce9a0c135d6'
+		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
+		'.\Other\release\xray.exe'                        = 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15'
+	}
+
+	foreach ($entry in $expectedHashes.GetEnumerator()) {
+		if (-Not (Test-Path $entry.Key)) {
+			return $false
+		}
+		if ($entry.Value) {
+			$actual = (Get-FileHash $entry.Key -Algorithm SHA256).Hash.ToLowerInvariant()
+			if ($actual -ne $entry.Value) {
+				return $false
+			}
+		}
+	}
+
+	return $true
+}
+
 function Test-ShouldBuild {
 	param ([string] $Path)
 
@@ -95,7 +148,6 @@ try {
 		Copy-Item -Force '..\Storage\stun.txt' 'bin'
 		Copy-Item -Force '..\Storage\nfdriver.sys' 'bin'
 		Copy-Item -Force '..\Storage\aiodns.conf' 'bin'
-		Copy-Item -Force '..\Storage\tun2socks-windows-amd64-v3.exe' 'bin'
 		Copy-Item -Force '..\Storage\README.md' 'bin'
 
 		# The GeoIP database is only used to show the exit country. A network
@@ -119,9 +171,7 @@ try {
 		Pop-Location
 	}
 
-	$xrayBinary = '.\Other\release\xray.exe'
-	$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
-	if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
+	if (-Not (Test-OtherCoresCurrent)) {
 		# Scripts extracted from a downloaded archive carry the "downloaded from
 		# the internet" mark, which a RemoteSigned execution policy refuses to
 		# run. They are part of this source tree, so clear the mark first.
@@ -145,10 +195,6 @@ try {
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin"
 
-	# Copy the bundled wintun.dll last so the version kept in Storage is not
-	# replaced by the one downloaded by Other\wintun.
-	Copy-Item -Force '.\Storage\wintun.dll' "$OutputPath\bin"
-
 	if ( Test-ShouldBuild ".\Netch\bin\$Configuration" ) {
 		Write-Host
 		Write-Host 'Building Netch'
@@ -170,9 +216,15 @@ try {
 	Copy-Item -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
 
 	$needsNative = (Test-ShouldBuild ".\Redirector\bin\$Configuration") -or (Test-ShouldBuild ".\RouteHelper\bin\$Configuration")
+	$msbuildArgs = @()
 	if ($needsNative) {
 		$msbuild = Resolve-MSBuild
 		Write-Host "Using MSBuild: $msbuild"
+		$toolset = Resolve-PlatformToolset -MSBuildPath $msbuild
+		if ($toolset) {
+			Write-Host "Using detected PlatformToolset override: $toolset"
+			$msbuildArgs += "-property:PlatformToolset=$toolset"
+		}
 	}
 
 	if ( Test-ShouldBuild ".\Redirector\bin\$Configuration" ) {
@@ -184,6 +236,7 @@ try {
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
+				@msbuildArgs `
 				'.\Redirector\Redirector.vcxproj'
 		}
 	}
@@ -199,6 +252,7 @@ try {
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
+				@msbuildArgs `
 				'.\RouteHelper\RouteHelper.vcxproj'
 		}
 	}

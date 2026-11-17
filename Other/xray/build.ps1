@@ -1,4 +1,4 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 $ErrorActionPreference = 'Stop'
 
 $version = 'v26.10.21'
@@ -28,4 +28,8 @@ try {
     }
     finally { $zip.Dispose() }
 }
-finally { Remove-Item $archive -ErrorAction SilentlyContinue }
+finally {
+    Remove-Item $archive -ErrorAction SilentlyContinue
+    Pop-Location
+}
+exit 0
