@@ -5,12 +5,12 @@ on:
 
 jobs:
   close-issues:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       issues: write
       pull-requests: write
     steps:
-      - uses: actions/stale@v9
+      - uses: actions/stale@v11.0.0
         with:
           days-before-issue-stale: 30
           days-before-issue-close: 14
