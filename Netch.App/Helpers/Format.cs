@@ -23,6 +23,8 @@ public static class Format
         _ => type.ToString()
     });
 
+    public static string TileTitle(string icon, string name) => $"{icon} {name}";
+
     public static string NodeName(Server server) => server.Remarks.IsNullOrWhiteSpace() ? $"{server.Address}:{server.Port}" : server.Remarks;
 
     /// <summary>Server delay as shown next to a node: -1 is untested, other negatives and 1000 are failures.</summary>

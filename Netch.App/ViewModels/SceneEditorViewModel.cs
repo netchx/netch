@@ -25,6 +25,7 @@ public sealed partial class SceneEditorViewModel : ObservableObject
         SelectedMode = Modes.FirstOrDefault(m => m.Mode == mode);
         SelectedNode = Nodes.FirstOrDefault(n => n.Server == server);
         PinnedToTray = scene?.PinnedToTray ?? false;
+        Hotkey = scene?.Hotkey ?? string.Empty;
     }
 
     public string Title => i18N.Translate(_scene == null ? "New scene" : "Edit scene");
@@ -56,6 +57,10 @@ public sealed partial class SceneEditorViewModel : ObservableObject
     [ObservableProperty]
     public partial bool PinnedToTray { get; set; }
 
+    /// <summary>Text form such as "Ctrl+Alt+1", or empty for none.</summary>
+    [ObservableProperty]
+    public partial string Hotkey { get; set; }
+
     public bool HasMode => SelectedMode != null;
 
     public bool CanSave => SelectedMode != null && SelectedNode != null;
@@ -72,6 +77,7 @@ public sealed partial class SceneEditorViewModel : ObservableObject
         scene.ModeId = SceneService.GetModeId(SelectedMode!.Mode);
         scene.ServerId = SelectedNode!.Server.Id;
         scene.PinnedToTray = PinnedToTray;
+        scene.Hotkey = Hotkey.Length == 0 ? null : Hotkey;
         return scene;
     }
 }

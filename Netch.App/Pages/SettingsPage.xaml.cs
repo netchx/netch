@@ -19,7 +19,7 @@ public sealed partial class SettingsPage : Page
             return;
 
         Global.Settings.Theme = theme;
-        App.MainWindow?.ApplyTheme(theme);
+        App.ApplyTheme(theme);
         await Configuration.SaveAsync();
     }
 }

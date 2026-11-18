@@ -95,6 +95,21 @@
             </ComboBox.ItemTemplate>
         </ComboBox>
 
-        <ToggleSwitch Header="{h:Tr Text='Pin to the tray flyout'}" IsOn="{x:Bind ViewModel.PinnedToTray, Mode=TwoWay}" />
+        <Grid ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBox
+                Header="{h:Tr Text='Global hotkey'}"
+                IsReadOnly="True"
+                PlaceholderText="{h:Tr Text='Press a key combination'}"
+                PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                Text="{x:Bind ViewModel.Hotkey, Mode=OneWay}" />
+            <ToggleSwitch
+                Grid.Column="1"
+                Header="{h:Tr Text='Pin to the tray flyout'}"
+                IsOn="{x:Bind ViewModel.PinnedToTray, Mode=TwoWay}" />
+        </Grid>
     </StackPanel>
 </ContentDialog>

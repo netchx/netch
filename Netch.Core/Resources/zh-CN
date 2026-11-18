@@ -317,5 +317,15 @@
   "Select a node": "选择节点",
   "No nodes yet. Import nodes on the Nodes page first.": "还没有节点，请先在「节点」页导入。",
   "Open the mode settings": "打开此模式的设置 ›",
-  "Pin to the tray flyout": "固定到托盘浮窗"
+  "Pin to the tray flyout": "固定到托盘浮窗",
+
+  "Connected": "已连接",
+  "Disconnect": "断开连接",
+  "Open Netch": "打开 Netch",
+  "Pin scenes from the menu of a scene card to switch them here.": "在场景卡片的右键菜单中选择「固定到托盘」，即可在这里切换。",
+  "Netch is still running in the notification area.": "Netch 仍在通知区域运行。",
+  "Global hotkey": "全局热键",
+  "Press a key combination": "按下组合键",
+  "Hotkey unavailable": "热键不可用",
+  "Hotkeys in use by another program: {0}": "以下热键已被其他程序占用：{0}"
 }

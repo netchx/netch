@@ -50,6 +50,14 @@ public sealed partial class SceneCard : ObservableObject
 
     public bool IsNormal => !IsActive && !IsUnavailable;
 
+    /// <summary>Second line of the tray tile: latency while running, otherwise the node.</summary>
+    [ObservableProperty]
+    public partial string TileDetail { get; private set; } = string.Empty;
+
+    /// <summary>Visual state of the tray tile: Normal, Active or Unavailable.</summary>
+    [ObservableProperty]
+    public partial string TileState { get; private set; } = "Normal";
+
     public void Refresh()
     {
         var session = Session.Current;
@@ -70,6 +78,11 @@ public sealed partial class SceneCard : ObservableObject
             State.Started => "● " + i18N.Translate("Running"),
             var state => i18N.Translate(state.ToString())
         };
+
+        TileState = IsActive ? "Active" : IsUnavailable ? "Unavailable" : "Normal";
+        TileDetail = IsActive
+            ? session.IsRunning && session.Latency is { } latency ? $"{latency} ms" : Status
+            : IsUnavailable ? Status : server == null ? "—" : Format.NodeName(server);
     }
 }
 

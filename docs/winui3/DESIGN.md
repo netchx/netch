@@ -131,3 +131,9 @@
 - 管理员态下托盘图标、全局热键、拖放的行为（P5 原型实测）。
 - 自包含 Windows App SDK 的包体与冷启动时间。
 - WinUI 3 与现有单实例库（HMBSbige.SingleInstance）的兼容。
+
+实测结果（Windows 10 19044，Windows App SDK 2.7）：
+- 单实例：与 WinForms 版共用 `Global\Netch`，第二个实例把「显示」交给第一个后退出，可用。
+- 管理员态：全局热键可用（热键启停场景已实测）；关闭窗口隐藏到托盘、托盘菜单退出可用。托盘窗口对 `TaskbarCreated` 和托盘回调消息放开了 UIPI。从资源管理器真实点击托盘图标未能自动化实测，需手动确认。拖放待 P6 实测。
+- Windows 10 没有 Mica，主窗口回退为纯色背景；托盘浮窗的 Desktop Acrylic 可用。
+- CommunityToolkit 8.2 的 SettingsCard 在 Windows App SDK 2.7 上可用（它依赖元包，所以项目引用完整的 `Microsoft.WindowsAppSDK`）。

@@ -30,7 +30,6 @@ public sealed partial class MainWindow : Window
     };
 
     private readonly HWND _hwnd;
-    private bool _canClose;
 
     public MainWindow()
     {
@@ -67,15 +66,17 @@ public sealed partial class MainWindow : Window
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
-        if (_canClose)
+        if (App.IsExiting)
             return;
 
         args.Cancel = true;
-        AppWindow.Hide();
-        await App.ShutdownAsync();
-        _canClose = true;
-        Close();
+        if (Global.Settings.ExitWhenClosed)
+            await App.ExitAsync();
+        else
+            App.HideToTray();
     }
+
+    public ElementTheme Theme => RootGrid.RequestedTheme;
 
     public void ApplyTheme(AppTheme theme)
     {

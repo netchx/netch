@@ -169,12 +169,19 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <InfoBar
-                Title="{h:Tr Text='Start failed'}"
-                Closed="ErrorBar_Closed"
-                IsOpen="{x:Bind HasText(Session.ErrorMessage), Mode=OneWay}"
-                Message="{x:Bind Session.ErrorMessage, Mode=OneWay}"
-                Severity="Error" />
+            <StackPanel Spacing="8">
+                <InfoBar
+                    Title="{h:Tr Text='Start failed'}"
+                    Closed="ErrorBar_Closed"
+                    IsOpen="{x:Bind HasText(Session.ErrorMessage), Mode=OneWay}"
+                    Message="{x:Bind Session.ErrorMessage, Mode=OneWay}"
+                    Severity="Error" />
+                <InfoBar
+                    Title="{h:Tr Text='Hotkey unavailable'}"
+                    IsOpen="{x:Bind HasText(Tray.HotkeyConflicts), Mode=OneWay}"
+                    Message="{x:Bind HotkeyConflictText(Tray.HotkeyConflicts), Mode=OneWay}"
+                    Severity="Warning" />
+            </StackPanel>
 
             <Grid
                 Grid.Row="1"

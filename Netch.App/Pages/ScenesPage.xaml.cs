@@ -27,6 +27,8 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     public Session Session => Session.Current;
 
+    public Tray Tray => Tray.Current;
+
     /// <summary>Scene cards followed by the "new scene" tile.</summary>
     public ObservableCollection<object> Cards { get; } = new();
 
@@ -46,8 +48,10 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         Session.PropertyChanged -= Session_PropertyChanged;
     }
 
+    /// <summary>Rebuilds the wall after scenes were added, removed or edited.</summary>
     private void LoadCards()
     {
+        Tray.RegisterHotkeys();
         Cards.Clear();
         foreach (var scene in SceneService.Scenes)
             Cards.Add(new SceneCard(scene));
@@ -127,6 +131,8 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
     public string TotalText(ulong totalBytes) => $"↓ {Format.Bytes(totalBytes)}";
 
     public bool HasText(string? text) => !string.IsNullOrEmpty(text);
+
+    public string HotkeyConflictText(string conflicts) => i18N.TranslateFormat("Hotkeys in use by another program: {0}", conflicts);
 
     private async void PowerButton_Click(object sender, RoutedEventArgs e)
     {
