@@ -78,6 +78,11 @@ public class Setting
     public List<Profile> Profiles { get; set; } = new();
 
     /// <summary>
+    ///     WinUI 场景；为 null 表示尚未从 <see cref="Profiles" /> 迁移，见 SceneService
+    /// </summary>
+    public List<Scene>? Scenes { get; set; }
+
+    /// <summary>
     ///     配置最大列数
     /// </summary>
     public byte ProfileTableColumnCount { get; set; } = 5;

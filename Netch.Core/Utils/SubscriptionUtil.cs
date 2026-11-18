@@ -33,6 +33,7 @@ public static class SubscriptionUtil
 
             lock (ServerLock)
             {
+                InheritIds(Global.Settings.Server.Where(server => server.Group.Equals(item.Remark)).ToList(), servers);
                 Global.Settings.Server.RemoveAll(server => server.Group.Equals(item.Remark));
                 Global.Settings.Server.AddRange(servers);
             }
@@ -43,6 +44,31 @@ public static class SubscriptionUtil
         {
             AppEvents.Notify($"{i18N.TranslateFormat("Update servers failed from {0}", item.Remark)}\n{e.Message}", false);
             Log.Warning(e, "Update servers failed");
+        }
+    }
+
+    /// <summary>
+    ///     Carries node ids over a subscription update so scenes keep their node: first match on
+    ///     protocol, address, port and name, then on protocol, address and port alone.
+    /// </summary>
+    public static void InheritIds(List<Server> previous, IReadOnlyList<Server> updated)
+    {
+        var unmatched = updated.ToList();
+        foreach (var byName in new[] { true, false })
+        {
+            foreach (var server in unmatched.ToList())
+            {
+                var match = previous.FirstOrDefault(old => old.ConfigType == server.ConfigType
+                                                           && old.Port == server.Port
+                                                           && string.Equals(old.Address, server.Address, StringComparison.OrdinalIgnoreCase)
+                                                           && (!byName || old.Remarks == server.Remarks));
+                if (match == null)
+                    continue;
+
+                server.Id = match.Id;
+                previous.Remove(match);
+                unmatched.Remove(server);
+            }
         }
     }
 }

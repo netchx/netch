@@ -34,6 +34,8 @@ public class ShadowsocksR
         var link = ShareLink.GetShareLink(node);
         var subscription = ShareLink.URLSafeBase64Encode(link);
         var imported = ShareLink.ParseText(subscription).Single();
+        // The id is local identity and never part of a share link.
+        imported.Id = node.Id;
 
         Assert.AreEqual(JsonSerializer.Serialize<Server>(node, options), JsonSerializer.Serialize(imported, options));
     }

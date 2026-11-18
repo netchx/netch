@@ -15,6 +15,11 @@ public abstract class Server : ICloneable
     public int Delay { get; private set; } = -1;
 
     /// <summary>
+    ///     稳定标识，场景按它引用节点；订阅更新时由 <see cref="SubscriptionUtil" /> 沿用
+    /// </summary>
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+
+    /// <summary>
     ///     组
     /// </summary>
     public string Group { get; set; } = Constants.DefaultGroup;

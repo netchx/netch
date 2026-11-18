@@ -13,6 +13,12 @@ public static class Bandwidth
     public static ulong received;
     public static TraceEventSession? tSession;
 
+    /// <summary>
+    ///     Bumped by <see cref="Stop" />. A restart passes through Stopped too quickly for the old polling
+    ///     loop to notice the state, so each loop runs until its generation ends instead.
+    /// </summary>
+    private static int _generation;
+
     private static readonly string[] Suffix = { "B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
 
     /// <summary>
@@ -43,6 +49,9 @@ public static class Bandwidth
     /// </summary>
     public static async Task NetTrafficAsync()
     {
+        var generation = Volatile.Read(ref _generation);
+        bool Current() => generation == Volatile.Read(ref _generation);
+
         // Process mode: the redirector already counts every forwarded byte.
         // Avoid a system-wide kernel network trace, which raises an event for
         // every packet on the machine and costs CPU while gaming.
@@ -51,10 +60,10 @@ public static class Bandwidth
             Interlocked.Exchange(ref received, 0UL);
             AppEvents.SetBandwidthAvailable(true);
 
-            while (AppEvents.State != State.Stopped)
+            while (Current())
             {
                 await Task.Delay(1000);
-                if (AppEvents.State == State.Started)
+                if (Current() && AppEvents.State == State.Started)
                     AppEvents.ReportBandwidth(Interops.Redirector.GetTrafficBytes());
             }
 
@@ -128,15 +137,17 @@ public static class Bandwidth
             .Forget();
 
         // Poll without pinning a thread-pool thread for the whole session.
-        while (AppEvents.State != State.Stopped)
+        while (Current())
         {
             await Task.Delay(1000);
-            AppEvents.ReportBandwidth(Interlocked.Read(ref received));
+            if (Current())
+                AppEvents.ReportBandwidth(Interlocked.Read(ref received));
         }
     }
 
     public static void Stop()
     {
+        Interlocked.Increment(ref _generation);
         tSession?.Dispose();
         Interlocked.Exchange(ref received, 0UL);
     }

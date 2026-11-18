@@ -30,6 +30,7 @@ public sealed partial class MainWindow : Window
     };
 
     private readonly HWND _hwnd;
+    private bool _canClose;
 
     public MainWindow()
     {
@@ -51,8 +52,29 @@ public sealed partial class MainWindow : Window
 
         ApplyTheme(Global.Settings.Theme);
         RootGrid.ActualThemeChanged += (_, _) => UpdateCaptionButtons();
+        AppWindow.Closing += AppWindow_Closing;
 
         NavView.SelectedItem = NavView.MenuItems[0];
+    }
+
+    /// <summary>Selects the navigation item with this tag, e.g. "Nodes".</summary>
+    public void Navigate(string tag)
+    {
+        NavView.SelectedItem = NavView.MenuItems.Concat(NavView.FooterMenuItems)
+            .OfType<NavigationViewItem>()
+            .First(item => (string)item.Tag == tag);
+    }
+
+    private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        if (_canClose)
+            return;
+
+        args.Cancel = true;
+        AppWindow.Hide();
+        await App.ShutdownAsync();
+        _canClose = true;
+        Close();
     }
 
     public void ApplyTheme(AppTheme theme)
