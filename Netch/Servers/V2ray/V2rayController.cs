@@ -28,10 +28,6 @@ public class V2rayController : Guard, IServerController
 
     public virtual async Task<SocksServer> StartAsync(Server s)
     {
-        _useXray = CoreSelector.UseXray(s);
-        ChangeMainFile(_useXray ? "xray.exe" : "v2ray-sn.exe");
-        Log.Information("Selected proxy core {Core} for {Protocol}", Name, s.ConfigType);
-
         // TUIC, AnyTLS, Naive and MASQUE are sing-box protocols. Keep the
         // existing controller entry point for compatibility with MainController,
         // but delegate these profiles to sing-box and forward StopAsync below.
@@ -44,6 +40,10 @@ public class V2rayController : Guard, IServerController
             };
             return await _delegatedController.StartAsync(s);
         }
+
+        _useXray = CoreSelector.UseXray(s);
+        ChangeMainFile(_useXray ? "xray.exe" : "v2ray-sn.exe");
+        Log.Information("Selected proxy core {Core} for {Protocol}", Name, s.ConfigType);
 
         await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
         {

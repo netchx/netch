@@ -44,7 +44,7 @@ public sealed class MASQUEUtil : SingboxUtilBase, IServerUtil
         if (userInfo.Length > 1) server.Password = userInfo[1];
         var query = Utils.Utils.ParseQueryString(url.Query);
         ResolveTlsQuery(query, server);
-        server.ProtoExtra.MasquePath = GetQueryDecoded(query, "path", "/");
+        server.ProtoExtra.MasquePath = GetQueryDecoded(query, "path");
         server.ProtoExtra.MasqueHeaders = GetQueryDecoded(query, "headers");
         return [server];
     }

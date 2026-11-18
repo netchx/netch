@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Text.Json;
 using Netch.Controllers;
 using Netch.Interfaces;
@@ -18,6 +17,8 @@ public sealed class SingboxController : Guard, IServerController
     }
 
     public override string Name => "sing-box";
+    protected override IEnumerable<string> StartedKeywords => ["sing-box started"];
+    protected override IEnumerable<string> FailedKeywords => ["FATAL"];
 
     public ushort? Socks5LocalPort { get; set; }
 
@@ -29,27 +30,39 @@ public sealed class SingboxController : Guard, IServerController
             throw new MessageException($"sing-box 不支持节点类型 {server.ConfigType}");
 
         var config = BuildConfig(server);
+        var configPath = Path.Combine(Global.NetchDir, Constants.TempConfig);
         Directory.CreateDirectory(Path.Combine(Global.NetchDir, "data"));
-        await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
+        await using (var fileStream = new FileStream(configPath, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
             await JsonSerializer.SerializeAsync(fileStream, config, Global.NewCustomJsonSerializerOptions());
         }
 
         Log.Information("Starting sing-box for {ConfigType}: {Address}:{Port}", server.ConfigType, server.Address, server.Port);
-        await StartGuardAsync("run -c ..\\data\\last.json");
-
-        await Task.Delay(250);
-        if (Instance.HasExited)
+        try
         {
-            throw new MessageException("sing-box 启动失败，请查看 logging\\sing-box.log");
+            await StartGuardAsync($"run --disable-color -c \"{configPath}\"");
+        }
+        catch (MessageException error)
+        {
+            var hint = server.ConfigType switch
+            {
+                Enums.EConfigType.MASQUE => "。MASQUE 需要支持 masque-client 的 sing-box（1.15.0-alpha.7 或更新版本）",
+                Enums.EConfigType.Naive => "。Windows 上请将官方包内的 libcronet.dll 与 sing-box.exe 放在一起",
+                _ => string.Empty
+            };
+            throw new MessageException($"{error.Message}，请查看 logging\\sing-box.log{hint}");
         }
 
         return new SocksServer(this.LocalAddress ?? Global.Settings.LocalAddress, this.Socks5LocalPort ?? Global.Settings.Socks5LocalPort, server.Address);
     }
 
+    protected override void OnStartFailed() { }
+
     private Dictionary<string, object?> BuildConfig(Server server)
     {
         var proxy = BuildProxy(server);
+        var direct = new Dictionary<string, object?> { ["type"] = "direct", ["tag"] = "direct" };
+        var masque = server.ConfigType == Enums.EConfigType.MASQUE;
         var config = new Dictionary<string, object?>
         {
             ["log"] = new Dictionary<string, object?>
@@ -64,25 +77,19 @@ public sealed class SingboxController : Guard, IServerController
                     ["type"] = "mixed",
                     ["tag"] = "socks-in",
                     ["listen"] = this.LocalAddress ?? Global.Settings.LocalAddress,
-                    ["listen_port"] = this.Socks5LocalPort ?? Global.Settings.Socks5LocalPort,
-                    ["sniff"] = true
+                    ["listen_port"] = this.Socks5LocalPort ?? Global.Settings.Socks5LocalPort
                 }
             },
-            ["outbounds"] = new object[]
-            {
-                server.ConfigType == Enums.EConfigType.MASQUE
-                    ? new Dictionary<string, object?> { ["type"] = "direct", ["tag"] = "direct" }
-                    : proxy,
-                new Dictionary<string, object?> { ["type"] = "direct", ["tag"] = "direct" }
-            },
+            ["outbounds"] = masque ? new[] { direct } : new[] { proxy, direct },
             ["route"] = new Dictionary<string, object?>
             {
                 ["auto_detect_interface"] = true,
+                ["rules"] = new[] { new Dictionary<string, string> { ["inbound"] = "socks-in", ["action"] = "sniff" } },
                 ["final"] = "proxy"
             }
         };
 
-        if (server.ConfigType == Enums.EConfigType.MASQUE)
+        if (masque)
         {
             config["endpoints"] = new[] { proxy };
         }
@@ -105,7 +112,7 @@ public sealed class SingboxController : Guard, IServerController
                 ["server_port"] = server.Port,
                 ["username"] = server.Username,
                 ["password"] = server.Password,
-                ["path"] = extra.MasquePath.IsNullOrEmpty() ? "/" : extra.MasquePath,
+                ["path"] = extra.MasquePath.IsNullOrEmpty() ? null : extra.MasquePath,
                 ["tls"] = tls
             };
             var headers = BuildHeaders(extra.MasqueHeaders);
@@ -159,8 +166,10 @@ public sealed class SingboxController : Guard, IServerController
             ["enabled"] = true,
             ["server_name"] = server.Sni.IsNullOrEmpty() ? server.Address : server.Sni
         };
-        if (server.ConfigType != Enums.EConfigType.Naive)
-            tls["insecure"] = server.AllowInsecure == true;
+        if (server.ConfigType == Enums.EConfigType.Naive)
+            return tls;
+
+        tls["insecure"] = server.AllowInsecure == true;
         var alpn = server.GetAlpn();
         if (alpn is { Count: > 0 }) tls["alpn"] = alpn;
         if (server.Fingerprint.IsNotEmpty())

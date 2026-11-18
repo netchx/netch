@@ -58,7 +58,8 @@
 | VLESS、VMess、Trojan（无 TLS 的旧传输） | SagerNet v2ray-core |
 | Shadowsocks | Xray-core 或 SagerNet v2ray-core（按加密方式选择） |
 | WireGuard、Hysteria2 | Xray-core |
-| TUIC、AnyTLS、NaiveProxy、MASQUE | sing-box（需自行放置 `bin\sing-box.exe`） |
+| TUIC、AnyTLS、NaiveProxy | sing-box，已验证 1.14.4 |
+| MASQUE | 支持 CONNECT-IP 的 sing-box，已验证 1.15.0-alpha.13 |
 
 ## 快速开始
 
@@ -101,7 +102,7 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 
 - **Xray-core**：构建脚本下载固定版本并校验 SHA-256，用于 TLS、REALITY、Vision、XHTTP、WebSocket、WireGuard、Hysteria2 等配置。
 - **SagerNet v2ray-core**（`v2ray-sn.exe`）：用于 Xray 已移除的旧传输和部分 Shadowsocks 加密方式。
-- **sing-box**：用于 TUIC、AnyTLS 和 NaiveProxy。构建脚本不会打包，请将 Windows x64 版 `sing-box.exe` 放到 `bin\` 或 `bin\sing_box\` 目录。
+- **sing-box**：构建脚本不打包。将官方 Windows x64 版放在 `bin` 或 `bin\sing_box`。NaiveProxy 需要同一发行包中的 `libcronet.dll`，请与 `sing-box.exe` 放在同一目录。MASQUE 使用 `masque-client`，需要 1.15.0-alpha.7 或更新版本。其余三种协议可使用 1.14.4 稳定版。
 
 ## 从源码构建
 
@@ -170,7 +171,7 @@ git push origin v2.0.1
 - **TUN 模式网页首屏较慢**：在 AioDNS 设置中优先使用 `udp://DNS:53`；`tcp://` 和 `tls://` 仍可用于需要 TCP DNS 的网络。UDP 返回截断响应时会自动回退到 TCP。
 - **TCP 可用但 UDP 失败**：检查节点、服务端和模式是否支持 UDP，并查看日志中的 SOCKS UDP 或 STUN 错误。
 - **VLESS + WebSocket 无法连接**：依次核对 UUID、路径、Host/SNI、TLS 和服务端反向代理配置。
-- **TUIC / AnyTLS / NaiveProxy 无法启动**：确认 `bin\sing-box.exe` 存在，并查看 `logging\sing-box.log`。
+- **sing-box 无法启动**：确认 `bin\sing-box.exe` 存在，并查看 `logging\sing-box.log`。
 - **NAT 显示 `UnsupportedServer`**：更换支持 RFC 5780 的 STUN 服务器；这通常不是代理节点故障。
 - **构建失败**：确认已安装 Visual Studio 2022 的 C++ x64 工具链与 .NET SDK；提示 `MSBuild not found` 时，在 Visual Studio Installer 中补装“使用 C++ 的桌面开发”。
 

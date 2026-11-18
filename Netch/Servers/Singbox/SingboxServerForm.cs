@@ -44,7 +44,7 @@ public sealed class SingboxServerForm : ServerForm
             case EConfigType.MASQUE:
                 CreateTextBox("Username", "Username", s => true, s => server.Username = s, server.Username);
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
-                CreateTextBox("MasquePath", "Path", s => true, s => server.ProtoExtra.MasquePath = s, server.ProtoExtra.MasquePath ?? "/");
+                CreateTextBox("MasquePath", "Path", s => true, s => server.ProtoExtra.MasquePath = s, server.ProtoExtra.MasquePath ?? string.Empty);
                 CreateTextBox("MasqueHeaders", "Headers", s => true, s => server.ProtoExtra.MasqueHeaders = s, server.ProtoExtra.MasqueHeaders);
                 break;
         }
