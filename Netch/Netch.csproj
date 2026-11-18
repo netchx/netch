@@ -52,13 +52,11 @@
     <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="DnsClient" Version="1.8.0" />
     <PackageReference Include="Fody" Version="6.9.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="HMBSbige.SingleInstance" Version="6.0.1" />
-    <PackageReference Include="MaxMind.GeoIP2" Version="5.4.1" />
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="3.1.29" GeneratePathProperty="true" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.269">
@@ -69,17 +67,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Serilog" Version="4.3.1" />
-    <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageReference Include="Stun.Net" Version="9.0.1" />
-    <PackageReference Include="System.Management" Version="10.0.3" />
-    <PackageReference Include="TaskScheduler" Version="2.12.2" />
-    <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.3" />
-    <PackageReference Include="WindowsJobAPI" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -96,11 +83,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Sample\SampleHttpRequest" />
     <None Remove="NativeMethods.txt" />
     <None Update="NOTICE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Netch.Core\Netch.Core.csproj" />
   </ItemGroup>
 
   <Target Condition="'$(PublishSingleFile)' == 'true'" AfterTargets="_ComputeFilesToBundle" Name="RemoveDupeAssemblies">

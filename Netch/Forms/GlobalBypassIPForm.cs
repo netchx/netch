@@ -15,7 +15,7 @@ public partial class GlobalBypassIPForm : Form
 
     private void GlobalBypassIPForm_Load(object sender, EventArgs e)
     {
-        i18N.TranslateForm(this);
+        WinFormsUtils.TranslateForm(this);
 
         IPListBox.Items.AddRange(Global.Settings.TUNTAP.BypassIPs.Cast<object>().ToArray());
 

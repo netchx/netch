@@ -199,8 +199,8 @@ git push origin v2.0.1
 
 #### 进程调度
 
-- 加速期间将 Netch、mihomo、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch/Utils/ProcessTuning.cs`）
-- 进程模式的流量统计改为读取 Redirector 计数，不再启动系统级内核网络追踪（ETW），降低游戏时的 CPU 占用。（`Netch/Utils/Bandwidth.cs`）
+- 加速期间将 Netch、mihomo、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch.Core/Utils/ProcessTuning.cs`）
+- 进程模式的流量统计改为读取 Redirector 计数，不再启动系统级内核网络追踪（ETW），降低游戏时的 CPU 占用。（`Netch.Core/Utils/Bandwidth.cs`）
 
 #### 游戏规则
 
@@ -208,13 +208,13 @@ git push origin v2.0.1
 
 #### 缺陷修复与性能
 
-- DNS 解析去掉全局锁，改为并发解析并合并相同查询，系统解析器增加超时。（`Netch/Utils/DnsUtils.cs`）
-- 节点测速取三次探测中的最佳成功结果，不再因最先返回的失败结果误报。（`Netch/Models/Server.cs`）
-- 修复进程模式规则校验的延迟求值问题，规则被清空后又被重新注册。（`Netch/Controllers/NFController.cs`）
-- 修复快速停止/启动时 NAT 与 HTTP 检测互相释放取消令牌的竞争；NAT 检测增加 20 秒总超时，HTTP 检测遵循“请求超时”设置，界面不再停留在“Testing”。（`Netch/Forms/MainForm.cs`、`Netch/Utils/Socks5ServerTestUtils.cs`、`Netch/Controllers/MainController.cs`）
+- DNS 解析去掉全局锁，改为并发解析并合并相同查询，系统解析器增加超时。（`Netch.Core/Utils/DnsUtils.cs`）
+- 节点测速取三次探测中的最佳成功结果，不再因最先返回的失败结果误报。（`Netch.Core/Models/Server.cs`）
+- 修复进程模式规则校验的延迟求值问题，规则被清空后又被重新注册。（`Netch.Core/Controllers/NFController.cs`）
+- 修复快速停止/启动时 NAT 与 HTTP 检测互相释放取消令牌的竞争；NAT 检测增加 20 秒总超时，HTTP 检测遵循“请求超时”设置，界面不再停留在“Testing”。（`Netch/Forms/MainForm.cs`、`Netch.Core/Utils/Socks5ServerTestUtils.cs`、`Netch.Core/Controllers/MainController.cs`）
 - 修复单节点测速未等待结果、启动后测速间隔为 0 时的死循环、每秒整窗重绘、通过代理更新订阅失败后代理未停止。（`Netch/Forms/MainForm.cs`）
-- 代理核心启动改为事件驱动，核心提前退出时立即报错，不再等满 50 秒。（`Netch/Controllers/Guard.cs`）
-- GeoIP 数据库只加载一次，`Ping` 对象正确释放；防火墙规则每次运行只检查一次；TUN 模式并行解析、更快检测虚拟网卡。（`Netch/Utils/Utils.cs`、`Netch/Utils/Firewall.cs`、`Netch/Controllers/TUNController.cs`）
+- 代理核心启动改为事件驱动，核心提前退出时立即报错，不再等满 50 秒。（`Netch.Core/Controllers/Guard.cs`）
+- GeoIP 数据库只加载一次，`Ping` 对象正确释放；防火墙规则每次运行只检查一次；TUN 模式并行解析、更快检测虚拟网卡。（`Netch.Core/Utils/Utils.cs`、`Netch.Core/Utils/Firewall.cs`、`Netch.Core/Controllers/TUNController.cs`）
 - 移除已不再使用的 SSH、ShadowsocksR、Socks5（旧版）和 Trojan 控制器实现，相关可迁移节点由当前核心分流。
 - 两个 GBK 编码的源文件转为 UTF-8；启用可空注解上下文，消除约 670 条 CS8632 警告。
 

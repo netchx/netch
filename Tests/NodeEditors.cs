@@ -221,7 +221,7 @@ public class NodeEditors
             return new SingboxServerForm(existing, type);
         if (type == EConfigType.ShadowsocksR)
         {
-            var editor = typeof(ShadowsocksRUtil).GetNestedType("Editor", BindingFlags.NonPublic);
+            var editor = typeof(ServerEditors).GetNestedType("ShadowsocksREditor", BindingFlags.NonPublic);
             return (ServerForm)Activator.CreateInstance(editor, existing ?? new ShadowsocksRServer());
         }
         var name = type switch { EConfigType.SOCKS => "Socks", EConfigType.HTTP => "Http", _ => type.ToString() };

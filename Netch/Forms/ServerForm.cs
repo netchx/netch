@@ -95,7 +95,7 @@ public abstract class ServerForm : Form
         CancelButton = cancel;
         save.Enabled = !Server.IsInGroup();
         _fields.Enabled = save.Enabled;
-        i18N.TranslateForm(this);
+        WinFormsUtils.TranslateForm(this);
 
         _prepared = true;
         _fields.ResumeLayout(true);

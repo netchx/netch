@@ -12,8 +12,8 @@ public partial class SubscriptionForm : Form
         InitializeComponent();
         Icon = Resources.icon;
 
-        i18N.TranslateForm(this);
-        i18N.TranslateForm(pContextMenuStrip);
+        WinFormsUtils.TranslateForm(this);
+        WinFormsUtils.TranslateForm(pContextMenuStrip);
 
         LoadSubscriptionLinks();
     }

@@ -174,8 +174,8 @@ public partial class MainForm : Form
                 }
             }
 
-            Utils.Utils.ComponentIterator(this, RecordText);
-            Utils.Utils.ComponentIterator(NotifyMenu, RecordText);
+            WinFormsUtils.ComponentIterator(this, RecordText);
+            WinFormsUtils.ComponentIterator(NotifyMenu, RecordText);
             _textRecorded = true;
         }
 
@@ -215,8 +215,8 @@ public partial class MainForm : Form
             }
         }
 
-        Utils.Utils.ComponentIterator(this, TranslateText);
-        Utils.Utils.ComponentIterator(NotifyMenu, TranslateText);
+        WinFormsUtils.ComponentIterator(this, TranslateText);
+        WinFormsUtils.ComponentIterator(NotifyMenu, TranslateText);
 
         #endregion
 
@@ -258,7 +258,7 @@ public partial class MainForm : Form
         var util = (IServerUtil?)((ToolStripMenuItem)sender).Tag;
         ArgumentNullException.ThrowIfNull(util);
         var count = Global.Settings.Server.Count;
-        util.Create();
+        ServerEditors.Create(util);
         if (Global.Settings.Server.Count == count) return;
         Global.Settings.ServerComboBoxSelectedIndex = Global.Settings.Server.Count - 1;
         LoadServers();
@@ -765,7 +765,7 @@ public partial class MainForm : Form
             return;
         }
 
-        ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).Edit(server);
+        ServerEditors.Edit(server);
         LoadServers();
         await Configuration.SaveAsync();
     }

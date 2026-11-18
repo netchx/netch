@@ -54,7 +54,7 @@ public partial class RouteForm : BindingForm
                 ControlButton.Enabled = false;
         }
 
-        i18N.TranslateForm(this);
+        WinFormsUtils.TranslateForm(this);
     }
 
     private void ControlButton_Click(object sender, EventArgs e)

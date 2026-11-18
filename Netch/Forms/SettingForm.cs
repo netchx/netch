@@ -11,7 +11,7 @@ public partial class SettingForm : BindingForm
     {
         InitializeComponent();
         Icon = Resources.icon;
-        i18N.TranslateForm(this);
+        WinFormsUtils.TranslateForm(this);
 
         #region General
 
@@ -263,7 +263,7 @@ public partial class SettingForm : BindingForm
 
     private async void ControlButton_Click(object sender, EventArgs e)
     {
-        Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
+        WinFormsUtils.ComponentIterator(this, component => WinFormsUtils.ChangeControlForeColor(component, Color.Black));
 
         #region Check
 

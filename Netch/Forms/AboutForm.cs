@@ -16,7 +16,7 @@ public partial class AboutForm : Form
 
     private void AboutForm_Load(object sender, EventArgs e)
     {
-        i18N.TranslateForm(this);
+        WinFormsUtils.TranslateForm(this);
     }
 
     private void NetchPictureBox_Click(object sender, EventArgs e)
