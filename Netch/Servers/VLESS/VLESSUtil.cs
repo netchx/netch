@@ -22,12 +22,12 @@ public class VLESSUtil : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new VLESSForm((VLESSServer)s).ShowDialog();
+        new VLESSForm((VLESSServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new VLESSForm().ShowDialog();
+        new VLESSForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)

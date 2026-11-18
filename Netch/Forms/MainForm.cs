@@ -52,18 +52,34 @@ public partial class MainForm : Form
 
     private void AddAddServerToolStripMenuItems()
     {
-        foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.OrderBy(i => i.Priority).Where(i => !string.IsNullOrEmpty(i.FullName)))
+        EConfigType[][] groups =
+        [
+            [EConfigType.VLESS, EConfigType.VMess, EConfigType.Trojan, EConfigType.Shadowsocks, EConfigType.ShadowsocksR],
+            [EConfigType.SOCKS, EConfigType.HTTP],
+            [EConfigType.Hysteria2, EConfigType.TUIC, EConfigType.AnyTLS, EConfigType.WireGuard, EConfigType.Naive, EConfigType.MASQUE]
+        ];
+        var remaining = ServerHelper.ServerUtilDictionary.Values.Where(util => !string.IsNullOrEmpty(util.FullName))
+            .ToDictionary(util => util.TypeName);
+        foreach (var group in groups)
         {
-            var fullName = serversUtil.FullName;
+            ServerToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+            foreach (var type in group)
+                if (remaining.Remove(type.ToString(), out var util)) AddItem(util);
+        }
+        foreach (var util in remaining.Values.OrderBy(util => util.Priority).ThenBy(util => util.FullName, StringComparer.Ordinal))
+            AddItem(util);
+
+        void AddItem(IServerUtil util)
+        {
+            var displayName = ServerHelper.GetDisplayName(util);
             var control = new ToolStripMenuItem
             {
-                Name = $"Add{fullName}ServerToolStripMenuItem",
-                Size = new Size(259, 22),
-                Text = i18N.TranslateFormat("Add [{0}] Server", fullName),
-                Tag = serversUtil
+                Name = $"Add{util.TypeName}ServerToolStripMenuItem",
+                Text = i18N.TranslateFormat("Add {0}…", displayName),
+                Tag = util
             };
 
-            _mainFormText.Add(control.Name, new[] { "Add [{0}] Server", fullName });
+            _mainFormText.Add(control.Name, new[] { "Add {0}…", displayName });
             control.Click += AddServerToolStripMenuItem_Click;
             ServerToolStripMenuItem.DropDownItems.Add(control);
         }
@@ -238,16 +254,13 @@ public partial class MainForm : Form
             throw new ArgumentNullException(nameof(sender));
 
         var util = (IServerUtil?)((ToolStripMenuItem)sender).Tag;
-
-
-        Hide();
         ArgumentNullException.ThrowIfNull(util);
+        var count = Global.Settings.Server.Count;
         util.Create();
-
-
+        if (Global.Settings.Server.Count == count) return;
+        Global.Settings.ServerComboBoxSelectedIndex = Global.Settings.Server.Count - 1;
         LoadServers();
         await Configuration.SaveAsync();
-        Show();
     }
 
     #endregion
@@ -392,14 +405,19 @@ public partial class MainForm : Form
         }
     }
 
-    private void V2RayCoreToolStripMenuItem_Click(object sender, EventArgs e)
+    private void MihomoWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        Utils.Utils.Open($"https://github.com/v2fly/v2ray-core");
+        Utils.Utils.Open("https://github.com/MetaCubeX/mihomo");
     }
 
-    private void XRayCireWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    private void SingBoxWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        Utils.Utils.Open($"https://github.com/XTLS/Xray-core");
+        Utils.Utils.Open("https://github.com/SagerNet/sing-box");
+    }
+
+    private void XrayWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Utils.Utils.Open("https://github.com/XTLS/Xray-core");
     }
 
     private void TUN2SocksWebsiteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -745,11 +763,9 @@ public partial class MainForm : Form
             return;
         }
 
-        Hide();
         ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).Edit(server);
         LoadServers();
         await Configuration.SaveAsync();
-        Show();
     }
 
     private async void SpeedPictureBox_Click(object sender, EventArgs e)

@@ -19,12 +19,12 @@ public class HttpUtil : IServerUtil
 
     public void Edit(Server s)
     {
-        new HttpForm((HttpServer)s).ShowDialog();
+        new HttpForm((HttpServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new HttpForm().ShowDialog();
+        new HttpForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)

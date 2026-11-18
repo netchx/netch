@@ -14,8 +14,8 @@ public sealed class TUICUtil : SingboxUtilBase, IServerUtil
     public string[] UriScheme { get; } = ["tuic"];
     public Type ServerType { get; } = typeof(TUICServer);
 
-    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.TUIC).ShowDialog();
-    public void Create() => new SingboxServerForm(null, EConfigType.TUIC).ShowDialog();
+    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.TUIC).ShowEditor();
+    public void Create() => new SingboxServerForm(null, EConfigType.TUIC).ShowEditor();
 
     public string GetShareLink(Server s)
     {

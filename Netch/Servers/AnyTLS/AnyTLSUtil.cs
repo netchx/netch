@@ -14,8 +14,8 @@ public sealed class AnyTLSUtil : SingboxUtilBase, IServerUtil
     public string[] UriScheme { get; } = ["anytls"];
     public Type ServerType { get; } = typeof(AnyTLSServer);
 
-    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.AnyTLS).ShowDialog();
-    public void Create() => new SingboxServerForm(null, EConfigType.AnyTLS).ShowDialog();
+    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.AnyTLS).ShowEditor();
+    public void Create() => new SingboxServerForm(null, EConfigType.AnyTLS).ShowEditor();
 
     public string GetShareLink(Server s)
     {

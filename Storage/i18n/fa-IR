@@ -27,6 +27,8 @@
     "Server": "سرور",
     "Import Servers From Clipboard": "تنظیمات سرور را از کلیپ بورد وارد کنید",
     "Add [{0}] Server": "سرور [{0}] را اضافه کنید",
+    "Add {0}…": "افزودن {0}…",
+    "Cancel": "لغو",
     "Netch is now minimized to the notification bar, double click this icon to restore.": "Netch در نوار اعلان به حداقل رسیده است. برای بازیابی روی این نماد دوبار کلیک کنید.",
     "New version available": "نسخه جدید وجود دارد",
     "Already latest version": "در حال حاضر آخرین نسخه است",

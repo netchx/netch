@@ -21,12 +21,12 @@ public class SocksUtil : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new SocksForm((SocksServer)s).ShowDialog();
+        new SocksForm((SocksServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new SocksForm().ShowDialog();
+        new SocksForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)

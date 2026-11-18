@@ -11,10 +11,77 @@ public class ShadowsocksForm : ServerForm
     {
         server ??= new ShadowsocksServer();
         Server = server;
-        CreateTextBox("Password", "Password", s => !s.IsNullOrWhiteSpace(), s => server.Password = s, server.Password);
-        CreateComboBox("EncryptMethod", "Encrypt Method", Constants.SsSecuritiesInXray, s => server.ProtoExtra.SsMethod = s, server.ProtoExtra.SsMethod);
-        CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
+        var extra = server.ProtoExtra;
+        var password = CreateTextBox("Password", "Password", _ => true, s => server.Password = s, server.Password).Field;
+        var cipher = CreateComboBox("EncryptMethod", "Encrypt Method", Constants.SsSecuritiesInXray,
+            s => extra.SsMethod = s, extra.SsMethod);
+        CheckField(password, value => IsPasswordValid(cipher.Text, value));
+        CreateCheckBox("Uot", "UDP over TCP", s => extra.Uot = s, extra.Uot == true);
+
+        var originalPlugin = extra.SsPlugin ?? "";
+        var originalOptions = extra.SsPluginOptions;
+        void ResetTransport()
+        {
+            server.Network = "tcp";
+            server.HeaderType = "";
+            server.RequestHost = "";
+            server.Path = "";
+            server.StreamSecurity = "none";
+        }
+        var plugin = CreateComboBox("Plugin", "Plugin", ["", "obfs-local", "v2ray-plugin"], s =>
+        {
+            if (s == originalPlugin) return;
+            extra.SsPlugin = s;
+            extra.SsPluginOptions = "";
+            ResetTransport();
+        }, originalPlugin);
+        var options = CreateTextBox("PluginOptions", "Plugin Options", _ => true, s =>
+        {
+            if (plugin.Text == originalPlugin && s.Trim() == (originalOptions ?? "").Trim()) return;
+            extra.SsPluginOptions = s.Trim();
+            ResetTransport();
+        },
+            originalOptions).Field;
+        CheckField(options, value =>
+        {
+            if (plugin.Text == originalPlugin && value == originalOptions) return true;
+            var parts = value.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            return plugin.Text switch
+            {
+                "obfs-local" => parts.All(part => !part.StartsWith("obfs=") || part is "obfs=http" or "obfs=tls"),
+                "v2ray-plugin" => parts.All(part => !part.StartsWith("mode=") || part is "mode=websocket" or "mode=quic"),
+                _ => true
+            };
+        });
+        AddNotice("Plugin options use semicolons. Leave the plugin blank for plain Shadowsocks.");
+        void RefreshPlugin()
+        {
+            ShowField(options, !string.IsNullOrEmpty(plugin.Text));
+            options.PlaceholderText = plugin.Text switch
+            {
+                "obfs-local" => "obfs=http;obfs-host=example.com",
+                "v2ray-plugin" => "mode=websocket;host=example.com;path=/;tls",
+                _ => ""
+            };
+        }
+        plugin.SelectedIndexChanged += (_, _) => UpdateFields(() =>
+        {
+            options.Text = plugin.Text == originalPlugin ? originalOptions ?? "" : "";
+            RefreshPlugin();
+        });
+        RefreshPlugin();
     }
 
     protected override EConfigType TypeName { get; } = EConfigType.Shadowsocks;
+
+    private static bool IsPasswordValid(string cipher, string value)
+    {
+        if (cipher is "none" or "plain") return true;
+        if (!cipher.StartsWith("2022-", StringComparison.OrdinalIgnoreCase)) return !string.IsNullOrWhiteSpace(value);
+        var length = cipher == "2022-blake3-aes-128-gcm" ? 16 : 32;
+        return value.Split(':').All(key => IsKey(key, length));
+    }
+
+    private static bool IsKey(string key, int length) =>
+        Convert.TryFromBase64String(key, stackalloc byte[32], out var count) && count == length;
 }

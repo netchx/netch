@@ -26,9 +26,12 @@ public sealed class SingboxServerForm : ServerForm
         switch (typeName)
         {
             case EConfigType.TUIC:
-                CreateTextBox("Username", "UUID", s => s.Length > 0, s => server.Username = s, server.Username);
+                AddNotice("TUIC v5");
+                CreateTextBox("Username", "UUID", s => Guid.TryParse(s, out var id) && id != Guid.Empty,
+                    s => server.Username = Guid.Parse(s).ToString(), server.Username);
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
-                CreateTextBox("CongestionControl", "Congestion", s => true, s => server.ProtoExtra.CongestionControl = s, server.ProtoExtra.CongestionControl ?? "bbr");
+                CreateComboBox("CongestionControl", "Congestion", ["bbr", "cubic", "new_reno"],
+                    s => server.ProtoExtra.CongestionControl = s, server.ProtoExtra.CongestionControl);
                 break;
             case EConfigType.AnyTLS:
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
@@ -37,15 +40,17 @@ public sealed class SingboxServerForm : ServerForm
                 CreateTextBox("Username", "Username", s => s.Length > 0, s => server.Username = s, server.Username);
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
                 CreateCheckBox("NaiveQuic", "QUIC", s => server.ProtoExtra.NaiveQuic = s, server.ProtoExtra.NaiveQuic == true);
-                CreateTextBox("InsecureConcurrency", "Concurrency", s => string.IsNullOrEmpty(s) || int.TryParse(s, out var n) && n > 0,
+                CreateTextBox("InsecureConcurrency", "Tunnel Connections", s => string.IsNullOrWhiteSpace(s) || int.TryParse(s, out var n) && n >= 0,
                     s => server.ProtoExtra.InsecureConcurrency = int.TryParse(s, out var n) ? n : null,
                     server.ProtoExtra.InsecureConcurrency?.ToString() ?? string.Empty);
                 break;
             case EConfigType.MASQUE:
-                CreateTextBox("Username", "Username", s => true, s => server.Username = s, server.Username);
-                CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
-                CreateTextBox("MasquePath", "Path", s => true, s => server.ProtoExtra.MasquePath = s, server.ProtoExtra.MasquePath ?? string.Empty);
-                CreateTextBox("MasqueHeaders", "Headers", s => true, s => server.ProtoExtra.MasqueHeaders = s, server.ProtoExtra.MasqueHeaders);
+                AddNotice("MASQUE requires sing-box with CONNECT-IP support. The bundled 1.14.4 core does not support it.");
+                CreateTextBox("Username", "Username", _ => true, s => server.Username = s, server.Username);
+                CreateTextBox("Password", "Password", _ => true, s => server.Password = s, server.Password);
+                CreateTextBox("MasquePath", "URI Template", s => string.IsNullOrWhiteSpace(s) || s.Trim().StartsWith('/'),
+                    s => server.ProtoExtra.MasquePath = s.Trim(), server.ProtoExtra.MasquePath);
+                CreateHeaders("MasqueHeaders", s => server.ProtoExtra.MasqueHeaders = s, server.ProtoExtra.MasqueHeaders);
                 break;
         }
     }

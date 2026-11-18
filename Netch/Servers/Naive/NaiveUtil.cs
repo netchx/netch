@@ -14,8 +14,8 @@ public sealed class NaiveUtil : SingboxUtilBase, IServerUtil
     public string[] UriScheme { get; } = ["naive", "naive+https", "naive+quic"];
     public Type ServerType { get; } = typeof(NaiveServer);
 
-    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.Naive).ShowDialog();
-    public void Create() => new SingboxServerForm(null, EConfigType.Naive).ShowDialog();
+    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.Naive).ShowEditor();
+    public void Create() => new SingboxServerForm(null, EConfigType.Naive).ShowEditor();
 
     public string GetShareLink(Server s)
     {

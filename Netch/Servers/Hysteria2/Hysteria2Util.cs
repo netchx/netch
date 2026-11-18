@@ -22,12 +22,12 @@ public class Hysteria2Util : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new Hysteria2Form((Hysteria2Server)s).ShowDialog();
+        new Hysteria2Form((Hysteria2Server)s).ShowEditor();
     }
 
     public void Create()
     {
-        new Hysteria2Form().ShowDialog();
+        new Hysteria2Form().ShowEditor();
     }
 
     //hysteria2://letmein@example.com:123,5000-6000/?insecure=1&obfs=salamander&obfs-password=gawrgura&pinSHA256=deadbeef&sni=real.example.com

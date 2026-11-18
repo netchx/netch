@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Sockets;
 using Netch.Enums;
 using Netch.Manager;
 using System.Text.Json;
@@ -353,7 +354,13 @@ public sealed class SingboxController : Guard, IServerController
         {
             ["type"] = "wireguard",
             ["tag"] = "proxy",
-            ["address"] = addresses.Select(address => address.Trim()).ToArray(),
+            ["address"] = addresses.Select(address =>
+            {
+                var value = address.Trim();
+                return IPAddress.TryParse(value, out var ip)
+                    ? $"{ip}/{(ip.AddressFamily == AddressFamily.InterNetwork ? 32 : 128)}"
+                    : value;
+            }).ToArray(),
             ["private_key"] = server.Password,
             ["mtu"] = extra.WgMtu is > 0 ? extra.WgMtu : 1280,
             ["peers"] = new[] { peer }
@@ -456,10 +463,11 @@ public sealed class SingboxController : Guard, IServerController
         var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         if (value.IsNullOrWhiteSpace()) return result;
 
-        foreach (var line in value.Split(['\r', '\n', ';', '|'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        char[] separators = value.Contains('\r') || value.Contains('\n') ? ['\r', '\n'] : [';', '|'];
+        foreach (var line in value.Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             var separator = line.IndexOf(':');
-            if (separator <= 0 || separator == line.Length - 1) continue;
+            if (separator <= 0) continue;
             var name = line[..separator].Trim();
             var headerValue = line[(separator + 1)..].Trim();
             if (!result.TryGetValue(name, out var values))

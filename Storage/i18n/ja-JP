@@ -27,6 +27,8 @@
     "Server": "サーバー",
     "Import Servers From Clipboard": "クリップボードからサーバー設定をインポートする",
     "Add [{0}] Server": "[{0}] サーバーを追加",
+    "Add {0}…": "{0} を追加…",
+    "Cancel": "キャンセル",
     "Netch is now minimized to the notification bar, double click this icon to restore.": "Netchが通知バーに最小化されました。このアイコンをダブルクリックして復元します。",
     "New version available": "新しいバージョンがあります",
     "Already latest version": "すでに最新バージョンです",

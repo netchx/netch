@@ -18,7 +18,7 @@ public sealed class ShadowsocksRUtil : IServerUtil
     public Type ServerType => typeof(ShadowsocksRServer);
 
     public void Create() => Edit(new ShadowsocksRServer());
-    public void Edit(Server server) => new Editor((ShadowsocksRServer)server).ShowDialog();
+    public void Edit(Server server) => new Editor((ShadowsocksRServer)server).ShowEditor();
 
     public string GetShareLink(Server s)
     {
@@ -72,10 +72,15 @@ public sealed class ShadowsocksRUtil : IServerUtil
         {
             Server = server;
             CreateTextBox("Password", "Password", s => s.IsNotEmpty(), s => server.Password = s, server.Password);
-            CreateTextBox("EncryptMethod", "Encryption", s => s.IsNotEmpty(), s => server.EncryptMethod = s, server.EncryptMethod);
-            CreateTextBox("Protocol", "Protocol", s => s.IsNotEmpty(), s => server.Protocol = s, server.Protocol);
+            CreateComboBox("EncryptMethod", "Encryption",
+                ["none", "rc4-md5", "aes-128-ctr", "aes-192-ctr", "aes-256-ctr", "aes-128-cfb", "aes-192-cfb",
+                    "aes-256-cfb", "chacha20", "chacha20-ietf", "xchacha20"], s => server.EncryptMethod = s, server.EncryptMethod);
+            CreateComboBox("Protocol", "Protocol",
+                ["origin", "auth_sha1_v4", "auth_aes128_md5", "auth_aes128_sha1", "auth_chain_a", "auth_chain_b"],
+                s => server.Protocol = s, server.Protocol);
             CreateTextBox("ProtocolParam", "Protocol Param", _ => true, s => server.ProtocolParam = s, server.ProtocolParam ?? "");
-            CreateTextBox("OBFS", "Obfs", s => s.IsNotEmpty(), s => server.OBFS = s, server.OBFS);
+            CreateComboBox("OBFS", "Obfs", ["plain", "http_simple", "http_post", "tls1.2_ticket_auth", "tls1.2_ticket_fastauth", "random_head"],
+                s => server.OBFS = s, server.OBFS);
             CreateTextBox("OBFSParam", "Obfs Param", _ => true, s => server.OBFSParam = s, server.OBFSParam ?? "");
         }
     }

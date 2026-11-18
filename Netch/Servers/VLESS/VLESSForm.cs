@@ -8,19 +8,19 @@ internal class VLESSForm : ServerForm
 {
     public VLESSForm(VLESSServer? server = default)
     {
-        server ??= new VLESSServer();
+        server ??= new VLESSServer { MuxEnabled = false };
         Server = server;
 
-        CreateTextBox("UUID", "UUID", s => true, s => server.Password = s, server.Password);
-        CreateComboBox("Flow", "Flow", Constants.Flow, s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
-        CreateComboBox("EncryptMethod", "Encrypt Method", Constants.VmessSecurities, s => server.ProtoExtra.VmessSecurity = s, server.ProtoExtra.VmessSecurity);
-        CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, server.MuxEnabled ?? false);
-
-        //底层传输方式
-        CreateComboBox("Network", "Network", Constants.Networks.Where(network => network != "kcp" || server.Network == "kcp").ToList(), s => server.Network = s, server.Network);
-        CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
-        CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);
-        CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);        
+        CreateTextBox("UUID", "UUID", s => !string.IsNullOrWhiteSpace(s), s => server.Password = s.Trim(), server.Password);
+        var flow = CreateComboBox("Flow", "Flow", ["", "xtls-rprx-vision"], s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
+        CreateTextBox("Encryption", "Encryption", s => s == server.ProtoExtra.VlessEncryption ||
+            string.IsNullOrWhiteSpace(s) || s.Trim() == "none" ||
+            s.Trim().Split('.') is [ "mlkem768x25519plus", _, _, _, .. ],
+            s => server.ProtoExtra.VlessEncryption = string.IsNullOrWhiteSpace(s) ? "none" : s.Trim(),
+            string.IsNullOrEmpty(server.ProtoExtra.VlessEncryption) ? "none" : server.ProtoExtra.VlessEncryption);
+        if (server.MuxEnabled ?? Global.Settings.V2RayConfig.CoreBasicItem.MuxEnabled)
+            CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, true);
+        AddTransport(flow);
     }
 
     protected override EConfigType TypeName { get; } = EConfigType.VLESS;

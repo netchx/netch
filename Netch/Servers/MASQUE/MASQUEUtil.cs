@@ -14,8 +14,8 @@ public sealed class MASQUEUtil : SingboxUtilBase, IServerUtil
     public string[] UriScheme { get; } = ["masque"];
     public Type ServerType { get; } = typeof(MASQUEServer);
 
-    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.MASQUE).ShowDialog();
-    public void Create() => new SingboxServerForm(null, EConfigType.MASQUE).ShowDialog();
+    public void Edit(Server s) => new SingboxServerForm(s, EConfigType.MASQUE).ShowEditor();
+    public void Create() => new SingboxServerForm(null, EConfigType.MASQUE).ShowEditor();
 
     public string GetShareLink(Server s)
     {
@@ -47,5 +47,5 @@ public sealed class MASQUEUtil : SingboxUtilBase, IServerUtil
         return [server];
     }
 
-    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && s.Port > 0 && s.Password.IsNotEmpty();
+    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && s.Port > 0;
 }

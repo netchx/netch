@@ -22,12 +22,12 @@ public class VMessUtil : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new VMessForm((VMessServer)s).ShowDialog();
+        new VMessForm((VMessServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new VMessForm().ShowDialog();
+        new VMessForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)

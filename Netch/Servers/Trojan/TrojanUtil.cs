@@ -22,12 +22,12 @@ public class TrojanUtil : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new TrojanForm((TrojanServer)s).ShowDialog();
+        new TrojanForm((TrojanServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new TrojanForm().ShowDialog();
+        new TrojanForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)

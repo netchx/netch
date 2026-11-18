@@ -209,6 +209,7 @@ internal static class MihomoConfig
         var network = server.Network?.Trim().ToLowerInvariant();
         var plugin = extra.SsPlugin;
         var options = extra.SsPluginOptions?.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+        var pluginHost = server.RequestHost.IsNullOrEmpty() ? server.Address : server.RequestHost;
         string? Option(string key) => options.LastOrDefault(option => option.StartsWith(key + "=", StringComparison.Ordinal))?[(key.Length + 1)..];
         if (plugin.IsNullOrEmpty())
         {
@@ -225,7 +226,7 @@ internal static class MihomoConfig
                 break;
             case "obfs-local" or "simple-obfs":
                 proxy["plugin"] = "obfs";
-                proxy["plugin-opts"] = new { mode = Option("obfs") ?? "http", host = Option("obfs-host") ?? server.RequestHost ?? server.Address };
+                proxy["plugin-opts"] = new { mode = Option("obfs") ?? "http", host = Option("obfs-host") ?? pluginHost };
                 break;
             case "v2ray-plugin" when Option("mode") is null or "websocket":
                 if (Option("certRaw") != null)
@@ -234,8 +235,8 @@ internal static class MihomoConfig
                 proxy["plugin-opts"] = new Dictionary<string, object?>
                 {
                     ["mode"] = "websocket",
-                    ["host"] = Option("host") ?? server.RequestHost ?? server.Address,
-                    ["path"] = server.Path.IsNotEmpty() ? server.Path : Option("path") ?? "/",
+                    ["host"] = Option("host") ?? pluginHost,
+                    ["path"] = server.Path.IsNotEmpty() ? server.Path : ShadowsocksUtil.DecodePluginPath(Option("path") ?? "/"),
                     ["tls"] = options.Contains("tls") || server.StreamSecurity == "tls",
                     ["skip-cert-verify"] = server.AllowInsecure ?? Global.Settings.V2RayConfig.CoreBasicItem.DefAllowInsecure,
                     ["mux"] = int.TryParse(Option("mux"), out var mux) && mux > 0

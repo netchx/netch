@@ -8,22 +8,17 @@ public class VMessForm : ServerForm
 {
     public VMessForm(VMessServer? server = default)
     {
-        server ??= new VMessServer();
+        server ??= new VMessServer { MuxEnabled = false };
         Server = server;
 
-        CreateTextBox("UserId", "User ID", s => true, s => server.Password = s, server.Password);
-        CreateTextBox("AlterId", "Alter ID", s => int.TryParse(s, out _), s => server.ProtoExtra.AlterId = int.Parse(s), server.ProtoExtra.AlterId.ToString(), 76);
-        CreateTextBox("Encryption", "Encryption", s=>true, s => server.ProtoExtra.VlessEncryption = s, server.ProtoExtra.VlessEncryption);
-        CreateComboBox("UseMux",
-            "Use Mux",
-            Constants.AllowInsecure,
-            s => server.MuxEnabled = s switch { "" => null, "true" => true, "false" => false, _ => null },
-            server.MuxEnabled?.ToString().ToLower() ?? "");
-
-        CreateComboBox("Network", "Network", Constants.Networks.Where(network => network != "kcp" || server.Network == "kcp").ToList(), s => server.Network = s, server.Network);
-        CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
-        CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);
-        CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);
+        CreateTextBox("UserId", "UUID", s => !string.IsNullOrWhiteSpace(s), s => server.Password = s.Trim(), server.Password);
+        CreateTextBox("AlterId", "Alter ID", s => ushort.TryParse(s, out _),
+            s => server.ProtoExtra.AlterId = ushort.Parse(s), (server.ProtoExtra.AlterId ?? 0).ToString());
+        CreateComboBox("Encryption", "Encryption", Constants.VmessSecurities, s => server.ProtoExtra.VmessSecurity = s,
+            server.ProtoExtra.VmessSecurity);
+        if (server.MuxEnabled ?? Global.Settings.V2RayConfig.CoreBasicItem.MuxEnabled)
+            CreateCheckBox("UseMux", "Use Mux", s => server.MuxEnabled = s, true);
+        AddTransport();
     }
 
     protected override EConfigType TypeName { get; } = EConfigType.VMess;

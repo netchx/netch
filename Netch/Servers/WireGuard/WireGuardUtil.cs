@@ -22,12 +22,12 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
 
     public void Edit(Server s)
     {
-        new WireGuardForm((WireGuardServer)s).ShowDialog();
+        new WireGuardForm((WireGuardServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new WireGuardForm().ShowDialog();
+        new WireGuardForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)
@@ -52,6 +52,10 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
         if (!item.ProtoExtra.WgReserved.IsNullOrEmpty())
         {
             dicQuery.Add("reserved", Utils.Utils.UrlEncode(item.ProtoExtra.WgReserved));
+        }
+        if (!item.ProtoExtra.WgPresharedKey.IsNullOrEmpty())
+        {
+            dicQuery.Add("presharedkey", Utils.Utils.UrlEncode(item.ProtoExtra.WgPresharedKey));
         }
         if (!item.ProtoExtra.WgInterfaceAddress.IsNullOrEmpty())
         {
@@ -79,6 +83,7 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
         var query = Utils.Utils.ParseQueryString(url.Query);
 
         item.ProtoExtra.WgPublicKey = GetQueryDecoded(query, "publickey");
+        item.ProtoExtra.WgPresharedKey = GetQueryDecoded(query, "presharedkey");
         item.ProtoExtra.WgReserved = GetQueryDecoded(query, "reserved");
         item.ProtoExtra.WgInterfaceAddress = GetQueryDecoded(query, "address");
         item.ProtoExtra.WgMtu = int.TryParse(GetQueryDecoded(query, "mtu"), out var mtuVal) ? mtuVal : 1280;

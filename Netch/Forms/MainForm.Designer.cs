@@ -49,8 +49,9 @@
             RemoveNetchFirewallRulesToolStripMenuItem = new ToolStripMenuItem();
             HelpToolStripMenuItem = new ToolStripMenuItem();
             CheckForUpdateToolStripMenuItem = new ToolStripMenuItem();
-            V2RayCoreToolStripMenuItem = new ToolStripMenuItem();
-            XRayCireWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            MihomoWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            SingBoxWebsiteToolStripMenuItem = new ToolStripMenuItem();
+            XrayWebsiteToolStripMenuItem = new ToolStripMenuItem();
             TUN2SocksWebsiteToolStripMenuItem = new ToolStripMenuItem();
             WinTUNWebSiteToolStripMenuItem = new ToolStripMenuItem();
             pcap2socksWebsiteToolStripMenuItem = new ToolStripMenuItem();
@@ -246,7 +247,7 @@
             // 
             // HelpToolStripMenuItem
             // 
-            HelpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CheckForUpdateToolStripMenuItem, V2RayCoreToolStripMenuItem, XRayCireWebsiteToolStripMenuItem, TUN2SocksWebsiteToolStripMenuItem, WinTUNWebSiteToolStripMenuItem, pcap2socksWebsiteToolStripMenuItem, FAQToolStripMenuItem });
+            HelpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CheckForUpdateToolStripMenuItem, MihomoWebsiteToolStripMenuItem, SingBoxWebsiteToolStripMenuItem, XrayWebsiteToolStripMenuItem, TUN2SocksWebsiteToolStripMenuItem, WinTUNWebSiteToolStripMenuItem, pcap2socksWebsiteToolStripMenuItem, FAQToolStripMenuItem });
             HelpToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
             HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             HelpToolStripMenuItem.Size = new Size(47, 21);
@@ -259,19 +260,26 @@
             CheckForUpdateToolStripMenuItem.Text = "Check for update";
             CheckForUpdateToolStripMenuItem.Click += CheckForUpdatesToolStripMenuItem_Click;
             // 
-            // V2RayCoreToolStripMenuItem
+            // MihomoWebsiteToolStripMenuItem
             // 
-            V2RayCoreToolStripMenuItem.Name = "V2RayCoreToolStripMenuItem";
-            V2RayCoreToolStripMenuItem.Size = new Size(196, 22);
-            V2RayCoreToolStripMenuItem.Text = "V2Ray Core Website";
-            V2RayCoreToolStripMenuItem.Click += V2RayCoreToolStripMenuItem_Click;
+            MihomoWebsiteToolStripMenuItem.Name = "MihomoWebsiteToolStripMenuItem";
+            MihomoWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            MihomoWebsiteToolStripMenuItem.Text = "Mihomo Website";
+            MihomoWebsiteToolStripMenuItem.Click += MihomoWebsiteToolStripMenuItem_Click;
             // 
-            // XRayCireWebsiteToolStripMenuItem
+            // SingBoxWebsiteToolStripMenuItem
             // 
-            XRayCireWebsiteToolStripMenuItem.Name = "XRayCireWebsiteToolStripMenuItem";
-            XRayCireWebsiteToolStripMenuItem.Size = new Size(196, 22);
-            XRayCireWebsiteToolStripMenuItem.Text = "XRay Core Website";
-            XRayCireWebsiteToolStripMenuItem.Click += XRayCireWebsiteToolStripMenuItem_Click;
+            SingBoxWebsiteToolStripMenuItem.Name = "SingBoxWebsiteToolStripMenuItem";
+            SingBoxWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            SingBoxWebsiteToolStripMenuItem.Text = "sing-box Website";
+            SingBoxWebsiteToolStripMenuItem.Click += SingBoxWebsiteToolStripMenuItem_Click;
+            //
+            // XrayWebsiteToolStripMenuItem
+            //
+            XrayWebsiteToolStripMenuItem.Name = "XrayWebsiteToolStripMenuItem";
+            XrayWebsiteToolStripMenuItem.Size = new Size(196, 22);
+            XrayWebsiteToolStripMenuItem.Text = "Xray-core Website";
+            XrayWebsiteToolStripMenuItem.Click += XrayWebsiteToolStripMenuItem_Click;
             // 
             // TUN2SocksWebsiteToolStripMenuItem
             // 
@@ -838,8 +846,9 @@
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem UpdateServersToolStripMenuItem_UseProxy;
-        private ToolStripMenuItem V2RayCoreToolStripMenuItem;
-        private ToolStripMenuItem XRayCireWebsiteToolStripMenuItem;
+        private ToolStripMenuItem MihomoWebsiteToolStripMenuItem;
+        private ToolStripMenuItem SingBoxWebsiteToolStripMenuItem;
+        private ToolStripMenuItem XrayWebsiteToolStripMenuItem;
         private ToolStripMenuItem TUN2SocksWebsiteToolStripMenuItem;
         private ToolStripMenuItem WinTUNWebSiteToolStripMenuItem;
         private ToolStripMenuItem pcap2socksWebsiteToolStripMenuItem;

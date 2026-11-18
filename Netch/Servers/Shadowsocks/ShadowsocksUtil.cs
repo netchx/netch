@@ -22,14 +22,17 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
 
     public Type ServerType { get; } = typeof(ShadowsocksServer);
 
+    internal static string DecodePluginPath(string path) =>
+        path.Replace("\\=", "=").Replace("\\,", ",").Replace("\\\\", "\\");
+
     public void Edit(Server s)
     {
-        new ShadowsocksForm((ShadowsocksServer)s).ShowDialog();
+        new ShadowsocksForm((ShadowsocksServer)s).ShowEditor();
     }
 
     public void Create()
     {
-        new ShadowsocksForm().ShowDialog();
+        new ShadowsocksForm().ShowEditor();
     }
 
     public string GetShareLink(Server s)
@@ -282,9 +285,7 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
                     }
                     if (!path.IsNullOrEmpty())
                     {
-                        var pathValue = path.Replace("path=", "");
-                        pathValue = pathValue.Replace("\\=", "=").Replace("\\,", ",").Replace("\\\\", "\\");
-                        item.Path = pathValue;
+                        item.Path = DecodePluginPath(path["path=".Length..]);
                     }
                 }
                 else if (modeValue == "quic")

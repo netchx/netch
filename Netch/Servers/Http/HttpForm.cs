@@ -13,6 +13,7 @@ public class HttpForm : ServerForm
         Server = server;
         CreateTextBox("Username", "Username", s => true, s => server.Username = s, server.Username);
         CreateTextBox("Password", "Password", s => true, s => server.Password = s, server.Password);
+        CreateHeaders("HttpHeaders", s => server.ProtoExtra.HttpHeaders = s, server.ProtoExtra.HttpHeaders);
     }
 
     protected override EConfigType TypeName { get; } = EConfigType.HTTP;
