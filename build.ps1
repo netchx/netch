@@ -81,6 +81,7 @@ function Test-OtherCoresCurrent {
 		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'bc5827ca00c7f312125365e8669794fffdbdf1cb0efa948cddd94a0c800c8c31'
 		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
 		'.\Other\release\xray.exe'                        = 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15'
+		'.\Other\release\mihomo.exe'                      = $null
 	}
 
 	foreach ($entry in $expectedHashes.GetEnumerator()) {
@@ -187,6 +188,7 @@ try {
 		}
 	}
 	Copy-Item -Force "$netchPublishPath\Netch.exe" $OutputPath
+	Copy-Item -Force '.\LICENSE', '.\Netch\NOTICE.txt' $OutputPath
 
 	$redirectorPath = ".\Redirector\bin\$Configuration"
 	$buildRedirector = Test-ShouldBuild "$redirectorPath\Redirector.bin", "$redirectorPath\nfapi.dll", "$redirectorPath\Redirector.pdb"

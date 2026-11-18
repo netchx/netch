@@ -54,7 +54,8 @@ public static class MainController
 
             //如果是 Socks5 服务器且没有密码
             //或者如果是 Socks5 服务器，且模式控制器支持 Socks5 则直接使用该服务器
-            if (Server is SocksServer socks5 && (ModeController == null ? socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
+            if (Server is SocksServer socks5 && socks5.ProtoExtra.Uot != true &&
+                (ModeController == null ? socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
             {
 
                 Socks5Server = socks5;

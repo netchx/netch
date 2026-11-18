@@ -21,6 +21,9 @@ Copyright (c) 2009 The Go Authors(@golang): Go (BSD)
 Copyright (c) Vitaly Sidorov: NetFilterSDK
 Copyright (c) nekohasekai and contributors: sing-box (GPL-3.0-or-later)
 https://github.com/SagerNet/sing-box/tree/v1.14.4
+
+Copyright (c) MetaCubeX and contributors: Mihomo (GPL-3.0)
+https://github.com/MetaCubeX/mihomo/tree/v1.19.34
 Copyright (c) 2018 WireGuard LLC.(@WireGuard): Wintun Network Adapter (GPL-3.0)
 Copyright (c) 2019 xᴊᴀsᴏɴʟʏᴜ(@xjasonlyu): tun2socks (GPL-3.0)
 Copyright (c) 2010 Miek Gieben(@miekg): dns (BSD)

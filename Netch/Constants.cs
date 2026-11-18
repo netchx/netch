@@ -252,6 +252,7 @@ public static class Constants
         { EConfigType.VMess, "vmess://" },
         { EConfigType.Shadowsocks, "ss://" },
         { EConfigType.SOCKS, "socks://" },
+        { EConfigType.ShadowsocksR, "ssr://" },
         { EConfigType.VLESS, "vless://" },
         { EConfigType.Trojan, "trojan://" },
         { EConfigType.Hysteria2, "hysteria2://" },

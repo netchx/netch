@@ -27,7 +27,7 @@
 - **按进程加速**：通过 Netfilter 驱动接管指定游戏或应用的 TCP/UDP 流量，无需修改目标程序；支持“包括子进程”，可覆盖启动器拉起的游戏和反作弊。
 - **内置游戏规则**：“游戏合集”模式一次覆盖 EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2 及常见反作弊。
 - **低延迟转发**：游戏 TCP 关闭 Nagle，UDP 散布/聚集发送，转发线程高优先级运行，代理 DNS 复用同一个 UDP 关联。
-- **多协议多核心**：sing-box 处理常用节点，Xray-core 处理 XHTTP，支持 VLESS/VMess/Trojan、Shadowsocks、WireGuard、Hysteria2、TUIC、AnyTLS 等。
+- **多协议多核心**：Mihomo 处理 VLESS、VMess、Trojan、Shadowsocks、ShadowsocksR、WireGuard、Hysteria2、TUIC 和 AnyTLS 等常用节点。NaiveProxy 由 sing-box 提供。
 - **三种工作模式**：进程模式、TUN 模式和共享模式（局域网设备共享代理）。
 - **连通性检测**：显示 HTTP 延迟、出口国家与 UDP NAT 类型。
 
@@ -52,16 +52,18 @@
 
 | 协议或传输 | 代理核心 |
 | --- | --- |
-| SOCKS5 | 支持时直连，需要本地转接时使用 sing-box |
-| HTTP、Shadowsocks、WireGuard、Hysteria2 | sing-box |
-| VMess、VLESS、Trojan（TCP、WebSocket、gRPC、HTTP、HTTPUpgrade） | sing-box |
-| XHTTP | Xray-core |
-| TUIC、AnyTLS、NaiveProxy | sing-box |
-| MASQUE | 支持 CONNECT-IP 的 sing-box，已验证 1.15.0-alpha.13 |
+| SOCKS5 | 支持时直连，需要本地转接时默认使用 Mihomo |
+| HTTP、Shadowsocks、ShadowsocksR、WireGuard、Hysteria2、TUIC、AnyTLS | Mihomo |
+| VMess、VLESS、Trojan（常用 TCP、WebSocket、gRPC、HTTPUpgrade 传输） | Mihomo |
+| VMess、VLESS（TLS 下的 HTTP/2） | Mihomo |
+| VLESS + XHTTP（标准模式，明文或 TLS） | Mihomo |
+| VLESS + XHTTP（REALITY、HTTP/3 或高级参数）、VMess／Trojan／Shadowsocks + XHTTP | Xray-core |
+| NaiveProxy | sing-box |
+| 账号密码式 MASQUE | 支持 CONNECT-IP 的 sing-box，已验证 1.15.0-alpha.13 |
 
-SagerNet v2ray-core 已退役。mKCP、带旧加密或报头的 QUIC、旧式 TCP HTTP 伪装和 gRPC multi 模式需要调整服务端后再导入。已保存的旧节点会给出迁移提示。标准 VLESS Vision、REALITY 和裸 QUIC 使用 sing-box。
+`ssr://` 可通过剪贴板或订阅导入。Mihomo 也接受 VMess + mKCP 配置。裸 QUIC、明文 HTTP 传输、Trojan HTTP/2、SOCKS5 UoT 及用 PEM 自定义信任根的节点沿用 sing-box。带旧加密或报头的 QUIC、旧式 TCP HTTP 伪装和 gRPC multi 模式需要调整服务端传输。
 
-旧 V2Ray Mux、自定义 REALITY 扩展和自定义 ECH 配置无法等价迁移。整张证书的 SHA-256 固定值需换成对应 PEM 证书，避免降级校验。Shadowsocks 支持 sing-box 的密码套件，以及 obfs-local 和 v2ray-plugin。
+VLESS Vision 和常用 REALITY 配置由 Mihomo 处理。旧 V2Ray Mux、自定义 REALITY 扩展和自定义 ECH 配置需要对应核心支持。常规 TLS 节点的整张证书 SHA-256 固定值可换成对应 PEM 证书。Shadowsocks 支持 obfs-local 和 v2ray-plugin。
 
 
 ## 快速开始
@@ -77,14 +79,14 @@ SagerNet v2ray-core 已退役。mKCP、带旧加密或报头的 QUIC、旧式 TC
 - **使用“游戏合集”模式**：在模式列表中选择“游戏合集：EA + Steam + Rockstar/GTA + PUBG + CS2 + 反作弊（含子进程）”。规则按安装路径匹配，游戏装在任意磁盘或游戏库目录都能识别；局域网流量直连。
 - **Steam 下载也会走代理**：该模式会代理 Steam 客户端本身。大量下载游戏前，可临时切换到只代理游戏的“Steam Games”模式。
 - **每次只能启用一个模式**：需要的游戏不在合集中时，可在“模式”菜单中新建进程模式，或复制 `mode\Game` 下的规则文件自行修改。
-- **进程优先级优化**：默认开启。加速期间 Netch、xray、sing-box、tun2socks、pcap2socks 以“高于正常”优先级运行，并退出电源节流。如需关闭，在 `data\settings.json` 中设置 `"GameProcessBoost": false`。
+- **进程优先级优化**：默认开启。加速期间 Netch、mihomo、xray、sing-box、tun2socks、pcap2socks 以“高于正常”优先级运行，并退出电源节流。如需关闭，在 `data\settings.json` 中设置 `"GameProcessBoost": false`。
 - **进程规则写法**：每条规则是一个对进程完整路径做搜索的正则表达式（ECMAScript 语法，不区分大小写），例如 `\\steamapps\\` 匹配所有 Steam 游戏库中的程序，`\\cs2\.exe$` 只匹配 `cs2.exe`。
 
 ### VLESS + WebSocket
 
-VLESS + WebSocket 配置由 Xray-core 处理。请确保地址、端口、UUID、WebSocket 路径、Host/SNI 和 TLS 设置与服务端一致。节点、服务端和所选工作模式都必须支持 UDP，UDP 转发才能正常工作。
+VLESS + WebSocket 默认由 Mihomo 处理。请确保地址、端口、UUID、WebSocket 路径、Host/SNI 和 TLS 设置与服务端一致。节点、服务端和所选工作模式都必须支持 UDP，UDP 转发才能正常工作。
 
-较新的 Xray-core 不接受部分旧配置中的 `Allow Insecure`。连接失败时，应优先使用有效证书并关闭该选项，而不是跳过证书校验。
+使用有效证书时，保持 `Allow Insecure` 关闭。
 
 ## UDP 与 NAT 检测
 
@@ -103,8 +105,9 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 
 ## 代理核心
 
-- **sing-box**：发布包在 `bin\sing_box` 中附带官方 Windows x64 版 1.14.4 和同包的 `libcronet.dll`。NaiveProxy 使用配套 DLL。需要 MASQUE 时，可将支持 `masque-client` 的新版核心和配套 DLL 放入 `bin`，覆盖默认核心选择。 [对应版本源代码](https://github.com/SagerNet/sing-box/tree/v1.14.4)
-- **Xray-core**：构建脚本下载固定版本并校验 SHA-256，仅用于 XHTTP 节点。
+- **Mihomo**：构建脚本从官方发行版获取 Windows x64 v1.19.34，打包为 `bin\mihomo.exe`。 [官方发行版](https://github.com/MetaCubeX/mihomo/releases/tag/v1.19.34)
+- **sing-box**：发布包在 `bin\sing_box` 中附带官方 Windows x64 版 1.14.4 和同包的 `libcronet.dll`。NaiveProxy 使用配套 DLL。需要 MASQUE 时，可将支持 `masque-client` 的新版核心和配套 DLL 放入 `bin`，覆盖 sing-box 路径。 [对应版本源代码](https://github.com/SagerNet/sing-box/tree/v1.14.4)
+- **Xray-core**：构建脚本下载固定版本并校验 SHA-256，用于需保留 Xray 的 XHTTP 节点。
 
 ## 从源码构建
 
@@ -162,7 +165,7 @@ git push origin v2.0.1
 | `Netch` | WinForms 界面、配置、节点管理和代理核心编排。 |
 | `Redirector` | 基于 Netfilter 的 TCP/UDP 流量重定向组件。 |
 | `RouteHelper` | 路由与网络辅助组件。 |
-| `Other` | Xray 与配套组件的构建和打包脚本。 |
+| `Other` | Mihomo、Xray 与配套组件的构建和打包脚本。 |
 | `Storage` | 模式规则（`mode`，游戏规则在 `mode\Game`）、翻译、STUN 列表和运行时资源。 |
 
 ## 故障排查
@@ -173,7 +176,8 @@ git push origin v2.0.1
 - **TUN 模式网页首屏较慢**：在 AioDNS 设置中优先使用 `udp://DNS:53`；`tcp://` 和 `tls://` 仍可用于需要 TCP DNS 的网络。UDP 返回截断响应时会自动回退到 TCP。
 - **TCP 可用但 UDP 失败**：检查节点、服务端和模式是否支持 UDP，并查看日志中的 SOCKS UDP 或 STUN 错误。
 - **VLESS + WebSocket 无法连接**：依次核对 UUID、路径、Host/SNI、TLS 和服务端反向代理配置。
-- **sing-box 无法启动**：确认 `bin\sing-box.exe` 存在，并查看 `logging\sing-box.log`。
+- **Mihomo 无法启动**：确认 `bin\mihomo.exe` 存在，并查看 `logging\mihomo.log`。
+- **sing-box 无法启动**：确认 `bin\sing_box\sing-box.exe` 与同包的 `libcronet.dll` 存在，并查看 `logging\sing-box.log`。
 - **NAT 显示 `UnsupportedServer`**：更换支持 RFC 5780 的 STUN 服务器；这通常不是代理节点故障。
 - **构建失败**：确认已安装 Visual Studio 2022 的 C++ x64 工具链与 .NET SDK；提示 `MSBuild not found` 时，在 Visual Studio Installer 中补装“使用 C++ 的桌面开发”。
 
@@ -195,7 +199,7 @@ git push origin v2.0.1
 
 #### 进程调度
 
-- 加速期间将 Netch、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch/Utils/ProcessTuning.cs`）
+- 加速期间将 Netch、mihomo、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch/Utils/ProcessTuning.cs`）
 - 进程模式的流量统计改为读取 Redirector 计数，不再启动系统级内核网络追踪（ETW），降低游戏时的 CPU 占用。（`Netch/Utils/Bandwidth.cs`）
 
 #### 游戏规则

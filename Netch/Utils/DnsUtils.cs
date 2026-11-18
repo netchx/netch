@@ -28,7 +28,8 @@ public static class DnsUtils
     /// </summary>
     private static readonly ConcurrentDictionary<(string Hostname, AddressFamily Inet, string? Dns), AsyncLazy<IPAddress?>> InFlight = new();
 
-    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000, string? dns = null)
+    public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified,
+        int timeout = 3000, string? dns = null, bool useCache = true)
     {
         if (IPAddress.TryParse(hostname, out var ip))
         {
@@ -39,9 +40,8 @@ public static class DnsUtils
 
         try
         {
-            var cacheResult = GetCached(hostname, inet);
-            if (cacheResult != null)
-                return cacheResult;
+            if (useCache && GetCached(hostname, inet) is { } cached)
+                return cached;
 
             var key = (hostname, inet, string.IsNullOrWhiteSpace(dns) ? null : dns);
             var lookup = InFlight.GetOrAdd(key,

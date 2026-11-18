@@ -61,7 +61,7 @@ jobs:
         id: check_other
         uses: andstor/file-existence-action@v3.1.0
         with:
-          files: Other/release/aiodns.bin, Other/release/pcap2socks.exe, Other/release/tun2socks-windows-amd64-v3.exe, Other/release/wintun.dll, Other/release/xray.exe
+          files: Other/release/aiodns.bin, Other/release/pcap2socks.exe, Other/release/tun2socks-windows-amd64-v3.exe, Other/release/wintun.dll, Other/release/xray.exe, Other/release/mihomo.exe
           ignore_case: true
 
       - name: Setup Go

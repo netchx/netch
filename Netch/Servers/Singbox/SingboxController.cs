@@ -451,7 +451,7 @@ public sealed class SingboxController : Guard, IServerController
         return tls;
     }
 
-    private static Dictionary<string, List<string>> BuildHeaders(string? value)
+    internal static Dictionary<string, List<string>> BuildHeaders(string? value)
     {
         var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         if (value.IsNullOrWhiteSpace()) return result;
