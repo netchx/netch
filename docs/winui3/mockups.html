@@ -1,0 +1,520 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Netch WinUI 3 设计稿</title><style>:root{--foreground:#1b1b1b;--muted-foreground:#616161;--background:#fafafa;--card:#fff;--border:#e0e0e0;--primary:#005fb8;--primary-foreground:#fff;--code-background:#f0f0f0;--radius:8px;--font-sans:"Segoe UI","Microsoft YaHei UI",sans-serif;--font-mono:Consolas,monospace}body{max-width:900px;margin:24px auto;padding:0 16px}</style>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei UI",var(--font-sans);color:var(--foreground)}
+.h{font-size:16px;font-weight:600;margin:26px 0 3px;display:flex;align-items:center;gap:8px}
+.n{display:inline-flex;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:var(--primary);color:var(--primary-foreground);font-size:12px;align-items:center;justify-content:center}
+.cap{font-size:12px;color:var(--muted-foreground);margin:7px 2px 0;line-height:1.55}
+.cap code{font-family:var(--font-mono);font-size:11px;background:var(--code-background);padding:0 4px;border-radius:3px}
+.map{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;margin:6px 0 0}
+.map span{padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:var(--card)}
+.map b{color:var(--muted-foreground);font-weight:400}
+.toggle{position:sticky;top:0;z-index:5;display:flex;gap:8px;align-items:center;padding:6px 0;background:var(--background);font-size:12.5px}
+.toggle button{font:inherit;padding:5px 14px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--foreground);cursor:pointer}
+.toggle button.on{background:var(--primary);color:var(--primary-foreground);border-color:var(--primary)}
+
+/* ===== mock theme ===== */
+#mk{--wbg:linear-gradient(135deg,#eef2f8 0%,#f5f1f6 60%,#f3f3f3 100%);--layer:#fbfbfb;--card:#ffffffd9;--solid:#fff;--bd:#e5e5e5;--wbd:#d6d6d6;--line:#8a8a8a;--fg:#1b1b1b;--fg2:#616161;--fg3:#8a8a8a;--ac:#005fb8;--acfg:#fff;--acs:#e5effa;--ok:#0f7b0f;--warn:#9d5d00;--bad:#c42b1c;--oks:#dff6dd;--bads:#fde7e9;--warns:#fff4ce;--warnb:#f0dca8;--infob:#d0e0f0;--sel:#eaf1fb;--hov:#0000000a;--pill:#eef0f4;--ctl:#fff;--ctlb:#e5e5e5;--ctlb2:#ccc;--tgloff:#5c5c5c;--dim:#0000004d;--fly:#f6f6f6f2;--desk:linear-gradient(160deg,#9fb8d8,#d9c7dc 60%,#e9dccb);--task:#f3f3f3e6;--dlgft:#f3f3f3}
+#mk.dark{--wbg:linear-gradient(135deg,#1f2530 0%,#22202a 55%,#202020 100%);--layer:#272727;--card:#2d2d2d;--solid:#2b2b2b;--bd:#ffffff14;--wbd:#000;--line:#ffffff8b;--fg:#fff;--fg2:#c5c5c5;--fg3:#9a9a9a;--ac:#60cdff;--acfg:#000;--acs:#60cdff26;--ok:#6ccb5f;--warn:#fce100;--bad:#ff99a4;--oks:#6ccb5f26;--bads:#ff99a426;--warns:#fce1001a;--warnb:#fce10040;--infob:#60cdff40;--sel:#ffffff12;--hov:#ffffff0f;--pill:#ffffff14;--ctl:#ffffff0f;--ctlb:#ffffff17;--ctlb2:#ffffff12;--tgloff:#cfcfcf;--dim:#00000080;--fly:#2c2c2cf2;--desk:linear-gradient(160deg,#1e2a44,#3a2c48 60%,#2a2420);--task:#1c1c1ce6;--dlgft:#202020}
+
+.w{border-radius:10px;overflow:hidden;background:var(--wbg);color:var(--fg);border:1px solid var(--wbd);box-shadow:0 8px 24px #0003;font-size:12px;position:relative;aspect-ratio:4/3;width:100%}
+.tb{height:32px;display:flex;align-items:center;padding-left:12px;gap:8px;font-size:12px;white-space:nowrap}
+.logo{width:16px;height:16px;border-radius:4px;background:var(--ac);flex:none}
+.s{flex:1}
+.cb{width:40px;text-align:center;color:var(--fg2);font-size:11px}
+.body{display:flex;height:calc(100% - 32px)}
+.rail{white-space:nowrap;width:112px;display:flex;flex-direction:column;gap:3px;padding:4px 6px 8px}
+.rail i{font-style:normal;height:32px;border-radius:5px;display:flex;align-items:center;gap:10px;padding-left:10px;position:relative;font-size:12px}
+.rail i svg{color:var(--fg2)}
+.rail i.on{background:var(--hov)}
+.rail i.on:before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:2px;background:var(--ac)}
+.rail .badge{margin-left:auto;margin-right:6px;min-width:16px;height:16px;border-radius:8px;background:var(--ac);color:var(--acfg);font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.rail .g{flex:1}
+.ico{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.page{flex:1;background:var(--layer);border-top-left-radius:8px;border-top:1px solid var(--bd);border-left:1px solid var(--bd);padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0;overflow:hidden}
+.title{font-size:20px;font-weight:600}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:7px}
+.btn{padding:4px 11px;border-radius:5px;background:var(--ctl);border:1px solid var(--ctlb);border-bottom-color:var(--ctlb2);font-size:11.5px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;color:var(--fg)}
+.btn.p{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+.btn.g{background:transparent;border-color:transparent}
+.btn.lk{background:transparent;border-color:transparent;color:var(--ac);padding-left:0;padding-right:0}
+.sub{color:var(--fg2);font-size:11px}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}.acc{color:var(--ac)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ok);margin-right:5px}
+.mono{font-family:Consolas,var(--font-mono);font-size:11px}
+.row{display:flex;align-items:center;gap:8px}
+.h1{font-size:15px;font-weight:600}
+/* home */
+.hero{display:flex;align-items:center;gap:14px;padding:12px 14px}
+.pw{width:56px;height:56px;border-radius:50%;background:var(--ac);color:var(--acfg);display:flex;align-items:center;justify-content:center;flex:none}
+.stats{display:flex;gap:16px;margin-left:auto;text-align:right;align-items:center}
+.stats b{display:block;font-size:15px;font-weight:600;white-space:nowrap}
+.stats span{font-size:10.5px;color:var(--fg2)}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.sc{padding:10px;display:flex;flex-direction:column;gap:4px;min-height:92px}
+.sc.on{border:1.5px solid var(--ac)}
+.ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--pill)}
+.sc .t{font-weight:600;font-size:12.5px}
+.sc .f{margin-top:auto;display:flex;justify-content:space-between;font-size:10.5px;color:var(--fg2)}
+.scadd{border-style:dashed;align-items:center;justify-content:center;color:var(--fg2)}
+/* forms */
+.lbl{font-size:11px;color:var(--fg2);margin-bottom:4px}
+.field{background:var(--ctl);border:1px solid var(--ctlb);border-bottom:1px solid var(--line);border-radius:5px;padding:6px 9px;display:flex;justify-content:space-between;align-items:center;gap:6px;min-width:0}
+.field.f{border-bottom:2px solid var(--ac)}
+.field.q{border-bottom-color:var(--ctlb)}
+.tgl{width:34px;height:18px;border-radius:9px;background:var(--ac);position:relative;flex:none}
+.tgl:after{content:"";position:absolute;right:3px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--acfg)}
+.tgl.off{background:transparent;border:1px solid var(--line)}
+.tgl.off:after{left:3px;right:auto;top:2px;background:var(--tgloff)}
+.set{display:flex;align-items:center;gap:12px;padding:8px 12px}
+.set .ii{width:16px;color:var(--fg2);text-align:center;flex:none}
+.set .tx{flex:1;min-width:0}
+.sets{display:flex;flex-direction:column;gap:3px}
+.grp{font-size:12px;font-weight:600;margin:4px 0 2px}
+/* lists */
+.lst{padding:2px;overflow:hidden}
+.lst .r{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:5px;position:relative}
+.lst .r.on{background:var(--sel)}
+.lst .r.on:before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:2px;background:var(--ac)}
+.lst .gh{font-size:11px;color:var(--fg2);font-weight:600;padding:8px 10px 3px;display:flex;align-items:center;gap:8px}
+.pill{font-size:10px;padding:1px 6px;border-radius:4px;background:var(--pill);color:var(--fg2);white-space:nowrap}
+.st{font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;white-space:nowrap}
+.s-add{background:var(--oks);color:var(--ok)}.s-upd{background:var(--acs);color:var(--ac)}.s-cf{background:var(--bads);color:var(--bad)}.s-loc{background:var(--pill);color:var(--fg2)}
+.subpane{width:140px;flex:none;display:flex;flex-direction:column;gap:2px}
+.subpane .it{padding:7px 9px;border-radius:5px;display:flex;flex-direction:column;gap:1px;position:relative}
+.subpane .it.on{background:var(--sel)}
+.subpane .it.on:before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--ac)}
+.subpane .it b{font-weight:600;font-size:12px;display:flex;justify-content:space-between}
+.subpane .cat{font-size:11px;color:var(--fg2);padding:6px 9px 0}
+.ibar{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:6px;background:var(--acs);border:1px solid var(--infob);font-size:11.5px}
+.ibar.w2{background:var(--warns);border-color:var(--warnb)}
+.ibar .ii{width:18px;height:18px;border-radius:50%;background:var(--ac);color:var(--acfg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:none}
+.ibar.w2 .ii{background:var(--warn);color:#000}
+.prog{height:4px;border-radius:2px;background:var(--bd);overflow:hidden;width:100%}
+.prog i{display:block;height:100%;background:var(--ac);border-radius:2px}
+.ck{display:inline-flex;width:14px;height:14px;border-radius:3px;border:1px solid var(--line);align-items:center;justify-content:center;font-size:10px;flex:none}
+.ck.on{background:var(--ac);border-color:var(--ac);color:var(--acfg)}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center}
+/* dialog */
+.dim{position:absolute;inset:0;background:var(--dim);display:flex;align-items:center;justify-content:center}
+.dlg{width:400px;background:var(--solid);border:1px solid var(--bd);border-radius:8px;box-shadow:0 16px 40px #0005;overflow:hidden}
+.dlg .bd{padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.dlg .ft{background:var(--dlgft);border-top:1px solid var(--bd);padding:12px 20px;display:flex;gap:8px}
+.dlg .ft .btn{flex:1;justify-content:center;padding:6px}
+/* wizard */
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.zc{width:100%;aspect-ratio:4/3}
+.zc .w{width:480px;height:360px;aspect-ratio:auto;zoom:.745}
+.pn{padding:14px 16px;display:flex;flex-direction:column;gap:9px;height:calc(100% - 32px)}
+.steps{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--fg2)}
+.steps b{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);font-size:10px}
+.steps .d b{background:var(--ok);color:#fff;border-color:transparent}
+.steps .c b{background:var(--ac);color:var(--acfg);border-color:transparent}
+.steps .c{color:var(--fg);font-weight:600}
+.steps hr{flex:1;border:none;border-top:1px solid var(--bd);margin:0}
+.flow{border:1px dashed var(--border);border-radius:var(--radius);padding:14px;font-size:12.5px;line-height:1.7;color:var(--muted-foreground);display:flex;flex-direction:column;justify-content:center}
+.flow b{color:var(--foreground)}
+/* log */
+.term{font-family:Consolas,var(--font-mono);font-size:11px;line-height:1.7;padding:8px 12px;flex:1;overflow:hidden}
+.term .t{color:var(--fg3)}
+.lv{display:inline-block;width:38px;font-weight:600}
+/* about */
+.about{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px}
+.biglogo{width:68px;height:68px;border-radius:16px;background:linear-gradient(140deg,var(--ac),#7c5cff);display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:700;box-shadow:0 6px 18px #005fb840}
+.vpill{font-family:Consolas,var(--font-mono);font-size:11px;padding:2px 8px;border-radius:999px;background:var(--acs);color:var(--ac)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:11.5px}
+.kv span:nth-child(odd){color:var(--fg2)}
+/* tray */
+.desk{border-radius:10px;padding:18px;background:var(--desk);display:flex;gap:18px;align-items:flex-end;justify-content:flex-end;position:relative;aspect-ratio:4/3;width:100%}
+.flyout{width:310px;border-radius:10px;background:var(--fly);border:1px solid var(--bd);box-shadow:0 12px 32px #0004;padding:14px;font-size:12px;display:flex;flex-direction:column;gap:10px;color:var(--fg)}
+.tile{border-radius:6px;padding:9px;background:var(--ctl);border:1px solid var(--ctlb);display:flex;flex-direction:column;gap:3px}
+.tile.on{background:var(--ac);color:var(--acfg);border-color:var(--ac)}
+.tile.on .sub{color:inherit;opacity:.8}
+.menu{width:220px;border-radius:8px;background:var(--fly);border:1px solid var(--bd);box-shadow:0 12px 32px #0004;padding:4px;font-size:12px;color:var(--fg)}
+.menu div{padding:6px 10px;border-radius:4px;display:flex;justify-content:space-between}
+.menu div.on{background:var(--hov)}
+.menu hr{border:none;border-top:1px solid var(--bd);margin:4px 0}
+.taskbar{position:absolute;left:0;right:0;bottom:0;height:34px;background:var(--task);border-top:1px solid var(--bd);display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:0 14px;font-size:11px;color:var(--fg)}
+</style></head><body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-home" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></symbol>
+<symbol id="i-node" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="4.5" rx="1.2"/><rect x="2" y="9" width="12" height="4.5" rx="1.2"/><path d="M4.5 4.75h.01M4.5 11.25h.01"/></symbol>
+<symbol id="i-mode" viewBox="0 0 16 16"><path d="M8 1.8 14 5 8 8.2 2 5z"/><path d="M2 8l6 3.2L14 8"/><path d="M2 11l6 3.2 6-3.2"/></symbol>
+<symbol id="i-dl" viewBox="0 0 16 16"><path d="M8 2v8M4.8 7 8 10.2 11.2 7"/><path d="M2.5 11.5v1.5a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-1.5"/></symbol>
+<symbol id="i-log" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h6M5 12h3"/></symbol>
+<symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 4.9h.01"/></symbol>
+<symbol id="i-set" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4"/></symbol>
+<symbol id="i-pw" viewBox="0 0 24 24"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></symbol>
+</defs></svg>
+
+<template id="rail"><div class="rail"><i data-k="home"><svg class="ico"><use href="#i-home"/></svg>场景</i><i data-k="node"><svg class="ico"><use href="#i-node"/></svg>节点</i><i data-k="mode"><svg class="ico"><use href="#i-mode"/></svg>模式</i><i data-k="dl"><svg class="ico"><use href="#i-dl"/></svg>下载<span class="badge">14</span></i><i data-k="log"><svg class="ico"><use href="#i-log"/></svg>日志</i><span class="g"></span><i data-k="about"><svg class="ico"><use href="#i-info"/></svg>关于</i><i data-k="set"><svg class="ico"><use href="#i-set"/></svg>设置</i></div></template>
+<template id="tb"><div class="tb"><span class="logo"></span>Netch<span class="s"></span><span class="cb">—</span><span class="cb">▢</span><span class="cb">✕</span></div></template>
+
+<div class="toggle"><span>主题</span><button class="on" data-t="light">浅色</button><button data-t="dark">深色</button><span style="color:var(--muted-foreground)">切换后所有界面一起变化</span></div>
+
+<div class="h">信息架构</div>
+<div class="map"><span>▦ 场景 <b>（首页）</b></span><span>▤ 节点 <b>· 订阅 + 节点</b></span><span>◈ 模式</span><span>⤓ 下载 <b>· 程序与核心 / 模式规则</b></span><span>▤ 日志</span><span>ⓘ 关于</span><span>⚙ 设置</span><b>＋</b><span>托盘浮窗</span><span>首次向导</span></div>
+<div class="cap">主窗口默认 1024×768（4:3），最小 800×600。导航用 <code>NavigationView</code> 的 Left 模式，每项都是两个字；窗口窄于 860 时收起为只显示图标。标题栏只有图标、标题和窗口按钮，没有搜索框。</div>
+
+<div id="mk">
+
+<!-- 1 wizard -->
+<div class="h"><span class="n">1</span>首次向导</div>
+<div class="quad">
+ <div class="zc"><div class="w"><div class="tb"><span class="logo"></span>欢迎使用 Netch<span class="s"></span><span class="cb">✕</span></div><div class="pn">
+  <div class="steps"><span class="c"><b>1</b>节点</span><hr><span><b>2</b>加速</span><hr><span><b>3</b>完成</span></div>
+  <div class="h1">导入你的节点</div>
+  <div><div class="lbl">订阅链接</div><div class="field f">https://sub.example/…<span>⧉</span></div></div>
+  <div class="row sub"><span style="flex:1;border-top:1px solid var(--bd)"></span>或<span style="flex:1;border-top:1px solid var(--bd)"></span></div>
+  <div class="row"><span class="btn" style="flex:1;justify-content:center">📋 从剪贴板导入</span><span class="btn" style="flex:1;justify-content:center">＋ 手动添加</span></div>
+  <div class="ok" style="font-size:11px">✓ 已识别 64 个节点（机场 A）</div>
+  <div style="margin-top:auto;display:flex;justify-content:space-between"><span class="btn">稍后再说</span><span class="btn p">下一步</span></div>
+ </div></div></div>
+ <div class="zc"><div class="w"><div class="tb"><span class="logo"></span>欢迎使用 Netch<span class="s"></span><span class="btn lk" style="margin-right:6px">跳过向导</span><span class="cb">✕</span></div><div class="pn">
+  <div class="steps"><span class="d"><b>✓</b>节点</span><hr><span class="c"><b>2</b>加速</span><hr><span><b>3</b>完成</span></div>
+  <div class="h1">要加速哪些程序？</div>
+  <div class="card lst">
+   <div class="r"><span class="ck on">✓</span>🎮 Steam<span class="s"></span><span class="sub">已检测</span></div>
+   <div class="r"><span class="ck on">✓</span>🎮 Apex Legends<span class="s"></span><span class="sub">已检测</span></div>
+   <div class="r"><span class="ck"></span>🎮 Battle.net<span class="s"></span><span class="sub">已检测</span></div>
+   <div class="r"><span class="ck"></span>🌐 全部流量 (TUN)</div>
+  </div>
+  <div style="margin-top:auto;display:flex;justify-content:space-between"><span class="btn">上一步</span><span class="btn p">下一步</span></div>
+ </div></div></div>
+ <div class="zc"><div class="w"><div class="tb"><span class="logo"></span>欢迎使用 Netch<span class="s"></span><span class="btn lk" style="margin-right:6px">跳过向导</span><span class="cb">✕</span></div><div class="pn">
+  <div class="steps"><span class="d"><b>✓</b>节点</span><hr><span class="d"><b>✓</b>加速</span><hr><span class="c"><b>3</b>完成</span></div>
+  <div class="h1">确认你的第一个场景</div>
+  <div><div class="lbl">名称</div><div class="field">🎮 Steam / Apex 加速<span>✎</span></div></div>
+  <div><div class="lbl">节点（已按延迟推荐）</div><div class="field f">HK IPLC 03<span class="mono ok">38 ms ▾</span></div></div>
+  <div class="row"><span class="tgl"></span>开机后自动连接此场景</div>
+  <div style="margin-top:auto;display:flex;justify-content:space-between"><span class="btn">上一步</span><span class="btn p">创建并连接</span></div>
+ </div></div></div>
+ <div class="flow">
+  <div><b>第 1 步</b>：左下角是「稍后再说」，标题栏不再放「跳过向导」</div>
+  <div><b>第 2、3 步</b>：左下角已经是「上一步」，所以「跳过向导」放在标题栏</div>
+  <div><b>跳过后</b>：记录 <code>OnboardingCompleted</code>，进入下方的空状态首页；之后可以从「关于」页重新打开向导</div>
+ </div>
+</div>
+<div class="cap">向导窗口固定 640×480（4:3），不能调整大小。</div>
+
+<div class="h"><span class="n">1b</span>跳过后的空状态</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="home"></div><div class="page">
+ <div class="empty">
+  <div style="width:60px;height:60px;border-radius:15px;background:var(--acs);color:var(--ac);display:flex;align-items:center;justify-content:center"><svg width="28" height="28" class="ico"><use href="#i-home"/></svg></div>
+  <div class="h1">还没有场景</div>
+  <div class="sub" style="max-width:340px;line-height:1.6">场景 = 节点 + 模式，创建之后点一下就能连接。<br>还没有节点的话，可以先去「节点」页导入订阅。</div>
+  <div class="row" style="margin-top:6px"><span class="btn p">＋ 新建场景</span><span class="btn">导入订阅</span><span class="btn lk">重新打开向导</span></div>
+ </div>
+ <div class="ibar"><span class="ii">i</span><span style="flex:1">内置模式规则已有 3 个月未更新，远端有 6 个新增、4 个更新。</span><span class="btn">去下载</span></div>
+</div></div></div>
+
+<!-- 2 home -->
+<div class="h"><span class="n">2</span>场景（首页）</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="home"></div><div class="page">
+ <div class="card hero">
+  <div class="pw"><svg width="26" height="26" class="ico" style="stroke-width:2.4"><use href="#i-pw"/></svg></div>
+  <div><div class="h1"><span class="dot"></span>Steam / Apex 加速</div><div class="sub">进程模式 · HK IPLC 03 · 已运行 01:24:10</div></div>
+  <div class="stats">
+   <svg width="80" height="36" viewBox="0 0 120 38"><path d="M0,30 L10,26 L20,28 L30,18 L40,22 L50,12 L60,16 L70,8 L80,14 L90,6 L100,12 L110,9 L120,4" fill="none" stroke="var(--ac)" stroke-width="2"/></svg>
+   <div><b>38<small style="font-size:11px"> ms</small></b><span>延迟</span></div>
+   <div><b>Full Cone</b><span>NAT</span></div>
+   <div><b>4.8<small style="font-size:11px"> MB/s</small></b><span>↓ 1.42 GB</span></div>
+  </div>
+ </div>
+ <div class="row"><b style="font-size:13.5px">场景</b><span class="s"></span><span class="btn g">⇅ 最近使用</span><span class="btn p">＋ 新建场景</span></div>
+ <div class="g3">
+  <div class="card sc on"><div class="ic">🎮</div><div class="t">Steam / Apex 加速</div><div class="sub">进程 · HK IPLC 03</div><div class="f"><span class="ok">● 运行中</span><span>Ctrl+Alt+1</span></div></div>
+  <div class="card sc"><div class="ic">🌐</div><div class="t">全局 TUN</div><div class="sub">TUN · JP Trojan 02</div><div class="f"><span>2 小时前</span><span>Ctrl+Alt+2</span></div></div>
+  <div class="card sc"><div class="ic">🧭</div><div class="t">仅浏览器</div><div class="sub">进程 · chrome, msedge</div><div class="f"><span>昨天</span><span>Ctrl+Alt+3</span></div></div>
+  <div class="card sc"><div class="ic">🕹</div><div class="t">Switch 联机</div><div class="sub">共享 · SG AnyTLS 05</div><div class="f"><span class="warn">⚠ 节点不可用</span><span></span></div></div>
+  <div class="card sc"><div class="ic">🛠</div><div class="t">开发 · GitHub</div><div class="sub">路由规则 · US TUIC 11</div><div class="f"><span>3 天前</span><span></span></div></div>
+  <div class="card sc"><div class="ic">💬</div><div class="t">Discord 语音</div><div class="sub">进程 · JP Trojan 02</div><div class="f"><span>上周</span><span></span></div></div>
+  <div class="card sc"><div class="ic">📺</div><div class="t">流媒体</div><div class="sub">路由规则 · SG AnyTLS 05</div><div class="f"><span class="warn">⚠ 节点不可用</span><span></span></div></div>
+  <div class="card sc scadd">＋ 新建场景</div>
+ </div>
+</div></div></div>
+<div class="cap">在 4:3 窗口里，场景卡片可以显示 3 列 × 3 行。场景列表用 <code>ItemsView</code>（UniformGridLayout），右键菜单（<code>MenuFlyout</code>）有编辑、复制、更换节点、固定到托盘、删除。</div>
+
+<!-- 3 editor -->
+<div class="h"><span class="n">3</span>编辑场景</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="home"></div><div class="page"></div></div>
+ <div class="dim"><div class="dlg">
+  <div class="bd">
+   <div class="h1" style="font-size:17px">编辑场景</div>
+   <div class="row" style="gap:10px;align-items:flex-end"><div class="card" style="flex:none;width:40px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px">🎮</div><div style="flex:1"><div class="lbl">名称</div><div class="field">Steam / Apex 加速</div></div></div>
+   <div><div class="lbl">模式</div><div class="field">进程模式 · 游戏（Steam / Apex）<span>▾</span></div><div class="btn lk" style="margin-top:3px">打开此模式的设置 ›</div></div>
+   <div><div class="lbl">节点</div><div class="field f">HK IPLC 03 · Hysteria2 · 机场 A<span class="mono ok">38 ms ▾</span></div></div>
+   <div class="row"><div style="flex:1"><div class="lbl">全局热键</div><div class="field">Ctrl + Alt + 1</div></div><div style="flex:1"><div class="lbl">托盘</div><div class="field">固定到托盘浮窗<span class="tgl"></span></div></div></div>
+  </div>
+  <div class="ft"><span class="btn p">保存</span><span class="btn">取消</span></div>
+ </div></div>
+</div>
+<div class="cap">去掉了上一版的「高级：覆盖 DNS / UDP / ICMP」。场景只负责组合模式和节点，模式的具体设置统一写在模式文件里，从「打开此模式的设置」跳过去修改。</div>
+
+<!-- 4 nodes -->
+<div class="h"><span class="n">4</span>节点</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="node"></div><div class="page">
+ <div class="row"><span class="title">节点</span><span class="s"></span><span class="btn g">📋 从剪贴板导入</span><span class="btn">＋ 订阅</span><span class="btn p">＋ 节点</span></div>
+ <div class="row" style="align-items:stretch;flex:1;gap:10px;min-height:0">
+  <div class="subpane">
+   <div class="it"><b>全部节点<span class="sub">98</span></b></div>
+   <div class="cat">订阅</div>
+   <div class="it on"><b>机场 A<span class="sub">64</span></b><span class="sub ok">✓ 12 分钟前</span></div>
+   <div class="it"><b>机场 B<span class="sub">31</span></b><span class="sub bad">⚠ 更新失败</span></div>
+   <div class="cat">本地</div>
+   <div class="it"><b>手动添加<span class="sub">3</span></b></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+   <div class="card" style="padding:9px 12px;display:flex;align-items:center;gap:10px">
+    <div style="flex:1;min-width:0"><b style="font-size:13px">机场 A</b><div class="sub mono" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">https://sub.a.example/api/v1/client/…</div><div class="sub">每 6 小时更新 · 剩余 182 GB · 到期 2027-03-01</div></div>
+    <span class="btn">⟳ 更新</span><span class="btn g">⋯</span>
+   </div>
+   <div class="row"><div class="field q" style="flex:1">⌕ 在机场 A 中筛选</div><span class="btn g">⚡ 测速</span><span class="btn g">⇅ 延迟</span></div>
+   <div class="card lst" style="flex:1">
+    <div class="r on"><span style="flex:1">HK IPLC 03</span><span class="pill">Hysteria2</span><span class="sub" style="width:50px">1 个场景</span><span class="mono ok" style="width:42px;text-align:right">38 ms</span></div>
+    <div class="r"><span style="flex:1">HK IPLC 01</span><span class="pill">Hysteria2</span><span class="sub" style="width:50px">1 个场景</span><span class="mono ok" style="width:42px;text-align:right">41 ms</span></div>
+    <div class="r"><span style="flex:1">JP Trojan 02</span><span class="pill">Trojan</span><span class="sub" style="width:50px">2 个场景</span><span class="mono" style="width:42px;text-align:right">72 ms</span></div>
+    <div class="r"><span style="flex:1">KR VLESS Reality 02</span><span class="pill">VLESS</span><span class="sub" style="width:50px"></span><span class="mono ok" style="width:42px;text-align:right">55 ms</span></div>
+    <div class="r"><span style="flex:1">US TUIC 11</span><span class="pill">TUIC</span><span class="sub" style="width:50px">1 个场景</span><span class="mono warn" style="width:42px;text-align:right">188 ms</span></div>
+    <div class="r"><span style="flex:1">SG AnyTLS 05</span><span class="pill">AnyTLS</span><span class="sub" style="width:50px">2 个场景</span><span class="mono bad" style="width:42px;text-align:right">超时</span></div>
+    <div class="r"><span style="flex:1">TW Shadowsocks 04</span><span class="pill">SS</span><span class="sub" style="width:50px"></span><span class="mono ok" style="width:42px;text-align:right">63 ms</span></div>
+    <div class="r"><span style="flex:1">DE WireGuard 01</span><span class="pill">WireGuard</span><span class="sub" style="width:50px"></span><span class="mono warn" style="width:42px;text-align:right">231 ms</span></div>
+   </div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">左侧选订阅，右侧显示该订阅的节点（主从布局）。上方卡片显示订阅信息，「⋯」菜单有编辑、复制链接、删除；双击节点打开按协议区分的编辑表单。</div>
+
+<!-- 5 modes -->
+<div class="h"><span class="n">5</span>模式</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="mode"></div><div class="page">
+ <div class="row"><span class="title">模式</span><span class="s"></span><span class="btn g">📂 从文件导入</span><span class="btn">＋ 路由规则</span><span class="btn p">＋ 进程模式</span></div>
+ <div class="ibar"><span class="ii">↻</span><span style="flex:1">在线规则库有 <b>6</b> 个新增、<b>4</b> 个更新、1 个冲突</span><span class="btn">去下载</span></div>
+ <div class="row" style="align-items:stretch;flex:1;gap:10px;min-height:0">
+  <div class="subpane">
+   <div class="it"><b>全部模式<span class="sub">98</span></b></div>
+   <div class="cat">分组</div>
+   <div class="it on"><b>游戏<span class="sub">41</span></b></div>
+   <div class="it"><b>绕过规则<span class="sub">12</span></b></div>
+   <div class="it"><b>TUN<span class="sub">9</span></b></div>
+   <div class="it"><b>其他<span class="sub">36</span></b></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+   <div class="row"><div class="field q" style="flex:1">⌕ 搜索模式或程序名，例如 steam.exe</div><span class="btn">全部来源 ▾</span></div>
+   <div class="card lst" style="flex:1">
+    <div class="r on"><span style="flex:1">游戏（Steam / Apex）</span><span class="pill">进程</span><span class="st s-loc">自定义</span><span class="sub" style="width:50px;text-align:right">1 个场景</span></div>
+    <div class="r"><span style="flex:1">Battle.net</span><span class="pill">进程</span><span class="st s-upd">有更新</span><span class="sub" style="width:50px"></span></div>
+    <div class="r"><span style="flex:1">Steam</span><span class="pill">进程</span><span class="st s-upd">有更新</span><span class="sub" style="width:50px"></span></div>
+    <div class="r"><span style="flex:1">EA Desktop Games</span><span class="pill">进程</span><span class="st s-loc">内置</span><span class="sub" style="width:50px"></span></div>
+    <div class="r"><span style="flex:1">Nexon Games</span><span class="pill">进程</span><span class="st s-loc">内置</span><span class="sub" style="width:50px"></span></div>
+    <div class="r"><span style="flex:1">Origin Games</span><span class="pill">进程</span><span class="st s-loc">内置</span><span class="sub" style="width:50px"></span></div>
+    <div class="r"><span style="flex:1">Discord (with Steam Apps)</span><span class="pill">进程</span><span class="st s-cf">本地已修改</span><span class="sub" style="width:50px;text-align:right">1 个场景</span></div>
+   </div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">左侧分组栏和节点页结构一致，分组对应 <code>mode/</code> 下的子目录。来源标记有四种：内置、有更新、本地已修改、自定义。</div>
+
+<!-- 6 mode editor -->
+<div class="h"><span class="n">6</span>模式编辑（设置全部存在模式文件里）</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="mode"></div><div class="page">
+ <div class="row"><span class="sub">模式 ›</span><b>游戏（Steam / Apex）</b><span class="s"></span><span class="btn">验证规则</span><span class="btn p">保存</span></div>
+ <div class="row"><div style="flex:1"><div class="lbl">名称</div><div class="field">游戏（Steam / Apex）</div></div><div style="width:130px"><div class="lbl">类型</div><div class="field">进程模式 ▾</div></div><div style="width:120px"><div class="lbl">分组</div><div class="field">游戏 ▾</div></div></div>
+ <div class="row" style="align-items:stretch;gap:10px;flex:1;min-height:0">
+  <div style="flex:1.1;display:flex;flex-direction:column;gap:7px;min-width:0">
+   <div class="row"><b style="font-size:12px">代理这些程序</b><span class="s"></span><span class="btn g">选择…</span><span class="btn g">扫描目录…</span></div>
+   <div class="card lst">
+    <div class="r">🎮 <span style="flex:1">steam.exe</span><span class="sub">…\Steam</span></div>
+    <div class="r">🎮 <span style="flex:1">r5apex.exe</span><span class="sub">D:\Games\Apex</span></div>
+    <div class="r mono" style="color:var(--fg2)">.*\\Battle\.net\\.*<span class="pill" style="margin-left:auto">正则</span></div>
+   </div>
+   <div class="row"><b style="font-size:12px">排除这些程序</b><span class="s"></span><span class="btn g">＋</span></div>
+   <div class="card lst"><div class="r">🧩 <span style="flex:1">EasyAntiCheat.exe</span></div><div class="r mono" style="color:var(--fg2)">\\Netch\\<span class="pill" style="margin-left:auto">正则</span></div></div>
+  </div>
+  <div class="card sets" style="flex:.9;padding:4px 0;gap:0">
+   <div class="set"><span class="tx">处理 TCP</span><span class="tgl"></span></div>
+   <div class="set"><span class="tx">处理 UDP</span><span class="tgl"></span></div>
+   <div class="set"><span class="tx">处理 ICMP<div class="sub">延迟 10 ms</div></span><span class="tgl off"></span></div>
+   <div class="set"><span class="tx">DNS 劫持<div class="sub mono">1.1.1.1:53</div></span><span class="tgl"></span></div>
+   <div class="set"><span class="tx">DNS 走代理</span><span class="tgl off"></span></div>
+   <div class="set"><span class="tx">处理子进程</span><span class="tgl"></span></div>
+   <div class="set"><span class="tx">处理本地回环</span><span class="tgl off"></span></div>
+   <div class="set"><span class="tx">处理局域网</span><span class="tgl off"></span></div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">右侧开关直接对应 <code>ProcessMode</code> 的字段（filterTCP / filterUDP / filterICMP / icmpDelay / filterDNS / dnsHost / dnsProxy / filterParent / filterLoopback / filterIntranet），保存进模式 JSON。这些字段不再允许为 null（目前 null 表示回退到全局设置），新建模式时写入默认值。类型切换为 TUN 时，右侧改为显示 TUN 的地址、网关、DNS、IPv6 和全局绕过 IP。</div>
+
+<!-- 7 download -->
+<div class="h"><span class="n">7</span>下载 · 程序与核心</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="dl"></div><div class="page">
+ <div class="row"><span class="title">下载</span><span class="s"></span><span class="sub">上次检查 18:20</span><span class="btn">⟳ 检查更新</span><span class="btn p">全部更新 (3)</span></div>
+ <div class="row" style="align-items:stretch;flex:1;gap:10px;min-height:0">
+  <div class="subpane">
+   <div class="it on"><b>程序与核心<span class="sub">3</span></b><span class="sub">2 个更新 · 1 个下载中</span></div>
+   <div class="it"><b>模式规则<span class="sub">11</span></b><span class="sub">3 个月前同步</span></div>
+   <div class="cat">历史</div>
+   <div class="it"><b>下载记录</b></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+   <div class="ibar w2"><span class="ii">!</span><span style="flex:1">sing-box 正被场景「Steam / Apex 加速」使用，更新时会先断开，完成后自动重连。</span></div>
+   <div class="card" style="padding:9px 12px;display:flex;align-items:center;gap:10px">
+    <span class="logo" style="width:30px;height:30px;border-radius:8px"></span>
+    <div style="flex:1"><b style="font-size:13px">Netch</b><div class="sub mono">2.0.1 → <span class="acc">2.0.2</span></div><div class="sub">修复 TUIC 断流 · <span class="acc">更新日志</span></div></div>
+    <span class="btn p">更新并重启</span>
+   </div>
+   <div class="card lst" style="flex:1">
+    <div class="gh">核心</div>
+    <div class="r"><span style="flex:1"><b>sing-box</b> <span class="pill">主核心</span></span><span class="mono">1.12.8 → <span class="acc">1.12.12</span></span><span class="btn" style="margin-left:8px">更新</span><span class="btn g">⋯</span></div>
+    <div class="r on"><span style="flex:1"><b>Xray-core</b> <span class="pill">XHTTP</span></span><div style="width:140px"><div class="prog"><i style="width:62%"></i></div><div class="sub mono" style="margin-top:3px">62% · 2.4 MB/s</div></div><span class="btn g">⏸</span></div>
+    <div class="r"><span style="flex:1"><b>Mihomo</b> <span class="pill">默认代理</span></span><span class="mono sub">1.19.15</span><span class="ok" style="width:70px;text-align:right">✓ 最新</span><span class="btn g">⋯</span></div>
+    <div class="r"><span style="flex:1"><b>tun2socks</b> <span class="pill">TUN</span></span><span class="mono sub">2.6.0</span><span class="ok" style="width:70px;text-align:right">✓ 最新</span><span class="btn g">⋯</span></div>
+    <div class="r"><span style="flex:1"><b>WinTUN</b> <span class="pill">驱动</span></span><span class="mono sub">0.14.1</span><span class="ok" style="width:70px;text-align:right">✓ 最新</span><span class="btn g">⋯</span></div>
+    <div class="r"><span style="flex:1"><b>pcap2socks</b> <span class="pill">共享模式</span></span><span class="sub">未安装</span><span class="btn" style="margin-left:8px">下载</span><span class="btn g">⋯</span></div>
+   </div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">页面名改为「下载」。布局与节点页、模式页统一：左侧分类栏，上方信息卡片，下方分组列表。下载通道、GitHub 镜像、预发布等选项移到「设置 › 更新与下载」，页面里不再放设置开关。</div>
+
+<!-- 8 download modes -->
+<div class="h"><span class="n">8</span>下载 · 模式规则（在线更新）</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="dl"></div><div class="page">
+ <div class="row"><span class="title">下载</span><span class="s"></span><span class="sub">上次检查 18:20</span><span class="btn">⟳ 检查更新</span><span class="btn p">同步所选 (10)</span></div>
+ <div class="row" style="align-items:stretch;flex:1;gap:10px;min-height:0">
+  <div class="subpane">
+   <div class="it"><b>程序与核心<span class="sub">3</span></b><span class="sub">2 个更新 · 1 个下载中</span></div>
+   <div class="it on"><b>模式规则<span class="sub">11</span></b><span class="sub">3 个月前同步</span></div>
+   <div class="cat">历史</div>
+   <div class="it"><b>下载记录</b></div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;min-width:0">
+   <div class="card" style="padding:9px 12px;display:flex;align-items:center;gap:10px">
+    <div style="flex:1;min-width:0"><b style="font-size:13px">netchx/netch</b><div class="sub mono">main · Storage/mode · 提交 a3f91c2（2 天前）</div><div class="sub">本地 98 个 · 远端 104 个</div></div>
+    <span class="btn">更换来源</span>
+   </div>
+   <div class="card lst" style="flex:1">
+    <div class="gh"><span class="ck on">✓</span>新增 · 6</div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Valorant</span><span class="st s-add">新增</span><span class="sub" style="width:90px;text-align:right">3 条规则</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Delta Force</span><span class="st s-add">新增</span><span class="sub" style="width:90px;text-align:right">5 条规则</span></div>
+    <div class="gh"><span class="ck on">✓</span>更新 · 4</div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Battlenet</span><span class="st s-upd">更新</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+3</span> <span class="bad">−1</span> · 差异</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Steam</span><span class="st s-upd">更新</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+1</span> · 差异</span></div>
+    <div class="gh"><span class="ck"></span>冲突 · 1</div>
+    <div class="r on"><span class="ck"></span><span style="flex:1;min-width:0">Discord (with Steam Apps)<div class="sub">本地已修改，远端也有更新</div></span><span class="btn">保留本地 ▾</span></div>
+   </div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">用 GitHub git trees API 获取远端文件的 SHA，和本地 <code>mode/.manifest.json</code> 比较，区分新增、更新、本地已修改。冲突项默认不勾选，可选保留本地、使用远端或另存为副本。同步不会改动用户自建的模式。</div>
+
+<!-- 9 log -->
+<div class="h"><span class="n">9</span>日志</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="log"></div><div class="page" style="padding-bottom:0">
+ <div class="row"><span class="title">日志</span><span class="s"></span><span class="btn">⤓ 自动滚动</span><span class="btn g">⧉ 复制</span><span class="btn g">📂 打开目录</span></div>
+ <div class="row"><div class="field q" style="flex:1">⌕ 过滤日志</div><span class="btn">全部来源 ▾</span><span class="btn">Info ▾</span></div>
+ <div class="card term" style="border-bottom-left-radius:0;border-bottom-right-radius:0">
+  <div><span class="t">17:42:01.208</span> <span class="lv">INFO</span> <span class="pill">netch</span> 启动场景「Steam / Apex 加速」</div>
+  <div><span class="t">17:42:01.512</span> <span class="lv">INFO</span> <span class="pill">sing-box</span> inbound/mixed started 127.0.0.1:2801</div>
+  <div><span class="t">17:42:01.733</span> <span class="lv">INFO</span> <span class="pill">nf</span> driver attached, rules=3</div>
+  <div><span class="t">17:42:02.004</span> <span class="lv">INFO</span> <span class="pill">nf</span> steam.exe (pid 8840) → proxy</div>
+  <div><span class="t">17:42:02.118</span> <span class="lv">INFO</span> <span class="pill">nf</span> r5apex.exe (pid 9312) → proxy</div>
+  <div><span class="t">17:42:05.391</span> <span class="lv warn">WARN</span> <span class="pill">sing-box</span> udp timeout 203.0.113.9:27015, retry</div>
+  <div><span class="t">17:42:09.010</span> <span class="lv">INFO</span> <span class="pill">netch</span> latency 38 ms · NAT Full Cone</div>
+  <div><span class="t">17:58:44.502</span> <span class="lv bad">ERROR</span> <span class="pill">sing-box</span> dial tcp hk03.example.com:443: i/o timeout</div>
+  <div><span class="t">17:58:44.910</span> <span class="lv">INFO</span> <span class="pill">sing-box</span> reconnected</div>
+ </div>
+</div></div></div>
+
+<!-- 10 settings -->
+<div class="h"><span class="n">10</span>设置</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="set"></div><div class="page">
+ <span class="title">设置</span>
+ <div class="row" style="align-items:flex-start;gap:12px;min-height:0">
+  <div class="sets" style="flex:1;min-width:0">
+   <div class="grp">常规</div>
+   <div class="card set"><span class="ii">◐</span><span class="tx">外观</span><span class="btn">跟随系统 ▾</span></div>
+   <div class="card set"><span class="ii"><svg class="ico" style="width:13px;height:13px;stroke-width:2.2"><use href="#i-pw"/></svg></span><span class="tx">开机启动<div class="sub">以管理员身份启动</div></span><span class="tgl"></span></div>
+   <div class="card set"><span class="ii">▣</span><span class="tx">关闭窗口时</span><span class="btn">最小化到托盘 ▾</span></div>
+   <div class="card set"><span class="ii">文</span><span class="tx">语言</span><span class="btn">简体中文 ▾</span></div>
+   <div class="grp">网络</div>
+   <div class="card set"><span class="ii">⇄</span><span class="tx">本地混合端口<div class="sub">允许局域网连接</div></span><span class="field mono" style="width:56px">2801</span><span class="tgl off"></span></div>
+   <div class="card set"><span class="ii">◎</span><span class="tx">测速方式 · STUN</span><span class="btn">TCPing ▾</span></div>
+   <div class="card set"><span class="ii">◇</span><span class="tx">DNS<div class="sub">AioDNS · 出站 DNS</div></span><span class="sub">›</span></div>
+  </div>
+  <div class="sets" style="flex:1;min-width:0">
+   <div class="grp">内核</div>
+   <div class="card set"><span class="ii">⚙</span><span class="tx">Xray / sing-box<div class="sub">指纹、分片、Mux、KCP</div></span><span class="sub">›</span></div>
+   <div class="card set"><span class="ii">⚡</span><span class="tx">Hysteria 带宽</span><span class="sub">›</span></div>
+   <div class="grp">更新与下载</div>
+   <div class="card set"><span class="ii">⤓</span><span class="tx">下载通道</span><span class="btn">通过当前代理 ▾</span></div>
+   <div class="card set"><span class="ii">⟳</span><span class="tx">启动时检查更新<div class="sub">程序、核心和模式规则</div></span><span class="tgl"></span></div>
+   <div class="card set"><span class="ii">β</span><span class="tx">包含预发布版本</span><span class="tgl off"></span></div>
+   <div class="grp">维护</div>
+   <div class="card set"><span class="ii">🧹</span><span class="tx">清理 DNS · 防火墙规则</span><span class="btn">执行</span></div>
+   <div class="card set"><span class="ii">⚠</span><span class="tx">卸载 NF 驱动服务</span><span class="btn bad">卸载</span></div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">「模式默认值」（进程模式、TUN）整组删除，这些设置已经移到各自的模式文件里。新增「外观」（跟随系统 / 浅色 / 深色），用 <code>RequestedTheme</code> 实时切换。原「更新」相关选项集中到「更新与下载」。</div>
+
+<!-- 11 about -->
+<div class="h"><span class="n">11</span>关于</div>
+<div class="w"><div data-tb></div><div class="body"><div data-rail="about"></div><div class="page">
+ <div class="about">
+  <div class="biglogo">N</div>
+  <div style="font-size:22px;font-weight:600">Netch</div>
+  <div class="row"><span class="vpill">v2.0.1</span><span class="sub">x64 · Release</span><span class="btn lk">检查更新</span></div>
+  <div class="sub" style="font-size:12px">开源的 Windows 进程代理与游戏加速工具</div>
+  <div class="row" style="margin-top:4px"><span class="btn">GitHub</span><span class="btn">Telegram 频道</span><span class="btn">问题反馈</span><span class="btn">常见问题</span></div>
+  <div class="row" style="align-items:stretch;gap:10px;width:100%;margin-top:10px">
+   <div class="card" style="flex:1;padding:12px;display:flex;flex-direction:column;gap:8px">
+    <b>运行信息</b>
+    <div class="kv"><span>系统</span><span>Windows 11 24H2 (26100)</span><span>运行时</span><span>.NET 10.0</span><span>权限</span><span class="ok">管理员 ✓</span><span>NF 驱动</span><span class="ok">已安装</span><span>数据目录</span><span class="mono">D:\Tools\Netch</span></div>
+    <div class="row" style="margin-top:auto"><span class="btn">⧉ 复制诊断信息</span><span class="btn g">📂 打开目录</span></div>
+   </div>
+   <div class="card" style="flex:1;padding:12px;display:flex;flex-direction:column;gap:6px">
+    <b>开源致谢</b>
+    <div class="sub" style="line-height:1.8">sing-box · Mihomo · Xray-core · tun2socks · WinTUN · pcap2socks · NetFilter SDK · Serilog · Stun.Net · Windows App SDK</div>
+    <div class="row" style="margin-top:auto"><span class="pill">GPL-3.0</span><span class="btn lk">查看许可证</span></div>
+   </div>
+  </div>
+  <div class="row sub" style="margin-top:auto;gap:14px"><span class="btn lk">重新打开首次向导</span><span>·</span><span>© Netch contributors</span></div>
+ </div>
+</div></div></div>
+<div class="cap">参考 frpc-desktop 的关于页：居中显示 Logo、名称、版本标签，下面是一排外部链接。另外加了 Netch 需要的「运行信息」，排查问题时可以一键复制诊断信息。原 AboutForm 里的 Telegram 链接保留，许可证按仓库实际的 GPL-3.0 显示。</div>
+
+<!-- 12 tray -->
+<div class="h"><span class="n">12</span>托盘</div>
+<div class="desk">
+ <div class="menu" style="margin-bottom:40px">
+  <div class="on"><span>● Steam / Apex 加速</span><span>✓</span></div><div><span>　全局 TUN</span></div><div><span>　仅浏览器</span></div><hr>
+  <div><span>断开连接</span><span class="sub">Ctrl+Alt+0</span></div><div><span>打开 Netch</span></div><hr><div><span>退出</span></div>
+ </div>
+ <div class="flyout" style="margin-bottom:40px">
+  <div class="row"><div style="flex:1"><div class="h1"><span class="dot"></span>已连接</div><div class="sub">Steam / Apex 加速 · HK IPLC 03</div></div><span class="tile on" style="padding:6px 14px;border-radius:999px;flex-direction:row;align-items:center;gap:5px"><svg class="ico" style="width:13px;height:13px;stroke-width:2.2"><use href="#i-pw"/></svg>断开</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+   <div class="tile on"><b>🎮 Steam / Apex</b><span class="sub">38 ms</span></div>
+   <div class="tile"><b>🌐 全局 TUN</b><span class="sub">JP Trojan 02</span></div>
+   <div class="tile"><b>🧭 仅浏览器</b><span class="sub">HK IPLC 01</span></div>
+   <div class="tile"><b>🕹 Switch 联机</b><span class="sub warn">节点不可用</span></div>
+  </div>
+  <div class="row mono sub" style="justify-content:space-between"><span>↓ 4.8 MB/s</span><span>↑ 312 KB/s</span><span>NAT Full Cone</span></div>
+  <div class="row" style="justify-content:space-between;border-top:1px solid var(--bd);padding-top:8px"><span class="sub">⚙ 打开 Netch</span><span class="sub">⏏ 退出</span></div>
+ </div>
+ <div class="taskbar"><span>^</span><span class="logo"></span><span>中</span><span>18:40<br>2026/11/18</span></div>
+</div>
+
+</div>
+
+<script>
+const tb=document.getElementById('tb').innerHTML, rail=document.getElementById('rail').innerHTML;
+document.querySelectorAll('[data-tb]').forEach(e=>e.outerHTML=tb);
+document.querySelectorAll('[data-rail]').forEach(e=>{const d=document.createElement('div');d.innerHTML=rail;d.querySelector(`[data-k="${e.dataset.rail}"]`).classList.add('on');e.replaceWith(d.firstElementChild)});
+const mk=document.getElementById('mk');
+document.querySelectorAll('.toggle button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.toggle button').forEach(x=>x.classList.toggle('on',x===b));mk.classList.toggle('dark',b.dataset.t==='dark')});
+if(location.hash==='#dark'){document.querySelector('[data-t=dark]').click()}
+</script>
+</body></html>
