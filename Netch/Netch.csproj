@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\common.props" />
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
+    <LangVersion>latest</LangVersion>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -23,7 +23,7 @@
          not been migrated to nullable warnings. "annotations" accepts the syntax
          without reporting hundreds of CS8632 warnings on every build. -->
     <Nullable>annotations</Nullable>
-    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <StartupObject></StartupObject>
@@ -79,7 +79,6 @@
     <PackageReference Include="TaskScheduler" Version="2.12.2" />
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.3" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="10.0.3" />
     <PackageReference Include="WindowsJobAPI" Version="6.1.0" />
   </ItemGroup>
 

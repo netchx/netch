@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Windows.Win32.Foundation;
+﻿using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using static Windows.Win32.PInvoke;
 
@@ -19,7 +18,7 @@ public partial class LogForm : Form
     protected override void OnLoad(EventArgs? e)
     {
         base.OnLoad(e);
-        Parent_Move(null!, null!);
+        Parent_Move(null, null);
     }
 
     private void Parent_Move(object? sender, EventArgs? e)
@@ -73,12 +72,12 @@ public partial class LogForm : Form
         Visible = _parent.Visible;
     }
 
-    protected override void OnClosing(CancelEventArgs? e)
+    protected override void OnFormClosed(FormClosedEventArgs e)
     {
         _parent.LocationChanged -= Parent_Move;
         _parent.SizeChanged -= Parent_Move;
         _parent.Activated -= Parent_Activated;
         _parent.VisibleChanged -= Parent_VisibleChanged;
-        base.OnClosing(e!);
+        base.OnFormClosed(e);
     }
 }

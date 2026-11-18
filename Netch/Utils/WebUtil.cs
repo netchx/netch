@@ -9,13 +9,6 @@ public static class WebUtil
     public const string DefaultUserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36 Edg/94.0.992.31";
     private static readonly HttpClient _httpClient = CreateHttpClient();
 
-
-    static WebUtil()
-    {
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-    }
-
-
     private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 
     public static HttpClient CreateHttpClient(int? timeout = null, string? userAgent = null, string? proxyServer = null)

@@ -1,4 +1,6 @@
-﻿namespace Netch.Forms;
+﻿using System.ComponentModel;
+
+namespace Netch.Forms;
 
 public class SyncGlobalCheckBox : CheckBox
 {
@@ -12,6 +14,7 @@ public class SyncGlobalCheckBox : CheckBox
 
     private bool _globalValue;
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool SyncGlobal
     {
         get => _syncGlobal;
@@ -26,6 +29,7 @@ public class SyncGlobalCheckBox : CheckBox
         }
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool GlobalValue
     {
         get => _globalValue;
@@ -54,6 +58,7 @@ public class SyncGlobalCheckBox : CheckBox
         base.OnClick(e);
     }
 
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public bool? Value
     {
         get => _syncGlobal ? null : Checked;

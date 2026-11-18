@@ -108,8 +108,8 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 ### 环境要求
 
 - Windows 10/11 x64
-- Visual Studio 2022，并安装“使用 C++ 的桌面开发”工作负载
-- .NET SDK 10（已使用 `10.0.402` 验证；应用目标框架为 `net8.0-windows`）
+- Visual Studio 2026，并安装“使用 C++ 的桌面开发”工作负载
+- .NET 10 SDK（应用目标框架为 `net10.0-windows10.0.17763.0`）
 - PowerShell 5.1 或更高版本
 - 可访问 NuGet 和构建脚本所需下载地址的网络
 

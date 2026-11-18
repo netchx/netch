@@ -21,7 +21,7 @@ param (
 	[bool]
 	$PublishReadyToRun = $False,
 
-	# Reuse existing component outputs (Netch\bin, Redirector\bin, RouteHelper\bin)
+	# Reuse existing publish and native outputs
 	# instead of building them. CI restores those folders from a cache keyed by
 	# the source hash; local builds should always compile so a stale binary is
 	# never packaged.
@@ -71,35 +71,7 @@ function Resolve-MSBuild {
 		}
 	}
 
-	throw 'MSBuild not found. Install Visual Studio 2022 with "Desktop development with C++", or run from Developer PowerShell for VS.'
-}
-
-function Resolve-PlatformToolset {
-	param (
-		[Parameter(Mandatory)]
-		[string]
-		$MSBuildPath
-	)
-
-	$dir = Split-Path $MSBuildPath -Parent
-	for ($i = 0; $i -lt 5 -and $dir; $i++) {
-		$vcRoot = Join-Path $dir 'Microsoft\VC'
-		if (Test-Path $vcRoot) {
-			$toolsets = Get-ChildItem -Path $vcRoot -Directory -Recurse -Filter 'v14*' -ErrorAction SilentlyContinue |
-				Where-Object { $_.FullName -match '\\Platforms\\x64\\PlatformToolsets\\v14\d+$' } |
-				Select-Object -ExpandProperty Name -Unique |
-				Sort-Object -Descending
-			if ($toolsets -contains 'v143') {
-				return $null
-			}
-			if ($toolsets) {
-				return $toolsets | Select-Object -First 1
-			}
-		}
-		$dir = Split-Path $dir -Parent
-	}
-
-	return $null
+	throw 'MSBuild not found. Install Visual Studio 2026 with "Desktop development with C++", or run from Developer PowerShell for VS.'
 }
 
 function Test-OtherCoresCurrent {
@@ -128,9 +100,9 @@ function Test-OtherCoresCurrent {
 }
 
 function Test-ShouldBuild {
-	param ([string] $Path)
+	param ([string[]] $Files)
 
-	return (-Not $UseCache) -or (-Not (Test-Path $Path))
+	return (-Not $UseCache) -or ((Test-Path -LiteralPath $Files -PathType Leaf) -contains $false)
 }
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
@@ -195,7 +167,8 @@ try {
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin"
 
-	if ( Test-ShouldBuild ".\Netch\bin\$Configuration" ) {
+	$netchPublishPath = ".\Netch\bin\publish\$Configuration"
+	if ( Test-ShouldBuild "$netchPublishPath\Netch.exe" ) {
 		Write-Host
 		Write-Host 'Building Netch'
 
@@ -209,25 +182,21 @@ try {
 				-p:PublishReadyToRun=$PublishReadyToRun `
 				-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
 				-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
-				-o ".\Netch\bin\$Configuration" `
+				-o $netchPublishPath `
 				'.\Netch\Netch.csproj'
 		}
 	}
-	Copy-Item -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
+	Copy-Item -Force "$netchPublishPath\Netch.exe" $OutputPath
 
-	$needsNative = (Test-ShouldBuild ".\Redirector\bin\$Configuration") -or (Test-ShouldBuild ".\RouteHelper\bin\$Configuration")
-	$msbuildArgs = @()
-	if ($needsNative) {
+	$redirectorPath = ".\Redirector\bin\$Configuration"
+	$buildRedirector = Test-ShouldBuild "$redirectorPath\Redirector.bin", "$redirectorPath\nfapi.dll", "$redirectorPath\Redirector.pdb"
+	$buildRouteHelper = Test-ShouldBuild ".\RouteHelper\bin\$Configuration\RouteHelper.bin"
+	if ($buildRedirector -or $buildRouteHelper) {
 		$msbuild = Resolve-MSBuild
 		Write-Host "Using MSBuild: $msbuild"
-		$toolset = Resolve-PlatformToolset -MSBuildPath $msbuild
-		if ($toolset) {
-			Write-Host "Using detected PlatformToolset override: $toolset"
-			$msbuildArgs += "-property:PlatformToolset=$toolset"
-		}
 	}
 
-	if ( Test-ShouldBuild ".\Redirector\bin\$Configuration" ) {
+	if ($buildRedirector) {
 		Write-Host
 		Write-Host 'Building Redirector'
 
@@ -236,14 +205,13 @@ try {
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
-				@msbuildArgs `
 				'.\Redirector\Redirector.vcxproj'
 		}
 	}
-	Copy-Item -Force ".\Redirector\bin\$Configuration\nfapi.dll"      "$OutputPath\bin"
-	Copy-Item -Force ".\Redirector\bin\$Configuration\Redirector.bin" "$OutputPath\bin"
+	Copy-Item -Force "$redirectorPath\nfapi.dll"      "$OutputPath\bin"
+	Copy-Item -Force "$redirectorPath\Redirector.bin" "$OutputPath\bin"
 
-	if ( Test-ShouldBuild ".\RouteHelper\bin\$Configuration" ) {
+	if ($buildRouteHelper) {
 		Write-Host
 		Write-Host 'Building RouteHelper'
 
@@ -252,7 +220,6 @@ try {
 				-nologo `
 				-property:Configuration=$Configuration `
 				-property:Platform=x64 `
-				@msbuildArgs `
 				'.\RouteHelper\RouteHelper.vcxproj'
 		}
 	}
