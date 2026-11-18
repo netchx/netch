@@ -1,0 +1,4 @@
+// User32.dll
+GetDpiForWindow
+MessageBox
+SetForegroundWindow

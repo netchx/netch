@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Netch.App.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:h="using:Netch.App.Helpers"
+    xmlns:toolkit="using:CommunityToolkit.WinUI.Controls">
+    <ScrollViewer>
+        <StackPanel Margin="{StaticResource PageMargin}" Spacing="4">
+            <TextBlock
+                Margin="0,0,0,12"
+                Style="{StaticResource TitleTextBlockStyle}"
+                Text="{h:Tr Text=Settings}" />
+
+            <TextBlock
+                Margin="0,0,0,4"
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Text="{h:Tr Text=General}" />
+            <toolkit:SettingsCard Description="{h:Tr Text='Select which app theme to display'}" Header="{h:Tr Text=Appearance}">
+                <toolkit:SettingsCard.HeaderIcon>
+                    <FontIcon Glyph="&#xE790;" />
+                </toolkit:SettingsCard.HeaderIcon>
+                <ComboBox
+                    x:Name="ThemeComboBox"
+                    MinWidth="160"
+                    SelectionChanged="ThemeComboBox_SelectionChanged">
+                    <ComboBoxItem Content="{h:Tr Text='Use system setting'}" />
+                    <ComboBoxItem Content="{h:Tr Text=Light}" />
+                    <ComboBoxItem Content="{h:Tr Text=Dark}" />
+                </ComboBox>
+            </toolkit:SettingsCard>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

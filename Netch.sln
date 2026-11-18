@@ -28,6 +28,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedirectorTester", "Redirec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch.Core", "Netch.Core\Netch.Core.csproj", "{15A18003-F7C1-448B-B507-563577CE9E08}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Netch.App", "Netch.App\Netch.App.csproj", "{84571BD3-EA11-477D-881C-4554768BDA54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -54,6 +56,10 @@ Global
 		{15A18003-F7C1-448B-B507-563577CE9E08}.Debug|x64.Build.0 = Debug|x64
 		{15A18003-F7C1-448B-B507-563577CE9E08}.Release|x64.ActiveCfg = Release|x64
 		{15A18003-F7C1-448B-B507-563577CE9E08}.Release|x64.Build.0 = Release|x64
+		{84571BD3-EA11-477D-881C-4554768BDA54}.Debug|x64.ActiveCfg = Debug|x64
+		{84571BD3-EA11-477D-881C-4554768BDA54}.Debug|x64.Build.0 = Debug|x64
+		{84571BD3-EA11-477D-881C-4554768BDA54}.Release|x64.ActiveCfg = Release|x64
+		{84571BD3-EA11-477D-881C-4554768BDA54}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

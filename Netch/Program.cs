@@ -1,15 +1,12 @@
-﻿using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Microsoft.VisualStudio.Threading;
-using Netch.Controllers;
 using Netch.Enums;
 using Netch.Forms;
 using Netch.Services;
 using Netch.Utils;
-using Serilog.Events;
 using SingleInstance;
 #if RELEASE
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -34,30 +31,17 @@ public static class Program
         if (args.Contains(Constants.Parameter.ForceUpdate))
             Flags.AlwaysShowNewVersionFound = true;
 
-        // set working directory
-        Directory.SetCurrentDirectory(Global.NetchDir);
-
-        // append .\bin to PATH
-        var binPath = Path.Combine(Global.NetchDir, "bin");
-        Environment.SetEnvironmentVariable("PATH", $"{Environment.GetEnvironmentVariable("PATH")};{binPath}");
+        Bootstrap.SetWorkingDirectory();
 
 #if !DEBUG
-        // check if .\bin directory exists
-        if (!Directory.Exists("bin") || !Directory.EnumerateFileSystemEntries("bin").Any())
+        if (!Bootstrap.BinariesPresent)
         {
             i18N.Load("System");
             MessageBoxX.Show(i18N.Translate("Please extract all files then run the program!"));
             Environment.Exit(2);
         }
 #endif
-        // clean up old files
-        Updater.CleanOld(Global.NetchDir);
-
-        // pre-create directories
-        var directories = new[] { "mode\\Custom", "data", "i18n", "logging" };
-        foreach (var item in directories)
-            if (!Directory.Exists(item))
-                Directory.CreateDirectory(item);
+        Bootstrap.PrepareDataDirectories();
 
         // load configuration
         Configuration.LoadAsync().Wait();
@@ -72,27 +56,15 @@ public static class Program
 
         SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
 
-        // clean up old logs
-        if (Directory.Exists("logging"))
-        {
-            var directory = new DirectoryInfo("logging");
-
-            foreach (var file in directory.GetFiles())
-                file.Delete();
-
-            foreach (var dir in directory.GetDirectories())
-                dir.Delete(true);
-        }
-
         InitConsole();
 
-        CreateLogger();
+        Bootstrap.StartLogging();
 
         // load i18n
         i18N.Load(Global.Settings.Language);
 
         // log environment information
-        LogEnvironmentAsync().Forget();
+        Bootstrap.LogEnvironmentAsync().Forget();
         CheckClr();
         CheckOS();
 
@@ -108,23 +80,6 @@ public static class Program
     }
 
 #pragma warning restore VSTHRD002
-
-    private static async Task LogEnvironmentAsync()
-    {
-        Log.Information("Netch Version: {Version}", $"{UpdateChecker.Owner}/{UpdateChecker.Repo}@{UpdateChecker.Version}");
-        Log.Information("OS: {OSVersion}", Environment.OSVersion);
-        Log.Information("SHA256: {Hash}", $"{await Utils.Utils.Sha256CheckSumAsync(Global.NetchExecutable)}");
-        Log.Information("System Language: {Language}", CultureInfo.CurrentCulture.Name);
-
-#if RELEASE
-        if (Log.IsEnabled(LogEventLevel.Debug))
-        {
-            // TODO log level setting
-            Task.Run(() => Log.Debug("Third-party Drivers:\n{Drivers}", string.Join(Constants.EOF, SystemInfo.SystemDrivers(false)))).Forget();
-            Task.Run(() => Log.Debug("Running Processes: \n{Processes}", string.Join(Constants.EOF, SystemInfo.Processes(false)))).Forget();
-        }
-#endif
-    }
 
     private static void CheckClr()
     {
@@ -171,23 +126,6 @@ public static class Program
         // hide console window
         PInvoke.ShowWindow(ConsoleHwnd, SHOW_WINDOW_CMD.SW_HIDE);
 #endif
-    }
-
-    public static void CreateLogger()
-    {
-        Log.Logger = new LoggerConfiguration()
-#if DEBUG
-            .MinimumLevel.Verbose()
-#else
-            .MinimumLevel.Debug()
-#endif
-            .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
-                outputTemplate: Constants.OutputTemplate,
-                rollOnFileSizeLimit: false))
-            .WriteTo.Console(outputTemplate: Constants.OutputTemplate)
-            .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
-            .Enrich.FromLogContext()
-            .CreateLogger();
     }
 
     private static void Application_OnException(object sender, ThreadExceptionEventArgs e)

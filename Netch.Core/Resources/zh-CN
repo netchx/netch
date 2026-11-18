@@ -263,5 +263,16 @@
   "The {0} port is reserved by system.": "{0} 端口是系统保留端口",
 
   "{0} won't get developers' support, Please do not report any issues or seek help from developers.": "{0} 将不会得到开发者的支持，请不要报告任何问题或寻求开发人员的帮助。",
-  "No Support": "不受支持"
+  "No Support": "不受支持",
+
+  "Scenes": "场景",
+  "Nodes": "节点",
+  "Modes": "模式",
+  "Downloads": "下载",
+  "Logs": "日志",
+  "Appearance": "外观",
+  "Select which app theme to display": "选择应用的显示主题",
+  "Use system setting": "跟随系统",
+  "Light": "浅色",
+  "Dark": "深色"
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Netch.Enums;
 
 namespace Netch.Models;
 
@@ -154,6 +155,11 @@ public class Setting
     ///     加速期间提升 Netch 与代理核心进程优先级，并关闭 Windows 电源节流（EcoQoS）
     /// </summary>
     public bool GameProcessBoost { get; set; } = true;
+
+    /// <summary>
+    ///     WinUI 界面主题
+    /// </summary>
+    public AppTheme Theme { get; set; } = AppTheme.System;
 
     #region Migration
 
