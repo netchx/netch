@@ -66,7 +66,7 @@ public static class MainController
                 Log.Debug("Server Information: {Data}", $"{server.ConfigType} {server.MaskedData()}");
 
                 ServerController = CoreSelector.CreateController(server);
-                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
+                AppEvents.ReportStatus(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
                 Socks5Server = await ServerController.StartAsync(server);
@@ -78,7 +78,7 @@ public static class MainController
             // Start Mode Controller
             if (mode != null)
             {
-                Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+                AppEvents.ReportStatus(i18N.TranslateFormat("Starting {0}", ModeController.Name));
                 await ModeController.StartAsync(Socks5Server, mode);
 
                 // Process mode forwards game traffic on Redirector threads inside

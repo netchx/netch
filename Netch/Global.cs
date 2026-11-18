@@ -1,7 +1,6 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Netch.Forms;
 using Netch.Models;
 using Netch.Models.Modes;
 using WindowsJobAPI;
@@ -10,11 +9,6 @@ namespace Netch;
 
 public static class Global
 {
-    /// <summary>
-    ///     主窗体的静态实例
-    /// </summary>
-    private static readonly Lazy<MainForm> LazyMainForm = new(() => new MainForm());
-
     /// <summary>
     ///     用于读取和写入的配置
     /// </summary>
@@ -31,14 +25,9 @@ public static class Global
 
     static Global()
     {
-        NetchExecutable = Application.ExecutablePath;
-        NetchDir = Application.StartupPath;
+        NetchExecutable = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Netch.exe");
+        NetchDir = Path.TrimEndingDirectorySeparator(AppContext.BaseDirectory);
     }
-
-    /// <summary>
-    ///     主窗体的静态实例
-    /// </summary>
-    public static MainForm MainForm => LazyMainForm.Value;
 
     public static JsonSerializerOptions NewCustomJsonSerializerOptions() => new()
     {

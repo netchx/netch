@@ -288,25 +288,6 @@ public static class Utils
         return str.Count(c => c == ':') == 1 ? str[..str.IndexOf(':')] : str;
     }
 
-    public static void ActivateVisibleWindows()
-    {
-        var forms = Application.OpenForms.Cast<Form>().Where(f => f.Visible).ToList();
-        if (!forms.Any())
-        {
-            Global.MainForm.Show();
-            Global.MainForm.WindowState = FormWindowState.Normal;
-            Global.MainForm.Activate();
-        }
-        else
-        {
-            foreach (var f in forms)
-            {
-                f.WindowState = FormWindowState.Normal;
-                f.Activate();
-            }
-        }
-    }
-
     /// <summary>
     /// Comma-separated string
     /// </summary>

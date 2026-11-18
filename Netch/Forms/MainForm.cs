@@ -46,6 +46,8 @@ public partial class MainForm : Form
 
         #endregion
 
+        SubscribeAppEvents();
+
         // 监听电源事件
         SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
     }
@@ -1106,6 +1108,7 @@ public partial class MainForm : Form
             }
 
             _state = value;
+            AppEvents.State = value;
 
             DelayTestHelper.Enabled = IsWaiting(_state);
 
@@ -1540,7 +1543,7 @@ public partial class MainForm : Form
 
     private void ShowMainFormToolStripButton_Click(object sender, EventArgs e)
     {
-        Utils.Utils.ActivateVisibleWindows();
+        ActivateVisibleWindows();
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ using Netch.Models;
 using Netch.Models.Modes;
 using Netch.Models.Modes.TunMode;
 using Netch.Servers;
+using Netch.Services;
 using Netch.Utils;
 using System.ComponentModel;
 using System.Net;
@@ -207,7 +208,7 @@ public class TUNController : IModeController
 
     private async Task SetupRouteTableAsync()
     {
-        Global.MainForm.StatusText(i18N.Translate("Setup Route Table Rule"));
+        AppEvents.ReportStatus(i18N.Translate("Setup Route Table Rule"));
         var tunNetworkInterface = NetworkInterfaceUtils.Get(_tun.InterfaceIndex);
 
         foreach (var serverRemoteAddress in _serverRemoteAddresses)

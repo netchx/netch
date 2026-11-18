@@ -4,6 +4,7 @@ using Microsoft.Diagnostics.Tracing.Session;
 using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
+using Netch.Services;
 
 namespace Netch.Utils;
 
@@ -48,13 +49,13 @@ public static class Bandwidth
         if (MainController.ModeController is NFController)
         {
             Interlocked.Exchange(ref received, 0UL);
-            Global.MainForm.BandwidthState(true);
+            AppEvents.SetBandwidthAvailable(true);
 
-            while (Global.MainForm.State != State.Stopped)
+            while (AppEvents.State != State.Stopped)
             {
                 await Task.Delay(1000);
-                if (Global.MainForm.State == State.Started)
-                    Global.MainForm.OnBandwidthUpdated(Interops.Redirector.GetTrafficBytes());
+                if (AppEvents.State == State.Started)
+                    AppEvents.ReportBandwidth(Interops.Redirector.GetTrafficBytes());
             }
 
             return;
@@ -95,7 +96,7 @@ public static class Bandwidth
         if (!processes.Any())
             return;
 
-        Global.MainForm.BandwidthState(true);
+        AppEvents.SetBandwidthAvailable(true);
 
         Task.Run(() =>
             {
@@ -127,10 +128,10 @@ public static class Bandwidth
             .Forget();
 
         // Poll without pinning a thread-pool thread for the whole session.
-        while (Global.MainForm.State != State.Stopped)
+        while (AppEvents.State != State.Stopped)
         {
             await Task.Delay(1000);
-            Global.MainForm.OnBandwidthUpdated(Interlocked.Read(ref received));
+            AppEvents.ReportBandwidth(Interlocked.Read(ref received));
         }
     }
 

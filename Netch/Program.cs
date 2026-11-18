@@ -104,7 +104,7 @@ public static class Program
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(Global.MainForm);
+        Application.Run(MainForm.Instance);
     }
 
 #pragma warning restore VSTHRD002
@@ -205,7 +205,7 @@ public static class Program
         var (arg, endFunc) = receive;
         if (arg == Constants.Parameter.Show)
         {
-            Utils.Utils.ActivateVisibleWindows();
+            MainForm.ActivateVisibleWindows();
         }
 
         endFunc(string.Empty);

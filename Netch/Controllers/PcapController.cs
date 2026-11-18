@@ -1,25 +1,23 @@
 ﻿using System.Text;
 using Microsoft.VisualStudio.Threading;
-using Netch.Forms;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Models.Modes;
 using Netch.Models.Modes.ShareMode;
 using Netch.Servers;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Controllers;
 
 public class PcapController : Guard, IModeController
 {
-    private readonly LogForm _form;
     private ShareMode _mode = null!;
     private SocksServer _server = null!;
 
     public PcapController() : base("pcap2socks.exe", encoding: Encoding.UTF8)
     {
-        _form = new LogForm(Global.MainForm);
-        _form.CreateControl();
+        AppEvents.OpenShareModeLog();
     }
 
     protected override IEnumerable<string> StartedKeywords { get; } = new[] { "└" };
@@ -57,27 +55,18 @@ public class PcapController : Guard, IModeController
 
     public override async Task StopAsync()
     {
-        Global.MainForm.Invoke(() => { _form.Close(); });
+        AppEvents.CloseShareModeLog();
         await StopGuardAsync();
-    }
-
-    ~PcapController()
-    {
-        _form.Dispose();
     }
 
     protected override void OnReadNewLine(string line)
     {
-        Global.MainForm.BeginInvoke(() =>
-        {
-            if (!_form.IsDisposed)
-                _form.richTextBox1.AppendText(line + "\n");
-        });
+        AppEvents.AppendShareModeLog(line);
     }
 
     protected override void OnStarted()
     {
-        Global.MainForm.BeginInvoke(() => _form.Show());
+        AppEvents.ShowShareModeLog();
     }
 
     protected override void OnStartFailed()

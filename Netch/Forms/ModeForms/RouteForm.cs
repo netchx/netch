@@ -87,7 +87,7 @@ public partial class RouteForm : BindingForm
             _mode.WriteFile();
             MessageBoxX.Show(i18N.Translate("Mode updated successfully"));
         }
-        Global.MainForm.ModeComboBox.SelectedItem = _mode;
+        MainForm.Instance.ModeComboBox.SelectedItem = _mode;
         Close();
     }
 

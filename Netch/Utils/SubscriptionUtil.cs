@@ -1,4 +1,5 @@
 using Netch.Models;
+using Netch.Services;
 using System.Net;
 
 namespace Netch.Utils;
@@ -36,11 +37,11 @@ public static class SubscriptionUtil
                 Global.Settings.Server.AddRange(servers);
             }
 
-            Global.MainForm.NotifyTip(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
+            AppEvents.Notify(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
         }
         catch (Exception e)
         {
-            Global.MainForm.NotifyTip($"{i18N.TranslateFormat("Update servers failed from {0}", item.Remark)}\n{e.Message}", info: false);
+            AppEvents.Notify($"{i18N.TranslateFormat("Update servers failed from {0}", item.Remark)}\n{e.Message}", false);
             Log.Warning(e, "Update servers failed");
         }
     }

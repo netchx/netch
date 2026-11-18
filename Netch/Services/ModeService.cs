@@ -32,7 +32,7 @@ public class ModeService
         LoadCore(ModeDirectoryFullName);
         // Sort() would refresh the combo box as well; populate it only once.
         SortCollection();
-        Global.MainForm.LoadModes();
+        AppEvents.RaiseModesChanged();
     }
 
     private void LoadCore(string modeDirectory)
@@ -82,7 +82,7 @@ public class ModeService
     public void Sort()
     {
         SortCollection();
-        Global.MainForm.LoadModes();
+        AppEvents.RaiseModesChanged();
     }
 
     public static void Delete(Mode mode)
@@ -90,7 +90,7 @@ public class ModeService
         if (mode.FullName == null)
             throw new ArgumentException(nameof(mode.FullName));
 
-        Global.MainForm.ModeComboBox.Items.Remove(mode);
+        AppEvents.RaiseModeDeleted(mode);
         Global.Modes.Remove(mode);
 
         if (File.Exists(mode.FullName))
