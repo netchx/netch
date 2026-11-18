@@ -1,21 +1,33 @@
+using System.Runtime.Versioning;
 using Windows.System;
-using Windows.Win32.UI.Input.KeyboardAndMouse;
 
-namespace Netch.App.Helpers;
+namespace Netch.Models;
 
-/// <summary>A global hotkey, stored in <see cref="Models.Scene.Hotkey" /> as text such as "Ctrl+Alt+1".</summary>
-internal readonly record struct Hotkey(HOT_KEY_MODIFIERS Modifiers, VirtualKey Key)
+/// <summary>Values match the MOD_* flags of RegisterHotKey.</summary>
+[Flags]
+public enum HotkeyModifiers
+{
+    None = 0,
+    Alt = 0x1,
+    Control = 0x2,
+    Shift = 0x4,
+    Windows = 0x8
+}
+
+/// <summary>A global hotkey, stored in <see cref="Scene.Hotkey" /> as text such as "Ctrl+Alt+1".</summary>
+[SupportedOSPlatform("windows10.0.10240")]
+public readonly record struct Hotkey(HotkeyModifiers Modifiers, VirtualKey Key)
 {
     public override string ToString()
     {
         var parts = new List<string>();
-        if (Modifiers.HasFlag(HOT_KEY_MODIFIERS.MOD_CONTROL))
+        if (Modifiers.HasFlag(HotkeyModifiers.Control))
             parts.Add("Ctrl");
-        if (Modifiers.HasFlag(HOT_KEY_MODIFIERS.MOD_ALT))
+        if (Modifiers.HasFlag(HotkeyModifiers.Alt))
             parts.Add("Alt");
-        if (Modifiers.HasFlag(HOT_KEY_MODIFIERS.MOD_SHIFT))
+        if (Modifiers.HasFlag(HotkeyModifiers.Shift))
             parts.Add("Shift");
-        if (Modifiers.HasFlag(HOT_KEY_MODIFIERS.MOD_WIN))
+        if (Modifiers.HasFlag(HotkeyModifiers.Windows))
             parts.Add("Win");
 
         parts.Add(Key is >= VirtualKey.Number0 and <= VirtualKey.Number9 or >= VirtualKey.A and <= VirtualKey.Z
@@ -31,23 +43,23 @@ internal readonly record struct Hotkey(HOT_KEY_MODIFIERS Modifiers, VirtualKey K
         if (string.IsNullOrWhiteSpace(text))
             return false;
 
-        HOT_KEY_MODIFIERS modifiers = 0;
+        var modifiers = HotkeyModifiers.None;
         VirtualKey? key = null;
         foreach (var part in text.Split('+', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
         {
             switch (part.ToLowerInvariant())
             {
                 case "ctrl":
-                    modifiers |= HOT_KEY_MODIFIERS.MOD_CONTROL;
+                    modifiers |= HotkeyModifiers.Control;
                     break;
                 case "alt":
-                    modifiers |= HOT_KEY_MODIFIERS.MOD_ALT;
+                    modifiers |= HotkeyModifiers.Alt;
                     break;
                 case "shift":
-                    modifiers |= HOT_KEY_MODIFIERS.MOD_SHIFT;
+                    modifiers |= HotkeyModifiers.Shift;
                     break;
                 case "win":
-                    modifiers |= HOT_KEY_MODIFIERS.MOD_WIN;
+                    modifiers |= HotkeyModifiers.Windows;
                     break;
                 default:
                     if (key != null || !TryParseKey(part, out var parsed))
@@ -58,7 +70,7 @@ internal readonly record struct Hotkey(HOT_KEY_MODIFIERS Modifiers, VirtualKey K
             }
         }
 
-        if (key == null || modifiers == 0)
+        if (key == null || modifiers == HotkeyModifiers.None)
             return false;
 
         hotkey = new Hotkey(modifiers, key.Value);
@@ -72,12 +84,14 @@ internal readonly record struct Hotkey(HOT_KEY_MODIFIERS Modifiers, VirtualKey K
 
     private static bool TryParseKey(string text, out VirtualKey key)
     {
+        key = default;
         if (text.Length == 1 && char.IsAsciiLetterOrDigit(text[0]))
         {
             key = (VirtualKey)char.ToUpperInvariant(text[0]);
             return true;
         }
 
-        return Enum.TryParse(text, true, out key) && !IsModifier(key);
+        // Enum.TryParse also accepts numbers, which ToString never writes.
+        return char.IsAsciiLetter(text[0]) && Enum.TryParse(text, true, out key) && !IsModifier(key);
     }
 }

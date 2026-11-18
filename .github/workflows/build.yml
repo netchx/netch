@@ -100,6 +100,10 @@ jobs:
         shell: pwsh
         run: dotnet build .\RedirectorTester\RedirectorTester.csproj -c Release -p:Platform=x64
 
+      - name: Build WinUI app
+        shell: pwsh
+        run: dotnet build .\Netch.App\Netch.App.csproj -c Release -p:Platform=x64
+
       - name: Test
         shell: pwsh
         run: |

@@ -3,10 +3,10 @@ using System.Drawing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.VisualStudio.Threading;
-using Netch.App.Helpers;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
+using Windows.Win32.UI.Input.KeyboardAndMouse;
 
 namespace Netch.App.Services;
 
@@ -23,7 +23,10 @@ public sealed partial class Tray : ObservableObject
     {
     }
 
-    /// <summary>Hotkeys another program already owns, e.g. "Ctrl+Alt+1"; empty when all are registered.</summary>
+    /// <summary>
+    ///     Hotkeys that could not be registered, e.g. "Ctrl+Alt+1", because another program or an earlier scene
+    ///     owns them; empty when all are registered.
+    /// </summary>
     [ObservableProperty]
     public partial string HotkeyConflicts { get; private set; } = string.Empty;
 
@@ -51,10 +54,7 @@ public sealed partial class Tray : ObservableObject
         if (_icon == null)
             return;
 
-        foreach (var id in _hotkeys.Keys)
-            _icon.UnregisterHotkey(id);
-        _hotkeys.Clear();
-
+        UnregisterHotkeys();
         var conflicts = new List<string>();
         var nextId = 1;
         foreach (var scene in SceneService.Scenes)
@@ -62,13 +62,24 @@ public sealed partial class Tray : ObservableObject
             if (!Hotkey.TryParse(scene.Hotkey, out var hotkey))
                 continue;
 
-            if (_icon.RegisterHotkey(nextId, hotkey.Modifiers, (uint)hotkey.Key))
+            if (_icon.RegisterHotkey(nextId, (HOT_KEY_MODIFIERS)hotkey.Modifiers, (uint)hotkey.Key))
                 _hotkeys[nextId++] = scene;
             else
                 conflicts.Add(hotkey.ToString());
         }
 
         HotkeyConflicts = string.Join(", ", conflicts);
+    }
+
+    /// <summary>
+    ///     Releases the scene hotkeys, e.g. while the user records a new one: a registered combination
+    ///     would toggle its scene instead of reaching the editor.
+    /// </summary>
+    public void UnregisterHotkeys()
+    {
+        foreach (var id in _hotkeys.Keys)
+            _icon?.UnregisterHotkey(id);
+        _hotkeys.Clear();
     }
 
     /// <summary>Removes the icon and closes the flyout; used on exit.</summary>
@@ -98,8 +109,9 @@ public sealed partial class Tray : ObservableObject
             actions.Add(action);
         }
 
+        // "&" marks a mnemonic in native menus; "&&" shows it as text.
         foreach (var scene in SceneService.Scenes)
-            Add(new MenuEntry(scene.Name, session.ActiveScene == scene && !session.IsIdle, !session.IsBusy),
+            Add(new MenuEntry(scene.Name.Replace("&", "&&"), session.ActiveScene == scene && !session.IsIdle, !session.IsBusy),
                 () => session.ToggleAsync(scene).Forget());
 
         if (entries.Count > 0)

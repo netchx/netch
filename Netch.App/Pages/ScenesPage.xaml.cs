@@ -132,7 +132,7 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     public bool HasText(string? text) => !string.IsNullOrEmpty(text);
 
-    public string HotkeyConflictText(string conflicts) => i18N.TranslateFormat("Hotkeys in use by another program: {0}", conflicts);
+    public string HotkeyConflictText(string conflicts) => i18N.TranslateFormat("These hotkeys are already in use and do not work: {0}", conflicts);
 
     private async void PowerButton_Click(object sender, RoutedEventArgs e)
     {
@@ -215,7 +215,17 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         var oldServer = scene?.ServerId;
 
         var dialog = new SceneEditorDialog(scene);
-        var result = await ShowDialogAsync(dialog);
+        Tray.UnregisterHotkeys();
+        ContentDialogResult result;
+        try
+        {
+            result = await ShowDialogAsync(dialog);
+        }
+        finally
+        {
+            Tray.RegisterHotkeys();
+        }
+
         if (dialog.ModeToOpen != null)
         {
             App.MainWindow?.Navigate("Modes");

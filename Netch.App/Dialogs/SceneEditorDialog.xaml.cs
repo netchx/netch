@@ -2,13 +2,11 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using Netch.App.Helpers;
 using Netch.App.ViewModels;
 using Netch.Models;
 using Netch.Models.Modes;
 using Windows.System;
 using Windows.UI.Core;
-using Windows.Win32.UI.Input.KeyboardAndMouse;
 
 namespace Netch.App.Dialogs;
 
@@ -56,17 +54,17 @@ public sealed partial class SceneEditorDialog : ContentDialog
         if (Hotkey.IsModifier(e.Key))
             return;
 
-        HOT_KEY_MODIFIERS modifiers = 0;
+        var modifiers = HotkeyModifiers.None;
         if (IsDown(VirtualKey.Control))
-            modifiers |= HOT_KEY_MODIFIERS.MOD_CONTROL;
+            modifiers |= HotkeyModifiers.Control;
         if (e.KeyStatus.IsMenuKeyDown || IsDown(VirtualKey.Menu))
-            modifiers |= HOT_KEY_MODIFIERS.MOD_ALT;
+            modifiers |= HotkeyModifiers.Alt;
         if (IsDown(VirtualKey.Shift))
-            modifiers |= HOT_KEY_MODIFIERS.MOD_SHIFT;
+            modifiers |= HotkeyModifiers.Shift;
         if (IsDown(VirtualKey.LeftWindows) || IsDown(VirtualKey.RightWindows))
-            modifiers |= HOT_KEY_MODIFIERS.MOD_WIN;
+            modifiers |= HotkeyModifiers.Windows;
 
-        if (modifiers != 0)
+        if (modifiers != HotkeyModifiers.None)
             ViewModel.Hotkey = new Hotkey(modifiers, e.Key).ToString();
     }
 

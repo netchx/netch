@@ -51,14 +51,14 @@ public static class Format
             return i18N.Translate("Just now");
         if (ago.TotalHours < 1)
             return i18N.TranslateFormat("{0} min ago", (int)ago.TotalMinutes);
-        if (ago.TotalDays < 1 && time.Date == DateTime.Today)
-            return i18N.TranslateFormat("{0} h ago", (int)ago.TotalHours);
-        if (time.Date == DateTime.Today.AddDays(-1))
-            return i18N.Translate("Yesterday");
-        if (ago.TotalDays < 7)
-            return i18N.TranslateFormat("{0} days ago", (int)Math.Ceiling(ago.TotalDays));
 
-        return time.ToString("yyyy-MM-dd");
+        return (DateTime.Today - time.Date).Days switch
+        {
+            0 => i18N.TranslateFormat("{0} h ago", (int)ago.TotalHours),
+            1 => i18N.Translate("Yesterday"),
+            var days and < 7 => i18N.TranslateFormat("{0} days ago", days),
+            _ => time.ToString("yyyy-MM-dd")
+        };
     }
 
     /// <summary>NAT test result: 1–3 from <see cref="Socks5ServerTestUtils" />, otherwise a failure detail such as "Wrong STUN Server!".</summary>

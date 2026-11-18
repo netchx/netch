@@ -327,5 +327,5 @@
   "Global hotkey": "全局热键",
   "Press a key combination": "按下组合键",
   "Hotkey unavailable": "热键不可用",
-  "Hotkeys in use by another program: {0}": "以下热键已被其他程序占用：{0}"
+  "These hotkeys are already in use and do not work: {0}": "以下热键已被占用，暂时无法使用：{0}"
 }

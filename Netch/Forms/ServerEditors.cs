@@ -12,19 +12,19 @@ namespace Netch.Forms;
 /// </summary>
 public static class ServerEditors
 {
-    public static void Create(IServerUtil util) => Show(util.TypeName, null);
+    public static void Create(IServerUtil util) => Show(Enum.Parse<EConfigType>(util.TypeName), null);
 
-    public static void Edit(Server server) => Show(ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).TypeName, server);
+    public static void Edit(Server server) => Show(server.ConfigType, server);
 
-    private static void Show(string typeName, Server? server)
+    private static void Show(EConfigType type, Server? server)
     {
-        switch (Enum.Parse<EConfigType>(typeName))
+        switch (type)
         {
             case EConfigType.AnyTLS:
             case EConfigType.MASQUE:
             case EConfigType.Naive:
             case EConfigType.TUIC:
-                new SingboxServerForm(server, Enum.Parse<EConfigType>(typeName)).ShowEditor();
+                new SingboxServerForm(server, type).ShowEditor();
                 break;
             case EConfigType.HTTP:
                 (server == null ? new HttpForm() : new HttpForm((HttpServer)server)).ShowEditor();
@@ -54,7 +54,7 @@ public static class ServerEditors
                 (server == null ? new WireGuardForm() : new WireGuardForm((WireGuardServer)server)).ShowEditor();
                 break;
             default:
-                throw new NotSupportedException($"No editor for server type {typeName}");
+                throw new NotSupportedException($"No editor for server type {type}");
         }
     }
 

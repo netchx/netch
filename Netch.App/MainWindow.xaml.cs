@@ -30,6 +30,7 @@ public sealed partial class MainWindow : Window
     };
 
     private readonly HWND _hwnd;
+    private double _minimumSizeScale;
 
     public MainWindow()
     {
@@ -41,13 +42,9 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Netch.ico"));
 
         var scale = PInvoke.GetDpiForWindow(_hwnd) / 96.0;
-        if (AppWindow.Presenter is OverlappedPresenter presenter)
-        {
-            presenter.PreferredMinimumWidth = (int)(MinimumWidth * scale);
-            presenter.PreferredMinimumHeight = (int)(MinimumHeight * scale);
-        }
-
+        ApplyMinimumSize(scale);
         ResizeAndCenter((int)(DefaultWidth * scale), (int)(DefaultHeight * scale));
+        RootGrid.Loaded += (_, _) => RootGrid.XamlRoot.Changed += (root, _) => ApplyMinimumSize(root.RasterizationScale);
 
         ApplyTheme(Global.Settings.Theme);
         RootGrid.ActualThemeChanged += (_, _) => UpdateCaptionButtons();
@@ -97,6 +94,20 @@ public sealed partial class MainWindow : Window
         AppWindow.Show();
         Activate();
         PInvoke.SetForegroundWindow(_hwnd);
+    }
+
+    /// <summary>
+    ///     The presenter takes physical pixels and keeps them when the window moves to a display with another
+    ///     scale, so the 800×600 minimum is applied again for each scale.
+    /// </summary>
+    private void ApplyMinimumSize(double scale)
+    {
+        if (scale == _minimumSizeScale || AppWindow.Presenter is not OverlappedPresenter presenter)
+            return;
+
+        _minimumSizeScale = scale;
+        presenter.PreferredMinimumWidth = (int)(MinimumWidth * scale);
+        presenter.PreferredMinimumHeight = (int)(MinimumHeight * scale);
     }
 
     private void ResizeAndCenter(int width, int height)

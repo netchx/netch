@@ -100,7 +100,9 @@ public sealed partial class Session : ObservableObject
     }
 
     /// <summary>The scene the power button acts on: the running or last started one, else the most recently used.</summary>
-    public Scene? CurrentScene => ActiveScene ?? SceneService.Scenes.MaxBy(s => s.LastUsed ?? DateTime.MinValue);
+    public Scene? CurrentScene => ActiveScene is { } active && SceneService.Scenes.Contains(active)
+        ? active
+        : SceneService.Scenes.MaxBy(s => s.LastUsed ?? DateTime.MinValue);
 
     public Task ToggleAsync(Scene scene) => IsRunning && ActiveScene == scene ? StopAsync() : StartAsync(scene);
 
@@ -109,9 +111,6 @@ public sealed partial class Session : ObservableObject
     {
         if (IsBusy)
             return;
-
-        if (IsRunning)
-            await StopAsync();
 
         var server = SceneService.FindServer(scene);
         var mode = SceneService.FindMode(scene);
@@ -122,6 +121,9 @@ public sealed partial class Session : ObservableObject
                 : "The mode of this scene no longer exists. Edit the scene to choose another mode.");
             return;
         }
+
+        if (IsRunning)
+            await StopAsync();
 
         ErrorMessage = null;
         ActiveScene = scene;
