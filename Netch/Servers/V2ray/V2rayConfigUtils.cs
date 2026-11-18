@@ -9,7 +9,7 @@ namespace Netch.Servers;
 
 public static class V2rayConfigUtils
 {
-    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server, bool useXray = true)
+    public static V2rayConfig GenerateClientConfig(Server server, string listen, ushort port)
     {
         var v2rayConfig = new V2rayConfig();
         v2rayConfig.log = new Log4Ray
@@ -28,7 +28,7 @@ public static class V2rayConfigUtils
             ]
 
         };
-        v2rayConfig.inbounds = [GenerateInbound(useXray)];
+        v2rayConfig.inbounds = [GenerateInbound(listen, port)];
 
         v2rayConfig.outbounds = [GenerateOutbound(server)];
 
@@ -204,7 +204,7 @@ public static class V2rayConfigUtils
         var streamSettings = new StreamSettings4Ray();
         try
         {
-            var network = server.GetNetwork();
+            var network = server.Network.Trim().ToLowerInvariant();
             if (server.ConfigType == EConfigType.Hysteria2)
             {
                 network = "hysteria";
@@ -576,14 +576,14 @@ public static class V2rayConfigUtils
         return uuid.GenerateUUIDv5();
     }
 
-    private static Inbounds4Ray GenerateInbound(bool useXray)
+    private static Inbounds4Ray GenerateInbound(string listen, ushort port)
     {
         var inbound = new Inbounds4Ray();
-        var protocol = useXray ? EInboundProtocol.mixed : EInboundProtocol.socks;
+        var protocol = EInboundProtocol.mixed;
         inbound.tag = protocol.ToString();
-        inbound.port = Global.Settings.Socks5LocalPort;
+        inbound.port = port;
         inbound.protocol = protocol.ToString();
-        inbound.listen = Global.Settings.LocalAddress;
+        inbound.listen = listen;
 
         inbound.settings = new Inboundsettings4Ray();
         inbound.settings.auth = "noauth";

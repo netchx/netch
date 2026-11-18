@@ -330,10 +330,6 @@ public class ServerUtilBase
             }
         }
 
-        if (profileItem.Network.IsNotEmpty() && !Constants.Networks.Contains(profileItem.Network))
-        {
-            profileItem.Network = Constants.DefaultNetwork;
-        }
         return 0;
     }
 

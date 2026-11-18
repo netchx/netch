@@ -1,23 +1,19 @@
 using Netch.Enums;
+using Netch.Interfaces;
 using Netch.Models;
 
 namespace Netch.Servers;
 
-/// <summary>
-/// Selects the proxy core from the server protocol and its transport settings.
-/// </summary>
 public static class CoreSelector
 {
-    public static bool UseXray(Server server)
+    public static IServerController CreateController(Server server)
     {
-        return server.ConfigType switch
-        {
-            EConfigType.VLESS => server.StreamSecurity is "tls" or "reality",
-            EConfigType.VMess => server.StreamSecurity is "tls" or "reality",
-            EConfigType.Trojan => server.StreamSecurity is "tls" or "reality",
-            EConfigType.WireGuard or EConfigType.Hysteria2 => true,
-            EConfigType.Shadowsocks => Constants.SsSecuritiesInXray.Contains(server.ProtoExtra.SsMethod),
-            _ => false
-        };
+        return UsesXhttp(server) ? new XrayController() : new SingboxController();
+    }
+
+    public static bool UsesXhttp(Server server)
+    {
+        return server.ConfigType is EConfigType.VMess or EConfigType.VLESS or EConfigType.Trojan or EConfigType.Shadowsocks
+            && string.Equals(server.Network?.Trim(), nameof(ETransport.xhttp), StringComparison.OrdinalIgnoreCase);
     }
 }

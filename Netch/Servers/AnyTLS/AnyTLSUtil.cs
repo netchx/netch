@@ -22,8 +22,6 @@ public sealed class AnyTLSUtil : SingboxUtilBase, IServerUtil
         return ToShareUri(EConfigType.AnyTLS, s, Utils.Utils.UrlEncode(s.Password), TlsQuery(s));
     }
 
-    public IServerController GetController() => new SingboxController();
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);

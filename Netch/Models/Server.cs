@@ -160,6 +160,8 @@ public record ProtocolExtraItem
     
     // SS
     public string? SsMethod { get; set; }
+    public string? SsPlugin { get; set; }
+    public string? SsPluginOptions { get; set; }
 
     // wireguard
     public string? WgPublicKey { get; set; }

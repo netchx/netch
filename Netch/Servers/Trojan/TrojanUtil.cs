@@ -52,11 +52,6 @@ public class TrojanUtil : ServerUtilBase, IServerUtil
         return ToUri(EConfigType.Trojan, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
-    public IServerController GetController()
-    {
-        return new V2rayController();
-    }
-
     public IEnumerable<Server> ParseUri(string str)
     {
         TrojanServer item = new();

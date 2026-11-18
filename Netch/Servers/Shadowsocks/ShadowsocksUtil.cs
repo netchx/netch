@@ -50,7 +50,12 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
         var plugin = string.Empty;
         var pluginArgs = string.Empty;
 
-        if (item.Network == nameof(ETransport.tcp) && item.HeaderType == Constants.TcpHeaderHttp)
+        if (item.ProtoExtra.SsPlugin.IsNotEmpty())
+        {
+            plugin = item.ProtoExtra.SsPlugin;
+            pluginArgs = item.ProtoExtra.SsPluginOptions ?? string.Empty;
+        }
+        else if (item.Network == nameof(ETransport.tcp) && item.HeaderType == Constants.TcpHeaderHttp)
         {
             plugin = "obfs-local";
             pluginArgs = $"obfs=http;obfs-host={item.RequestHost};";
@@ -107,11 +112,6 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
         }
 
         return ToUri(EConfigType.Shadowsocks, item.Address, item.Port, pw, dicQuery, remark);
-    }
-
-    public IServerController GetController()
-    {
-        return new V2rayController();
     }
 
     public IEnumerable<Server> ParseUri(string str)
@@ -243,6 +243,9 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
             {
                 pluginName = "obfs-local";
             }
+
+            item.ProtoExtra.SsPlugin = pluginName;
+            item.ProtoExtra.SsPluginOptions = string.Join(";", pluginParts.Skip(1));
 
             // Parse obfs-local plugin
             if (pluginName == "obfs-local")

@@ -25,8 +25,6 @@ public sealed class MASQUEUtil : SingboxUtilBase, IServerUtil
         return ToShareUri(EConfigType.MASQUE, s, $"{Utils.Utils.UrlEncode(s.Username)}:{Utils.Utils.UrlEncode(s.Password)}", query);
     }
 
-    public IServerController GetController() => new V2rayController();
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);

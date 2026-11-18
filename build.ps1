@@ -79,7 +79,6 @@ function Test-OtherCoresCurrent {
 		'.\Other\release\aiodns.bin'                      = $null
 		'.\Other\release\pcap2socks.exe'                  = 'de84f4a32c8c9d4888197345d52ba793e4bdf510614852e76f336f627e43def3'
 		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'bc5827ca00c7f312125365e8669794fffdbdf1cb0efa948cddd94a0c800c8c31'
-		'.\Other\release\v2ray-sn.exe'                    = '62f1df5d02aa2cfb5d1f15828d3561c415a7687a2efe869ab38e6ce9a0c135d6'
 		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
 		'.\Other\release\xray.exe'                        = 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15'
 	}
@@ -119,6 +118,7 @@ try {
 		Copy-Item -Recurse -Force '..\Storage\mode' '.'
 		Copy-Item -Force '..\Storage\stun.txt' 'bin'
 		Copy-Item -Force '..\Storage\nfdriver.sys' 'bin'
+		Copy-Item -Recurse -Force '..\Storage\sing_box' 'bin'
 		Copy-Item -Force '..\Storage\aiodns.conf' 'bin'
 		Copy-Item -Force '..\Storage\README.md' 'bin'
 
@@ -165,7 +165,7 @@ try {
 	}
 	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
-	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin"
+	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin" -Exclude 'v2ray-sn.exe'
 
 	$netchPublishPath = ".\Netch\bin\publish\$Configuration"
 	if ( Test-ShouldBuild "$netchPublishPath\Netch.exe" ) {

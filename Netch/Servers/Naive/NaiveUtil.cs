@@ -31,8 +31,6 @@ public sealed class NaiveUtil : SingboxUtilBase, IServerUtil
         return $"{scheme}{userInfo}@{GetIpv6(s.Address)}:{s.Port}{queryText}{remark}";
     }
 
-    public IServerController GetController() => new SingboxController();
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);

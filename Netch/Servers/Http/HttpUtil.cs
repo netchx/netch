@@ -32,11 +32,6 @@ public class HttpUtil : IServerUtil
         return string.Empty;
     }
 
-    public IServerController GetController()
-    {
-        return new SocksController();
-    }
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);

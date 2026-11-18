@@ -25,8 +25,6 @@ public sealed class TUICUtil : SingboxUtilBase, IServerUtil
         return ToShareUri(EConfigType.TUIC, s, $"{Utils.Utils.UrlEncode(s.Username)}:{Utils.Utils.UrlEncode(s.Password)}", query);
     }
 
-    public IServerController GetController() => new SingboxController();
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);

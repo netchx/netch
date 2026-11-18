@@ -27,7 +27,7 @@
 - **按进程加速**：通过 Netfilter 驱动接管指定游戏或应用的 TCP/UDP 流量，无需修改目标程序；支持“包括子进程”，可覆盖启动器拉起的游戏和反作弊。
 - **内置游戏规则**：“游戏合集”模式一次覆盖 EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2 及常见反作弊。
 - **低延迟转发**：游戏 TCP 关闭 Nagle，UDP 散布/聚集发送，转发线程高优先级运行，代理 DNS 复用同一个 UDP 关联。
-- **多协议多核心**：Xray-core、SagerNet v2ray-core 与 sing-box 按节点类型自动选择，支持 VLESS/VMess/Trojan、Shadowsocks、WireGuard、Hysteria2、TUIC、AnyTLS 等。
+- **多协议多核心**：sing-box 处理常用节点，Xray-core 处理 XHTTP，支持 VLESS/VMess/Trojan、Shadowsocks、WireGuard、Hysteria2、TUIC、AnyTLS 等。
 - **三种工作模式**：进程模式、TUN 模式和共享模式（局域网设备共享代理）。
 - **连通性检测**：显示 HTTP 延迟、出口国家与 UDP NAT 类型。
 
@@ -50,16 +50,19 @@
 
 ## 支持协议
 
-| 协议 | 代理核心 |
+| 协议或传输 | 代理核心 |
 | --- | --- |
-| SOCKS5 | 直接使用（模式不支持认证时经 SagerNet v2ray-core 转换） |
-| HTTP | SagerNet v2ray-core |
-| VLESS、VMess、Trojan（TLS / REALITY） | Xray-core |
-| VLESS、VMess、Trojan（无 TLS 的旧传输） | SagerNet v2ray-core |
-| Shadowsocks | Xray-core 或 SagerNet v2ray-core（按加密方式选择） |
-| WireGuard、Hysteria2 | Xray-core |
-| TUIC、AnyTLS、NaiveProxy | sing-box，已验证 1.14.4 |
+| SOCKS5 | 支持时直连，需要本地转接时使用 sing-box |
+| HTTP、Shadowsocks、WireGuard、Hysteria2 | sing-box |
+| VMess、VLESS、Trojan（TCP、WebSocket、gRPC、HTTP、HTTPUpgrade） | sing-box |
+| XHTTP | Xray-core |
+| TUIC、AnyTLS、NaiveProxy | sing-box |
 | MASQUE | 支持 CONNECT-IP 的 sing-box，已验证 1.15.0-alpha.13 |
+
+SagerNet v2ray-core 已退役。mKCP、带旧加密或报头的 QUIC、旧式 TCP HTTP 伪装和 gRPC multi 模式需要调整服务端后再导入。已保存的旧节点会给出迁移提示。标准 VLESS Vision、REALITY 和裸 QUIC 使用 sing-box。
+
+旧 V2Ray Mux、自定义 REALITY 扩展和自定义 ECH 配置无法等价迁移。整张证书的 SHA-256 固定值需换成对应 PEM 证书，避免降级校验。Shadowsocks 支持 sing-box 的密码套件，以及 obfs-local 和 v2ray-plugin。
+
 
 ## 快速开始
 
@@ -100,9 +103,8 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 
 ## 代理核心
 
-- **Xray-core**：构建脚本下载固定版本并校验 SHA-256，用于 TLS、REALITY、Vision、XHTTP、WebSocket、WireGuard、Hysteria2 等配置。
-- **SagerNet v2ray-core**（`v2ray-sn.exe`）：用于 Xray 已移除的旧传输和部分 Shadowsocks 加密方式。
-- **sing-box**：构建脚本不打包。将官方 Windows x64 版放在 `bin` 或 `bin\sing_box`。NaiveProxy 需要同一发行包中的 `libcronet.dll`，请与 `sing-box.exe` 放在同一目录。MASQUE 使用 `masque-client`，需要 1.15.0-alpha.7 或更新版本。其余三种协议可使用 1.14.4 稳定版。
+- **sing-box**：发布包在 `bin\sing_box` 中附带官方 Windows x64 版 1.14.4 和同包的 `libcronet.dll`。NaiveProxy 使用配套 DLL。需要 MASQUE 时，可将支持 `masque-client` 的新版核心和配套 DLL 放入 `bin`，覆盖默认核心选择。 [对应版本源代码](https://github.com/SagerNet/sing-box/tree/v1.14.4)
+- **Xray-core**：构建脚本下载固定版本并校验 SHA-256，仅用于 XHTTP 节点。
 
 ## 从源码构建
 
@@ -160,7 +162,7 @@ git push origin v2.0.1
 | `Netch` | WinForms 界面、配置、节点管理和代理核心编排。 |
 | `Redirector` | 基于 Netfilter 的 TCP/UDP 流量重定向组件。 |
 | `RouteHelper` | 路由与网络辅助组件。 |
-| `Other` | Xray、SagerNet 等代理核心的构建和打包脚本。 |
+| `Other` | Xray 与配套组件的构建和打包脚本。 |
 | `Storage` | 模式规则（`mode`，游戏规则在 `mode\Game`）、翻译、STUN 列表和运行时资源。 |
 
 ## 故障排查
@@ -209,7 +211,7 @@ git push origin v2.0.1
 - 修复单节点测速未等待结果、启动后测速间隔为 0 时的死循环、每秒整窗重绘、通过代理更新订阅失败后代理未停止。（`Netch/Forms/MainForm.cs`）
 - 代理核心启动改为事件驱动，核心提前退出时立即报错，不再等满 50 秒。（`Netch/Controllers/Guard.cs`）
 - GeoIP 数据库只加载一次，`Ping` 对象正确释放；防火墙规则每次运行只检查一次；TUN 模式并行解析、更快检测虚拟网卡。（`Netch/Utils/Utils.cs`、`Netch/Utils/Firewall.cs`、`Netch/Controllers/TUNController.cs`）
-- 移除已不再使用的 SSH、ShadowsocksR、Socks5（旧版）和 Trojan 控制器实现，相关节点改由 Xray / SagerNet / sing-box 处理。
+- 移除已不再使用的 SSH、ShadowsocksR、Socks5（旧版）和 Trojan 控制器实现，相关可迁移节点由当前核心分流。
 - 两个 GBK 编码的源文件转为 UTF-8；启用可空注解上下文，消除约 670 条 CS8632 警告。
 
 #### 构建

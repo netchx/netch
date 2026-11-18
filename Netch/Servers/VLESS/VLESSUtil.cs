@@ -56,11 +56,6 @@ public class VLESSUtil : ServerUtilBase, IServerUtil
         return ToUri(EConfigType.VLESS, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
-    public IServerController GetController()
-    {
-        return new V2rayController();
-    }
-
     public IEnumerable<Server> ParseUri(string str)
     {
         VLESSServer item = new();

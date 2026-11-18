@@ -34,8 +34,6 @@ public interface IServerUtil
 
     string GetShareLink(Server s);
 
-    public IServerController GetController();
-
     public IEnumerable<Server> ParseUri(string text);
 
     bool CheckServer(Server s);

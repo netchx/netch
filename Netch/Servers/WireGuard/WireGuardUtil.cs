@@ -61,11 +61,6 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
         return ToUri(EConfigType.WireGuard, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
-    public IServerController GetController()
-    {
-        return new V2rayController();
-    }
-
     public IEnumerable<Server> ParseUri(string str)
     {
         WireGuardServer item = new();

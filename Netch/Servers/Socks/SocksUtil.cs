@@ -15,7 +15,7 @@ public class SocksUtil : ServerUtilBase, IServerUtil
 
     public string ShortName { get; } = "SOCKS";
 
-    public string[] UriScheme { get; } = { "socks", "socks5", "socks4" };
+    public string[] UriScheme { get; } = { "socks", "socks5" };
 
     public Type ServerType { get; } = typeof(SocksServer);
 
@@ -44,11 +44,6 @@ public class SocksUtil : ServerUtilBase, IServerUtil
         //new
         var pw = Utils.Utils.Base64Encode($"{item.Username}:{item.Password}", true);
         return ToUri(EConfigType.SOCKS, item.Address, item.Port, pw, null, remark);
-    }
-
-    public IServerController GetController()
-    {
-        return new SocksController();
     }
 
     public IEnumerable<Server> ParseUri(string str)

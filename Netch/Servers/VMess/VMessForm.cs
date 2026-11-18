@@ -20,7 +20,7 @@ public class VMessForm : ServerForm
             s => server.MuxEnabled = s switch { "" => null, "true" => true, "false" => false, _ => null },
             server.MuxEnabled?.ToString().ToLower() ?? "");
 
-        CreateComboBox("Network", "Network", Constants.Networks, s => server.Network = s, server.Network);
+        CreateComboBox("Network", "Network", Constants.Networks.Where(network => network != "kcp" || server.Network == "kcp").ToList(), s => server.Network = s, server.Network);
         CreateComboBox("FakeType", "Fake Type", Constants.AllHeaderTypes, s => server.HeaderType = s, server.HeaderType);
         CreateTextBox("Host", "Host", s => true, s => server.RequestHost = s, server.RequestHost);
         CreateTextBox("Path", "Path", s => true, s => server.Path = s, server.Path);

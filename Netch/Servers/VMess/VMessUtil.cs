@@ -65,11 +65,6 @@ public class VMessUtil : ServerUtilBase, IServerUtil
         return url;
     }
 
-    public IServerController GetController()
-    {
-        return new V2rayController();
-    }
-
     public IEnumerable<Server> ParseUri(string str)
     {
         VMessServer? item;

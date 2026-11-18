@@ -76,11 +76,6 @@ public class Hysteria2Util : ServerUtilBase, IServerUtil
         return ToUri(EConfigType.Hysteria2, item.Address, item.Port, item.Password, dicQuery, remark);
     }
 
-    public IServerController GetController()
-    {
-        return new V2rayController();
-    }
-
     public IEnumerable<Server> ParseUri(string text)
     {
         var server = new Hysteria2Server();
@@ -107,6 +102,7 @@ public class Hysteria2Util : ServerUtilBase, IServerUtil
             server.StreamSecurity = Constants.StreamSecurity;
         }
         server.ProtoExtra.Ports = GetQueryDecoded(query, "mport");
+        server.ProtoExtra.Obfs = GetQueryDecoded(query, "obfs", server.ProtoExtra.Obfs);
         server.ProtoExtra.SalamanderPass = GetQueryDecoded(query, "obfs-password");
 
         return new[] { server };

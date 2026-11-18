@@ -64,7 +64,7 @@ public static class MainController
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.ConfigType} {server.MaskedData()}");
 
-                ServerController = new V2rayController();
+                ServerController = CoreSelector.CreateController(server);
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
