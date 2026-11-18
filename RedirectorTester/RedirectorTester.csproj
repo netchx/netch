@@ -16,7 +16,7 @@
   <ItemGroup>
     <None Include="$(RedirectorOutputPath)\nfapi.dll;$(RedirectorOutputPath)\Redirector.bin;$(RedirectorOutputPath)\Redirector.pdb"
           Link="%(Filename)%(Extension)"
-          CopyToOutputDirectory="PreserveNewest" />
+          CopyToOutputDirectory="IfDifferent" />
   </ItemGroup>
 
 </Project>

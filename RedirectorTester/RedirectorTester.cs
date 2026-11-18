@@ -17,6 +17,8 @@ namespace RedirectorTester
 
             AIO_ICMPING,
 
+            AIO_DNSONLY,
+            AIO_DNSPROX,
             AIO_DNSHOST,
             AIO_DNSPORT,
 

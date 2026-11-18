@@ -9,56 +9,11 @@
 //
 
 
-#ifndef _NFDRIVER_H
-#define _NFDRIVER_H
+#ifndef _NFDRIVER_DATA_H
+#define _NFDRIVER_DATA_H
 
 #define NF_TCP_PACKET_BUF_SIZE 8192
 #define NF_UDP_PACKET_BUF_SIZE 2 * 65536
-
-/**
-*	IO data codes
-**/
-typedef enum _NF_DATA_CODE
-{
-	NF_TCP_CONNECTED,	// TCP connection established
-	NF_TCP_CLOSED,		// TCP connection closed
-	NF_TCP_RECEIVE,		// TCP data packet received
-	NF_TCP_SEND,		// TCP data packet sent
-	NF_TCP_CAN_RECEIVE,	// The buffer for TCP receives is empty
-	NF_TCP_CAN_SEND,	// The buffer for TCP sends is empty
-	NF_TCP_REQ_SUSPEND,	// Requests suspending TCP connection
-	NF_TCP_REQ_RESUME,	// Requests resuming TCP connection
-
-	NF_UDP_CREATED,		// UDP socket created
-	NF_UDP_CLOSED,		// UDP socket closed
-	NF_UDP_RECEIVE,		// UDP data packet received
-	NF_UDP_SEND,		// UDP data packet sent
-	NF_UDP_CAN_RECEIVE,	// The buffer for UDP receives is empty
-	NF_UDP_CAN_SEND,	// The buffer for UDP sends is empty
-	NF_UDP_REQ_SUSPEND,	// Requests suspending UDP address
-	NF_UDP_REQ_RESUME,	// Requests resuming UDP address
-
-	NF_REQ_ADD_HEAD_RULE,	// Add a rule to list head
-	NF_REQ_ADD_TAIL_RULE,	// Add a rule to list tail
-	NF_REQ_DELETE_RULES,	// Remove all rules
-
-	NF_TCP_CONNECT_REQUEST,	// Outgoing TCP connect request
-	NF_UDP_CONNECT_REQUEST,	// Outgoing UDP connect request
-
-	NF_TCP_DISABLE_USER_MODE_FILTERING, // Disable indicating TCP packets to user mode for a connection
-	NF_UDP_DISABLE_USER_MODE_FILTERING, // Disable indicating UDP packets to user mode for a socket
-
-	NF_REQ_SET_TCP_OPT,		// Set TCP socket options
-	NF_REQ_IS_PROXY,		// Check if process with specified id is local proxy
-
-	NF_TCP_REINJECT,	// Reinject pended packets
-	NF_TCP_REMOVE_CLOSED,	// Delete TCP context for the closed connection
-	NF_TCP_DEFERRED_DISCONNECT,	// Delete TCP context for the closed connection
-
-	NF_IP_RECEIVE,		// IP data packet received
-	NF_IP_SEND,		// IP data packet sent
-	NF_TCP_RECEIVE_PUSH,	// Push all TCP data packets
-} NF_DATA_CODE;
 
 typedef enum _NF_DIRECTION
 {
@@ -81,6 +36,7 @@ typedef enum _NF_FILTERING_FLAG
 	NF_READONLY = 256,				// Don't block the IP packets and indicate them to ipSend/ipReceive only for monitoring
 	NF_CONTROL_FLOW = 512,			// Use the flow limit rules even without NF_FILTER flag
 	NF_REDIRECT = 1024,			// Redirect the outgoing TCP connections to address specified in redirectTo
+	NF_BYPASS_IP_PACKETS = 2048,	// Bypass the traffic as IP packets, when used with NF_FILTER_AS_IP_PACKETS flag
 } NF_FILTERING_FLAG;
 
 #pragma pack(push, 1)
@@ -92,8 +48,8 @@ typedef enum _NF_FILTERING_FLAG
 #define AF_INET         2               /* internetwork: UDP, TCP, etc. */
 #endif
 
-#ifndef AF_INET6
-#define AF_INET6        23              /* Internetwork Version 6 */
+#if !defined(AF_INET6) && defined(_WIN32)
+#define AF_INET6        23          
 #endif
 
 // Protocols
@@ -105,13 +61,6 @@ typedef enum _NF_FILTERING_FLAG
 #ifndef IPPROTO_UDP
 #define IPPROTO_UDP 17
 #endif
-
-#define TCP_SOCKET_NODELAY      1
-#define TCP_SOCKET_KEEPALIVE    2
-#define TCP_SOCKET_OOBINLINE    3
-#define TCP_SOCKET_BSDURGENT    4
-#define TCP_SOCKET_ATMARK       5
-#define TCP_SOCKET_WINDOW       6
 
 /**
 *	Filtering rule
@@ -175,7 +124,7 @@ typedef UNALIGNED struct _NF_RULE_EX
 	unsigned long	filteringFlag;	// See NF_FILTERING_FLAG
 
 	// Process name tail mask (supports * as 0 or more symbols)
-	wchar_t			processName[MAX_PATH];
+	wchar_t			processName[_MAX_PATH];
 
 	NF_PORT_RANGE	localPortRange; // Local port(s)
 	NF_PORT_RANGE	remotePortRange; // Remote port(s)
@@ -327,7 +276,7 @@ typedef UNALIGNED struct _NF_BINDING_RULE
 	unsigned long	processId;	// Process identifier
 
 	// Process name tail mask (supports * as 0 or more symbols)
-	wchar_t			processName[MAX_PATH];
+	wchar_t			processName[_MAX_PATH];
 
 	unsigned short	localPort;	// Local port
 
@@ -358,92 +307,10 @@ typedef enum _NF_DRIVER_TYPE
 {
 	DT_UNKNOWN = 0,
 	DT_TDI = 1,
-	DT_WFP = 2
+	DT_WFP = 2,
+	DT_SOCK = 3,
 } NF_DRIVER_TYPE;
 
-#ifdef _NF_INTERNALS
-
-#define NF_REQ_GET_ADDR_INFO \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 101, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_GET_PROCESS_NAME \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 102, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_GET_DRIVER_TYPE \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 103, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_TCP_ABORT \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 104, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_FLOW_CTL \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 105, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_DELETE_FLOW_CTL \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 106, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_SET_TCP_FLOW_CTL \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 107, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_SET_UDP_FLOW_CTL \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 108, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_MODIFY_FLOW_CTL \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 109, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_GET_FLOW_CTL_STAT \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 110, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_CLEAR_TEMP_RULES \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 111, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_TEMP_RULE \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 112, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_SET_TEMP_RULES \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 113, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_HEAD_BINDING_RULE \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 114, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_TAIL_BINDING_RULE \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 115, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_DELETE_BINDING_RULES \
-	CTL_CODE(FILE_DEVICE_UNKNOWN, 116, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_HEAD_RULE_EX \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 117, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_TAIL_RULE_EX \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 118, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_ADD_TEMP_RULE_EX \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 119, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define NF_REQ_GET_UDP_ADDR_INFO \
-    CTL_CODE(FILE_DEVICE_UNKNOWN, 120, METHOD_BUFFERED, FILE_ANY_ACCESS)
-
-#define FSCTL_TCP_BASE     FILE_DEVICE_NETWORK
-
-#define _TCP_CTL_CODE(function, method, access) \
-            CTL_CODE(FSCTL_TCP_BASE, function, method, access)
-
-#define IOCTL_TCP_QUERY_INFORMATION_EX  \
-            _TCP_CTL_CODE(0, METHOD_NEITHER, FILE_ANY_ACCESS)
-
-#define IOCTL_TCP_SET_INFORMATION_EX  \
-            _TCP_CTL_CODE(1, METHOD_BUFFERED, FILE_WRITE_ACCESS)
-
 #endif
 
-#define FSCTL_DEVCTRL_BASE      FILE_DEVICE_NETWORK
-
-#define _DEVCTRL_CTL_CODE(_Function, _Method, _Access)  \
-            CTL_CODE(FSCTL_DEVCTRL_BASE, _Function, _Method, _Access)
-
-#define IOCTL_DEVCTRL_OPEN \
-            _DEVCTRL_CTL_CODE(0x200, METHOD_BUFFERED, FILE_READ_ACCESS | FILE_WRITE_ACCESS)
-
-#endif
-
-#endif // _NFDRIVER_H
+#endif // _NFDRIVER_DATA_H
