@@ -262,11 +262,7 @@ public sealed partial class DownloadsPage : Page
                 Height = 19, MinHeight = 0
             };
             releaseNotes.Click += (_, _) => Utils.Utils.Open(release.html_url);
-            var firstLine = release.body?.Split('\n').Select(line => line.Trim().TrimStart('#', '-', '*').Trim())
-                .FirstOrDefault(line => line.Length > 0);
-            var summary = Caption(firstLine ?? "");
-            summary.MaxWidth = 140;
-            appMeta.Children.Add(firstLine == null ? releaseNotes : Row(summary, releaseNotes));
+            appMeta.Children.Add(releaseNotes);
         }
         appMeta.Spacing = 2;
         var appButtons = Row();
@@ -376,12 +372,7 @@ public sealed partial class DownloadsPage : Page
                 var previewEnd = new Grid { Width = 106 };
                 previewEnd.Children.Add(previewColumn);
                 if (rule.Kind != RuleChangeKind.Conflict)
-                {
-                    var badge = Pill(title, rule.Kind == RuleChangeKind.Added ? "NetchSuccessText" : "NetchAccentText");
-                    badge.Style = Resource<Style>(rule.Kind == RuleChangeKind.Added ? "NetchAddedPill" : "NetchUpdatedPill");
-                    actions.Children.Add(badge);
                     actions.Children.Add(previewEnd);
-                }
                 async Task ShowDiffAsync()
                 {
                     var (added, removed) = await Downloads.DiffAsync(rule);

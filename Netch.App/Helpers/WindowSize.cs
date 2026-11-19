@@ -34,8 +34,10 @@ internal static partial class WindowSize
     {
         var border = InvisibleBorder(window);
         var workArea = DisplayArea.GetFromWindowId(anchor.AppWindow.Id, DisplayAreaFallback.Primary).WorkArea;
-        width = Math.Min(width + border.Width, workArea.Width);
-        height = Math.Min(height + border.Height, workArea.Height);
+        var fit = Math.Min(1, Math.Min((double)(workArea.Width - border.Width) / width,
+            (double)(workArea.Height - border.Height) / height));
+        width = (int)Math.Round(width * fit) + border.Width;
+        height = (int)Math.Round(height * fit) + border.Height;
         window.AppWindow.MoveAndResize(new RectInt32(workArea.X + (workArea.Width - width) / 2,
             workArea.Y + (workArea.Height - height) / 2, width, height));
     }

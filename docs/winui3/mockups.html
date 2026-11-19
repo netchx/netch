@@ -57,7 +57,7 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
 .ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--pill)}
 .sc .t{font-weight:600;font-size:12.5px}
 .sc .f{margin-top:auto;display:flex;justify-content:space-between;font-size:10.5px;color:var(--fg2)}
-.scadd{border-style:dashed;align-items:center;justify-content:center;color:var(--fg2)}
+
 /* forms */
 .lbl{font-size:11px;color:var(--fg2);margin-bottom:4px}
 .field{background:var(--ctl);border:1px solid var(--ctlb);border-bottom:1px solid var(--line);border-radius:5px;padding:6px 9px;display:flex;justify-content:space-between;align-items:center;gap:6px;min-width:0}
@@ -156,7 +156,7 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
 
 <div class="h">信息架构</div>
 <div class="map"><span>▦ 场景 <b>（首页）</b></span><span>▤ 节点 <b>· 订阅 + 节点</b></span><span>◈ 模式</span><span>⤓ 下载 <b>· 程序与核心 / 模式规则</b></span><span>▤ 日志</span><span>ⓘ 关于</span><span>⚙ 设置</span><b>＋</b><span>托盘浮窗</span><span>首次向导</span></div>
-<div class="cap">主窗口默认 1024×768（4:3），最小 800×600。导航用 <code>NavigationView</code> 的 Left 模式，每项都是两个字；窗口窄于 860 时收起为只显示图标。标题栏只有图标、标题和窗口按钮，没有搜索框。</div>
+<div class="cap">主窗口默认 960×720（4:3），最小 800×600。导航用 <code>NavigationView</code> 的 Left 模式，每项都是两个字；窗口窄于 860 时收起为只显示图标。标题栏只有图标、标题和窗口按钮，没有搜索框。</div>
 
 <div id="mk">
 
@@ -204,11 +204,13 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
  <div class="empty">
   <div style="width:60px;height:60px;border-radius:15px;background:var(--acs);color:var(--ac);display:flex;align-items:center;justify-content:center"><svg width="28" height="28" class="ico"><use href="#i-home"/></svg></div>
   <div class="h1">还没有场景</div>
-  <div class="sub" style="max-width:340px;line-height:1.6">场景 = 节点 + 模式，创建之后点一下就能连接。<br>还没有节点的话，可以先去「节点」页导入订阅。</div>
-  <div class="row" style="margin-top:6px"><span class="btn p">＋ 新建场景</span><span class="btn">导入订阅</span><span class="btn lk">重新打开向导</span></div>
+  <div class="sub" style="max-width:340px;line-height:1.6">一个场景选定一个节点和一种加速模式。</div>
+  <div class="row" style="margin-top:6px"><span class="btn p">导入订阅</span><span class="btn lk">打开向导</span></div>
  </div>
  <div class="ibar"><span class="ii">i</span><span style="flex:1">内置模式规则已有 3 个月未更新，远端有 6 个新增、4 个更新。</span><span class="btn">去下载</span></div>
 </div></div></div>
+
+<div class="cap">已有节点时，主按钮显示「＋ 新建场景」。</div>
 
 <!-- 2 home -->
 <div class="h"><span class="n">2</span>场景（首页）</div>
@@ -232,7 +234,6 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
   <div class="card sc"><div class="ic">🛠</div><div class="t">开发 · GitHub</div><div class="sub">路由规则 · US TUIC 11</div><div class="f"><span>3 天前</span><span></span></div></div>
   <div class="card sc"><div class="ic">💬</div><div class="t">Discord 语音</div><div class="sub">进程 · JP Trojan 02</div><div class="f"><span>上周</span><span></span></div></div>
   <div class="card sc"><div class="ic">📺</div><div class="t">流媒体</div><div class="sub">路由规则 · SG AnyTLS 05</div><div class="f"><span class="warn">⚠ 节点不可用</span><span></span></div></div>
-  <div class="card sc scadd">＋ 新建场景</div>
  </div>
 </div></div></div>
 <div class="cap">在 4:3 窗口里，场景卡片可以显示 3 列 × 3 行。场景列表用 <code>ItemsView</code>（UniformGridLayout），右键菜单（<code>MenuFlyout</code>）有编辑、复制、更换节点、固定到托盘、删除。</div>
@@ -362,7 +363,7 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
    <div class="ibar w2"><span class="ii">!</span><span style="flex:1">sing-box 正被场景「Steam / Apex 加速」使用，更新时会先断开，完成后自动重连。</span></div>
    <div class="card" style="padding:9px 12px;display:flex;align-items:center;gap:10px">
     <span class="logo" style="width:30px;height:30px;border-radius:8px"></span>
-    <div style="flex:1"><b style="font-size:13px">Netch</b><div class="sub mono">2.0.1 → <span class="acc">2.0.2</span></div><div class="sub">修复 TUIC 断流 · <span class="acc">更新日志</span></div></div>
+    <div style="flex:1"><b style="font-size:13px">Netch</b><div class="sub mono">2.0.1 → <span class="acc">2.0.2</span></div><div class="sub"><span class="acc">更新日志</span></div></div>
     <span class="btn p">更新并重启</span>
    </div>
    <div class="card lst" style="flex:1">
@@ -397,11 +398,11 @@ body{margin:0;font-family:"Segoe UI Variable Text","Segoe UI","Microsoft YaHei U
    </div>
    <div class="card lst" style="flex:1">
     <div class="gh"><span class="ck on">✓</span>新增 · 6</div>
-    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Valorant</span><span class="st s-add">新增</span><span class="sub" style="width:90px;text-align:right">3 条规则</span></div>
-    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Delta Force</span><span class="st s-add">新增</span><span class="sub" style="width:90px;text-align:right">5 条规则</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Valorant</span><span class="sub" style="width:90px;text-align:right">3 条规则</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Game/Delta Force</span><span class="sub" style="width:90px;text-align:right">5 条规则</span></div>
     <div class="gh"><span class="ck on">✓</span>更新 · 4</div>
-    <div class="r"><span class="ck on">✓</span><span style="flex:1">Battlenet</span><span class="st s-upd">更新</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+3</span> <span class="bad">−1</span> · 差异</span></div>
-    <div class="r"><span class="ck on">✓</span><span style="flex:1">Steam</span><span class="st s-upd">更新</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+1</span> · 差异</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Battlenet</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+3</span> <span class="bad">−1</span> · 差异</span></div>
+    <div class="r"><span class="ck on">✓</span><span style="flex:1">Steam</span><span class="sub mono" style="width:90px;text-align:right"><span class="ok">+1</span> · 差异</span></div>
     <div class="gh"><span class="ck"></span>冲突 · 1</div>
     <div class="r on"><span class="ck"></span><span style="flex:1;min-width:0">Discord (with Steam Apps)<div class="sub">本地已修改，远端也有更新</div></span><span class="btn">保留本地 ▾</span></div>
    </div>

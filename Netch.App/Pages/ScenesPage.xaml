@@ -4,7 +4,9 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:h="using:Netch.App.Helpers"
-    xmlns:vm="using:Netch.App.ViewModels">
+    xmlns:vm="using:Netch.App.ViewModels"
+    Loaded="ScenesPage_Loaded"
+    Unloaded="ScenesPage_Unloaded">
 
     <Page.Resources>
         <Style x:Key="StatValueStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
@@ -133,32 +135,6 @@
             </ItemContainer>
         </DataTemplate>
 
-        <DataTemplate x:Key="AddTemplate" x:DataType="vm:AddSceneCard">
-            <ItemContainer AutomationProperties.Name="{h:Tr Text='New scene'}" CornerRadius="8">
-                <Grid
-                    MinHeight="126"
-                    BorderBrush="{ThemeResource NetchStroke}"
-                    BorderThickness="1"
-                    CornerRadius="8">
-                    <StackPanel
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Orientation="Horizontal"
-                        Spacing="6">
-                        <FontIcon
-                            FontSize="12"
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Glyph="&#xE710;" />
-                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{h:Tr Text='New scene'}" />
-                    </StackPanel>
-                </Grid>
-            </ItemContainer>
-        </DataTemplate>
-
-        <h:SceneWallTemplateSelector
-            x:Key="WallTemplates"
-            AddTemplate="{StaticResource AddTemplate}"
-            SceneTemplate="{StaticResource SceneTemplate}" />
     </Page.Resources>
 
     <Grid x:Name="SceneSurface" Margin="{StaticResource PageMargin}">
@@ -254,6 +230,7 @@
                         StrokeThickness="2" />
                     <Button
                         Click="Latency_Click"
+                        AutomationProperties.Name="{h:Tr Text='Retest latency'}"
                         Style="{StaticResource StatButtonStyle}"
                         ToolTipService.ToolTip="{h:Tr Text='Test again'}">
                         <StackPanel>
@@ -263,6 +240,7 @@
                     </Button>
                     <Button
                         Click="Nat_Click"
+                        AutomationProperties.Name="{h:Tr Text='Retest NAT'}"
                         Style="{StaticResource StatButtonStyle}"
                         ToolTipService.ToolTip="{x:Bind NatTip(Session.NatResult), Mode=OneWay}">
                         <StackPanel>
@@ -283,7 +261,8 @@
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     Text="{h:Tr Text=Scenes}" />
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-                    <ToggleButton x:Name="SortByRecent" Click="SortByRecent_Click">
+                    <ToggleButton x:Name="SortByRecent" Click="SortByRecent_Click"
+                                  AutomationProperties.Name="{h:Tr Text='Sort by recent use'}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon FontSize="12" Glyph="&#xE8CB;" />
                             <TextBlock Text="{h:Tr Text='Recently used'}" />
@@ -304,7 +283,7 @@
                 Margin="0,11,0,16"
                 IsItemInvokedEnabled="True"
                 ItemInvoked="SceneWall_ItemInvoked"
-                ItemTemplate="{StaticResource WallTemplates}"
+                ItemTemplate="{StaticResource SceneTemplate}"
                 ItemsSource="{x:Bind Cards}"
                 SelectionMode="None">
                 <ItemsView.Layout>
@@ -355,7 +334,7 @@
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     LineHeight="21"
                     LineStackingStrategy="BlockLineHeight"
-                    Text="{h:Tr Text='A scene is a node plus a mode. Once created, one click connects it. No nodes yet? Import a subscription on the Nodes page first.'}"
+                    Text="{h:Tr Text='A scene uses one node and one acceleration mode.'}"
                     TextAlignment="Center"
                     TextWrapping="Wrap" />
                 <StackPanel
@@ -366,6 +345,7 @@
                     Spacing="9.5">
                     <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
                             AutomationProperties.Name="{h:Tr Text='New scene'}"
+                            Visibility="{x:Bind HasNodes, Mode=OneWay}"
                             Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}">
                         <StackPanel Orientation="Horizontal" Spacing="6">
                             <FontIcon FontSize="12" Glyph="&#xE710;" />
@@ -373,9 +353,11 @@
                         </StackPanel>
                     </Button>
                     <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
-                            Click="ImportSubscription_Click" Content="{h:Tr Text='Import subscription'}" />
+                            Click="ImportSubscription_Click" Content="{h:Tr Text='Import subscription'}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{x:Bind NeedsNodes, Mode=OneWay}" />
                     <HyperlinkButton Height="29" MinHeight="0" Padding="0" FontSize="13.5"
-                                     Click="OpenWizard_Click" Content="{h:Tr Text='Reopen wizard'}" />
+                                     Click="OpenWizard_Click" Content="{h:Tr Text='Open wizard'}" />
                 </StackPanel>
             </StackPanel>
             <Border x:Name="RulesNotice" Grid.Row="1" MinHeight="48.5" Margin="0,12,0,0"

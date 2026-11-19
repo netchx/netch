@@ -85,13 +85,3 @@ public sealed partial class SceneCard : ObservableObject
             : IsUnavailable ? Status : server == null ? "—" : Format.NodeName(server);
     }
 }
-
-/// <summary>The trailing "new scene" tile of the scene wall.</summary>
-public sealed class AddSceneCard
-{
-    public static AddSceneCard Instance { get; } = new();
-
-    private AddSceneCard()
-    {
-    }
-}

@@ -29,12 +29,40 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     public Tray Tray => Tray.Current;
 
-    /// <summary>Scene cards followed by the "new scene" tile.</summary>
-    public ObservableCollection<object> Cards { get; } = new();
+    public ObservableCollection<SceneCard> Cards { get; } = new();
 
     public bool HasScenes => SceneService.Scenes.Count > 0;
 
     public bool IsEmpty => !HasScenes;
+
+    public bool HasNodes => Global.Settings.Server.Count > 0;
+
+    public bool NeedsNodes => !HasNodes;
+
+    private void ScenesPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (App.MainWindow is { } window)
+            window.Activated += MainWindow_Activated;
+        UpdateEmptyActions();
+    }
+
+    private void ScenesPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        if (App.MainWindow is { } window)
+            window.Activated -= MainWindow_Activated;
+    }
+
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs e)
+    {
+        if (e.WindowActivationState != WindowActivationState.Deactivated)
+            UpdateEmptyActions();
+    }
+
+    private void UpdateEmptyActions()
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasNodes)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NeedsNodes)));
+    }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
@@ -66,17 +94,20 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
             scenes = scenes.OrderByDescending(scene => scene.LastUsed);
         foreach (var scene in scenes)
             Cards.Add(new SceneCard(scene));
-        Cards.Add(AddSceneCard.Instance);
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasScenes)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEmpty)));
     }
 
-    private void RefreshSubscriptionCards() => DispatcherQueue.TryEnqueue(RefreshCards);
+    private void RefreshSubscriptionCards() => DispatcherQueue.TryEnqueue(() =>
+    {
+        RefreshCards();
+        UpdateEmptyActions();
+    });
 
     private void RefreshCards()
     {
-        foreach (var card in Cards.OfType<SceneCard>())
+        foreach (var card in Cards)
             card.Refresh();
     }
 
@@ -207,15 +238,8 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     private async void SceneWall_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args)
     {
-        switch (args.InvokedItem)
-        {
-            case SceneCard card:
-                await Session.ToggleAsync(card.Scene);
-                break;
-            case AddSceneCard:
-                await EditSceneAsync(null);
-                break;
-        }
+        if (args.InvokedItem is SceneCard card)
+            await Session.ToggleAsync(card.Scene);
     }
 
     private void SortByRecent_Click(object sender, RoutedEventArgs e) => LoadCards();

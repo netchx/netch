@@ -14,8 +14,8 @@ namespace Netch.App;
 
 public sealed partial class MainWindow : Window
 {
-    private const int DefaultWidth = 1024;
-    private const int DefaultHeight = 768;
+    private const int DefaultWidth = 960;
+    private const int DefaultHeight = 720;
     private const int MinimumWidth = 800;
     private const int MinimumHeight = 600;
 
