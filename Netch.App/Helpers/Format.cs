@@ -35,9 +35,22 @@ public static class Format
         _ => $"{delay} ms"
     };
 
-    public static string Bytes(ulong bytes) => Bandwidth.Compute(bytes);
+    private static readonly string[] TransferUnits = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
 
-    public static string Rate(ulong bytesPerSecond) => $"{Bandwidth.Compute(bytesPerSecond)}/s";
+    public static string Bytes(ulong bytes)
+    {
+        var value = (double)bytes;
+        var unit = 0;
+        while (value >= 1000 && unit < TransferUnits.Length - 1)
+        {
+            value /= 1000;
+            unit++;
+        }
+
+        return $"{value:0.##} {TransferUnits[unit]}";
+    }
+
+    public static string Rate(ulong bytesPerSecond) => $"{Bytes(bytesPerSecond)}/s";
 
     public static string Elapsed(TimeSpan elapsed) => $"{(int)elapsed.TotalHours:00}:{elapsed.Minutes:00}:{elapsed.Seconds:00}";
 

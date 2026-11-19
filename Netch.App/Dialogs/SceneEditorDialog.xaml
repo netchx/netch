@@ -11,18 +11,33 @@
     PrimaryButtonText="{h:Tr Text=Save}"
     Style="{StaticResource DefaultContentDialogStyle}">
 
-    <StackPanel Width="400" Spacing="12">
-        <Grid ColumnSpacing="8">
+    <ContentDialog.Resources>
+        <Style x:Key="SceneFieldLabel" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Height" Value="17" />
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+        </Style>
+    </ContentDialog.Resources>
+    <ContentDialog.CloseButtonStyle>
+        <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+            <Setter Property="Height" Value="34" />
+        </Style>
+    </ContentDialog.CloseButtonStyle>
+
+    <StackPanel Width="422" Spacing="12">
+        <InfoBar x:Name="SaveError" IsClosable="False" Severity="Error" Visibility="Collapsed" />
+        <Grid ColumnSpacing="12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <DropDownButton
-                Height="32"
+            <Button
+                x:Name="IconButton"
+                Width="47" Height="40" Padding="0" FontSize="21"
                 VerticalAlignment="Bottom"
                 AutomationProperties.Name="{h:Tr Text=Icon}"
                 Content="{x:Bind ViewModel.Icon, Mode=OneWay}">
-                <DropDownButton.Flyout>
+                <Button.Flyout>
                     <Flyout x:Name="IconFlyout">
                         <GridView
                             MaxWidth="248"
@@ -37,79 +52,112 @@
                             </GridView.ItemTemplate>
                         </GridView>
                     </Flyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
-            <TextBox
-                Grid.Column="1"
-                Header="{h:Tr Text=Name}"
-                PlaceholderText="{x:Bind ViewModel.NamePlaceholder, Mode=OneWay}"
-                Text="{x:Bind ViewModel.SceneName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </Button.Flyout>
+            </Button>
+            <StackPanel Grid.Column="1" Spacing="4">
+                <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Name}" />
+                <TextBox
+                    x:Name="SceneNameInput" Height="35"
+                    AutomationProperties.Name="{h:Tr Text=Name}"
+                    PlaceholderText="{x:Bind ViewModel.NamePlaceholder, Mode=OneWay}"
+                    Text="{x:Bind ViewModel.SceneName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
         </Grid>
 
-        <StackPanel Spacing="2">
+        <StackPanel Spacing="4">
+            <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Mode}" />
             <ComboBox
+                x:Name="ModeSelector" Height="37"
                 HorizontalAlignment="Stretch"
-                Header="{h:Tr Text=Mode}"
+                AutomationProperties.Name="{h:Tr Text=Mode}"
                 ItemsSource="{x:Bind ViewModel.Modes}"
                 PlaceholderText="{x:Bind ViewModel.ModePlaceholder}"
                 SelectedItem="{x:Bind ViewModel.SelectedMode, Mode=TwoWay}" />
             <HyperlinkButton
-                Padding="0,4"
+                x:Name="ModeSettingsLink" Padding="0" Height="29" MinHeight="0" FontSize="13.5"
                 Click="OpenModeSettings_Click"
                 Content="{h:Tr Text='Open the mode settings'}"
                 IsEnabled="{x:Bind ViewModel.HasMode, Mode=OneWay}" />
         </StackPanel>
 
-        <ComboBox
-            HorizontalAlignment="Stretch"
-            Header="{h:Tr Text=Node}"
-            IsTextSearchEnabled="True"
-            ItemsSource="{x:Bind ViewModel.Nodes}"
-            PlaceholderText="{x:Bind ViewModel.NodePlaceholder}"
-            SelectedItem="{x:Bind ViewModel.SelectedNode, Mode=TwoWay}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:NodeOption">
-                    <Grid ColumnSpacing="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{x:Bind Label}" TextTrimming="CharacterEllipsis" />
-                        <TextBlock
-                            Grid.Column="1"
-                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                            Text="{x:Bind DelayText}"
-                            Visibility="{x:Bind IsFast}" />
-                        <TextBlock
-                            Grid.Column="1"
-                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                            Text="{x:Bind DelayText}"
-                            Visibility="{x:Bind IsSlow}" />
-                        <TextBlock
-                            Grid.Column="1"
-                            Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                            Text="{x:Bind DelayText}"
-                            Visibility="{x:Bind IsTimeout}" />
-                    </Grid>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <StackPanel Spacing="4" Margin="0,1,0,0">
+            <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Node}" />
+            <ComboBox
+                HorizontalAlignment="Stretch"
+                x:Name="NodeSelector" Height="37"
+                AutomationProperties.Name="{h:Tr Text=Node}"
+                IsTextSearchEnabled="True"
+                ItemsSource="{x:Bind ViewModel.Nodes}"
+                PlaceholderText="{x:Bind ViewModel.NodePlaceholder}"
+                SelectedItem="{x:Bind ViewModel.SelectedNode, Mode=TwoWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:NodeOption">
+                        <Grid ColumnSpacing="12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{x:Bind Label}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                Text="{x:Bind DelayText}"
+                                Visibility="{x:Bind FastDelay}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                Text="{x:Bind DelayText}"
+                                Visibility="{x:Bind SlowDelay}" />
+                            <TextBlock
+                                Grid.Column="1"
+                                Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                Text="{x:Bind DelayText}"
+                                Visibility="{x:Bind Timeout}" />
+                        </Grid>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
 
-        <Grid ColumnSpacing="12">
+        <Grid ColumnSpacing="10" Margin="0,2,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <TextBox
-                Header="{h:Tr Text='Global hotkey'}"
-                IsReadOnly="True"
-                PlaceholderText="{h:Tr Text='Press a key combination'}"
-                PreviewKeyDown="HotkeyBox_PreviewKeyDown"
-                Text="{x:Bind ViewModel.Hotkey, Mode=OneWay}" />
-            <ToggleSwitch
-                Grid.Column="1"
-                Header="{h:Tr Text='Pin to the tray flyout'}"
-                IsOn="{x:Bind ViewModel.PinnedToTray, Mode=TwoWay}" />
+            <StackPanel Spacing="4">
+                <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text='Global hotkey'}" />
+                <TextBox
+                    x:Name="HotkeyInput" Height="35"
+                    AutomationProperties.Name="{h:Tr Text='Global hotkey'}"
+                    IsReadOnly="True"
+                    PlaceholderText="{h:Tr Text='Press a key combination'}"
+                    PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                    Text="{x:Bind FormatHotkey(ViewModel.Hotkey), Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Spacing="3">
+                <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Tray}" />
+                <Border
+                    x:Name="PinField" MinHeight="38" Padding="10,0"
+                    CornerRadius="6"
+                    Background="{ThemeResource ControlFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                    <Grid ColumnSpacing="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                            Text="{h:Tr Text='Pin to the tray flyout'}" />
+                        <ToggleSwitch
+                            Grid.Column="1" MinWidth="0" MinHeight="0" Height="36" VerticalAlignment="Center"
+                            OffContent="" OnContent=""
+                            AutomationProperties.Name="{h:Tr Text='Pin to the tray flyout'}"
+                            IsOn="{x:Bind ViewModel.PinnedToTray, Mode=TwoWay}" />
+                    </Grid>
+                </Border>
+            </StackPanel>
         </Grid>
     </StackPanel>
 </ContentDialog>

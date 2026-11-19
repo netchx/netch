@@ -11,6 +11,7 @@ GetCursorPos
 GetDpiForWindow
 GetSystemMetricsForDpi
 LoadImage
+InsertMenuItem
 MessageBox
 PostMessage
 RegisterClassEx

@@ -41,11 +41,19 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         LoadCards();
         DrawSparkline();
         Session.PropertyChanged += Session_PropertyChanged;
+        Tray.PropertyChanged += Tray_PropertyChanged;
+        AppEvents.SubscriptionChanged += RefreshSubscriptionCards;
+        UpdateAlerts();
+        Downloads.Changed += UpdateRulesNotice;
+        UpdateRulesNotice();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         Session.PropertyChanged -= Session_PropertyChanged;
+        Tray.PropertyChanged -= Tray_PropertyChanged;
+        AppEvents.SubscriptionChanged -= RefreshSubscriptionCards;
+        Downloads.Changed -= UpdateRulesNotice;
     }
 
     /// <summary>Rebuilds the wall after scenes were added, removed or edited.</summary>
@@ -53,13 +61,18 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
     {
         Tray.RegisterHotkeys();
         Cards.Clear();
-        foreach (var scene in SceneService.Scenes)
+        var scenes = SceneService.Scenes.AsEnumerable();
+        if (SortByRecent.IsChecked == true)
+            scenes = scenes.OrderByDescending(scene => scene.LastUsed);
+        foreach (var scene in scenes)
             Cards.Add(new SceneCard(scene));
         Cards.Add(AddSceneCard.Instance);
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasScenes)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEmpty)));
     }
+
+    private void RefreshSubscriptionCards() => DispatcherQueue.TryEnqueue(RefreshCards);
 
     private void RefreshCards()
     {
@@ -74,6 +87,9 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
             case nameof(Session.State):
             case nameof(Session.ActiveScene):
                 RefreshCards();
+                break;
+            case nameof(Session.ErrorMessage):
+                UpdateAlerts();
                 break;
             case nameof(Session.RateHistory):
                 DrawSparkline();
@@ -132,6 +148,15 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     public bool HasText(string? text) => !string.IsNullOrEmpty(text);
 
+    private void Tray_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Tray.HotkeyConflicts))
+            UpdateAlerts();
+    }
+
+    private void UpdateAlerts() =>
+        Alerts.Visibility = HasText(Session.ErrorMessage) || HasText(Tray.HotkeyConflicts) ? Visibility.Visible : Visibility.Collapsed;
+
     public string HotkeyConflictText(string conflicts) => i18N.TranslateFormat("These hotkeys are already in use and do not work: {0}", conflicts);
 
     private async void PowerButton_Click(object sender, RoutedEventArgs e)
@@ -145,6 +170,34 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
     private async void Latency_Click(object sender, RoutedEventArgs e) => await Session.RetestLatencyAsync();
 
     private async void Nat_Click(object sender, RoutedEventArgs e) => await Session.RetestNatAsync();
+
+    private void OpenLogs_Click(object sender, RoutedEventArgs e) => App.MainWindow?.Navigate("Logs", true);
+
+    private void DownloadRules_Click(object sender, RoutedEventArgs e) => App.MainWindow?.Navigate("Downloads", true);
+
+    private void UpdateRulesNotice()
+    {
+        RulesNotice.Visibility = Downloads.Rules.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        var added = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Added);
+        var updated = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Updated);
+        var conflicts = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Conflict);
+        var counts = Ui.T($"{added} new, {updated} updated", $"{added} 个新增、{updated} 个更新");
+        if (conflicts > 0)
+            counts += Ui.T($", {conflicts} conflicts", $"、{conflicts} 个冲突");
+
+        var months = Downloads.LastRulesSynchronized is { } last ? (int)((DateTimeOffset.Now - last).TotalDays / 30) : 0;
+        var label = string.Equals(Global.Settings.ModeRepository, "netchx/netch", StringComparison.OrdinalIgnoreCase)
+            && Global.Settings.ModeBranch == "main" && Global.Settings.ModeRepositoryPath == "Storage/mode"
+                ? Ui.T("Bundled mode rules", "内置模式规则")
+                : Ui.T("Mode rules", "模式规则");
+        RulesNoticeText.Text = months > 0
+            ? Ui.T($"{label} were last synced {months} months ago. Remote: {counts}.",
+                $"{label}已有 {months} 个月未更新，远端有 {counts}。")
+            : Ui.T($"Online mode rules: {counts}.", $"在线规则库有 {counts}。");
+    }
+
+    private void OpenWizard_Click(object sender, RoutedEventArgs e) => App.OpenWizard();
 
     private void ErrorBar_Closed(InfoBar sender, InfoBarClosedEventArgs args) => Session.ErrorMessage = null;
 
@@ -165,11 +218,15 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         }
     }
 
+    private void SortByRecent_Click(object sender, RoutedEventArgs e) => LoadCards();
+
     private async void NewScene_Click(object sender, RoutedEventArgs e) => await EditSceneAsync(null);
 
-    private void ImportSubscription_Click(object sender, RoutedEventArgs e) => App.MainWindow?.Navigate("Nodes");
+    private void ImportSubscription_Click(object sender, RoutedEventArgs e) => App.MainWindow?.Navigate("Nodes", true);
 
     private async void Edit_Click(object sender, RoutedEventArgs e) => await EditSceneAsync(CardOf(sender).Scene);
+
+    private async void ChangeNode_Click(object sender, RoutedEventArgs e) => await EditSceneAsync(CardOf(sender).Scene, true);
 
     private async void Duplicate_Click(object sender, RoutedEventArgs e)
     {
@@ -209,38 +266,65 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         await Configuration.SaveAsync();
     }
 
-    private async Task EditSceneAsync(Scene? scene)
+    private async Task EditSceneAsync(Scene? scene, bool changeNode = false)
     {
         var oldMode = scene?.ModeId;
         var oldServer = scene?.ServerId;
 
-        var dialog = new SceneEditorDialog(scene);
+        var dialog = new SceneEditorDialog(scene, changeNode);
+        dialog.PrimaryButtonClick += async (_, args) =>
+        {
+            var deferral = args.GetDeferral();
+            try
+            {
+                var apply = dialog.ViewModel.CaptureEdits();
+                var draft = scene == null ? new Scene() : new Scene { Id = scene.Id, LastUsed = scene.LastUsed };
+                apply(draft);
+                var settings = Global.Settings.ShallowCopy();
+                settings.Scenes = SceneService.Scenes.Select(item => item == scene ? draft : item).ToList();
+                if (scene == null)
+                    settings.Scenes.Add(draft);
+
+                await Configuration.SaveAsync(settings, throwOnError: true);
+                if (scene == null)
+                    SceneService.Scenes.Add(draft);
+                else
+                    apply(scene);
+            }
+            catch
+            {
+                args.Cancel = true;
+                dialog.ShowSaveError(Ui.T("Could not save the scene. Check the configuration file and try again.",
+                    "无法保存场景，请检查配置文件后重试。"));
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        };
         Tray.UnregisterHotkeys();
         ContentDialogResult result;
         try
         {
+            SceneSurface.Opacity = 0;
             result = await ShowDialogAsync(dialog);
         }
         finally
         {
+            SceneSurface.Opacity = 1;
             Tray.RegisterHotkeys();
         }
 
         if (dialog.ModeToOpen != null)
         {
-            App.MainWindow?.Navigate("Modes");
+            App.MainWindow?.Navigate("Modes", dialog.ModeToOpen);
             return;
         }
 
         if (result != ContentDialogResult.Primary)
             return;
 
-        var edited = dialog.ViewModel.Apply();
-        if (scene == null)
-            SceneService.Scenes.Add(edited);
-
         LoadCards();
-        await Configuration.SaveAsync();
 
         // A changed node or mode only takes effect on a restart; do it for the running scene.
         if (scene != null && Session.IsRunning && Session.ActiveScene == scene && (scene.ModeId != oldMode || scene.ServerId != oldServer))

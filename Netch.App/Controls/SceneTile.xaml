@@ -6,8 +6,8 @@
 
     <Grid
         x:Name="Root"
-        MinHeight="52"
-        Padding="10,8"
+        Height="54"
+        Padding="9,8"
         Background="{ThemeResource ControlFillColorDefaultBrush}"
         BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
         BorderThickness="1"
@@ -34,12 +34,16 @@
         <StackPanel Spacing="2">
             <TextBlock
                 x:Name="Title"
+                FontSize="13"
                 Style="{StaticResource BodyStrongTextBlockStyle}"
+                TextWrapping="NoWrap"
                 TextTrimming="CharacterEllipsis" />
             <TextBlock
                 x:Name="Detail"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                FontSize="12"
                 Style="{StaticResource CaptionTextBlockStyle}"
+                TextWrapping="NoWrap"
                 TextTrimming="CharacterEllipsis" />
         </StackPanel>
     </Grid>

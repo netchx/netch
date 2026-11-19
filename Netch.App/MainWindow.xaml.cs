@@ -3,6 +3,7 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Netch.App.Pages;
+using Netch.App.Helpers;
 using Netch.Enums;
 using Windows.Graphics;
 using Windows.UI;
@@ -31,10 +32,13 @@ public sealed partial class MainWindow : Window
 
     private readonly HWND _hwnd;
     private double _minimumSizeScale;
+    private object? _navigationParameter;
 
     public MainWindow()
     {
         InitializeComponent();
+        if (!Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
+            RootGrid.Style = Ui.Resource<Style>("NetchShellFallback");
         _hwnd = new HWND(Win32Interop.GetWindowFromWindowId(AppWindow.Id));
 
         ExtendsContentIntoTitleBar = true;
@@ -42,23 +46,56 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Netch.ico"));
 
         var scale = PInvoke.GetDpiForWindow(_hwnd) / 96.0;
-        ApplyMinimumSize(scale);
-        ResizeAndCenter((int)(DefaultWidth * scale), (int)(DefaultHeight * scale));
-        RootGrid.Loaded += (_, _) => RootGrid.XamlRoot.Changed += (root, _) => ApplyMinimumSize(root.RasterizationScale);
+        WindowSize.Center(this, this, (int)(DefaultWidth * scale), (int)(DefaultHeight * scale));
+        RootGrid.Loaded += (_, _) =>
+        {
+            var root = RootGrid.XamlRoot;
+            WindowSize.Center(this, this, (int)(DefaultWidth * root.RasterizationScale), (int)(DefaultHeight * root.RasterizationScale));
+            ApplyMinimumSize(root.RasterizationScale);
+            root.Changed += (_, _) => ApplyMinimumSize(root.RasterizationScale);
+        };
 
         ApplyTheme(Global.Settings.Theme);
         RootGrid.ActualThemeChanged += (_, _) => UpdateCaptionButtons();
         AppWindow.Closing += AppWindow_Closing;
 
         NavView.SelectedItem = NavView.MenuItems[0];
+        Services.Downloads.Changed += UpdateDownloadBadge;
+    }
+
+    private void UpdateDownloadBadge()
+    {
+        var count = Services.Downloads.PendingCount;
+        DownloadBadge.Value = count;
+        DownloadBadge.Visibility = count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     /// <summary>Selects the navigation item with this tag, e.g. "Nodes".</summary>
-    public void Navigate(string tag)
+    public void Navigate(string tag, object? parameter = null, bool force = false)
     {
-        NavView.SelectedItem = NavView.MenuItems.Concat(NavView.FooterMenuItems)
+        var item = NavView.MenuItems.Concat(NavView.FooterMenuItems)
             .OfType<NavigationViewItem>()
             .First(item => (string)item.Tag == tag);
+        if (parameter == null && !force)
+        {
+            NavView.SelectedItem = item;
+            return;
+        }
+
+        if (ContentFrame.CurrentSourcePageType == PageTypes[tag] || NavView.SelectedItem == item)
+            ContentFrame.Navigate(PageTypes[tag], parameter);
+        else
+        {
+            _navigationParameter = parameter;
+            NavView.SelectedItem = item;
+        }
+    }
+
+    public void ReloadLanguage()
+    {
+        foreach (var item in NavView.MenuItems.Concat(NavView.FooterMenuItems).OfType<NavigationViewItem>())
+            item.Content = Utils.i18N.Translate((string)item.Tag);
+        Navigate((string)((NavigationViewItem)NavView.SelectedItem).Tag, force: true);
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -74,6 +111,8 @@ public sealed partial class MainWindow : Window
     }
 
     public ElementTheme Theme => RootGrid.RequestedTheme;
+
+    internal ElementTheme ActualTheme => RootGrid.ActualTheme;
 
     public void ApplyTheme(AppTheme theme)
     {
@@ -106,16 +145,9 @@ public sealed partial class MainWindow : Window
             return;
 
         _minimumSizeScale = scale;
-        presenter.PreferredMinimumWidth = (int)(MinimumWidth * scale);
-        presenter.PreferredMinimumHeight = (int)(MinimumHeight * scale);
-    }
-
-    private void ResizeAndCenter(int width, int height)
-    {
-        var workArea = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Primary).WorkArea;
-        width = Math.Min(width, workArea.Width);
-        height = Math.Min(height, workArea.Height);
-        AppWindow.MoveAndResize(new RectInt32(workArea.X + (workArea.Width - width) / 2, workArea.Y + (workArea.Height - height) / 2, width, height));
+        var border = WindowSize.InvisibleBorder(this);
+        presenter.PreferredMinimumWidth = (int)(MinimumWidth * scale) + border.Width;
+        presenter.PreferredMinimumHeight = (int)(MinimumHeight * scale) + border.Height;
     }
 
     /// <summary>The system draws the caption buttons, so they do not follow RequestedTheme on their own.</summary>
@@ -136,6 +168,11 @@ public sealed partial class MainWindow : Window
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItemContainer?.Tag is string tag && PageTypes.TryGetValue(tag, out var pageType) && ContentFrame.CurrentSourcePageType != pageType)
-            ContentFrame.Navigate(pageType, null, args.RecommendedNavigationTransitionInfo);
+        {
+            var parameter = _navigationParameter;
+            _navigationParameter = null;
+            ContentFrame.Navigate(pageType, parameter, args.RecommendedNavigationTransitionInfo);
+            ContentFrame.BackStack.Clear();
+        }
     }
 }

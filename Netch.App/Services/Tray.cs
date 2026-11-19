@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.Threading;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
+using Windows.System;
 using Windows.Win32.UI.Input.KeyboardAndMouse;
 
 namespace Netch.App.Services;
@@ -15,7 +16,10 @@ public sealed partial class Tray : ObservableObject
 {
     public static Tray Current { get; } = new();
 
+    private const int DisconnectHotkeyId = 0x3FFF;
+    private static readonly Hotkey DisconnectHotkey = new(HotkeyModifiers.Control | HotkeyModifiers.Alt, VirtualKey.Number0);
     private readonly Dictionary<int, Scene> _hotkeys = new();
+    private bool _disconnectRegistered;
     private TrayIcon? _icon;
     private TrayFlyout? _flyout;
 
@@ -68,6 +72,8 @@ public sealed partial class Tray : ObservableObject
                 conflicts.Add(hotkey.ToString());
         }
 
+        _disconnectRegistered = _icon.RegisterHotkey(DisconnectHotkeyId,
+            (HOT_KEY_MODIFIERS)DisconnectHotkey.Modifiers, (uint)DisconnectHotkey.Key);
         HotkeyConflicts = string.Join(", ", conflicts);
     }
 
@@ -80,6 +86,11 @@ public sealed partial class Tray : ObservableObject
         foreach (var id in _hotkeys.Keys)
             _icon?.UnregisterHotkey(id);
         _hotkeys.Clear();
+        if (_disconnectRegistered)
+        {
+            _icon?.UnregisterHotkey(DisconnectHotkeyId);
+            _disconnectRegistered = false;
+        }
     }
 
     /// <summary>Removes the icon and closes the flyout; used on exit.</summary>
@@ -117,7 +128,8 @@ public sealed partial class Tray : ObservableObject
         if (entries.Count > 0)
             Add(null, null);
 
-        Add(new MenuEntry(i18N.Translate("Disconnect"), Enabled: session.IsRunning), () => session.StopAsync().Forget());
+        Add(new MenuEntry(i18N.Translate("Disconnect"), Enabled: session.IsRunning,
+            Shortcut: _disconnectRegistered ? DisconnectHotkey.ToString() : null), () => session.StopAsync().Forget());
         Add(new MenuEntry(i18N.Translate("Open Netch")), App.ShowMainWindow);
         Add(null, null);
         Add(new MenuEntry(i18N.Translate("Exit")), () => App.ExitAsync().Forget());
@@ -129,7 +141,9 @@ public sealed partial class Tray : ObservableObject
 
     private async void OnHotkeyPressed(int id)
     {
-        if (_hotkeys.TryGetValue(id, out var scene))
+        if (id == DisconnectHotkeyId && Session.Current.IsRunning)
+            await Session.Current.StopAsync();
+        else if (_hotkeys.TryGetValue(id, out var scene))
             await Session.Current.ToggleAsync(scene);
     }
 

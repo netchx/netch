@@ -1,11 +1,676 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Netch.App.Helpers;
+using Netch.App.Services;
+using Netch.Controllers;
+using Netch.Services;
+using Netch.Utils;
+using static Netch.App.Helpers.Ui;
 
 namespace Netch.App.Pages;
 
 public sealed partial class DownloadsPage : Page
 {
+    private readonly ListView _tabs = Categories();
+    private readonly TextBlock _coreCount = Caption("");
+    private readonly TextBlock _coreDetail = Caption("");
+    private readonly TextBlock _rulesCount = Caption("");
+    private readonly TextBlock _rulesDetail = Caption("");
+    private readonly ContentControl _pane = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch, VerticalContentAlignment = VerticalAlignment.Stretch };
+    private readonly TextBlock _checked = Caption("");
+    private readonly Button _check;
+    private readonly Button _apply;
+    private readonly InfoBar _notice = new() { IsClosable = false };
+    private readonly List<(RuleChange Rule, CheckBox Check, ComboBox? Conflict)> _selection = [];
+    private readonly Dictionary<string, (bool Checked, int Action)> _selectedRules = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<RuleChange, Task<(string[] Added, string[] Removed)>> _rulePreviews = [];
+    private CancellationTokenSource? _download;
+    private TaskCompletionSource? _paused;
+    private CorePackage? _activeCore;
+    private TransferProgress _transfer;
+    private ProgressBar? _progress;
+    private TextBlock? _progressLabel;
+    private bool _present;
+
     public DownloadsPage()
     {
         InitializeComponent();
+        _check = AsyncButton(T("⟳ Check updates", "⟳ 检查更新"), Downloads.CheckAsync);
+        _apply = AsyncButton("", ApplyAsync, true, ChangeApply);
+        _tabs.Items.Add(DownloadCategory(T("App and cores", "程序与核心"), _coreCount, _coreDetail));
+        _tabs.Items.Add(DownloadCategory(T("Mode rules", "模式规则"), _rulesCount, _rulesDetail));
+        _tabs.Items.Add(CategoryHeading(T("History", "历史")));
+        var history = Category(T("Download history", "下载记录"));
+        history.Height = 36;
+        AddSelectionIndicator(history);
+        _tabs.Items.Add(history);
+        _tabs.SelectionChanged += (_, _) => Refresh();
+        _tabs.SelectedIndex = 0;
+        var tabs = Body(_notice, TwoColumns(_tabs, _pane, new GridLength(165)));
+        tabs.RowSpacing = 0;
+        Content = Ui.Page(Body(Header(T("Downloads", "下载"), _checked, _check, _apply), tabs));
+    }
+
+    private static ListViewItem DownloadCategory(string label, TextBlock count, TextBlock detail)
+    {
+        var item = Category(label);
+        item.Content = new StackPanel { Spacing = 1, Children = { Split(Text(label, strong: true), count), detail } };
+        item.Height = 54;
+        item.Margin = new Thickness(0, 0, 0, 2.5);
+        AddSelectionIndicator(item);
+        return item;
+    }
+
+    private void RefreshCategories()
+    {
+        var pending = AvailableCores().Count(item => item.Core != _activeCore);
+        var active = _download == null ? 0 : 1;
+        _coreCount.Text = (pending + active).ToString();
+        _coreDetail.Text = active == 0 ? T($"{pending} updates", $"{pending} 个更新")
+            : T($"{pending} updates · {active} downloading", $"{pending} 个更新 · {active} 个下载中");
+        _rulesCount.Text = Downloads.Rules.Count.ToString();
+        if (Downloads.LastRulesSynchronized is not { } last)
+        {
+            _rulesDetail.Text = T("Not yet synced", "尚未同步");
+            return;
+        }
+        var months = (int)((DateTimeOffset.Now - last).TotalDays / 30);
+        _rulesDetail.Text = months > 0 ? T($"Synced {months} mo ago", $"{months} 个月前同步")
+            : T($"Synced {Format.LastUsed(last.LocalDateTime)}", $"{Format.LastUsed(last.LocalDateTime)}同步");
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        _present = true;
+        Downloads.Changed += Refresh;
+        if (e.Parameter is true) _tabs.SelectedIndex = 1;
+        else if (e.Parameter is "check") _ = Downloads.CheckAsync();
+        _ = Downloads.PopulateInstalledAsync();
+        Refresh();
+    }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        _present = false;
+        Downloads.Changed -= Refresh;
+    }
+
+    private void Refresh()
+    {
+        if (!_present)
+            return;
+        _checked.Text = Downloads.Checking ? T("Checking…", "正在检查…")
+            : Downloads.LastChecked is { } time ? T($"Last checked {time:HH:mm}", $"上次检查 {time:HH:mm}") : "";
+        _check.IsEnabled = !Downloads.Checking && !Downloads.Applying && _download == null;
+        var reasons = _tabs.SelectedIndex switch
+        {
+            0 => Downloads.Errors.Where(error => error.Key != "Rules"),
+            1 => Downloads.Errors.Where(error => error.Key == "Rules"),
+            _ => []
+        };
+        var warning = string.Join(" · ", reasons.Select(item => item.Key + " · " + item.Value));
+        _notice.Severity = InfoBarSeverity.Warning;
+        _notice.Message = warning;
+        _notice.IsOpen = warning.Length > 0;
+        _notice.Margin = new Thickness(0, 0, 0, _notice.IsOpen ? 11 : 0);
+        RefreshCategories();
+        foreach (var stale in _rulePreviews.Keys.Except(Downloads.Rules).ToArray())
+            _rulePreviews.Remove(stale);
+        _selection.Clear();
+        _progress = null;
+        _progressLabel = null;
+        _pane.Content = _tabs.SelectedIndex switch
+        {
+            1 => RulesPane(),
+            3 => HistoryPane(),
+            _ => CoresPane()
+        };
+        ChangeApply();
+    }
+
+    private void ChangeApply()
+    {
+        var isRules = _tabs.SelectedIndex == 1;
+        var count = isRules ? _selection.Count(entry => entry.Check.IsChecked == true && entry.Conflict?.SelectedIndex != 0)
+            : AvailableCores().Count();
+        _apply.Visibility = _tabs.SelectedIndex == 3 ? Visibility.Collapsed : Visibility.Visible;
+        _apply.IsEnabled = count > 0 && !Downloads.Checking && !Downloads.Applying && _download == null;
+        _apply.Content = isRules ? T($"Sync selected ({count})", $"同步所选 ({count})") : T($"Update all ({count})", $"全部更新 ({count})");
+    }
+
+    private static IEnumerable<(CorePackage Core, UpdateChoice Choice)> AvailableCores() =>
+        Downloads.Cores.Select(core => (Core: core, Choice: Downloads.Versions.GetValueOrDefault(core)?.FirstOrDefault()))
+            .Where(item => item.Choice != null && Downloads.IsNewer(item.Choice.Version, Downloads.Installed.GetValueOrDefault(item.Core) ?? ""))
+            .Select(item => (item.Core, item.Choice!));
+
+    private FrameworkElement CoresPane()
+    {
+        var rows = new StackPanel
+        {
+            Children = { new Border
+            {
+                Height = 30, Padding = new Thickness(12, 0, 12, 0), Child = Caption(T("Cores", "核心"))
+            } }
+        };
+        foreach (var core in Downloads.Cores)
+        {
+            var versions = Downloads.Versions.GetValueOrDefault(core);
+            var next = versions?.FirstOrDefault();
+            var current = Downloads.Installed.GetValueOrDefault(core) ?? "";
+            var inUse = Downloads.InUse(core);
+            var available = next != null && Downloads.IsNewer(next.Version, current);
+            var options = new List<(string, Action)>();
+            if (versions?.Count > 0)
+                options.Add((T("Choose version", "指定版本"), async () => await ChooseVersionAsync(core, versions)));
+            if (File.Exists(Downloads.CorePath(core) + ".previous"))
+                options.Add((T("Rollback", "回滚"), async () =>
+                {
+                    try { await Downloads.RollbackAsync(core); }
+                    catch (Exception e) { await ShowAsync(XamlRoot, T("Rollback failed", "回滚失败"), Text(e.Message)); }
+                }));
+            options.Add((T("Open release", "打开 Release"), () => Utils.Utils.Open(next?.ReleaseUrl ??
+                (core.Repo.Length == 0 ? "https://www.wintun.net/" : $"https://github.com/{core.Repo}/releases"))));
+            var version = Caption(current.Length == 0 ? T("Not installed", "未安装") : current);
+            version.FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas");
+            var detail = Row(version);
+            if (available)
+            {
+                if (current.Length > 0)
+                {
+                    var target = Caption("→ " + next!.Version);
+                    target.Style = Resource<Style>("NetchAccentText");
+                    target.FontFamily = version.FontFamily;
+                    detail.Children.Add(target);
+                }
+                var button = AsyncButton(current.Length == 0 ? T("Download", "下载") : T("Update", "更新"),
+                    () => DownloadAsync(core, next!));
+                button.IsEnabled = !Downloads.Checking && !Downloads.Applying;
+                detail.Children.Add(button);
+            }
+            else if (next != null && current.Length > 0)
+            {
+                var latest = Caption(T("✓ Latest", "✓ 最新"));
+                latest.Width = 82;
+                latest.TextAlignment = TextAlignment.Right;
+                latest.Style = Resource<Style>("NetchSuccessText");
+                detail.Children.Add(latest);
+            }
+            detail.Children.Add(new Button
+            {
+                Content = "⋯", Style = Resource<Style>("NetchInlineButton"),
+                Flyout = Menu(options.ToArray()), IsEnabled = !Downloads.Applying
+            });
+            if (_activeCore == core)
+            {
+                detail = Row(ProgressView(), PauseButton());
+            }
+            var role = core.Name switch
+            {
+                "sing-box" => T("Primary core", "主核心"),
+                "Xray-core" => "XHTTP",
+                "Mihomo" => T("Default proxy", "默认代理"),
+                "tun2socks" => "TUN",
+                "WinTUN" => T("Driver", "驱动"),
+                _ => T("Share mode", "共享模式")
+            };
+            var row = Split(Row(Text(core.Name, strong: true), Pill(role)), detail);
+            var surface = new Border
+            {
+                Height = _activeCore == core ? 44 : 45, Padding = new Thickness(12, 0, 12, 0),
+                CornerRadius = new CornerRadius(6), Child = row
+            };
+            if (inUse)
+                ToolTipService.SetToolTip(row, T("In use", "使用中"));
+            if (_activeCore == core)
+            {
+                surface.Style = Resource<Style>("NetchActiveRow");
+                var indicator = RowIndicator(25);
+                indicator.Visibility = Visibility.Visible;
+                row.Children.Add(indicator);
+            }
+            rows.Children.Add(surface);
+        }
+
+        var running = Downloads.Cores.Where(Downloads.InUse).Select(core => core.Name).ToArray();
+        var reconnectText = Text(T($"{string.Join(" / ", running)} in use. Updating will disconnect and reconnect the scene.",
+            $"{string.Join(" / ", running)} 正被场景「{Session.Current.ActiveScene?.Name}」使用，更新时会先断开，完成后自动重连。"));
+        reconnectText.TextWrapping = TextWrapping.Wrap;
+        var symbol = Text("!", 13, true);
+        symbol.HorizontalAlignment = HorizontalAlignment.Center;
+        var icon = new Border
+        {
+            Width = 21, Height = 21, VerticalAlignment = VerticalAlignment.Center,
+            CornerRadius = new CornerRadius(11), Style = Resource<Style>("NetchWarningIcon"),
+            Child = symbol
+        };
+        var reconnect = new Border
+        {
+            Style = Resource<Style>("NetchWarningStrip"), Padding = new Thickness(13, 5, 13, 5),
+            MinHeight = 40, Child = TwoColumns(icon, reconnectText, GridLength.Auto)
+        };
+        var currentVersion = "v" + UpdateChecker.Version;
+        var release = Downloads.AppRelease;
+        var appAvailable = release != null && Downloads.AppAsset != null && Downloads.IsNewer(release.tag_name, UpdateChecker.Version);
+        var versionText = appAvailable ? $"{currentVersion} → {release!.tag_name}" : currentVersion;
+        var appMeta = Stack(Text("Netch", 15, true), Caption(versionText));
+        if (release != null)
+        {
+            var releaseNotes = new HyperlinkButton
+            {
+                Content = T("Release notes", "更新日志"), Padding = new Thickness(0), FontSize = 13,
+                Height = 19, MinHeight = 0
+            };
+            releaseNotes.Click += (_, _) => Utils.Utils.Open(release.html_url);
+            var firstLine = release.body?.Split('\n').Select(line => line.Trim().TrimStart('#', '-', '*').Trim())
+                .FirstOrDefault(line => line.Length > 0);
+            var summary = Caption(firstLine ?? "");
+            summary.MaxWidth = 140;
+            appMeta.Children.Add(firstLine == null ? releaseNotes : Row(summary, releaseNotes));
+        }
+        appMeta.Spacing = 2;
+        var appButtons = Row();
+        if (appAvailable)
+            appButtons.Children.Add(AsyncButton(T("Update and restart", "更新并重启"), UpdateAppAsync, true));
+        if (_download != null && _activeCore == null)
+        {
+            appButtons.Children.Add(ProgressView());
+            appButtons.Children.Add(PauseButton());
+        }
+        var app = Card(Split(Row(new Image { Width = 35, Height = 35, Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/Netch.png")) }, appMeta), appButtons));
+        app.Padding = new Thickness(13, 7, 13, 7);
+        var listCard = Card(Scroll(rows), 2);
+        var layout = running.Length == 0 ? Body(app, listCard) : Body(reconnect, app, listCard);
+        layout.RowSpacing = 9.5;
+        return layout;
+    }
+
+    private FrameworkElement RulesPane()
+    {
+        var s = Global.Settings;
+        var heading = Stack(Text(s.ModeRepository, 15, true), Caption($"{s.ModeBranch} · {s.ModeRepositoryPath}" +
+                (Downloads.RemoteTree.Length >= 7 ? $" · {Downloads.RemoteTree[..7]}" : "")),
+            Caption(T($"{Global.Modes.Count} local · {Downloads.RemoteRuleCount} remote", $"本地 {Global.Modes.Count} 个 · 远端 {Downloads.RemoteRuleCount} 个")));
+        heading.Spacing = 1;
+        var changeSource = AsyncButton(T("Change source", "更换来源"), ChangeSourceAsync);
+        changeSource.IsEnabled = _download == null && !Downloads.Applying && !Downloads.Checking;
+        var card = Card(Split(heading, changeSource));
+        card.Padding = new Thickness(13, 8, 13, 8);
+        var list = new StackPanel();
+        foreach (var group in Downloads.Rules.GroupBy(rule => rule.Kind).OrderBy(group => group.Key))
+        {
+            var title = group.Key switch
+            {
+                RuleChangeKind.Added => T("Added", "新增"),
+                RuleChangeKind.Updated => T("Updated", "更新"),
+                _ => T("Conflict", "冲突")
+            };
+            var entries = new List<CheckBox>();
+            var groupName = $"{title} · {group.Count()}";
+            var groupBox = RuleCheckBox(groupName);
+            groupBox.IsThreeState = true;
+            var updatingGroup = false;
+            var headingText = Caption(groupName);
+            headingText.Tapped += (_, _) => { if (groupBox.IsEnabled) ToggleGroup(); };
+            list.Children.Add(new Border
+            {
+                Height = 31, Padding = new Thickness(12, 0, 12, 0),
+                Child = TwoColumns(groupBox, headingText, GridLength.Auto, 6)
+            });
+            groupBox.Checked += (_, _) => ToggleGroup();
+            groupBox.Unchecked += (_, _) => ToggleGroup();
+            groupBox.Indeterminate += (_, _) => ToggleGroup();
+            void ToggleGroup()
+            {
+                if (updatingGroup)
+                    return;
+                var eligible = entries.Where(entry => entry.IsEnabled).ToArray();
+                var check = eligible.Any(entry => entry.IsChecked != true);
+                updatingGroup = true;
+                foreach (var entry in eligible)
+                    entry.IsChecked = check;
+                updatingGroup = false;
+                UpdateGroup();
+            }
+            void UpdateGroup()
+            {
+                if (updatingGroup)
+                    return;
+                var eligible = entries.Count(entry => entry.IsEnabled);
+                var selected = entries.Count(entry => entry.IsEnabled && entry.IsChecked == true);
+                updatingGroup = true;
+                groupBox.IsEnabled = eligible > 0;
+                groupBox.IsChecked = selected == 0 ? false : selected == eligible ? true : null;
+                updatingGroup = false;
+            }
+            foreach (var rule in group.OrderBy(rule => rule.Path, StringComparer.OrdinalIgnoreCase))
+            {
+                var checkedBox = RuleCheckBox(rule.Path);
+                var previous = _selectedRules.GetValueOrDefault(rule.Path, (rule.Kind != RuleChangeKind.Conflict, 0));
+                checkedBox.IsChecked = previous.Item1;
+                entries.Add(checkedBox);
+                ComboBox? action = null;
+                var actions = Row();
+                if (rule.Kind == RuleChangeKind.Conflict)
+                {
+                    checkedBox.IsEnabled = previous.Item2 != 0;
+                    action = Choice(T("Resolve conflict", "冲突处理"),
+                        [T("Keep local", "保留本地"), T("Use remote", "使用远端"), T("Save a copy", "另存为副本")], previous.Item2);
+                    action.Width = 98;
+                    action.Padding = new Thickness(8, 0, 2, 0);
+                    action.MinWidth = 0;
+                    action.SelectionChanged += (_, _) =>
+                    {
+                        checkedBox.IsEnabled = action.SelectedIndex > 0;
+                        checkedBox.IsChecked = checkedBox.IsEnabled;
+                        SaveSelection();
+                    };
+                    actions.Children.Add(action);
+                }
+
+                var preview = Caption("");
+                preview.TextAlignment = TextAlignment.Right;
+                var removedPreview = Caption("");
+                var previewColumn = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 5, Width = 106,
+                    HorizontalAlignment = HorizontalAlignment.Right };
+                var previewEnd = new Grid { Width = 106 };
+                previewEnd.Children.Add(previewColumn);
+                if (rule.Kind != RuleChangeKind.Conflict)
+                {
+                    var badge = Pill(title, rule.Kind == RuleChangeKind.Added ? "NetchSuccessText" : "NetchAccentText");
+                    badge.Style = Resource<Style>(rule.Kind == RuleChangeKind.Added ? "NetchAddedPill" : "NetchUpdatedPill");
+                    actions.Children.Add(badge);
+                    actions.Children.Add(previewEnd);
+                }
+                async Task ShowDiffAsync()
+                {
+                    var (added, removed) = await Downloads.DiffAsync(rule);
+                    if (rule.Kind != RuleChangeKind.Conflict)
+                    {
+                        _rulePreviews[rule] = Task.FromResult((added, removed));
+                        SetPreview(added.Length, removed.Length);
+                    }
+                    var diff = Input($"+{added.Length}  −{removed.Length}", string.Join(Environment.NewLine,
+                        removed.Select(line => "− " + line).Concat(added.Select(line => "+ " + line))), multiline: true);
+                    diff.IsReadOnly = true;
+                    await ShowAsync(XamlRoot, rule.Path, diff);
+                }
+
+                if (rule.Kind == RuleChangeKind.Updated)
+                {
+                    preview.FontFamily = removedPreview.FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas");
+                    removedPreview.Style = Resource<Style>("NetchErrorText");
+                    var delta = Row(preview, removedPreview);
+                    delta.Spacing = 4;
+                    delta.HorizontalAlignment = HorizontalAlignment.Right;
+                    previewColumn.Children.Add(new Grid { Width = 72, Children = { delta } });
+                    var link = AsyncButton(T("Diff", "差异"), ShowDiffAsync);
+                    link.Style = Resource<Style>("NetchInlineButton");
+                    previewColumn.Children.Add(link);
+                }
+                else if (rule.Kind == RuleChangeKind.Added)
+                {
+                    preview.Width = 106;
+                    previewColumn.Children.Add(preview);
+                }
+                var titleText = Text(rule.Path);
+                titleText.Tapped += (_, _) => { if (checkedBox.IsEnabled) checkedBox.IsChecked = checkedBox.IsChecked != true; };
+                var titlePanel = rule.Kind == RuleChangeKind.Conflict
+                    ? new StackPanel { Children = { titleText, Caption(T("Both local and remote changed", "本地已修改，远端也有更新")) } }
+                    : (UIElement)titleText;
+                ((FrameworkElement)titlePanel).VerticalAlignment = VerticalAlignment.Center;
+                actions.VerticalAlignment = VerticalAlignment.Center;
+                var nameAndCheck = TwoColumns(checkedBox, titlePanel, GridLength.Auto, 6);
+                var row = Split(nameAndCheck, actions);
+                var surface = new Border
+                {
+                    Child = row, Height = rule.Kind == RuleChangeKind.Conflict ? 51 : 33,
+                    Padding = new Thickness(12, 0, 12, 0), CornerRadius = new CornerRadius(6)
+                };
+                if (action != null)
+                {
+                    var indicator = RowIndicator(31);
+                    row.Children.Add(indicator);
+                    action.GotFocus += (_, _) =>
+                    {
+                        surface.Style = Resource<Style>("NetchActiveRow");
+                        indicator.Visibility = Visibility.Visible;
+                    };
+                    action.LostFocus += (_, _) =>
+                    {
+                        surface.ClearValue(FrameworkElement.StyleProperty);
+                        indicator.Visibility = Visibility.Collapsed;
+                    };
+                    surface.ContextFlyout = Menu((T("Diff", "差异"), async () =>
+                    {
+                        try { await ShowDiffAsync(); }
+                        catch (Exception ex) { await ShowAsync(XamlRoot, rule.Path, Text(ex.Message)); }
+                    }));
+                }
+                else
+                    row.EffectiveViewportChanged += LoadPreview;
+                list.Children.Add(surface);
+                async void LoadPreview(FrameworkElement sender, EffectiveViewportChangedEventArgs args)
+                {
+                    if (sender.ActualHeight <= 0 || args.BringIntoViewDistanceY >= sender.ActualHeight)
+                        return;
+                    sender.EffectiveViewportChanged -= LoadPreview;
+                    try
+                    {
+                        if (!_rulePreviews.TryGetValue(rule, out var pending))
+                            _rulePreviews[rule] = pending = Downloads.DiffAsync(rule);
+                        var (added, removed) = await pending;
+                        SetPreview(added.Length, removed.Length);
+                    }
+                    catch (Exception e)
+                    {
+                        _rulePreviews.Remove(rule);
+                        Log.Debug(e, "Read rule preview {Rule}", rule.Path);
+                    }
+                }
+                void SetPreview(int added, int removed)
+                {
+                    if (rule.Kind == RuleChangeKind.Added)
+                    {
+                        preview.Text = T($"{added} rules", $"{added} 条规则");
+                        return;
+                    }
+
+                    preview.Style = Resource<Style>(added > 0 ? "NetchSuccessText" : "NetchSecondaryText");
+                    preview.Text = added > 0 ? $"+{added}" : removed == 0 ? T("Rules unchanged", "规则未变") : "";
+                    preview.Visibility = preview.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+                    removedPreview.Text = removed > 0 ? $"−{removed}" : "";
+                    removedPreview.Visibility = removed > 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+                _selection.Add((rule, checkedBox, action));
+                checkedBox.Checked += (_, _) => SaveSelection();
+                checkedBox.Unchecked += (_, _) => SaveSelection();
+
+                void SaveSelection()
+                {
+                    _selectedRules[rule.Path] = (checkedBox.IsChecked == true, action?.SelectedIndex ?? 0);
+                    UpdateGroup();
+                    ChangeApply();
+                }
+            }
+            UpdateGroup();
+        }
+        if (list.Children.Count == 0)
+            list.Children.Add(Caption(Downloads.LastChecked == null ? T("Check for updates to load online rules.", "检查更新以读取在线规则。")
+                : T("No rule updates.", "没有可同步的规则。")));
+        return Body(card, Card(Scroll(list), 2));
+    }
+
+    private static CheckBox RuleCheckBox(string label)
+    {
+        var check = new CheckBox { MinWidth = 0, Width = 20, VerticalAlignment = VerticalAlignment.Center,
+            RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5),
+            RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform { ScaleX = 0.85, ScaleY = 0.85 } };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(check, label);
+        return check;
+    }
+
+    private FrameworkElement HistoryPane()
+    {
+        var rows = new ListView();
+        foreach (var item in Downloads.History)
+            rows.Items.Add(new ListViewItem
+            {
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                Content = Split(Stack(Text($"{item.Name} · {item.Version}"), Caption(item.Message ?? "")),
+                    Caption($"{item.Time:g} · {(item.Success ? T("Completed", "完成") : T("Incomplete", "未完成"))}"))
+            });
+        if (rows.Items.Count == 0)
+            rows.Items.Add(Caption(T("No downloads yet.", "暂无下载记录。")));
+        return Card(rows, 4);
+    }
+
+    private async Task ChangeSourceAsync()
+    {
+        var s = Global.Settings;
+        var repo = Input(T("GitHub repository (owner/repo)", "GitHub 仓库（所有者/仓库）"), s.ModeRepository);
+        var branch = Input(T("Branch", "分支"), s.ModeBranch);
+        var folder = Input(T("Directory", "目录"), s.ModeRepositoryPath);
+        if (await ShowAsync(XamlRoot, T("Mode rule source", "模式规则来源"), Stack(repo, branch, folder), T("Save", "保存"), () =>
+        {
+            if (!System.Text.RegularExpressions.Regex.IsMatch(repo.Text.Trim(), @"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$") ||
+                branch.Text.Trim().Length == 0 || folder.Text.Trim(' ', '/').Length == 0)
+                return T("Enter a valid repository, branch, and directory.", "请输入有效的仓库、分支和目录。");
+            s.ModeRepository = repo.Text.Trim();
+            s.ModeBranch = branch.Text.Trim();
+            s.ModeRepositoryPath = folder.Text.Trim(' ', '/');
+            return null;
+        }))
+        {
+            _selectedRules.Clear();
+            _rulePreviews.Clear();
+            Downloads.SourceChanged();
+            await Configuration.SaveAsync();
+            await Downloads.CheckAsync();
+        }
+    }
+
+    private async Task ChooseVersionAsync(CorePackage core, List<UpdateChoice> choices)
+    {
+        var version = Choice(T("Version", "版本"), choices.Select(choice => choice.Version));
+        if (await ShowAsync(XamlRoot, core.Name, version, T("Download", "下载")))
+            await DownloadAsync(core, choices[version.SelectedIndex]);
+    }
+
+    private async Task ApplyAsync()
+    {
+        if (_tabs.SelectedIndex == 1)
+        {
+            var selected = _selection.Where(entry => entry.Check.IsEnabled && entry.Check.IsChecked == true)
+                .Select(entry => (entry.Rule, Action: entry.Conflict == null ? ConflictAction.Replace : (ConflictAction)entry.Conflict.SelectedIndex)).ToArray();
+            await Downloads.SyncAsync(selected, path => _selectedRules.Remove(path));
+            return;
+        }
+
+        foreach (var (core, choice) in AvailableCores().ToArray())
+            if (!await DownloadAsync(core, choice))
+                break;
+    }
+
+    private async Task<bool> DownloadAsync(CorePackage core, UpdateChoice choice)
+    {
+        if (_download != null || Downloads.Applying || Downloads.Checking)
+            return false;
+        _activeCore = core;
+        var progress = StartProgress();
+        try
+        {
+            await Downloads.InstallAsync(core, choice, progress, WaitWhilePausedAsync, _download!.Token);
+            return !_download.IsCancellationRequested;
+        }
+        finally { EndProgress(); }
+    }
+
+    private async Task UpdateAppAsync()
+    {
+        if (_download != null || Downloads.Applying || Downloads.Checking)
+            return;
+        var progress = StartProgress();
+        try { await Downloads.UpdateApplicationAsync(progress, WaitWhilePausedAsync, _download!.Token); }
+        catch (OperationCanceledException) when (_download?.IsCancellationRequested == true) { }
+        finally { EndProgress(); }
+    }
+
+    private IProgress<TransferProgress> StartProgress()
+    {
+        _download = new CancellationTokenSource();
+        _transfer = new TransferProgress(-1, 0);
+        Refresh();
+        var operation = _download;
+        return new Progress<TransferProgress>(value =>
+        {
+            if (_download != operation)
+                return;
+            _transfer = value;
+            UpdateProgress();
+        });
+    }
+
+    private StackPanel ProgressView()
+    {
+        _progress = new ProgressBar { Minimum = 0, Maximum = 100, Width = 165, Height = 5 };
+        _progressLabel = Caption("");
+        _progressLabel.FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas");
+        UpdateProgress();
+        var panel = Stack(_progress, _progressLabel);
+        panel.Spacing = 3;
+        panel.VerticalAlignment = VerticalAlignment.Center;
+        return panel;
+    }
+
+    private void UpdateProgress()
+    {
+        if (_progress == null || _progressLabel == null)
+            return;
+        _progress.IsIndeterminate = _transfer.Percent < 0;
+        if (_transfer.Percent >= 0)
+            _progress.Value = _transfer.Percent;
+        var percent = _transfer.Percent >= 0 ? $"{_transfer.Percent:0}%" : "";
+        var speed = _transfer.BytesPerSecond > 0 ? Format.Rate(_transfer.BytesPerSecond) : "";
+        _progressLabel.Text = string.Join(" · ", new[] { percent, speed }.Where(text => text.Length > 0));
+    }
+
+    private Button PauseButton()
+    {
+        var icon = new FontIcon { FontSize = 14 };
+        var button = new Button { Content = icon, Style = Resource<Style>("NetchInlineButton") };
+        UpdateButton();
+        button.Click += (_, _) =>
+        {
+            if (_paused == null)
+                _paused = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            else
+            {
+                _paused.TrySetResult();
+                _paused = null;
+            }
+            UpdateButton();
+        };
+        return button;
+
+        void UpdateButton()
+        {
+            var label = _paused == null ? T("⏸ Pause", "⏸ 暂停") : T("▶ Resume", "▶ 继续");
+            icon.Glyph = _paused == null ? "\uE769" : "\uE768";
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, label);
+            ToolTipService.SetToolTip(button, label);
+        }
+    }
+
+    private Task WaitWhilePausedAsync(CancellationToken token) => _paused?.Task.WaitAsync(token) ?? Task.CompletedTask;
+
+    private void EndProgress()
+    {
+        _paused?.TrySetResult();
+        _paused = null;
+        _download?.Dispose();
+        _download = null;
+        _activeCore = null;
+        Refresh();
     }
 }

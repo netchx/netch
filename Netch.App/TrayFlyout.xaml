@@ -13,8 +13,7 @@
 
     <Grid
         x:Name="Root"
-        Width="310"
-        Padding="14"
+        Padding="12,14"
         VerticalAlignment="Top"
         RowSpacing="10">
         <Grid.RowDefinitions>
@@ -29,7 +28,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <StackPanel VerticalAlignment="Center" Spacing="2">
+            <StackPanel VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <Ellipse
                         Width="8"
@@ -47,19 +46,22 @@
             <Button
                 Grid.Column="1"
                 Padding="12,4"
+                AutomationProperties.Name="{h:Tr Text=Disconnect}"
                 Click="Disconnect_Click"
                 CornerRadius="14"
                 Style="{StaticResource AccentButtonStyle}"
                 Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <FontIcon FontSize="12" Glyph="&#xE7E8;" />
-                    <TextBlock Text="{h:Tr Text=Disconnect}" />
+                    <TextBlock Text="{x:Bind DisconnectLabel()}" />
                 </StackPanel>
             </Button>
         </Grid>
 
         <ItemsView
             Grid.Row="1"
+            Margin="0,-2,0,0"
+            Height="{x:Bind TileHeight, Mode=OneWay}"
             IsItemInvokedEnabled="True"
             ItemInvoked="Tiles_ItemInvoked"
             ItemsSource="{x:Bind Tiles}"
@@ -70,12 +72,14 @@
                     ItemsStretch="Fill"
                     MaximumRowsOrColumns="2"
                     MinColumnSpacing="6"
+                    MinItemHeight="54"
                     MinItemWidth="120"
                     MinRowSpacing="6" />
             </ItemsView.Layout>
             <ItemsView.ItemTemplate>
                 <DataTemplate x:DataType="vm:SceneCard">
-                    <ItemContainer AutomationProperties.Name="{x:Bind Name, Mode=OneWay}" CornerRadius="6">
+                    <ItemContainer AutomationProperties.Name="{x:Bind Name, Mode=OneWay}" CornerRadius="6"
+                                   ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
                         <c:SceneTile
                             DetailText="{x:Bind TileDetail, Mode=OneWay}"
                             State="{x:Bind TileState, Mode=OneWay}"
@@ -98,18 +102,24 @@
             <TextBlock
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
-                Text="{x:Bind h:Format.Rate(Session.BytesPerSecond), Mode=OneWay}"
+                FontFamily="Consolas"
+                FontSize="11"
+                Text="{x:Bind DownloadRate(Session.BytesPerSecond), Mode=OneWay}"
                 Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}" />
             <TextBlock
                 HorizontalAlignment="Center"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
-                Text="{x:Bind TotalText(Session.TotalBytes), Mode=OneWay}"
+                FontFamily="Consolas"
+                FontSize="11"
+                Text="{x:Bind UploadRate(Session.UploadBytesPerSecond), Mode=OneWay}"
                 Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}" />
             <TextBlock
                 HorizontalAlignment="Right"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
+                FontFamily="Consolas"
+                FontSize="11"
                 Text="{x:Bind NatText(Session.NatResult), Mode=OneWay}" />
         </Grid>
 
@@ -118,19 +128,21 @@
             Padding="0,8,0,0"
             BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0">
-            <HyperlinkButton Padding="0" Click="Open_Click">
+            <HyperlinkButton AutomationProperties.Name="{h:Tr Text='Open Netch'}"
+                             Height="15" MinHeight="0" Padding="0" Click="Open_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <FontIcon FontSize="12" Glyph="&#xE713;" />
-                    <TextBlock Text="{h:Tr Text='Open Netch'}" />
+                    <FontIcon FontSize="11" Glyph="&#xE713;" />
+                    <TextBlock FontSize="11" Text="{h:Tr Text='Open Netch'}" />
                 </StackPanel>
             </HyperlinkButton>
             <HyperlinkButton
-                Padding="0"
+                Height="15" MinHeight="0" Padding="0"
                 HorizontalAlignment="Right"
+                AutomationProperties.Name="{h:Tr Text=Exit}"
                 Click="Exit_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <FontIcon FontSize="12" Glyph="&#xE7E8;" />
-                    <TextBlock Text="{h:Tr Text=Exit}" />
+                    <FontIcon FontSize="11" Glyph="&#xE7E8;" />
+                    <TextBlock FontSize="11" Text="{h:Tr Text=Exit}" />
                 </StackPanel>
             </HyperlinkButton>
         </Grid>

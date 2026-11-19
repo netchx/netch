@@ -2,25 +2,53 @@ using Microsoft.UI.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using Netch.App.ViewModels;
 using Netch.Models;
 using Netch.Models.Modes;
 using Windows.System;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 
 namespace Netch.App.Dialogs;
 
 public sealed partial class SceneEditorDialog : ContentDialog
 {
     /// <param name="scene">The scene to edit, or null to create one.</param>
-    public SceneEditorDialog(Scene? scene)
+    public SceneEditorDialog(Scene? scene, bool changeNode = false)
     {
         ViewModel = new SceneEditorViewModel(scene);
         InitializeComponent();
         Title = ViewModel.Title;
+        if (changeNode)
+            Opened += (_, _) => NodeSelector.Focus(FocusState.Programmatic);
     }
 
     public SceneEditorViewModel ViewModel { get; }
+
+    internal void ShowSaveError(string message)
+    {
+        SaveError.Message = message;
+        SaveError.Visibility = Visibility.Visible;
+        SaveError.IsOpen = true;
+    }
+
+    protected override void OnApplyTemplate()
+    {
+        base.OnApplyTemplate();
+        if (ActualTheme == ElementTheme.Dark && !new AccessibilitySettings().HighContrast &&
+            GetTemplateChild("SmokeLayerBackground") is Rectangle smoke)
+            smoke.Fill = new SolidColorBrush(Windows.UI.Color.FromArgb(128, 0, 0, 0));
+        if (GetTemplateChild("ContentScrollViewer") is ScrollViewer { Content: Grid body })
+            body.Padding = new Thickness(24, 23, 24, 21);
+        if (GetTemplateChild("CommandSpace") is Grid footer)
+            footer.Padding = new Thickness(24, 15, 24, 15);
+        if (GetTemplateChild("PrimaryButton") is Button primary)
+            primary.Height = 34;
+    }
+
+    private string FormatHotkey(string hotkey) => string.Join(" + ", hotkey.Split('+', StringSplitOptions.TrimEntries));
 
     /// <summary>Set when the dialog closed because the user asked for the mode settings.</summary>
     public Mode? ModeToOpen { get; private set; }

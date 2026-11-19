@@ -11,6 +11,7 @@ namespace Netch.Utils;
 public static class Bandwidth
 {
     public static ulong received;
+    private static ulong _sent;
     public static TraceEventSession? tSession;
 
     /// <summary>
@@ -41,7 +42,7 @@ public static class Bandwidth
             size = (size ?? d) / step;
         }
 
-        return $@"{size ?? 0:0.##} {Suffix[level]}";
+        return $@"{size ?? d:0.##} {Suffix[level]}";
     }
 
     /// <summary>
@@ -64,7 +65,10 @@ public static class Bandwidth
             {
                 await Task.Delay(1000);
                 if (Current() && AppEvents.State == State.Started)
-                    AppEvents.ReportBandwidth(Interops.Redirector.GetTrafficBytes());
+                {
+                    var (download, upload) = Interops.Redirector.GetTrafficBytes();
+                    AppEvents.ReportBandwidth(download + upload, download, upload);
+                }
             }
 
             return;
@@ -88,8 +92,8 @@ public static class Bandwidth
             {
                 case null:
                     break;
-                case NFController or TUNController:
-                    processes.Add(Process.GetCurrentProcess());
+                case TUNController when Interops.TUN2Socks.ActiveProcess is { } tun:
+                    processes.Add(tun);
                     break;
                 case Guard guard:
                     processes.Add(guard.Instance);
@@ -101,6 +105,7 @@ public static class Bandwidth
         Log.Information("Net traffic processes: {Processes}", string.Join(',', processes.Select(v => $"({v.Id}){v.ProcessName}")));
 
         Interlocked.Exchange(ref received, 0UL);
+        Interlocked.Exchange(ref _sent, 0UL);
 
         if (!processes.Any())
             return;
@@ -112,24 +117,25 @@ public static class Bandwidth
                 tSession = new TraceEventSession("KernelAndClrEventsSession");
                 tSession.EnableKernelProvider(KernelTraceEventParser.Keywords.NetworkTCPIP);
 
-                //这玩意儿上传和下载得到的data是一样的:)
-                //所以暂时没办法区分上传下载流量
-                // These callbacks fire for every packet on the system; keep them
-                // lock-free.
                 tSession.Source.Kernel.TcpIpRecv += data =>
                 {
                     if (pidHastSet.Contains(data.ProcessID))
                         Interlocked.Add(ref received, (ulong)data.size);
-
-                    // Debug.WriteLine($"TcpIpRecv: {ToByteSize(data.size)}");
                 };
-
                 tSession.Source.Kernel.UdpIpRecv += data =>
                 {
                     if (pidHastSet.Contains(data.ProcessID))
                         Interlocked.Add(ref received, (ulong)data.size);
-
-                    // Debug.WriteLine($"UdpIpRecv: {ToByteSize(data.size)}");
+                };
+                tSession.Source.Kernel.TcpIpSend += data =>
+                {
+                    if (pidHastSet.Contains(data.ProcessID))
+                        Interlocked.Add(ref _sent, (ulong)data.size);
+                };
+                tSession.Source.Kernel.UdpIpSend += data =>
+                {
+                    if (pidHastSet.Contains(data.ProcessID))
+                        Interlocked.Add(ref _sent, (ulong)data.size);
                 };
 
                 tSession.Source.Process();
@@ -141,7 +147,10 @@ public static class Bandwidth
         {
             await Task.Delay(1000);
             if (Current())
-                AppEvents.ReportBandwidth(Interlocked.Read(ref received));
+            {
+                var download = Interlocked.Read(ref received);
+                AppEvents.ReportBandwidth(download, download, Interlocked.Read(ref _sent));
+            }
         }
     }
 
@@ -150,5 +159,6 @@ public static class Bandwidth
         Interlocked.Increment(ref _generation);
         tSession?.Dispose();
         Interlocked.Exchange(ref received, 0UL);
+        Interlocked.Exchange(ref _sent, 0UL);
     }
 }

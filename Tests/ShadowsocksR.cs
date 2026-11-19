@@ -12,7 +12,9 @@ namespace Tests;
 public class ShadowsocksR
 {
     [TestMethod]
-    public void SavedNodeKeepsItsTypeAndFieldsThroughSubscriptionImport()
+    [DataRow(false)]
+    [DataRow(true)]
+    public void SavedNodeKeepsItsTypeAndFieldsThroughSubscriptionImport(bool useNetchLink)
     {
         const string saved = """
             {
@@ -31,10 +33,9 @@ public class ShadowsocksR
             """;
         var options = new JsonSerializerOptions { Converters = { new ServerConverterWithTypeDiscriminator() } };
         var node = (ShadowsocksRServer)JsonSerializer.Deserialize<Server>(saved, options);
-        var link = ShareLink.GetShareLink(node);
+        var link = useNetchLink ? ShareLink.GetNetchLink(node) : ShareLink.GetShareLink(node);
         var subscription = ShareLink.URLSafeBase64Encode(link);
         var imported = ShareLink.ParseText(subscription).Single();
-        // The id is local identity and never part of a share link.
         imported.Id = node.Id;
 
         Assert.AreEqual(JsonSerializer.Serialize<Server>(node, options), JsonSerializer.Serialize(imported, options));

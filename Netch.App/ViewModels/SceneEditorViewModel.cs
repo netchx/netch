@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml;
 using Netch.App.Helpers;
 using Netch.Models;
 using Netch.Models.Modes;
@@ -68,17 +69,24 @@ public sealed partial class SceneEditorViewModel : ObservableObject
     /// <summary>An empty name falls back to the mode name.</summary>
     public string NamePlaceholder => SelectedMode?.Mode.i18NRemark ?? string.Empty;
 
-    /// <summary>Writes the edits into the edited scene, or into a new one.</summary>
-    public Scene Apply()
+    /// <summary>Captures the proposed edits before the asynchronous save.</summary>
+    public Action<Scene> CaptureEdits()
     {
-        var scene = _scene ?? new Scene();
-        scene.Icon = Icon;
-        scene.Name = SceneName.IsNullOrWhiteSpace() ? NamePlaceholder : SceneName.Trim();
-        scene.ModeId = SceneService.GetModeId(SelectedMode!.Mode);
-        scene.ServerId = SelectedNode!.Server.Id;
-        scene.PinnedToTray = PinnedToTray;
-        scene.Hotkey = Hotkey.Length == 0 ? null : Hotkey;
-        return scene;
+        var icon = Icon;
+        var name = SceneName.IsNullOrWhiteSpace() ? NamePlaceholder : SceneName.Trim();
+        var modeId = SceneService.GetModeId(SelectedMode!.Mode);
+        var serverId = SelectedNode!.Server.Id;
+        var pinned = PinnedToTray;
+        var hotkey = Hotkey.Length == 0 ? null : Hotkey;
+        return scene =>
+        {
+            scene.Icon = icon;
+            scene.Name = name;
+            scene.ModeId = modeId;
+            scene.ServerId = serverId;
+            scene.PinnedToTray = pinned;
+            scene.Hotkey = hotkey;
+        };
     }
 }
 
@@ -86,23 +94,25 @@ public sealed class ModeOption(Mode mode)
 {
     public Mode Mode { get; } = mode;
 
-    public override string ToString() => $"{Format.ModeTypeName(Mode.Type)} · {Mode.i18NRemark}";
+    public override string ToString() => $"{Format.ModeTypeLongName(Mode.Type)} · {Mode.i18NRemark}";
 }
 
 public sealed class NodeOption(Server server)
 {
     public Server Server { get; } = server;
 
+    public string Name { get; } = Format.NodeName(server);
+
     public string Label { get; } = $"{Format.NodeName(server)} · {server.ConfigType} · {server.Group}";
 
     public string DelayText { get; } = Format.Delay(server.Delay);
 
-    public bool IsFast => Server.Delay is >= 0 and < 100;
+    public Visibility FastDelay => Server.Delay is >= 0 and < 100 ? Visibility.Visible : Visibility.Collapsed;
 
-    public bool IsSlow => Server.Delay is >= 100 and < 1000;
+    public Visibility SlowDelay => Server.Delay is >= 100 and < 1000 ? Visibility.Visible : Visibility.Collapsed;
 
-    public bool IsTimeout => Server.Delay is >= 1000 or < -1;
+    public Visibility Timeout => Server.Delay is >= 1000 or < -1 ? Visibility.Visible : Visibility.Collapsed;
 
     /// <summary>Used by the combo box text search.</summary>
-    public override string ToString() => Format.NodeName(Server);
+    public override string ToString() => Name;
 }

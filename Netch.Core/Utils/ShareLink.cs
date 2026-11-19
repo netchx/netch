@@ -9,7 +9,8 @@ public static class ShareLink
 {
     public static string GetShareLink(Server server)
     {
-        return ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
+        var link = ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
+        return string.IsNullOrWhiteSpace(link) ? GetNetchLink(server) : link;
     }
 
     public static List<Server> ParseText(string text)
@@ -108,28 +109,21 @@ public static class ShareLink
 
     private static Server ParseNetchUri(string text)
     {
-        text = URLSafeBase64Decode(text.Substring(8));
-
-        var NetchLink = JsonSerializer.Deserialize<JsonElement>(text);
-
-        if (string.IsNullOrEmpty(NetchLink.GetProperty("Hostname").GetString()))
-            throw new FormatException();
-
-        if (!ushort.TryParse(NetchLink.GetProperty("Port").GetString(), out _))
-            throw new FormatException();
-
-        return JsonSerializer.Deserialize<Server>(text,
+        var server = JsonSerializer.Deserialize<Server>(URLSafeBase64Decode(text["Netch://".Length..]),
             new JsonSerializerOptions
             {
                 Converters = { new ServerConverterWithTypeDiscriminator() }
-            })!;
+            });
+        if (server == null || server.Address.IsNullOrWhiteSpace() || server.Port is < 1 or > ushort.MaxValue)
+            throw new FormatException("The Netch link must contain an address and a valid port.");
+        return server;
     }
 
     public static string GetNetchLink(Server s)
     {
         var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
         jsonSerializerOptions.WriteIndented = false;
-        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize(s, jsonSerializerOptions));
+        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize<object>(s, jsonSerializerOptions));
     }
 
     #region Utils

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Windows.Win32;
@@ -30,27 +31,32 @@ internal sealed unsafe class TrayIcon : IDisposable
     private readonly uint _taskbarCreated;
     private readonly HICON _icon;
     private string _tooltip;
+    private TrayMenuPresentation? _menuPresentation;
 
     public TrayIcon(string iconPath, string tooltip)
     {
         _instance = this;
         _tooltip = tooltip;
 
+        var module = (HINSTANCE)PInvoke.GetModuleHandle((PCWSTR)null).Value;
         fixed (char* className = WindowClass)
+        fixed (char* title = "Netch")
         {
             var windowClass = new WNDCLASSEXW
             {
                 cbSize = (uint)Marshal.SizeOf<WNDCLASSEXW>(),
                 lpfnWndProc = WndProcDelegate,
-                hInstance = (HINSTANCE)PInvoke.GetModuleHandle((PCWSTR)null).Value,
+                hInstance = module,
                 lpszClassName = className
             };
-            PInvoke.RegisterClassEx(windowClass);
-        }
+            if (PInvoke.RegisterClassEx(windowClass) == 0)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
 
-        // A hidden top-level window rather than a message-only one: only top-level windows receive the
-        // TaskbarCreated broadcast that tells us to add the icon again after Explorer restarts.
-        _hwnd = PInvoke.CreateWindowEx(0, WindowClass, "Netch", 0, 0, 0, 0, 0, HWND.Null, null, null, null);
+            // A top-level window receives TaskbarCreated after Explorer restarts.
+            _hwnd = PInvoke.CreateWindowEx(0, className, title, 0, 0, 0, 0, 0, HWND.Null, default, module, null);
+            if (_hwnd == HWND.Null)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+        }
 
         // Netch runs elevated; let the medium-integrity shell reach this window.
         _taskbarCreated = PInvoke.RegisterWindowMessage("TaskbarCreated");
@@ -99,10 +105,16 @@ internal sealed unsafe class TrayIcon : IDisposable
     public int ShowMenu(Point at, IReadOnlyList<MenuEntry?> entries)
     {
         var menu = PInvoke.CreatePopupMenu();
+        using var presentation = new Windows.UI.ViewManagement.AccessibilitySettings().HighContrast ? null :
+            new TrayMenuPresentation(entries, _hwnd, App.MainWindow?.ActualTheme ?? Microsoft.UI.Xaml.ElementTheme.Light);
+        _menuPresentation = presentation;
         try
         {
             for (var i = 0; i < entries.Count; i++)
             {
+                if (presentation?.AddItem(menu, i) == true)
+                    continue;
+
                 if (entries[i] is not { } entry)
                 {
                     PInvoke.AppendMenu(menu, MENU_ITEM_FLAGS.MF_SEPARATOR, 0, default(PCWSTR));
@@ -127,6 +139,7 @@ internal sealed unsafe class TrayIcon : IDisposable
         }
         finally
         {
+            _menuPresentation = null;
             PInvoke.DestroyMenu(menu);
         }
     }
@@ -173,6 +186,9 @@ internal sealed unsafe class TrayIcon : IDisposable
         {
             if (self != null && hwnd == self._hwnd)
             {
+                if (self._menuPresentation?.Handle(message, lParam) == true)
+                    return new LRESULT(1);
+
                 if (message == CallbackMessage)
                 {
                     // NOTIFYICON_VERSION_4: the event is in the low word of lParam, the anchor point in wParam.
@@ -213,4 +229,4 @@ internal sealed unsafe class TrayIcon : IDisposable
     }
 }
 
-internal sealed record MenuEntry(string Text, bool Checked = false, bool Enabled = true);
+internal sealed record MenuEntry(string Text, bool Checked = false, bool Enabled = true, string? Shortcut = null);

@@ -26,7 +26,7 @@ public class TUNController : IModeController
     private NetRoute _tun6;
     private NetRoute _outbound;
     private NetRoute? _outbound6;
-    private bool _outboundReady;
+    private bool _metricConfigured;
     private bool _ipv6Configured;
     private bool _tun2SocksInitialized;
     private bool _dnsInitialized;
@@ -43,8 +43,8 @@ public class TUNController : IModeController
             throw new InvalidOperationException();
 
         _mode = tunMode;
-        _tunConfig = Global.Settings.TUNTAP;
-        ValidateConfiguration();
+        _tunConfig = tunMode.Network ?? Global.Settings.TUNTAP;
+        ValidateConfiguration(_mode, _tunConfig);
 
         var remoteHostname = server.RemoteHostname.IsNullOrEmpty() ? server.Address : server.RemoteHostname;
         // A and AAAA lookups are independent; resolve them in parallel.
@@ -60,14 +60,16 @@ public class TUNController : IModeController
         if (_serverRemoteAddresses.Count == 0)
             throw new MessageException("TUN mode requires an IPv4 or IPv6 address for the proxy server bypass route.");
 
-        _serverRemoteAddresses.RemoveAll(IPAddress.IsLoopback);
+        _serverRemoteAddresses.RemoveAll(address => IPAddress.IsLoopback(address) ||
+            (!_tunConfig.EnableIPv6 && address.AddressFamily == AddressFamily.InterNetworkV6));
         Log.Information("Resolved proxy server route exclusions: {Addresses}", string.Join(", ", _serverRemoteAddresses));
 
         _outbound = NetRoute.GetBestRouteTemplate();
         if (_tunConfig.EnableIPv6 && NeedsIPv6Outbound())
             _outbound6 = NetRoute.GetBestRouteTemplate(AddressFamily.InterNetworkV6);
 
-        await CheckDriverAsync();
+        if (!File.Exists(Path.Combine(Global.NetchDir, Constants.WintunDllFile)))
+            throw new MessageException($"Missing {Constants.WintunDllFile}.");
 
         var proxyHost = ProxyUri.Host(await server.AutoResolveHostnameAsync());
         var username = server.Auth() ? server.Username : null;
@@ -131,19 +133,19 @@ public class TUNController : IModeController
         }
     }
 
-    private void ValidateConfiguration()
+    public static void ValidateConfiguration(TunMode mode, TUNConfig config)
     {
-        if (!IsIPv4(_tunConfig.Address) || !IsIPv4(_tunConfig.Netmask) || !IsIPv4(_tunConfig.Gateway) ||
-            (_tunConfig.UseCustomDNS && !IsIPAddress(_tunConfig.DNS)))
+        if (!IsIPv4(config.Address) || !IsSubnetMask(config.Netmask) || !IsIPv4(config.Gateway) ||
+            (config.UseCustomDNS && !IsIPAddress(config.DNS)))
             throw new MessageException("TUN mode requires valid IPv4 address, netmask, gateway, and DNS settings.");
 
-        if (_tunConfig.EnableIPv6 &&
-            (!IsIPv6(_tunConfig.IPv6Address) || !IsIPv6(_tunConfig.IPv6Gateway) || _tunConfig.IPv6PrefixLength is 0 or > 128))
+        if (config.EnableIPv6 &&
+            (!IsIPv6(config.IPv6Address) || !IsIPv6(config.IPv6Gateway) || config.IPv6PrefixLength is 0 or > 128))
             throw new MessageException("TUN mode requires valid IPv6 address, gateway, and prefix length settings.");
 
-        var invalidRoute = _tunConfig.BypassIPs
-            .Concat(_mode.Handle)
-            .Concat(_mode.Bypass)
+        var invalidRoute = config.BypassIPs
+            .Concat(mode.Handle)
+            .Concat(mode.Bypass)
             .FirstOrDefault(rule => !RouteUtils.TryParseIPNetwork(rule, out _, out _));
         if (invalidRoute != null)
             throw new MessageException($"TUN mode only supports IPv4/IPv6 CIDR routes: {invalidRoute}");
@@ -176,32 +178,6 @@ public class TUNController : IModeController
 
         Log.Error("虚拟网卡不存在");
         throw new MessageException("tun2socks start failed.");
-    }
-
-    private async Task CheckDriverAsync()
-    {
-        string binDriver = Path.Combine(Global.NetchDir, Constants.WintunDllFile);
-        string sysDriver = $@"{Environment.SystemDirectory}\wintun.dll";
-
-        var binHashTask = Utils.Utils.Sha256CheckSumAsync(binDriver);
-        var sysHashTask = Utils.Utils.Sha256CheckSumAsync(sysDriver);
-        var binHash = await binHashTask;
-        var sysHash = await sysHashTask;
-        Log.Information("Built-in wintun.dll Hash: {Hash}", binHash);
-        Log.Information("Installed wintun.dll Hash: {Hash}", sysHash);
-        if (binHash == sysHash)
-            return;
-
-        try
-        {
-            Log.Information("Copy wintun.dll to System Directory");
-            File.Copy(binDriver, sysDriver, true);
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Copy wintun.dll failed");
-            throw new MessageException($"Failed to copy wintun.dll to system directory: {e.Message}");
-        }
     }
 
     #region Route
@@ -247,17 +223,13 @@ public class TUNController : IModeController
         }
 
         NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0);
+        _metricConfigured = true;
         if (_ipv6Configured)
             NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, 0, AddressFamily.InterNetworkV6);
-
-        _outboundReady = true;
     }
 
     private void ClearRouteTable()
     {
-        if (!_outboundReady)
-            return;
-
         for (var i = _createdRoutes.Count - 1; i >= 0; i--)
         {
             var route = _createdRoutes[i];
@@ -266,11 +238,14 @@ public class TUNController : IModeController
         }
 
         _createdRoutes.Clear();
+        if (!_metricConfigured)
+            return;
+
         NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex);
         if (_ipv6Configured)
             NetworkInterfaceUtils.SetInterfaceMetric(_tun.InterfaceIndex, null, AddressFamily.InterNetworkV6);
 
-        _outboundReady = false;
+        _metricConfigured = false;
     }
 
     private void EnsureTrackedRoutes(NetRoute ipv4Template, NetRoute? ipv6Template, IEnumerable<string> rules)
@@ -281,6 +256,9 @@ public class TUNController : IModeController
                 throw new MessageException($"Invalid TUN route: {rule}");
 
             var address = IPAddress.Parse(network);
+            if (!_tunConfig.EnableIPv6 && address.AddressFamily == AddressFamily.InterNetworkV6)
+                continue;
+
             var template = GetTemplate(ipv4Template, ipv6Template, address);
             EnsureTrackedRoute(template.FillTemplate(network, (byte)cidr));
         }
@@ -356,6 +334,15 @@ public class TUNController : IModeController
     private static bool IsIPv4(string value)
     {
         return IPAddress.TryParse(value, out var address) && address.AddressFamily == AddressFamily.InterNetwork;
+    }
+
+    private static bool IsSubnetMask(string value)
+    {
+        if (!IPAddress.TryParse(value, out var address) || address.AddressFamily != AddressFamily.InterNetwork)
+            return false;
+
+        var hostBits = ~System.Buffers.Binary.BinaryPrimitives.ReadUInt32BigEndian(address.GetAddressBytes());
+        return (hostBits & unchecked(hostBits + 1)) == 0;
     }
 
     private static bool IsIPv6(string value)

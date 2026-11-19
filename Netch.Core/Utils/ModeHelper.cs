@@ -23,11 +23,11 @@ public static class ModeHelper
 
     public static Mode LoadMode(string file)
     {
-        if (file.EndsWith(".json"))
+        if (file.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
             return LoadJsonMode(file);
 
-        if (file.EndsWith(".txt"))
-            return ReadTxtMode(file);
+        if (file.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            return ReadTxtMode(file, new HashSet<string>(StringComparer.OrdinalIgnoreCase));
 
         throw new NotSupportedException();
     }
@@ -42,18 +42,68 @@ public static class ModeHelper
 
     public static void WriteFile(this Mode mode)
     {
-        using var fs = new FileStream(mode.FullName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
-        JsonSerializer.Serialize(fs, mode, JsonSerializerOptions);
+        var temporary = mode.FullName + ".tmp";
+        try
+        {
+            using (var fs = new FileStream(temporary, FileMode.Create, FileAccess.Write, FileShare.None))
+                JsonSerializer.Serialize(fs, mode, JsonSerializerOptions);
+            File.Move(temporary, mode.FullName, overwrite: true);
+        }
+        finally
+        {
+            File.Delete(temporary);
+        }
     }
 
-    private static Mode ReadTxtMode(string file)
+    // Use the previous global values when a legacy process or TUN mode omitted a setting.
+    public static void CompleteSceneDefaults(Mode mode)
+    {
+        if (mode is TunMode tun)
+        {
+            tun.Network ??= Global.Settings.TUNTAP;
+            return;
+        }
+
+        if (mode is not Redirector process)
+            return;
+
+        var defaults = Global.Settings.Redirector;
+        process.ICMPDelay = process.FilterICMP == null ? defaults.ICMPDelay : process.ICMPDelay ?? 10;
+        process.DNSHost = process.FilterDNS == null ? defaults.DNSHost : process.DNSHost ?? $"{Constants.DefaultPrimaryDNS}:53";
+        process.FilterTCP ??= defaults.FilterTCP;
+        process.FilterUDP ??= defaults.FilterUDP;
+        process.FilterICMP ??= defaults.FilterICMP;
+        process.FilterDNS ??= defaults.FilterDNS;
+        process.FilterParent ??= defaults.FilterParent;
+        process.DNSProxy ??= defaults.DNSProxy;
+        process.HandleOnlyDNS ??= defaults.HandleOnlyDNS;
+    }
+
+    public static IEnumerable<string> ScanExecutables(string directory, int limit) =>
+        Directory.EnumerateFiles(directory, "*.exe", new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        }).Take(limit);
+
+    private static Mode ReadTxtMode(string file, HashSet<string> includes)
+    {
+        file = Path.GetFullPath(file);
+        if (!includes.Add(file))
+            throw new FormatException($"Circular mode include: {Path.GetFileName(file)}.");
+        try { return ReadTxtModeCore(file, includes); }
+        finally { includes.Remove(file); }
+    }
+
+    private static Mode ReadTxtModeCore(string file, HashSet<string> includes)
     {
         Mode mode;
         var ls = File.ReadAllLines(file);
         string modeTypeNum;
 
-        if (ls.First().First() != '#')
-            throw new FormatException("Not a valid txt mode that begins with meta line");
+        if (ls.Length == 0 || !ls[0].StartsWith('#'))
+            throw new FormatException(i18N.Translate("A mode TXT must begin with a # metadata line."));
 
         var heads = ls[0][1..].Split(",", StringSplitOptions.TrimEntries);
         switch (modeTypeNum = heads.ElementAtOrDefault(1) ?? "0")
@@ -86,7 +136,7 @@ public static class ModeHelper
             if (l.StartsWith("#include"))
             {
                 var relativePath = l["#include ".Length..].Replace("<", "").Replace(">", "").Replace(".h", ".txt").Trim();
-                includeMode = ReadTxtMode(ModeService.Instance.GetFullPath(relativePath));
+                includeMode = ReadTxtMode(ModeService.Instance.GetFullPath(relativePath), includes);
             }
 
             switch (mode)

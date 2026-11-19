@@ -166,6 +166,20 @@ public class Setting
     /// </summary>
     public AppTheme Theme { get; set; } = AppTheme.System;
 
+    public bool OnboardingCompleted { get; set; }
+
+    public string? StartupSceneId { get; set; }
+
+    public DownloadChannel DownloadChannel { get; set; }
+
+    public string GitHubMirror { get; set; } = "";
+
+    public string ModeRepository { get; set; } = "netchx/netch";
+
+    public string ModeBranch { get; set; } = "main";
+
+    public string ModeRepositoryPath { get; set; } = "Storage/mode";
+
     #region Migration
 
     [Obsolete]

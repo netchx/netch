@@ -11,6 +11,9 @@ namespace Netch.App;
 public partial class App : Application
 {
     private static bool _closeHintShown;
+    private static WelcomeWindow? _wizard;
+    private DispatcherQueueTimer? _subscriptions;
+    private bool _updatingSubscriptions;
 
     public App()
     {
@@ -26,7 +29,7 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        ModeService.Instance.Load();
+        ModeService.Instance.Load(completeSceneDefaults: true);
         if (SceneService.Initialize())
             Configuration.SaveAsync().Forget();
 
@@ -44,8 +47,50 @@ public partial class App : Application
         Program.SingleInstance.StartListenServer();
         MainWindow.Activate();
 
-        if (Global.Settings.StartWhenOpened && Session.Current.CurrentScene is { } scene)
-            Session.Current.StartAsync(scene).Forget();
+        if (!Global.Settings.OnboardingCompleted && SceneService.Scenes.Count == 0 && Global.Settings.Server.Count == 0)
+            OpenWizard();
+
+        var startupScene = Global.Settings.StartupSceneId is { } startupId
+            ? SceneService.Scenes.FirstOrDefault(scene => scene.Id == startupId)
+            : Session.Current.CurrentScene;
+        if (Global.Settings.StartWhenOpened && startupScene != null)
+            Session.Current.StartAsync(startupScene).Forget();
+
+        _subscriptions = MainWindow.DispatcherQueue.CreateTimer();
+        _subscriptions.Interval = TimeSpan.FromMinutes(1);
+        _subscriptions.Tick += (_, _) => UpdateSubscriptionsAsync(false).Forget();
+        _subscriptions.Start();
+        UpdateSubscriptionsAsync(Global.Settings.UpdateServersWhenOpened).Forget();
+
+        if (Global.Settings.CheckUpdateWhenOpened)
+            Downloads.CheckAsync().Forget();
+    }
+
+    private async Task UpdateSubscriptionsAsync(bool all)
+    {
+        if (_updatingSubscriptions)
+            return;
+        _updatingSubscriptions = true;
+        try
+        {
+            var due = Global.Settings.Subscription.Where(s => s.Enable && (all || s.UpdateIntervalHours > 0 &&
+                (s.LastChecked == null || DateTimeOffset.UtcNow - s.LastChecked.Value >= TimeSpan.FromHours(s.UpdateIntervalHours)))).ToArray();
+            foreach (var item in due)
+                await SubscriptionUtil.UpdateServerAsync(item);
+            if (due.Length > 0)
+                await Configuration.SaveAsync();
+        }
+        finally { _updatingSubscriptions = false; }
+    }
+
+    public static void OpenWizard()
+    {
+        if (_wizard == null)
+        {
+            _wizard = new WelcomeWindow();
+            _wizard.Closed += (_, _) => _wizard = null;
+        }
+        _wizard.Activate();
     }
 
     public static void ShowMainWindow() => MainWindow?.BringToFront();
@@ -66,7 +111,9 @@ public partial class App : Application
     public static void ApplyTheme(AppTheme theme)
     {
         MainWindow?.ApplyTheme(theme);
-        Tray.Current.ApplyTheme(MainWindow?.Theme ?? ElementTheme.Default);
+        var requestedTheme = MainWindow?.Theme ?? ElementTheme.Default;
+        Tray.Current.ApplyTheme(requestedTheme);
+        _wizard?.ApplyTheme(requestedTheme);
     }
 
     /// <summary>Stops the proxy, saves the configuration and ends the process.</summary>
@@ -76,6 +123,8 @@ public partial class App : Application
             return;
 
         IsExiting = true;
+        (Current as App)?._subscriptions?.Stop();
+        _wizard?.Close();
         MainWindow?.AppWindow.Hide();
         await Session.Current.ShutdownAsync();
         await Configuration.SaveAsync();

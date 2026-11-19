@@ -20,5 +20,17 @@ public class Subscription
     /// <summary>
     ///     User Agent
     /// </summary>
+    public int UpdateIntervalHours { get; set; }
+
+    public DateTimeOffset? LastChecked { get; set; }
+
+    public DateTimeOffset? LastUpdated { get; set; }
+
+    public bool UpdateFailed { get; set; }
+
+    public ulong? TrafficRemaining { get; set; }
+
+    public DateTimeOffset? Expiration { get; set; }
+
     public string UserAgent { get; set; } = string.Empty;
 }

@@ -1,4 +1,3 @@
-﻿using Microsoft.Win32;
 using System.Diagnostics;
 using System.Text;
 using Netch.Utils;
@@ -9,6 +8,7 @@ namespace Netch.Interops
     public static class TUN2Socks
     {
         private static Process? _process;
+        internal static Process? ActiveProcess => _process;
 
         public static bool Init(string interfaceName, string proxyHost, int proxyPort, string? username = null, string? password = null)
         {
@@ -196,17 +196,9 @@ namespace Netch.Interops
             }
         }
 
-        private const string ProfilesKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles";
-        private const string UnmanagedKeyPath = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Unmanaged";
-        private const string interfaceGUID = "{20214AD5-1D95-4CC1-9233-D850D2C9CF9C}";
         private static string BuildArgs(string interfaceName, string host, int port, string? username, string? password)
         {
-            CleanRegeditNetworkProfiles(ProfilesKeyPath, "Description", interfaceName);
-            CleanRegeditNetworkProfiles(UnmanagedKeyPath, "Description", interfaceName);
             var sb = new StringBuilder();
-            //todo:使用GUID偶尔报 Failed to setup adapter (problem code: 0x1F, ntstatus: 0xC0000035): 当文件已存在时，无法创建该文件。 (Code 0x000000B7)
-            //FATAL   engine/engine.go:45     [ENGINE] failed to start: create tun: Error creating interface: Cannot create a file when that file already exists.
-            //sb.Append($"-device tun://{interfaceName}?guid={interfaceGUID} ");
             sb.Append($"-device tun://{interfaceName} ");
             // SOCKS5
             sb.Append("-proxy socks5://");
@@ -260,73 +252,5 @@ namespace Netch.Interops
             await _logStreamWriter.DisposeAsync();
             await _logFileStream.DisposeAsync();
         }
-
-        #region 注册表操作
-        /// <summary>
-        /// 删除注册表指定路径的网络配置
-        /// </summary>
-        /// <param name="path">检查路径</param>
-        /// <param name="profileKeyName">要匹配字段的 key</param>
-        /// <param name="name">要匹配的字段</param>
-        /// <returns></returns>
-        private static int CleanRegeditNetworkProfiles(string path, string profileKeyName, string name)
-        {
-            int cleanedCount = 0;
-            try
-            {
-                Log.Verbose($"正在扫描注册表路径: {path}");
-                using (var profilesKey = Registry.LocalMachine.OpenSubKey(path, true))
-                {
-                    if (profilesKey == null)
-                    {
-                        Log.Error("注册表路径不存在，可能系统版本不支持。");
-                        return 0;
-                    }
-
-                    // 获取所有配置的GUID（子键名称）
-                    string[] profileGuids = profilesKey.GetSubKeyNames();
-                    Log.Verbose($"找到 {profileGuids.Length} 个网络配置");
-
-                    foreach (string guid in profileGuids)
-                    {
-                        using (var profileKey = profilesKey.OpenSubKey(guid, false))
-                        {
-                            if (profileKey == null) continue;
-
-                            // 读取配置名称
-                            var profileName = profileKey.GetValue(profileKeyName) as string;
-
-                            if (string.IsNullOrEmpty(profileName) || profileName.Contains(name))
-                            {
-                                try
-                                {
-                                    // 关闭当前键，以便删除
-                                    profileKey.Close();
-
-                                    // 删除该配置
-                                    profilesKey.DeleteSubKeyTree(guid);
-                                    cleanedCount++;
-
-                                    Log.Verbose($"已删除网络配置: {profileName ?? "未知"} ({guid})");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Error($"删除配置 {guid} 失败: {ex.Message}");
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Log.Verbose($"清理完成，共删除 {cleanedCount} 个网络配置。");
-                return cleanedCount;
-            }
-            catch (Exception ex)
-            {
-                Log.Error($"清理网络配置时发生错误: {ex.Message}");
-                return cleanedCount;
-            }
-        }
-        #endregion       
     }
 }

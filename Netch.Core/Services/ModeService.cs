@@ -8,6 +8,8 @@ namespace Netch.Services;
 
 public class ModeService
 {
+    public const string ManifestFileName = ".manifest.json";
+
     public static readonly ModeService Instance = new();
 
     public string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
@@ -26,10 +28,13 @@ public class ModeService
         return Path.Combine(ModeDirectoryFullName, relativeName);
     }
 
-    public void Load()
+    public void Load(bool completeSceneDefaults = false)
     {
         Global.Modes.Clear();
         LoadCore(ModeDirectoryFullName);
+        if (completeSceneDefaults)
+            foreach (var mode in Global.Modes)
+                ModeHelper.CompleteSceneDefaults(mode);
         // Sort() would refresh the combo box as well; populate it only once.
         SortCollection();
         AppEvents.RaiseModesChanged();
@@ -46,6 +51,9 @@ public class ModeService
 
         foreach (var file in Directory.GetFiles(modeDirectory))
         {
+            if (Path.GetFileName(file).Equals(ManifestFileName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
             try
             {
                 Global.Modes.Add(ModeHelper.LoadMode(file));
@@ -73,10 +81,9 @@ public class ModeService
         if (mode.FullName == null)
             throw new InvalidOperationException();
 
+        mode.WriteFile();
         Global.Modes.Add(mode);
         Sort();
-
-        mode.WriteFile();
     }
 
     public void Sort()
@@ -90,11 +97,11 @@ public class ModeService
         if (mode.FullName == null)
             throw new ArgumentException(nameof(mode.FullName));
 
-        AppEvents.RaiseModeDeleted(mode);
-        Global.Modes.Remove(mode);
-
         if (File.Exists(mode.FullName))
             File.Delete(mode.FullName);
+
+        AppEvents.RaiseModeDeleted(mode);
+        Global.Modes.Remove(mode);
     }
 
     public static IModeController GetModeControllerByType(ModeType type, out ushort? port, out string portName)

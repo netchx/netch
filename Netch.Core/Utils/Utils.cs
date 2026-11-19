@@ -159,13 +159,9 @@ public static class Utils
     {
         const string TaskName = "Netch Startup";
         var folder = TaskService.Instance.GetFolder("\\");
-        var taskIsExists = folder.Tasks.Any(task => task.Name == TaskName);
 
         if (Global.Settings.RunAtStartup)
         {
-            if (taskIsExists)
-                folder.DeleteTask(TaskName, false);
-
             var td = TaskService.Instance.NewTask();
 
             td.RegistrationInfo.Author = "Netch";
@@ -183,12 +179,11 @@ public static class Utils
             td.Settings.RunOnlyIfIdle = false;
             td.Settings.Compatibility = TaskCompatibility.V2_1;
 
-            TaskService.Instance.RootFolder.RegisterTaskDefinition("Netch Startup", td);
+            folder.RegisterTaskDefinition(TaskName, td);
         }
         else
         {
-            if (taskIsExists)
-                folder.DeleteTask(TaskName, false);
+            folder.DeleteTask(TaskName, false);
         }
     }
 

@@ -1,49 +1,78 @@
 using Netch.Models;
 using Netch.Services;
-using System.Net;
+using Microsoft.VisualStudio.Threading;
 
 namespace Netch.Utils;
 
 public static class SubscriptionUtil
 {
-    private static readonly object ServerLock = new();
+    private static readonly AsyncSemaphore UpdateLock = new(1);
 
     public static Task UpdateServersAsync(string? proxyServer = default)
     {
-        return Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, proxyServer)));
+        return Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerAsync(item, proxyServer)));
     }
 
-    private static async Task UpdateServerCoreAsync(Subscription item, string? proxyServer)
+    public static async Task<int> UpdateServerAsync(Subscription item, string? proxyServer = null)
     {
+        using var update = await UpdateLock.EnterAsync();
         try
         {
             if (!item.Enable)
-                return;
+                return 0;
 
-            List<Server> servers;
-
-            var (code, result) = await WebUtil.DownloadStringAsync(item.Link, item.UserAgent, proxyServer);
-            if (code == HttpStatusCode.OK)
-                servers = ShareLink.ParseText(result);
-            else
-                throw new Exception($"{item.Remark} Response Status Code: {code}");
+            item.LastChecked = DateTimeOffset.UtcNow;
+            var link = item.Link;
+            using var client = WebUtil.CreateHttpClient(userAgent: item.UserAgent, proxyServer: proxyServer);
+            using var response = await client.GetAsync(link);
+            response.EnsureSuccessStatusCode();
+            var servers = ShareLink.ParseText(await response.Content.ReadAsStringAsync());
+            if (servers.Count == 0)
+                throw new InvalidDataException(i18N.Translate("The subscription contains no supported nodes."));
+            if (!item.Enable || !Global.Settings.Subscription.Contains(item) || item.Link != link)
+                return 0;
 
             foreach (var server in servers)
-                server.Group = item.Remark;
-
-            lock (ServerLock)
             {
-                InheritIds(Global.Settings.Server.Where(server => server.Group.Equals(item.Remark)).ToList(), servers);
-                Global.Settings.Server.RemoveAll(server => server.Group.Equals(item.Remark));
-                Global.Settings.Server.AddRange(servers);
+                server.Group = item.Remark;
+                server.IsSub = true;
+            }
+
+            InheritIds(Global.Settings.Server.Where(server => server.Group.Equals(item.Remark)).ToList(), servers);
+            Global.Settings.Server.RemoveAll(server => server.Group.Equals(item.Remark));
+            Global.Settings.Server.AddRange(servers);
+            item.LastUpdated = DateTimeOffset.UtcNow;
+            item.UpdateFailed = false;
+            item.TrafficRemaining = null;
+            item.Expiration = null;
+            if (response.Headers.TryGetValues("subscription-userinfo", out var values))
+            {
+                var info = values.SelectMany(value => value.Split(';'))
+                    .Select(part => part.Split('=', 2, StringSplitOptions.TrimEntries))
+                    .Where(part => part.Length == 2).ToLookup(part => part[0], part => part[1], StringComparer.OrdinalIgnoreCase);
+                if (ulong.TryParse(info["total"].FirstOrDefault(), out var total) && total > 0)
+                {
+                    ulong.TryParse(info["upload"].FirstOrDefault(), out var upload);
+                    ulong.TryParse(info["download"].FirstOrDefault(), out var download);
+                    item.TrafficRemaining = upload <= total && download <= total - upload ? total - upload - download : 0;
+                }
+                if (long.TryParse(info["expire"].FirstOrDefault(), out var expires) && expires is > 0 and <= 253402300799)
+                    item.Expiration = DateTimeOffset.FromUnixTimeSeconds(expires);
             }
 
             AppEvents.Notify(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
+            return servers.Count;
         }
         catch (Exception e)
         {
+            item.UpdateFailed = true;
             AppEvents.Notify($"{i18N.TranslateFormat("Update servers failed from {0}", item.Remark)}\n{e.Message}", false);
             Log.Warning(e, "Update servers failed");
+            return 0;
+        }
+        finally
+        {
+            AppEvents.RaiseSubscriptionChanged();
         }
     }
 

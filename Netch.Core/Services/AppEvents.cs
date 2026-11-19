@@ -37,6 +37,9 @@ public static class AppEvents
     /// <summary>The mode collection in <see cref="Global.Modes" /> was reloaded or re-sorted.</summary>
     public static event Action? ModesChanged;
 
+    public static event Action? SubscriptionChanged;
+    public static event Action? NodeDelaysChanged;
+
     /// <summary>A single mode was removed from <see cref="Global.Modes" />.</summary>
     public static event Action<Mode>? ModeDeleted;
 
@@ -45,6 +48,8 @@ public static class AppEvents
 
     /// <summary>Total bytes transferred in the current session, reported about once per second.</summary>
     public static event Action<ulong>? BandwidthUpdated;
+
+    public static event Action<ulong, ulong>? BandwidthDirectionsUpdated;
 
     /// <summary>Share mode (pcap2socks) console output session: opened, shown after start, closed on stop.</summary>
     public static event Action? ShareModeLogOpened;
@@ -59,13 +64,20 @@ public static class AppEvents
 
     public static void Notify(string text, bool info = true) => NotificationRequested?.Invoke(text, info);
 
+    public static void RaiseSubscriptionChanged() => SubscriptionChanged?.Invoke();
+    public static void RaiseNodeDelaysChanged() => NodeDelaysChanged?.Invoke();
+
     public static void RaiseModesChanged() => ModesChanged?.Invoke();
 
     public static void RaiseModeDeleted(Mode mode) => ModeDeleted?.Invoke(mode);
 
     public static void SetBandwidthAvailable(bool available) => BandwidthAvailabilityChanged?.Invoke(available);
 
-    public static void ReportBandwidth(ulong totalBytes) => BandwidthUpdated?.Invoke(totalBytes);
+    public static void ReportBandwidth(ulong legacyBytes, ulong downloaded, ulong uploaded)
+    {
+        BandwidthUpdated?.Invoke(legacyBytes);
+        BandwidthDirectionsUpdated?.Invoke(downloaded, uploaded);
+    }
 
     public static void OpenShareModeLog() => ShareModeLogOpened?.Invoke();
 

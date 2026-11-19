@@ -54,12 +54,9 @@ public static class Redirector
     }
 
     /// <summary>
-    ///     Bytes forwarded by the redirector (TCP and UDP, both directions).
+    ///     Bytes forwarded by the redirector (TCP and UDP), by direction.
     /// </summary>
-    public static ulong GetTrafficBytes()
-    {
-        return aio_getUP() + aio_getDL();
-    }
+    public static (ulong Download, ulong Upload) GetTrafficBytes() => (aio_getDL(), aio_getUP());
 
     private const string Redirector_bin = "Redirector.bin";
 

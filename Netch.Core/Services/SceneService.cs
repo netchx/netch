@@ -14,31 +14,53 @@ public static class SceneService
     /// <returns>True when scenes were created and the configuration should be saved.</returns>
     public static bool Initialize()
     {
-        if (Global.Settings.Scenes != null)
+        var settings = Global.Settings;
+        if (settings.Scenes != null)
             return false;
 
-        Global.Settings.Scenes = Global.Settings.Profiles.OrderBy(p => p.Index).Select(FromProfile).ToList();
+        var scenes = settings.Profiles.OrderBy(p => p.Index).Select(FromProfile).ToList();
+        settings.Scenes = scenes;
+        var hasSelection = settings.ServerComboBoxSelectedIndex >= 0 || settings.ModeComboBoxSelectedIndex >= 0;
+        if (settings.Server.Count == 0 || Global.Modes.Count == 0 || (!settings.StartWhenOpened && !hasSelection))
+            return true;
+
+        var server = settings.Server[LegacySelectionIndex(settings.ServerComboBoxSelectedIndex, settings.Server.Count)];
+        var mode = Global.Modes[LegacySelectionIndex(settings.ModeComboBoxSelectedIndex, Global.Modes.Count)];
+        var modeId = GetModeId(mode);
+        var selected = scenes.Find(scene => scene.ServerId == server.Id &&
+            string.Equals(scene.ModeId, modeId, StringComparison.OrdinalIgnoreCase));
+        if (selected == null)
+        {
+            selected = CreateScene(mode.i18NRemark.ValueOrDefault() ?? Path.GetFileNameWithoutExtension(modeId), mode, server);
+            scenes.Add(selected);
+        }
+
+        settings.StartupSceneId = selected.Id;
         return true;
     }
+
+    private static int LegacySelectionIndex(int index, int count) => index >= 0 && index < count ? index : 0;
 
     private static Scene FromProfile(Profile profile)
     {
         var server = Global.Settings.Server.FirstOrDefault(s => s.Remarks == profile.ServerRemark);
         var mode = Global.Modes.FirstOrDefault(m => m.Remark.Any(r => r.Value == profile.ModeRemark));
 
-        return new Scene
-        {
-            Name = profile.ProfileName.IsNullOrWhiteSpace() ? profile.ModeRemark : profile.ProfileName,
-            Icon = mode?.Type switch
-            {
-                ModeType.TunMode => "🌐",
-                ModeType.ShareMode => "🕹",
-                _ => "🎮"
-            },
-            ModeId = mode == null ? string.Empty : GetModeId(mode),
-            ServerId = server?.Id ?? string.Empty
-        };
+        return CreateScene(profile.ProfileName.IsNullOrWhiteSpace() ? profile.ModeRemark : profile.ProfileName, mode, server);
     }
+
+    private static Scene CreateScene(string name, Mode? mode, Server? server) => new()
+    {
+        Name = name,
+        Icon = mode?.Type switch
+        {
+            ModeType.TunMode => "🌐",
+            ModeType.ShareMode => "🕹",
+            _ => "🎮"
+        },
+        ModeId = mode == null ? string.Empty : GetModeId(mode),
+        ServerId = server?.Id ?? string.Empty
+    };
 
     public static string GetModeId(Mode mode) => ModeService.Instance.GetRelativePath(mode.FullName);
 

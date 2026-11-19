@@ -99,10 +99,28 @@ jobs:
         shell: pwsh
         run: |
           $name = "Netch-${{ github.ref_name }}-win-x64"
-          Rename-Item -Path release -NewName Netch
-          Compress-Archive -Path Netch -DestinationPath "$name.zip" -CompressionLevel Optimal
-          Copy-Item -Path 'Netch\Netch.exe' -Destination "$name.exe"
+          $package = Join-Path $PWD 'release-package/Netch'
+          New-Item -ItemType Directory -Path $package -Force | Out-Null
+          Get-ChildItem -LiteralPath release -Force | Where-Object Name -NotIn 'data','logging' |
+            Copy-Item -Destination $package -Recurse
+          Compress-Archive -Path $package -DestinationPath "$name.zip" -CompressionLevel Optimal
+          Copy-Item -LiteralPath (Join-Path $package 'Netch.exe') -Destination "$name.exe"
+          $winui = "Netch-${{ github.ref_name }}-winui-x64"
+          dotnet publish .\Netch.App\Netch.App.csproj -c Release -p:Platform=x64 -r win-x64 --self-contained true -o $package
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI publish failed.' }
+          $modeRoot = Join-Path $package 'mode'
+          $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
+          $ids = @($modes.FullName | git hash-object --no-filters --stdin-paths)
+          if ($LASTEXITCODE -ne 0 -or $modes.Count -ne $ids.Count) { throw 'Mode manifest generation failed.' }
+          $blobs = [ordered]@{}
+          for ($i = 0; $i -lt $modes.Count; $i++) {
+            $blobs[[IO.Path]::GetRelativePath($modeRoot, $modes[$i].FullName)] = $ids[$i]
+          }
+          @{ Source='netchx/netch/main/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
+            Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
+          [IO.Compression.ZipFile]::CreateFromDirectory($package, (Join-Path $PWD "$winui.zip"))
           echo "PACKAGE_NAME=$name" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "WINUI_PACKAGE_NAME=$winui" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Release notes
         shell: pwsh
@@ -110,6 +128,7 @@ jobs:
           # Release body = docs/release-notes/<version>.md (Markdown) + download
           # instructions + SHA256 table. Tag v2.0.1 reads 2.0.1.md.
           $name = $Env:PACKAGE_NAME
+          $winui = $Env:WINUI_PACKAGE_NAME
           $version = '${{ github.ref_name }}'.TrimStart('v', 'V')
           $notesFile = Join-Path 'docs\release-notes' "$version.md"
 
@@ -133,6 +152,8 @@ jobs:
             '2. 右键 `Netch.exe`，选择“以管理员身份运行”。'
             ''
             "``$name.exe`` 是单文件程序，只用于替换已有安装中的 ``Netch.exe``；首次使用请下载完整压缩包，其中包含代理核心、tun2socks、Wintun、路由组件和模式文件。"
+            ''
+            "WinUI 版请下载 ``$winui.zip``，完整解压后启动 ``Netch.App.exe``。"
             ''
             '## SHA256'
             ''
@@ -159,3 +180,4 @@ jobs:
           files: |
             ${{ env.PACKAGE_NAME }}.zip
             ${{ env.PACKAGE_NAME }}.exe
+            ${{ env.WINUI_PACKAGE_NAME }}.zip

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.Threading;
 using Netch.Models;
+using Netch.Services;
 using Timer = System.Timers.Timer;
 
 namespace Netch.Utils;
@@ -59,11 +60,13 @@ public static class DelayTestHelper
             {
                 using (await PoolLock.EnterAsync())
                 {
-                    await s.PingAsync();
+                    var previous = s.Delay;
+                    return await s.PingAsync() != previous;
                 }
             });
 
-            await Task.WhenAll(tasks);
+            if ((await Task.WhenAll(tasks)).Any(changed => changed))
+                AppEvents.RaiseNodeDelaysChanged();
         }
         catch (Exception)
         {

@@ -35,7 +35,7 @@
                                 <FontIcon Glyph="&#xE8C8;" />
                             </MenuFlyoutItem.Icon>
                         </MenuFlyoutItem>
-                        <MenuFlyoutItem Click="Edit_Click" Tag="{x:Bind}" Text="{h:Tr Text='Change node'}">
+                        <MenuFlyoutItem Click="ChangeNode_Click" Tag="{x:Bind}" Text="{h:Tr Text='Change node'}">
                             <MenuFlyoutItem.Icon>
                                 <FontIcon Glyph="&#xE8AB;" />
                             </MenuFlyoutItem.Icon>
@@ -55,10 +55,10 @@
                 </ItemContainer.ContextFlyout>
 
                 <Grid
-                    MinHeight="120"
+                    MinHeight="126"
                     Padding="12,10"
-                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    Background="{ThemeResource NetchSurface}"
+                    BorderBrush="{ThemeResource NetchStroke}"
                     BorderThickness="1"
                     CornerRadius="8"
                     RowSpacing="4">
@@ -91,6 +91,7 @@
                         Grid.Row="1"
                         Style="{StaticResource BodyStrongTextBlockStyle}"
                         Text="{x:Bind Name, Mode=OneWay}"
+                        TextWrapping="NoWrap"
                         TextTrimming="CharacterEllipsis" />
                     <TextBlock
                         Grid.Row="2"
@@ -135,8 +136,8 @@
         <DataTemplate x:Key="AddTemplate" x:DataType="vm:AddSceneCard">
             <ItemContainer AutomationProperties.Name="{h:Tr Text='New scene'}" CornerRadius="8">
                 <Grid
-                    MinHeight="120"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    MinHeight="126"
+                    BorderBrush="{ThemeResource NetchStroke}"
                     BorderThickness="1"
                     CornerRadius="8">
                     <StackPanel
@@ -160,8 +161,8 @@
             SceneTemplate="{StaticResource SceneTemplate}" />
     </Page.Resources>
 
-    <Grid Margin="{StaticResource PageMargin}">
-        <Grid RowSpacing="12" Visibility="{x:Bind HasScenes, Mode=OneWay}">
+    <Grid x:Name="SceneSurface" Margin="{StaticResource PageMargin}">
+        <Grid Visibility="{x:Bind HasScenes, Mode=OneWay}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -169,13 +170,17 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <StackPanel Spacing="8">
+            <StackPanel x:Name="Alerts" Margin="0,0,0,12" Spacing="0" Visibility="Collapsed">
                 <InfoBar
                     Title="{h:Tr Text='Start failed'}"
                     Closed="ErrorBar_Closed"
                     IsOpen="{x:Bind HasText(Session.ErrorMessage), Mode=OneWay}"
                     Message="{x:Bind Session.ErrorMessage, Mode=OneWay}"
-                    Severity="Error" />
+                    Severity="Error">
+                    <InfoBar.ActionButton>
+                        <Button Click="OpenLogs_Click" Content="{h:Tr Text='Open logs'}" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <InfoBar
                     Title="{h:Tr Text='Hotkey unavailable'}"
                     IsOpen="{x:Bind HasText(Tray.HotkeyConflicts), Mode=OneWay}"
@@ -185,9 +190,9 @@
 
             <Grid
                 Grid.Row="1"
-                Padding="16,12"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                Padding="16,14"
+                Background="{ThemeResource NetchSurface}"
+                BorderBrush="{ThemeResource NetchStroke}"
                 BorderThickness="1"
                 ColumnSpacing="16"
                 CornerRadius="8">
@@ -198,12 +203,12 @@
                 </Grid.ColumnDefinitions>
 
                 <Button
-                    Width="56"
-                    Height="56"
+                    Width="66"
+                    Height="66"
                     Padding="0"
                     AutomationProperties.Name="{x:Bind PowerLabel(Session.State), Mode=OneWay}"
                     Click="PowerButton_Click"
-                    CornerRadius="28"
+                    CornerRadius="33"
                     IsEnabled="{x:Bind CanUsePower(Session.State, HasScenes), Mode=OneWay}"
                     Style="{x:Bind PowerButtonStyle(Session.State), Mode=OneWay}"
                     ToolTipService.ToolTip="{x:Bind PowerLabel(Session.State), Mode=OneWay}">
@@ -237,12 +242,12 @@
                     Grid.Column="2"
                     VerticalAlignment="Center"
                     Orientation="Horizontal"
-                    Spacing="12"
+                    Spacing="10"
                     Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
                     <Polyline
                         x:Name="Sparkline"
-                        Width="80"
-                        Height="36"
+                        Width="94"
+                        Height="42"
                         VerticalAlignment="Center"
                         Stroke="{ThemeResource AccentFillColorDefaultBrush}"
                         StrokeLineJoin="Round"
@@ -272,25 +277,31 @@
                 </StackPanel>
             </Grid>
 
-            <Grid Grid.Row="2">
+            <Grid Grid.Row="2" Margin="0,12,0,0">
                 <TextBlock
                     VerticalAlignment="Center"
                     Style="{StaticResource BodyStrongTextBlockStyle}"
                     Text="{h:Tr Text=Scenes}" />
-                <Button
-                    HorizontalAlignment="Right"
-                    Click="NewScene_Click"
-                    Style="{StaticResource AccentButtonStyle}">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon FontSize="12" Glyph="&#xE710;" />
-                        <TextBlock Text="{h:Tr Text='New scene'}" />
-                    </StackPanel>
-                </Button>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                    <ToggleButton x:Name="SortByRecent" Click="SortByRecent_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE8CB;" />
+                            <TextBlock Text="{h:Tr Text='Recently used'}" />
+                        </StackPanel>
+                    </ToggleButton>
+                    <Button Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}"
+                            AutomationProperties.Name="{h:Tr Text='New scene'}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE710;" />
+                            <TextBlock Text="{h:Tr Text='New scene'}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </Grid>
 
             <ItemsView
                 Grid.Row="3"
-                Margin="0,0,0,16"
+                Margin="0,11,0,16"
                 IsItemInvokedEnabled="True"
                 ItemInvoked="SceneWall_ItemInvoked"
                 ItemTemplate="{StaticResource WallTemplates}"
@@ -300,55 +311,94 @@
                     <UniformGridLayout
                         ItemsStretch="Fill"
                         MaximumRowsOrColumns="3"
-                        MinColumnSpacing="8"
-                        MinItemHeight="120"
+                        MinColumnSpacing="10"
+                        MinItemHeight="127"
                         MinItemWidth="200"
-                        MinRowSpacing="8" />
+                        MinRowSpacing="11" />
                 </ItemsView.Layout>
             </ItemsView>
         </Grid>
 
-        <StackPanel
-            MaxWidth="360"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Spacing="8"
-            Visibility="{x:Bind IsEmpty, Mode=OneWay}">
-            <Border
-                Width="60"
-                Height="60"
-                HorizontalAlignment="Center"
-                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                CornerRadius="15">
-                <FontIcon
-                    FontSize="28"
-                    Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                    Glyph="&#xF0E2;" />
-            </Border>
-            <TextBlock
-                HorizontalAlignment="Center"
-                FontSize="15"
-                Style="{StaticResource BodyStrongTextBlockStyle}"
-                Text="{h:Tr Text='No scenes yet'}" />
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Text="{h:Tr Text='A scene is a node plus a mode. Once created, one click connects it. No nodes yet? Import a subscription on the Nodes page first.'}"
-                TextAlignment="Center"
-                TextWrapping="Wrap" />
+        <Grid Visibility="{x:Bind IsEmpty, Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
             <StackPanel
-                Margin="0,6,0,0"
                 HorizontalAlignment="Center"
-                Orientation="Horizontal"
-                Spacing="8">
-                <Button Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}">
-                    <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon FontSize="12" Glyph="&#xE710;" />
-                        <TextBlock Text="{h:Tr Text='New scene'}" />
-                    </StackPanel>
-                </Button>
-                <Button Click="ImportSubscription_Click" Content="{h:Tr Text='Import subscription'}" />
+                VerticalAlignment="Center"
+                Spacing="9.5">
+                <Border
+                    x:Name="EmptyIcon"
+                    Width="71"
+                    Height="71"
+                    HorizontalAlignment="Center"
+                    Background="{ThemeResource NetchUpdateFill}"
+                    CornerRadius="18">
+                    <FontIcon
+                        FontSize="28"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Glyph="&#xF0E2;" />
+                </Border>
+                <TextBlock
+                    x:Name="EmptyTitle"
+                    Height="24"
+                    HorizontalAlignment="Center"
+                    FontSize="17.7"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{h:Tr Text='No scenes yet'}" />
+                <TextBlock
+                    x:Name="EmptyDescription"
+                    MaxWidth="320"
+                    HorizontalAlignment="Center"
+                    FontSize="13"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    LineHeight="21"
+                    LineStackingStrategy="BlockLineHeight"
+                    Text="{h:Tr Text='A scene is a node plus a mode. Once created, one click connects it. No nodes yet? Import a subscription on the Nodes page first.'}"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+                <StackPanel
+                    x:Name="EmptyActions"
+                    Margin="0,7,0,0"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="9.5">
+                    <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
+                            AutomationProperties.Name="{h:Tr Text='New scene'}"
+                            Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE710;" />
+                            <TextBlock Text="{h:Tr Text='New scene'}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
+                            Click="ImportSubscription_Click" Content="{h:Tr Text='Import subscription'}" />
+                    <HyperlinkButton Height="29" MinHeight="0" Padding="0" FontSize="13.5"
+                                     Click="OpenWizard_Click" Content="{h:Tr Text='Reopen wizard'}" />
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+            <Border x:Name="RulesNotice" Grid.Row="1" MinHeight="48.5" Margin="0,12,0,0"
+                    Padding="14,5" Style="{StaticResource NetchUpdateNotice}" Visibility="Collapsed">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="21" Height="21" CornerRadius="11" VerticalAlignment="Center"
+                            Background="{ThemeResource AccentFillColorDefaultBrush}">
+                        <TextBlock Text="i" FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                    </Border>
+                    <TextBlock x:Name="RulesNoticeText" Grid.Column="1" VerticalAlignment="Center"
+                               FontSize="13.5" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    <Button Grid.Column="2" Width="68" Height="29" MinHeight="0" Padding="0"
+                            VerticalAlignment="Center" Click="DownloadRules_Click"
+                            Content="{h:Tr Text='Go to Downloads'}" />
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Page>

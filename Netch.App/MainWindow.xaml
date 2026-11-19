@@ -11,7 +11,7 @@
 
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="32" />
+            <RowDefinition Height="38" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -39,50 +39,56 @@
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="False"
             IsSettingsVisible="False"
-            OpenPaneLength="160"
+            OpenPaneLength="132"
             PaneDisplayMode="Auto"
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="{h:Tr Text=Scenes}" Tag="Scenes">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Scenes}" Tag="Scenes">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xF0E2;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{h:Tr Text=Nodes}" Tag="Nodes">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Nodes}" Tag="Nodes">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE968;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{h:Tr Text=Modes}" Tag="Modes">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Modes}" Tag="Modes">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE81E;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{h:Tr Text=Downloads}" Tag="Downloads">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Downloads}" Tag="Downloads">
+                    <NavigationViewItem.InfoBadge>
+                        <InfoBadge x:Name="DownloadBadge" Visibility="Collapsed" />
+                    </NavigationViewItem.InfoBadge>
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE896;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{h:Tr Text=Logs}" Tag="Logs">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Logs}" Tag="Logs">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8FD;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="{h:Tr Text=About}" Tag="About">
+                <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=About}" Tag="About">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE946;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="{h:Tr Text=Settings}" Tag="Settings">
+                <NavigationViewItem Height="41.3" Margin="3,0,3,4" Content="{h:Tr Text=Settings}" Tag="Settings">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE713;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
             </NavigationView.FooterMenuItems>
 
-            <Frame x:Name="ContentFrame" />
+            <NavigationView.PaneFooter>
+                <Border Height="9" />
+            </NavigationView.PaneFooter>
+            <Frame x:Name="ContentFrame" Background="{ThemeResource NetchPageBackground}" CornerRadius="8,0,0,0" />
         </NavigationView>
     </Grid>
 </Window>

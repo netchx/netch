@@ -32,7 +32,7 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         _hwnd = new HWND(Microsoft.UI.Win32Interop.GetWindowFromWindowId(AppWindow.Id));
 
         var presenter = (OverlappedPresenter)AppWindow.Presenter;
-        presenter.SetBorderAndTitleBar(true, false);
+        presenter.SetBorderAndTitleBar(false, false);
         presenter.IsResizable = false;
         presenter.IsMaximizable = false;
         presenter.IsMinimizable = false;
@@ -61,6 +61,8 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
 
     public bool NoTiles => !HasTiles;
 
+    public double TileHeight => Math.Max(0, Math.Min(4, (Tiles.Count + 1) / 2) * 60 - 6);
+
     public void ApplyTheme(ElementTheme theme) => Root.RequestedTheme = theme;
 
     /// <summary>Shows the flyout next to the tray icon at <paramref name="anchor" />, or hides it.</summary>
@@ -79,8 +81,10 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         LoadTiles();
 
         var scale = PInvoke.GetDpiForWindow(_hwnd) / 96.0;
-        Root.Measure(new Windows.Foundation.Size(FlyoutWidth, double.PositiveInfinity));
-        AppWindow.ResizeClient(new SizeInt32((int)Math.Ceiling(FlyoutWidth * scale), (int)Math.Ceiling(Root.DesiredSize.Height * scale)));
+        var border = WindowSize.InvisibleBorder(this);
+        var height = (HasTiles ? TileHeight : 37) + (Session.IsRunning ? 132 : 101);
+        AppWindow.Resize(new SizeInt32((int)Math.Ceiling(FlyoutWidth * scale) + border.Width,
+            (int)Math.Ceiling(height * scale) + border.Height));
 
         // The outer size includes the window frame, which is what has to fit on screen.
         var size = AppWindow.Size;
@@ -103,6 +107,7 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
 
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasTiles)));
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(NoTiles)));
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TileHeight)));
     }
 
     private void Session_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -131,7 +136,11 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         return server == null ? scene.Name : $"{scene.Name} · {Format.NodeName(server)}";
     }
 
-    public string TotalText(ulong totalBytes) => $"↓ {Format.Bytes(totalBytes)}";
+    public string DisconnectLabel() => Ui.T("Disconnect", "断开");
+
+    public string DownloadRate(ulong bytesPerSecond) => $"↓ {Format.Rate(bytesPerSecond)}";
+
+    public string UploadRate(ulong bytesPerSecond) => $"↑ {Format.Rate(bytesPerSecond)}";
 
     public string NatText(string? result) => $"NAT {Format.Nat(result)}";
 

@@ -24,7 +24,8 @@ public sealed partial class Session : ObservableObject
     private DispatcherQueue _dispatcher = null!;
     private DispatcherQueueTimer _clock = null!;
     private CancellationTokenSource? _probeCts;
-    private ulong _lastTotalBytes;
+    private Task<string?>? _natTest;
+    private ulong _lastUploadedBytes;
     private DateTime _startedAt;
     private Scene? _resumeScene;
 
@@ -72,6 +73,9 @@ public sealed partial class Session : ObservableObject
     [ObservableProperty]
     public partial ulong BytesPerSecond { get; private set; }
 
+    [ObservableProperty]
+    public partial ulong UploadBytesPerSecond { get; private set; }
+
     /// <summary>Bytes per second over the last <see cref="RateHistoryLength" /> seconds, oldest first.</summary>
     public IReadOnlyCollection<double> RateHistory => _rateHistory;
 
@@ -95,14 +99,24 @@ public sealed partial class Session : ObservableObject
                 Progress = text;
         });
         AppEvents.BandwidthAvailabilityChanged += available => _dispatcher.TryEnqueue(() => TrafficAvailable = available);
-        AppEvents.BandwidthUpdated += total => _dispatcher.TryEnqueue(() => OnTrafficUpdated(total));
+        AppEvents.BandwidthDirectionsUpdated += (downloaded, uploaded) => _dispatcher.TryEnqueue(() => OnTrafficUpdated(downloaded, uploaded));
         SystemEvents.PowerModeChanged += (_, e) => _dispatcher.TryEnqueue(() => OnPowerModeChanged(e.Mode));
     }
 
-    /// <summary>The scene the power button acts on: the running or last started one, else the most recently used.</summary>
-    public Scene? CurrentScene => ActiveScene is { } active && SceneService.Scenes.Contains(active)
-        ? active
-        : SceneService.Scenes.MaxBy(s => s.LastUsed ?? DateTime.MinValue);
+    /// <summary>The active or most recently used scene, with the stored selection as the initial default.</summary>
+    public Scene? CurrentScene
+    {
+        get
+        {
+            var scenes = SceneService.Scenes;
+            if (ActiveScene is { } active && scenes.Contains(active))
+                return active;
+
+            var recent = scenes.MaxBy(scene => scene.LastUsed ?? DateTime.MinValue);
+            return recent?.LastUsed != null ? recent
+                : scenes.Find(scene => scene.Id == Global.Settings.StartupSceneId) ?? recent;
+        }
+    }
 
     public Task ToggleAsync(Scene scene) => IsRunning && ActiveScene == scene ? StopAsync() : StartAsync(scene);
 
@@ -180,6 +194,32 @@ public sealed partial class Session : ObservableObject
         Bandwidth.Stop();
     }
 
+    public async Task<string> TestNodeNatAsync(Server server)
+    {
+        if (IsRunning && SceneService.FindServer(ActiveScene!)?.Id == server.Id)
+        {
+            if (_probeCts is { } probes && await TestNatAsync(probes.Token) is { } result)
+                return result;
+            return i18N.Translate("NAT test cancelled.");
+        }
+
+        if (!IsIdle)
+            throw new InvalidOperationException(i18N.Translate("Disconnect before testing another node."));
+
+        State = State.Starting;
+        try
+        {
+            await MainController.StartAsync(server);
+            var result = await MainController.DiscoveryNatTypeAsync();
+            return result.Result ?? "Error";
+        }
+        finally
+        {
+            await MainController.StopAsync();
+            State = State.Stopped;
+        }
+    }
+
     public async Task RetestLatencyAsync()
     {
         if (IsRunning && !LatencyTesting && _probeCts != null)
@@ -188,7 +228,7 @@ public sealed partial class Session : ObservableObject
 
     public async Task RetestNatAsync()
     {
-        if (IsRunning && !NatTesting && _probeCts != null)
+        if (IsRunning && _probeCts != null)
             await TestNatAsync(_probeCts.Token);
     }
 
@@ -202,7 +242,7 @@ public sealed partial class Session : ObservableObject
     {
         Latency = null;
         NatResult = null;
-        TotalBytes = BytesPerSecond = _lastTotalBytes = 0;
+        TotalBytes = BytesPerSecond = UploadBytesPerSecond = _lastUploadedBytes = 0;
         TrafficAvailable = false;
         _rateHistory.Clear();
         for (var i = 0; i < RateHistoryLength; i++)
@@ -210,14 +250,15 @@ public sealed partial class Session : ObservableObject
         OnPropertyChanged(nameof(RateHistory));
     }
 
-    private void OnTrafficUpdated(ulong totalBytes)
+    private void OnTrafficUpdated(ulong downloaded, ulong uploaded)
     {
         if (!IsRunning)
             return;
 
-        BytesPerSecond = totalBytes >= _lastTotalBytes ? totalBytes - _lastTotalBytes : 0;
-        _lastTotalBytes = totalBytes;
-        TotalBytes = totalBytes;
+        BytesPerSecond = downloaded >= TotalBytes ? downloaded - TotalBytes : 0;
+        UploadBytesPerSecond = uploaded >= _lastUploadedBytes ? uploaded - _lastUploadedBytes : 0;
+        TotalBytes = downloaded;
+        _lastUploadedBytes = uploaded;
 
         _rateHistory.Dequeue();
         _rateHistory.Enqueue(BytesPerSecond);
@@ -239,22 +280,29 @@ public sealed partial class Session : ObservableObject
         }
     }
 
-    private async Task TestNatAsync(CancellationToken token)
+    private Task<string?> TestNatAsync(CancellationToken token) =>
+        _natTest is { IsCompleted: false } running ? running : _natTest = MeasureNatAsync(token);
+
+    private async Task<string?> MeasureNatAsync(CancellationToken token)
     {
         NatTesting = true;
         try
         {
             var result = await MainController.DiscoveryNatTypeAsync(token);
             if (!token.IsCancellationRequested)
-                NatResult = result.Result ?? "Error";
+                return NatResult = result.Result ?? "Error";
+            return null;
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested)
         {
+            return null;
         }
         catch (Exception e)
         {
             Log.Warning(e, "NAT type test failed");
-            NatResult = "Error";
+            if (token.IsCancellationRequested)
+                return null;
+            return NatResult = "Error";
         }
         finally
         {
@@ -271,7 +319,9 @@ public sealed partial class Session : ObservableObject
             {
                 if (Global.Settings.StartedPingInterval >= 0)
                 {
-                    await server.PingAsync();
+                    var previous = server.Delay;
+                    if (await server.PingAsync() != previous)
+                        AppEvents.RaiseNodeDelaysChanged();
                     await Task.Delay(Math.Max(1, Global.Settings.StartedPingInterval) * 1000, token);
                 }
                 else
@@ -291,6 +341,9 @@ public sealed partial class Session : ObservableObject
             return;
 
         await _probeCts.CancelAsync();
+        if (_natTest is { } natTest)
+            await natTest;
+        _natTest = null;
         _probeCts.Dispose();
         _probeCts = null;
     }

@@ -136,7 +136,11 @@ public static class Configuration
     /// <summary>
     ///     保存配置
     /// </summary>
-    public static async Task SaveAsync()
+    public static Task SaveAsync() => SaveAsync(throwOnError: false);
+
+    public static Task SaveAsync(bool throwOnError) => SaveAsync(Global.Settings, throwOnError);
+
+    public static async Task SaveAsync(Setting settings, bool throwOnError)
     {
         if (_lock.IsWriteLockHeld)
             return;
@@ -152,7 +156,7 @@ public static class Configuration
             var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
             await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
             {
-                await JsonSerializer.SerializeAsync(fileStream, Global.Settings, JsonSerializerOptions);
+                await JsonSerializer.SerializeAsync(fileStream, settings, JsonSerializerOptions);
             }
 
             await EnsureConfigFileExistsAsync();
@@ -162,6 +166,8 @@ public static class Configuration
         catch (Exception e)
         {
             Log.Error(e, "Save Configuration error");
+            if (throwOnError)
+                throw;
         }
     }
 
