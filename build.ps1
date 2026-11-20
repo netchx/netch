@@ -27,7 +27,12 @@ param (
 	# never packaged.
 	[Parameter()]
 	[switch]
-	$UseCache
+	$UseCache,
+
+	[Parameter()]
+	[ValidateSet('WinUI', 'WinForms')]
+	[string]
+	$Frontend = 'WinUI'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -107,6 +112,11 @@ function Test-ShouldBuild {
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 try {
+	$winui = $Frontend -eq 'WinUI'
+	if ($winui -and (-not $SelfContained -or -not $PublishSingleFile)) {
+		throw 'WinUI portable builds require SelfContained and PublishSingleFile.'
+	}
+
 	if ( Test-Path -Path $OutputPath ) {
 		Remove-Item -Recurse -Force $OutputPath
 	}
@@ -168,10 +178,12 @@ try {
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin" -Exclude 'v2ray-sn.exe'
 
-	$netchPublishPath = ".\Netch\bin\publish\$Configuration"
-	if ( Test-ShouldBuild "$netchPublishPath\Netch.exe" ) {
+	$executable = if ($winui) { 'Netch.App.exe' } else { 'Netch.exe' }
+	$project = if ($winui) { '.\Netch.App\Netch.App.csproj' } else { '.\Netch\Netch.csproj' }
+	$netchPublishPath = if ($winui) { ".\Netch.App\bin\publish-single\$Configuration" } else { ".\Netch\bin\publish\$Configuration" }
+	if ($winui -or (Test-ShouldBuild "$netchPublishPath\$executable")) {
 		Write-Host
-		Write-Host 'Building Netch'
+		Write-Host "Building Netch ($Frontend)"
 
 		Invoke-Native -Name 'dotnet publish' -Command {
 			dotnet publish `
@@ -183,12 +195,26 @@ try {
 				-p:PublishReadyToRun=$PublishReadyToRun `
 				-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
 				-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
+				-p:IncludeAllContentForSelfExtract=$winui `
+				-p:EnableCompressionInSingleFile=$winui `
 				-o $netchPublishPath `
-				'.\Netch\Netch.csproj'
+				$project
 		}
 	}
-	Copy-Item -Force "$netchPublishPath\Netch.exe" $OutputPath
-	Copy-Item -Force '.\LICENSE', '.\Netch\NOTICE.txt' $OutputPath
+	Copy-Item -Force "$netchPublishPath\$executable" $OutputPath
+	$licensePath = $OutputPath
+	if ($winui) {
+		$looseFiles = Get-ChildItem -LiteralPath $netchPublishPath -Recurse -File |
+			Where-Object { $_.Name -ne $executable -and $_.Extension -ne '.pdb' }
+		if ($looseFiles) {
+			throw "WinUI publish left files outside the EXE: $($looseFiles.Name -join ', ')"
+		}
+		foreach ($directory in 'data', 'logging', 'licenses') {
+			New-Item -ItemType Directory -Path (Join-Path $OutputPath $directory) | Out-Null
+		}
+		$licensePath = Join-Path $OutputPath 'licenses'
+	}
+	Copy-Item -Force '.\LICENSE', '.\Netch\NOTICE.txt' $licensePath
 
 	$redirectorPath = ".\Redirector\bin\$Configuration"
 	$buildRedirector = Test-ShouldBuild "$redirectorPath\Redirector.bin", "$redirectorPath\nfapi.dll", "$redirectorPath\Redirector.pdb"

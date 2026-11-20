@@ -93,7 +93,10 @@ jobs:
           if ($env:MSYS2_LOCATION) {
             $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
           }
-          .\build.ps1 -Configuration Release -OutputPath release -UseCache
+          .\build.ps1 -Configuration Release -OutputPath release -Frontend WinForms -UseCache
+          if ($LASTEXITCODE -ne 0) { throw 'WinForms build failed.' }
+          .\build.ps1 -Configuration Release -OutputPath release-winui -UseCache
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI build failed.' }
 
       - name: Package
         shell: pwsh
@@ -106,9 +109,8 @@ jobs:
           Compress-Archive -Path $package -DestinationPath "$name.zip" -CompressionLevel Optimal
           Copy-Item -LiteralPath (Join-Path $package 'Netch.exe') -Destination "$name.exe"
           $winui = "Netch-${{ github.ref_name }}-winui-x64"
-          dotnet publish .\Netch.App\Netch.App.csproj -c Release -p:Platform=x64 -r win-x64 --self-contained true -o $package
-          if ($LASTEXITCODE -ne 0) { throw 'WinUI publish failed.' }
-          $modeRoot = Join-Path $package 'mode'
+          $winuiPackage = Join-Path $PWD 'release-winui'
+          $modeRoot = Join-Path $winuiPackage 'mode'
           $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
           $ids = @($modes.FullName | git hash-object --no-filters --stdin-paths)
           if ($LASTEXITCODE -ne 0 -or $modes.Count -ne $ids.Count) { throw 'Mode manifest generation failed.' }
@@ -118,7 +120,7 @@ jobs:
           }
           @{ Source='netchx/netch/main/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
             Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
-          [IO.Compression.ZipFile]::CreateFromDirectory($package, (Join-Path $PWD "$winui.zip"))
+          [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, (Join-Path $PWD "$winui.zip"))
           echo "PACKAGE_NAME=$name" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "WINUI_PACKAGE_NAME=$winui" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
@@ -154,6 +156,7 @@ jobs:
             "``$name.exe`` 是单文件程序，只用于替换已有安装中的 ``Netch.exe``；首次使用请下载完整压缩包，其中包含代理核心、tun2socks、Wintun、路由组件和模式文件。"
             ''
             "WinUI 版请下载 ``$winui.zip``，完整解压后启动 ``Netch.App.exe``。"
+            '从要求外置运行时 DLL 的 WinUI 目录版升级时，请手动解压便携包。'
             ''
             '## SHA256'
             ''

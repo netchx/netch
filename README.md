@@ -69,7 +69,7 @@ VLESS Vision 和常用 REALITY 配置由 Mihomo 处理。旧 V2Ray Mux、自定�
 ## 快速开始
 
 1. 从 [Releases](https://github.com/NetchX/Netch/releases) 下载并解压程序。
-2. 以管理员身份运行 `Netch.exe`。
+2. 以管理员身份运行主程序。WinUI 便携包使用 `Netch.App.exe`，WinForms 包使用 `Netch.exe`。
 3. 导入订阅或手动添加节点。
 4. 选择节点和工作模式，然后点击“启动”。
 5. 点击状态栏中的 NAT 结果可以重新执行 UDP 检测。
@@ -124,15 +124,14 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个�
 ```powershell
 git clone https://github.com/NetchX/Netch.git
 cd Netch
-dotnet restore .\Netch\Netch.csproj
 .\build.ps1 -Configuration Release -OutputPath release
 ```
 
-完整发布文件位于 `release` 目录。`build.ps1` 会构建 .NET 前端、Redirector、RouteHelper 和所需代理核心，并生成可直接运行的目录结构：
+完整的 WinUI x64 便携包位于 `release` 目录。运行 `Netch.App.exe` 启动程序，`bin/`、`mode/`、`logging/`、`data/`、`i18n/` 和 `licenses/` 与 EXE 同级。构建 WinForms 包时使用 `-Frontend WinForms`。
 
 - 不在 PATH 中的 `msbuild` 会通过 `vswhere` 自动定位。
 - 从压缩包解压的子脚本带有“来自网络”标记时，会被自动解除，无需修改执行策略。
-- 默认每次都重新编译各组件，避免打包旧二进制。CI 从缓存恢复各组件的 `bin` 目录后使用 `-UseCache` 跳过编译：
+- 本地每次都发布前端并构建本机组件。CI 使用 `-UseCache` 复用已恢复的本机组件和 WinForms 发布输出。WinUI 每次发布单 EXE：
 
 ```powershell
 .\build.ps1 -Configuration Release -OutputPath release -UseCache

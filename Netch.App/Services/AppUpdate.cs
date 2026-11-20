@@ -13,7 +13,7 @@ internal static class AppUpdate
         {
             ZipFile.ExtractToDirectory(archive, staging);
             var source = File.Exists(Path.Combine(staging, "Netch.App.exe")) ? staging : Path.Combine(staging, "Netch");
-            foreach (var relative in new[] { "Netch.App.exe", "Microsoft.UI.Xaml.dll", "coreclr.dll", @"bin\nfdriver.sys", @"bin\Redirector.bin" })
+            foreach (var relative in new[] { "Netch.App.exe", @"bin\nfdriver.sys", @"bin\Redirector.bin" })
                 if (!File.Exists(Path.Combine(source, relative)))
                     throw new InvalidDataException($"The update archive is missing {relative}.");
 
