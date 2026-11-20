@@ -140,8 +140,8 @@ public sealed partial class DownloadsPage : Page
     }
 
     private static IEnumerable<(CorePackage Core, UpdateChoice Choice)> AvailableCores() =>
-        Downloads.Cores.Select(core => (Core: core, Choice: Downloads.Versions.GetValueOrDefault(core)?.FirstOrDefault()))
-            .Where(item => item.Choice != null && Downloads.IsNewer(item.Choice.Version, Downloads.Installed.GetValueOrDefault(item.Core) ?? ""))
+        Downloads.Cores.Select(core => (Core: core, Choice: Downloads.AvailableCore(core)))
+            .Where(item => item.Choice != null)
             .Select(item => (item.Core, item.Choice!));
 
     private FrameworkElement CoresPane()
@@ -155,15 +155,16 @@ public sealed partial class DownloadsPage : Page
         };
         foreach (var core in Downloads.Cores)
         {
-            var versions = Downloads.Versions.GetValueOrDefault(core);
-            var next = versions?.FirstOrDefault();
             var current = Downloads.Installed.GetValueOrDefault(core) ?? "";
+            var versions = Downloads.Versions.GetValueOrDefault(core)?.Where(choice => !choice.Prerelease ||
+                Global.Settings.CheckBetaUpdate && !string.Equals(choice.Version, current, StringComparison.OrdinalIgnoreCase)).ToList();
+            var next = Downloads.LatestStable(core);
+            var update = Downloads.AvailableCore(core);
             var inUse = Downloads.InUse(core);
-            var available = next != null && Downloads.IsNewer(next.Version, current);
             var options = new List<(string, Action)>();
             if (versions?.Count > 0)
                 options.Add((T("Choose version", "指定版本"), async () => await ChooseVersionAsync(core, versions)));
-            if (File.Exists(Downloads.CorePath(core) + ".previous"))
+            if (Downloads.HasRollback(core))
                 options.Add((T("Rollback", "回滚"), async () =>
                 {
                     try { await Downloads.RollbackAsync(core); }
@@ -174,21 +175,22 @@ public sealed partial class DownloadsPage : Page
             var version = Caption(current.Length == 0 ? T("Not installed", "未安装") : current);
             version.FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas");
             var detail = Row(version);
-            if (available)
+            if (update != null)
             {
                 if (current.Length > 0)
                 {
-                    var target = Caption("→ " + next!.Version);
+                    var target = Caption("→ " + update.Version);
                     target.Style = Resource<Style>("NetchAccentText");
                     target.FontFamily = version.FontFamily;
                     detail.Children.Add(target);
                 }
                 var button = AsyncButton(current.Length == 0 ? T("Download", "下载") : T("Update", "更新"),
-                    () => DownloadAsync(core, next!));
+                    () => DownloadAsync(core, update));
                 button.IsEnabled = !Downloads.Checking && !Downloads.Applying;
                 detail.Children.Add(button);
             }
-            else if (next != null && current.Length > 0)
+            else if (next != null && string.Equals(next.Version, current, StringComparison.OrdinalIgnoreCase)
+                && !Downloads.Errors.ContainsKey(core.Name))
             {
                 var latest = Caption(T("✓ Latest", "✓ 最新"));
                 latest.Width = 82;

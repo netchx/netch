@@ -46,7 +46,7 @@
 | --- | --- |
 | 进程模式（`ProcessMode`） | 使用 Netfilter 驱动按进程拦截流量，适合游戏和指定应用，其他程序不受影响。 |
 | TUN 模式（`TunMode`） | 使用 WinTUN 创建虚拟网卡，按路由规则接管流量。 |
-| 共享模式（`ShareMode`） | 基于 WinPcap/Npcap（pcap2socks），为局域网内的主机或游戏机提供代理。 |
+| 共享模式（`ShareMode`） | 通过 pcap2socks 为局域网内的主机或游戏机提供代理。依赖 WinPcap 或以默认 WinPcap API 兼容模式安装的 Npcap。 |
 
 ## 支持协议
 

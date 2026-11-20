@@ -78,9 +78,9 @@ function Test-OtherCoresCurrent {
 	$expectedHashes = @{
 		'.\Other\release\aiodns.bin'                      = $null
 		'.\Other\release\pcap2socks.exe'                  = 'de84f4a32c8c9d4888197345d52ba793e4bdf510614852e76f336f627e43def3'
-		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'bc5827ca00c7f312125365e8669794fffdbdf1cb0efa948cddd94a0c800c8c31'
+		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'f08d327819f722da3ee3f591cb7e9e36b06640a92b3f63f5073a454be29be35f'
 		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
-		'.\Other\release\xray.exe'                        = 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15'
+		'.\Other\release\xray.exe'                        = '1ca7a2cf61ba2c5d20b21a80d405b57933939751081cb289f07bd8ddf7cc3185'
 		'.\Other\release\mihomo.exe'                      = $null
 	}
 

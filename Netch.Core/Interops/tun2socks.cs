@@ -35,13 +35,10 @@ namespace Netch.Interops
             Process? process = null;
             try
             {
-                var args = BuildArgs(interfaceName, proxyHost, proxyPort, username, password);
-                Log.Verbose($"[tun2socks] Args: {args}");
                 var processPath = Path.Combine(Global.NetchDir, Constants.TUN2SocksFile);
-                Log.Verbose($"[tun2socks] Path: {processPath}");
+                Log.Verbose("[tun2socks] Path: {Path}", processPath);
 
-
-                ProcessStartInfo info = new ProcessStartInfo(processPath, args)
+                ProcessStartInfo info = new ProcessStartInfo(processPath)
                 {
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
@@ -52,6 +49,9 @@ namespace Netch.Interops
                     StandardInputEncoding = Encoding.UTF8,
                     StandardOutputEncoding = Encoding.UTF8
                 };
+
+                foreach (var argument in BuildArgs(interfaceName, proxyHost, proxyPort, username, password))
+                    info.ArgumentList.Add(argument);
 
                 process = new Process()
                 {
@@ -196,23 +196,17 @@ namespace Netch.Interops
             }
         }
 
-        private static string BuildArgs(string interfaceName, string host, int port, string? username, string? password)
+        private static string[] BuildArgs(string interfaceName, string host, int port, string? username, string? password)
         {
-            var sb = new StringBuilder();
-            sb.Append($"-device tun://{interfaceName} ");
-            // SOCKS5
-            sb.Append("-proxy socks5://");
+            var proxy = new UriBuilder("socks5", host, port);
             if (!string.IsNullOrEmpty(username))
             {
-                sb.Append($"{username}:{password}@");
+                proxy.UserName = Uri.EscapeDataString(username);
+                proxy.Password = Uri.EscapeDataString(password ?? "");
             }
-            sb.Append($"{host}:{port} ");
 
-            sb.Append("-mtu 1500 ");
-
-            sb.Append("-loglevel debug ");
-
-            return sb.ToString();
+            return ["--device", $"tun://{interfaceName}", "--proxy", proxy.Uri.AbsoluteUri,
+                "--mtu", "1500", "--loglevel", "debug"];
         }
 
         private static async Task ReadOutputAsync(Process p)

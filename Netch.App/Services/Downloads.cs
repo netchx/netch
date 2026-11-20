@@ -22,7 +22,10 @@ internal enum ConflictAction { Keep, Replace, Copy }
 internal sealed record RuleChange(string Path, string Sha, string? LocalSha, RuleChangeKind Kind);
 
 internal sealed record CorePackage(string Name, string Repo, string File, string VersionArgument, Func<string, string> Asset, string? ArchiveFile = null);
-internal sealed record UpdateChoice(string Version, string Url, string ReleaseUrl);
+internal sealed record UpdateChoice(string Version, string Url, string ReleaseUrl)
+{
+    public bool Prerelease { get; init; }
+}
 internal readonly record struct TransferProgress(double Percent, ulong BytesPerSecond);
 internal sealed record DownloadEntry(DateTime Time, string Name, string Version, bool Success, string? Message = null);
 
@@ -33,7 +36,7 @@ internal static partial class Downloads
         new("sing-box", "SagerNet/sing-box", @"sing_box\sing-box.exe", "version", v => $"sing-box-{v}-windows-amd64.zip"),
         new("Xray-core", "XTLS/Xray-core", "xray.exe", "version", _ => "Xray-windows-64.zip"),
         new("Mihomo", "MetaCubeX/mihomo", "mihomo.exe", "-v", v => $"mihomo-windows-amd64-v1-v{v}.zip", "mihomo-windows-amd64-v1.exe"),
-        new("tun2socks", "xjasonlyu/tun2socks", "tun2socks-windows-amd64-v3.exe", "-version", _ => "tun2socks-windows-amd64-v3.zip"),
+        new("tun2socks", "xjasonlyu/tun2socks", "tun2socks-windows-amd64-v3.exe", "--version", _ => "tun2socks-windows-amd64-v3.zip"),
         new("WinTUN", "", "wintun.dll", "", v => $"wintun-{v}.zip", "wintun/bin/amd64/wintun.dll"),
         new("pcap2socks", "zhxie/pcap2socks", "pcap2socks.exe", "--version", v => $"pcap2socks-v{v}-windows-amd64.zip")
     ];
@@ -52,8 +55,8 @@ internal static partial class Downloads
     public static List<DownloadEntry> History { get; } = ReadJson<List<DownloadEntry>>(HistoryPath) ?? [];
     public static bool Checking { get; private set; }
     public static bool Applying { get; private set; }
-    public static int PendingCount => Rules.Count + Versions.Count(entry =>
-        entry.Value.FirstOrDefault() is { } version && IsNewer(version.Version, Installed.GetValueOrDefault(entry.Key) ?? ""));
+    public static int PendingCount => Rules.Count + Cores.Count(core => AvailableCore(core) != null);
+    private static readonly Dictionary<CorePackage, DateTime> CoreChecked = [];
     private static string HistoryPath => Path.Combine(Configuration.DataDirectoryFullName, "downloads.json");
     private static string BaseRulesPath => Path.Combine(ModeService.Instance.ModeDirectoryFullName, ModeService.ManifestFileName);
     private static string SourceKey => $"{Global.Settings.ModeRepository}/{Global.Settings.ModeBranch}/{Global.Settings.ModeRepositoryPath}";
@@ -76,14 +79,24 @@ internal static partial class Downloads
         {
             var results = await Task.WhenAll(Cores.Select(async core =>
             {
-                try { return (Core: core, Version: await ReadVersionAsync(core), Choices: await FetchCoreAsync(core), Error: (string?)null); }
-                catch (Exception e) { return (Core: core, Version: await ReadVersionAsync(core), Choices: new List<UpdateChoice>(), Error: (string?)e.Message); }
+                var version = await ReadVersionAsync(core);
+                try { return (Core: core, Version: version, Choices: await FetchCoreAsync(core), Error: (string?)null); }
+                catch (Exception e) { return (Core: core, Version: version, Choices: (List<UpdateChoice>?)null, Error: (string?)e.Message); }
             }));
             foreach (var result in results)
             {
                 Installed[result.Core] = result.Version;
-                Versions[result.Core] = result.Choices;
-                if (result.Error != null) Errors[result.Core.Name] = result.Error;
+                if (result.Choices != null)
+                {
+                    Versions[result.Core] = result.Choices;
+                    CoreChecked[result.Core] = DateTime.Now;
+                }
+                else if (result.Error != null)
+                {
+                    Errors[result.Core.Name] = CoreChecked.TryGetValue(result.Core, out var last)
+                        ? Helpers.Ui.T($"Last verified {last:g}. {result.Error}", $"上次确认于 {last:g}。{result.Error}")
+                        : Helpers.Ui.T($"Version unavailable. {result.Error}", $"暂无法确认版本。{result.Error}");
+                }
             }
             await Task.WhenAll(CheckRulesAsync(), CheckApplicationAsync());
             LastChecked = DateTime.Now;
@@ -116,6 +129,17 @@ internal static partial class Downloads
         if (installed.Length == 0)
             return true;
         return VersionUtil.CompareVersion(available.TrimStart('v', 'V'), installed.TrimStart('v', 'V')) > 0;
+    }
+
+    public static UpdateChoice? LatestStable(CorePackage core) =>
+        Versions.GetValueOrDefault(core)?.FirstOrDefault(choice => !choice.Prerelease);
+
+    public static UpdateChoice? AvailableCore(CorePackage core)
+    {
+        var latest = LatestStable(core);
+        var installed = Installed.GetValueOrDefault(core) ?? "";
+        return latest != null && !(Global.Settings.CheckBetaUpdate && installed.StartsWith("alpha-", StringComparison.Ordinal))
+            && IsNewer(latest.Version, installed) ? latest : null;
     }
 
     public static async Task PopulateInstalledAsync()
@@ -153,7 +177,7 @@ internal static partial class Downloads
                     process.Kill();
                 return "";
             }
-            return VersionNumber().Match(version ?? "").Value;
+            return process.ExitCode == 0 ? VersionNumber().Match(version ?? "").Value : "";
         }
         catch (Exception e)
         {
@@ -162,8 +186,11 @@ internal static partial class Downloads
         }
     }
 
-    [GeneratedRegex(@"\d+\.\d+\.\d+(?:-[A-Za-z]+\.?\d*)?")]
+    [GeneratedRegex(@"\balpha-[0-9a-f]{7,40}\b|\d+\.\d+\.\d+(?:-[A-Za-z]+\.?\d*)?")]
     private static partial Regex VersionNumber();
+
+    [GeneratedRegex(@"^mihomo-windows-amd64-v1-(alpha-[0-9a-f]{7,40})\.zip$")]
+    private static partial Regex MihomoAlphaAsset();
 
     private static async Task<List<UpdateChoice>> FetchCoreAsync(CorePackage core)
     {
@@ -178,13 +205,92 @@ internal static partial class Downloads
                 .ToList();
         }
 
-        return (await ReleasesAsync(core.Repo)).Select(release =>
+        List<Release> releases;
+        try { releases = await ReleasesAsync(core.Repo); }
+        catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests)
+        {
+            var latest = await FetchLatestCoreAsync(core);
+            var cached = Versions.GetValueOrDefault(core) ?? [];
+            if (core.Name == "Mihomo" && Global.Settings.CheckBetaUpdate)
+            {
+                var alpha = await FetchMihomoAlphaAsync(core);
+                if (alpha != null)
+                    cached = cached.Where(choice => !choice.Version.StartsWith("alpha-", StringComparison.Ordinal))
+                        .Append(alpha).ToList();
+            }
+            return new[] { latest }.Concat(cached).DistinctBy(choice => choice.Version).ToList();
+        }
+
+        var choices = SelectCoreChoices(core, releases);
+        if (!choices.Any(choice => !choice.Prerelease))
+            choices.Insert(0, await FetchLatestCoreAsync(core));
+        return choices;
+    }
+
+    private static List<UpdateChoice> SelectCoreChoices(CorePackage core, List<Release> releases) =>
+        releases.Select(release =>
         {
             var version = release.tag_name.TrimStart('v', 'V');
+            if (core.Name == "Mihomo" && release.prerelease && release.tag_name == "Prerelease-Alpha")
+            {
+                var alpha = release.assets?.Where(a => MihomoAlphaAsset().IsMatch(a.name))
+                    .OrderByDescending(a => a.updated_at).FirstOrDefault();
+                return alpha == null ? null : new UpdateChoice(MihomoAlphaAsset().Match(alpha.name).Groups[1].Value,
+                    alpha.browser_download_url, release.html_url) { Prerelease = true };
+            }
             var name = core.Asset(version);
             var asset = release.assets?.FirstOrDefault(a => string.Equals(a.name, name, StringComparison.OrdinalIgnoreCase));
-            return asset == null ? null : new UpdateChoice(version, asset.browser_download_url, release.html_url);
-        }).OfType<UpdateChoice>().ToList();
+            return asset == null ? null : new UpdateChoice(version, asset.browser_download_url, release.html_url)
+                { Prerelease = release.prerelease };
+        }).OfType<UpdateChoice>().OrderBy(choice => choice.Prerelease)
+            .ThenByDescending(choice => choice.Version, new VersionUtil.VersionComparer()).ToList();
+
+    private static async Task<UpdateChoice> FetchLatestCoreAsync(CorePackage core)
+    {
+        using var client = CreateClient();
+        var prefix = $"https://github.com/{core.Repo}/releases";
+        using var page = await client.GetAsync(Request(prefix + "/latest"), HttpCompletionOption.ResponseHeadersRead);
+        page.EnsureSuccessStatusCode();
+        var release = page.RequestMessage?.RequestUri;
+        var tag = release?.Segments.LastOrDefault();
+        if (release == null || tag == null
+            || !release.AbsolutePath.EndsWith($"/{core.Repo}/releases/tag/{tag}", StringComparison.OrdinalIgnoreCase)
+            || !Version.TryParse(tag.TrimStart('v', 'V'), out _))
+            throw new InvalidDataException("GitHub did not resolve the latest release tag.");
+
+        var version = tag.TrimStart('v', 'V');
+        var url = $"{prefix}/download/{tag}/{core.Asset(version)}";
+        await VerifyAssetAsync(client, url);
+        return new UpdateChoice(version, url, $"{prefix}/tag/{tag}");
+    }
+
+    private static async Task<UpdateChoice?> FetchMihomoAlphaAsync(CorePackage core)
+    {
+        using var client = CreateClient();
+        var release = $"https://github.com/{core.Repo}/releases";
+        var files = release + "/download/Prerelease-Alpha/";
+        try
+        {
+            var version = (await client.GetStringAsync(Request(files + "version.txt"))).Trim();
+            var name = $"mihomo-windows-amd64-v1-{version}.zip";
+            if (!MihomoAlphaAsset().IsMatch(name))
+                return null;
+            var url = files + name;
+            await VerifyAssetAsync(client, url);
+            return new UpdateChoice(version, url, release + "/tag/Prerelease-Alpha") { Prerelease = true };
+        }
+        catch (Exception e) when (e is HttpRequestException or OperationCanceledException)
+        {
+            Log.Warning(e, "Discover Mihomo Alpha asset");
+            return null;
+        }
+    }
+
+    private static async Task VerifyAssetAsync(HttpClient client, string url)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Head, Request(url));
+        using var asset = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        asset.EnsureSuccessStatusCode();
     }
 
     private static async Task<List<Release>> ReleasesAsync(string repo)
@@ -418,6 +524,17 @@ internal static partial class Downloads
 
     public static string CorePath(CorePackage core) => Path.Combine(Bootstrap.BinDirectory, core.File);
 
+    private static string[] CoreFiles(CorePackage core)
+    {
+        var path = CorePath(core);
+        return core.Name == "sing-box" ? [path, Path.Combine(Path.GetDirectoryName(path)!, "libcronet.dll")] : [path];
+    }
+
+    private static string PreviousPath(CorePackage core) => CorePath(core) +
+        (core.Name == "sing-box" ? ".previous.zip" : ".previous");
+
+    public static bool HasRollback(CorePackage core) => File.Exists(PreviousPath(core));
+
     public static async Task InstallAsync(CorePackage core, UpdateChoice version, IProgress<TransferProgress> progress, Func<CancellationToken, Task> wait, CancellationToken token)
     {
         if (Applying || Checking)
@@ -438,16 +555,25 @@ internal static partial class Downloads
             var fileName = core.ArchiveFile ?? Path.GetFileName(core.File);
             var entry = zip.Entries.SingleOrDefault(e => core.ArchiveFile?.Contains('/') == true ? e.FullName == fileName : e.Name == fileName)
                 ?? throw new InvalidDataException($"The archive is missing {fileName}.");
-            var path = CorePath(core);
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            var staged = path + ".download";
+            var paths = CoreFiles(core);
+            Directory.CreateDirectory(Path.GetDirectoryName(paths[0])!);
             try
             {
-                entry.ExtractToFile(staged, overwrite: true);
+                entry.ExtractToFile(paths[0] + ".download", overwrite: true);
+                if (paths.Length > 1)
+                {
+                    var dllName = entry.FullName[..(entry.FullName.LastIndexOf('/') + 1)] + Path.GetFileName(paths[1]);
+                    var dll = zip.GetEntry(dllName) ?? throw new InvalidDataException($"The archive is missing {dllName}.");
+                    dll.ExtractToFile(paths[1] + ".download", overwrite: true);
+                }
                 token.ThrowIfCancellationRequested();
-                await ReplaceCoreAsync(core, path, staged);
+                await Session.Current.RunCoreReplacementAsync(() => ReplaceCoreAsync(core, paths, version.Version));
             }
-            finally { File.Delete(staged); }
+            finally
+            {
+                foreach (var path in paths)
+                    File.Delete(path + ".download");
+            }
 
             progress.Report(new TransferProgress(100, 0));
             Record(core.Name, version.Version, true);
@@ -465,53 +591,91 @@ internal static partial class Downloads
         }
     }
 
-    private static async Task ReplaceCoreAsync(CorePackage core, string path, string staged)
+    private static async Task ReplaceCoreAsync(CorePackage core, string[] paths, string? expectedVersion = null)
     {
         var session = Session.Current;
         var scene = InUse(core) ? session.ActiveScene : null;
-        var backup = path + ".download-backup";
-        var hadCore = File.Exists(path);
+        var previous = PreviousPath(core);
+        var hadFiles = paths.Select(File.Exists).ToArray();
         if (scene != null)
-            await session.StopAsync();
+            await session.StopCoreAsync();
 
-        var replaced = false;
+        var replaced = 0;
         try
         {
-            if (hadCore)
-                File.Replace(staged, path, backup);
-            else
-                File.Move(staged, path);
-            replaced = true;
-            Installed[core] = await ReadVersionAsync(core);
-            if (Installed[core].Length == 0)
+            for (; replaced < paths.Length; replaced++)
+            {
+                var path = paths[replaced];
+                if (hadFiles[replaced])
+                    File.Replace(path + ".download", path, path + ".download-backup");
+                else
+                    File.Move(path + ".download", path);
+            }
+
+            var installed = await ReadVersionAsync(core);
+            if (installed.Length == 0)
                 throw new InvalidDataException(Helpers.Ui.T("The replacement core could not report its version.",
                     "替换后的核心无法报告版本。"));
-            if (scene != null)
+            if (expectedVersion != null && !string.Equals(installed, expectedVersion, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException($"Expected {expectedVersion}, but the replacement reports {installed}.");
+            Installed[core] = installed;
+            if (scene != null && !App.IsExiting)
             {
-                await session.StartAsync(scene);
+                await session.StartCoreAsync(scene);
                 if (!session.IsRunning || session.ActiveScene != scene)
                     throw new InvalidDataException(Helpers.Ui.T("The updated core could not reconnect the scene.",
                         "更新后的核心未能重新连接场景。") + " " + session.ErrorMessage);
             }
-            if (hadCore)
-                File.Move(backup, path + ".previous", overwrite: true);
+            if (hadFiles.All(present => present))
+            {
+                if (paths.Length == 1)
+                    File.Move(paths[0] + ".download-backup", previous, overwrite: true);
+                else
+                    SavePreviousSet(paths, previous);
+            }
         }
         catch
         {
-            if (replaced)
+            if (replaced > 0)
             {
                 if (scene != null && session.IsRunning && session.ActiveScene == scene)
-                    await session.StopAsync();
-                if (hadCore)
-                    File.Replace(backup, path, null);
-                else
-                    File.Delete(path);
+                    await session.StopCoreAsync();
+                while (replaced > 0)
+                {
+                    var index = --replaced;
+                    var path = paths[index];
+                    if (hadFiles[index])
+                        File.Replace(path + ".download-backup", path, null);
+                    else
+                        File.Delete(path);
+                }
                 Installed[core] = await ReadVersionAsync(core);
             }
-            if (scene != null)
-                await session.StartAsync(scene);
+            if (scene != null && !App.IsExiting)
+                await session.StartCoreAsync(scene);
             throw;
         }
+
+        foreach (var path in paths)
+        {
+            try { File.Delete(path + ".download-backup"); }
+            catch (IOException e) { Log.Warning(e, "Remove temporary core backup {Path}", path); }
+            catch (UnauthorizedAccessException e) { Log.Warning(e, "Remove temporary core backup {Path}", path); }
+        }
+    }
+
+    private static void SavePreviousSet(string[] paths, string previous)
+    {
+        var temporary = previous + ".tmp";
+        try
+        {
+            using (var stream = File.Create(temporary))
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
+                foreach (var path in paths)
+                    zip.CreateEntryFromFile(path + ".download-backup", Path.GetFileName(path), CompressionLevel.NoCompression);
+            File.Move(temporary, previous, overwrite: true);
+        }
+        finally { File.Delete(temporary); }
     }
 
     public static async Task RollbackAsync(CorePackage core)
@@ -519,19 +683,31 @@ internal static partial class Downloads
         if (Applying || Checking)
             return;
         Applying = true;
-        var path = CorePath(core);
-        var staged = path + ".download";
+        var paths = CoreFiles(core);
+        var previous = PreviousPath(core);
         try
         {
             Changed?.Invoke();
-            File.Copy(path + ".previous", staged, overwrite: true);
-            await ReplaceCoreAsync(core, path, staged);
+            if (paths.Length == 1)
+                File.Copy(previous, paths[0] + ".download", overwrite: true);
+            else
+            {
+                using var zip = ZipFile.OpenRead(previous);
+                foreach (var path in paths)
+                {
+                    var entry = zip.GetEntry(Path.GetFileName(path))
+                        ?? throw new InvalidDataException($"The backup is missing {Path.GetFileName(path)}.");
+                    entry.ExtractToFile(path + ".download", overwrite: true);
+                }
+            }
+            await Session.Current.RunCoreReplacementAsync(() => ReplaceCoreAsync(core, paths));
             Record(core.Name, Installed[core], true, "Rollback");
         }
         finally
         {
             Applying = false;
-            File.Delete(staged);
+            foreach (var path in paths)
+                File.Delete(path + ".download");
             Changed?.Invoke();
         }
     }

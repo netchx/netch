@@ -1,10 +1,10 @@
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 $ErrorActionPreference = 'Stop'
 
-$version = 'v2.6.0'
+$version = 'v2.7.0'
 $archive = Join-Path $PWD 'tun2socks-windows-amd64-v3.zip'
-$expectedSha256 = 'fa10f679bf7e6c2380af72b588cd0f61cb7c382b86f991d76eb9b96f4e104352'
-$expectedBinarySha256 = 'bc5827ca00c7f312125365e8669794fffdbdf1cb0efa948cddd94a0c800c8c31'
+$expectedSha256 = 'ea9caa464664325afaaeded3e157a2152e29c5cfaa20a54157bcf330d6a93873'
+$expectedBinarySha256 = 'f08d327819f722da3ee3f591cb7e9e36b06640a92b3f63f5073a454be29be35f'
 
 try {
     Invoke-WebRequest -Uri "https://github.com/xjasonlyu/tun2socks/releases/download/$version/tun2socks-windows-amd64-v3.zip" -OutFile $archive

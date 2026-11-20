@@ -236,6 +236,15 @@ public class Scenes
     }
 
     [TestMethod]
+    public void TunUsesLongOptionsAndEscapesProxyCredentials()
+    {
+        var build = typeof(Netch.Interops.TUN2Socks).GetMethod("BuildArgs", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var args = (string[])build.Invoke(null, ["Netch", "[::1]", 2801, "user@name", "a:b/c"])!;
+        CollectionAssert.AreEqual(new[] { "--device", "tun://Netch", "--proxy",
+            "socks5://user%40name:a%3Ab%2Fc@[::1]:2801/", "--mtu", "1500", "--loglevel", "debug" }, args);
+    }
+
+    [TestMethod]
     public void TunRejectsNoncontiguousSubnetMask()
     {
         var mode = new TunMode();

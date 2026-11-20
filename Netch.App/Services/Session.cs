@@ -25,6 +25,7 @@ public sealed partial class Session : ObservableObject
     private DispatcherQueueTimer _clock = null!;
     private CancellationTokenSource? _probeCts;
     private Task<string?>? _natTest;
+    private TaskCompletionSource? _coreReplacement;
     private ulong _lastUploadedBytes;
     private DateTime _startedAt;
     private Scene? _resumeScene;
@@ -81,7 +82,7 @@ public sealed partial class Session : ObservableObject
 
     public bool IsIdle => State is State.Waiting or State.Stopped;
 
-    public bool IsBusy => State is State.Starting or State.Stopping;
+    public bool IsBusy => _coreReplacement != null || State is State.Starting or State.Stopping;
 
     public bool IsRunning => State == State.Started;
 
@@ -121,11 +122,10 @@ public sealed partial class Session : ObservableObject
     public Task ToggleAsync(Scene scene) => IsRunning && ActiveScene == scene ? StopAsync() : StartAsync(scene);
 
     /// <summary>Starts <paramref name="scene" />, stopping the running scene first.</summary>
-    public async Task StartAsync(Scene scene)
-    {
-        if (IsBusy)
-            return;
+    public Task StartAsync(Scene scene) => IsBusy || App.IsExiting ? Task.CompletedTask : StartCoreAsync(scene);
 
+    internal async Task StartCoreAsync(Scene scene)
+    {
         var server = SceneService.FindServer(scene);
         var mode = SceneService.FindMode(scene);
         if (server == null || mode == null)
@@ -137,7 +137,7 @@ public sealed partial class Session : ObservableObject
         }
 
         if (IsRunning)
-            await StopAsync();
+            await StopCoreAsync();
 
         ErrorMessage = null;
         ActiveScene = scene;
@@ -172,7 +172,9 @@ public sealed partial class Session : ObservableObject
         PingNodeAsync(server, _probeCts.Token).Forget();
     }
 
-    public async Task StopAsync()
+    public Task StopAsync() => IsBusy ? Task.CompletedTask : StopCoreAsync();
+
+    internal async Task StopCoreAsync()
     {
         if (!IsRunning)
             return;
@@ -189,6 +191,9 @@ public sealed partial class Session : ObservableObject
     /// <summary>Stops whatever the core is running, including a start still in progress. Used on exit.</summary>
     public async Task ShutdownAsync()
     {
+        if (_coreReplacement is { } replacement)
+            await replacement.Task;
+
         await CancelProbesAsync();
         await MainController.StopAsync();
         Bandwidth.Stop();
@@ -196,6 +201,9 @@ public sealed partial class Session : ObservableObject
 
     public async Task<string> TestNodeNatAsync(Server server)
     {
+        if (_coreReplacement != null)
+            throw new InvalidOperationException(Helpers.Ui.T("Wait for the core update to finish.", "请等待核心更新完成。"));
+
         if (IsRunning && SceneService.FindServer(ActiveScene!)?.Id == server.Id)
         {
             if (_probeCts is { } probes && await TestNatAsync(probes.Token) is { } result)
@@ -217,6 +225,27 @@ public sealed partial class Session : ObservableObject
         {
             await MainController.StopAsync();
             State = State.Stopped;
+        }
+    }
+
+    internal async Task RunCoreReplacementAsync(Func<Task> replace)
+    {
+        if (IsBusy || App.IsExiting)
+            throw new InvalidOperationException(Helpers.Ui.T("The session is busy. Try updating again when it is ready.",
+                "场景正在切换，请在切换完成后重试更新。"));
+
+        var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _coreReplacement = completion;
+        try
+        {
+            OnPropertyChanged(nameof(IsBusy));
+            await replace();
+        }
+        finally
+        {
+            _coreReplacement = null;
+            completion.SetResult();
+            OnPropertyChanged(nameof(IsBusy));
         }
     }
 

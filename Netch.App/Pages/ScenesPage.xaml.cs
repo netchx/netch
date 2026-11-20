@@ -144,7 +144,7 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
     public Style PowerButtonStyle(State state) =>
         (Style)Application.Current.Resources[state is State.Started or State.Starting ? "AccentButtonStyle" : "DefaultButtonStyle"];
 
-    public bool CanUsePower(State state, bool hasScenes) => state is not (State.Starting or State.Stopping) && hasScenes;
+    public bool CanUsePower(bool busy, bool hasScenes) => !busy && hasScenes;
 
     public string PowerLabel(State state) => i18N.Translate(state == State.Started ? "Stop" : "Start");
 

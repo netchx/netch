@@ -185,7 +185,7 @@
                     AutomationProperties.Name="{x:Bind PowerLabel(Session.State), Mode=OneWay}"
                     Click="PowerButton_Click"
                     CornerRadius="33"
-                    IsEnabled="{x:Bind CanUsePower(Session.State, HasScenes), Mode=OneWay}"
+                    IsEnabled="{x:Bind CanUsePower(Session.IsBusy, HasScenes), Mode=OneWay}"
                     Style="{x:Bind PowerButtonStyle(Session.State), Mode=OneWay}"
                     ToolTipService.ToolTip="{x:Bind PowerLabel(Session.State), Mode=OneWay}">
                     <FontIcon FontSize="22" Glyph="&#xE7E8;" />
