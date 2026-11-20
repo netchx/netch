@@ -9,7 +9,7 @@ public static class SceneService
     public static List<Scene> Scenes => Global.Settings.Scenes ?? throw new InvalidOperationException($"{nameof(SceneService)}.{nameof(Initialize)} has not run");
 
     /// <summary>
-    ///     On the first WinUI start, turns the WinForms profiles into scenes. Needs servers and modes loaded.
+    ///     On the first start, migrates legacy <see cref="Setting.Profiles" /> into scenes. Needs servers and modes loaded.
     /// </summary>
     /// <returns>True when scenes were created and the configuration should be saved.</returns>
     public static bool Initialize()

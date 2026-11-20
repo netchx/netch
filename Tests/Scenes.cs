@@ -269,6 +269,24 @@ public class Scenes
     }
 
     [TestMethod]
+    public void TextModeResolvesIncludesWhenDirectoryContainsDotH()
+    {
+        var folder = Directory.CreateTempSubdirectory("netch.h-");
+        try
+        {
+            var main = Path.Combine(folder.FullName, "main.txt");
+            var includedTxt = Path.Combine(folder.FullName, "included.txt");
+            var includedHeader = Path.Combine(folder.FullName, "included.h");
+            File.WriteAllLines(includedTxt, ["# Included,0", @"included\.exe"]);
+            File.WriteAllLines(main, ["# Main,0", $"#include <{includedHeader}>", @"main\.exe"]);
+
+            var mode = (Redirector)ModeHelper.LoadMode(main);
+            CollectionAssert.AreEqual(new[] { @"included\.exe", @"main\.exe" }, mode.Handle);
+        }
+        finally { folder.Delete(recursive: true); }
+    }
+
+    [TestMethod]
     public void MissingSceneModeSettingsKeepLegacyConnectionBehavior()
     {
         Netch.Global.Settings = new Setting

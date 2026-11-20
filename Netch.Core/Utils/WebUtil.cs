@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Threading;
+using Netch.Servers;
 using System.Net;
 using System.Text;
 
@@ -11,6 +12,35 @@ public static class WebUtil
 
     private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 
+    public static string BuildSocks5ProxyUri(SocksServer server)
+    {
+        ArgumentNullException.ThrowIfNull(server);
+        var host = server.Address is "0.0.0.0" or "::" or "[::]" ? "127.0.0.1" : server.Address;
+        var uri = new UriBuilder("socks5", host, server.Port);
+        if (server.Auth())
+        {
+            uri.UserName = Uri.EscapeDataString(server.Username ?? string.Empty);
+            uri.Password = Uri.EscapeDataString(server.Password ?? string.Empty);
+        }
+
+        return uri.Uri.AbsoluteUri;
+    }
+
+    private static WebProxy CreateProxy(string proxyServer)
+    {
+        proxyServer = proxyServer.Trim();
+        if (Uri.TryCreate(proxyServer, UriKind.Absolute, out var uri) && !string.IsNullOrEmpty(uri.UserInfo))
+        {
+            var parts = uri.UserInfo.Split(':', 2);
+            var username = Uri.UnescapeDataString(parts[0]);
+            var password = parts.Length > 1 ? Uri.UnescapeDataString(parts[1]) : string.Empty;
+            var cleanUri = new UriBuilder(uri) { UserName = string.Empty, Password = string.Empty }.Uri;
+            return new WebProxy(cleanUri) { Credentials = new NetworkCredential(username, password) };
+        }
+
+        return new WebProxy(proxyServer);
+    }
+
     public static HttpClient CreateHttpClient(int? timeout = null, string? userAgent = null, string? proxyServer = null)
     {
         var handler = new HttpClientHandler
@@ -18,7 +48,7 @@ public static class WebUtil
             // 自动解压（以前 WebRequest 默认没开）
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             UseProxy = !string.IsNullOrWhiteSpace(proxyServer),
-            Proxy = !string.IsNullOrEmpty(proxyServer) ? new WebProxy(proxyServer) : null
+            Proxy = !string.IsNullOrWhiteSpace(proxyServer) ? CreateProxy(proxyServer) : null
         };
 
         var client = new HttpClient(handler)

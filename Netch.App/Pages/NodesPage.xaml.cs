@@ -9,6 +9,7 @@ using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Dialogs;
 using Netch.App.Helpers;
 using Netch.App.Services;
+using Netch.App.ViewModels;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
@@ -26,10 +27,13 @@ public sealed partial class NodesPage : Page
     private readonly ContentControl _subscription = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly ContentControl _details = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock _status = Caption("");
+    private readonly DropDownButton _updateAll;
     private readonly Button _speed;
+    private SplitButton? _updateSelected;
     private Subscription? SelectedSubscription => (_categories.SelectedItem as ListViewItem)?.Tag as Subscription;
     private bool _byDelay;
     private bool _refreshing;
+    private bool _updatingSubscriptions;
 
     public NodesPage()
     {
@@ -38,9 +42,13 @@ public sealed partial class NodesPage : Page
         import.Flyout = Menu(
             (T("From clipboard", "从剪贴板"), () => ImportAsync(import, fromFile: false).Forget()),
             (T("From Clash YAML file", "从 Clash YAML 文件"), () => ImportAsync(import, fromFile: true).Forget()));
+        _updateAll = new DropDownButton { Content = T("⟳ Update subscriptions", "⟳ 更新订阅") };
+        _updateAll.Flyout = Menu(
+            (T("Update all (direct)", "直连更新全部订阅"), () => UpdateSubscriptionsAsync(null, useProxy: false).Forget()),
+            (T("Update all via proxy", "通过代理更新全部订阅"), () => UpdateSubscriptionsAsync(null, useProxy: true).Forget()));
         var addSubscription = AsyncButton(T("+ Subscription", "＋ 订阅"), () => EditSubscriptionAsync(null));
         var add = Button(T("+ Node", "＋ 节点"), () => { }, accent: true);
-        add.Flyout = Menu(ServerHelper.ServerUtilDictionary.Values.OrderBy(util => util.Priority)
+        add.Flyout = Menu(ServerEditorHelper.GetOrderedProtocols()
             .Select(util => (ServerHelper.GetDisplayName(util), (Action)(async () => await EditNodeAsync(null, util.TypeName)))).ToArray());
         _speed = AsyncButton(T("⚡ Test latency", "⚡ 测速"), () => DelayTestHelper.PerformTestAsync(true));
         _categories.SelectionChanged += (_, _) => { if (!_refreshing) RefreshSelection(); };
@@ -51,7 +59,7 @@ public sealed partial class NodesPage : Page
                 await EditNodeAsync(server);
         };
 
-        Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, addSubscription, add),
+        Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, _updateAll, addSubscription, add),
             TwoColumns(_categories, Body(_details,
                 Split(_filter, Row(_speed, Button(T("⇅ Latency", "⇅ 延迟"), () =>
                 {
@@ -162,6 +170,8 @@ public sealed partial class NodesPage : Page
         AddCategory(manual, 35);
         _categories.SelectedItem = selectLocal ? manual : select == null ? (local ? manual : _categories.Items[0])
             : _categories.Items.OfType<ListViewItem>().FirstOrDefault(i => ReferenceEquals(i.Tag, select)) ?? _categories.Items[0];
+        _updateAll.Visibility = Global.Settings.Subscription.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        _updateAll.IsEnabled = !_updatingSubscriptions;
         _refreshing = false;
         RefreshSelection();
     }
@@ -189,6 +199,16 @@ public sealed partial class NodesPage : Page
                 schedule += TF(" · {0} remaining", " · 剩余 {0}", Format.Bytes(remaining));
             if (sub.Expiration is { } expiration)
                 schedule += TF(" · Expires {0:d}", " · 到期 {0:yyyy-MM-dd}", expiration);
+            var update = new SplitButton
+            {
+                Content = T("⟳ Update", "⟳ 更新"),
+                IsEnabled = !_updatingSubscriptions,
+                Flyout = Menu(
+                    (T("Update (direct)", "直连更新"), () => UpdateSubscriptionsAsync(sub, useProxy: false).Forget()),
+                    (T("Update via proxy", "通过代理更新"), () => UpdateSubscriptionsAsync(sub, useProxy: true).Forget()))
+            };
+            update.Click += (_, _) => UpdateSubscriptionsAsync(sub, useProxy: false).Forget();
+            _updateSelected = update;
             var menu = new Button
             {
                 Content = "⋯",
@@ -204,13 +224,12 @@ public sealed partial class NodesPage : Page
                         RefreshCategories();
                     }))
             };
-            _subscription.Content = Card(Split(new StackPanel { Spacing = 1, Children = { Text(sub.Remark, 15, true), Caption(sub.Link), Caption(schedule) } }, Row(
-                AsyncButton(T("⟳ Update", "⟳ 更新"), async () =>
-                {
-                    await SubscriptionUtil.UpdateServerAsync(sub);
-                    await Configuration.SaveAsync();
-                    RefreshCategories();
-                }), menu)), 10);
+            _subscription.Content = Card(Split(new StackPanel { Spacing = 1, Children = { Text(sub.Remark, 15, true), Caption(sub.Link), Caption(schedule) } },
+                Row(update, menu)), 10);
+        }
+        else
+        {
+            _updateSelected = null;
         }
         RefreshNodes();
     }
@@ -331,5 +350,87 @@ public sealed partial class NodesPage : Page
         var subscription = await NodeEditor.EditSubscriptionAsync(XamlRoot, existing);
         if (subscription != null)
             RefreshCategories(subscription);
+    }
+
+    private async Task UpdateSubscriptionsAsync(Subscription? single, bool useProxy)
+    {
+        if (_updatingSubscriptions)
+            return;
+        if (single == null && Global.Settings.Subscription.Count == 0)
+            return;
+        if (single != null ? !single.Enable : !Global.Settings.Subscription.Any(s => s.Enable))
+            return;
+
+        _updatingSubscriptions = true;
+        _updateAll.IsEnabled = false;
+        if (_updateSelected != null)
+            _updateSelected.IsEnabled = false;
+        try
+        {
+            var executed = true;
+            if (!useProxy)
+            {
+                if (single != null)
+                    await SubscriptionUtil.UpdateServerAsync(single);
+                else
+                    await SubscriptionUtil.UpdateServersAsync();
+            }
+            else
+            {
+                executed = await Session.Current.RunWithProxyAsync(SelectProxyNodeAsync,
+                    proxyUri => single != null
+                        ? SubscriptionUtil.UpdateServerAsync(single, proxyUri)
+                        : SubscriptionUtil.UpdateServersAsync(proxyUri));
+            }
+
+            if (executed)
+            {
+                await Configuration.SaveAsync();
+                RefreshCategories();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "Update subscriptions failed");
+            if (XamlRoot is { } root)
+                await ShowAsync(root, T("Operation failed", "操作失败"), Text(e.Message));
+        }
+        finally
+        {
+            _updatingSubscriptions = false;
+            _updateAll.IsEnabled = true;
+            if (_updateSelected != null)
+                _updateSelected.IsEnabled = true;
+        }
+    }
+
+    private async Task<Server?> SelectProxyNodeAsync()
+    {
+        if (Global.Settings.Server.Count == 0)
+            throw new InvalidOperationException(T("No nodes available to use as proxy.", "没有可用作代理的节点。"));
+
+        if (XamlRoot is not { } root)
+            return null;
+
+        var nodes = Global.Settings.Server
+            .OrderBy(server => server.Delay is >= 0 and < 1000 ? server.Delay : int.MaxValue)
+            .ToArray();
+        var preferred = (_nodes.SelectedItem as ListViewItem)?.Tag as Server
+            ?? (Session.Current.CurrentScene is { } scene ? SceneService.FindServer(scene) : null);
+        var index = Math.Max(0, Array.FindIndex(nodes, s => s == preferred));
+        var label = T("Select proxy node", "选择代理节点");
+        var selector = new ComboBox
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            ItemsSource = nodes.Select(server => new NodeOption(server)).ToArray(),
+            ItemTemplate = Resource<DataTemplate>("NetchWizardNodeTemplate"),
+            SelectedIndex = index,
+            IsTextSearchEnabled = true
+        };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(selector, label);
+        var confirmed = await ShowAsync(root, label,
+            Stack(Caption(T("Select a node to use as a temporary proxy for updating subscriptions.", "选择一个节点作为临时代理以更新订阅。")), selector),
+            T("Update", "更新"));
+        return confirmed && selector.SelectedItem is NodeOption option ? option.Server : null;
     }
 }

@@ -4,7 +4,7 @@ using Netch.Models.Modes;
 namespace Netch.Services;
 
 /// <summary>
-///     Notifications from the core to whichever UI is attached (WinForms today, WinUI later).
+///     Notifications from the core to the attached UI.
 ///     The core never touches UI types; front ends subscribe to these events and marshal to
 ///     their own UI thread. Handlers may be invoked from any thread.
 /// </summary>

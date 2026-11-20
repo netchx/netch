@@ -11,7 +11,7 @@ public static class Bootstrap
 {
     public static string BinDirectory => Path.Combine(Global.NetchDir, "bin");
 
-    /// <summary>False when Netch.exe was started without the rest of the release archive.</summary>
+    /// <summary>False when Netch.App.exe was started without the rest of the release archive.</summary>
     public static bool BinariesPresent => Directory.Exists(BinDirectory) && Directory.EnumerateFileSystemEntries(BinDirectory).Any();
 
     /// <summary>Makes the install directory the working directory and puts .\bin on PATH.</summary>
@@ -24,11 +24,35 @@ public static class Bootstrap
     /// <summary>Removes leftovers of a previous update and creates the data directories.</summary>
     public static void PrepareDataDirectories()
     {
-        Updater.CleanOld(Global.NetchDir);
+        CleanLegacyOldFiles(Global.NetchDir);
 
         foreach (var item in new[] { "mode\\Custom", "data", "logging" })
             if (!Directory.Exists(item))
                 Directory.CreateDirectory(item);
+    }
+
+    private static void CleanLegacyOldFiles(string targetPath)
+    {
+        if (!Directory.Exists(targetPath))
+            return;
+
+        var options = new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            IgnoreInaccessible = true,
+            AttributesToSkip = FileAttributes.ReparsePoint
+        };
+        foreach (var file in Directory.EnumerateFiles(targetPath, "*.old", options))
+        {
+            try
+            {
+                File.Delete(file);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                // ignored
+            }
+        }
     }
 
     /// <summary>Deletes the previous session's logs and starts the logger.</summary>

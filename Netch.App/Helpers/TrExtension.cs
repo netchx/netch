@@ -5,7 +5,7 @@ namespace Netch.App.Helpers;
 
 /// <summary>
 ///     XAML access to the shared <see cref="i18N" /> dictionary: <c>Text="{h:Tr Text=Settings}"</c>.
-///     Keys are the English source strings, as in the WinForms front end.
+///     Keys are the English source strings.
 /// </summary>
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
 public sealed partial class TrExtension : MarkupExtension

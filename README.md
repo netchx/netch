@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Netch/Resources/Netch.png" width="128" alt="Netch logo" />
+  <img src="Netch.App/Assets/Netch.png" width="128" alt="Netch logo" />
 </p>
 
 <h1 align="center">Netch</h1>
@@ -69,7 +69,7 @@ VLESS Vision 和常用 REALITY 配置由 Mihomo 处理。旧 V2Ray Mux、自定�
 ## 快速开始
 
 1. 从 [Releases](https://github.com/NetchX/Netch/releases) 下载并解压程序。
-2. 以管理员身份运行主程序。WinUI 便携包使用 `Netch.App.exe`，WinForms 包使用 `Netch.exe`。
+2. 以管理员身份运行 `Netch.App.exe`。
 3. 导入订阅或手动添加节点。
 4. 选择节点和工作模式，然后点击“启动”。
 5. 点击状态栏中的 NAT 结果可以重新执行 UDP 检测。
@@ -130,11 +130,11 @@ cd Netch
 .\build.ps1 -Configuration Release -OutputPath release
 ```
 
-完整的 WinUI x64 便携包位于 `release` 目录。运行 `Netch.App.exe` 启动程序，`bin/`、`mode/`、`logging/`、`data/` 和 `licenses/` 与 EXE 同级。内置词典随 EXE 发布。构建 WinForms 包时使用 `-Frontend WinForms`。
+完整的 WinUI x64 便携包位于 `release` 目录。运行 `Netch.App.exe` 启动程序，`bin/`、`mode/`、`logging/`、`data/` 和 `licenses/` 与 EXE 同级。内置词典随 EXE 发布。
 
 - 不在 PATH 中的 `msbuild` 会通过 `vswhere` 自动定位。
 - 从压缩包解压的子脚本带有“来自网络”标记时，会被自动解除，无需修改执行策略。
-- 本地每次都发布前端并构建本机组件。CI 使用 `-UseCache` 复用已恢复的本机组件和 WinForms 发布输出。WinUI 每次发布单 EXE：
+- 本地每次都发布前端并构建本机组件。CI 使用 `-UseCache` 复用已恢复的本机组件：
 
 ```powershell
 .\build.ps1 -Configuration Release -OutputPath release -UseCache
@@ -143,7 +143,7 @@ cd Netch
 ### 分组件调试构建
 
 ```powershell
-dotnet build .\Netch\Netch.csproj -c Debug -p:Platform=x64
+dotnet build .\Netch.App\Netch.App.csproj -c Debug -p:Platform=x64
 msbuild .\Redirector\Redirector.vcxproj /p:Configuration=Debug /p:Platform=x64
 msbuild .\RouteHelper\RouteHelper.vcxproj /p:Configuration=Debug /p:Platform=x64
 ```
@@ -164,7 +164,8 @@ git push origin v2.0.1
 
 | 目录 | 内容 |
 | --- | --- |
-| `Netch` | WinForms 界面、配置、节点管理和代理核心编排。 |
+| `Netch.App` | WinUI 3 桌面界面、托盘与内建更新器。 |
+| `Netch.Core` | 共享配置、协议解析、节点校验与代理核心编排。 |
 | `Redirector` | 基于 Netfilter 的 TCP/UDP 流量重定向组件。 |
 | `RouteHelper` | 路由与网络辅助组件。 |
 | `Other` | Mihomo、Xray 与配套组件的构建和打包脚本。 |

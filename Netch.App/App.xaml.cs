@@ -49,9 +49,9 @@ public partial class App : Application
         if (!Global.Settings.OnboardingCompleted && SceneService.Scenes.Count == 0 && Global.Settings.Server.Count == 0)
             OpenWizard();
 
-        var startupScene = Global.Settings.StartupSceneId is { } startupId
+        var startupScene = (Global.Settings.StartupSceneId is { } startupId
             ? SceneService.Scenes.FirstOrDefault(scene => scene.Id == startupId)
-            : Session.Current.CurrentScene;
+            : null) ?? Session.Current.CurrentScene;
         if (Global.Settings.StartWhenOpened && startupScene != null)
             Session.Current.StartAsync(startupScene).Forget();
 

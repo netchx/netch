@@ -1,7 +1,13 @@
+using System;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Netch.Controllers;
+using Netch.Models.GitHubRelease;
 using Netch.Models.Modes.ProcessMode;
+using Netch.Servers;
 using Netch.Utils;
 
 namespace Tests;
@@ -14,10 +20,6 @@ public class CoreAssets
     {
         var zh = EmbedUtils.GetEmbedBytes("Netch.Resources.zh-CN");
         Assert.IsTrue(zh.Length > 0);
-
-        var sevenZip = EmbedUtils.GetEmbedBytes("Netch.Resources.7za.exe");
-        Assert.AreEqual((byte)'M', sevenZip[0]);
-        Assert.AreEqual((byte)'Z', sevenZip[1]);
 
         Assert.IsFalse(string.IsNullOrEmpty(EmbedUtils.GetEmbedText(Netch.Constants.V2raySampleHttpRequestFileName)));
     }
@@ -145,7 +147,21 @@ public class CoreAssets
             "Reduce RTT",
             "Disable SNI",
             "Enter a port between 1 and 65535.",
-            "Import Servers From File…"
+            "Import Servers From File…",
+            "Start automatically at launch",
+            "Connect the startup or last used scene",
+            "Minimize to tray when started",
+            "Update subscriptions at launch",
+            "Update (direct)",
+            "Update via proxy",
+            "⟳ Update subscriptions",
+            "Update all (direct)",
+            "Update all via proxy",
+            "Select proxy node",
+            "Select a node to use as a temporary proxy for updating subscriptions.",
+            "No nodes available to use as proxy.",
+            "The session is busy. Try again when it is ready.",
+            "The temporary proxy could not start."
         };
 
         try
@@ -157,6 +173,69 @@ public class CoreAssets
         finally
         {
             i18N.Load("en-US");
+        }
+    }
+
+    [TestMethod]
+    public void BuildSocks5ProxyUriAndCreateProxyHandleCredentials()
+    {
+        Assert.AreEqual("socks5://127.0.0.1:2801/", WebUtil.BuildSocks5ProxyUri(new SocksServer("0.0.0.0", 2801)));
+        Assert.AreEqual("socks5://127.0.0.1:2801/", WebUtil.BuildSocks5ProxyUri(new SocksServer("[::]", 2801)));
+
+        var authed = WebUtil.BuildSocks5ProxyUri(new SocksServer("::", 2801, "user@a:1", "p:2/3%"));
+        Assert.AreEqual("socks5://user%40a%3A1:p%3A2%2F3%25@127.0.0.1:2801/", authed);
+
+        var createProxy = typeof(WebUtil).GetMethod("CreateProxy", BindingFlags.Static | BindingFlags.NonPublic);
+        Assert.IsNotNull(createProxy);
+        var proxy = (WebProxy)createProxy.Invoke(null, [$"  {authed}  "])!;
+        Assert.AreEqual("socks5://127.0.0.1:2801/", proxy.Address!.AbsoluteUri);
+        var credential = proxy.Credentials!.GetCredential(proxy.Address, "Basic");
+        Assert.IsNotNull(credential);
+        Assert.AreEqual("user@a:1", credential.UserName);
+        Assert.AreEqual("p:2/3%", credential.Password);
+
+        var unauthedProxy = (WebProxy)createProxy.Invoke(null, ["socks5://127.0.0.1:2801/"])!;
+        Assert.IsNull(unauthedProxy.Credentials);
+
+        using var client = WebUtil.CreateHttpClient(proxyServer: authed);
+        Assert.IsNotNull(client);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void UpdateCheckerExtractsWinUiZipFromReleaseNotes()
+    {
+        var original = UpdateChecker.LatestRelease;
+        const string expectedHash = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+        try
+        {
+            UpdateChecker.LatestRelease = new Release
+            {
+                tag_name = "v2.0.2",
+                body = $"""
+                    ## 亮点
+
+                    - WinUI release.
+
+                    ## 下载与启动
+
+                    1. 下载 `Netch-v2.0.2-winui-x64.zip`。
+
+                    ## SHA256
+
+                    | 文件 | SHA256 |
+                    | --- | --- |
+                    | `Netch-v2.0.2-winui-x64.zip` | `{expectedHash}` |
+                    """
+            };
+
+            var (fileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
+            Assert.AreEqual("Netch-v2.0.2-winui-x64.zip", fileName);
+            Assert.AreEqual(expectedHash, sha256);
+        }
+        finally
+        {
+            UpdateChecker.LatestRelease = original;
         }
     }
 }

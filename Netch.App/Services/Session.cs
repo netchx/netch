@@ -174,6 +174,49 @@ public sealed partial class Session : ObservableObject
 
     public Task StopAsync() => IsBusy ? Task.CompletedTask : StopCoreAsync();
 
+    private static InvalidOperationException SessionBusyError() =>
+        new(Helpers.Ui.T("The session is busy. Try again when it is ready.", "场景正在切换，请稍后重试。"));
+
+    private static async Task<bool> RunWithActiveProxyAsync(Func<string, Task> action)
+    {
+        var activeSocks = MainController.Socks5Server
+            ?? throw new InvalidOperationException(Helpers.Ui.T("The temporary proxy could not start.", "临时代理未能启动。"));
+        await action(WebUtil.BuildSocks5ProxyUri(activeSocks));
+        return true;
+    }
+
+    public async Task<bool> RunWithProxyAsync(Func<Task<Server?>> selectNodeAsync, Func<string, Task> action)
+    {
+        if (IsBusy || App.IsExiting)
+            throw SessionBusyError();
+
+        if (IsRunning)
+            return await RunWithActiveProxyAsync(action);
+
+        var node = await selectNodeAsync();
+        if (node == null)
+            return false;
+
+        if (IsBusy || App.IsExiting)
+            throw SessionBusyError();
+
+        if (IsRunning)
+            return await RunWithActiveProxyAsync(action);
+
+        State = State.Starting;
+        try
+        {
+            await MainController.StartAsync(node);
+            return await RunWithActiveProxyAsync(action);
+        }
+        finally
+        {
+            await MainController.StopAsync();
+            Progress = null;
+            State = State.Stopped;
+        }
+    }
+
     internal async Task StopCoreAsync()
     {
         if (!IsRunning)
@@ -339,7 +382,7 @@ public sealed partial class Session : ObservableObject
         }
     }
 
-    /// <summary>Keeps the node's delay current while connected, as the WinForms front end does.</summary>
+    /// <summary>Keeps the active node's delay current while connected.</summary>
     private static async Task PingNodeAsync(Server server, CancellationToken token)
     {
         try

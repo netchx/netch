@@ -709,5 +709,19 @@
   "Invalid PEM certificate.": "PEM 证书无效。",
   "Enter a Reality public key.": "请输入 Reality 公钥。",
   "Short ID must be an even-length hex string up to 16 characters.": "Short ID 必须是长度不超过 16 位的偶数长度十六进制字符串。",
-  "XHTTP extra must be a valid JSON object.": "XHTTP 扩展必须为有效的 JSON 对象。"
+  "XHTTP extra must be a valid JSON object.": "XHTTP 扩展必须为有效的 JSON 对象。",
+  "Start automatically at launch": "启动后自动开启",
+  "Connect the startup or last used scene": "自动连接启动场景或最近使用的场景",
+  "Minimize to tray when started": "启动后最小化到托盘",
+  "Update subscriptions at launch": "打开时自动更新订阅",
+  "Update (direct)": "直连更新",
+  "Update via proxy": "通过代理更新",
+  "⟳ Update subscriptions": "⟳ 更新订阅",
+  "Update all (direct)": "直连更新全部订阅",
+  "Update all via proxy": "通过代理更新全部订阅",
+  "Select proxy node": "选择代理节点",
+  "Select a node to use as a temporary proxy for updating subscriptions.": "选择一个节点作为临时代理以更新订阅。",
+  "No nodes available to use as proxy.": "没有可用作代理的节点。",
+  "The session is busy. Try again when it is ready.": "场景正在切换，请稍后重试。",
+  "The temporary proxy could not start.": "临时代理未能启动。"
 }

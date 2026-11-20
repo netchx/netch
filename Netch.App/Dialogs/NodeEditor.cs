@@ -93,39 +93,10 @@ internal static class NodeEditor
     public static async Task<bool> EditAsync(XamlRoot root, Server? existing, string? type)
     {
         var util = ServerHelper.GetUtilByTypeName(type ?? existing!.ConfigType.ToString());
-        var server = (Server?)existing?.Clone() ?? (Server)Activator.CreateInstance(util.ServerType)!;
+        var server = (Server?)existing?.Clone() ?? ServerEditorHelper.CreateDefault(util);
         server.ProtoExtra = server.ProtoExtra with { };
         var extra = server.ProtoExtra;
         var protocol = server.ConfigType;
-
-        if (existing == null)
-        {
-            switch (protocol)
-            {
-                case EConfigType.Trojan:
-                    server.StreamSecurity = Constants.StreamSecurity;
-                    server.Network = Constants.DefaultNetwork;
-                    break;
-                case EConfigType.VLESS:
-                    server.MuxEnabled = false;
-                    server.Network = Constants.DefaultNetwork;
-                    extra.VlessEncryption = Constants.None;
-                    break;
-                case EConfigType.VMess:
-                    server.MuxEnabled = false;
-                    server.Network = Constants.DefaultNetwork;
-                    extra.VmessSecurity = Constants.DefaultSecurity;
-                    extra.AlterId = 0;
-                    break;
-                case EConfigType.Hysteria2:
-                    server.StreamSecurity = Constants.StreamSecurity;
-                    extra.Obfs = Constants.None;
-                    break;
-                case EConfigType.Shadowsocks:
-                    extra.SsMethod = Constants.SsCiphers[0];
-                    break;
-            }
-        }
 
         var fields = Stack();
         var apply = new List<Func<string?>>();
@@ -271,28 +242,20 @@ internal static class NodeEditor
                 Options(T("Encryption", "加密"), extra.SsMethod, s => extra.SsMethod = s, Constants.SsCiphers.ToArray());
                 var originalPlugin = extra.SsPlugin ?? "";
                 var originalPluginOptions = extra.SsPluginOptions ?? "";
-                void ResetSsTransport()
-                {
-                    server.Network = Constants.DefaultNetwork;
-                    server.HeaderType = "";
-                    server.RequestHost = "";
-                    server.Path = "";
-                    server.StreamSecurity = Constants.None;
-                }
                 var ssPlugin = Options(T("Plugin", "插件"), originalPlugin, s =>
                 {
                     if (s == originalPlugin) return;
                     extra.SsPlugin = s;
                     extra.SsPluginOptions = "";
                     if (s != "v2ray-plugin") server.AllowInsecure = null;
-                    ResetSsTransport();
+                    ServerEditorHelper.ResetShadowsocksTransport(server);
                 }, "", "obfs-local", "v2ray-plugin");
                 var ssPluginOptions = Field(T("Plugin options", "插件参数"), originalPluginOptions, s =>
                 {
                     var selectedPlugin = ssPlugin.SelectedItem as string ?? "";
                     if (selectedPlugin == originalPlugin && s == originalPluginOptions.Trim()) return;
                     extra.SsPluginOptions = s;
-                    ResetSsTransport();
+                    ServerEditorHelper.ResetShadowsocksTransport(server);
                 });
                 var ssAllowInsecure = Toggle(T("Allow insecure", "允许不安全连接"), server.AllowInsecure, b => server.AllowInsecure = b, threeState: true);
                 Toggle("UDP over TCP", extra.Uot, b => extra.Uot = b);
@@ -547,31 +510,10 @@ internal static class NodeEditor
                 if (read() is { } error)
                     return error;
 
-            if (protocol == EConfigType.Hysteria2 && string.IsNullOrWhiteSpace(extra.Ports))
-                extra.HopInterval = "";
-            if (protocol == EConfigType.VLESS && vlessFlowBox is { Visibility: not Visibility.Visible })
-                extra.Flow = "";
-            if (protocol is EConfigType.VLESS or EConfigType.VMess or EConfigType.Trojan && server.GetNetwork() != nameof(ETransport.xhttp))
-                server.Extra = "";
-            if (protocol is not (EConfigType.WireGuard or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks) &&
-                server.StreamSecurity != Constants.StreamSecurity)
-            {
-                server.Cert = "";
-                server.CertSha = "";
-                server.EchConfigList = "";
-                server.EchForceQuery = "";
-            }
-            if (protocol == EConfigType.HTTP && server.StreamSecurity == Constants.None)
-            {
-                server.Sni = "";
-                server.Alpn = "";
-                server.Fingerprint = "";
-                server.AllowInsecure = null;
-            }
-
-            if (ServerValidator.Validate(server) is { } validationError)
-                return i18N.Translate(validationError);
-            return util.CheckServer(server) ? null : T("Check the required protocol fields.", "请检查该协议的必填字段。");
+            ServerEditorHelper.PrepareForSave(server);
+            return ServerEditorHelper.ValidateForSave(server, util) is { } validationError
+                ? i18N.Translate(validationError)
+                : null;
         }))
             return false;
 

@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Netch\Netch.csproj" AdditionalProperties="SelfContained=false" />
+    <ProjectReference Include="..\Netch.Core\Netch.Core.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="4.5.3" />
     <PackageReference Include="MSTest.TestFramework" Version="4.5.3" />

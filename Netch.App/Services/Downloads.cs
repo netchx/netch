@@ -339,9 +339,7 @@ internal static partial class Downloads
             var server = MainController.Socks5Server;
             if (server == null)
                 throw new InvalidOperationException(Helpers.Ui.T("Connect a scene to use the current proxy.", "请先连接场景，再通过当前代理下载。"));
-            var uri = new UriBuilder("socks5", server.Address is "0.0.0.0" or "::" ? "127.0.0.1" : server.Address, server.Port);
-            if (server.Auth()) { uri.UserName = server.Username; uri.Password = server.Password; }
-            proxy = uri.Uri.AbsoluteUri;
+            proxy = WebUtil.BuildSocks5ProxyUri(server);
         }
         return WebUtil.CreateHttpClient(proxyServer: proxy);
     }

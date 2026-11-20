@@ -4,13 +4,13 @@ description: >-
   Use this skill when updating Netch's bundled proxy/auxiliary cores (mihomo,
   sing-box with libcronet.dll, xray, tun2socks, aiodns, pcap2socks, wintun),
   updating or adding proxy protocol parameters across URI/Clash parsers,
-  validators, core config generators, WinUI and WinForms node editors, i18n,
-  and unit tests, or packaging releases.
+  validators, core config generators, WinUI node editor and shared editor
+  helpers, i18n, and unit tests, or packaging releases.
 ---
 
-# Netch Core, Protocol, Parser & Dual-UI Update Runbook
+# Netch Core, Protocol, Parser & WinUI Update Runbook
 
-Keep this repo synchronized across **core binaries**, **Netch.Core** (models, validators, URI/Clash parsers, core routing & config builders, `zh-CN` i18n), **WinUI** (`Netch.App`), **WinForms** (`Netch`), and **Tests**.
+Keep this repo synchronized across **core binaries**, **Netch.Core** (models, validators, URI/Clash parsers, core routing & config builders, `ServerEditorHelper`, `zh-CN` i18n), **WinUI** (`Netch.App`), and **Tests**.
 
 Refer to [references/protocol-matrix.md](./references/protocol-matrix.md) for the complete 13-protocol file map, `CoreSelector` routing table, and new-protocol creation checklist.
 
@@ -37,7 +37,7 @@ Refer to [references/protocol-matrix.md](./references/protocol-matrix.md) for th
 2. **`sing-box` + Naive `libcronet.dll`**:
    - Replace `sing-box.exe`, `libcronet.dll`, and `LICENSE` together in `Storage/sing_box/` from the same official release archive. Never ship `sing-box.exe` without sibling `libcronet.dll`.
    - Verify `Netch.App/Services/Downloads.cs` (`Cores` asset filename pattern, version CLI argument, and `CoreFiles` copying sibling `libcronet.dll`).
-   - Check version-specific error hints or guards in [SingboxController.cs](../../../Netch.Core/Servers/Singbox/SingboxController.cs) (e.g., cert pin or MASQUE support messages) and [SingboxServerForm.cs](../../../Netch/Forms/ServerForms/SingboxServerForm.cs).
+   - Check version-specific error hints or guards in [SingboxController.cs](../../../Netch.Core/Servers/Singbox/SingboxController.cs) (e.g., cert pin or MASQUE support messages).
 3. **`aiodns`**:
    - Edit [Other/aiodns/main.go](../../../Other/aiodns/main.go) / `go.mod` and rebuild via `& .\Other\aiodns\build.ps1` (requires Go + MinGW UCRT64 GCC for `CGO_ENABLED=1`).
 4. **Upstream schema & metadata audit**:
@@ -49,15 +49,16 @@ Refer to [references/protocol-matrix.md](./references/protocol-matrix.md) for th
 
 ## 2. Updating Protocol Parameters (End-to-End Checklist)
 
-Follow this order whenever adding or changing a protocol field so import, export, routing, validation, and both UIs stay aligned:
+Follow this order whenever adding or changing a protocol field so import, export, routing, validation, and WinUI stay aligned:
 
 1. **Model & Constants**:
    - Add or update properties on `Server` / `ProtocolExtraItem` in [Server.cs](../../../Netch.Core/Models/Server.cs) or the protocol subclass in `Netch.Core/Servers/<Proto>/`.
    - Add option lists (ciphers, modes, congestion controls) to [Constants.cs](../../../Netch.Core/Constants.cs).
    - **Never renumber** existing members in [EConfigType.cs](../../../Netch.Core/Enums/EConfigType.cs); only append at the end to preserve user `settings.json`.
-2. **Validation**:
-   - Add field rules to `ServerValidator.Validate` in [ServerValidator.cs](../../../Netch.Core/Utils/ServerValidator.cs) so WinUI `NodeEditor` and parsers share the exact same checks.
+2. **Validation & Normalization**:
+   - Add field rules to `ServerValidator.Validate` in [ServerValidator.cs](../../../Netch.Core/Utils/ServerValidator.cs) so `ServerEditorHelper`, `NodeEditor`, and parsers share the exact same checks.
    - Re-use those helpers in each protocol's `CheckServer(Server)` method.
+   - Put editor defaults, save-time field cleanup/normalization, and `ValidateForSave` in [ServerEditorHelper.cs](../../../Netch.Core/Utils/ServerEditorHelper.cs).
 3. **URI Import & Export**:
    - Shared TLS / transport / query helpers live in [ServerUtilBase.cs](../../../Netch.Core/Services/ServerUtilBase.cs) and [SingboxUtilBase.cs](../../../Netch.Core/Servers/Singbox/SingboxUtilBase.cs).
    - Update `ParseUri` and `GetShareLink` in `Netch.Core/Servers/<Proto>/*Util.cs` (and [VmessQRCode.cs](../../../Netch.Core/Servers/V2ray/ShareModels/VmessQRCode.cs) for VMess JSON).
@@ -69,24 +70,21 @@ Follow this order whenever adding or changing a protocol field so import, export
    - Update routing predicates (`UsesXhttp`, `CanUseMihomoXhttp`, `UsesSingbox`) in [CoreSelector.cs](../../../Netch.Core/Servers/V2ray/CoreSelector.cs) if a parameter determines which core runs the node.
    - Wire the parameter into [MihomoConfig.cs](../../../Netch.Core/Servers/Mihomo/MihomoConfig.cs), [SingboxController.cs](../../../Netch.Core/Servers/Singbox/SingboxController.cs), and/or [V2rayConfigUtils.cs](../../../Netch.Core/Servers/V2ray/V2rayConfigUtils.cs). Throw `MessageException` with a translated message when a core cannot support a parameter combination instead of silently ignoring it.
 6. **WinUI Editor (`Netch.App`)**:
-   - Wire the control, visibility condition, reset/cleanup logic on save, and defaults in [NodeEditor.cs](../../../Netch.App/Dialogs/NodeEditor.cs).
-   - Keep clipboard/file import entrypoints in sync in [NodesPage.xaml.cs](../../../Netch.App/Pages/NodesPage.xaml.cs).
-7. **WinForms Editor (`Netch`)**:
-   - Update shared transport/security fields in [ServerForm.cs](../../../Netch/Forms/ServerForm.cs), protocol-specific forms in `Netch/Forms/ServerForms/*.cs` (and `ShadowsocksREditor` in [ServerEditors.cs](../../../Netch/Forms/ServerEditors.cs)), or [MainForm.cs](../../../Netch/Forms/MainForm.cs).
-8. **Localization & Unit Tests**:
+   - Wire the control, visibility condition, and `ServerEditorHelper` integration in [NodeEditor.cs](../../../Netch.App/Dialogs/NodeEditor.cs).
+   - Keep clipboard/file import and subscription entrypoints in sync in [NodesPage.xaml.cs](../../../Netch.App/Pages/NodesPage.xaml.cs).
+7. **Localization & Unit Tests**:
    - Add every new label and validation string to [Netch.Core/Resources/zh-CN](../../../Netch.Core/Resources/zh-CN) (and update `Storage/i18n/*` if needed).
-   - Add round-trip, negative-input, Clash YAML, `ServerValidator`, `CoreSelector`, core config, WinForms editor, and `zh-CN` coverage in `Tests/`.
+   - Add round-trip, negative-input, Clash YAML, `ServerValidator`, `CoreSelector`, core config, `ServerEditorHelper` (`Tests/NodeEditors.cs`), and `zh-CN` coverage in `Tests/`.
 
 ---
 
 ## 3. Verification & Packaging Gate
 
-Run tests and both frontend builds after every change:
+Run tests and the WinUI build after every change:
 
 ```pwsh
 dotnet test Tests/Tests.csproj -p:Platform=x64 --nologo
 dotnet build Netch.App/Netch.App.csproj -p:Platform=x64 --nologo -v:minimal
-dotnet build Netch/Netch.csproj -p:Platform=x64 --nologo -v:minimal
 ```
 
 Validate [Netch.Core/Resources/zh-CN](../../../Netch.Core/Resources/zh-CN) with case-sensitive JSON (never PowerShell `ConvertFrom-Json`, because `zh-CN` has legacy case-variant keys like `OBFS` / `Obfs`):
@@ -97,8 +95,7 @@ Validate [Netch.Core/Resources/zh-CN](../../../Netch.Core/Resources/zh-CN) with 
 
 When preparing portable packages (see repo root `AGENTS.md` and [.github/workflows/release.yml](../../../.github/workflows/release.yml)):
 
-- **WinUI package**: `./build.ps1 -Configuration Release -OutputPath release` -> verify root `Netch.App.exe`, sibling `bin/sing_box/libcronet.dll`, `bin/`, `mode/`, `logging/`, `data/`, and `licenses/Components.md`.
-- **WinForms package**: `./build.ps1 -Configuration Release -OutputPath release-winforms -Frontend WinForms` -> root `Netch.exe`.
+- **WinUI package**: `./build.ps1 -Configuration Release -OutputPath release` -> verify root `Netch.App.exe`, sibling `bin/sing_box/libcronet.dll`, `bin/`, `mode/`, `logging/`, `data/`, and `licenses/` (`LICENSE`, `NOTICE.txt`, `Components.md`).
 
 ---
 
@@ -108,6 +105,5 @@ When preparing portable packages (see repo root `AGENTS.md` and [.github/workflo
 - **Single URL-decode**: `Utils.ParseQueryString` already splits with `Split('=', 2)` and decodes keys/values once; never call `UrlDecode` again on values returned by `ParseQueryString`.
 - **HTTP `Netch://` export invariant**: `HttpUtil.GetShareLink` intentionally returns `string.Empty` so `ShareLink.GetShareLink` falls back to `Netch://` (`Tests/Scenes.cs`).
 - **Clash SS UDP-over-TCP**: `udp-over-tcp: true` without `udp-over-tcp-version: 2` must skip the node (`Tests/ClashImport.cs`).
-- **WinForms fixed dialog size**: `ServerForm` must not resize `ClientSize` inside `UpdateFields` (`Tests/NodeEditors.cs`).
 - **WinUI `ComboBox` selection vs clearing**: Ensure empty-by-default fields allow resetting, while non-empty defaults (`"auto"`, `"none"`, `"bbr"`) stay selected when creating new nodes (`NodeEditor.Options`).
-- **Test assembly boundary**: `Tests.csproj` references `Netch.csproj` (WinForms + `Netch.Core`), not `Netch.App.csproj`. Keep shared validation and parsing in `Netch.Core` so tests exercise the same code used by WinUI.
+- **Test assembly boundary**: `Tests.csproj` references `Netch.Core.csproj`, not `Netch.App.csproj`. Keep shared validation, parsing, and `ServerEditorHelper` normalization/defaults in `Netch.Core` so tests exercise the same code used by WinUI.

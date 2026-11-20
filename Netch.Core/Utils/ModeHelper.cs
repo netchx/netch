@@ -135,7 +135,9 @@ public static class ModeHelper
             Mode? includeMode = null;
             if (l.StartsWith("#include"))
             {
-                var relativePath = l["#include ".Length..].Replace("<", "").Replace(">", "").Replace(".h", ".txt").Trim();
+                var relativePath = l["#include ".Length..].Replace("<", "").Replace(">", "").Trim();
+                if (relativePath.EndsWith(".h", StringComparison.OrdinalIgnoreCase))
+                    relativePath = relativePath[..^2] + ".txt";
                 includeMode = ReadTxtMode(ModeService.Instance.GetFullPath(relativePath), includes);
             }
 

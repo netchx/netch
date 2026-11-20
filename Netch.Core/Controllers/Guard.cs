@@ -17,7 +17,7 @@ public abstract class Guard
     private TaskCompletionSource<bool>? _startResult;
     private bool _started;
 
-    /// <param name="mainFile">application path relative of Netch\bin</param>
+    /// <param name="mainFile">application path relative to bin</param>
     /// <param name="redirectOutput"></param>
     /// <param name="encoding">application output encode</param>
     protected Guard(string mainFile, bool redirectOutput = true, Encoding? encoding = null)

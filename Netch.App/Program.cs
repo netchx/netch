@@ -12,7 +12,7 @@ namespace Netch.App;
 
 public static class Program
 {
-    /// <summary>Same key as the WinForms front end, so the two never run at the same time.</summary>
+    /// <summary>Single-instance mutex key so only one Netch instance runs at a time.</summary>
     public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
 #pragma warning disable VSTHRD002 // Main runs once; blocking here is intended.

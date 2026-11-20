@@ -4,23 +4,23 @@
 
 `EConfigType.SSH` in [EConfigType.cs](../../../../Netch.Core/Enums/EConfigType.cs) is a legacy enum placeholder only (no util, editor, or core implementation).
 
-| Protocol (`EConfigType`) | Model Class | Util Class (`*Util.cs`) | Accepted URI Schemes & Default Port | Clash YAML `type` | Cores (`CoreSelector`) | WinForms Editor |
-| --- | --- | --- | --- | --- | --- | --- |
-| `VLESS` | `VLESSServer` | `VLESSUtil` | `vless://` (explicit port req.) | `vless` | Mihomo, Xray (`xhttp`), sing-box (`quic` / PEM cert) | `VLESSForm` |
-| `VMess` | `VMessServer` | `VMessUtil` | `vmess://` (JSON & std URI, explicit port req.) | `vmess` | Mihomo, Xray (`xhttp`), sing-box (`quic` / plain `h2` / PEM cert) | `VMessForm` |
-| `Trojan` | `TrojanServer` | `TrojanUtil` | `trojan://` (443) | `trojan` | Mihomo, Xray (`xhttp`), sing-box (`h2` / `tls:false` / `quic` / PEM cert) | `TrojanForm` |
-| `Shadowsocks` | `ShadowsocksServer` | `ShadowsocksUtil` | `ss://` (SIP002 & legacy), `ssd://` (explicit port req.) | `ss` | Mihomo, Xray (`xhttp`), sing-box (`mode=quic` / PEM cert) | `ShadowsocksForm` |
-| `ShadowsocksR` | `ShadowsocksRServer` | `ShadowsocksRUtil` | `ssr://` | `ssr` | Mihomo | `ShadowsocksREditor` (`ServerEditors.cs`) |
-| `SOCKS` | `SocksServer` | `SocksUtil` | `socks://`, `socks5://`, `socks5h://`, `tg://socks?`, `https://t.me/socks?` | `socks5` | Mihomo, sing-box (`uot: true`) | `SocksForm` |
-| `HTTP` | `HttpServer` | `HttpUtil` | `http://` (80), `https://` (443); exports `Netch://` | `http` | Mihomo, sing-box (multi-value headers / ALPN / fp / PEM cert) | `HttpForm` |
-| `Hysteria2` | `Hysteria2Server` | `Hysteria2Util` | `hysteria2://`, `hy2://` (443; host `mport` supported) | `hysteria2` | Mihomo, sing-box (`hop-interval < 5s` / PEM cert) | `Hysteria2Form` |
-| `TUIC` | `TUICServer` | `TUICUtil` | `tuic://` (explicit port req.) | `tuic` | Mihomo, sing-box (PEM cert) | `SingboxServerForm` |
-| `AnyTLS` | `AnyTLSServer` | `AnyTLSUtil` | `anytls://` (443) | `anytls` | Mihomo, sing-box (PEM cert) | `SingboxServerForm` |
-| `WireGuard` | `WireGuardServer` | `WireGuardUtil` | `wireguard://`, `wg://` (explicit port req.) | `wireguard` | Mihomo, sing-box (>1 address in same IP family) | `WireGuardForm` |
-| `Naive` | `NaiveServer` | `NaiveUtil` | `naive://`, `naive+https://`, `naive+quic://` (443) | `naive` | sing-box (+ `libcronet.dll`) | `SingboxServerForm` |
-| `MASQUE` | `MASQUEServer` | `MASQUEUtil` | `masque://` (443) | `masque` | sing-box (`>= 1.15.0-alpha.7` CONNECT-IP; bundled 1.14.4 lacks it) | `SingboxServerForm` |
+| Protocol (`EConfigType`) | Model Class | Util Class (`*Util.cs`) | Accepted URI Schemes & Default Port | Clash YAML `type` | Cores (`CoreSelector`) |
+| --- | --- | --- | --- | --- | --- |
+| `VLESS` | `VLESSServer` | `VLESSUtil` | `vless://` (explicit port req.) | `vless` | Mihomo, Xray (`xhttp`), sing-box (`quic` / PEM cert) |
+| `VMess` | `VMessServer` | `VMessUtil` | `vmess://` (JSON & std URI, explicit port req.) | `vmess` | Mihomo, Xray (`xhttp`), sing-box (`quic` / plain `h2` / PEM cert) |
+| `Trojan` | `TrojanServer` | `TrojanUtil` | `trojan://` (443) | `trojan` | Mihomo, Xray (`xhttp`), sing-box (`h2` / `tls:false` / `quic` / PEM cert) |
+| `Shadowsocks` | `ShadowsocksServer` | `ShadowsocksUtil` | `ss://` (SIP002 & legacy), `ssd://` (explicit port req.) | `ss` | Mihomo, Xray (`xhttp`), sing-box (`mode=quic` / PEM cert) |
+| `ShadowsocksR` | `ShadowsocksRServer` | `ShadowsocksRUtil` | `ssr://` | `ssr` | Mihomo |
+| `SOCKS` | `SocksServer` | `SocksUtil` | `socks://`, `socks5://`, `socks5h://`, `tg://socks?`, `https://t.me/socks?` | `socks5` | Mihomo, sing-box (`uot: true`) |
+| `HTTP` | `HttpServer` | `HttpUtil` | `http://` (80), `https://` (443); exports `Netch://` | `http` | Mihomo, sing-box (multi-value headers / ALPN / fp / PEM cert) |
+| `Hysteria2` | `Hysteria2Server` | `Hysteria2Util` | `hysteria2://`, `hy2://` (443; host `mport` supported) | `hysteria2` | Mihomo, sing-box (`hop-interval < 5s` / PEM cert) |
+| `TUIC` | `TUICServer` | `TUICUtil` | `tuic://` (explicit port req.) | `tuic` | Mihomo, sing-box (PEM cert) |
+| `AnyTLS` | `AnyTLSServer` | `AnyTLSUtil` | `anytls://` (443) | `anytls` | Mihomo, sing-box (PEM cert) |
+| `WireGuard` | `WireGuardServer` | `WireGuardUtil` | `wireguard://`, `wg://` (explicit port req.) | `wireguard` | Mihomo, sing-box (>1 address in same IP family) |
+| `Naive` | `NaiveServer` | `NaiveUtil` | `naive://`, `naive+https://`, `naive+quic://` (443) | `naive` | sing-box (+ `libcronet.dll`) |
+| `MASQUE` | `MASQUEServer` | `MASQUEUtil` | `masque://` (443) | `masque` | sing-box (`>= 1.15.0-alpha.7` CONNECT-IP; bundled 1.14.4 lacks it) |
 
-- **WinUI Editor**: all 13 protocols are edited dynamically inside `NodeEditor.EditAsync` in [NodeEditor.cs](../../../../Netch.App/Dialogs/NodeEditor.cs).
+- **WinUI Editor**: all 13 protocols are edited dynamically inside `NodeEditor.EditAsync` in [NodeEditor.cs](../../../../Netch.App/Dialogs/NodeEditor.cs), with shared defaults, normalization, and validation in [ServerEditorHelper.cs](../../../../Netch.Core/Utils/ServerEditorHelper.cs).
 
 ---
 
@@ -53,10 +53,9 @@ Checked in [CoreSelector.cs](../../../../Netch.Core/Servers/V2ray/CoreSelector.c
 3. **Constants**: Add scheme prefix to `Constants.ProtocolShares` (plus any valid option lists) in [Constants.cs](../../../../Netch.Core/Constants.cs).
 4. **Util**: Create `Netch.Core/Servers/<Proto>/<Proto>Util.cs` implementing `IServerUtil` (`ServerHelper` auto-discovers exported `IServerUtil` types; set `Priority` for menu ordering).
 5. **Display Name / Scheme Alias**: Update `ServerHelper.GetDisplayName` in [ServerHelper.cs](../../../../Netch.Core/Utils/ServerHelper.cs) and special URI handling in [ShareLink.cs](../../../../Netch.Core/Utils/ShareLink.cs) if needed.
-6. **Validation**: Add protocol rules in [ServerValidator.cs](../../../../Netch.Core/Utils/ServerValidator.cs) and call from `CheckServer`.
+6. **Validation & Normalization**: Add protocol rules in [ServerValidator.cs](../../../../Netch.Core/Utils/ServerValidator.cs), call from `CheckServer`, and update defaults/cleanup in [ServerEditorHelper.cs](../../../../Netch.Core/Utils/ServerEditorHelper.cs).
 7. **Clash YAML**: Add `type` branch and option extraction in [ClashProxyList.cs](../../../../Netch.Core/Utils/ClashProxyList.cs).
 8. **Core Selection & Config**: Update [CoreSelector.cs](../../../../Netch.Core/Servers/V2ray/CoreSelector.cs) and add builder support in [MihomoConfig.cs](../../../../Netch.Core/Servers/Mihomo/MihomoConfig.cs), [SingboxController.cs](../../../../Netch.Core/Servers/Singbox/SingboxController.cs), and/or [V2rayConfigUtils.cs](../../../../Netch.Core/Servers/V2ray/V2rayConfigUtils.cs).
-9. **WinForms Editor**: Create `Netch/Forms/ServerForms/<Proto>Form.cs` (or add a case to `SingboxServerForm` / `ServerEditors.cs`) and wire `ServerEditors.Show` in [ServerEditors.cs](../../../../Netch/Forms/ServerEditors.cs).
-10. **WinUI Editor**: Add protocol controls, defaults, cleanup, and TLS/transport wiring in [NodeEditor.cs](../../../../Netch.App/Dialogs/NodeEditor.cs).
-11. **Localization**: Translate menu/label/validation strings in [Netch.Core/Resources/zh-CN](../../../../Netch.Core/Resources/zh-CN).
-12. **Tests**: Update `ServerMenuHasEveryProtocolAtTheFirstLevel` & `EditorSavesParametersUsedByItsCore` in [Tests/NodeEditors.cs](../../../../Tests/NodeEditors.cs), plus URI round-trip, Clash YAML, `ServerValidator`, `CoreSelector`, config builder, and `zh-CN` tests.
+9. **WinUI Editor**: Add protocol controls, defaults, cleanup, and TLS/transport wiring in [NodeEditor.cs](../../../../Netch.App/Dialogs/NodeEditor.cs).
+10. **Localization**: Translate menu/label/validation strings in [Netch.Core/Resources/zh-CN](../../../../Netch.Core/Resources/zh-CN).
+11. **Tests**: Update `AllThirteenProtocolsAreRegisteredWithDisplayNamesAndDefaults` & `EditorSavesParametersUsedByItsCore` in [Tests/NodeEditors.cs](../../../../Tests/NodeEditors.cs), plus URI round-trip, Clash YAML, `ServerValidator`, `CoreSelector`, config builder, and `zh-CN` tests.

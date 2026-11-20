@@ -23,18 +23,9 @@ jobs:
       - name: Checksum
         shell: pwsh
         run: |
-          echo "NETCH_DOTNET_SDK_VERSION=$(dotnet --version)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "SOURCE_NETCH_SHA256=$(.\sha256.ps1 .\Netch)$(.\sha256.ps1 .\Netch.Core)$(.\sha256.ps1 .\Storage\i18n)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_OTHER_SHA256=$(.\sha256.ps1 .\Other)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_REDIRECTOR_SHA256=$(.\sha256.ps1 .\Redirector)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-
-      - name: Cache Netch
-        uses: actions/cache@v6.1.0
-        with:
-          key: Netch-windows-2025-dotnet-${{ env.NETCH_DOTNET_SDK_VERSION }}-Netch-${{ env.SOURCE_NETCH_SHA256 }}
-          path: |
-            .\Netch\bin\publish
 
       - name: Cache Other
         uses: actions/cache@v6.1.0
@@ -93,23 +84,14 @@ jobs:
           if ($env:MSYS2_LOCATION) {
             $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
           }
-          .\build.ps1 -Configuration Release -OutputPath release -Frontend WinForms -UseCache
-          if ($LASTEXITCODE -ne 0) { throw 'WinForms build failed.' }
-          .\build.ps1 -Configuration Release -OutputPath release-winui -UseCache
+          .\build.ps1 -Configuration Release -OutputPath release -UseCache
           if ($LASTEXITCODE -ne 0) { throw 'WinUI build failed.' }
 
       - name: Package
         shell: pwsh
         run: |
-          $name = "Netch-${{ github.ref_name }}-win-x64"
-          $package = Join-Path $PWD 'release-package/Netch'
-          New-Item -ItemType Directory -Path $package -Force | Out-Null
-          Get-ChildItem -LiteralPath release -Force | Where-Object Name -NotIn 'data','logging' |
-            Copy-Item -Destination $package -Recurse
-          Compress-Archive -Path $package -DestinationPath "$name.zip" -CompressionLevel Optimal
-          Copy-Item -LiteralPath (Join-Path $package 'Netch.exe') -Destination "$name.exe"
           $winui = "Netch-${{ github.ref_name }}-winui-x64"
-          $winuiPackage = Join-Path $PWD 'release-winui'
+          $winuiPackage = Join-Path $PWD 'release'
           $modeRoot = Join-Path $winuiPackage 'mode'
           $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
           $ids = @($modes.FullName | git hash-object --no-filters --stdin-paths)
@@ -121,7 +103,6 @@ jobs:
           @{ Source='netchx/netch/main/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
             Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
           [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, (Join-Path $PWD "$winui.zip"))
-          echo "PACKAGE_NAME=$name" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "WINUI_PACKAGE_NAME=$winui" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Release notes
@@ -129,7 +110,6 @@ jobs:
         run: |
           # Release body = docs/release-notes/<version>.md (Markdown) + download
           # instructions + SHA256 table. Tag v2.0.1 reads 2.0.1.md.
-          $name = $Env:PACKAGE_NAME
           $winui = $Env:WINUI_PACKAGE_NAME
           $version = '${{ github.ref_name }}'.TrimStart('v', 'V')
           $notesFile = Join-Path 'docs\release-notes' "$version.md"
@@ -142,28 +122,23 @@ jobs:
             $notes = "## 更新内容`n`n详见 [README 更新日志](https://github.com/${{ github.repository }}#更新日志)。"
           }
 
-          $zipHash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
-          $exeHash = (Get-FileHash "$name.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $winuiHash = (Get-FileHash "$winui.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
 
           $lines = @(
             $notes
             ''
             '## 下载与启动'
             ''
-            "1. 下载 ``$name.zip``，解压整个压缩包并保持 ``Netch`` 文件夹内的目录结构。"
-            '2. 右键 `Netch.exe`，选择“以管理员身份运行”。'
+            "1. 下载 ``$winui.zip``，完整解压并保留压缩包内的目录结构（包括 ``bin/``、``mode/``、``logging/``、``data/`` 与 ``licenses/``）。"
+            '2. 右键 `Netch.App.exe`，选择“以管理员身份运行”。'
             ''
-            "``$name.exe`` 是单文件程序，只用于替换已有安装中的 ``Netch.exe``；首次使用请下载完整压缩包，其中包含代理核心、tun2socks、Wintun、路由组件和模式文件。"
-            ''
-            "WinUI 版请下载 ``$winui.zip``，完整解压后启动 ``Netch.App.exe``。"
-            '从要求外置运行时 DLL 的 WinUI 目录版升级时，请手动解压便携包。'
+            '从要求外置运行时 DLL 的旧版目录版升级时，请手动解压便携包。'
             ''
             '## SHA256'
             ''
             '| 文件 | SHA256 |'
             '| --- | --- |'
-            "| ``$name.zip`` | ``$zipHash`` |"
-            "| ``$name.exe`` | ``$exeHash`` |"
+            "| ``$winui.zip`` | ``$winuiHash`` |"
             ''
             '[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)'
           )
@@ -180,7 +155,4 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
           draft: false
           body_path: release-notes.md
-          files: |
-            ${{ env.PACKAGE_NAME }}.zip
-            ${{ env.PACKAGE_NAME }}.exe
-            ${{ env.WINUI_PACKAGE_NAME }}.zip
+          files: ${{ env.WINUI_PACKAGE_NAME }}.zip

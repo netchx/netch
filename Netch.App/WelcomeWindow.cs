@@ -170,7 +170,7 @@ internal sealed class WelcomeWindow : Window
         {
             Height = 33,
             Content = T("+ Add manually", "＋ 手动添加"), HorizontalAlignment = HorizontalAlignment.Stretch,
-            Flyout = Menu(ServerHelper.ServerUtilDictionary.Values.OrderBy(util => util.Priority).Select(util =>
+            Flyout = Menu(ServerEditorHelper.GetOrderedProtocols().Select(util =>
                 (ServerHelper.GetDisplayName(util), (Action)(async () =>
                 {
                     if (await NodeEditor.EditAsync(_root.XamlRoot, null, util.TypeName))

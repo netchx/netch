@@ -25,7 +25,7 @@ public static class Global
 
     static Global()
     {
-        NetchExecutable = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Netch.exe");
+        NetchExecutable = Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Netch.App.exe");
         // A WinUI single-file bundle extracts its runtime to AppContext.BaseDirectory.
         NetchDir = Path.TrimEndingDirectorySeparator(Path.GetDirectoryName(NetchExecutable) ?? AppContext.BaseDirectory);
     }

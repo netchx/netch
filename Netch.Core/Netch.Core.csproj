@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- UI-agnostic core shared by the WinForms front end (Netch) and the WinUI 3 front end.
-       Must not reference System.Windows.Forms or any WinUI type; report to the UI through
+  <!-- UI-agnostic core used by the WinUI 3 front end (Netch.App) and tests.
+       Must not reference any UI framework types; report to the UI through
        Netch.Services.AppEvents instead. -->
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -82,7 +82,6 @@
     <EmbeddedResource Include="Sample\SampleHttpRequest" />
     <EmbeddedResource Include="Resources\zh-CN" LogicalName="Netch.Resources.zh-CN" />
     <EmbeddedResource Include="..\Storage\i18n\*" LogicalName="Netch.Resources.%(Filename)" />
-    <EmbeddedResource Include="Resources\7za.exe" LogicalName="Netch.Resources.7za.exe" />
     <None Remove="NativeMethods.txt" />
   </ItemGroup>
 
