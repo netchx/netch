@@ -25,10 +25,6 @@ public sealed partial class DownloadsPage : Page
     private readonly List<(RuleChange Rule, CheckBox Check, ComboBox? Conflict)> _selection = [];
     private readonly Dictionary<string, (bool Checked, int Action)> _selectedRules = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<RuleChange, Task<(string[] Added, string[] Removed)>> _rulePreviews = [];
-    private CancellationTokenSource? _download;
-    private TaskCompletionSource? _paused;
-    private CorePackage? _activeCore;
-    private TransferProgress _transfer;
     private ProgressBar? _progress;
     private TextBlock? _progressLabel;
     private bool _present;
@@ -64,8 +60,9 @@ public sealed partial class DownloadsPage : Page
 
     private void RefreshCategories()
     {
-        var pending = AvailableCores().Count(item => item.Core != _activeCore);
-        var active = _download == null ? 0 : 1;
+        var transfer = Downloads.ActiveTransfer;
+        var pending = AvailableCores().Count(item => item.Core != transfer?.Core);
+        var active = transfer == null ? 0 : 1;
         _coreCount.Text = (pending + active).ToString();
         _coreDetail.Text = active == 0 ? TF("{0} updates", "{0} 个更新", pending)
             : TF("{0} updates · {1} downloading", "{0} 个更新 · {1} 个下载中", pending, active);
@@ -84,6 +81,7 @@ public sealed partial class DownloadsPage : Page
     {
         _present = true;
         Downloads.Changed += Refresh;
+        Downloads.ProgressChanged += UpdateProgress;
         if (e.Parameter is true) _tabs.SelectedIndex = 1;
         else if (e.Parameter is "check") _ = Downloads.CheckAsync();
         _ = Downloads.PopulateInstalledAsync();
@@ -94,6 +92,9 @@ public sealed partial class DownloadsPage : Page
     {
         _present = false;
         Downloads.Changed -= Refresh;
+        Downloads.ProgressChanged -= UpdateProgress;
+        _progress = null;
+        _progressLabel = null;
     }
 
     private void Refresh()
@@ -102,7 +103,7 @@ public sealed partial class DownloadsPage : Page
             return;
         _checked.Text = Downloads.Checking ? T("Checking…", "正在检查…")
             : Downloads.LastChecked is { } time ? TF("Last checked {0:HH:mm}", "上次检查 {0:HH:mm}", time) : "";
-        _check.IsEnabled = !Downloads.Checking && !Downloads.Applying && _download == null;
+        _check.IsEnabled = !Downloads.Checking && !Downloads.Applying && Downloads.ActiveTransfer == null;
         var reasons = _tabs.SelectedIndex switch
         {
             0 => Downloads.Errors.Where(error => error.Key != "Rules"),
@@ -135,7 +136,7 @@ public sealed partial class DownloadsPage : Page
         var count = isRules ? _selection.Count(entry => entry.Check.IsChecked == true && entry.Conflict?.SelectedIndex != 0)
             : AvailableCores().Count();
         _apply.Visibility = _tabs.SelectedIndex == 3 ? Visibility.Collapsed : Visibility.Visible;
-        _apply.IsEnabled = count > 0 && !Downloads.Checking && !Downloads.Applying && _download == null;
+        _apply.IsEnabled = count > 0 && !Downloads.Checking && !Downloads.Applying && Downloads.ActiveTransfer == null;
         _apply.Content = isRules ? TF("Sync selected ({0})", "同步所选 ({0})", count) : TF("Update all ({0})", "全部更新 ({0})", count);
     }
 
@@ -146,6 +147,8 @@ public sealed partial class DownloadsPage : Page
 
     private FrameworkElement CoresPane()
     {
+        var transfer = Downloads.ActiveTransfer;
+        var canUpdate = transfer == null && !Downloads.Checking && !Downloads.Applying;
         var rows = new StackPanel
         {
             Children = { new Border
@@ -185,8 +188,8 @@ public sealed partial class DownloadsPage : Page
                     detail.Children.Add(target);
                 }
                 var button = AsyncButton(current.Length == 0 ? T("Download", "下载") : T("Update", "更新"),
-                    () => DownloadAsync(core, update));
-                button.IsEnabled = !Downloads.Checking && !Downloads.Applying;
+                    () => Downloads.InstallAsync(core, update));
+                button.IsEnabled = canUpdate;
                 detail.Children.Add(button);
             }
             else if (next != null && string.Equals(next.Version, current, StringComparison.OrdinalIgnoreCase)
@@ -201,15 +204,15 @@ public sealed partial class DownloadsPage : Page
             detail.Children.Add(new Button
             {
                 Content = "⋯", Style = Resource<Style>("NetchInlineButton"),
-                Flyout = Menu(options.ToArray()), IsEnabled = !Downloads.Applying
+                Flyout = Menu(options.ToArray()), IsEnabled = canUpdate
             });
-            if (_activeCore == core)
+            if (transfer?.Core == core)
             {
-                detail = Row(ProgressView(), PauseButton());
+                detail = Row(ProgressView(), PauseButton(transfer));
             }
             var role = core.Name switch
             {
-                "sing-box" => T("Primary core", "主核心"),
+                "sing-box" => T("Extended protocols", "扩展协议"),
                 "Xray-core" => "XHTTP",
                 "Mihomo" => T("Default proxy", "默认代理"),
                 "tun2socks" => "TUN",
@@ -219,12 +222,12 @@ public sealed partial class DownloadsPage : Page
             var row = Split(Row(Text(core.Name, strong: true), Pill(role)), detail);
             var surface = new Border
             {
-                Height = _activeCore == core ? 44 : 45, Padding = new Thickness(12, 0, 12, 0),
+                Height = transfer?.Core == core ? 44 : 45, Padding = new Thickness(12, 0, 12, 0),
                 CornerRadius = new CornerRadius(6), Child = row
             };
             if (inUse)
                 ToolTipService.SetToolTip(row, T("In use", "使用中"));
-            if (_activeCore == core)
+            if (transfer?.Core == core)
             {
                 surface.Style = Resource<Style>("NetchActiveRow");
                 var indicator = RowIndicator(25);
@@ -268,12 +271,16 @@ public sealed partial class DownloadsPage : Page
         }
         appMeta.Spacing = 2;
         var appButtons = Row();
-        if (appAvailable)
-            appButtons.Children.Add(AsyncButton(T("Update and restart", "更新并重启"), UpdateAppAsync, true));
-        if (_download != null && _activeCore == null)
+        if (transfer is { Core: null })
         {
             appButtons.Children.Add(ProgressView());
-            appButtons.Children.Add(PauseButton());
+            appButtons.Children.Add(PauseButton(transfer));
+        }
+        else if (appAvailable)
+        {
+            var button = AsyncButton(T("Update and restart", "更新并重启"), Downloads.UpdateApplicationAsync, true);
+            button.IsEnabled = canUpdate;
+            appButtons.Children.Add(button);
         }
         var app = Card(Split(Row(new Image { Width = 35, Height = 35, Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri("ms-appx:///Assets/Netch.png")) }, appMeta), appButtons));
         app.Padding = new Thickness(13, 7, 13, 7);
@@ -291,7 +298,7 @@ public sealed partial class DownloadsPage : Page
             Caption(TF("{0} local · {1} remote", "本地 {0} 个 · 远端 {1} 个", Global.Modes.Count, Downloads.RemoteRuleCount)));
         heading.Spacing = 1;
         var changeSource = AsyncButton(T("Change source", "更换来源"), ChangeSourceAsync);
-        changeSource.IsEnabled = _download == null && !Downloads.Applying && !Downloads.Checking;
+        changeSource.IsEnabled = Downloads.ActiveTransfer == null && !Downloads.Applying && !Downloads.Checking;
         var card = Card(Split(heading, changeSource));
         card.Padding = new Thickness(13, 8, 13, 8);
         var list = new StackPanel();
@@ -547,7 +554,7 @@ public sealed partial class DownloadsPage : Page
     {
         var version = Choice(T("Version", "版本"), choices.Select(choice => choice.Version));
         if (await ShowAsync(XamlRoot, core.Name, version, T("Download", "下载")))
-            await DownloadAsync(core, choices[version.SelectedIndex]);
+            await Downloads.InstallAsync(core, choices[version.SelectedIndex]);
     }
 
     private async Task ApplyAsync()
@@ -561,47 +568,8 @@ public sealed partial class DownloadsPage : Page
         }
 
         foreach (var (core, choice) in AvailableCores().ToArray())
-            if (!await DownloadAsync(core, choice))
+            if (!await Downloads.InstallAsync(core, choice))
                 break;
-    }
-
-    private async Task<bool> DownloadAsync(CorePackage core, UpdateChoice choice)
-    {
-        if (_download != null || Downloads.Applying || Downloads.Checking)
-            return false;
-        _activeCore = core;
-        var progress = StartProgress();
-        try
-        {
-            await Downloads.InstallAsync(core, choice, progress, WaitWhilePausedAsync, _download!.Token);
-            return !_download.IsCancellationRequested;
-        }
-        finally { EndProgress(); }
-    }
-
-    private async Task UpdateAppAsync()
-    {
-        if (_download != null || Downloads.Applying || Downloads.Checking)
-            return;
-        var progress = StartProgress();
-        try { await Downloads.UpdateApplicationAsync(progress, WaitWhilePausedAsync, _download!.Token); }
-        catch (OperationCanceledException) when (_download?.IsCancellationRequested == true) { }
-        finally { EndProgress(); }
-    }
-
-    private IProgress<TransferProgress> StartProgress()
-    {
-        _download = new CancellationTokenSource();
-        _transfer = new TransferProgress(-1, 0);
-        Refresh();
-        var operation = _download;
-        return new Progress<TransferProgress>(value =>
-        {
-            if (_download != operation)
-                return;
-            _transfer = value;
-            UpdateProgress();
-        });
     }
 
     private StackPanel ProgressView()
@@ -618,52 +586,37 @@ public sealed partial class DownloadsPage : Page
 
     private void UpdateProgress()
     {
-        if (_progress == null || _progressLabel == null)
+        if (_progress == null || _progressLabel == null || Downloads.ActiveTransfer is not { } transfer)
             return;
-        _progress.IsIndeterminate = _transfer.Percent < 0;
-        if (_transfer.Percent >= 0)
-            _progress.Value = _transfer.Percent;
-        var percent = _transfer.Percent >= 0 ? $"{_transfer.Percent:0}%" : "";
-        var speed = _transfer.BytesPerSecond > 0 ? Format.Rate(_transfer.BytesPerSecond) : "";
+        var progress = transfer.Progress;
+        _progress.IsIndeterminate = progress.Percent < 0;
+        if (progress.Percent >= 0)
+            _progress.Value = progress.Percent;
+        var percent = progress.Percent >= 0 ? $"{progress.Percent:0}%" : "";
+        var speed = progress.BytesPerSecond > 0 && !transfer.IsPaused ? Format.Rate(progress.BytesPerSecond) : "";
         _progressLabel.Text = string.Join(" · ", new[] { percent, speed }.Where(text => text.Length > 0));
     }
 
-    private Button PauseButton()
+    private Button PauseButton(DownloadTransfer transfer)
     {
         var icon = new FontIcon { FontSize = 14 };
         var button = new Button { Content = icon, Style = Resource<Style>("NetchInlineButton") };
         UpdateButton();
         button.Click += (_, _) =>
         {
-            if (_paused == null)
-                _paused = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            else
-            {
-                _paused.TrySetResult();
-                _paused = null;
-            }
+            transfer.TogglePause();
             UpdateButton();
+            UpdateProgress();
         };
         return button;
 
         void UpdateButton()
         {
-            var label = _paused == null ? T("⏸ Pause", "⏸ 暂停") : T("▶ Resume", "▶ 继续");
-            icon.Glyph = _paused == null ? "\uE769" : "\uE768";
+            var label = transfer.IsPaused ? T("▶ Resume", "▶ 继续") : T("⏸ Pause", "⏸ 暂停");
+            icon.Glyph = transfer.IsPaused ? "\uE768" : "\uE769";
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, label);
             ToolTipService.SetToolTip(button, label);
         }
     }
 
-    private Task WaitWhilePausedAsync(CancellationToken token) => _paused?.Task.WaitAsync(token) ?? Task.CompletedTask;
-
-    private void EndProgress()
-    {
-        _paused?.TrySetResult();
-        _paused = null;
-        _download?.Dispose();
-        _download = null;
-        _activeCore = null;
-        Refresh();
-    }
 }

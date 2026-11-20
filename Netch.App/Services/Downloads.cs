@@ -29,6 +29,29 @@ internal sealed record UpdateChoice(string Version, string Url, string ReleaseUr
 internal readonly record struct TransferProgress(double Percent, ulong BytesPerSecond);
 internal sealed record DownloadEntry(DateTime Time, string Name, string Version, bool Success, string? Message = null);
 
+internal sealed class DownloadTransfer(CorePackage? core)
+{
+    private TaskCompletionSource? _paused;
+
+    public CorePackage? Core { get; } = core;
+    public TransferProgress Progress { get; set; } = new(-1, 0);
+    public bool IsPaused => _paused != null;
+
+    public void TogglePause()
+    {
+        if (_paused == null)
+            _paused = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        else
+        {
+            var paused = _paused;
+            _paused = null;
+            paused.TrySetResult();
+        }
+    }
+
+    public Task WaitWhilePausedAsync() => _paused?.Task ?? Task.CompletedTask;
+}
+
 internal static partial class Downloads
 {
     public static readonly CorePackage[] Cores =
@@ -42,6 +65,8 @@ internal static partial class Downloads
     ];
 
     public static event Action? Changed;
+    public static event Action? ProgressChanged;
+    public static DownloadTransfer? ActiveTransfer { get; private set; }
     public static Dictionary<CorePackage, List<UpdateChoice>> Versions { get; } = [];
     public static Dictionary<CorePackage, string> Installed { get; } = [];
     public static Dictionary<string, string> Errors { get; } = [];
@@ -535,20 +560,51 @@ internal static partial class Downloads
 
     public static bool HasRollback(CorePackage core) => File.Exists(PreviousPath(core));
 
-    public static async Task InstallAsync(CorePackage core, UpdateChoice version, IProgress<TransferProgress> progress, Func<CancellationToken, Task> wait, CancellationToken token)
+    public static Task<bool> InstallAsync(CorePackage core, UpdateChoice version) =>
+        RunTransferAsync(core, transfer => InstallCoreAsync(core, version, transfer));
+
+    public static Task<bool> UpdateApplicationAsync() =>
+        RunTransferAsync(null, async transfer => await AppUpdate.RestartAsync(await DownloadApplicationAsync(transfer)));
+
+    private static async Task<bool> RunTransferAsync(CorePackage? core, Func<DownloadTransfer, Task> download)
     {
-        if (Applying || Checking)
-            return;
+        if (ActiveTransfer != null || Applying || Checking)
+            return false;
+
+        var transfer = new DownloadTransfer(core);
+        ActiveTransfer = transfer;
         Applying = true;
         try
         {
+            Changed?.Invoke();
+            await download(transfer);
+            return true;
+        }
+        finally
+        {
+            ActiveTransfer = null;
+            Applying = false;
+            Changed?.Invoke();
+        }
+    }
+
+    private static void ReportProgress(DownloadTransfer transfer, TransferProgress progress)
+    {
+        transfer.Progress = progress;
+        ProgressChanged?.Invoke();
+    }
+
+    private static async Task InstallCoreAsync(CorePackage core, UpdateChoice version, DownloadTransfer transfer)
+    {
+        try
+        {
             using var client = CreateClient();
-            using var response = await client.GetAsync(Request(version.Url), HttpCompletionOption.ResponseHeadersRead, token);
+            using var response = await client.GetAsync(Request(version.Url), HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
             using var archiveFile = File.Create(Path.GetTempFileName(), 81920, FileOptions.DeleteOnClose);
-            await using (var source = await response.Content.ReadAsStreamAsync(token))
+            await using (var source = await response.Content.ReadAsStreamAsync())
             {
-                await TransferAsync(source, archiveFile, response.Content.Headers.ContentLength, progress, wait, token);
+                await TransferAsync(source, archiveFile, response.Content.Headers.ContentLength, transfer);
             }
             archiveFile.Position = 0;
             using var zip = new ZipArchive(archiveFile, ZipArchiveMode.Read);
@@ -566,7 +622,6 @@ internal static partial class Downloads
                     var dll = zip.GetEntry(dllName) ?? throw new InvalidDataException($"The archive is missing {dllName}.");
                     dll.ExtractToFile(paths[1] + ".download", overwrite: true);
                 }
-                token.ThrowIfCancellationRequested();
                 await Session.Current.RunCoreReplacementAsync(() => ReplaceCoreAsync(core, paths, version.Version));
             }
             finally
@@ -575,19 +630,13 @@ internal static partial class Downloads
                     File.Delete(path + ".download");
             }
 
-            progress.Report(new TransferProgress(100, 0));
+            ReportProgress(transfer, new TransferProgress(100, 0));
             Record(core.Name, version.Version, true);
         }
-        catch (OperationCanceledException) when (token.IsCancellationRequested) { Record(core.Name, version.Version, false, "Paused"); }
         catch (Exception e)
         {
             Record(core.Name, version.Version, false, e.Message);
             throw;
-        }
-        finally
-        {
-            Applying = false;
-            Changed?.Invoke();
         }
     }
 
@@ -712,35 +761,18 @@ internal static partial class Downloads
         }
     }
 
-    public static async Task UpdateApplicationAsync(IProgress<TransferProgress> progress, Func<CancellationToken, Task> wait, CancellationToken token)
-    {
-        if (Applying || Checking)
-            return;
-        Applying = true;
-        try
-        {
-            Changed?.Invoke();
-            await AppUpdate.RestartAsync(await DownloadApplicationAsync(progress, wait, token));
-        }
-        finally
-        {
-            Applying = false;
-            Changed?.Invoke();
-        }
-    }
-
-    private static async Task<string> DownloadApplicationAsync(IProgress<TransferProgress> progress, Func<CancellationToken, Task> wait, CancellationToken token)
+    private static async Task<string> DownloadApplicationAsync(DownloadTransfer transfer)
     {
         var asset = AppAsset ?? throw new InvalidOperationException("This release has no WinUI x64 ZIP.");
         var file = Path.Combine(Path.GetTempPath(), $"Netch-update-{Guid.NewGuid():N}.zip");
         using var client = CreateClient();
-        using var response = await client.GetAsync(Request(asset.browser_download_url), HttpCompletionOption.ResponseHeadersRead, token);
+        using var response = await client.GetAsync(Request(asset.browser_download_url), HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();
         try
         {
             await using var target = File.Create(file);
-            await using var source = await response.Content.ReadAsStreamAsync(token);
-            await TransferAsync(source, target, response.Content.Headers.ContentLength, progress, wait, token);
+            await using var source = await response.Content.ReadAsStreamAsync();
+            await TransferAsync(source, target, response.Content.Headers.ContentLength, transfer);
             Record(UpdateChecker.Name, AppRelease!.tag_name, true);
             return file;
         }
@@ -751,20 +783,19 @@ internal static partial class Downloads
         }
     }
 
-    private static async Task TransferAsync(Stream source, Stream target, long? total,
-        IProgress<TransferProgress> progress, Func<CancellationToken, Task> wait, CancellationToken token)
+    private static async Task TransferAsync(Stream source, Stream target, long? total, DownloadTransfer transfer)
     {
         var buffer = new byte[81920];
         var reported = int.MinValue;
         ulong speed = 0;
         var transferred = 0L;
         var sample = Stopwatch.StartNew();
-        while (await source.ReadAsync(buffer, token) is var count && count > 0)
+        while (await source.ReadAsync(buffer) is var count && count > 0)
         {
             sample.Stop();
-            await wait(token);
+            await transfer.WaitWhilePausedAsync();
             sample.Start();
-            await target.WriteAsync(buffer.AsMemory(0, count), token);
+            await target.WriteAsync(buffer.AsMemory(0, count));
             transferred += count;
             var percent = total > 0 ? (int)(target.Length * 100.0 / total.Value) : -1;
             var elapsed = sample.Elapsed.TotalSeconds;
@@ -778,7 +809,7 @@ internal static partial class Downloads
             if (sampled || percent != reported)
             {
                 reported = percent;
-                progress.Report(new TransferProgress(percent, speed));
+                ReportProgress(transfer, new TransferProgress(percent, speed));
             }
         }
     }

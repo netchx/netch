@@ -639,5 +639,8 @@
   "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "在 Windows 上，請將官方套件的 libcronet.dll 放在 sing-box.exe 旁。",
   "NAT type unknown": "NAT 類型未知",
   "No STUN response": "STUN 未回應",
-  "STUN hostname lookup failed.": "無法解析 STUN 主機名稱。"
+  "STUN hostname lookup failed.": "無法解析 STUN 主機名稱。",
+  "Extended protocols": "擴充協定",
+  "Importing subscription…": "正在匯入訂閱…",
+  "Enter a port between 1 and 65535.": "請輸入 1 至 65535 之間的連接埠。"
 }

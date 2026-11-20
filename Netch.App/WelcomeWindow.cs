@@ -41,6 +41,7 @@ internal sealed class WelcomeWindow : Window
         RenderTransformOrigin = new Windows.Foundation.Point(0, 0.5)
     }, 24);
     private IReadOnlyList<(string Name, string Rule)>? _installed;
+    private Task<bool>? _subscriptionImport;
     private Server? _server;
     private bool _tun;
     private int _step;
@@ -204,9 +205,8 @@ internal sealed class WelcomeWindow : Window
         _link.KeyDown += LinkKeyDown;
         _link.Header = null;
         _link.Name = "SubscriptionLink";
-        _link.Height = 43;
-        _link.VerticalContentAlignment = VerticalAlignment.Center;
-        _link.Padding = new Thickness(12, 0, 48, 0);
+        _link.MinHeight = 43;
+        _link.Padding = new Thickness(12, 10, 48, 10);
         var import = new Button
         {
             Content = new FontIcon { Glyph = "\uE77F", FontSize = 16 },
@@ -230,8 +230,8 @@ internal sealed class WelcomeWindow : Window
     {
         if (args.Key == Windows.System.VirtualKey.Enter)
         {
-            try { await ImportSubscriptionAsync(); }
-            catch (Exception e) { _status.Text = e.Message; }
+            args.Handled = true;
+            await ImportSubscriptionAsync();
         }
     }
 
@@ -243,28 +243,58 @@ internal sealed class WelcomeWindow : Window
             : TF("✓ {0} nodes available", "✓ 已识别 {0} 个节点", total);
     }
 
-    private async Task ImportSubscriptionAsync()
+    private Task<bool> ImportSubscriptionAsync() => _subscriptionImport is { IsCompleted: false } pending
+        ? pending : _subscriptionImport = ImportSubscriptionCoreAsync();
+
+    private async Task<bool> ImportSubscriptionCoreAsync()
     {
         if (!Uri.TryCreate(_link.Text.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
         {
+            _status.Style = Resource<Style>("NetchErrorText");
             _status.Text = T("Enter an HTTP or HTTPS subscription URL.", "请输入 HTTP 或 HTTPS 订阅链接。");
-            return;
+            return false;
         }
 
-        var subscription = Global.Settings.Subscription.FirstOrDefault(s => s.Link == uri.AbsoluteUri);
-        if (subscription == null)
+        _link.IsEnabled = false;
+        _status.Style = Resource<Style>("NetchSecondaryText");
+        _status.Text = T("Importing subscription…", "正在导入订阅…");
+        try
         {
-            var name = uri.Host;
-            for (var n = 2; Global.Settings.Subscription.Any(s => s.Remark == name); n++)
-                name = $"{uri.Host} ({n})";
-            subscription = new Subscription { Link = uri.AbsoluteUri, Remark = name, UpdateIntervalHours = 6 };
-            Global.Settings.Subscription.Add(subscription);
+            var subscription = Global.Settings.Subscription.FirstOrDefault(s => s.Link == uri.AbsoluteUri);
+            if (subscription == null)
+            {
+                var name = uri.Host;
+                for (var n = 2; Global.Settings.Subscription.Any(s => s.Remark == name); n++)
+                    name = $"{uri.Host} ({n})";
+                subscription = new Subscription { Link = uri.AbsoluteUri, Remark = name, UpdateIntervalHours = 6 };
+                Global.Settings.Subscription.Add(subscription);
+            }
+            var imported = await SubscriptionUtil.UpdateServerAsync(subscription);
+            UpdateNodeCount(imported == 0);
+            if (imported > 0)
+                _status.Text = TF("✓ Imported {0} nodes ({1})", "✓ 已识别 {0} 个节点（{1}）", imported, subscription.Remark);
+            await Configuration.SaveAsync();
+            return imported > 0;
         }
-        var imported = await SubscriptionUtil.UpdateServerAsync(subscription);
-        UpdateNodeCount(imported == 0);
-        if (imported > 0)
-            _status.Text = TF("✓ Imported {0} nodes ({1})", "✓ 已识别 {0} 个节点（{1}）", imported, subscription.Remark);
-        await Configuration.SaveAsync();
+        catch (Exception e)
+        {
+            Log.Warning(e, "Import subscription failed");
+            _status.Style = Resource<Style>("NetchErrorText");
+            _status.Text = e.Message;
+            return false;
+        }
+        finally
+        {
+            _link.IsEnabled = true;
+        }
+    }
+
+    private static bool HasImportedSubscription(string link)
+    {
+        if (!Uri.TryCreate(link, UriKind.Absolute, out var uri))
+            return false;
+        var subscription = Global.Settings.Subscription.FirstOrDefault(s => s.Link == uri.AbsoluteUri);
+        return subscription != null && Global.Settings.Server.Any(server => server.IsSub && server.Group == subscription.Remark);
     }
 
     private UIElement ProgramsStep()
@@ -319,7 +349,8 @@ internal sealed class WelcomeWindow : Window
         selector.SelectionChanged += (_, _) => { if (selector.SelectedIndex >= 0) _server = nodes[selector.SelectedIndex]; };
         _name.Header = null;
         _name.Name = "WizardSceneName";
-        _name.Height = 40;
+        _name.MinHeight = 40;
+        _name.Padding = new Thickness(11, 9, 11, 9);
         var startup = T("Connect this scene after sign-in", "开机后自动连接此场景");
         AutomationProperties.SetName(_auto, startup);
         var autoRow = Row(_auto, Text(startup));
@@ -350,8 +381,11 @@ internal sealed class WelcomeWindow : Window
     {
         if (_step == 0)
         {
-            if (_link.Text.Trim().Length > 0 && !Global.Settings.Subscription.Any(s => s.Link.TrimEnd('/') == _link.Text.Trim().TrimEnd('/')))
-                await ImportSubscriptionAsync();
+            if (_subscriptionImport is { IsCompleted: false } pending && !await pending)
+                return;
+            var link = _link.Text.Trim();
+            if (link.Length > 0 && !HasImportedSubscription(link) && !await ImportSubscriptionAsync())
+                return;
             if (Global.Settings.Server.Count == 0)
             {
                 UpdateNodeCount(invalid: true);

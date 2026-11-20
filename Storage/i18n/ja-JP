@@ -628,5 +628,8 @@
   "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "Windows では公式パッケージの libcronet.dll を sing-box.exe と同じフォルダーに置いてください。",
   "NAT type unknown": "NAT タイプ不明",
   "No STUN response": "STUN の応答なし",
-  "STUN hostname lookup failed.": "STUN サーバーのホスト名を解決できませんでした。"
+  "STUN hostname lookup failed.": "STUN サーバーのホスト名を解決できませんでした。",
+  "Extended protocols": "追加プロトコル",
+  "Importing subscription…": "サブスクリプションをインポート中…",
+  "Enter a port between 1 and 65535.": "1～65535 のポートを入力してください。"
 }

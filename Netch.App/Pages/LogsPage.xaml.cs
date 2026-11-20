@@ -13,7 +13,7 @@ namespace Netch.App.Pages;
 
 public sealed partial class LogsPage : Page
 {
-    private static readonly string[] Sources = ["netch", "sing-box", "mihomo", "xray", "nf", "pcap2socks"];
+    private static readonly string[] Sources = ["netch", "sing-box", "mihomo", "xray", "nf", "pcap2socks", "AioDNS", "tun2socks"];
     private static readonly Regex Entry = new(@"^\[(?<time>[^]]+)\]\[(?<level>[^]]+)\]\s*(?<message>.*)$", RegexOptions.Compiled);
     private readonly TextBox _filter = Input(T("Filter logs", "过滤日志"), search: true);
     private readonly ComboBox _source = Choice(T("Source", "来源"), new[] { T("All sources", "全部来源") }.Concat(Sources));
@@ -187,19 +187,40 @@ public sealed partial class LogsPage : Page
     {
         var source = _source.SelectedIndex <= 0 ? null : Sources[_source.SelectedIndex - 1];
         var next = _lines.Values.SelectMany(lines => lines)
-            .Where(line => line.Level >= _severity.SelectedIndex && (source == null || line.Source == source) &&
+            .Where(line => line.Level >= _severity.SelectedIndex &&
+                           (source == null || line.Source.Equals(source, StringComparison.OrdinalIgnoreCase)) &&
                            line.ToString().Contains(_filter.Text, StringComparison.OrdinalIgnoreCase))
             .OrderBy(line => line.Time, StringComparer.Ordinal).TakeLast(2000).ToArray();
         if (_previous != null && _previous.SequenceEqual(next))
             return;
+
+        var selected = _list.SelectedItems.OfType<Line>().GroupBy(line => line)
+            .ToDictionary(group => group.Key, group => group.Count());
+        if (next.Length > 0 && _visible.Count > 0 && _visible[0] != next[0])
+        {
+            var first = _visible.IndexOf(next[0]);
+            if (first > 0 && _visible.Skip(first).SequenceEqual(next.Take(_visible.Count - first)))
+                for (var i = 0; i < first; i++)
+                    _visible.RemoveAt(0);
+        }
 
         var prefix = 0;
         while (prefix < _visible.Count && prefix < next.Length && _visible[prefix] == next[prefix])
             prefix++;
         while (_visible.Count > prefix)
             _visible.RemoveAt(_visible.Count - 1);
+        foreach (var retained in _list.SelectedItems.OfType<Line>())
+            if (selected.TryGetValue(retained, out var count))
+                selected[retained] = count - 1;
         foreach (var line in next.Skip(prefix))
+        {
             _visible.Add(line);
+            if (selected.TryGetValue(line, out var count) && count > 0)
+            {
+                _list.SelectedItems.Add(line);
+                selected[line] = count - 1;
+            }
+        }
         _previous = next;
         ScrollToEnd();
     }

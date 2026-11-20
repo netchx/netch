@@ -209,7 +209,7 @@ public sealed partial class NodesPage : Page
                 {
                     await SubscriptionUtil.UpdateServerAsync(sub);
                     await Configuration.SaveAsync();
-                    RefreshCategories(sub);
+                    RefreshCategories();
                 }), menu)), 10);
         }
         RefreshNodes();

@@ -224,6 +224,12 @@ internal static class Ui
 
     public static async Task<bool> ShowAsync(XamlRoot root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null)
     {
+        if (body is TextBlock text)
+        {
+            text.TextWrapping = TextWrapping.Wrap;
+            text.TextTrimming = TextTrimming.None;
+            text.IsTextSelectionEnabled = true;
+        }
         var error = new InfoBar
         {
             Severity = InfoBarSeverity.Error, IsClosable = false, Margin = new Thickness(0, 0, 0, 9)

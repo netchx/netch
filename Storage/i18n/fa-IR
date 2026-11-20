@@ -628,5 +628,8 @@
   "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "در ویندوز، libcronet.dll بسته رسمی را کنار sing-box.exe قرار دهید.",
   "NAT type unknown": "نوع NAT نامشخص",
   "No STUN response": "بدون پاسخ STUN",
-  "STUN hostname lookup failed.": "حل نام میزبان STUN ناموفق بود."
+  "STUN hostname lookup failed.": "حل نام میزبان STUN ناموفق بود.",
+  "Extended protocols": "پروتکل‌های تکمیلی",
+  "Importing subscription…": "در حال وارد کردن اشتراک…",
+  "Enter a port between 1 and 65535.": "درگاهی بین ۱ و ۶۵۵۳۵ وارد کنید."
 }
