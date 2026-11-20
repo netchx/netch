@@ -51,9 +51,9 @@ public class VLESSUtil : ServerUtilBase, IServerUtil
         VLESSServer item = new();
 
         var url = Utils.Utils.TryUri(str);
-        if (url == null)
+        if (url == null || url.IdnHost.IsNullOrEmpty() || !ServerValidator.IsValidPort(url.Port))
         {
-            return null;
+            return [];
         }
 
         item.Address = url.IdnHost;
@@ -64,13 +64,12 @@ public class VLESSUtil : ServerUtilBase, IServerUtil
         var query = Utils.Utils.ParseQueryString(url.Query);
         item.ProtoExtra.VlessEncryption = GetQueryValue(query, "encryption", Constants.None);
         item.ProtoExtra.Flow = GetQueryValue(query, "flow");
-        item.StreamSecurity = GetQueryValue(query, "security");
         ResolveUriQuery(query, ref item);
         return [item];
     }
 
     public bool CheckServer(Server s)
     {
-        return true;
+        return s.Address.IsNotEmpty() && ServerValidator.IsValidPort(s.Port) && s.Password.IsNotEmpty();
     }
 }

@@ -12,7 +12,7 @@ internal class VLESSForm : ServerForm
         Server = server;
 
         CreateTextBox("UUID", "UUID", s => !string.IsNullOrWhiteSpace(s), s => server.Password = s.Trim(), server.Password);
-        var flow = CreateComboBox("Flow", "Flow", ["", "xtls-rprx-vision"], s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
+        var flow = CreateComboBox("Flow", "Flow", Constants.Flow, s => server.ProtoExtra.Flow = s, server.ProtoExtra.Flow);
         CreateTextBox("Encryption", "Encryption", s => s == server.ProtoExtra.VlessEncryption ||
             string.IsNullOrWhiteSpace(s) || s.Trim() == "none" ||
             s.Trim().Split('.') is [ "mlkem768x25519plus", _, _, _, .. ],

@@ -175,6 +175,9 @@ public sealed class SingboxController : Guard, IServerController
                 outbound["uuid"] = server.Username;
                 outbound["password"] = server.Password;
                 outbound["congestion_control"] = extra.CongestionControl.IsNullOrEmpty() ? "bbr" : extra.CongestionControl;
+                if (extra.TuicUdpRelayMode.IsNotEmpty()) outbound["udp_relay_mode"] = extra.TuicUdpRelayMode;
+                if (extra.TuicReduceRtt == true) outbound["zero_rtt_handshake"] = true;
+                if (extra.TuicDisableSni == true && tls != null) tls["disable_sni"] = true;
                 break;
             case Enums.EConfigType.AnyTLS:
                 outbound["type"] = "anytls";

@@ -138,11 +138,19 @@ public abstract class Server : ICloneable
 
     public string GetNetwork()
     {
-        if (Network.IsNullOrEmpty() || !Constants.Networks.Contains(Network))
+        if (Network.IsNullOrEmpty())
         {
             return Constants.DefaultNetwork;
         }
-        return Network.TrimEx();
+
+        var network = Network.TrimEx().ToLowerInvariant() switch
+        {
+            "raw" => nameof(ETransport.tcp),
+            "splithttp" => nameof(ETransport.xhttp),
+            var value => value
+        };
+
+        return Constants.Networks.Contains(network) ? network : Constants.DefaultNetwork;
     }
 }
 
@@ -177,9 +185,9 @@ public record ProtocolExtraItem
 
     // hysteria2
     /// <summary>
-    /// 混淆类型,目前只支持 salamander
+    /// 混淆类型,支持 none、salamander、gecko
     /// </summary>
-    public string Obfs { get; set; } = Constants.Hysteria2Obfs[0];
+    public string Obfs { get; set; } = Constants.None;
     public string? SalamanderPass { get; set; }
     public int? UpMbps { get; set; }
     public int? DownMbps { get; set; }
@@ -188,6 +196,11 @@ public record ProtocolExtraItem
     public string? Hy2RealmUrl { get; set; }
     public string? GeckoMinPacketSize { get; set; }
     public string? GeckoMaxPacketSize { get; set; }
+
+    // tuic
+    public string? TuicUdpRelayMode { get; set; }
+    public bool? TuicReduceRtt { get; set; }
+    public bool? TuicDisableSni { get; set; }
 
     // AnyTLS
     public int? AnyTlsIdleSessionCheckIntervalSeconds { get; set; }

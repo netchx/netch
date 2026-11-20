@@ -216,7 +216,7 @@ public abstract class ServerForm : Form
     protected void AddTransport(ComboBox? flow = null)
     {
         var original = string.IsNullOrWhiteSpace(Server.Network) ? Constants.DefaultNetwork : Server.Network.Trim().ToLowerInvariant();
-        var networks = Constants.Networks.Where(network => network != "kcp" || TypeName == EConfigType.VMess);
+        var networks = Constants.Networks.Where(network => network != "hysteria" && (network != "kcp" || TypeName == EConfigType.VMess));
         _network = CreateComboBox("Network", "Network", networks, value => Server.Network = value, original);
         var mode = CreateComboBox("TransportMode", "Transport Mode", [""], value => Server.HeaderType = value, "");
         var host = CreateTextBox("Host", "Host", _ => true, value => Server.RequestHost = value.Trim(), Server.RequestHost);
@@ -234,13 +234,17 @@ public abstract class ServerForm : Form
             }
             Server.Network = _network.Text;
         };
+        bool ShouldShowHost() =>
+            _network.Text is "ws" or "httpupgrade" or "xhttp" or "http" or "h2" ||
+            (_network.Text == "kcp" && mode.Text == "dns") ||
+            (_network.Text == original && !string.IsNullOrEmpty(Server.RequestHost));
         void Refresh()
         {
             var network = _network.Text;
             var choices = network switch
             {
                 "xhttp" => Constants.XhttpMode,
-                "kcp" => ["none", .. Constants.KcpHeaderTypes.Where(type => type != "dns")],
+                "kcp" => ["none", .. Constants.KcpHeaderTypes],
                 _ => new List<string> { "none" }
             };
             var oldMode = network == original ? Server.HeaderType : null;
@@ -250,13 +254,13 @@ public abstract class ServerForm : Form
             ShowField(mode, network is "kcp" or "xhttp" || hasLegacyMode);
             if (_labels[mode] is { } modeLabel)
                 modeLabel.Text = i18N.Translate(network == "xhttp" ? "XHTTP Mode" : "Fake Type");
-            var hasHost = network is "ws" or "httpupgrade" or "xhttp" or "http" or "h2";
-            ShowField(host.Field, hasHost || network == original && !string.IsNullOrEmpty(Server.RequestHost));
+            ShowField(host.Field, ShouldShowHost());
             ShowField(path.Field, network is "ws" or "httpupgrade" or "xhttp" or "http" or "h2" or "grpc" or "kcp" ||
                 network == original && !string.IsNullOrEmpty(Server.Path));
             path.Label.Text = i18N.Translate(network switch { "grpc" => "Service Name", "kcp" => "mKCP Seed", _ => "Path" });
             ShowField(extra.Field, network == "xhttp");
         }
+        mode.SelectedIndexChanged += (_, _) => UpdateFields(() => ShowField(host.Field, ShouldShowHost()));
         _network.SelectedIndexChanged += (_, _) => UpdateFields(() =>
         {
             Refresh();
@@ -285,13 +289,15 @@ public abstract class ServerForm : Form
         var alpn = naive ? null : CreateComboBox("Alpn", "Alpn", Constants.Alpn, value => Server.Alpn = value, Server.Alpn);
         var insecure = naive ? null : CreateComboBox("AllowInsecure", "allowInsecure", Constants.AllowInsecure,
             value => Server.AllowInsecure = bool.TryParse(value, out var result) ? result : null, Server.AllowInsecure?.ToString().ToLowerInvariant());
-        var fingerprint = naive || TypeName is EConfigType.Hysteria2 or EConfigType.TUIC ? null :
+        var fingerprint = naive ? null :
             CreateComboBox("Fingerprint", "Fingerprint", Constants.Fingerprints, value => Server.Fingerprint = value, Server.Fingerprint);
         var cert = CreateTextBox("Cert", "Trusted PEM Certificate", IsPemChain, s =>
         {
             Server.Cert = s.Trim();
             if (TypeName == EConfigType.Hysteria2 && Server.Cert.Length > 0) Server.CertSha = "";
         }, Server.Cert, multiline: true).Field;
+        var certSha = string.IsNullOrWhiteSpace(Server.CertSha) ? null :
+            CreateTextBox("CertSha", "Certificate SHA", _ => true, s => Server.CertSha = s.Trim(), Server.CertSha).Field;
         if (!supportsReality || security == null || alpn == null || insecure == null || fingerprint == null || _network == null)
         {
             if (security != null)
@@ -299,7 +305,7 @@ public abstract class ServerForm : Form
                 void UpdateHttp()
                 {
                     var enabled = security.Text == "HTTPS";
-                    foreach (var field in new Control?[] { sni, alpn, insecure, fingerprint, cert })
+                    foreach (var field in new Control?[] { sni, alpn, insecure, fingerprint, cert, certSha })
                         if (field != null) ShowField(field, enabled);
                 }
                 security.SelectedIndexChanged += (_, _) => UpdateFields(UpdateHttp);
@@ -340,12 +346,13 @@ public abstract class ServerForm : Form
             ShowField(fingerprint, secure);
             ShowField(insecure, security.Text == "tls");
             ShowField(cert, security.Text == "tls");
+            if (certSha != null) ShowField(certSha, security.Text == "tls");
             ShowField(publicKey, reality);
             ShowField(shortId, reality);
-            ShowField(spider, reality && xhttp);
-            ShowField(mldsa, reality && xhttp);
-            ShowField(ech, security.Text == "tls" && xhttp);
-            ShowField(echQuery, security.Text == "tls" && xhttp);
+            ShowField(spider, reality && (xhttp || !string.IsNullOrEmpty(Server.SpiderX)));
+            ShowField(mldsa, reality && (xhttp || !string.IsNullOrEmpty(Server.Mldsa65Verify)));
+            ShowField(ech, security.Text == "tls" && (xhttp || !string.IsNullOrEmpty(Server.EchConfigList)));
+            ShowField(echQuery, security.Text == "tls" && (xhttp || !string.IsNullOrEmpty(Server.EchForceQuery)));
             ShowField(realityNotice, IsNewUnsupportedReality());
             if (flow != null) ShowField(flow, secure && _network.Text is "tcp" or "raw");
         }
@@ -365,6 +372,7 @@ public abstract class ServerForm : Form
             if (security.Text != selectedSecurity || _network.Text != initialNetwork)
             {
                 if (_hidden.Contains(cert)) Server.Cert = "";
+                if (certSha != null && _hidden.Contains(certSha)) Server.CertSha = "";
                 if (_hidden.Contains(ech)) Server.EchConfigList = "";
                 if (_hidden.Contains(echQuery)) Server.EchForceQuery = "";
                 if (flow != null && _hidden.Contains(flow)) Server.ProtoExtra.Flow = "";

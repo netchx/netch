@@ -1,11 +1,15 @@
-﻿namespace Netch.Servers;
+﻿using System.Globalization;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Netch.Servers;
 
 public class VmessQRCode
 {
     /// <summary>
     ///     链接版本
     /// </summary>
-    [System.Text.Json.Serialization.JsonNumberHandling(System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString)]
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int v { get; set; } = 2;
 
     /// <summary>
@@ -21,7 +25,7 @@ public class VmessQRCode
     /// <summary>
     ///     端口
     /// </summary>
-    [System.Text.Json.Serialization.JsonNumberHandling(System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString)]
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public ushort port { get; set; }
 
     /// <summary>
@@ -32,7 +36,7 @@ public class VmessQRCode
     /// <summary>
     ///     额外 ID
     /// </summary>
-    [System.Text.Json.Serialization.JsonNumberHandling(System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString)]
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     public int aid { get; set; }
 
     /// <summary>
@@ -74,5 +78,32 @@ public class VmessQRCode
 
     public string fp { get; set; } = string.Empty;
 
+    [JsonConverter(typeof(FlexibleStringConverter))]
     public string insecure { get; set; } = string.Empty;
+
+    public string? extra { get; set; }
+    public string? pbk { get; set; }
+    public string? sid { get; set; }
+    public string? spx { get; set; }
+    public string? pqv { get; set; }
+    public string? ech { get; set; }
+    public string? echForceQuery { get; set; }
+    public string? pcs { get; set; }
+}
+
+internal sealed class FlexibleStringConverter : JsonConverter<string>
+{
+    public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+        reader.TokenType switch
+        {
+            JsonTokenType.String => reader.GetString() ?? string.Empty,
+            JsonTokenType.True => "1",
+            JsonTokenType.False => "0",
+            JsonTokenType.Number when reader.TryGetInt64(out var number) => number.ToString(CultureInfo.InvariantCulture),
+            JsonTokenType.Null => string.Empty,
+            _ => throw new JsonException()
+        };
+
+    public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options) =>
+        writer.WriteStringValue(value);
 }

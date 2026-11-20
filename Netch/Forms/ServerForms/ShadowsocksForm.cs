@@ -13,7 +13,7 @@ public class ShadowsocksForm : ServerForm
         Server = server;
         var extra = server.ProtoExtra;
         var password = CreateTextBox("Password", "Password", _ => true, s => server.Password = s, server.Password).Field;
-        var cipher = CreateComboBox("EncryptMethod", "Encrypt Method", Constants.SsSecuritiesInXray,
+        var cipher = CreateComboBox("EncryptMethod", "Encrypt Method", Constants.SsCiphers,
             s => extra.SsMethod = s, extra.SsMethod);
         CheckField(password, value => IsPasswordValid(cipher.Text, value));
         CreateCheckBox("Uot", "UDP over TCP", s => extra.Uot = s, extra.Uot == true);
@@ -33,6 +33,7 @@ public class ShadowsocksForm : ServerForm
             if (s == originalPlugin) return;
             extra.SsPlugin = s;
             extra.SsPluginOptions = "";
+            if (s != "v2ray-plugin") server.AllowInsecure = null;
             ResetTransport();
         }, originalPlugin);
         var options = CreateTextBox("PluginOptions", "Plugin Options", _ => true, s =>
@@ -42,6 +43,9 @@ public class ShadowsocksForm : ServerForm
             ResetTransport();
         },
             originalOptions).Field;
+        var insecure = CreateComboBox("AllowInsecure", "allowInsecure", Constants.AllowInsecure,
+            value => server.AllowInsecure = bool.TryParse(value, out var result) ? result : null,
+            server.AllowInsecure?.ToString().ToLowerInvariant());
         CheckField(options, value =>
         {
             if (plugin.Text == originalPlugin && value == originalOptions) return true;
@@ -57,6 +61,7 @@ public class ShadowsocksForm : ServerForm
         void RefreshPlugin()
         {
             ShowField(options, !string.IsNullOrEmpty(plugin.Text));
+            ShowField(insecure, plugin.Text == "v2ray-plugin");
             options.PlaceholderText = plugin.Text switch
             {
                 "obfs-local" => "obfs=http;obfs-host=example.com",

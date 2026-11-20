@@ -66,14 +66,12 @@ public static class ServerEditors
         {
             Server = server;
             CreateTextBox("Password", "Password", s => s.IsNotEmpty(), s => server.Password = s, server.Password);
-            CreateComboBox("EncryptMethod", "Encryption",
-                ["none", "rc4-md5", "aes-128-ctr", "aes-192-ctr", "aes-256-ctr", "aes-128-cfb", "aes-192-cfb",
-                    "aes-256-cfb", "chacha20", "chacha20-ietf", "xchacha20"], s => server.EncryptMethod = s, server.EncryptMethod);
-            CreateComboBox("Protocol", "Protocol",
-                ["origin", "auth_sha1_v4", "auth_aes128_md5", "auth_aes128_sha1", "auth_chain_a", "auth_chain_b"],
+            CreateComboBox("EncryptMethod", "Encryption", Constants.SsrEncryptMethods,
+                s => server.EncryptMethod = s, server.EncryptMethod);
+            CreateComboBox("Protocol", "Protocol", Constants.SsrProtocols,
                 s => server.Protocol = s, server.Protocol);
             CreateTextBox("ProtocolParam", "Protocol Param", _ => true, s => server.ProtocolParam = s, server.ProtocolParam ?? "");
-            CreateComboBox("OBFS", "Obfs", ["plain", "http_simple", "http_post", "tls1.2_ticket_auth", "tls1.2_ticket_fastauth", "random_head"],
+            CreateComboBox("OBFS", "Obfs", Constants.SsrObfs,
                 s => server.OBFS = s, server.OBFS);
             CreateTextBox("OBFSParam", "Obfs Param", _ => true, s => server.OBFSParam = s, server.OBFSParam ?? "");
         }

@@ -16,16 +16,15 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
 
     public string ShortName { get; } = "WG";
 
-    public string[] UriScheme { get; } = { "wireguard" };
+    public string[] UriScheme { get; } = { "wireguard", "wg" };
 
     public Type ServerType { get; } = typeof(WireGuardServer);
 
     public string GetShareLink(Server s)
     {
-        var item = s as WireGuardServer;
-        if (item == null)
+        if (s is not WireGuardServer item)
         {
-            return null;
+            return string.Empty;
         }
 
         var remark = string.Empty;
@@ -60,9 +59,9 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
         WireGuardServer item = new();
 
         var url = Utils.Utils.TryUri(str);
-        if (url == null)
+        if (url == null || url.IdnHost.IsNullOrEmpty() || !ServerValidator.IsValidPort(url.Port))
         {
-            return null;
+            return [];
         }
 
         item.Address = url.IdnHost;
@@ -72,16 +71,27 @@ public class WireGuardUtil : ServerUtilBase, IServerUtil
 
         var query = Utils.Utils.ParseQueryString(url.Query);
 
-        item.ProtoExtra.WgPublicKey = GetQueryDecoded(query, "publickey");
-        item.ProtoExtra.WgPresharedKey = GetQueryDecoded(query, "presharedkey");
-        item.ProtoExtra.WgReserved = GetQueryDecoded(query, "reserved");
-        item.ProtoExtra.WgInterfaceAddress = GetQueryDecoded(query, "address");
-        item.ProtoExtra.WgMtu = int.TryParse(GetQueryDecoded(query, "mtu"), out var mtuVal) ? mtuVal : 1280;
+        item.ProtoExtra.WgPublicKey = GetFirstQueryValue(query, "publickey", "public-key", "public_key", "pbk");
+        item.ProtoExtra.WgPresharedKey = GetFirstQueryValue(query, "presharedkey", "preshared-key", "pre-shared-key", "pre_shared_key", "psk");
+        var reservedRaw = GetQueryDecoded(query, "reserved");
+        item.ProtoExtra.WgReserved = ServerValidator.TryNormalizeWireGuardReserved(reservedRaw, out var normalizedReserved)
+            ? normalizedReserved
+            : reservedRaw;
+        item.ProtoExtra.WgInterfaceAddress = GetFirstQueryValue(query, "address", "ip", "local_address");
+        item.ProtoExtra.WgMtu = int.TryParse(GetQueryDecoded(query, "mtu"), out var mtuVal) && mtuVal > 0 ? mtuVal : 1280;
         return [item];
     }
 
     public bool CheckServer(Server s)
     {
-        return true;
+        var extra = s.ProtoExtra;
+        var peerKey = string.IsNullOrWhiteSpace(extra.WgPublicKey) ? s.PublicKey : extra.WgPublicKey;
+        return s.Address.IsNotEmpty()
+            && ServerValidator.IsValidPort(s.Port)
+            && ServerValidator.IsValidWireGuardKey(s.Password)
+            && ServerValidator.IsValidWireGuardKey(peerKey)
+            && (string.IsNullOrWhiteSpace(extra.WgPresharedKey) || ServerValidator.IsValidWireGuardKey(extra.WgPresharedKey))
+            && ServerValidator.IsValidWireGuardAddresses(extra.WgInterfaceAddress)
+            && ServerValidator.IsValidWireGuardReserved(extra.WgReserved);
     }
 }

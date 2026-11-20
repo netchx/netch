@@ -400,7 +400,14 @@ public static class Utils
 
     public static string UrlDecode(string url)
     {
-        return Uri.UnescapeDataString(url);
+        try
+        {
+            return Uri.UnescapeDataString(url);
+        }
+        catch (UriFormatException)
+        {
+            return url;
+        }
     }
 
     public static NameValueCollection ParseQueryString(string query)
@@ -411,17 +418,18 @@ public static class Utils
             return result;
         }
 
-        var parts = query[1..].Split('&', StringSplitOptions.RemoveEmptyEntries);
+        var raw = query.StartsWith('?') ? query[1..] : query;
+        var parts = raw.Split('&', StringSplitOptions.RemoveEmptyEntries);
         foreach (var part in parts)
         {
-            var keyValue = part.Split('=');
-            if (keyValue.Length != 2)
+            var keyValue = part.Split('=', 2);
+            if (keyValue.Length != 2 || keyValue[0].Length == 0)
             {
                 continue;
             }
 
-            var key = Uri.UnescapeDataString(keyValue.First());
-            var val = Uri.UnescapeDataString(keyValue.Last());
+            var key = UrlDecode(keyValue[0]);
+            var val = UrlDecode(keyValue[1]);
 
             if (result[key] is null)
             {

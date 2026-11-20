@@ -32,6 +32,7 @@
             MenuStrip = new MenuStrip();
             ServerToolStripMenuItem = new ToolStripMenuItem();
             ImportServersFromClipboardToolStripMenuItem = new ToolStripMenuItem();
+            ImportServersFromFileToolStripMenuItem = new ToolStripMenuItem();
             ModeToolStripMenuItem = new ToolStripMenuItem();
             CreateProcessModeToolStripMenuItem = new ToolStripMenuItem();
             CreateRouteTableRuleToolStripMenuItem = new ToolStripMenuItem();
@@ -126,7 +127,7 @@
             // 
             // ServerToolStripMenuItem
             // 
-            ServerToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ImportServersFromClipboardToolStripMenuItem });
+            ServerToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { ImportServersFromClipboardToolStripMenuItem, ImportServersFromFileToolStripMenuItem });
             ServerToolStripMenuItem.Margin = new Padding(3, 0, 0, 1);
             ServerToolStripMenuItem.Name = "ServerToolStripMenuItem";
             ServerToolStripMenuItem.Size = new Size(57, 21);
@@ -138,6 +139,13 @@
             ImportServersFromClipboardToolStripMenuItem.Size = new Size(259, 22);
             ImportServersFromClipboardToolStripMenuItem.Text = "Import Servers From Clipboard";
             ImportServersFromClipboardToolStripMenuItem.Click += ImportServersFromClipboardToolStripMenuItem_Click;
+            // 
+            // ImportServersFromFileToolStripMenuItem
+            // 
+            ImportServersFromFileToolStripMenuItem.Name = "ImportServersFromFileToolStripMenuItem";
+            ImportServersFromFileToolStripMenuItem.Size = new Size(259, 22);
+            ImportServersFromFileToolStripMenuItem.Text = "Import Servers From File…";
+            ImportServersFromFileToolStripMenuItem.Click += ImportServersFromFileToolStripMenuItem_Click;
             // 
             // ModeToolStripMenuItem
             // 
@@ -800,6 +808,7 @@
         private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem ForceExitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ImportServersFromFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ManageSubscriptionsToolStripMenuItem;
         private System.Windows.Forms.MenuStrip MenuStrip;
         public System.Windows.Forms.ComboBox ModeComboBox;

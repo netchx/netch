@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using Netch.Enums;
 using Netch.JsonConverter;
 using Netch.Models;
 
@@ -17,6 +18,7 @@ public static class ShareLink
 
     public static List<Server> ParseText(string text, out int skipped)
     {
+        text = text.TrimStart('\uFEFF');
         try
         {
             text = URLSafeBase64Decode(text);
@@ -35,14 +37,18 @@ public static class ShareLink
 
         foreach (var line in text.GetLines())
         {
+            var trimmed = line.Trim();
+            if (trimmed.Length == 0)
+                continue;
+
             lineCount++;
             try
             {
-                var parsed = ParseUri(line).Where(node => node is not null).ToList();
+                var parsed = ParseUri(trimmed).Where(node => node is not null).ToList();
                 if (parsed.Count == 0)
                 {
                     failedLineCount++;
-                    Log.Warning("Share link line produced no server. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
+                    Log.Warning("Share link line produced no server. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(trimmed), lineCount, trimmed.Length);
                     continue;
                 }
 
@@ -51,10 +57,11 @@ public static class ShareLink
             catch (Exception e)
             {
                 failedLineCount++;
-                Log.Error(e, "Parse servers from share link error. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(line), lineCount, line.Length);
+                Log.Error(e, "Parse servers from share link error. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(trimmed), lineCount, trimmed.Length);
             }
         }
 
+        skipped = failedLineCount;
         Log.Information("Parsed {ServerCount} server(s) from {LineCount} share-link line(s); {FailedLineCount} line(s) failed", list.Count, lineCount, failedLineCount);
         return list;
     }
@@ -63,11 +70,15 @@ public static class ShareLink
     {
         var list = new List<Server>();
 
-        if (text.StartsWith("tg://socks?") || text.StartsWith("https://t.me/socks?"))
+        if (text.StartsWith("tg://socks?", StringComparison.OrdinalIgnoreCase) ||
+            text.StartsWith("https://t.me/socks?", StringComparison.OrdinalIgnoreCase))
         {
-            list.AddRange(ServerHelper.GetUtilByTypeName("Socks5").ParseUri(text));
+            var util = ServerHelper.GetUtilByTypeName(nameof(EConfigType.SOCKS));
+            var parsed = util.ParseUri(text);
+            if (parsed != null)
+                list.AddRange(parsed.Where(node => node is not null && util.CheckServer(node)));
         }
-        else if (text.StartsWith("Netch://"))
+        else if (text.StartsWith("Netch://", StringComparison.OrdinalIgnoreCase))
         {
             list.Add(ParseNetchUri(text));
         }
@@ -79,7 +90,7 @@ public static class ShareLink
             {
                 var parsed = util.ParseUri(text);
                 if (parsed != null)
-                    list.AddRange(parsed.Where(node => node is not null));
+                    list.AddRange(parsed.Where(node => node is not null && util.CheckServer(node)));
             }
             else
                 Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
@@ -140,8 +151,11 @@ public static class ShareLink
     /// <returns>解码后的字符串</returns>
     public static string URLSafeBase64Decode(string text)
     {
+        var clean = string.Concat(text.Where(c => !char.IsWhiteSpace(c)))
+            .Replace('-', '+')
+            .Replace('_', '/');
         return Encoding.UTF8.GetString(
-            Convert.FromBase64String(text.Replace("-", "+").Replace("_", "/").PadRight(text.Length + (4 - text.Length % 4) % 4, '=')));
+            Convert.FromBase64String(clean.PadRight(clean.Length + (4 - clean.Length % 4) % 4, '=')));
     }
 
     /// <summary>

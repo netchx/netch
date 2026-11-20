@@ -96,6 +96,37 @@ internal static class NodeEditor
         var server = (Server?)existing?.Clone() ?? (Server)Activator.CreateInstance(util.ServerType)!;
         server.ProtoExtra = server.ProtoExtra with { };
         var extra = server.ProtoExtra;
+        var protocol = server.ConfigType;
+
+        if (existing == null)
+        {
+            switch (protocol)
+            {
+                case EConfigType.Trojan:
+                    server.StreamSecurity = Constants.StreamSecurity;
+                    server.Network = Constants.DefaultNetwork;
+                    break;
+                case EConfigType.VLESS:
+                    server.MuxEnabled = false;
+                    server.Network = Constants.DefaultNetwork;
+                    extra.VlessEncryption = Constants.None;
+                    break;
+                case EConfigType.VMess:
+                    server.MuxEnabled = false;
+                    server.Network = Constants.DefaultNetwork;
+                    extra.VmessSecurity = Constants.DefaultSecurity;
+                    extra.AlterId = 0;
+                    break;
+                case EConfigType.Hysteria2:
+                    server.StreamSecurity = Constants.StreamSecurity;
+                    extra.Obfs = Constants.None;
+                    break;
+                case EConfigType.Shadowsocks:
+                    extra.SsMethod = Constants.SsCiphers[0];
+                    break;
+            }
+        }
+
         var fields = Stack();
         var apply = new List<Func<string?>>();
         var name = Input(T("Name", "名称"), server.Remarks);
@@ -103,28 +134,50 @@ internal static class NodeEditor
         var port = Input(T("Port", "端口"), server.Port == 0 ? "" : server.Port.ToString());
         fields.Children.Add(name);
         fields.Children.Add(TwoColumns(address, port, new GridLength(2, GridUnitType.Star)));
-        var protocol = server.ConfigType;
 
-        void Field(string label, string? value, Action<string> set)
+        static void Show(UIElement element, bool visible) =>
+            element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+
+        TextBox Field(string label, string? value, Action<string> set, bool multiline = false)
         {
-            var box = Input(label, value);
+            var box = Input(label, value, multiline: multiline);
+            if (multiline)
+            {
+                box.MinHeight = 76;
+                box.MaxHeight = 160;
+                ScrollViewer.SetVerticalScrollBarVisibility(box, ScrollBarVisibility.Auto);
+            }
             fields.Children.Add(box);
-            apply.Add(() => { set(box.Text.Trim()); return null; });
+            apply.Add(() =>
+            {
+                if (box.Visibility == Visibility.Visible)
+                    set(box.Text.Trim());
+                return null;
+            });
+            return box;
         }
 
-        void Secret(string label, string? value, Action<string> set)
+        PasswordBox Secret(string label, string? value, Action<string> set)
         {
             var box = new PasswordBox { Header = label, Password = value ?? "" };
             fields.Children.Add(box);
-            apply.Add(() => { set(box.Password); return null; });
+            apply.Add(() =>
+            {
+                if (box.Visibility == Visibility.Visible)
+                    set(box.Password);
+                return null;
+            });
+            return box;
         }
 
-        void Number(string label, int? value, Action<int?> set, int min = 0, int max = int.MaxValue)
+        TextBox Number(string label, int? value, Action<int?> set, int min = 0, int max = int.MaxValue)
         {
             var box = Input(label, value?.ToString());
             fields.Children.Add(box);
             apply.Add(() =>
             {
+                if (box.Visibility != Visibility.Visible)
+                    return null;
                 if (box.Text.Trim().Length == 0)
                     set(null);
                 else if (int.TryParse(box.Text, out var number) && number >= min && number <= max)
@@ -133,23 +186,65 @@ internal static class NodeEditor
                     return TF("Invalid value for {0}.", "{0}的值无效。", label);
                 return null;
             });
+            return box;
         }
 
-        void Options(string label, string? value, Action<string> set, params string[] choices)
+        ComboBox Options(string label, string? value, Action<string> set, params string[] choices)
         {
-            var items = choices.Prepend(value ?? "").Distinct().ToArray();
-            var box = Choice(label, items);
+            var list = choices.ToList();
+            if (!string.IsNullOrEmpty(value) && !list.Contains(value))
+                list.Insert(0, value);
+            var index = value != null ? list.IndexOf(value) : 0;
+            if (index < 0)
+                index = 0;
+            var box = Choice(label, list, index);
             box.Header = label;
             box.HorizontalAlignment = HorizontalAlignment.Stretch;
             fields.Children.Add(box);
-            apply.Add(() => { set((string)box.SelectedItem); return null; });
+            apply.Add(() =>
+            {
+                if (box.Visibility == Visibility.Visible)
+                    set(box.SelectedItem as string ?? "");
+                return null;
+            });
+            return box;
         }
 
-        void Toggle(string label, bool? value, Action<bool?> set)
+        ComboBox EditableOptions(string label, string? value, Action<string> set, params string[] choices)
         {
-            var box = new CheckBox { Content = label, IsChecked = value };
+            var list = choices.ToList();
+            if (!string.IsNullOrEmpty(value) && !list.Contains(value))
+                list.Insert(0, value);
+            var box = new ComboBox
+            {
+                Header = label,
+                IsEditable = true,
+                ItemsSource = list,
+                Text = value ?? (list.FirstOrDefault() ?? string.Empty),
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(box, label);
             fields.Children.Add(box);
-            apply.Add(() => { set(box.IsChecked); return null; });
+            apply.Add(() =>
+            {
+                if (box.Visibility == Visibility.Visible)
+                    set(box.Text.Trim());
+                return null;
+            });
+            return box;
+        }
+
+        CheckBox Toggle(string label, bool? value, Action<bool?> set, bool threeState = false)
+        {
+            var box = new CheckBox { Content = label, IsThreeState = threeState, IsChecked = value };
+            fields.Children.Add(box);
+            apply.Add(() =>
+            {
+                if (box.Visibility == Visibility.Visible)
+                    set(box.IsChecked);
+                return null;
+            });
+            return box;
         }
 
         if (protocol is EConfigType.SOCKS or EConfigType.HTTP or EConfigType.Naive or EConfigType.MASQUE or EConfigType.TUIC)
@@ -162,24 +257,69 @@ internal static class NodeEditor
             _ => T("Password", "密码")
         }, server.Password, s => server.Password = s);
 
+        ComboBox? vlessFlowBox = null;
         switch (server)
         {
             case ShadowsocksRServer ssr:
-                Options(T("Encryption", "加密"), ssr.EncryptMethod, s => ssr.EncryptMethod = s, "none", "rc4-md5", "aes-128-ctr",
-                    "aes-192-ctr", "aes-256-ctr", "aes-128-cfb", "aes-192-cfb", "aes-256-cfb", "chacha20", "chacha20-ietf", "xchacha20");
-                Field(T("Protocol", "协议"), ssr.Protocol, s => ssr.Protocol = s);
+                Options(T("Encryption", "加密"), ssr.EncryptMethod, s => ssr.EncryptMethod = s, Constants.SsrEncryptMethods.ToArray());
+                EditableOptions(T("Protocol", "协议"), ssr.Protocol, s => ssr.Protocol = s, Constants.SsrProtocols.ToArray());
                 Field(T("Protocol parameter", "协议参数"), ssr.ProtocolParam, s => ssr.ProtocolParam = s);
-                Field(T("Obfuscation", "混淆"), ssr.OBFS, s => ssr.OBFS = s);
+                EditableOptions(T("Obfuscation", "混淆"), ssr.OBFS, s => ssr.OBFS = s, Constants.SsrObfs.ToArray());
                 Field(T("Obfuscation parameter", "混淆参数"), ssr.OBFSParam, s => ssr.OBFSParam = s);
                 break;
             case ShadowsocksServer:
-                Options(T("Encryption", "加密"), extra.SsMethod, s => extra.SsMethod = s, Constants.SsSecuritiesInXray.ToArray());
-                Options(T("Plugin", "插件"), extra.SsPlugin, s => extra.SsPlugin = s, "", "obfs-local", "v2ray-plugin");
-                Field(T("Plugin options", "插件参数"), extra.SsPluginOptions, s => extra.SsPluginOptions = s);
+                Options(T("Encryption", "加密"), extra.SsMethod, s => extra.SsMethod = s, Constants.SsCiphers.ToArray());
+                var originalPlugin = extra.SsPlugin ?? "";
+                var originalPluginOptions = extra.SsPluginOptions ?? "";
+                void ResetSsTransport()
+                {
+                    server.Network = Constants.DefaultNetwork;
+                    server.HeaderType = "";
+                    server.RequestHost = "";
+                    server.Path = "";
+                    server.StreamSecurity = Constants.None;
+                }
+                var ssPlugin = Options(T("Plugin", "插件"), originalPlugin, s =>
+                {
+                    if (s == originalPlugin) return;
+                    extra.SsPlugin = s;
+                    extra.SsPluginOptions = "";
+                    if (s != "v2ray-plugin") server.AllowInsecure = null;
+                    ResetSsTransport();
+                }, "", "obfs-local", "v2ray-plugin");
+                var ssPluginOptions = Field(T("Plugin options", "插件参数"), originalPluginOptions, s =>
+                {
+                    var selectedPlugin = ssPlugin.SelectedItem as string ?? "";
+                    if (selectedPlugin == originalPlugin && s == originalPluginOptions.Trim()) return;
+                    extra.SsPluginOptions = s;
+                    ResetSsTransport();
+                });
+                var ssAllowInsecure = Toggle(T("Allow insecure", "允许不安全连接"), server.AllowInsecure, b => server.AllowInsecure = b, threeState: true);
                 Toggle("UDP over TCP", extra.Uot, b => extra.Uot = b);
+                void RefreshSsPlugin()
+                {
+                    var selected = ssPlugin.SelectedItem as string ?? "";
+                    Show(ssPluginOptions, selected.Length > 0);
+                    Show(ssAllowInsecure, selected == "v2ray-plugin");
+                    ssPluginOptions.PlaceholderText = selected switch
+                    {
+                        "obfs-local" => "obfs=http;obfs-host=example.com",
+                        "v2ray-plugin" => "mode=websocket;host=example.com;path=/;tls",
+                        _ => ""
+                    };
+                }
+                ssPlugin.SelectionChanged += (_, _) =>
+                {
+                    var selected = ssPlugin.SelectedItem as string ?? "";
+                    ssPluginOptions.Text = selected == originalPlugin ? originalPluginOptions : "";
+                    RefreshSsPlugin();
+                };
+                RefreshSsPlugin();
                 break;
             case WireGuardServer:
-                Field(T("Peer public key", "对端公钥"), extra.WgPublicKey, s => extra.WgPublicKey = s);
+                Field(T("Peer public key", "对端公钥"),
+                    string.IsNullOrWhiteSpace(extra.WgPublicKey) ? server.PublicKey : extra.WgPublicKey,
+                    s => extra.WgPublicKey = s);
                 Secret(T("Preshared key", "预共享密钥"), extra.WgPresharedKey, s => extra.WgPresharedKey = s);
                 Field(T("Local IP / CIDR", "本地 IP / CIDR"), extra.WgInterfaceAddress, s => extra.WgInterfaceAddress = s);
                 Field(T("Reserved bytes", "保留字节"), extra.WgReserved, s => extra.WgReserved = s);
@@ -190,65 +330,209 @@ internal static class NodeEditor
         switch (protocol)
         {
             case EConfigType.VMess:
-                Number("Alter ID", extra.AlterId, n => extra.AlterId = n, max: ushort.MaxValue);
+                Number("Alter ID", extra.AlterId ?? 0, n => extra.AlterId = n ?? 0, max: ushort.MaxValue);
                 Options(T("Encryption", "加密"), extra.VmessSecurity, s => extra.VmessSecurity = s, Constants.VmessSecurities.ToArray());
                 break;
             case EConfigType.VLESS:
-                Options(T("Flow", "流控"), extra.Flow, s => extra.Flow = s, "", "xtls-rprx-vision");
-                Field(T("Encryption", "加密"), extra.VlessEncryption, s => extra.VlessEncryption = s);
+                vlessFlowBox = Options(T("Flow", "流控"), extra.Flow, s => extra.Flow = s, Constants.Flow.ToArray());
+                Field(T("Encryption", "加密"), string.IsNullOrEmpty(extra.VlessEncryption) ? Constants.None : extra.VlessEncryption,
+                    s => extra.VlessEncryption = string.IsNullOrWhiteSpace(s) ? Constants.None : s);
+                break;
+            case EConfigType.Trojan:
+                if (extra.Flow is { Length: > 0 } legacyFlow && legacyFlow != Constants.None)
+                    Options(T("Legacy flow", "旧版流控"), legacyFlow, s => extra.Flow = s, "", legacyFlow);
                 break;
             case EConfigType.SOCKS:
                 Toggle("UDP over TCP", extra.Uot, b => extra.Uot = b);
                 break;
             case EConfigType.HTTP:
-                Field(T("HTTP headers", "HTTP 请求头"), extra.HttpHeaders, s => extra.HttpHeaders = s);
+                Field(T("HTTP headers", "HTTP 请求头"), extra.HttpHeaders, s => extra.HttpHeaders = s, multiline: true);
                 break;
             case EConfigType.TUIC:
                 Options(T("Congestion control", "拥塞控制"), extra.CongestionControl, s => extra.CongestionControl = s, "bbr", "cubic", "new_reno");
+                Options(T("UDP relay mode", "UDP 转发模式"), extra.TuicUdpRelayMode, s => extra.TuicUdpRelayMode = s, Constants.TuicUdpRelayModes.ToArray());
+                Toggle(T("Reduce RTT", "0-RTT 握手"), extra.TuicReduceRtt, b => extra.TuicReduceRtt = b);
+                Toggle(T("Disable SNI", "禁用 SNI"), extra.TuicDisableSni, b => extra.TuicDisableSni = b);
+                break;
+            case EConfigType.AnyTLS:
+                Number(T("Idle check interval (s)", "空闲检查间隔（秒）"), extra.AnyTlsIdleSessionCheckIntervalSeconds,
+                    n => extra.AnyTlsIdleSessionCheckIntervalSeconds = n);
+                Number(T("Idle session timeout (s)", "空闲会话超时（秒）"), extra.AnyTlsIdleSessionTimeoutSeconds,
+                    n => extra.AnyTlsIdleSessionTimeoutSeconds = n);
+                Number(T("Min idle sessions", "最小空闲会话数"), extra.AnyTlsMinIdleSession,
+                    n => extra.AnyTlsMinIdleSession = n);
                 break;
             case EConfigType.Hysteria2:
-                Options(T("Obfuscation", "混淆"), extra.Obfs, s => extra.Obfs = s, "none", "salamander", "gecko");
-                Secret(T("Obfuscation password", "混淆密码"), extra.SalamanderPass, s => extra.SalamanderPass = s);
-                Field(T("Port hopping range", "端口跳跃范围"), extra.Ports, s => extra.Ports = s);
-                Field(T("Hop interval (s)", "跳跃间隔（秒）"), extra.HopInterval, s => extra.HopInterval = s);
+                var initialHy2Obfs = string.IsNullOrEmpty(extra.SalamanderPass) ? Constants.None : extra.Obfs;
+                var hy2Obfs = Options(T("Obfuscation", "混淆"), initialHy2Obfs, s =>
+                {
+                    extra.Obfs = s;
+                    if (s == Constants.None) extra.SalamanderPass = "";
+                    if (s != "gecko")
+                    {
+                        extra.GeckoMinPacketSize = "";
+                        extra.GeckoMaxPacketSize = "";
+                    }
+                }, Constants.None, "salamander", "gecko");
+                var hy2ObfsPassword = Secret(T("Obfuscation password", "混淆密码"), extra.SalamanderPass, s => extra.SalamanderPass = s);
+                var hy2GeckoMin = Field(T("Gecko min packet size", "Gecko 最小包长"), extra.GeckoMinPacketSize, s => extra.GeckoMinPacketSize = s);
+                var hy2GeckoMax = Field(T("Gecko max packet size", "Gecko 最大包长"), extra.GeckoMaxPacketSize, s => extra.GeckoMaxPacketSize = s);
+                var hy2Ports = Field(T("Port hopping range", "端口跳跃范围"), extra.Ports, s => extra.Ports = s);
+                var hy2HopInterval = Field(T("Hop interval (s)", "跳跃间隔（秒）"), extra.HopInterval, s => extra.HopInterval = s);
                 Number(T("Upload (Mbps)", "上传（Mbps）"), extra.UpMbps, n => extra.UpMbps = n);
                 Number(T("Download (Mbps)", "下载（Mbps）"), extra.DownMbps, n => extra.DownMbps = n);
+                void RefreshHy2()
+                {
+                    var obfsSelected = hy2Obfs.SelectedItem as string ?? Constants.None;
+                    Show(hy2ObfsPassword, obfsSelected != Constants.None);
+                    Show(hy2GeckoMin, obfsSelected == "gecko");
+                    Show(hy2GeckoMax, obfsSelected == "gecko");
+                    Show(hy2HopInterval, !string.IsNullOrWhiteSpace(hy2Ports.Text));
+                }
+                hy2Obfs.SelectionChanged += (_, _) => RefreshHy2();
+                hy2Ports.TextChanged += (_, _) => RefreshHy2();
+                RefreshHy2();
                 break;
             case EConfigType.Naive:
-                Toggle("QUIC", extra.NaiveQuic, b => extra.NaiveQuic = b);
+                var naiveQuic = Toggle("QUIC", extra.NaiveQuic, b =>
+                {
+                    extra.NaiveQuic = b;
+                    if (b != true) extra.CongestionControl = "";
+                });
+                var naiveCongestion = Options(T("QUIC congestion control", "QUIC 拥塞控制"), extra.CongestionControl,
+                    s => extra.CongestionControl = s, Constants.NaiveQuicCongestionControls.ToArray());
                 Number(T("Tunnel connections", "隧道连接数"), extra.InsecureConcurrency, n => extra.InsecureConcurrency = n);
+                Toggle("UDP over TCP", extra.Uot, b => extra.Uot = b);
+                void RefreshNaive() => Show(naiveCongestion, naiveQuic.IsChecked == true);
+                naiveQuic.Checked += (_, _) => RefreshNaive();
+                naiveQuic.Unchecked += (_, _) => RefreshNaive();
+                RefreshNaive();
                 break;
             case EConfigType.MASQUE:
                 Field(T("URI template", "URI 模板"), extra.MasquePath, s => extra.MasquePath = s);
-                Field(T("HTTP headers", "HTTP 请求头"), extra.MasqueHeaders, s => extra.MasqueHeaders = s);
+                Field(T("HTTP headers", "HTTP 请求头"), extra.MasqueHeaders, s => extra.MasqueHeaders = s, multiline: true);
                 break;
         }
 
+        ComboBox? transportBox = null;
         if (protocol is EConfigType.VLESS or EConfigType.VMess or EConfigType.Trojan)
         {
-            Options(T("Transport", "传输"), server.Network, s => server.Network = s, "tcp", "ws", "grpc", "httpupgrade", "xhttp", "kcp");
-            Field(T("Request host", "请求主机"), server.RequestHost, s => server.RequestHost = s);
-            Field(T("Path / service name", "路径 / 服务名"), server.Path, s => server.Path = s);
-            Field(T("Header type", "伪装类型"), server.HeaderType, s => server.HeaderType = s);
-            Toggle("Mux", server.MuxEnabled, b => server.MuxEnabled = b);
-            Field(T("Reality public key", "Reality 公钥"), server.PublicKey, s => server.PublicKey = s);
-            Field(T("Short ID", "短 ID"), server.ShortId, s => server.ShortId = s);
-            Field("SpiderX", server.SpiderX, s => server.SpiderX = s);
-            Field("ML-DSA-65", server.Mldsa65Verify, s => server.Mldsa65Verify = s);
-            Field(T("Transport extensions", "传输扩展"), server.Extra, s => server.Extra = s);
+            var initialNetwork = string.IsNullOrWhiteSpace(server.Network) ? Constants.DefaultNetwork : server.Network.Trim().ToLowerInvariant();
+            if (initialNetwork == "raw") initialNetwork = "tcp";
+            if (initialNetwork == "http") initialNetwork = "h2";
+            var networks = protocol == EConfigType.VMess
+                ? new[] { "tcp", "ws", "grpc", "httpupgrade", "h2", "xhttp", "quic", "kcp" }
+                : new[] { "tcp", "ws", "grpc", "httpupgrade", "h2", "xhttp", "quic" };
+            transportBox = Options(T("Transport", "传输"), initialNetwork, s => server.Network = s, networks);
+            var hostBox = Field(T("Request host", "请求主机"), server.RequestHost, s => server.RequestHost = s);
+            var pathBox = Field(T("Path / service name", "路径 / 服务名"), server.Path, s => server.Path = s);
+            var headerBox = Field(T("Header type", "伪装类型"), server.HeaderType, s => server.HeaderType = s);
+            if (protocol is EConfigType.VLESS or EConfigType.VMess)
+                Toggle("Mux", server.MuxEnabled, b => server.MuxEnabled = b);
+            var extraBox = Field(T("Transport extensions", "传输扩展"), server.Extra, s => server.Extra = s, multiline: true);
+            void RefreshTransport()
+            {
+                var net = transportBox.SelectedItem as string ?? Constants.DefaultNetwork;
+                Show(hostBox, net is "tcp" or "ws" or "httpupgrade" or "xhttp" or "h2" or "quic" or "kcp" || !string.IsNullOrEmpty(server.RequestHost));
+                Show(pathBox, net is "tcp" or "ws" or "httpupgrade" or "xhttp" or "h2" or "grpc" or "kcp" or "quic" || !string.IsNullOrEmpty(server.Path));
+                Show(headerBox, net is "tcp" or "kcp" or "xhttp" or "grpc" or "quic" || !string.IsNullOrEmpty(server.HeaderType));
+                Show(extraBox, net == "xhttp" || !string.IsNullOrEmpty(server.Extra));
+            }
+            transportBox.SelectionChanged += (_, _) => RefreshTransport();
+            RefreshTransport();
         }
 
-        if (protocol is not (EConfigType.WireGuard or EConfigType.ShadowsocksR))
+        if (protocol is not (EConfigType.WireGuard or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks))
         {
-            Options(T("TLS security", "TLS 安全"), server.StreamSecurity, s => server.StreamSecurity = s, "", "tls", "reality");
-            Field("SNI", server.Sni, s => server.Sni = s);
-            Field("ALPN", server.Alpn, s => server.Alpn = s);
-            Field(T("Fingerprint", "指纹"), server.Fingerprint, s => server.Fingerprint = s);
-            Toggle(T("Allow insecure", "允许不安全连接"), server.AllowInsecure, b => server.AllowInsecure = b);
-            Field(T("Certificate", "证书"), server.Cert, s => server.Cert = s);
-            Field(T("Certificate SHA", "证书 SHA"), server.CertSha, s => server.CertSha = s);
-            Field("ECH", server.EchConfigList, s => server.EchConfigList = s);
-            Field("ECH Force Query", server.EchForceQuery, s => server.EchForceQuery = s);
+            var initialSecurity = server.StreamSecurity == Constants.StreamSecurityReality
+                ? Constants.StreamSecurityReality
+                : server.StreamSecurity == Constants.StreamSecurity ? Constants.StreamSecurity : Constants.None;
+            var fixedTls = protocol is EConfigType.Hysteria2 or EConfigType.TUIC or EConfigType.AnyTLS or EConfigType.Naive or EConfigType.MASQUE;
+            var supportsReality = protocol is EConfigType.VLESS or EConfigType.VMess or EConfigType.Trojan;
+            var naive = protocol == EConfigType.Naive;
+
+            ComboBox? securityBox = null;
+            if (fixedTls)
+                server.StreamSecurity = Constants.StreamSecurity;
+            else
+            {
+                var secChoices = supportsReality && ServerValidator.SupportsReality(protocol, transportBox?.SelectedItem as string)
+                    ? new[] { Constants.None, Constants.StreamSecurity, Constants.StreamSecurityReality }
+                    : new[] { Constants.None, Constants.StreamSecurity };
+                securityBox = Options(T("TLS security", "TLS 安全"), initialSecurity, s => server.StreamSecurity = s, secChoices);
+            }
+
+            var sniBox = Field("SNI", server.Sni, s => server.Sni = s);
+            ComboBox? alpnBox = naive ? null : Options("ALPN", server.Alpn, s => server.Alpn = s, Constants.Alpn.ToArray());
+            ComboBox? fpBox = naive ? null : Options(T("Fingerprint", "指纹"), server.Fingerprint, s => server.Fingerprint = s, Constants.Fingerprints.ToArray());
+            CheckBox? insecureBox = naive ? null : Toggle(T("Allow insecure", "允许不安全连接"), server.AllowInsecure, b => server.AllowInsecure = b, threeState: true);
+            var certBox = Field(T("Certificate", "证书"), server.Cert, s =>
+            {
+                server.Cert = s;
+                if (protocol == EConfigType.Hysteria2 && s.Length > 0) server.CertSha = "";
+            }, multiline: true);
+            TextBox? certShaBox = naive || string.IsNullOrWhiteSpace(server.CertSha)
+                ? null
+                : Field(T("Certificate SHA", "证书 SHA"), server.CertSha, s => server.CertSha = s);
+
+            TextBox? pubKeyBox = null;
+            TextBox? shortIdBox = null;
+            TextBox? spiderXBox = null;
+            TextBox? mldsaBox = null;
+            TextBox? echBox = null;
+            ComboBox? echQueryBox = null;
+            if (supportsReality)
+            {
+                pubKeyBox = Field(T("Reality public key", "Reality 公钥"), server.PublicKey, s => server.PublicKey = s);
+                shortIdBox = Field(T("Short ID", "短 ID"), server.ShortId, s => server.ShortId = s);
+                spiderXBox = Field("SpiderX", server.SpiderX, s => server.SpiderX = s);
+                mldsaBox = Field("ML-DSA-65", server.Mldsa65Verify, s => server.Mldsa65Verify = s);
+                echBox = Field("ECH", server.EchConfigList, s => server.EchConfigList = s);
+                echQueryBox = Options("ECH Force Query", server.EchForceQuery, s => server.EchForceQuery = s, Constants.EchForceQuerys.ToArray());
+            }
+
+            void RefreshSecurity()
+            {
+                var sec = fixedTls ? Constants.StreamSecurity : (securityBox?.SelectedItem as string ?? Constants.None);
+                var net = transportBox?.SelectedItem as string ?? Constants.DefaultNetwork;
+                var secure = sec is Constants.StreamSecurity or Constants.StreamSecurityReality;
+                var tlsOnly = sec == Constants.StreamSecurity;
+                var reality = sec == Constants.StreamSecurityReality;
+                var xhttp = net == "xhttp";
+
+                Show(sniBox, secure);
+                if (alpnBox != null) Show(alpnBox, secure);
+                if (fpBox != null) Show(fpBox, secure);
+                if (insecureBox != null) Show(insecureBox, tlsOnly);
+                Show(certBox, tlsOnly);
+                if (certShaBox != null) Show(certShaBox, tlsOnly);
+                if (pubKeyBox != null) Show(pubKeyBox, reality);
+                if (shortIdBox != null) Show(shortIdBox, reality);
+                if (spiderXBox != null) Show(spiderXBox, reality && (xhttp || !string.IsNullOrEmpty(server.SpiderX)));
+                if (mldsaBox != null) Show(mldsaBox, reality && (xhttp || !string.IsNullOrEmpty(server.Mldsa65Verify)));
+                if (echBox != null) Show(echBox, tlsOnly && (xhttp || !string.IsNullOrEmpty(server.EchConfigList)));
+                if (echQueryBox != null) Show(echQueryBox, tlsOnly && (xhttp || !string.IsNullOrEmpty(server.EchForceQuery)));
+                if (vlessFlowBox != null) Show(vlessFlowBox, secure && net is "tcp" or "raw");
+            }
+
+            if (securityBox != null)
+            {
+                securityBox.SelectionChanged += (_, _) => RefreshSecurity();
+            }
+            if (transportBox != null && securityBox != null)
+            {
+                transportBox.SelectionChanged += (_, _) =>
+                {
+                    var currentSec = securityBox.SelectedItem as string ?? Constants.None;
+                    var secChoices = ServerValidator.SupportsReality(protocol, transportBox.SelectedItem as string)
+                        ? new[] { Constants.None, Constants.StreamSecurity, Constants.StreamSecurityReality }
+                        : new[] { Constants.None, Constants.StreamSecurity };
+                    securityBox.ItemsSource = secChoices;
+                    securityBox.SelectedIndex = Array.IndexOf(secChoices, currentSec) is var i and >= 0 ? i : 0;
+                    RefreshSecurity();
+                };
+            }
+            RefreshSecurity();
         }
 
         var title = existing == null ? T("Add node", "添加节点") : T("Edit node", "编辑节点");
@@ -263,6 +547,30 @@ internal static class NodeEditor
                 if (read() is { } error)
                     return error;
 
+            if (protocol == EConfigType.Hysteria2 && string.IsNullOrWhiteSpace(extra.Ports))
+                extra.HopInterval = "";
+            if (protocol == EConfigType.VLESS && vlessFlowBox is { Visibility: not Visibility.Visible })
+                extra.Flow = "";
+            if (protocol is EConfigType.VLESS or EConfigType.VMess or EConfigType.Trojan && server.GetNetwork() != nameof(ETransport.xhttp))
+                server.Extra = "";
+            if (protocol is not (EConfigType.WireGuard or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks) &&
+                server.StreamSecurity != Constants.StreamSecurity)
+            {
+                server.Cert = "";
+                server.CertSha = "";
+                server.EchConfigList = "";
+                server.EchForceQuery = "";
+            }
+            if (protocol == EConfigType.HTTP && server.StreamSecurity == Constants.None)
+            {
+                server.Sni = "";
+                server.Alpn = "";
+                server.Fingerprint = "";
+                server.AllowInsecure = null;
+            }
+
+            if (ServerValidator.Validate(server) is { } validationError)
+                return i18N.Translate(validationError);
             return util.CheckServer(server) ? null : T("Check the required protocol fields.", "请检查该协议的必填字段。");
         }))
             return false;

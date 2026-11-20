@@ -83,7 +83,7 @@ public static class V2rayConfigUtils
                                 new UsersItem4Ray
                                 {
                                     id = vless.Password,
-                                    encryption = vless.ProtoExtra.VlessEncryption
+                                    encryption = string.IsNullOrWhiteSpace(vless.ProtoExtra.VlessEncryption) ? Constants.None : vless.ProtoExtra.VlessEncryption
                                 }
                             ]
                         }
@@ -176,7 +176,7 @@ public static class V2rayConfigUtils
                 outbound.settings.peers = [
                     new WireguardPeer4Ray
                     {
-                        publicKey = wg.PublicKey,
+                        publicKey = wg.ProtoExtra.WgPublicKey.IsNullOrEmpty() ? wg.PublicKey : wg.ProtoExtra.WgPublicKey,
                         endpoint = address + ":" + server.Port.ToString()
                     }
                 ];
@@ -204,7 +204,7 @@ public static class V2rayConfigUtils
         var streamSettings = new StreamSettings4Ray();
         try
         {
-            var network = server.Network.Trim().ToLowerInvariant();
+            var network = (string.IsNullOrWhiteSpace(server.Network) ? Constants.DefaultNetwork : server.Network).Trim().ToLowerInvariant();
             if (server.ConfigType == EConfigType.Hysteria2)
             {
                 network = "hysteria";
@@ -315,7 +315,7 @@ public static class V2rayConfigUtils
                     kcpSettings.readBufferSize = Global.Settings.V2RayConfig.KcpItem.ReadBufferSize;
                     kcpSettings.writeBufferSize = Global.Settings.V2RayConfig.KcpItem.WriteBufferSize;
                     streamSettings.finalmask ??= new();
-                    if (Constants.KcpHeaderMaskMap.TryGetValue(server.HeaderType, out var header))
+                    if (server.HeaderType is not null && Constants.KcpHeaderMaskMap.TryGetValue(server.HeaderType, out var header))
                     {
                         streamSettings.finalmask.udp =
                         [
@@ -407,6 +407,7 @@ public static class V2rayConfigUtils
                     break;
                 //h2
                 case nameof(ETransport.h2):
+                case nameof(ETransport.http):
                     HttpSettings4Ray httpSettings = new();
 
                     if (host.IsNotEmpty())
@@ -465,7 +466,7 @@ public static class V2rayConfigUtils
                         : Global.Settings.V2RayConfig.HysteriaItem.UpMbps;
                     int? downMbps = protocolExtra?.DownMbps is { } sd and >= 0
                         ? sd
-                        : Global.Settings.V2RayConfig.HysteriaItem.UpMbps;
+                        : Global.Settings.V2RayConfig.HysteriaItem.DownMbps;
                     var hopInterval = !protocolExtra.HopInterval.IsNullOrEmpty()
                         ? protocolExtra.HopInterval
                         : (Global.Settings.V2RayConfig.HysteriaItem.HopInterval >= 5

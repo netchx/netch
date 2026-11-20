@@ -32,6 +32,8 @@ public sealed class ShadowsocksRUtil : IServerUtil
     {
         var payload = ShareLink.URLSafeBase64Decode(text["ssr://".Length..]);
         var parts = payload.Split("/?", 2, StringSplitOptions.None);
+        if (parts.Length == 1)
+            parts = payload.Split('?', 2, StringSplitOptions.None);
         var fields = LinkFields.Match(parts[0].TrimEnd('/'));
         if (!fields.Success || !ushort.TryParse(fields.Groups[2].Value, out var port) || port == 0)
             return [];
@@ -57,6 +59,7 @@ public sealed class ShadowsocksRUtil : IServerUtil
     }
 
     public bool CheckServer(Server s) => s is ShadowsocksRServer server
-        && server.Address.IsNotEmpty() && server.Port is > 0 and <= ushort.MaxValue
-        && server.EncryptMethod.IsNotEmpty() && server.Password.IsNotEmpty();
+        && server.Address.IsNotEmpty() && ServerValidator.IsValidPort(server.Port)
+        && server.EncryptMethod.IsNotEmpty() && server.Password.IsNotEmpty()
+        && server.Protocol.IsNotEmpty() && server.OBFS.IsNotEmpty();
 }

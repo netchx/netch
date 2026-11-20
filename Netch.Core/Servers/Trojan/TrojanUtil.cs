@@ -47,28 +47,37 @@ public class TrojanUtil : ServerUtilBase, IServerUtil
         TrojanServer item = new();
 
         var url = Utils.Utils.TryUri(str);
-        if (url == null)
+        if (url == null || url.IdnHost.IsNullOrEmpty())
         {
-            return null;
+            return [];
         }
 
         item.Address = url.IdnHost;
-        item.Port = url.Port;
+        item.Port = url.Port > 0 ? url.Port : 443;
         item.Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
         item.Password = Utils.Utils.UrlDecode(url.UserInfo);
 
         var query = Utils.Utils.ParseQueryString(url.Query);
+        var explicitNone = string.Equals(GetQueryValue(query, "security"), Constants.None, StringComparison.OrdinalIgnoreCase);
         item.ProtoExtra.Flow = GetQueryValue(query, "flow");
         ResolveUriQuery(query, ref item);
-        if (item.StreamSecurity.IsNullOrEmpty())
+        if (item.Sni.IsNullOrEmpty())
+        {
+            item.Sni = GetQueryDecoded(query, "peer");
+        }
+        if (explicitNone)
+        {
+            item.StreamSecurity = Constants.None;
+        }
+        else if (item.StreamSecurity.IsNullOrEmpty())
         {
             item.StreamSecurity = Constants.StreamSecurity;
         }
-        return new[] { item };
+        return [item];
     }
 
     public bool CheckServer(Server s)
     {
-        return true;
+        return s.Address.IsNotEmpty() && ServerValidator.IsValidPort(s.Port) && s.Password.IsNotEmpty();
     }
 }

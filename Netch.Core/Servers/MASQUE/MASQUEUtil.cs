@@ -19,30 +19,40 @@ public sealed class MASQUEUtil : SingboxUtilBase, IServerUtil
         var query = TlsQuery(s);
         if (s.ProtoExtra.MasquePath.IsNotEmpty()) query["path"] = Utils.Utils.UrlEncode(s.ProtoExtra.MasquePath);
         if (s.ProtoExtra.MasqueHeaders.IsNotEmpty()) query["headers"] = Utils.Utils.UrlEncode(s.ProtoExtra.MasqueHeaders);
-        return ToShareUri(EConfigType.MASQUE, s, $"{Utils.Utils.UrlEncode(s.Username)}:{Utils.Utils.UrlEncode(s.Password)}", query);
+        var userInfo = s.Username.IsNotEmpty() || s.Password.IsNotEmpty()
+            ? $"{Utils.Utils.UrlEncode(s.Username ?? string.Empty)}:{Utils.Utils.UrlEncode(s.Password ?? string.Empty)}"
+            : string.Empty;
+        return ToShareUri(EConfigType.MASQUE, s, userInfo, query);
     }
 
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);
-        if (url == null) return [];
+        if (url == null || url.IdnHost.IsNullOrEmpty()) return [];
         var server = new MASQUEServer()
         {
             Address = url.IdnHost,
-            Port = url.Port,
+            Port = url.Port > 0 ? url.Port : 443,
             Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped),
             StreamSecurity = Constants.StreamSecurity,
             Password = string.Empty
         };
-        var userInfo = Utils.Utils.UrlDecode(url.UserInfo).Split(':', 2);
-        if (userInfo.Length > 0) server.Username = userInfo[0];
-        if (userInfo.Length > 1) server.Password = userInfo[1];
+        if (url.UserInfo.IsNotEmpty())
+        {
+            var (user, pass, _) = SplitUserInfo(url.UserInfo);
+            server.Username = user;
+            server.Password = pass;
+        }
         var query = Utils.Utils.ParseQueryString(url.Query);
         ResolveTlsQuery(query, server);
-        server.ProtoExtra.MasquePath = GetQueryDecoded(query, "path");
+        var pathQuery = GetQueryDecoded(query, "path");
+        if (pathQuery.IsNotEmpty())
+            server.ProtoExtra.MasquePath = pathQuery;
+        else if (url.AbsolutePath.IsNotEmpty() && url.AbsolutePath != "/")
+            server.ProtoExtra.MasquePath = Utils.Utils.UrlDecode(url.AbsolutePath);
         server.ProtoExtra.MasqueHeaders = GetQueryDecoded(query, "headers");
         return [server];
     }
 
-    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && s.Port > 0;
+    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && ServerValidator.IsValidPort(s.Port);
 }

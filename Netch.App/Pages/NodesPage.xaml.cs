@@ -284,6 +284,7 @@ public sealed partial class NodesPage : Page
                 var picker = new FileOpenPicker(App.MainWindow!.AppWindow.Id);
                 picker.FileTypeFilter.Add(".yaml");
                 picker.FileTypeFilter.Add(".yml");
+                picker.FileTypeFilter.Add(".txt");
                 if (await picker.PickSingleFileAsync() is not { } file)
                     return;
                 text = await File.ReadAllTextAsync(file.Path);

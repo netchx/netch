@@ -32,17 +32,39 @@ public sealed class SingboxServerForm : ServerForm
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
                 CreateComboBox("CongestionControl", "Congestion", ["bbr", "cubic", "new_reno"],
                     s => server.ProtoExtra.CongestionControl = s, server.ProtoExtra.CongestionControl);
+                CreateComboBox("UdpRelayMode", "UDP Relay Mode", Constants.TuicUdpRelayModes,
+                    s => server.ProtoExtra.TuicUdpRelayMode = s, server.ProtoExtra.TuicUdpRelayMode);
+                CreateCheckBox("ReduceRtt", "Reduce RTT", b => server.ProtoExtra.TuicReduceRtt = b, server.ProtoExtra.TuicReduceRtt == true);
+                CreateCheckBox("DisableSni", "Disable SNI", b => server.ProtoExtra.TuicDisableSni = b, server.ProtoExtra.TuicDisableSni == true);
                 break;
             case EConfigType.AnyTLS:
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
+                CreateTextBox("IdleSessionCheckInterval", "Idle Check Interval (s)", NonnegativeOrEmpty,
+                    s => server.ProtoExtra.AnyTlsIdleSessionCheckIntervalSeconds = ParseOptional(s),
+                    server.ProtoExtra.AnyTlsIdleSessionCheckIntervalSeconds?.ToString());
+                CreateTextBox("IdleSessionTimeout", "Idle Session Timeout (s)", NonnegativeOrEmpty,
+                    s => server.ProtoExtra.AnyTlsIdleSessionTimeoutSeconds = ParseOptional(s),
+                    server.ProtoExtra.AnyTlsIdleSessionTimeoutSeconds?.ToString());
+                CreateTextBox("MinIdleSession", "Min Idle Sessions", NonnegativeOrEmpty,
+                    s => server.ProtoExtra.AnyTlsMinIdleSession = ParseOptional(s),
+                    server.ProtoExtra.AnyTlsMinIdleSession?.ToString());
                 break;
             case EConfigType.Naive:
                 CreateTextBox("Username", "Username", s => s.Length > 0, s => server.Username = s, server.Username);
                 CreateTextBox("Password", "Password", s => s.Length > 0, s => server.Password = s, server.Password);
-                CreateCheckBox("NaiveQuic", "QUIC", s => server.ProtoExtra.NaiveQuic = s, server.ProtoExtra.NaiveQuic == true);
+                var quic = CreateCheckBox("NaiveQuic", "QUIC", s =>
+                {
+                    server.ProtoExtra.NaiveQuic = s;
+                    if (!s) server.ProtoExtra.CongestionControl = "";
+                }, server.ProtoExtra.NaiveQuic == true);
+                var congestion = CreateComboBox("CongestionControl", "QUIC Congestion", Constants.NaiveQuicCongestionControls,
+                    s => server.ProtoExtra.CongestionControl = s, server.ProtoExtra.CongestionControl);
                 CreateTextBox("InsecureConcurrency", "Tunnel Connections", s => string.IsNullOrWhiteSpace(s) || int.TryParse(s, out var n) && n >= 0,
                     s => server.ProtoExtra.InsecureConcurrency = int.TryParse(s, out var n) ? n : null,
                     server.ProtoExtra.InsecureConcurrency?.ToString() ?? string.Empty);
+                CreateCheckBox("Uot", "UDP over TCP", b => server.ProtoExtra.Uot = b, server.ProtoExtra.Uot == true);
+                quic.CheckedChanged += (_, _) => UpdateFields(() => ShowField(congestion, quic.Checked));
+                ShowField(congestion, quic.Checked);
                 break;
             case EConfigType.MASQUE:
                 AddNotice("MASQUE requires sing-box with CONNECT-IP support. The bundled 1.14.4 core does not support it.");
@@ -56,4 +78,8 @@ public sealed class SingboxServerForm : ServerForm
     }
 
     protected override EConfigType TypeName => _typeName;
+
+    private static int? ParseOptional(string text) => int.TryParse(text, out var value) ? value : null;
+
+    private static bool NonnegativeOrEmpty(string text) => string.IsNullOrWhiteSpace(text) || ParseOptional(text) is >= 0;
 }

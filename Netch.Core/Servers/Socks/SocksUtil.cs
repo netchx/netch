@@ -2,6 +2,7 @@
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Services;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
@@ -15,37 +16,41 @@ public class SocksUtil : ServerUtilBase, IServerUtil
 
     public string ShortName { get; } = "SOCKS";
 
-    public string[] UriScheme { get; } = { "socks", "socks5" };
+    public string[] UriScheme { get; } = { "socks", "socks5", "socks5h" };
 
     public Type ServerType { get; } = typeof(SocksServer);
 
     public string GetShareLink(Server s)
     {
-        var item = (SocksServer)s;
-        if (item == null)
+        if (s is not SocksServer item)
         {
-            return null;
+            return string.Empty;
         }
-        var remark = string.Empty;
-        if (item.Remarks.IsNotEmpty())
-        {
-            remark = "#" + Utils.Utils.UrlEncode(item.Remarks);
-        }
-        //new
-        var pw = Utils.Utils.Base64Encode($"{item.Username}:{item.Password}", true);
-        return ToUri(EConfigType.SOCKS, item.Address, item.Port, pw, null, remark);
+        var remark = item.Remarks.IsNotEmpty()
+            ? "#" + Utils.Utils.UrlEncode(item.Remarks)
+            : string.Empty;
+        var pw = item.Username.IsNotEmpty() || item.Password.IsNotEmpty()
+            ? Utils.Utils.Base64Encode($"{item.Username}:{item.Password}", true)
+            : string.Empty;
+        Dictionary<string, string>? dicQuery = item.ProtoExtra.Uot == true
+            ? new() { ["uot"] = "1" }
+            : null;
+        return ToUri(EConfigType.SOCKS, item.Address, item.Port, pw, dicQuery, remark);
     }
 
     public IEnumerable<Server> ParseUri(string str)
     {
-        var item = ResolveSocksNew(str) ?? ResolveSocks(str);
-        if (item == null)
+        if (str.StartsWith("tg://socks?", StringComparison.OrdinalIgnoreCase) ||
+            str.StartsWith("https://t.me/socks?", StringComparison.OrdinalIgnoreCase))
         {
-            return null;
+            var tg = ResolveTelegramSocks(str);
+            return tg != null && CheckServer(tg) ? [tg] : [];
         }
-        if (item.Address.Length == 0 || item.Port == 0)
+
+        var item = ResolveSocksNew(str) ?? ResolveSocks(str);
+        if (item == null || item.Address.IsNullOrEmpty() || !ServerValidator.IsValidPort(item.Port))
         {
-            return null;
+            return [];
         }
 
         return [item];
@@ -53,31 +58,55 @@ public class SocksUtil : ServerUtilBase, IServerUtil
 
     public bool CheckServer(Server s)
     {
-        return true;
+        return s.Address.IsNotEmpty()
+            && ServerValidator.IsValidPort(s.Port)
+            && string.IsNullOrWhiteSpace(s.Username) == string.IsNullOrWhiteSpace(s.Password);
+    }
+
+    private static SocksServer? ResolveTelegramSocks(string str)
+    {
+        var url = Utils.Utils.TryUri(str);
+        if (url == null)
+            return null;
+
+        var query = Utils.Utils.ParseQueryString(url.Query);
+        var server = GetQueryValue(query, "server");
+        if (string.IsNullOrWhiteSpace(server) ||
+            !int.TryParse(GetQueryValue(query, "port"), out var port) ||
+            !ServerValidator.IsValidPort(port))
+        {
+            return null;
+        }
+
+        return new SocksServer
+        {
+            Address = server.Trim('[', ']'),
+            Port = port,
+            Username = GetQueryValue(query, "user"),
+            Password = GetQueryValue(query, "pass"),
+            Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped),
+            ProtoExtra = { Uot = ParseBoolFlag(GetFirstQueryValue(query, "uot", "udp-over-tcp", "udp_over_tcp")) }
+        };
     }
 
     private static SocksServer? ResolveSocks(string result)
     {
-        SocksServer item = new();
+        var schemeIndex = result.IndexOf("://", StringComparison.Ordinal);
+        if (schemeIndex < 0)
+            return null;
 
-        result = result[Constants.ProtocolShares[EConfigType.SOCKS].Length..];
+        SocksServer item = new();
+        result = result[(schemeIndex + 3)..];
         //remark
         var indexRemark = result.IndexOf('#');
         if (indexRemark > 0)
         {
-            try
-            {
-                item.Remarks = Utils.Utils.UrlDecode(result.Substring(indexRemark + 1));
-            }
-            catch { }
+            item.Remarks = Utils.Utils.UrlDecode(result.Substring(indexRemark + 1));
             result = result[..indexRemark];
         }
         //part decode
         var indexS = result.IndexOf('@');
-        if (indexS > 0)
-        {
-        }
-        else
+        if (indexS <= 0)
         {
             result = Utils.Utils.Base64Decode(result);
         }
@@ -87,13 +116,13 @@ public class SocksUtil : ServerUtilBase, IServerUtil
         {
             return null;
         }
-        var arr21 = arr1.First().Split(':');
-        var indexPort = arr1.Last().LastIndexOf(":");
+        var arr21 = arr1.First().Split(':', 2);
+        var indexPort = arr1.Last().LastIndexOf(':');
         if (arr21.Length != 2 || indexPort < 0)
         {
             return null;
         }
-        item.Address = arr1[1][..indexPort];
+        item.Address = arr1[1][..indexPort].Trim('[', ']');
         item.Port = arr1[1][(indexPort + 1)..].ToInt();
         item.Username = arr21.First();
         item.Password = arr21[1];
@@ -103,7 +132,7 @@ public class SocksUtil : ServerUtilBase, IServerUtil
     private static SocksServer? ResolveSocksNew(string result)
     {
         var parsedUrl = Utils.Utils.TryUri(result);
-        if (parsedUrl == null)
+        if (parsedUrl == null || parsedUrl.IdnHost.IsNullOrEmpty() || !ServerValidator.IsValidPort(parsedUrl.Port))
         {
             return null;
         }
@@ -114,15 +143,35 @@ public class SocksUtil : ServerUtilBase, IServerUtil
             Address = parsedUrl.IdnHost,
             Port = parsedUrl.Port,
         };
-        // parse base64 UserInfo
-        var rawUserInfo = Utils.Utils.UrlDecode(parsedUrl.UserInfo);
-        var userInfo = rawUserInfo.Contains(':') ? rawUserInfo : Utils.Utils.Base64Decode(rawUserInfo);
-        var userInfoParts = userInfo.Split([':'], 2);
-        if (userInfoParts.Length == 2)
+        if (parsedUrl.UserInfo.IsNotEmpty())
         {
-            item.Username = userInfoParts.First();
-            item.Password = userInfoParts[1];
+            if (parsedUrl.UserInfo.Contains(':'))
+            {
+                var (user, pass, _) = SplitUserInfo(parsedUrl.UserInfo);
+                item.Username = user;
+                item.Password = pass;
+            }
+            else
+            {
+                var decodedUserInfo = Utils.Utils.UrlDecode(parsedUrl.UserInfo);
+                var userInfo = decodedUserInfo.Contains(':')
+                    ? decodedUserInfo
+                    : Utils.Utils.Base64Decode(decodedUserInfo);
+                var userInfoParts = userInfo.Split([':'], 2);
+                if (userInfoParts.Length == 2)
+                {
+                    item.Username = userInfoParts[0];
+                    item.Password = userInfoParts[1];
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
+
+        var query = Utils.Utils.ParseQueryString(parsedUrl.Query);
+        item.ProtoExtra.Uot = ParseBoolFlag(GetFirstQueryValue(query, "uot", "udp-over-tcp", "udp_over_tcp"));
 
         return item;
     }

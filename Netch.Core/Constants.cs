@@ -167,6 +167,97 @@ public static class Constants
         "2022-blake3-chacha20-poly1305"
     ];
 
+    public static readonly List<string> SsCiphers =
+    [
+        .. SsSecuritiesInXray,
+        "aes-128-ctr",
+        "aes-192-ctr",
+        "aes-256-ctr",
+        "aes-128-cfb",
+        "aes-192-cfb",
+        "aes-256-cfb",
+        "aes-192-gcm",
+        "aes-128-ccm",
+        "aes-192-ccm",
+        "aes-256-ccm",
+        "aes-128-gcm-siv",
+        "aes-256-gcm-siv",
+        "chacha20-ietf",
+        "chacha20",
+        "xchacha20",
+        "chacha8-ietf-poly1305",
+        "xchacha8-ietf-poly1305",
+        "lea-128-gcm",
+        "lea-192-gcm",
+        "lea-256-gcm",
+        "rabbit128-poly1305",
+        "aegis-128l",
+        "aegis-256",
+        "aez-384",
+        "deoxys-ii-256-128",
+        "rc4-md5"
+    ];
+
+    public static readonly List<string> NaiveQuicCongestionControls =
+    [
+        "",
+        "bbr",
+        "bbr2",
+        "cubic",
+        "reno"
+    ];
+
+    public static readonly List<string> TuicUdpRelayModes =
+    [
+        "native",
+        "quic"
+    ];
+
+    public static readonly List<string> SsrEncryptMethods =
+    [
+        "none",
+        "table",
+        "rc4",
+        "rc4-md5",
+        "aes-128-ctr",
+        "aes-192-ctr",
+        "aes-256-ctr",
+        "aes-128-cfb",
+        "aes-192-cfb",
+        "aes-256-cfb",
+        "chacha20",
+        "chacha20-ietf",
+        "xchacha20",
+        "salsa20"
+    ];
+
+    public static readonly List<string> SsrProtocols =
+    [
+        "origin",
+        "verify_deflate",
+        "auth_sha1_v4",
+        "auth_aes128_md5",
+        "auth_aes128_sha1",
+        "auth_chain_a",
+        "auth_chain_b",
+        "auth_chain_c",
+        "auth_chain_d",
+        "auth_chain_e",
+        "auth_chain_f",
+        "auth_akarin_rand",
+        "auth_akarin_spec_a"
+    ];
+
+    public static readonly List<string> SsrObfs =
+    [
+        "plain",
+        "http_simple",
+        "http_post",
+        "random_head",
+        "tls1.2_ticket_auth",
+        "tls1.2_ticket_fastauth"
+    ];
+
     /// <summary>
     ///     V2Ray 伪装类型
     /// </summary>

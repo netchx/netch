@@ -19,6 +19,10 @@ public sealed class NaiveUtil : SingboxUtilBase, IServerUtil
         var query = TlsQuery(s);
         if (s.ProtoExtra.InsecureConcurrency is > 0)
             query["insecure-concurrency"] = s.ProtoExtra.InsecureConcurrency.Value.ToString();
+        if (s.ProtoExtra.NaiveQuic == true && s.ProtoExtra.CongestionControl.IsNotEmpty())
+            query["quic-congestion-control"] = Utils.Utils.UrlEncode(s.ProtoExtra.CongestionControl);
+        if (s.ProtoExtra.Uot == true)
+            query["uot"] = "1";
         var userInfo = s.Username.IsNotEmpty()
             ? $"{Utils.Utils.UrlEncode(s.Username)}:{Utils.Utils.UrlEncode(s.Password)}"
             : Utils.Utils.UrlEncode(s.Password);
@@ -31,32 +35,34 @@ public sealed class NaiveUtil : SingboxUtilBase, IServerUtil
     public IEnumerable<Server> ParseUri(string text)
     {
         var url = Utils.Utils.TryUri(text);
-        if (url == null) return [];
-        var userInfo = Utils.Utils.UrlDecode(url.UserInfo);
+        if (url == null || url.IdnHost.IsNullOrEmpty()) return [];
+        var (user, pass, hasSeparator) = SplitUserInfo(url.UserInfo);
         var server = new NaiveServer()
         {
             Address = url.IdnHost,
-            Port = url.Port,
+            Port = url.Port > 0 ? url.Port : 443,
             Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped),
             StreamSecurity = Constants.StreamSecurity
         };
-        if (url.Scheme.Contains("quic", StringComparison.OrdinalIgnoreCase)) server.ProtoExtra.NaiveQuic = true;
-        if (userInfo.Contains(':'))
+        if (hasSeparator)
         {
-            var split = userInfo.Split(':', 2);
-            server.Username = split[0];
-            server.Password = split[1];
+            server.Username = user;
+            server.Password = pass;
         }
         else
         {
-            server.Password = userInfo;
+            server.Password = user;
         }
         var query = Utils.Utils.ParseQueryString(url.Query);
+        if (url.Scheme.Contains("quic", StringComparison.OrdinalIgnoreCase) || ParseBoolFlag(GetQueryValue(query, "quic")) == true)
+            server.ProtoExtra.NaiveQuic = true;
         ResolveTlsQuery(query, server);
-        if (int.TryParse(GetQueryValue(query, "insecure-concurrency"), out var concurrency) && concurrency > 0)
+        if (int.TryParse(GetFirstQueryValue(query, "insecure-concurrency", "insecure_concurrency"), out var concurrency) && concurrency > 0)
             server.ProtoExtra.InsecureConcurrency = concurrency;
+        server.ProtoExtra.CongestionControl = GetFirstQueryValue(query, "quic-congestion-control", "quic_congestion_control", "congestion_control", "congestion-control");
+        server.ProtoExtra.Uot = ParseBoolFlag(GetFirstQueryValue(query, "uot", "udp-over-tcp", "udp_over_tcp"));
         return [server];
     }
 
-    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && s.Port > 0 && s.Password.IsNotEmpty();
+    public bool CheckServer(Server s) => s.Address.IsNotEmpty() && ServerValidator.IsValidPort(s.Port) && s.Password.IsNotEmpty();
 }

@@ -107,4 +107,56 @@ public class CoreAssets
             temp.Delete(recursive: true);
         }
     }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void ChineseTranslationCoversAllValidatorMessagesAndProtocolLabels()
+    {
+        var keys = new[]
+        {
+            "Enter an address and a valid port.",
+            "Enter both a SOCKS username and password, or leave both empty.",
+            "HTTP headers must use 'Name: Value' format.",
+            "Check the required protocol fields.",
+            "Invalid VLESS encryption setting.",
+            "Check the Shadowsocks encryption method and password.",
+            "Enter valid Base64 WireGuard keys.",
+            "The WireGuard local interface address is invalid.",
+            "WireGuard reserved must contain three values between 0 and 255.",
+            "Enter an obfuscation password.",
+            "Gecko packet sizes must be positive integers.",
+            "Gecko min packet size cannot exceed max packet size.",
+            "Port hopping range is invalid.",
+            "Hop interval must be at least 5 seconds.",
+            "Enter a valid TUIC UUID and password.",
+            "URI template must start with '/'.",
+            "Invalid PEM certificate.",
+            "Enter a Reality public key.",
+            "Short ID must be an even-length hex string up to 16 characters.",
+            "Choose a transport that supports REALITY or change the TLS security mode.",
+            "XHTTP extra must be a valid JSON object.",
+            "Gecko Min Packet Size",
+            "Gecko Max Packet Size",
+            "Idle Check Interval (s)",
+            "Idle Session Timeout (s)",
+            "Min Idle Sessions",
+            "QUIC Congestion",
+            "UDP Relay Mode",
+            "Reduce RTT",
+            "Disable SNI",
+            "Enter a port between 1 and 65535.",
+            "Import Servers From File…"
+        };
+
+        try
+        {
+            i18N.Load("zh-CN");
+            foreach (var key in keys)
+                Assert.AreNotEqual(key, i18N.Translate(key), $"Missing zh-CN translation for: {key}");
+        }
+        finally
+        {
+            i18N.Load("en-US");
+        }
+    }
 }

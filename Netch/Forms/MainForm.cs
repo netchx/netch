@@ -243,15 +243,56 @@ public partial class MainForm : Form
         if (string.IsNullOrWhiteSpace(texts))
             return;
 
-        var servers = ShareLink.ParseText(texts);
+        await ImportServersFromTextAsync(texts);
+    }
+
+    private async void ImportServersFromFileToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        using var dialog = new System.Windows.Forms.OpenFileDialog
+        {
+            Filter = "Clash YAML / Share links (*.yaml;*.yml;*.txt)|*.yaml;*.yml;*.txt|All files (*.*)|*.*"
+        };
+        if (dialog.ShowDialog(this) != DialogResult.OK)
+            return;
+
+        try
+        {
+            var texts = await File.ReadAllTextAsync(dialog.FileName);
+            if (string.IsNullOrWhiteSpace(texts))
+                return;
+
+            await ImportServersFromTextAsync(texts, fromFile: true);
+        }
+        catch (Exception ex)
+        {
+            Log.Warning(ex, "Import servers from file failed");
+            NotifyTip(ex.Message, info: false);
+        }
+    }
+
+    private async Task ImportServersFromTextAsync(string texts, bool fromFile = false)
+    {
+        var servers = ShareLink.ParseText(texts, out var skipped);
         foreach (var server in servers)
+        {
+            server.Id = Guid.NewGuid().ToString("N");
             server.Group = Constants.DefaultGroup;
+            server.IsSub = false;
+        }
 
-        Global.Settings.Server.AddRange(servers);
-        NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
+        if (servers.Count > 0)
+            Global.Settings.Server.AddRange(servers);
 
-        LoadServers();
-        await Configuration.SaveAsync();
+        var tip = i18N.TranslateFormat(fromFile ? "Imported {0} nodes." : "Import {0} server(s) form Clipboard", servers.Count);
+        if (skipped > 0)
+            tip += "\n" + i18N.TranslateFormat("Skipped {0} invalid or unsupported nodes.", skipped);
+        NotifyTip(tip);
+
+        if (servers.Count > 0)
+        {
+            LoadServers();
+            await Configuration.SaveAsync();
+        }
     }
 
     private async void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)

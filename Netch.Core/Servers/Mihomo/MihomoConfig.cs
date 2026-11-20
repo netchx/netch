@@ -80,7 +80,9 @@ internal static class MihomoConfig
                 if (!proxy.ContainsKey("alpn")) proxy["alpn"] = Array.Empty<string>();
                 proxy["uuid"] = server.Username;
                 proxy["password"] = server.Password;
-                proxy["udp-relay-mode"] = "native";
+                proxy["udp-relay-mode"] = extra.TuicUdpRelayMode.IsNullOrEmpty() ? "native" : extra.TuicUdpRelayMode;
+                if (extra.TuicReduceRtt == true) proxy["reduce-rtt"] = true;
+                if (extra.TuicDisableSni == true) proxy["disable-sni"] = true;
                 proxy["congestion-controller"] = extra.CongestionControl.IsNullOrEmpty() ? "bbr" : extra.CongestionControl;
                 break;
             case AnyTLSServer:

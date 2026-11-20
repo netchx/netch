@@ -4,6 +4,7 @@ using Netch.Manager;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Netch.Servers;
@@ -28,19 +29,14 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
     internal static string EncodePluginPath(string path) =>
         path.Replace("\\", "\\\\").Replace("=", "\\=").Replace(",", "\\,");
 
-    internal static bool IsSupportedCipher(string method) => Constants.SsSecuritiesInXray.Contains(method) ||
-        method is "aes-128-ctr" or "aes-192-ctr" or "aes-256-ctr" or "aes-128-cfb" or "aes-192-cfb" or "aes-256-cfb"
-            or "aes-192-gcm" or "aes-128-ccm" or "aes-192-ccm" or "aes-256-ccm" or "aes-128-gcm-siv" or "aes-256-gcm-siv"
-            or "chacha20-ietf" or "chacha20" or "xchacha20" or "chacha8-ietf-poly1305" or "xchacha8-ietf-poly1305"
-            or "lea-128-gcm" or "lea-192-gcm" or "lea-256-gcm" or "rabbit128-poly1305"
-            or "aegis-128l" or "aegis-256" or "aez-384" or "deoxys-ii-256-128" or "rc4-md5";
+    internal static bool IsSupportedCipher(string? method) =>
+        method != null && Constants.SsCiphers.Contains(method, StringComparer.OrdinalIgnoreCase);
 
     public string GetShareLink(Server s)
     {
-        var item = (ShadowsocksServer)s;
-        if (item == null)
+        if (s is not ShadowsocksServer item)
         {
-            return null;
+            return string.Empty;
         }
         var remark = string.Empty;
         if (item.Remarks.IsNotEmpty())
@@ -105,13 +101,20 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
         var dicQuery = new Dictionary<string, string>();
         if (plugin.IsNotEmpty())
         {
-            var pluginStr = plugin + ";" + pluginArgs;
-            // pluginStr remove last ';' and url encode
+            var pluginStr = pluginArgs.IsNotEmpty() ? plugin + ";" + pluginArgs : plugin;
             if (pluginStr.EndsWith(';'))
             {
                 pluginStr = pluginStr[..^1];
             }
             dicQuery["plugin"] = Utils.Utils.UrlEncode(pluginStr);
+        }
+        if (item.ProtoExtra.Uot == true)
+        {
+            dicQuery["uot"] = "1";
+        }
+        if (item.AllowInsecure == true && (plugin.IsNotEmpty() || item.StreamSecurity == Constants.StreamSecurity))
+        {
+            dicQuery["allowInsecure"] = "1";
         }
 
         return ToUri(EConfigType.Shadowsocks, item.Address, item.Port, pw, dicQuery, remark);
@@ -119,39 +122,105 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
 
     public IEnumerable<Server> ParseUri(string str)
     {
-        ShadowsocksServer? item;
-
-        item = ResolveSSLegacy(str) ?? ResolveSip002(str);
-        if (item == null)
+        if (str.StartsWith("ssd://", StringComparison.OrdinalIgnoreCase))
         {
-            return null;
+            return ResolveSsd(str);
         }
 
-        if (item.Address.Length == 0 || item.Port == 0 || item.ProtoExtra.SsMethod.IsNullOrEmpty() || item.Password.Length == 0)
+        var item = ResolveSSLegacy(str) ?? ResolveSip002(str);
+        if (item == null || !CheckServer(item))
         {
-            return null;
+            return [];
         }
-
-        //item.ConfigType = EConfigType.Shadowsocks;
 
         return [item];
     }
 
     public bool CheckServer(Server s)
     {
-        var server = (ShadowsocksServer)s;
+        if (s is not ShadowsocksServer server || s.Address.IsNullOrEmpty() || !ServerValidator.IsValidPort(s.Port))
+            return false;
+
         if (!IsSupportedCipher(server.ProtoExtra.SsMethod))
         {
             Log.Warning("Unsupported SS Encrypt Method: {Method}", server.ProtoExtra.SsMethod);
             return false;
         }
 
-        return true;
+        return ServerValidator.IsValidShadowsocksPassword(server.ProtoExtra.SsMethod, server.Password);
     }
 
-    private static readonly Regex UrlFinder = new(@"ss://(?<base64>[A-Za-z0-9+-/=_]+)(?:#(?<tag>\S+))?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex UrlFinder = new(@"^ss://(?<base64>[A-Za-z0-9+/=_-]+)/*(?:#(?<tag>.*))?$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     private static readonly Regex DetailsParser = new(@"^((?<method>.+?):(?<password>.*)@(?<hostname>.+?):(?<port>\d+?))$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+    private IEnumerable<Server> ResolveSsd(string str)
+    {
+        var jsonText = Utils.Utils.Base64Decode(str["ssd://".Length..]);
+        if (string.IsNullOrWhiteSpace(jsonText))
+            return [];
+
+        JsonDocument doc;
+        try
+        {
+            doc = JsonDocument.Parse(jsonText);
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+
+        using (doc)
+        {
+            var root = doc.RootElement;
+            if (root.ValueKind != JsonValueKind.Object || !root.TryGetProperty("servers", out var serversNode) || serversNode.ValueKind != JsonValueKind.Array)
+                return [];
+
+            var airport = ReadString(root, "airport");
+            var defaultPort = ReadInt(root, "port");
+            var defaultMethod = ReadString(root, "encryption");
+            var defaultPassword = ReadString(root, "password");
+            var defaultPlugin = ReadString(root, "plugin");
+            var defaultPluginOpts = ReadString(root, "plugin_options");
+
+            var results = new List<Server>();
+            foreach (var entry in serversNode.EnumerateArray())
+            {
+                if (entry.ValueKind != JsonValueKind.Object)
+                    continue;
+
+                var item = new ShadowsocksServer
+                {
+                    Address = ReadString(entry, "server").Trim('[', ']'),
+                    Port = ReadInt(entry, "port") is > 0 and var p ? p : defaultPort,
+                    Password = ReadString(entry, "password") is { Length: > 0 } pw ? pw : defaultPassword,
+                    Remarks = ReadString(entry, "remarks") is { Length: > 0 } r ? r : airport
+                };
+                item.ProtoExtra.SsMethod = ReadString(entry, "encryption") is { Length: > 0 } m ? m : defaultMethod;
+
+                var plugin = ReadString(entry, "plugin") is { Length: > 0 } ep ? ep : defaultPlugin;
+                var pluginOpts = ReadString(entry, "plugin_options") is { Length: > 0 } epo ? epo : defaultPluginOpts;
+                ApplyPlugin(item, plugin, pluginOpts);
+
+                if (CheckServer(item))
+                    results.Add(item);
+            }
+            return results;
+        }
+
+        static string ReadString(JsonElement element, string name) =>
+            element.TryGetProperty(name, out var prop) && prop.ValueKind == JsonValueKind.String ? prop.GetString() ?? string.Empty : string.Empty;
+
+        static int ReadInt(JsonElement element, string name)
+        {
+            if (!element.TryGetProperty(name, out var prop))
+                return 0;
+            if (prop.ValueKind == JsonValueKind.Number && prop.TryGetInt32(out var val))
+                return val;
+            if (prop.ValueKind == JsonValueKind.String && int.TryParse(prop.GetString(), out val))
+                return val;
+            return 0;
+        }
+    }
 
     private static ShadowsocksServer? ResolveSSLegacy(string result)
     {
@@ -183,7 +252,7 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
         }
         item.ProtoExtra.SsMethod = details.Groups["method"].Value;
         item.Password = details.Groups["password"].Value;
-        item.Address = details.Groups["hostname"].Value;
+        item.Address = details.Groups["hostname"].Value.Trim('[', ']');
         item.Port = details.Groups["port"].Value.ToInt();
         return item;
     }
@@ -191,7 +260,7 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
     private static ShadowsocksServer? ResolveSip002(string result)
     {
         var parsedUrl = Utils.Utils.TryUri(result);
-        if (parsedUrl == null)
+        if (parsedUrl == null || parsedUrl.IdnHost.IsNullOrEmpty() || !ServerValidator.IsValidPort(parsedUrl.Port))
         {
             return null;
         }
@@ -202,125 +271,115 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
             Address = parsedUrl.IdnHost,
             Port = parsedUrl.Port,
         };
-        var rawUserInfo = Utils.Utils.UrlDecode(parsedUrl.UserInfo);
-        //2022-blake3
-        if (rawUserInfo.Contains(':'))
+        if (parsedUrl.UserInfo.Contains(':'))
         {
-            var userInfoParts = rawUserInfo.Split(new[] { ':' }, 2);
-            if (userInfoParts.Length != 2)
-            {
-                return null;
-            }
-            item.ProtoExtra.SsMethod = userInfoParts.First();
-            item.Password = Utils.Utils.UrlDecode(userInfoParts.Last());
+            var (method, password, _) = SplitUserInfo(parsedUrl.UserInfo);
+            item.ProtoExtra.SsMethod = method;
+            item.Password = password;
         }
         else
         {
-            // parse base64 UserInfo
-            var userInfo = Utils.Utils.Base64Decode(rawUserInfo);
-            var userInfoParts = userInfo.Split(new[] { ':' }, 2);
+            var decodedUserInfo = Utils.Utils.UrlDecode(parsedUrl.UserInfo);
+            var userInfo = decodedUserInfo.Contains(':')
+                ? decodedUserInfo
+                : Utils.Utils.Base64Decode(decodedUserInfo);
+            var userInfoParts = userInfo.Split([':'], 2);
             if (userInfoParts.Length != 2)
             {
                 return null;
             }
-            item.ProtoExtra.SsMethod = userInfoParts.First();
-            item.Password = userInfoParts.Last();
+            item.ProtoExtra.SsMethod = userInfoParts[0];
+            item.Password = userInfoParts[1];
         }
 
         var queryParameters = Utils.Utils.ParseQueryString(parsedUrl.Query);
-        if (queryParameters["plugin"] != null)
+        if (queryParameters["plugin"] is { } pluginStr)
         {
-            var pluginStr = queryParameters["plugin"];
-            var pluginParts = pluginStr.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-
+            var pluginParts = pluginStr.Split([';'], StringSplitOptions.RemoveEmptyEntries);
             if (pluginParts.Length == 0)
             {
                 return null;
             }
 
-            var pluginName = pluginParts[0];
+            ApplyPlugin(item, pluginParts[0], string.Join(";", pluginParts.Skip(1)));
+        }
 
-            // A typo in https://github.com/shadowsocks/shadowsocks-org/blob/6b1c064db4129de99c516294960e731934841c94/docs/doc/sip002.md?plain=1#L15
-            // "simple-obfs" should be "obfs-local"
-            if (pluginName == "simple-obfs")
+        var uot = GetFirstQueryValue(queryParameters, "uot", "udp-over-tcp", "udp_over_tcp");
+        if (uot is "1" or "2" || uot.Equals("true", StringComparison.OrdinalIgnoreCase))
+            item.ProtoExtra.Uot = true;
+        else if (uot is "0" || uot.Equals("false", StringComparison.OrdinalIgnoreCase))
+            item.ProtoExtra.Uot = false;
+
+        item.AllowInsecure = ParseAllowInsecure(queryParameters);
+        return item;
+    }
+
+    private static void ApplyPlugin(ShadowsocksServer item, string? pluginName, string? options)
+    {
+        if (pluginName.IsNullOrEmpty())
+            return;
+
+        // "simple-obfs" and "obfs" alias to "obfs-local".
+        if (pluginName is "simple-obfs" or "obfs")
+        {
+            pluginName = "obfs-local";
+        }
+
+        item.ProtoExtra.SsPlugin = pluginName;
+        item.ProtoExtra.SsPluginOptions = options ?? string.Empty;
+
+        var pluginParts = (options ?? string.Empty).Split([';'], StringSplitOptions.RemoveEmptyEntries);
+        if (pluginName == "obfs-local")
+        {
+            var obfsMode = pluginParts.FirstOrDefault(t => t.StartsWith("obfs="));
+            var obfsHost = pluginParts.FirstOrDefault(t => t.StartsWith("obfs-host="));
+
+            if (obfsMode != null && obfsMode.Contains("obfs=http") && obfsHost.IsNotEmpty())
             {
-                pluginName = "obfs-local";
+                item.Network = Constants.DefaultNetwork;
+                item.HeaderType = Constants.TcpHeaderHttp;
+                item.RequestHost = obfsHost["obfs-host=".Length..];
+            }
+        }
+        else if (pluginName == "v2ray-plugin")
+        {
+            var mode = pluginParts.FirstOrDefault(t => t.StartsWith("mode="), "mode=websocket");
+            var host = pluginParts.FirstOrDefault(t => t.StartsWith("host="));
+            var path = pluginParts.FirstOrDefault(t => t.StartsWith("path="));
+            var hasTls = pluginParts.Any(t => t == "tls");
+            var certRaw = pluginParts.FirstOrDefault(t => t.StartsWith("certRaw="));
+
+            var modeValue = mode.StartsWith("mode=") ? mode["mode=".Length..] : mode;
+            if (modeValue == "websocket")
+            {
+                item.Network = nameof(ETransport.ws);
+                if (host.IsNotEmpty())
+                {
+                    item.RequestHost = host["host=".Length..];
+                    item.Sni = item.RequestHost;
+                }
+                if (path.IsNotEmpty())
+                {
+                    item.Path = DecodePluginPath(path["path=".Length..]);
+                }
+            }
+            else if (modeValue == "quic")
+            {
+                item.Network = nameof(ETransport.quic);
             }
 
-            item.ProtoExtra.SsPlugin = pluginName;
-            item.ProtoExtra.SsPluginOptions = string.Join(";", pluginParts.Skip(1));
-
-            // Parse obfs-local plugin
-            if (pluginName == "obfs-local")
+            if (hasTls)
             {
-                var obfsMode = pluginParts.FirstOrDefault(t => t.StartsWith("obfs="));
-                var obfsHost = pluginParts.FirstOrDefault(t => t.StartsWith("obfs-host="));
+                item.StreamSecurity = Constants.StreamSecurity;
 
-                if ((!obfsMode.IsNullOrEmpty()) && obfsMode.Contains("obfs=http") && obfsHost.IsNotEmpty())
+                if (certRaw.IsNotEmpty())
                 {
-                    obfsHost = obfsHost.Replace("obfs-host=", "");
-                    item.Network = Constants.DefaultNetwork;
-                    item.HeaderType = Constants.TcpHeaderHttp;
-                    item.RequestHost = obfsHost;
-                }
-            }
-            // Parse v2ray-plugin
-            else if (pluginName == "v2ray-plugin")
-            {
-                var mode = pluginParts.FirstOrDefault(t => t.StartsWith("mode="), "websocket");
-                var host = pluginParts.FirstOrDefault(t => t.StartsWith("host="));
-                var path = pluginParts.FirstOrDefault(t => t.StartsWith("path="));
-                var hasTls = pluginParts.Any(t => t == "tls");
-                var certRaw = pluginParts.FirstOrDefault(t => t.StartsWith("certRaw="));
-                var mux = pluginParts.FirstOrDefault(t => t.StartsWith("mux="));
-
-                var modeValue = mode.Replace("mode=", "");
-                if (modeValue == "websocket")
-                {
-                    item.Network = nameof(ETransport.ws);
-                    if (!host.IsNullOrEmpty())
-                    {
-                        item.RequestHost = host.Replace("host=", "");
-                        item.Sni = item.RequestHost;
-                    }
-                    if (!path.IsNullOrEmpty())
-                    {
-                        item.Path = DecodePluginPath(path["path=".Length..]);
-                    }
-                }
-                else if (modeValue == "quic")
-                {
-                    item.Network = nameof(ETransport.quic);
-                }
-
-                if (hasTls)
-                {
-                    item.StreamSecurity = Constants.StreamSecurity;
-
-                    if (!certRaw.IsNullOrEmpty())
-                    {
-                        var certBase64 = certRaw.Replace("certRaw=", "");
-
-                        certBase64 = certBase64.Replace("\\=", "=");
-
-                        const string beginMarker = "-----BEGIN CERTIFICATE-----\n";
-                        const string endMarker = "\n-----END CERTIFICATE-----";
-                        var certPem = beginMarker + certBase64 + endMarker;
-                        item.Cert = certPem;
-                    }
-                }
-
-                if (!mux.IsNullOrEmpty())
-                {
-                    var muxValue = mux.Replace("mux=", "");
-                    var muxCount = muxValue.ToInt();
-                    if (muxCount > 0)
-                    {
-                        return null;
-                    }
+                    var certBase64 = certRaw["certRaw=".Length..].Replace("\\=", "=");
+                    const string beginMarker = "-----BEGIN CERTIFICATE-----\n";
+                    const string endMarker = "\n-----END CERTIFICATE-----";
+                    item.Cert = beginMarker + certBase64 + endMarker;
                 }
             }
         }
-        return item;
     }
 }

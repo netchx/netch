@@ -45,7 +45,15 @@ public class VMessUtil : ServerUtilBase, IServerUtil
             sni = item.Sni,
             alpn = item.Alpn,
             fp = item.Fingerprint,
-            insecure = item.AllowInsecure == true ? "1" : "0"
+            insecure = item.AllowInsecure == true ? "1" : "0",
+            extra = item.Extra.IsNotEmpty() ? item.Extra : null,
+            pbk = item.PublicKey.IsNotEmpty() ? item.PublicKey : null,
+            sid = item.ShortId.IsNotEmpty() ? item.ShortId : null,
+            spx = item.SpiderX.IsNotEmpty() ? item.SpiderX : null,
+            pqv = item.Mldsa65Verify.IsNotEmpty() ? item.Mldsa65Verify : null,
+            ech = item.EchConfigList.IsNotEmpty() ? item.EchConfigList : null,
+            echForceQuery = item.EchForceQuery.IsNotEmpty() ? item.EchForceQuery : null,
+            pcs = item.CertSha.IsNotEmpty() ? item.CertSha : null
         };
 
         var url = JsonUtils.Serialize(vmessQRCode);
@@ -67,12 +75,12 @@ public class VMessUtil : ServerUtilBase, IServerUtil
             item = ResolveVmess(str);
         }
 
-        return new[] { item };
+        return item != null ? [item] : [];
     }
 
     public bool CheckServer(Server s)
     {
-        return true;
+        return s.Address.IsNotEmpty() && ServerValidator.IsValidPort(s.Port) && s.Password.IsNotEmpty();
     }
 
     private static VMessServer? ResolveVmess(string result)
@@ -91,16 +99,26 @@ public class VMessUtil : ServerUtilBase, IServerUtil
         item.Network = Constants.DefaultNetwork;
         item.HeaderType = Constants.None;
 
-        //item.ConfigVersion = vmessQRCode.v;
         item.Remarks = Utils.Utils.ToString(vmessQRCode.ps);
-        item.Address = Utils.Utils.ToString(vmessQRCode.add);
+        item.Address = Utils.Utils.ToString(vmessQRCode.add).Trim('[', ']');
         item.Port = vmessQRCode.port;
         item.Password = Utils.Utils.ToString(vmessQRCode.id);
-        item.ProtoExtra.AlterId = vmessQRCode.aid;
+        if (item.Address.IsNullOrEmpty() || !ServerValidator.IsValidPort(item.Port) || item.Password.IsNullOrEmpty())
+        {
+            return null;
+        }
+
+        item.ProtoExtra.AlterId = Math.Max(vmessQRCode.aid, 0);
         item.ProtoExtra.VmessSecurity = vmessQRCode.scy.IsNullOrEmpty() ? Constants.DefaultSecurity : vmessQRCode.scy;
         if (vmessQRCode.net.IsNotEmpty())
         {
-            item.Network = vmessQRCode.net;
+            item.Network = vmessQRCode.net.Trim().ToLowerInvariant() switch
+            {
+                "http" => nameof(ETransport.h2),
+                "raw" => nameof(ETransport.tcp),
+                "splithttp" => nameof(ETransport.xhttp),
+                var net => net
+            };
         }
         if (vmessQRCode.type.IsNotEmpty())
         {
@@ -113,8 +131,17 @@ public class VMessUtil : ServerUtilBase, IServerUtil
         item.Sni = Utils.Utils.ToString(vmessQRCode.sni);
         item.Alpn = Utils.Utils.ToString(vmessQRCode.alpn);
         item.Fingerprint = Utils.Utils.ToString(vmessQRCode.fp);
-        item.AllowInsecure = vmessQRCode.insecure == "1" ? true : null;
+        item.AllowInsecure = ParseBoolFlag(vmessQRCode.insecure);
+        item.Extra = Utils.Utils.ToString(vmessQRCode.extra);
+        item.PublicKey = Utils.Utils.ToString(vmessQRCode.pbk);
+        item.ShortId = Utils.Utils.ToString(vmessQRCode.sid);
+        item.SpiderX = Utils.Utils.ToString(vmessQRCode.spx);
+        item.Mldsa65Verify = Utils.Utils.ToString(vmessQRCode.pqv);
+        item.EchConfigList = Utils.Utils.ToString(vmessQRCode.ech);
+        item.EchForceQuery = Utils.Utils.ToString(vmessQRCode.echForceQuery);
+        item.CertSha = Utils.Utils.ToString(vmessQRCode.pcs);
 
+        AddServerCommon(item);
         return item;
     }
 
@@ -123,7 +150,7 @@ public class VMessUtil : ServerUtilBase, IServerUtil
         var item = new VMessServer();
 
         var url = Utils.Utils.TryUri(str);
-        if (url == null)
+        if (url == null || url.IdnHost.IsNullOrEmpty() || !ServerValidator.IsValidPort(url.Port))
         {
             return null;
         }
@@ -131,11 +158,29 @@ public class VMessUtil : ServerUtilBase, IServerUtil
         item.Address = url.IdnHost;
         item.Port = url.Port;
         item.Remarks = url.GetComponents(UriComponents.Fragment, UriFormat.Unescaped);
-        item.Password = Utils.Utils.UrlDecode(url.UserInfo);
-
-        item.ProtoExtra.VmessSecurity = "auto";
+        var (user, pass, hasSeparator) = SplitUserInfo(url.UserInfo);
+        if (hasSeparator)
+        {
+            item.ProtoExtra.VmessSecurity = user;
+            item.Password = pass;
+        }
+        else
+        {
+            item.Password = user;
+        }
 
         var query = Utils.Utils.ParseQueryString(url.Query);
+        if (item.ProtoExtra.VmessSecurity.IsNullOrEmpty())
+        {
+            item.ProtoExtra.VmessSecurity = GetFirstQueryValue(query, "scy", "encryption", "cipher") is { Length: > 0 } sec
+                ? sec
+                : Constants.DefaultSecurity;
+        }
+        if (int.TryParse(GetFirstQueryValue(query, "aid", "alterId"), out var aid) && aid >= 0)
+        {
+            item.ProtoExtra.AlterId = aid;
+        }
+
         ResolveUriQuery(query, ref item);
 
         return item;

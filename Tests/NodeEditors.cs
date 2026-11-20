@@ -31,9 +31,12 @@ public class NodeEditors
         var menu = (ToolStripMenuItem)typeof(MainForm)
             .GetField("ServerToolStripMenuItem", PrivateInstance).GetValue(main);
         var items = menu.DropDownItems.OfType<ToolStripMenuItem>().ToArray();
+        Assert.AreEqual("ImportServersFromClipboardToolStripMenuItem", items[0].Name);
+        Assert.AreEqual("ImportServersFromFileToolStripMenuItem", items[1].Name);
         Assert.IsNull(items[0].Tag);
+        Assert.IsNull(items[1].Tag);
         Assert.IsTrue(items.All(item => !item.HasDropDownItems));
-        var types = items.Skip(1).Select(item => ((IServerUtil)item.Tag).TypeName).ToArray();
+        var types = items.Skip(2).Select(item => ((IServerUtil)item.Tag).TypeName).ToArray();
         CollectionAssert.AreEqual(new[]
         {
             "VLESS", "VMess", "Trojan", "Shadowsocks", "ShadowsocksR", "SOCKS", "HTTP",
@@ -43,7 +46,7 @@ public class NodeEditors
         {
             Netch.Utils.i18N.Load("zh-CN");
             typeof(MainForm).GetMethod("TranslateControls", PrivateInstance).Invoke(main, null);
-            Assert.AreEqual("添加 VLESS…", items[1].Text);
+            Assert.AreEqual("添加 VLESS…", items[2].Text);
         }
         finally { Netch.Utils.i18N.Load("en-US"); }
     });
@@ -247,6 +250,222 @@ public class NodeEditors
         Assert.IsTrue(field.Items.Contains(value), $"{name} lacks {value}");
         field.SelectedItem = value;
     }
+
+    [TestMethod]
+    public void EditorsExposeAndSaveAllProtocolSpecificParameters() => RunSta(() =>
+    {
+        using (var anyTls = CreateEditor(EConfigType.AnyTLS))
+        {
+            Prepare(anyTls);
+            Set(anyTls, "Address", "127.0.0.1");
+            Set(anyTls, "Port", "443");
+            Set(anyTls, "Password", "pass");
+            Set(anyTls, "IdleSessionCheckInterval", "25");
+            Set(anyTls, "IdleSessionTimeout", "60");
+            Set(anyTls, "MinIdleSession", "2");
+            var saved = Save(anyTls);
+            using var doc = JsonDocument.Parse(Build("mihomo", saved));
+            var proxy = doc.RootElement.GetProperty("proxies")[0];
+            Assert.AreEqual(25, proxy.GetProperty("idle-session-check-interval").GetInt32());
+            Assert.AreEqual(60, proxy.GetProperty("idle-session-timeout").GetInt32());
+            Assert.AreEqual(2, proxy.GetProperty("min-idle-session").GetInt32());
+        }
+
+        using (var naive = CreateEditor(EConfigType.Naive))
+        {
+            Prepare(naive);
+            Set(naive, "Address", "127.0.0.1");
+            Set(naive, "Port", "443");
+            Set(naive, "Username", "u");
+            Set(naive, "Password", "p");
+            ((CheckBox)Find(naive, "NaiveQuicCheckBox")).Checked = true;
+            Select(naive, "CongestionControl", "bbr2");
+            ((CheckBox)Find(naive, "UotCheckBox")).Checked = true;
+            var saved = Save(naive);
+            using var doc = JsonDocument.Parse(Build("sing-box", saved));
+            var outbound = doc.RootElement.GetProperty("outbounds")[0];
+            Assert.AreEqual("bbr2", outbound.GetProperty("quic_congestion_control").GetString());
+            Assert.IsTrue(outbound.GetProperty("udp_over_tcp").GetBoolean());
+        }
+
+        using (var hy2 = CreateEditor(EConfigType.Hysteria2))
+        {
+            Prepare(hy2);
+            Set(hy2, "Address", "127.0.0.1");
+            Set(hy2, "Port", "443");
+            Set(hy2, "Auth", "p");
+            Select(hy2, "Obfs", "gecko");
+            Set(hy2, "ObfsPassword", "obfs-pw");
+            Set(hy2, "GeckoMinPacketSize", "128");
+            Set(hy2, "GeckoMaxPacketSize", "512");
+            var saved = Save(hy2);
+            using var mihomoDoc = JsonDocument.Parse(Build("mihomo", saved));
+            var mihomoProxy = mihomoDoc.RootElement.GetProperty("proxies")[0];
+            Assert.AreEqual("gecko", mihomoProxy.GetProperty("obfs").GetString());
+            Assert.AreEqual(128, mihomoProxy.GetProperty("obfs-min-packet-size").GetInt32());
+            Assert.AreEqual(512, mihomoProxy.GetProperty("obfs-max-packet-size").GetInt32());
+
+            using var singDoc = JsonDocument.Parse(Build("sing-box", saved));
+            var singObfs = singDoc.RootElement.GetProperty("outbounds")[0].GetProperty("obfs");
+            Assert.AreEqual("gecko", singObfs.GetProperty("type").GetString());
+            Assert.AreEqual(128, singObfs.GetProperty("min_packet_size").GetInt32());
+            Assert.AreEqual(512, singObfs.GetProperty("max_packet_size").GetInt32());
+        }
+
+        using (var tuic = CreateEditor(EConfigType.TUIC))
+        {
+            Prepare(tuic);
+            Set(tuic, "Address", "127.0.0.1");
+            Set(tuic, "Port", "443");
+            Set(tuic, "Username", Uuid);
+            Set(tuic, "Password", "p");
+            Select(tuic, "UdpRelayMode", "quic");
+            ((CheckBox)Find(tuic, "ReduceRttCheckBox")).Checked = true;
+            ((CheckBox)Find(tuic, "DisableSniCheckBox")).Checked = true;
+            var saved = Save(tuic);
+            using var mihomoDoc = JsonDocument.Parse(Build("mihomo", saved));
+            var mihomoProxy = mihomoDoc.RootElement.GetProperty("proxies")[0];
+            Assert.AreEqual("quic", mihomoProxy.GetProperty("udp-relay-mode").GetString());
+            Assert.IsTrue(mihomoProxy.GetProperty("reduce-rtt").GetBoolean());
+            Assert.IsTrue(mihomoProxy.GetProperty("disable-sni").GetBoolean());
+
+            using var singDoc = JsonDocument.Parse(Build("sing-box", saved));
+            var singOutbound = singDoc.RootElement.GetProperty("outbounds")[0];
+            Assert.AreEqual("quic", singOutbound.GetProperty("udp_relay_mode").GetString());
+            Assert.IsTrue(singOutbound.GetProperty("zero_rtt_handshake").GetBoolean());
+            Assert.IsTrue(singOutbound.GetProperty("tls").GetProperty("disable_sni").GetBoolean());
+        }
+
+        using (var ss = CreateEditor(EConfigType.Shadowsocks))
+        {
+            Prepare(ss);
+            var cipherBox = (ComboBox)Find(ss, "EncryptMethodComboBox");
+            Assert.AreEqual(Netch.Constants.SsCiphers.Count, cipherBox.Items.Count);
+            Assert.IsTrue(cipherBox.Items.Contains("aes-192-gcm"));
+            Set(ss, "Address", "127.0.0.1");
+            Set(ss, "Port", "443");
+            Set(ss, "Password", "pass");
+            Select(ss, "Plugin", "v2ray-plugin");
+            Set(ss, "PluginOptions", "mode=websocket;tls");
+            Select(ss, "AllowInsecure", "true");
+            var saved = Save(ss);
+            Assert.AreEqual(true, saved.AllowInsecure);
+        }
+
+        using (var vless = CreateEditor(EConfigType.VLESS))
+        {
+            Prepare(vless);
+            var networkBox = (ComboBox)Find(vless, "NetworkComboBox");
+            Assert.IsFalse(networkBox.Items.Contains("hysteria"));
+            var flowBox = (ComboBox)Find(vless, "FlowComboBox");
+            Assert.IsTrue(flowBox.Items.Contains("xtls-rprx-vision-udp443"));
+        }
+    });
+
+    [TestMethod]
+    public void EditorsHandleDynamicVisibilityValidationAndClearing() => RunSta(() =>
+    {
+        static bool IsHidden(ServerForm form, Control control) =>
+            ((HashSet<Control>)typeof(ServerForm).GetField("_hidden", PrivateInstance).GetValue(form)).Contains(control);
+
+        using (var vmess = CreateEditor(EConfigType.VMess))
+        {
+            Prepare(vmess);
+            Set(vmess, "Address", "127.0.0.1");
+            Set(vmess, "Port", "443");
+            Set(vmess, "UserId", Uuid);
+            Select(vmess, "Network", "kcp");
+            Select(vmess, "TransportMode", "dns");
+            var hostBox = Find(vmess, "HostTextBox");
+            Assert.IsFalse(IsHidden(vmess, hostBox));
+            Set(vmess, "Host", "dns.example");
+            Assert.AreEqual("dns.example", Save(vmess).RequestHost);
+            Select(vmess, "TransportMode", "srtp");
+            Assert.IsTrue(IsHidden(vmess, hostBox));
+        }
+
+        using (var trojan = CreateEditor(EConfigType.Trojan, new TrojanServer
+        {
+            Address = "127.0.0.1", Port = 443, Password = "p", ProtoExtra = { Flow = "xtls-rprx-direct" }
+        }))
+        {
+            Prepare(trojan);
+            Assert.IsNotNull(Find(trojan, "LegacyFlowComboBox"));
+            Select(trojan, "LegacyFlow", "");
+            Assert.AreEqual("", Save(trojan).ProtoExtra.Flow);
+        }
+
+        using (var hy2 = CreateEditor(EConfigType.Hysteria2))
+        {
+            Prepare(hy2);
+            Set(hy2, "Address", "127.0.0.1");
+            Set(hy2, "Port", "443");
+            Set(hy2, "Auth", "p");
+            Select(hy2, "Obfs", "gecko");
+            Set(hy2, "ObfsPassword", "pw");
+            Set(hy2, "GeckoMinPacketSize", "500");
+            Set(hy2, "GeckoMaxPacketSize", "100");
+            Assert.AreEqual(false, typeof(ServerForm).GetMethod("TrySave", PrivateInstance).Invoke(hy2, null));
+
+            Set(hy2, "GeckoMinPacketSize", "128");
+            Set(hy2, "GeckoMaxPacketSize", "512");
+            var saved = Save(hy2);
+            using var reopened = CreateEditor(EConfigType.Hysteria2, saved);
+            Prepare(reopened);
+            Select(reopened, "Obfs", "none");
+            var cleared = Save(reopened);
+            Assert.AreEqual("", cleared.ProtoExtra.SalamanderPass);
+            Assert.AreEqual("", cleared.ProtoExtra.GeckoMinPacketSize);
+            Assert.AreEqual("", cleared.ProtoExtra.GeckoMaxPacketSize);
+        }
+
+        using (var ss = CreateEditor(EConfigType.Shadowsocks, new ShadowsocksServer
+        {
+            Address = "127.0.0.1", Port = 443, Password = "pass",
+            AllowInsecure = true, ProtoExtra = { SsMethod = "aes-128-gcm", SsPlugin = "v2ray-plugin", SsPluginOptions = "mode=websocket;tls" }
+        }))
+        {
+            Prepare(ss);
+            Select(ss, "Plugin", "");
+            Assert.IsTrue(IsHidden(ss, Find(ss, "AllowInsecureComboBox")));
+            Assert.IsNull(Save(ss).AllowInsecure);
+        }
+
+        using (var ssr = CreateEditor(EConfigType.ShadowsocksR))
+        {
+            Prepare(ssr);
+            Assert.AreEqual(Netch.Constants.SsrEncryptMethods.Count, ((ComboBox)Find(ssr, "EncryptMethodComboBox")).Items.Count);
+            Assert.AreEqual(Netch.Constants.SsrProtocols.Count, ((ComboBox)Find(ssr, "ProtocolComboBox")).Items.Count);
+            Assert.AreEqual(Netch.Constants.SsrObfs.Count, ((ComboBox)Find(ssr, "OBFSComboBox")).Items.Count);
+        }
+
+        foreach (var type in new[] { EConfigType.Hysteria2, EConfigType.TUIC, EConfigType.AnyTLS, EConfigType.MASQUE })
+        {
+            using var editor = CreateEditor(type);
+            Prepare(editor);
+            Assert.IsFalse(IsHidden(editor, Find(editor, "FingerprintComboBox")), $"{type} should expose FingerprintComboBox");
+        }
+        using (var naive = CreateEditor(EConfigType.Naive))
+        {
+            Prepare(naive);
+            Assert.AreEqual(0, naive.Controls.Find("FingerprintComboBox", true).Length);
+            Assert.AreEqual(0, naive.Controls.Find("AllowInsecureComboBox", true).Length);
+        }
+
+        using (var vlessLegacy = CreateEditor(EConfigType.VLESS, new VLESSServer
+        {
+            Address = "127.0.0.1", Port = 443, Password = Uuid, Network = "tcp",
+            StreamSecurity = "tls", CertSha = "abc", EchConfigList = "ech1"
+        }))
+        {
+            Prepare(vlessLegacy);
+            Assert.IsFalse(IsHidden(vlessLegacy, Find(vlessLegacy, "CertShaTextBox")));
+            Assert.IsFalse(IsHidden(vlessLegacy, Find(vlessLegacy, "EchConfigListTextBox")));
+            var saved = Save(vlessLegacy);
+            Assert.AreEqual("abc", saved.CertSha);
+            Assert.AreEqual("ech1", saved.EchConfigList);
+        }
+    });
 
     private static void Populate(ServerForm form, EConfigType type)
     {
