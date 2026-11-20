@@ -600,7 +600,7 @@ public sealed partial class DownloadsPage : Page
     private Button PauseButton(DownloadTransfer transfer)
     {
         var icon = new FontIcon { FontSize = 14 };
-        var button = new Button { Content = icon, Style = Resource<Style>("NetchInlineButton") };
+        var button = new Button { Content = icon, Style = Resource<Style>("NetchInlineButton"), IsEnabled = transfer.CanPause };
         UpdateButton();
         button.Click += (_, _) =>
         {

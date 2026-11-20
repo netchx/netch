@@ -36,9 +36,12 @@ internal sealed class DownloadTransfer(CorePackage? core)
     public CorePackage? Core { get; } = core;
     public TransferProgress Progress { get; set; } = new(-1, 0);
     public bool IsPaused => _paused != null;
+    public bool CanPause { get; private set; } = true;
 
     public void TogglePause()
     {
+        if (!CanPause)
+            return;
         if (_paused == null)
             _paused = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         else
@@ -50,6 +53,8 @@ internal sealed class DownloadTransfer(CorePackage? core)
     }
 
     public Task WaitWhilePausedAsync() => _paused?.Task ?? Task.CompletedTask;
+
+    public void FinishReceiving() => CanPause = false;
 }
 
 internal static partial class Downloads
@@ -812,6 +817,10 @@ internal static partial class Downloads
                 ReportProgress(transfer, new TransferProgress(percent, speed));
             }
         }
+        while (transfer.IsPaused)
+            await transfer.WaitWhilePausedAsync();
+        transfer.FinishReceiving();
+        Changed?.Invoke();
     }
 
     private static void Record(string name, string version, bool ok, string? message = null)

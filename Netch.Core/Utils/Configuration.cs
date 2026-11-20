@@ -148,20 +148,7 @@ public static class Configuration
         try
         {
             await using var _ = await _lock.WriteLockAsync();
-            Log.Verbose("Save Configuration");
-
-            if (!Directory.Exists(DataDirectoryFullName))
-                Directory.CreateDirectory(DataDirectoryFullName);
-
-            var tempFile = Path.Combine(DataDirectoryFullName, FileFullName + ".tmp");
-            await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
-            {
-                await JsonSerializer.SerializeAsync(fileStream, settings, JsonSerializerOptions);
-            }
-
-            await EnsureConfigFileExistsAsync();
-
-            File.Replace(tempFile, FileFullName, BackupFileFullName);
+            await WriteSettingsAsync(settings);
         }
         catch (Exception e)
         {
@@ -169,6 +156,36 @@ public static class Configuration
             if (throwOnError)
                 throw;
         }
+    }
+
+    public static async Task ApplyChangeAsync(Action apply, Action restore)
+    {
+        await using var _ = await _lock.WriteLockAsync();
+        try
+        {
+            apply();
+            await WriteSettingsAsync(Global.Settings);
+        }
+        catch
+        {
+            try { restore(); }
+            catch (Exception e) { Log.Warning(e, "Could not restore settings"); }
+            throw;
+        }
+    }
+
+    private static async Task WriteSettingsAsync(Setting settings)
+    {
+        Log.Verbose("Save Configuration");
+        Directory.CreateDirectory(DataDirectoryFullName);
+        var tempFile = FileFullName + ".tmp";
+        await using (var fileStream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+        {
+            await JsonSerializer.SerializeAsync(fileStream, settings, JsonSerializerOptions);
+        }
+
+        await EnsureConfigFileExistsAsync();
+        File.Replace(tempFile, FileFullName, BackupFileFullName);
     }
 
     private static async ValueTask EnsureConfigFileExistsAsync()

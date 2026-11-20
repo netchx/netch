@@ -229,15 +229,12 @@ public sealed partial class SettingsPage : Page
         _settingsError.IsOpen = false;
         try
         {
-            apply();
-            await Configuration.SaveAsync(throwOnError: true);
+            await Configuration.ApplyChangeAsync(apply, restore);
             return true;
         }
         catch (Exception e)
         {
             Log.Warning(e, "Could not save settings");
-            try { restore(); }
-            catch (Exception rollback) { Log.Warning(rollback, "Could not restore settings"); }
             ReportSettingError(e.Message);
             return false;
         }
@@ -263,8 +260,9 @@ public sealed partial class SettingsPage : Page
         }))
         {
             var previous = (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port);
+            var next = (method.SelectedIndex == 0, stun.Text.Trim(), (int)ushort.Parse(port.Text));
             if (await SaveSettingAsync(
-                () => (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port) = (method.SelectedIndex == 0, stun.Text.Trim(), ushort.Parse(port.Text)),
+                () => (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port) = next,
                 () => (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port) = previous))
                 App.MainWindow?.Navigate("Settings", force: true);
         }
@@ -284,9 +282,9 @@ public sealed partial class SettingsPage : Page
         }))
         {
             var previous = (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS);
+            var next = (DnsUtils.AppendPort(china.Text.Trim()), DnsUtils.AppendPort(other.Text.Trim()), outbound.Text.Trim());
             await SaveSettingAsync(
-                () => (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS) =
-                    (DnsUtils.AppendPort(china.Text.Trim()), DnsUtils.AppendPort(other.Text.Trim()), outbound.Text.Trim()),
+                () => (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS) = next,
                 () => (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS) = previous);
         }
     }
@@ -313,11 +311,9 @@ public sealed partial class SettingsPage : Page
             kcp.Congestion, core.Mux4RayItem.Concurrency);
         await SaveNumbersAsync("Xray / sing-box", editor, fields, () =>
         {
-            basic.DefFingerprint = fingerprint.Text.Trim();
-            basic.EnableFragment = fragment.IsChecked == true;
-            basic.MuxEnabled = mux.IsChecked == true;
-            basic.DefAllowInsecure = insecure.IsChecked == true;
-            kcp.Congestion = congestion.IsChecked == true;
+            var next = (fingerprint.Text.Trim(), fragment.IsChecked == true, mux.IsChecked == true,
+                insecure.IsChecked == true, congestion.IsChecked == true);
+            return () => (basic.DefFingerprint, basic.EnableFragment, basic.MuxEnabled, basic.DefAllowInsecure, kcp.Congestion) = next;
         }, () => (basic.DefFingerprint, basic.EnableFragment, basic.MuxEnabled, basic.DefAllowInsecure,
             kcp.Congestion, core.Mux4RayItem.Concurrency) = previous);
     }
@@ -331,7 +327,7 @@ public sealed partial class SettingsPage : Page
     }
 
     private async Task SaveNumbersAsync(string title, StackPanel editor, (string Label, int Value, Action<int> Set)[] fields,
-        Action? apply = null, Action? restore = null)
+        Func<Action>? capture = null, Action? restore = null)
     {
         var boxes = fields.Select(field => Input(field.Label, field.Value.ToString())).ToArray();
         foreach (var box in boxes)
@@ -346,6 +342,7 @@ public sealed partial class SettingsPage : Page
         }))
             return;
 
+        var apply = capture?.Invoke();
         await SaveSettingAsync(() =>
         {
             for (var i = 0; i < fields.Length; i++)
