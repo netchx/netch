@@ -189,6 +189,11 @@ public record ProtocolExtraItem
     public string? GeckoMinPacketSize { get; set; }
     public string? GeckoMaxPacketSize { get; set; }
 
+    // AnyTLS
+    public int? AnyTlsIdleSessionCheckIntervalSeconds { get; set; }
+    public int? AnyTlsIdleSessionTimeoutSeconds { get; set; }
+    public int? AnyTlsMinIdleSession { get; set; }
+
     // NaiveProxy
     public int? InsecureConcurrency { get; set; }
     public bool? NaiveQuic { get; set; }

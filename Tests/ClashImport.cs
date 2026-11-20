@@ -3,8 +3,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Netch.JsonConverter;
 using Netch.Models;
 using Netch.Servers;
 using Netch.Utils;
@@ -66,6 +68,31 @@ public class ClashImport
         Assert.AreEqual("chrome", vless.Fingerprint);
         Assert.AreEqual(false, vless.AllowInsecure);
         Assert.AreEqual(false, vless.MuxEnabled);
+    }
+
+    [TestMethod]
+    public void AnyTlsImportPreservesIdleSessionSettings()
+    {
+        const string yaml = """
+            proxies:
+              - {name: Tuned, type: anytls, server: tls.example, port: 443, password: test, idle-session-check-interval: 30, idle-session-timeout: 45, min-idle-session: 0}
+              - {name: Default, type: anytls, server: tls.example, port: 443, password: test}
+              - {name: Invalid, type: anytls, server: tls.example, port: 443, password: test, idle-session-timeout: -1}
+            """;
+
+        var servers = ShareLink.ParseText(yaml, out var skipped);
+        Assert.AreEqual(2, servers.Count);
+        Assert.AreEqual(1, skipped);
+
+        var options = Netch.Global.NewCustomJsonSerializerOptions();
+        options.Converters.Add(new ServerConverterWithTypeDiscriminator());
+        var saved = (AnyTLSServer)JsonSerializer.Deserialize<Server>(JsonSerializer.Serialize(servers[0], options), options);
+        Assert.AreEqual(30, saved.ProtoExtra.AnyTlsIdleSessionCheckIntervalSeconds);
+        Assert.AreEqual(45, saved.ProtoExtra.AnyTlsIdleSessionTimeoutSeconds);
+        Assert.AreEqual(0, saved.ProtoExtra.AnyTlsMinIdleSession);
+        Assert.IsNull(servers[1].ProtoExtra.AnyTlsIdleSessionCheckIntervalSeconds);
+        Assert.IsNull(servers[1].ProtoExtra.AnyTlsIdleSessionTimeoutSeconds);
+        Assert.IsNull(servers[1].ProtoExtra.AnyTlsMinIdleSession);
     }
 
     [TestMethod]

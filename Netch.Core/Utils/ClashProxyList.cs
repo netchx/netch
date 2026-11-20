@@ -179,6 +179,12 @@ internal static class ClashProxyList
             case AnyTLSServer:
                 server.Password = fields.Required("password");
                 ReadTls(fields, server, "sni", required: true);
+                extra.AnyTlsIdleSessionCheckIntervalSeconds = fields.Number("idle-session-check-interval");
+                extra.AnyTlsIdleSessionTimeoutSeconds = fields.Number("idle-session-timeout");
+                extra.AnyTlsMinIdleSession = fields.Number("min-idle-session");
+                if (extra.AnyTlsIdleSessionCheckIntervalSeconds is < 0 || extra.AnyTlsIdleSessionTimeoutSeconds is < 0 ||
+                    extra.AnyTlsMinIdleSession is < 0)
+                    throw new FormatException();
                 break;
             case WireGuardServer:
                 ReadWireGuard(fields, server);

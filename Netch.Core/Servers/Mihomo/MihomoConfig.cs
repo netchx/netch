@@ -86,6 +86,9 @@ internal static class MihomoConfig
             case AnyTLSServer:
                 ConfigureTls(proxy, server, "sni", required: true);
                 proxy["password"] = server.Password;
+                if (extra.AnyTlsIdleSessionCheckIntervalSeconds is { } checkInterval) proxy["idle-session-check-interval"] = checkInterval;
+                if (extra.AnyTlsIdleSessionTimeoutSeconds is { } timeout) proxy["idle-session-timeout"] = timeout;
+                if (extra.AnyTlsMinIdleSession is { } minIdle) proxy["min-idle-session"] = minIdle;
                 break;
             default:
                 throw new MessageException(i18N.TranslateFormat("Mihomo does not support node type {0}.", server.ConfigType));

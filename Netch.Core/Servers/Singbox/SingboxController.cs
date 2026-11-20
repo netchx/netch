@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using Netch.Enums;
@@ -178,6 +179,11 @@ public sealed class SingboxController : Guard, IServerController
             case Enums.EConfigType.AnyTLS:
                 outbound["type"] = "anytls";
                 outbound["password"] = server.Password;
+                if (extra.AnyTlsIdleSessionCheckIntervalSeconds is { } checkInterval)
+                    outbound["idle_session_check_interval"] = checkInterval.ToString(CultureInfo.InvariantCulture) + "s";
+                if (extra.AnyTlsIdleSessionTimeoutSeconds is { } timeout)
+                    outbound["idle_session_timeout"] = timeout.ToString(CultureInfo.InvariantCulture) + "s";
+                if (extra.AnyTlsMinIdleSession is { } minIdle) outbound["min_idle_session"] = minIdle;
                 break;
             case Enums.EConfigType.Naive:
                 outbound["type"] = "naive";
