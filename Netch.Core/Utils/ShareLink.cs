@@ -13,7 +13,9 @@ public static class ShareLink
         return string.IsNullOrWhiteSpace(link) ? GetNetchLink(server) : link;
     }
 
-    public static List<Server> ParseText(string text)
+    public static List<Server> ParseText(string text) => ParseText(text, out _);
+
+    public static List<Server> ParseText(string text, out int skipped)
     {
         try
         {
@@ -23,6 +25,9 @@ public static class ShareLink
         {
             // ignored
         }
+
+        if (ClashProxyList.TryParse(text, out skipped) is { } clashServers)
+            return clashServers;
 
         var list = new List<Server>();
         var lineCount = 0;

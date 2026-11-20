@@ -123,6 +123,7 @@
   "No subscription link": "没有任何一条订阅链接",
   "Updating {0}": "正在更新 {0}",
   "Update {1} server(s) from {0}": "从 {0} 更新了 {1} 个服务器",
+  "Skipped {0} invalid or unsupported nodes.": "跳过 {0} 个无效或不受支持的节点。",
   "Update servers failed from {0}": "从 {0} 更新服务器失败",
   "Confirm deletion?": "确认删除？",
   "Delete Servers": "删除订阅节点",

@@ -25,6 +25,16 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
     internal static string DecodePluginPath(string path) =>
         path.Replace("\\=", "=").Replace("\\,", ",").Replace("\\\\", "\\");
 
+    internal static string EncodePluginPath(string path) =>
+        path.Replace("\\", "\\\\").Replace("=", "\\=").Replace(",", "\\,");
+
+    internal static bool IsSupportedCipher(string method) => Constants.SsSecuritiesInXray.Contains(method) ||
+        method is "aes-128-ctr" or "aes-192-ctr" or "aes-256-ctr" or "aes-128-cfb" or "aes-192-cfb" or "aes-256-cfb"
+            or "aes-192-gcm" or "aes-128-ccm" or "aes-192-ccm" or "aes-256-ccm" or "aes-128-gcm-siv" or "aes-256-gcm-siv"
+            or "chacha20-ietf" or "chacha20" or "xchacha20" or "chacha8-ietf-poly1305" or "xchacha8-ietf-poly1305"
+            or "lea-128-gcm" or "lea-192-gcm" or "lea-256-gcm" or "rabbit128-poly1305"
+            or "aegis-128l" or "aegis-256" or "aez-384" or "deoxys-ii-256-128" or "rc4-md5";
+
     public string GetShareLink(Server s)
     {
         var item = (ShadowsocksServer)s;
@@ -61,7 +71,7 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
                 pluginArgs += $"host={item.RequestHost};";
                 // https://github.com/shadowsocks/v2ray-plugin/blob/e9af1cdd2549d528deb20a4ab8d61c5fbe51f306/args.go#L172
                 // Equal signs and commas [and backslashes] must be escaped with a backslash.
-                var path = item.Path.Replace("\\", "\\\\").Replace("=", "\\=").Replace(",", "\\,");
+                var path = EncodePluginPath(item.Path);
                 pluginArgs += $"path={path};";
             }
             else if (item.Network == nameof(ETransport.quic))
@@ -130,7 +140,7 @@ public class ShadowsocksUtil : ServerUtilBase, IServerUtil
     public bool CheckServer(Server s)
     {
         var server = (ShadowsocksServer)s;
-        if (!Constants.SsSecuritiesInXray.Contains(server.ProtoExtra.SsMethod))
+        if (!IsSupportedCipher(server.ProtoExtra.SsMethod))
         {
             Log.Warning("Unsupported SS Encrypt Method: {Method}", server.ProtoExtra.SsMethod);
             return false;

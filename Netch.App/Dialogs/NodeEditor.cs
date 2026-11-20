@@ -18,16 +18,35 @@ internal static class NodeEditor
 
     public static async Task<int> ImportClipboardAsync()
     {
-        var imported = ShareLink.ParseText(await ClipboardTextAsync());
+        var result = await ImportTextAsync(await ClipboardTextAsync());
+        return result.Count;
+    }
+
+    internal static async Task<(int Count, int Skipped)> ImportTextAsync(string text)
+    {
+        var imported = ShareLink.ParseText(text, out var skipped);
+        if (imported.Count == 0)
+            return (0, skipped);
+
         foreach (var server in imported)
         {
             server.Id = Guid.NewGuid().ToString("N");
             server.Group = Constants.DefaultGroup;
             server.IsSub = false;
         }
-        Global.Settings.Server.AddRange(imported);
-        await Configuration.SaveAsync();
-        return imported.Count;
+        var nodes = Global.Settings.Server;
+        nodes.AddRange(imported);
+        try
+        {
+            await Configuration.SaveAsync(throwOnError: true);
+        }
+        catch
+        {
+            foreach (var server in imported)
+                nodes.Remove(server);
+            throw;
+        }
+        return (imported.Count, skipped);
     }
 
     public static async Task<Subscription?> EditSubscriptionAsync(XamlRoot root, Subscription? existing)

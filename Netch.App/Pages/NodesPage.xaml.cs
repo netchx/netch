@@ -4,6 +4,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.VisualStudio.Threading;
+using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Dialogs;
 using Netch.App.Helpers;
 using Netch.App.Services;
@@ -32,6 +34,10 @@ public sealed partial class NodesPage : Page
     public NodesPage()
     {
         InitializeComponent();
+        var import = new DropDownButton { Content = T("Import", "导入") };
+        import.Flyout = Menu(
+            (T("From clipboard", "从剪贴板"), () => ImportAsync(import, fromFile: false).Forget()),
+            (T("From Clash YAML file", "从 Clash YAML 文件"), () => ImportAsync(import, fromFile: true).Forget()));
         var addSubscription = AsyncButton(T("+ Subscription", "＋ 订阅"), () => EditSubscriptionAsync(null));
         var add = Button(T("+ Node", "＋ 节点"), () => { }, accent: true);
         add.Flyout = Menu(ServerHelper.ServerUtilDictionary.Values.OrderBy(util => util.Priority)
@@ -45,13 +51,7 @@ public sealed partial class NodesPage : Page
                 await EditNodeAsync(server);
         };
 
-        Content = Ui.Page(Body(Header(T("Nodes", "节点"),
-                AsyncButton(T("📋 Import from clipboard", "📋 从剪贴板导入"), async () =>
-                {
-                    var count = await NodeEditor.ImportClipboardAsync();
-                    _status.Text = T($"Imported {count} nodes", $"已导入 {count} 个节点");
-                    RefreshCategories();
-                }), addSubscription, add),
+        Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, addSubscription, add),
             TwoColumns(_categories, Body(_details,
                 Split(_filter, Row(_speed, Button(T("⇅ Latency", "⇅ 延迟"), () =>
                 {
@@ -136,7 +136,7 @@ public sealed partial class NodesPage : Page
         });
     }
 
-    private void RefreshCategories(Subscription? select = null)
+    private void RefreshCategories(Subscription? select = null, bool selectLocal = false)
     {
         select ??= SelectedSubscription;
         var local = Equals((_categories.SelectedItem as ListViewItem)?.Tag, Constants.DefaultGroup);
@@ -160,7 +160,7 @@ public sealed partial class NodesPage : Page
         var manual = Category(T("Added manually", "手动添加"), count: nodes.Count(s => s.Group == Constants.DefaultGroup).ToString());
         manual.Tag = Constants.DefaultGroup;
         AddCategory(manual, 35);
-        _categories.SelectedItem = select == null ? (local ? manual : _categories.Items[0])
+        _categories.SelectedItem = selectLocal ? manual : select == null ? (local ? manual : _categories.Items[0])
             : _categories.Items.OfType<ListViewItem>().FirstOrDefault(i => ReferenceEquals(i.Tag, select)) ?? _categories.Items[0];
         _refreshing = false;
         RefreshSelection();
@@ -271,6 +271,48 @@ public sealed partial class NodesPage : Page
     {
         if (await NodeEditor.EditAsync(XamlRoot, server, type))
             RefreshCategories();
+    }
+
+    private async Task ImportAsync(Button import, bool fromFile)
+    {
+        import.IsEnabled = false;
+        try
+        {
+            string text;
+            if (fromFile)
+            {
+                var picker = new FileOpenPicker(App.MainWindow!.AppWindow.Id);
+                picker.FileTypeFilter.Add(".yaml");
+                picker.FileTypeFilter.Add(".yml");
+                if (await picker.PickSingleFileAsync() is not { } file)
+                    return;
+                text = await File.ReadAllTextAsync(file.Path);
+            }
+            else
+                text = await ClipboardTextAsync();
+
+            var (count, skipped) = await NodeEditor.ImportTextAsync(text);
+            _status.Text = count == 0 ? T("No supported nodes found.", "未找到可导入的节点。")
+                : T($"Imported {count} nodes.", $"已导入 {count} 个节点。");
+            if (skipped > 0)
+                _status.Text += T($" Skipped {skipped} invalid or unsupported nodes.", $"跳过 {skipped} 个无效或不受支持的节点。");
+
+            if (count > 0)
+            {
+                _filter.Text = "";
+                RefreshCategories(selectLocal: true);
+            }
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "Import nodes failed");
+            if (XamlRoot is { } root)
+                await ShowAsync(root, T("Import failed", "导入失败"), Text(e.Message));
+        }
+        finally
+        {
+            import.IsEnabled = true;
+        }
     }
 
     private Task<bool> ConfirmDeleteAsync(IEnumerable<Server> nodes)

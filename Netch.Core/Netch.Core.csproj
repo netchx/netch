@@ -75,6 +75,7 @@
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="10.0.3" />
     <PackageReference Include="WindowsJobAPI" Version="6.1.0" />
+    <PackageReference Include="YamlDotNet" Version="18.1.0" />
   </ItemGroup>
 
   <ItemGroup>

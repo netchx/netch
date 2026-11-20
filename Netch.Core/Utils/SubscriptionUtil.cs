@@ -26,7 +26,7 @@ public static class SubscriptionUtil
             using var client = WebUtil.CreateHttpClient(userAgent: item.UserAgent, proxyServer: proxyServer);
             using var response = await client.GetAsync(link);
             response.EnsureSuccessStatusCode();
-            var servers = ShareLink.ParseText(await response.Content.ReadAsStringAsync());
+            var servers = ShareLink.ParseText(await response.Content.ReadAsStringAsync(), out var skipped);
             if (servers.Count == 0)
                 throw new InvalidDataException(i18N.Translate("The subscription contains no supported nodes."));
             if (!item.Enable || !Global.Settings.Subscription.Contains(item) || item.Link != link)
@@ -60,7 +60,10 @@ public static class SubscriptionUtil
                     item.Expiration = DateTimeOffset.FromUnixTimeSeconds(expires);
             }
 
-            AppEvents.Notify(i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count));
+            var message = i18N.TranslateFormat("Update {1} server(s) from {0}", item.Remark, servers.Count);
+            if (skipped > 0)
+                message += "\n" + i18N.TranslateFormat("Skipped {0} invalid or unsupported nodes.", skipped);
+            AppEvents.Notify(message);
             return servers.Count;
         }
         catch (Exception e)
