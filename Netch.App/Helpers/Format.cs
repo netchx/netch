@@ -74,13 +74,16 @@ public static class Format
         };
     }
 
-    /// <summary>NAT test result: 1–3 from <see cref="Socks5ServerTestUtils" />, otherwise a failure detail such as "Wrong STUN Server!".</summary>
+    /// <summary>NAT classifications require a completed RFC 5780 probe.</summary>
     public static string Nat(string? result) => result switch
     {
         null => "—",
         "1" => "Full Cone",
         "2" => "Restricted",
         "3" => "Symmetric",
+        "UnsupportedServer" or "Incomplete" => i18N.Translate("NAT type unknown"),
+        "NoUDP" => i18N.Translate("No STUN response"),
+        "STUN hostname lookup failed." => i18N.Translate("STUN hostname lookup failed."),
         _ => i18N.Translate("Test failed")
     };
 

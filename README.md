@@ -90,18 +90,20 @@ VLESS + WebSocket 默认由 Mihomo 处理。请确保地址、端口、UUID、We
 
 ## UDP 与 NAT 检测
 
-NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个检测最长 20 秒。结果含义如下：
+NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，采用 NatTypeTester 10.0.10 的 RFC 5780 实现，整个检测最长 20 秒。预设服务器无法完成分类时会尝试列表中的其他地址。手动填写的自定义服务器单独检测。
 
 | 结果 | 含义 |
 | --- | --- |
 | `1` | Endpoint-Independent Mapping，并且过滤行为适合入站打洞。 |
 | `2` | 地址映射较宽松，但过滤行为更严格。 |
 | `3` | Address/Port-Dependent Mapping，通常不利于 P2P 打洞。 |
-| `NoUDP` | STUN Binding 请求未通过当前代理通道完成。 |
+| `NoUDP` | 已尝试的 STUN Binding 请求均未收到响应。 |
 | `Timeout` | DNS、代理握手或 STUN 请求超过总超时。 |
+| `STUN hostname lookup failed.` | 系统 DNS 未能解析已尝试的 STUN 主机。 |
 | `UnsupportedServer` | STUN 服务器不支持完整的 RFC 5780 映射/过滤测试，不等同于节点不支持 UDP。 |
+| `Incomplete` | STUN 已返回公网地址，后续探测不足以确定 NAT 类型。 |
 
-> Google 等部分公共 STUN 服务只支持基础 Binding。它们可以返回公网地址，但可能无法完成 NAT 类型分类。遇到 `UnsupportedServer` 时，请在设置中更换支持 RFC 5780 的 STUN 服务器后重试。
+默认服务器列表来自 [NatTypeTester 10.0.10](https://github.com/HMBSbige/NatTypeTester/blob/10.0.10/src/NatTypeTester.Domain.Shared/Configuration/ConfigurationConsts.cs)。只支持基础 Binding 的 STUN 服务可以返回公网地址，但无法完成 NAT 类型分类。
 
 ## 代理核心
 

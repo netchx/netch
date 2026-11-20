@@ -1296,12 +1296,14 @@ public partial class MainForm : Form
         try
         {
             var res = await MainController.DiscoveryNatTypeAsync(cts.Token);
-            if (cts.IsCancellationRequested)
+            if (cts.IsCancellationRequested || !ReferenceEquals(_discoveryNatCts, cts))
                 return;
 
             if (!string.IsNullOrEmpty(res.PublicEnd))
             {
                 var country = await Utils.Utils.GetCityCodeAsync(res.PublicEnd);
+                if (cts.IsCancellationRequested || !ReferenceEquals(_discoveryNatCts, cts))
+                    return;
 
                 UpdateNatTypeStatusLabelText(res.Result, country);
                 if (int.TryParse(res.Result, out var natType))
@@ -1311,7 +1313,7 @@ public partial class MainForm : Form
             }
             else
             {
-                UpdateNatTypeStatusLabelText(res.Result ?? "Error");
+                UpdateNatTypeStatusLabelText(i18N.Translate(res.Result ?? "Error"));
                 NatTypeStatusLightLabel.Visible = false;
             }
         }
@@ -1323,7 +1325,7 @@ public partial class MainForm : Form
         {
             // Never leave the label stuck at "Testing".
             Log.Warning(e, "NAT type test failed");
-            if (!cts.IsCancellationRequested)
+            if (!cts.IsCancellationRequested && ReferenceEquals(_discoveryNatCts, cts))
             {
                 UpdateNatTypeStatusLabelText("Error");
                 NatTypeStatusLightLabel.Visible = false;
@@ -1332,10 +1334,12 @@ public partial class MainForm : Form
         finally
         {
             if (ReferenceEquals(_discoveryNatCts, cts))
+            {
                 _discoveryNatCts = null;
+                NatTypeStatusLabel.Enabled = true;
+            }
 
             cts.Dispose();
-            NatTypeStatusLabel.Enabled = true;
         }
     }
 

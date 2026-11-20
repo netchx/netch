@@ -1,5 +1,8 @@
-stun.qq.com
-stun.bige0.com
+stun.fitauto.ru
+stun.m-online.net
+stun.mixvoip.com
+stun.voipgate.com
+stun.t-online.de
+stun.srce.hr
+stun.aa.net.uk
 stun.miwifi.com
-stun.syncthing.net
-stun.stunprotocol.org

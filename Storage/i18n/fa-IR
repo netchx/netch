@@ -625,5 +625,8 @@
   "The node of this scene no longer exists. Choose another node.": "گره این صحنه دیگر وجود ندارد. گره دیگری را انتخاب کنید.",
   "The mode of this scene no longer exists. Edit the scene to choose another mode.": "حالت این صحنه دیگر وجود ندارد. صحنه را ویرایش و حالت دیگری را انتخاب کنید.",
   "MASQUE requires sing-box 1.15.0-alpha.7 or newer with masque-client support.": "MASQUE به sing-box نسخه 1.15.0-alpha.7 یا جدیدتر با پشتیبانی masque-client نیاز دارد.",
-  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "در ویندوز، libcronet.dll بسته رسمی را کنار sing-box.exe قرار دهید."
+  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "در ویندوز، libcronet.dll بسته رسمی را کنار sing-box.exe قرار دهید.",
+  "NAT type unknown": "نوع NAT نامشخص",
+  "No STUN response": "بدون پاسخ STUN",
+  "STUN hostname lookup failed.": "حل نام میزبان STUN ناموفق بود."
 }

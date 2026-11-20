@@ -677,5 +677,8 @@
   "📋 Import from clipboard": "📋 从剪贴板导入",
   "TUN": "TUN",
   "MASQUE requires sing-box 1.15.0-alpha.7 or newer with masque-client support.": "MASQUE 需要支持 masque-client 的 sing-box 1.15.0-alpha.7 或更新版本。",
-  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "Windows 上请将官方包内的 libcronet.dll 与 sing-box.exe 放在一起。"
+  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "Windows 上请将官方包内的 libcronet.dll 与 sing-box.exe 放在一起。",
+  "NAT type unknown": "NAT 类型未知",
+  "No STUN response": "STUN 无响应",
+  "STUN hostname lookup failed.": "无法解析 STUN 主机名。"
 }

@@ -69,7 +69,7 @@
     <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
-    <PackageReference Include="Stun.Net" Version="9.0.1" />
+    <PackageReference Include="Stun.Net" Version="10.0.10" />
     <PackageReference Include="System.Management" Version="10.0.3" />
     <PackageReference Include="TaskScheduler" Version="2.12.2" />
     <PackageReference Include="WindowsFirewallHelper" Version="2.2.0.86" />

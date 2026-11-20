@@ -183,7 +183,7 @@ public sealed partial class SettingsPage : Page
         var port = Input(T("STUN port", "STUN 端口"), s.STUN_Server_Port.ToString());
         if (await ShowAsync(XamlRoot, T("Latency test · STUN", "测速方式 · STUN"), Stack(method, stun, port), T("Save", "保存"), () =>
         {
-            if (stun.Text.Trim().Length == 0 || !ushort.TryParse(port.Text, out var value) || value == 0)
+            if (Uri.CheckHostName(stun.Text.Trim()) == UriHostNameType.Unknown || !ushort.TryParse(port.Text, out var value) || value == 0)
                 return T("Enter a STUN host and a valid port.", "请输入 STUN 主机及有效端口。");
             s.ServerTCPing = method.SelectedIndex == 0;
             s.STUN_Server = stun.Text.Trim();

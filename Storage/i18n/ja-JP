@@ -625,5 +625,8 @@
   "The node of this scene no longer exists. Choose another node.": "このシーンのノードは存在しません。別のノードを選択してください。",
   "The mode of this scene no longer exists. Edit the scene to choose another mode.": "このシーンのモードは存在しません。シーンを編集して別のモードを選択してください。",
   "MASQUE requires sing-box 1.15.0-alpha.7 or newer with masque-client support.": "MASQUE には masque-client 対応の sing-box 1.15.0-alpha.7 以降が必要です。",
-  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "Windows では公式パッケージの libcronet.dll を sing-box.exe と同じフォルダーに置いてください。"
+  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "Windows では公式パッケージの libcronet.dll を sing-box.exe と同じフォルダーに置いてください。",
+  "NAT type unknown": "NAT タイプ不明",
+  "No STUN response": "STUN の応答なし",
+  "STUN hostname lookup failed.": "STUN サーバーのホスト名を解決できませんでした。"
 }

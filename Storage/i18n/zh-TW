@@ -636,5 +636,8 @@
   "The node of this scene no longer exists. Choose another node.": "此場景的節點已不存在，請選擇其他節點。",
   "The mode of this scene no longer exists. Edit the scene to choose another mode.": "此場景的模式已不存在。請編輯場景並選擇其他模式。",
   "MASQUE requires sing-box 1.15.0-alpha.7 or newer with masque-client support.": "MASQUE 需要 1.15.0-alpha.7 或更新版本且支援 masque-client 的 sing-box。",
-  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "在 Windows 上，請將官方套件的 libcronet.dll 放在 sing-box.exe 旁。"
+  "On Windows, keep libcronet.dll from the official package next to sing-box.exe.": "在 Windows 上，請將官方套件的 libcronet.dll 放在 sing-box.exe 旁。",
+  "NAT type unknown": "NAT 類型未知",
+  "No STUN response": "STUN 未回應",
+  "STUN hostname lookup failed.": "無法解析 STUN 主機名稱。"
 }

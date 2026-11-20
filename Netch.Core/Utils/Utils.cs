@@ -90,9 +90,11 @@ public static class Utils
 
     public static async Task<string> GetCityCodeAsync(string address)
     {
-        var i = address.IndexOf(':');
-        if (i != -1)
-            address = address[..i];
+        var separator = address.IndexOf(':');
+        if (IPEndPoint.TryParse(address, out var endpoint))
+            address = endpoint.Address.ToString();
+        else if (separator >= 0 && !IPAddress.TryParse(address, out _))
+            address = address[..separator];
 
         string? country = null;
         try

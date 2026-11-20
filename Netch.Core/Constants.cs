@@ -10,6 +10,7 @@ public static class Constants
     public const string AioDnsRuleFile = "bin\\aiodns.conf";
     public const string NFDriver = "bin\\nfdriver.sys";
     public const string STUNServersFile = "bin\\stun.txt";
+    public const string DefaultStunServer = "stun.fitauto.ru";
 
     public const string LogFile = "logging\\application.log";
 

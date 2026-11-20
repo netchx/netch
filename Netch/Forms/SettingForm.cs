@@ -1,6 +1,7 @@
 using System.Net;
 using Netch.Properties;
 using Netch.Utils;
+using STUN;
 
 namespace Netch.Forms;
 
@@ -35,41 +36,18 @@ public partial class SettingForm : BindingForm
 
         BindTextBox<int>(StartedPingIntervalTextBox, _ => true, i => Global.Settings.StartedPingInterval = i, Global.Settings.StartedPingInterval);
 
-        object[]? stuns;
-        try
-        {
-            stuns = File.ReadLines(Constants.STUNServersFile).Cast<object>().ToArray();
-        }
-        catch (Exception e)
-        {
-            Log.Warning(e, "Load stun.txt failed");
-            stuns = null;
-        }
-
         BindComboBox(STUN_ServerComboBox,
+            s => StunServer.TryParse(s.Trim(), out var server) && server.Port != 0,
             s =>
             {
-                var split = s.SplitRemoveEmptyEntriesAndTrimEntries(':');
-                if (!split.Any())
-                    return false;
-
-                var port = split.ElementAtOrDefault(1);
-                if (port != null)
-                    if (!ushort.TryParse(split[1], out _))
-                        return false;
-
-                return true;
+                if (StunServer.TryParse(s.Trim(), out var server))
+                {
+                    Global.Settings.STUN_Server = server.Hostname;
+                    Global.Settings.STUN_Server_Port = server.Port;
+                }
             },
-            o =>
-            {
-                var split = o.ToString().SplitRemoveEmptyEntriesAndTrimEntries(':');
-                Global.Settings.STUN_Server = split[0];
-
-                var port = split.ElementAtOrDefault(1);
-                Global.Settings.STUN_Server_Port = port != null ? ushort.Parse(port) : 3478;
-            },
-            Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
-            stuns);
+            Netch.Utils.ProxyUri.Host(Global.Settings.STUN_Server) + ":" + Global.Settings.STUN_Server_Port,
+            Socks5ServerTestUtils.LoadStunServers().Cast<object>().ToArray());
 
         BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
 
