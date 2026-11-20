@@ -240,7 +240,7 @@ internal sealed class WelcomeWindow : Window
         _status.Style = Resource<Style>(invalid ? "NetchErrorText" : "NetchSuccessText");
         var total = Global.Settings.Server.Count;
         _status.Text = invalid ? T("No supported nodes were found.", "未找到可用节点。")
-            : T($"✓ {total} nodes available", $"✓ 已识别 {total} 个节点");
+            : TF("✓ {0} nodes available", "✓ 已识别 {0} 个节点", total);
     }
 
     private async Task ImportSubscriptionAsync()
@@ -263,7 +263,7 @@ internal sealed class WelcomeWindow : Window
         var imported = await SubscriptionUtil.UpdateServerAsync(subscription);
         UpdateNodeCount(imported == 0);
         if (imported > 0)
-            _status.Text = T($"✓ Imported {imported} nodes ({subscription.Remark})", $"✓ 已识别 {imported} 个节点（{subscription.Remark}）");
+            _status.Text = TF("✓ Imported {0} nodes ({1})", "✓ 已识别 {0} 个节点（{1}）", imported, subscription.Remark);
         await Configuration.SaveAsync();
     }
 

@@ -177,18 +177,18 @@ public sealed partial class NodesPage : Page
     private void RefreshSelection()
     {
         _filter.PlaceholderText = SelectedSubscription is { } subscription
-            ? T($"Filter in {subscription.Remark}", $"在 {subscription.Remark} 中筛选")
+            ? TF("Filter in {0}", "在 {0} 中筛选", subscription.Remark)
             : T("Filter nodes", "筛选节点");
         _subscription.Visibility = SelectedSubscription == null ? Visibility.Collapsed : Visibility.Visible;
         if (SelectedSubscription is { } sub)
         {
             var schedule = sub.UpdateIntervalHours > 0
-                ? T($"Updates every {sub.UpdateIntervalHours} h", $"每 {sub.UpdateIntervalHours} 小时更新")
+                ? TF("Updates every {0} h", "每 {0} 小时更新", sub.UpdateIntervalHours)
                 : T("Manual updates", "手动更新");
             if (sub.TrafficRemaining is { } remaining)
-                schedule += T($" · {Format.Bytes(remaining)} remaining", $" · 剩余 {Format.Bytes(remaining)}");
+                schedule += TF(" · {0} remaining", " · 剩余 {0}", Format.Bytes(remaining));
             if (sub.Expiration is { } expiration)
-                schedule += T($" · Expires {expiration:d}", $" · 到期 {expiration:yyyy-MM-dd}");
+                schedule += TF(" · Expires {0:d}", " · 到期 {0:yyyy-MM-dd}", expiration);
             var menu = new Button
             {
                 Content = "⋯",
@@ -237,7 +237,7 @@ public sealed partial class NodesPage : Page
             delay.TextAlignment = TextAlignment.Right;
             UpdateDelayLabel(server, delay);
             _delayLabels[server] = delay;
-            var scenes = Caption(count == 0 ? "" : T($"{count} scenes", $"{count} 个场景"));
+            var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
             scenes.Width = 66;
             var item = new ListViewItem
             {
@@ -293,9 +293,9 @@ public sealed partial class NodesPage : Page
 
             var (count, skipped) = await NodeEditor.ImportTextAsync(text);
             _status.Text = count == 0 ? T("No supported nodes found.", "未找到可导入的节点。")
-                : T($"Imported {count} nodes.", $"已导入 {count} 个节点。");
+                : TF("Imported {0} nodes.", "已导入 {0} 个节点。", count);
             if (skipped > 0)
-                _status.Text += T($" Skipped {skipped} invalid or unsupported nodes.", $"跳过 {skipped} 个无效或不受支持的节点。");
+                _status.Text += " " + i18N.TranslateFormat("Skipped {0} invalid or unsupported nodes.", skipped);
 
             if (count > 0)
             {
@@ -321,7 +321,7 @@ public sealed partial class NodesPage : Page
         var references = SceneService.Scenes.Count(s => ids.Contains(s.ServerId));
         return ShowAsync(XamlRoot, T("Delete nodes?", "删除节点？"),
             Text(references == 0 ? T("The selected nodes will be deleted.", "将删除选中的节点。")
-                : T($"{references} scenes will need another node.", $"{references} 个场景需要更换节点。")),
+                : TF("{0} scenes will need another node.", "{0} 个场景需要更换节点。", references)),
             T("Delete", "删除"));
     }
 

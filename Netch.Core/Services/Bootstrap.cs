@@ -26,7 +26,7 @@ public static class Bootstrap
     {
         Updater.CleanOld(Global.NetchDir);
 
-        foreach (var item in new[] { "mode\\Custom", "data", "i18n", "logging" })
+        foreach (var item in new[] { "mode\\Custom", "data", "logging" })
             if (!Directory.Exists(item))
                 Directory.CreateDirectory(item);
     }

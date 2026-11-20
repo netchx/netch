@@ -52,6 +52,12 @@ public sealed partial class Tray : ObservableObject
 
     public void ApplyTheme(ElementTheme theme) => _flyout?.ApplyTheme(theme);
 
+    internal void ReloadLanguage()
+    {
+        _flyout?.Close();
+        _flyout = null;
+    }
+
     /// <summary>Registers the hotkeys of all scenes again; call after scenes change.</summary>
     public void RegisterHotkeys()
     {
@@ -96,7 +102,7 @@ public sealed partial class Tray : ObservableObject
     /// <summary>Removes the icon and closes the flyout; used on exit.</summary>
     public void Close()
     {
-        _flyout?.Close();
+        ReloadLanguage();
         _icon?.Dispose();
         _icon = null;
     }

@@ -7,6 +7,8 @@ namespace Netch.Utils;
 
 public static class i18N
 {
+    private static readonly string[] BuiltInLanguages = ["zh-CN", "en-US", "fa-IR", "ja-JP", "zh-TW"];
+
     static i18N()
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -25,50 +27,69 @@ public static class i18N
     /// <param name="value">语言代码</param>
     public static void Load(string value)
     {
-        string text;
         var languages = GetTranslateList().Skip(1).ToList();
+        var requested = value == "System" ? CultureInfo.CurrentUICulture.Name : value;
+        var culture = TryGetCulture(requested);
+        var traditional = culture?.TwoLetterISOLanguageName == "zh" &&
+            (culture.Parent.Name == "zh-Hant" || culture.Name == "zh-Hant") ? "zh-TW" : null;
+        bool SameCulture(string language) => language.Equals(requested, StringComparison.OrdinalIgnoreCase);
+        bool SameLanguage(string language) => TryGetCulture(language)?.TwoLetterISOLanguageName == culture?.TwoLetterISOLanguageName;
+        var builtIn = BuiltInLanguages.FirstOrDefault(SameCulture) ?? traditional ?? BuiltInLanguages.FirstOrDefault(SameLanguage);
+        var code = languages.FirstOrDefault(SameCulture) ?? builtIn ?? languages.FirstOrDefault(SameLanguage)
+            ?? "en-US";
 
-        LangCode = value.Equals("System") ? CultureInfo.CurrentCulture.Name : value;
-
-        if (!languages.Contains(LangCode))
+        var table = new Hashtable();
+        if (builtIn is not (null or "en-US"))
         {
-            var oldLangCode = LangCode;
-            LangCode = languages.FirstOrDefault(s => GetLanguage(s).Equals(GetLanguage(LangCode))) ?? "en-US";
-            Log.Information("Not found language {OldLangCode}, use {LangCode} instead", oldLangCode, LangCode);
+            var text = EmbedUtils.GetEmbedText($"Netch.Resources.{builtIn}");
+            var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text);
+            if (dictionary != null)
+                foreach (var (key, translation) in dictionary)
+                    table[key] = translation;
         }
 
-        switch (LangCode)
+        var external = Path.Combine("i18n", code);
+        if (File.Exists(external) && code != "en-US")
         {
-            case "en-US":
-                Data.Clear();
-                return;
-            case "zh-CN":
-                text = Encoding.UTF8.GetString(EmbedUtils.GetEmbedBytes("Netch.Resources.zh-CN"));
-                break;
-            default:
-                text = File.ReadAllText($"i18n\\{LangCode}");
-                break;
+            try
+            {
+                var overrides = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(external));
+                if (overrides != null)
+                    foreach (var (key, translation) in overrides)
+                        if (!string.IsNullOrWhiteSpace(translation) && PreservesFormat(key, translation))
+                            table[key] = translation;
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException)
+            {
+                Log.Warning(e, "Could not load language file {Language}", code);
+                code = builtIn ?? "en-US";
+            }
         }
 
-        var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(text)!;
-
-        if (!dictionary.Any())
-        {
-            Log.Error("Invalid language file \"{LangCode}\"", LangCode);
-            return;
-        }
-
-        Data = new Hashtable();
-        foreach (var v in dictionary)
-            Data.Add(v.Key, v.Value);
+        Data = table;
+        LangCode = code;
     }
 
-    private static string GetLanguage(string culture)
+    private static bool PreservesFormat(string key, string translation)
     {
-        if (!culture.Contains('-'))
-            return "";
+        if (!key.Contains('{'))
+            return true;
+        try
+        {
+            return CompositeFormat.Parse(key).MinimumArgumentCount == CompositeFormat.Parse(translation).MinimumArgumentCount;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
 
-        return culture.Substring(0, culture.IndexOf('-'));
+    private static CultureInfo? TryGetCulture(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return null;
+        try { return CultureInfo.GetCultureInfo(name); }
+        catch (CultureNotFoundException) { return null; }
     }
 
     /// <summary>
@@ -99,13 +120,12 @@ public static class i18N
 
     public static List<string> GetTranslateList()
     {
-        var translateFile = new List<string> { "System", "zh-CN", "en-US" };
-
-        if (!Directory.Exists("i18n"))
-            return translateFile;
-
-        translateFile.AddRange(Directory.GetFiles("i18n", "*").Select(fileName => fileName.Substring(5)));
-        return translateFile;
+        return Directory.Exists("i18n")
+            ? ["System", .. BuiltInLanguages.Union(
+                Directory.EnumerateFiles("i18n").Select(Path.GetFileName).OfType<string>()
+                    .Where(name => name.Contains('-') && TryGetCulture(name) != null),
+                StringComparer.OrdinalIgnoreCase)]
+            : ["System", .. BuiltInLanguages];
     }
 
 }

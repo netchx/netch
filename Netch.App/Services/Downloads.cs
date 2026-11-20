@@ -94,8 +94,8 @@ internal static partial class Downloads
                 else if (result.Error != null)
                 {
                     Errors[result.Core.Name] = CoreChecked.TryGetValue(result.Core, out var last)
-                        ? Helpers.Ui.T($"Last verified {last:g}. {result.Error}", $"上次确认于 {last:g}。{result.Error}")
-                        : Helpers.Ui.T($"Version unavailable. {result.Error}", $"暂无法确认版本。{result.Error}");
+                        ? Helpers.Ui.TF("Last verified {0:g}. {1}", "上次确认于 {0:g}。{1}", last, result.Error)
+                        : Helpers.Ui.TF("Version unavailable. {0}", "暂无法确认版本。{0}", result.Error);
                 }
             }
             await Task.WhenAll(CheckRulesAsync(), CheckApplicationAsync());

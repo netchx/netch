@@ -125,13 +125,11 @@ try {
 	Push-Location $OutputPath
 	try {
 		New-Item -ItemType Directory -Name 'bin' | Out-Null
-		Copy-Item -Recurse -Force '..\Storage\i18n' '.'
 		Copy-Item -Recurse -Force '..\Storage\mode' '.'
 		Copy-Item -Force '..\Storage\stun.txt' 'bin'
 		Copy-Item -Force '..\Storage\nfdriver.sys' 'bin'
 		Copy-Item -Recurse -Force '..\Storage\sing_box' 'bin'
 		Copy-Item -Force '..\Storage\aiodns.conf' 'bin'
-		Copy-Item -Force '..\Storage\README.md' 'bin'
 
 		# The GeoIP database is only used to show the exit country. A network
 		# hiccup should not fail the whole build when a local copy is available.
@@ -215,6 +213,7 @@ try {
 		$licensePath = Join-Path $OutputPath 'licenses'
 	}
 	Copy-Item -Force '.\LICENSE', '.\Netch\NOTICE.txt' $licensePath
+	Copy-Item -Force '.\Storage\README.md' (Join-Path $licensePath 'Components.md')
 
 	$redirectorPath = ".\Redirector\bin\$Configuration"
 	$buildRedirector = Test-ShouldBuild "$redirectorPath\Redirector.bin", "$redirectorPath\nfapi.dll", "$redirectorPath\Redirector.pdb"

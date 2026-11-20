@@ -130,7 +130,7 @@ internal static class NodeEditor
                 else if (int.TryParse(box.Text, out var number) && number >= min && number <= max)
                     set(number);
                 else
-                    return T($"Invalid value for {label}.", $"{label}的值无效。");
+                    return TF("Invalid value for {0}.", "{0}的值无效。", label);
                 return null;
             });
         }

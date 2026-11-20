@@ -88,7 +88,7 @@ internal static class MihomoConfig
                 proxy["password"] = server.Password;
                 break;
             default:
-                throw new MessageException($"Mihomo 不支持节点类型 {server.ConfigType}。");
+                throw new MessageException(i18N.TranslateFormat("Mihomo does not support node type {0}.", server.ConfigType));
         }
         return proxy;
     }
@@ -99,15 +99,15 @@ internal static class MihomoConfig
         if (server is TrojanServer)
         {
             if (extra.Flow.IsNotEmpty() && extra.Flow != "none")
-                throw new MessageException("Trojan 节点需要移除 flow 配置。");
+                throw new MessageException(i18N.Translate("Remove the flow setting from this Trojan node."));
             proxy["password"] = server.Password;
         }
         else
         {
             if (server.Password.IsNullOrWhiteSpace())
-                throw new MessageException($"{server.ConfigType} 节点缺少 UUID。");
+                throw new MessageException(i18N.TranslateFormat("The {0} node is missing a UUID.", server.ConfigType));
             if (server.MuxEnabled ?? Global.Settings.V2RayConfig.CoreBasicItem.MuxEnabled)
-                throw new MessageException("旧 V2Ray Mux 无法迁移到 Mihomo，请为此节点关闭 Mux。");
+                throw new MessageException(i18N.Translate("Disable legacy V2Ray Mux for this Mihomo node."));
             proxy["uuid"] = Guid.TryParse(server.Password, out var id) ? id.ToString() : server.Password.GenerateUUIDv5();
             if (server.ConfigType == EConfigType.VMess)
             {
@@ -185,7 +185,7 @@ internal static class MihomoConfig
                 };
                 break;
             default:
-                throw new MessageException($"传输 {network} 无法迁移到 Mihomo，请更新节点的服务端传输。");
+                throw new MessageException(i18N.TranslateFormat("Mihomo does not support the {0} transport for this node. Update the server transport.", network));
         }
     }
 
@@ -218,7 +218,7 @@ internal static class MihomoConfig
             else if (network == "ws" || server.StreamSecurity == "tls" && (network is null or "" or "tcp" or "raw"))
                 plugin = "v2ray-plugin";
             else if (network is not (null or "" or "tcp" or "raw") || server.HeaderType.IsNotEmpty() && server.HeaderType != "none")
-                throw new MessageException($"Shadowsocks 传输 {network} 无法迁移到 Mihomo。");
+                throw new MessageException(i18N.TranslateFormat("Mihomo does not support the Shadowsocks transport {0}.", network));
         }
         switch (plugin)
         {
@@ -230,7 +230,7 @@ internal static class MihomoConfig
                 break;
             case "v2ray-plugin" when Option("mode") is null or "websocket":
                 if (Option("certRaw") != null)
-                    throw new MessageException("Shadowsocks 插件节点需提供可验证的 TLS 证书。");
+                    throw new MessageException(i18N.Translate("The Shadowsocks plugin node requires a verifiable TLS certificate."));
                 proxy["plugin"] = plugin;
                 proxy["plugin-opts"] = new Dictionary<string, object?>
                 {
@@ -243,7 +243,7 @@ internal static class MihomoConfig
                 };
                 break;
             default:
-                throw new MessageException($"Mihomo 无法迁移 Shadowsocks 插件 {plugin}。");
+                throw new MessageException(i18N.TranslateFormat("Mihomo does not support the Shadowsocks plugin {0}.", plugin));
         }
     }
 
@@ -251,12 +251,12 @@ internal static class MihomoConfig
     {
         var extra = server.ProtoExtra;
         if (Utils.Utils.String2List(extra.WgInterfaceAddress) is not { Count: > 0 } addresses)
-            throw new MessageException("WireGuard 节点缺少本地接口地址。");
+            throw new MessageException(i18N.Translate("The WireGuard node is missing a local interface address."));
 
         foreach (var address in addresses.Select(value => value.Trim()))
         {
             if (!IPAddress.TryParse(address.Split('/')[0], out var ip))
-                throw new MessageException("WireGuard 本地接口地址无效。");
+                throw new MessageException(i18N.Translate("The WireGuard local interface address is invalid."));
             proxy[ip.AddressFamily == AddressFamily.InterNetwork ? "ip" : "ipv6"] = address;
         }
 
@@ -267,7 +267,7 @@ internal static class MihomoConfig
         if (Utils.Utils.String2List(extra.WgReserved) is { Count: > 0 } reserved)
         {
             if (reserved.Count != 3 || reserved.Any(value => !byte.TryParse(value, out _)))
-                throw new MessageException("WireGuard reserved 必须是三个 0–255 的数值。");
+                throw new MessageException(i18N.Translate("WireGuard reserved must contain three values between 0 and 255."));
             proxy["reserved"] = reserved.Select(int.Parse).ToArray();
         }
     }
@@ -298,18 +298,18 @@ internal static class MihomoConfig
             }
         }
         if (extra.Hy2RealmUrl.IsNotEmpty())
-            throw new MessageException("此 Hysteria2 Realm 节点缺少独立的中继凭据。");
+            throw new MessageException(i18N.Translate("This Hysteria2 Realm node is missing separate relay credentials."));
     }
 
     private static void ConfigureTls(Dictionary<string, object?> proxy, Server server, string sniKey, bool required = false)
     {
         var security = server.StreamSecurity?.Trim().ToLowerInvariant();
         if (security is not (null or "" or "none" or "tls" or "reality"))
-            throw new MessageException($"Mihomo 无法迁移 TLS 类型 {security}。");
+            throw new MessageException(i18N.TranslateFormat("Mihomo does not support TLS type {0}.", security));
         if (server.CertSha.IsNotEmpty())
-            throw new MessageException("请将证书固定值换成对应的 PEM 证书。");
+            throw new MessageException(i18N.Translate("Replace the certificate pin with the corresponding PEM certificate."));
         if (server.EchConfigList.IsNotEmpty() || server.EchForceQuery.IsNotEmpty() && server.EchForceQuery != "none")
-            throw new MessageException("Mihomo 无法等价迁移此自定义 ECH 配置。");
+            throw new MessageException(i18N.Translate("Mihomo cannot preserve this custom ECH configuration."));
         var reality = security == "reality";
         if (!required && !reality && security != "tls") return;
         var handshakeHost = Utils.Utils.String2List(server.RequestHost)?.FirstOrDefault()?.Trim();
@@ -324,7 +324,7 @@ internal static class MihomoConfig
         {
             if (server is not (VMessServer or VLESSServer or TrojanServer) || server.PublicKey.IsNullOrWhiteSpace() ||
                 server.SpiderX.IsNotEmpty() && server.SpiderX != "/" || server.Mldsa65Verify.IsNotEmpty())
-                throw new MessageException("Mihomo 无法等价迁移此 REALITY 配置。");
+                throw new MessageException(i18N.Translate("Mihomo cannot preserve this REALITY configuration."));
             proxy["reality-opts"] = new Dictionary<string, string>
             {
                 ["public-key"] = server.PublicKey,

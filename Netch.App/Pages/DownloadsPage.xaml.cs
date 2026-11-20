@@ -67,8 +67,8 @@ public sealed partial class DownloadsPage : Page
         var pending = AvailableCores().Count(item => item.Core != _activeCore);
         var active = _download == null ? 0 : 1;
         _coreCount.Text = (pending + active).ToString();
-        _coreDetail.Text = active == 0 ? T($"{pending} updates", $"{pending} 个更新")
-            : T($"{pending} updates · {active} downloading", $"{pending} 个更新 · {active} 个下载中");
+        _coreDetail.Text = active == 0 ? TF("{0} updates", "{0} 个更新", pending)
+            : TF("{0} updates · {1} downloading", "{0} 个更新 · {1} 个下载中", pending, active);
         _rulesCount.Text = Downloads.Rules.Count.ToString();
         if (Downloads.LastRulesSynchronized is not { } last)
         {
@@ -76,8 +76,8 @@ public sealed partial class DownloadsPage : Page
             return;
         }
         var months = (int)((DateTimeOffset.Now - last).TotalDays / 30);
-        _rulesDetail.Text = months > 0 ? T($"Synced {months} mo ago", $"{months} 个月前同步")
-            : T($"Synced {Format.LastUsed(last.LocalDateTime)}", $"{Format.LastUsed(last.LocalDateTime)}同步");
+        _rulesDetail.Text = months > 0 ? TF("Synced {0} mo ago", "{0} 个月前同步", months)
+            : TF("Synced {0}", "{0}同步", Format.LastUsed(last.LocalDateTime));
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -101,7 +101,7 @@ public sealed partial class DownloadsPage : Page
         if (!_present)
             return;
         _checked.Text = Downloads.Checking ? T("Checking…", "正在检查…")
-            : Downloads.LastChecked is { } time ? T($"Last checked {time:HH:mm}", $"上次检查 {time:HH:mm}") : "";
+            : Downloads.LastChecked is { } time ? TF("Last checked {0:HH:mm}", "上次检查 {0:HH:mm}", time) : "";
         _check.IsEnabled = !Downloads.Checking && !Downloads.Applying && _download == null;
         var reasons = _tabs.SelectedIndex switch
         {
@@ -136,7 +136,7 @@ public sealed partial class DownloadsPage : Page
             : AvailableCores().Count();
         _apply.Visibility = _tabs.SelectedIndex == 3 ? Visibility.Collapsed : Visibility.Visible;
         _apply.IsEnabled = count > 0 && !Downloads.Checking && !Downloads.Applying && _download == null;
-        _apply.Content = isRules ? T($"Sync selected ({count})", $"同步所选 ({count})") : T($"Update all ({count})", $"全部更新 ({count})");
+        _apply.Content = isRules ? TF("Sync selected ({0})", "同步所选 ({0})", count) : TF("Update all ({0})", "全部更新 ({0})", count);
     }
 
     private static IEnumerable<(CorePackage Core, UpdateChoice Choice)> AvailableCores() =>
@@ -235,8 +235,8 @@ public sealed partial class DownloadsPage : Page
         }
 
         var running = Downloads.Cores.Where(Downloads.InUse).Select(core => core.Name).ToArray();
-        var reconnectText = Text(T($"{string.Join(" / ", running)} in use. Updating will disconnect and reconnect the scene.",
-            $"{string.Join(" / ", running)} 正被场景「{Session.Current.ActiveScene?.Name}」使用，更新时会先断开，完成后自动重连。"));
+        var reconnectText = Text(TF("{0} in use by “{1}”. Updating will disconnect and reconnect the scene.",
+            "{0} 正被场景「{1}」使用，更新时会先断开，完成后自动重连。", string.Join(" / ", running), Session.Current.ActiveScene?.Name ?? ""));
         reconnectText.TextWrapping = TextWrapping.Wrap;
         var symbol = Text("!", 13, true);
         symbol.HorizontalAlignment = HorizontalAlignment.Center;
@@ -288,7 +288,7 @@ public sealed partial class DownloadsPage : Page
         var s = Global.Settings;
         var heading = Stack(Text(s.ModeRepository, 15, true), Caption($"{s.ModeBranch} · {s.ModeRepositoryPath}" +
                 (Downloads.RemoteTree.Length >= 7 ? $" · {Downloads.RemoteTree[..7]}" : "")),
-            Caption(T($"{Global.Modes.Count} local · {Downloads.RemoteRuleCount} remote", $"本地 {Global.Modes.Count} 个 · 远端 {Downloads.RemoteRuleCount} 个")));
+            Caption(TF("{0} local · {1} remote", "本地 {0} 个 · 远端 {1} 个", Global.Modes.Count, Downloads.RemoteRuleCount)));
         heading.Spacing = 1;
         var changeSource = AsyncButton(T("Change source", "更换来源"), ChangeSourceAsync);
         changeSource.IsEnabled = _download == null && !Downloads.Applying && !Downloads.Checking;
@@ -465,7 +465,7 @@ public sealed partial class DownloadsPage : Page
                 {
                     if (rule.Kind == RuleChangeKind.Added)
                     {
-                        preview.Text = T($"{added} rules", $"{added} 条规则");
+                        preview.Text = TF("{0} rules", "{0} 条规则", added);
                         return;
                     }
 

@@ -45,7 +45,7 @@ public sealed class MihomoController : Guard, IServerController
         }
         catch (MessageException error)
         {
-            throw new MessageException($"{error.Message} 请查看 logging\\mihomo.log。");
+            throw new MessageException(i18N.TranslateFormat("{0} See logging\\mihomo.log.", error.Message));
         }
 
         var localIp = IPAddress.Parse(address);
@@ -54,12 +54,12 @@ public sealed class MihomoController : Guard, IServerController
         try
         {
             await CheckSocksAsync(localIp, port);
-            if (Instance.HasExited) throw new MessageException("Mihomo 已退出。");
+            if (Instance.HasExited) throw new MessageException(i18N.Translate("Mihomo has exited."));
         }
         catch (Exception error) when (error is MessageException or IOException or SocketException or OperationCanceledException)
         {
             await StopAsync();
-            throw new MessageException($"Mihomo 启动失败。{error.Message} 请查看 logging\\mihomo.log。");
+            throw new MessageException(i18N.TranslateFormat("Mihomo failed to start. {0} See logging\\mihomo.log.", error.Message));
         }
 
         return new SocksServer(localIp.ToString(), port, upstream.ToString());
@@ -78,7 +78,7 @@ public sealed class MihomoController : Guard, IServerController
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
             WorkingDirectory = Instance.StartInfo.WorkingDirectory
-        }) ?? throw new MessageException("Mihomo 配置检查进程无法启动。");
+        }) ?? throw new MessageException(i18N.Translate("Could not start the Mihomo configuration check."));
         var stdout = check.StandardOutput.ReadToEndAsync();
         var stderr = check.StandardError.ReadToEndAsync();
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15));
@@ -89,13 +89,13 @@ public sealed class MihomoController : Guard, IServerController
         catch (OperationCanceledException)
         {
             if (!check.HasExited) check.Kill();
-            throw new MessageException("Mihomo 配置检查超时。");
+            throw new MessageException(i18N.Translate("The Mihomo configuration check timed out."));
         }
 
         if (check.ExitCode != 0)
         {
             await File.WriteAllTextAsync(LogPath, (await stdout) + (await stderr));
-            throw new MessageException("Mihomo 配置检查失败，请查看 logging\\mihomo.log。");
+            throw new MessageException(i18N.Translate("The Mihomo configuration check failed. See logging\\mihomo.log."));
         }
     }
 
@@ -109,6 +109,6 @@ public sealed class MihomoController : Guard, IServerController
         var reply = new byte[2];
         await stream.ReadExactlyAsync(reply, timeout.Token);
         if (reply[0] != 5 || reply[1] != 0)
-            throw new MessageException("本地 SOCKS5 握手失败。");
+            throw new MessageException(i18N.Translate("The local SOCKS5 handshake failed."));
     }
 }

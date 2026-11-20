@@ -127,7 +127,7 @@ cd Netch
 .\build.ps1 -Configuration Release -OutputPath release
 ```
 
-完整的 WinUI x64 便携包位于 `release` 目录。运行 `Netch.App.exe` 启动程序，`bin/`、`mode/`、`logging/`、`data/`、`i18n/` 和 `licenses/` 与 EXE 同级。构建 WinForms 包时使用 `-Frontend WinForms`。
+完整的 WinUI x64 便携包位于 `release` 目录。运行 `Netch.App.exe` 启动程序，`bin/`、`mode/`、`logging/`、`data/` 和 `licenses/` 与 EXE 同级。内置词典随 EXE 发布。构建 WinForms 包时使用 `-Frontend WinForms`。
 
 - 不在 PATH 中的 `msbuild` 会通过 `vswhere` 自动定位。
 - 从压缩包解压的子脚本带有“来自网络”标记时，会被自动解除，无需修改执行策略。

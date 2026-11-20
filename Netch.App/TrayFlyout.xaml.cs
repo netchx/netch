@@ -48,6 +48,7 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
             _hiddenAt = Environment.TickCount64;
         };
         Session.PropertyChanged += Session_PropertyChanged;
+        Closed += (_, _) => Session.PropertyChanged -= Session_PropertyChanged;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

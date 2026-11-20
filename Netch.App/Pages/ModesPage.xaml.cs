@@ -94,8 +94,8 @@ public sealed partial class ModesPage : Page
         var visible = additions + updates + conflicts > 0;
         _updates.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
         _updates.Margin = new Thickness(0, 0, 0, visible ? 11 : 0);
-        _updateText.Text = T($"{additions} new rules, {updates} updates, {conflicts} conflicts",
-            $"在线规则库有 {additions} 个新增、{updates} 个更新、{conflicts} 个冲突");
+        _updateText.Text = TF("{0} new rules, {1} updates, {2} conflicts",
+            "在线规则库有 {0} 个新增、{1} 个更新、{2} 个冲突", additions, updates, conflicts);
         Refresh();
     }
 
@@ -168,7 +168,7 @@ public sealed partial class ModesPage : Page
             if (_source.SelectedIndex > 0 && _source.SelectedIndex - 1 != (int)origin)
                 continue;
             var count = SceneService.Scenes.Count(s => string.Equals(s.ModeId, path, StringComparison.OrdinalIgnoreCase));
-            var references = Caption(count == 0 ? "" : T($"{count} scenes", $"{count} 个场景"));
+            var references = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
             references.TextAlignment = TextAlignment.Right;
             var referenceColumn = new Grid
             {
@@ -186,7 +186,7 @@ public sealed partial class ModesPage : Page
                     (T("Delete", "删除"), async () =>
                     {
                         if (!await ShowAsync(XamlRoot, T("Delete mode?", "删除模式？"),
-                                Text(count == 0 ? mode.i18NRemark : T($"{count} scenes use this mode.", $"{count} 个场景引用此模式。")), T("Delete", "删除")))
+                                Text(count == 0 ? mode.i18NRemark : TF("{0} scenes use this mode.", "{0} 个场景引用此模式。", count)), T("Delete", "删除")))
                             return;
                         try
                         {

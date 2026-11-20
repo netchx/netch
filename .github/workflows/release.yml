@@ -24,7 +24,7 @@ jobs:
         shell: pwsh
         run: |
           echo "NETCH_DOTNET_SDK_VERSION=$(dotnet --version)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "SOURCE_NETCH_SHA256=$(.\sha256.ps1 .\Netch)$(.\sha256.ps1 .\Netch.Core)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "SOURCE_NETCH_SHA256=$(.\sha256.ps1 .\Netch)$(.\sha256.ps1 .\Netch.Core)$(.\sha256.ps1 .\Storage\i18n)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_OTHER_SHA256=$(.\sha256.ps1 .\Other)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_REDIRECTOR_SHA256=$(.\sha256.ps1 .\Redirector)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "SOURCE_ROUTEHELPER_SHA256=$(.\sha256.ps1 .\RouteHelper)" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV

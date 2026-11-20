@@ -37,6 +37,7 @@ public sealed partial class SettingsPage : Page
             settings.Language = languages[language.SelectedIndex];
             await Configuration.SaveAsync();
             i18N.Load(settings.Language);
+            Netch.Services.ModeService.Instance.Sort();
             App.MainWindow?.ReloadLanguage();
         };
 

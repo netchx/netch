@@ -213,9 +213,9 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         var added = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Added);
         var updated = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Updated);
         var conflicts = Downloads.Rules.Count(rule => rule.Kind == RuleChangeKind.Conflict);
-        var counts = Ui.T($"{added} new, {updated} updated", $"{added} 个新增、{updated} 个更新");
+        var counts = Ui.TF("{0} new, {1} updated", "{0} 个新增、{1} 个更新", added, updated);
         if (conflicts > 0)
-            counts += Ui.T($", {conflicts} conflicts", $"、{conflicts} 个冲突");
+            counts += Ui.TF(", {0} conflicts", "、{0} 个冲突", conflicts);
 
         var months = Downloads.LastRulesSynchronized is { } last ? (int)((DateTimeOffset.Now - last).TotalDays / 30) : 0;
         var label = string.Equals(Global.Settings.ModeRepository, "netchx/netch", StringComparison.OrdinalIgnoreCase)
@@ -223,9 +223,9 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
                 ? Ui.T("Bundled mode rules", "内置模式规则")
                 : Ui.T("Mode rules", "模式规则");
         RulesNoticeText.Text = months > 0
-            ? Ui.T($"{label} were last synced {months} months ago. Remote: {counts}.",
-                $"{label}已有 {months} 个月未更新，远端有 {counts}。")
-            : Ui.T($"Online mode rules: {counts}.", $"在线规则库有 {counts}。");
+            ? Ui.TF("{0} were last synced {1} months ago. Remote: {2}.",
+                "{0}已有 {1} 个月未更新，远端有 {2}。", label, months, counts)
+            : Ui.TF("Online mode rules: {0}.", "在线规则库有 {0}。", counts);
     }
 
     private void OpenWizard_Click(object sender, RoutedEventArgs e) => App.OpenWizard();

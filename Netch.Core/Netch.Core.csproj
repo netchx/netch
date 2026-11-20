@@ -81,6 +81,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Sample\SampleHttpRequest" />
     <EmbeddedResource Include="Resources\zh-CN" LogicalName="Netch.Resources.zh-CN" />
+    <EmbeddedResource Include="..\Storage\i18n\*" LogicalName="Netch.Resources.%(Filename)" />
     <EmbeddedResource Include="Resources\7za.exe" LogicalName="Netch.Resources.7za.exe" />
     <None Remove="NativeMethods.txt" />
   </ItemGroup>

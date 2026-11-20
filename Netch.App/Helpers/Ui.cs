@@ -9,7 +9,10 @@ namespace Netch.App.Helpers;
 
 internal static class Ui
 {
-    public static string T(string text, string chinese) => i18N.LangCode.StartsWith("zh", StringComparison.Ordinal) ? chinese : i18N.Translate(text);
+    public static string T(string text, string chinese) => i18N.LangCode == "zh-CN" && !i18N.Data.ContainsKey(text)
+        ? chinese : i18N.Translate(text);
+
+    public static string TF(string text, string chinese, params object[] args) => string.Format(T(text, chinese), args);
 
     public static T Resource<T>(string key) => (T)Application.Current.Resources[key];
 

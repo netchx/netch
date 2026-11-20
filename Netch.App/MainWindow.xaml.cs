@@ -93,6 +93,7 @@ public sealed partial class MainWindow : Window
 
     public void ReloadLanguage()
     {
+        Services.Tray.Current.ReloadLanguage();
         foreach (var item in NavView.MenuItems.Concat(NavView.FooterMenuItems).OfType<NavigationViewItem>())
             item.Content = Utils.i18N.Translate((string)item.Tag);
         Navigate((string)((NavigationViewItem)NavView.SelectedItem).Tag, force: true);

@@ -27,7 +27,7 @@ public sealed class SingboxController : Guard, IServerController
     public async Task<SocksServer> StartAsync(Server server)
     {
         if (CoreSelector.UsesXhttp(server))
-            throw new MessageException("XHTTP 节点需要使用 Xray。");
+            throw new MessageException(i18N.Translate("XHTTP nodes require Xray."));
 
         var config = BuildConfig(server);
         var configPath = Path.Combine(Global.NetchDir, Constants.TempConfig);
@@ -46,11 +46,11 @@ public sealed class SingboxController : Guard, IServerController
         {
             var hint = server.ConfigType switch
             {
-                Enums.EConfigType.MASQUE => "。MASQUE 需要支持 masque-client 的 sing-box（1.15.0-alpha.7 或更新版本）",
-                Enums.EConfigType.Naive => "。Windows 上请将官方包内的 libcronet.dll 与 sing-box.exe 放在一起",
+                Enums.EConfigType.MASQUE => " " + i18N.Translate("MASQUE requires sing-box 1.15.0-alpha.7 or newer with masque-client support."),
+                Enums.EConfigType.Naive => " " + i18N.Translate("On Windows, keep libcronet.dll from the official package next to sing-box.exe."),
                 _ => string.Empty
             };
-            throw new MessageException($"{error.Message}，请查看 logging\\sing-box.log{hint}");
+            throw new MessageException(i18N.TranslateFormat("{0} See logging\\sing-box.log.{1}", error.Message, hint));
         }
 
         return new SocksServer(this.LocalAddress ?? Global.Settings.LocalAddress, this.Socks5LocalPort ?? Global.Settings.Socks5LocalPort, server.Address);
@@ -192,7 +192,7 @@ public sealed class SingboxController : Guard, IServerController
                 if (extra.Uot == true) outbound["udp_over_tcp"] = true;
                 break;
             default:
-                throw new MessageException($"未知 sing-box 节点类型 {server.ConfigType}");
+                throw new MessageException(i18N.TranslateFormat("Unknown sing-box node type {0}.", server.ConfigType));
         }
 
         return outbound;
@@ -208,18 +208,18 @@ public sealed class SingboxController : Guard, IServerController
         if (server.ConfigType == EConfigType.Trojan)
         {
             if (extra.Flow.IsNotEmpty() && extra.Flow != "none")
-                throw new MessageException("sing-box 的 Trojan 不支持 flow，请迁移节点配置。");
+                throw new MessageException(i18N.Translate("Remove the unsupported flow setting from this sing-box Trojan node."));
             outbound["password"] = server.Password;
         }
         else
         {
             if (server.Password.IsNullOrWhiteSpace())
-                throw new MessageException($"{server.ConfigType} 节点缺少 UUID。");
+                throw new MessageException(i18N.TranslateFormat("The {0} node is missing a UUID.", server.ConfigType));
             outbound["uuid"] = Guid.TryParse(server.Password, out var id) ? id.ToString() : server.Password.GenerateUUIDv5();
             if (server.ConfigType == EConfigType.VLESS)
             {
                 if (extra.VlessEncryption.IsNotEmpty() && extra.VlessEncryption != "none")
-                    throw new MessageException("sing-box 不支持此 VLESS encryption，请迁移节点配置。");
+                    throw new MessageException(i18N.Translate("sing-box does not support this VLESS encryption setting."));
                 if (extra.Flow.IsNotEmpty() && extra.Flow != "none")
                     outbound["flow"] = extra.Flow;
             }
@@ -232,7 +232,7 @@ public sealed class SingboxController : Guard, IServerController
         if (server.ConfigType is EConfigType.VLESS or EConfigType.VMess &&
             (server.MuxEnabled ?? Global.Settings.V2RayConfig.CoreBasicItem.MuxEnabled))
         {
-            throw new MessageException("旧 V2Ray Mux 与 sing-box 不兼容，请为此节点关闭 Mux。");
+            throw new MessageException(i18N.Translate("Disable legacy V2Ray Mux for this sing-box node."));
         }
     }
 
@@ -246,7 +246,7 @@ public sealed class SingboxController : Guard, IServerController
             case null or "" or "tcp" or "raw":
                 if (server.HeaderType.IsNullOrEmpty() || server.HeaderType == "none")
                     return null;
-                throw new MessageException("旧式 TCP 伪装无法直接迁移到 sing-box，请调整服务端传输。");
+                throw new MessageException(i18N.Translate("sing-box cannot preserve legacy TCP camouflage. Update the server transport."));
             case "ws":
                 var ws = new Dictionary<string, object?> { ["type"] = "ws", ["path"] = path };
                 if (host.IsNotEmpty())
@@ -266,13 +266,13 @@ public sealed class SingboxController : Guard, IServerController
                 return new() { ["type"] = "http", ["host"] = Utils.Utils.String2List(host), ["path"] = path };
             case "grpc":
                 if (server.HeaderType == Constants.GrpcMultiMode || host.IsNotEmpty())
-                    throw new MessageException("sing-box 无法等价迁移此 gRPC 的 multi 或自定义 authority 配置。");
+                    throw new MessageException(i18N.Translate("sing-box cannot preserve this gRPC multi or custom authority setting."));
                 return new() { ["type"] = "grpc", ["service_name"] = server.Path ?? string.Empty };
             case "quic" when (host.IsNullOrEmpty() || host == "none")
                 && (server.HeaderType.IsNullOrEmpty() || server.HeaderType == "none") && server.Path.IsNullOrEmpty():
                 return new() { ["type"] = "quic" };
             default:
-                throw new MessageException($"传输 {network} 无法迁移到 sing-box，请更新节点的服务端传输。");
+                throw new MessageException(i18N.TranslateFormat("sing-box does not support the {0} transport for this node. Update the server transport.", network));
         }
     }
 
@@ -297,7 +297,7 @@ public sealed class SingboxController : Guard, IServerController
             if (network is not (null or "" or "tcp" or "raw" or "ws" or "quic") ||
                 (network == "quic" && (server.HeaderType.IsNotEmpty() && server.HeaderType != "none"
                     || server.RequestHost.IsNotEmpty() && server.RequestHost != "none" || server.Path.IsNotEmpty())))
-                throw new MessageException($"Shadowsocks 传输 {network} 无法迁移到 sing-box。");
+                throw new MessageException(i18N.TranslateFormat("sing-box does not support the Shadowsocks transport {0}.", network));
 
             if (server.HeaderType == Constants.TcpHeaderHttp)
             {
@@ -320,9 +320,9 @@ public sealed class SingboxController : Guard, IServerController
         if (plugin.IsNotEmpty())
         {
             if (plugin is not ("obfs-local" or "v2ray-plugin"))
-                throw new MessageException($"sing-box 不支持 Shadowsocks 插件 {plugin}。");
+                throw new MessageException(i18N.TranslateFormat("sing-box does not support the Shadowsocks plugin {0}.", plugin));
             if (server.Cert.IsNotEmpty() || options?.Contains("certRaw=", StringComparison.OrdinalIgnoreCase) == true)
-                throw new MessageException("sing-box 的 Shadowsocks 插件无法等价迁移自定义 TLS 证书。");
+                throw new MessageException(i18N.Translate("The sing-box Shadowsocks plugin cannot preserve the custom TLS certificate."));
             outbound["plugin"] = plugin;
             outbound["plugin_opts"] = options;
         }
@@ -334,7 +334,7 @@ public sealed class SingboxController : Guard, IServerController
         var extra = server.ProtoExtra;
         var addresses = Utils.Utils.String2List(extra.WgInterfaceAddress);
         if (addresses is not { Count: > 0 })
-            throw new MessageException("WireGuard 节点缺少本地接口地址。");
+            throw new MessageException(i18N.Translate("The WireGuard node is missing a local interface address."));
         var peer = new Dictionary<string, object?>
         {
             ["address"] = server.Address,
@@ -346,7 +346,7 @@ public sealed class SingboxController : Guard, IServerController
         if (Utils.Utils.String2List(extra.WgReserved) is { Count: > 0 } reserved)
         {
             if (reserved.Count != 3 || reserved.Any(value => !byte.TryParse(value, out _)))
-                throw new MessageException("WireGuard reserved 必须是三个 0–255 的数值。");
+                throw new MessageException(i18N.Translate("WireGuard reserved must contain three values between 0 and 255."));
             peer["reserved"] = reserved.Select(int.Parse).ToArray();
         }
 
@@ -402,7 +402,7 @@ public sealed class SingboxController : Guard, IServerController
             outbound["obfs"] = obfs;
         }
         if (extra.Hy2RealmUrl.IsNotEmpty())
-            throw new MessageException("此 Hysteria2 Realm 配置缺少 sing-box 所需的独立凭据字段。");
+            throw new MessageException(i18N.Translate("This Hysteria2 Realm configuration is missing separate credentials required by sing-box."));
     }
 
     private static Dictionary<string, object?>? BuildTls(Server server)
@@ -412,17 +412,17 @@ public sealed class SingboxController : Guard, IServerController
         var required = server.ConfigType is EConfigType.TUIC or EConfigType.AnyTLS or EConfigType.Naive
             or EConfigType.MASQUE or EConfigType.Hysteria2;
         if (security is not (null or "" or "none" or "tls" or "reality"))
-            throw new MessageException($"sing-box 无法迁移 TLS 类型 {security}。");
+            throw new MessageException(i18N.TranslateFormat("sing-box does not support TLS type {0}.", security));
 
         var certs = CertPemManager.ParsePemChain(server.Cert);
         if (server.CertSha.IsNotEmpty() && certs.Count == 0)
-            throw new MessageException("sing-box 1.14.4 无法等价使用整张证书的 SHA-256 固定值，请导入对应的 PEM 证书。");
+            throw new MessageException(i18N.Translate("sing-box 1.14.4 cannot pin the full certificate SHA-256. Import the corresponding PEM certificate."));
         if (server.EchConfigList.IsNotEmpty() || (server.EchForceQuery.IsNotEmpty() && server.EchForceQuery != "none"))
-            throw new MessageException("此自定义 ECH 配置无法等价迁移到 sing-box。");
+            throw new MessageException(i18N.Translate("sing-box cannot preserve this custom ECH configuration."));
         if (!required && !reality && security != "tls")
         {
             if (certs.Count != 0)
-                throw new MessageException("节点指定了 TLS 证书，但未启用 TLS。");
+                throw new MessageException(i18N.Translate("The node specifies a TLS certificate but TLS is disabled."));
             return null;
         }
 
@@ -442,7 +442,7 @@ public sealed class SingboxController : Guard, IServerController
         if (reality)
         {
             if ((server.SpiderX.IsNotEmpty() && server.SpiderX != "/") || server.Mldsa65Verify.IsNotEmpty())
-                throw new MessageException("sing-box 无法等价迁移这项 REALITY 扩展。");
+                throw new MessageException(i18N.Translate("sing-box cannot preserve this REALITY extension."));
             tls["reality"] = new Dictionary<string, object?>
             {
                 ["enabled"] = true, ["public_key"] = server.PublicKey, ["short_id"] = server.ShortId ?? string.Empty
