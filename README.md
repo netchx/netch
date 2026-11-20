@@ -119,6 +119,7 @@ NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，采用 
 - Visual Studio 2026，并安装“使用 C++ 的桌面开发”工作负载
 - .NET 10 SDK（应用目标框架为 `net10.0-windows10.0.17763.0`）
 - PowerShell 5.1 或更高版本
+- 从源码构建 AioDNS 时需要 Go 1.26 或更高版本及 x64 MinGW GCC
 - 可访问 NuGet 和构建脚本所需下载地址的网络
 
 在普通 PowerShell 或 Developer PowerShell for Visual Studio 中执行：

@@ -12,7 +12,7 @@ namespace Tests;
 [TestClass]
 public class NatDiscovery
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(BindingTestResult.Success, MappingBehavior.EndpointIndependent, FilteringBehavior.EndpointIndependent, "1")]
     [DataRow(BindingTestResult.Success, MappingBehavior.EndpointIndependent, FilteringBehavior.AddressAndPortDependent, "2")]
     [DataRow(BindingTestResult.Success, MappingBehavior.AddressAndPortDependent, FilteringBehavior.AddressDependent, "3")]
@@ -27,7 +27,7 @@ public class NatDiscovery
         Assert.AreEqual(expected, method.Invoke(null, [state]));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("stun.fitauto.ru", "stun.fitauto.ru,stun.m-online.net")]
     [DataRow("stun.syncthing.net", "stun.syncthing.net,stun.fitauto.ru,stun.m-online.net")]
     [DataRow("stun.example.test:5349", "stun.example.test:5349")]

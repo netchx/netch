@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Netch.Interops;
 
@@ -10,7 +9,7 @@ public static class AioDNS
     public static bool Dial(NameList name, string value)
     {
         Log.Verbose($"[aiodns] Dial {name}: {value}");
-        return aiodns_dial(name, Encoding.UTF8.GetBytes(value));
+        return aiodns_dial((long)name, value);
     }
 
     public static Task<bool> InitAsync()
@@ -24,9 +23,11 @@ public static class AioDNS
     }
 
     [DllImport(aiodns_bin, CallingConvention = CallingConvention.Cdecl)]
-    private static extern bool aiodns_dial(NameList name, byte[] value);
+    [return: MarshalAs(UnmanagedType.I1)]
+    private static extern bool aiodns_dial(long name, [MarshalAs(UnmanagedType.LPUTF8Str)] string value);
 
     [DllImport(aiodns_bin, EntryPoint = "aiodns_init", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool Init();
 
     [DllImport(aiodns_bin, EntryPoint = "aiodns_free", CallingConvention = CallingConvention.Cdecl)]

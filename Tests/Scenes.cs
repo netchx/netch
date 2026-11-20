@@ -157,14 +157,14 @@ public class Scenes
         var mode = new Redirector { FullName = Path.Combine(directory.FullName, "missing", "mode.json") };
         try
         {
-            Assert.ThrowsException<DirectoryNotFoundException>(() => ModeService.Instance.Add(mode));
+            Assert.ThrowsExactly<DirectoryNotFoundException>(() => ModeService.Instance.Add(mode));
             Assert.IsFalse(Netch.Global.Modes.Contains(mode));
 
             mode.FullName = Path.Combine(directory.FullName, "mode.json");
             ModeService.Instance.Add(mode);
             using (File.Open(mode.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                Assert.ThrowsException<IOException>(() => ModeService.Delete(mode));
+                Assert.ThrowsExactly<IOException>(() => ModeService.Delete(mode));
                 Assert.IsTrue(Netch.Global.Modes.Contains(mode));
             }
             ModeService.Delete(mode);
@@ -198,7 +198,7 @@ public class Scenes
             CollectionAssert.AreEqual(mode.Bypass, reloaded.Bypass);
 
             File.WriteAllText(textPath, string.Empty);
-            Assert.ThrowsException<FormatException>(() => ModeHelper.LoadMode(textPath));
+            Assert.ThrowsExactly<FormatException>(() => ModeHelper.LoadMode(textPath));
         }
         finally
         {
@@ -249,7 +249,7 @@ public class Scenes
     {
         var mode = new TunMode();
         TUNController.ValidateConfiguration(mode, new TUNConfig { Netmask = "255.255.254.0" });
-        Assert.ThrowsException<MessageException>(() =>
+        Assert.ThrowsExactly<MessageException>(() =>
             TUNController.ValidateConfiguration(mode, new TUNConfig { Netmask = "255.0.255.0" }));
     }
 
@@ -263,7 +263,7 @@ public class Scenes
             var right = Path.Combine(folder.FullName, "right.txt");
             File.WriteAllLines(left, ["# Left,0", $"#include <{right}>"]);
             File.WriteAllLines(right, ["# Right,0", $"#include <{left}>"]);
-            StringAssert.Contains(Assert.ThrowsException<FormatException>(() => ModeHelper.LoadMode(left)).Message, "Circular mode include");
+            StringAssert.Contains(Assert.ThrowsExactly<FormatException>(() => ModeHelper.LoadMode(left)).Message, "Circular mode include");
         }
         finally { folder.Delete(recursive: true); }
     }

@@ -16,7 +16,7 @@ namespace Netch;
 
 public static class Program
 {
-    public static readonly ISingleInstanceService SingleInstance = new SingleInstanceService($"Global\\{nameof(Netch)}");
+    public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
     internal static HWND ConsoleHwnd { get; private set; }
 
@@ -41,20 +41,17 @@ public static class Program
             Environment.Exit(2);
         }
 #endif
-        Bootstrap.PrepareDataDirectories();
-
-        // load configuration
-        Configuration.LoadAsync().Wait();
-
         // check if the program is already running
-        if (!SingleInstance.TryStartSingleInstance())
+        if (!SingleInstance.IsFirstInstance)
         {
-            SingleInstance.SendMessageToFirstInstanceAsync(Constants.Parameter.Show).GetAwaiter().GetResult();
+            try { SingleInstance.SendMessageAsync(Constants.Parameter.Show).GetAwaiter().GetResult(); }
+            catch (Exception e) when (e is TimeoutException or IOException) { Log.Warning(e, "Could not activate the running instance"); }
             Environment.Exit(0);
             return;
         }
 
-        SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
+        Bootstrap.PrepareDataDirectories();
+        Configuration.LoadAsync().Wait();
 
         InitConsole();
 
@@ -135,17 +132,7 @@ public static class Program
 
     private static void Application_OnExit(object? sender, EventArgs eventArgs)
     {
+        SingleInstance.Dispose();
         Log.CloseAndFlush();
-    }
-
-    private static void SingleInstance_ArgumentsReceived((string, Action<string>) receive)
-    {
-        var (arg, endFunc) = receive;
-        if (arg == Constants.Parameter.Show)
-        {
-            MainForm.ActivateVisibleWindows();
-        }
-
-        endFunc(string.Empty);
     }
 }

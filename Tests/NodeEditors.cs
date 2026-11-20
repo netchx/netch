@@ -130,7 +130,7 @@ public class NodeEditors
         WriteConfig("WireGuard-Singbox", config.RootElement.GetRawText());
     });
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(EConfigType.VLESS, "mihomo", "uuid")]
     [DataRow(EConfigType.VMess, "mihomo", "cipher")]
     [DataRow(EConfigType.Trojan, "mihomo", "password")]

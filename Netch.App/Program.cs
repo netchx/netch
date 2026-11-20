@@ -13,7 +13,7 @@ namespace Netch.App;
 public static class Program
 {
     /// <summary>Same key as the WinForms front end, so the two never run at the same time.</summary>
-    public static readonly ISingleInstanceService SingleInstance = new SingleInstanceService($"Global\\{nameof(Netch)}");
+    public static readonly SingleInstanceService SingleInstance = new($"Global\\{nameof(Netch)}");
 
 #pragma warning disable VSTHRD002 // Main runs once; blocking here is intended.
     [STAThread]
@@ -33,9 +33,10 @@ public static class Program
             Environment.Exit(2);
         }
 #endif
-        if (!SingleInstance.TryStartSingleInstance())
+        if (!SingleInstance.IsFirstInstance)
         {
-            SingleInstance.SendMessageToFirstInstanceAsync(Constants.Parameter.Show).GetAwaiter().GetResult();
+            try { SingleInstance.SendMessageAsync(Constants.Parameter.Show).GetAwaiter().GetResult(); }
+            catch (Exception e) when (e is TimeoutException or IOException) { Log.Warning(e, "Could not activate the running instance"); }
             return;
         }
 

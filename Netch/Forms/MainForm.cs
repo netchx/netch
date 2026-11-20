@@ -119,7 +119,11 @@ public partial class MainForm : Form
         if (Global.Settings.StartWhenOpened)
             ControlButton.PerformClick();
 
-        Program.SingleInstance.StartListenServer();
+        Program.SingleInstance.StartListening(command =>
+        {
+            if (command == Constants.Parameter.Show && !IsDisposed)
+                BeginInvoke(ActivateVisibleWindows);
+        });
     }
 
     private void RecordSize()

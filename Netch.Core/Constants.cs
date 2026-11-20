@@ -21,7 +21,7 @@ public static class Constants
 
     public static class Parameter
     {
-        public const string Show = "-show";
+        public const int Show = 1;
         public const string ForceUpdate = "-forceUpdate";
     }
 

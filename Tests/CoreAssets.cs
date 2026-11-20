@@ -36,7 +36,7 @@ public class CoreAssets
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("zh-CN", "已导入 3 个节点。")]
     [DataRow("zh-TW", "已匯入 3 個節點。")]
     [DataRow("zh-HK", "已匯入 3 個節點。")]

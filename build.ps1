@@ -172,6 +172,13 @@ try {
 			throw "Building proxy cores failed with exit code $LASTEXITCODE"
 		}
 	}
+	elseif (-not $UseCache) {
+		$aiodnsBinary = Get-Item -LiteralPath '.\Other\release\aiodns.bin'
+		$aiodnsSources = Get-ChildItem -Path '.\Other\aiodns\*' -File -Recurse -Include '*.go', 'go.mod', 'go.sum', 'build.ps1'
+		if ($aiodnsSources | Where-Object LastWriteTimeUtc -gt $aiodnsBinary.LastWriteTimeUtc) {
+			Invoke-Native -Name 'Build AioDNS' -Command { & .\Other\aiodns\build.ps1 }
+		}
+	}
 	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin" -Exclude 'v2ray-sn.exe'

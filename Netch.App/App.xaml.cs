@@ -43,8 +43,7 @@ public partial class App : Application
 
         MainWindow = new MainWindow();
         Tray.Current.Initialize();
-        Program.SingleInstance.Received.Subscribe(OnInstanceMessage);
-        Program.SingleInstance.StartListenServer();
+        Program.SingleInstance.StartListening(OnInstanceMessage);
         MainWindow.Activate();
 
         if (!Global.Settings.OnboardingCompleted && SceneService.Scenes.Count == 0 && Global.Settings.Server.Count == 0)
@@ -137,12 +136,9 @@ public partial class App : Application
         Current.Exit();
     }
 
-    private static void OnInstanceMessage((string, Action<string>) message)
+    private static void OnInstanceMessage(int command)
     {
-        var (arg, reply) = message;
-        if (arg == Constants.Parameter.Show)
+        if (command == Constants.Parameter.Show)
             MainWindow?.DispatcherQueue.TryEnqueue(ShowMainWindow);
-
-        reply(string.Empty);
     }
 }
