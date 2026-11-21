@@ -13,6 +13,7 @@ using Netch.App.ViewModels;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
+using Windows.System;
 using static Netch.App.Helpers.Ui;
 
 namespace Netch.App.Pages;
@@ -20,7 +21,7 @@ namespace Netch.App.Pages;
 public sealed partial class NodesPage : Page
 {
     private readonly ListView _categories = Categories();
-    private readonly ListView _nodes = new();
+    private readonly ListView _nodes = new() { SelectionMode = ListViewSelectionMode.Multiple };
     private readonly ObservableCollection<ListViewItem> _nodeRows = [];
     private readonly Dictionary<Server, TextBlock> _delayLabels = [];
     private readonly TextBox _filter = Input(T("Filter nodes", "筛选节点"), search: true);
@@ -29,10 +30,18 @@ public sealed partial class NodesPage : Page
     private readonly TextBlock _status = Caption("");
     private readonly DropDownButton _updateAll;
     private readonly Button _speed;
+    private readonly Border _batchBar;
+    private readonly TextBlock _batchCount = Caption("");
+    private readonly Button _selectAllBtn;
+    private readonly Button _clearSelectionBtn;
+    private readonly Button _batchTestBtn;
+    private readonly Button _batchCopyBtn;
+    private readonly Button _batchDeleteBtn;
     private SplitButton? _updateSelected;
     private Subscription? SelectedSubscription => (_categories.SelectedItem as ListViewItem)?.Tag as Subscription;
     private bool _byDelay;
     private bool _refreshing;
+    private bool _suppressSelectionChanged;
     private bool _updatingSubscriptions;
 
     public NodesPage()
@@ -51,23 +60,74 @@ public sealed partial class NodesPage : Page
         add.Flyout = Menu(ServerEditorHelper.GetOrderedProtocols()
             .Select(util => (ServerHelper.GetDisplayName(util), (Action)(async () => await EditNodeAsync(null, util.TypeName)))).ToArray());
         _speed = AsyncButton(T("⚡ Test latency", "⚡ 测速"), () => DelayTestHelper.PerformTestAsync(true));
+        var sort = Button(T("⇅ Latency", "⇅ 延迟"), () =>
+        {
+            _byDelay = !_byDelay;
+            RefreshNodes();
+        });
+
+        _selectAllBtn = Button(T("Select all", "全选"), () => _nodes.SelectAll());
+        _clearSelectionBtn = Button(T("Clear selection", "取消选择"), ClearSelection);
+        _batchTestBtn = AsyncButton(TF("Test selected ({0})", "测速所选 ({0})", 0), () => DelayTestHelper.PerformTestAsync(SelectedServers(), true), refreshEnabled: UpdateBatchBar);
+        _batchCopyBtn = Button(TF("Copy share links ({0})", "复制分享链接 ({0})", 0), () => CopyShareLinks(SelectedServers()));
+        _batchDeleteBtn = AsyncButton(TF("Delete selected ({0})", "删除所选 ({0})", 0), () => DeleteServersAsync(SelectedServers()), refreshEnabled: UpdateBatchBar);
+        foreach (var btn in new[] { _selectAllBtn, _clearSelectionBtn, _batchTestBtn, _batchCopyBtn, _batchDeleteBtn })
+        {
+            btn.MinHeight = 28;
+            btn.Padding = new Thickness(10, 4, 10, 4);
+        }
+
+        _batchBar = Card(Split(Row(_batchCount, _selectAllBtn, _clearSelectionBtn), Row(_batchTestBtn, _batchCopyBtn, _batchDeleteBtn)), 8);
+        _batchBar.Margin = new Thickness(0, 9, 0, 0);
+        _batchBar.Visibility = Visibility.Collapsed;
+
         _categories.SelectionChanged += (_, _) => { if (!_refreshing) RefreshSelection(); };
         _filter.TextChanged += (_, _) => RefreshNodes();
-        _nodes.KeyDown += async (_, e) =>
+        _nodes.SelectionChanged += (_, _) =>
         {
-            if (e.Key == Windows.System.VirtualKey.Enter && _nodes.SelectedItem is ListViewItem { Tag: Server server })
-                await EditNodeAsync(server);
+            if (!_suppressSelectionChanged)
+                UpdateBatchBar();
+        };
+        var selectAllAccel = new KeyboardAccelerator { Key = VirtualKey.A, Modifiers = VirtualKeyModifiers.Control };
+        selectAllAccel.Invoked += (_, e) =>
+        {
+            _nodes.SelectAll();
+            e.Handled = true;
+        };
+        _nodes.KeyboardAccelerators.Add(selectAllAccel);
+        _nodes.KeyDown += (_, e) =>
+        {
+            if (e.Key == VirtualKey.Enter && _nodes.SelectedItems.Count <= 1)
+            {
+                var target = _nodes.SelectedItems.Count == 1
+                    ? (_nodes.SelectedItem as ListViewItem)?.Tag as Server
+                    : XamlRoot != null ? (FocusManager.GetFocusedElement(XamlRoot) as ListViewItem)?.Tag as Server : null;
+                if (target != null)
+                    EditNodeAsync(target).Forget();
+            }
+            else if (e.Key == VirtualKey.Delete && SelectedServers() is { Length: > 0 } selected)
+            {
+                DeleteServersAsync(selected).Forget();
+            }
+            else if (e.Key == VirtualKey.Escape && _nodes.SelectedItems.Count > 0)
+            {
+                ClearSelection();
+                e.Handled = true;
+            }
+        };
+
+        var filterSection = new StackPanel
+        {
+            Children =
+            {
+                Split(_filter, Row(_speed, sort)),
+                _batchBar
+            }
         };
 
         Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, _updateAll, addSubscription, add),
-            TwoColumns(_categories, Body(_details,
-                Split(_filter, Row(_speed, Button(T("⇅ Latency", "⇅ 延迟"), () =>
-                {
-                    _byDelay = !_byDelay;
-                    RefreshNodes();
-                }))),
-                Card(_nodes, 2)), new GridLength(165))));
-        _nodes.ItemContainerStyle = Resource<Style>("NetchCompactRow");
+            TwoColumns(_categories, Body(_details, filterSection, Card(_nodes, 2)), new GridLength(165))));
+        _nodes.ItemContainerStyle = Resource<Style>("NetchSelectableRow");
         _nodes.ItemsSource = _nodeRows;
         _details.Content = new StackPanel { Children = { _subscription, _status } };
         _status.Visibility = Visibility.Collapsed;
@@ -114,14 +174,25 @@ public sealed partial class NodesPage : Page
         if (_nodeRows.SequenceEqual(ordered))
             return;
 
-        var selected = _nodes.SelectedItem;
+        var selected = SelectedServers().ToHashSet();
         var focused = FocusManager.GetFocusedElement(root) as ListViewItem;
-        for (var i = 0; i < ordered.Length; i++)
-            if (_nodeRows[i] != ordered[i])
-                _nodeRows.Move(_nodeRows.IndexOf(ordered[i]), i);
+        _suppressSelectionChanged = true;
+        try
+        {
+            for (var i = 0; i < ordered.Length; i++)
+                if (_nodeRows[i] != ordered[i])
+                    _nodeRows.Move(_nodeRows.IndexOf(ordered[i]), i);
 
-        if (selected != null)
-            _nodes.SelectedItem = selected;
+            _nodes.SelectedItems.Clear();
+            foreach (var item in _nodeRows)
+                if (item.Tag is Server server && selected.Contains(server))
+                    _nodes.SelectedItems.Add(item);
+        }
+        finally
+        {
+            _suppressSelectionChanged = false;
+        }
+        UpdateBatchBar();
         if (focused != null && _nodeRows.Contains(focused))
             focused.Focus(FocusState.Keyboard);
     });
@@ -234,6 +305,116 @@ public sealed partial class NodesPage : Page
         RefreshNodes();
     }
 
+    private Server[] SelectedServers() =>
+        _nodes.SelectedItems.OfType<ListViewItem>().Select(item => item.Tag).OfType<Server>().ToArray();
+
+    private void ClearSelection()
+    {
+        _suppressSelectionChanged = true;
+        try
+        {
+            _nodes.SelectedItems.Clear();
+        }
+        finally
+        {
+            _suppressSelectionChanged = false;
+        }
+        UpdateBatchBar();
+    }
+
+    private void UpdateBatchBar()
+    {
+        var count = _nodes.SelectedItems.Count;
+        var visible = count >= 2;
+        _batchBar.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+        if (!visible)
+            return;
+
+        _batchCount.Text = TF("Selected {0}", "已选 {0} 项", count);
+        _selectAllBtn.IsEnabled = _nodeRows.Count > 0 && count < _nodeRows.Count;
+        _clearSelectionBtn.IsEnabled = count > 0;
+        _batchTestBtn.Content = TF("Test selected ({0})", "测速所选 ({0})", count);
+        _batchTestBtn.IsEnabled = count > 0;
+        _batchCopyBtn.Content = TF("Copy share links ({0})", "复制分享链接 ({0})", count);
+        _batchCopyBtn.IsEnabled = count > 0;
+        _batchDeleteBtn.Content = TF("Delete selected ({0})", "删除所选 ({0})", count);
+        _batchDeleteBtn.IsEnabled = count > 0;
+    }
+
+    private void CopyShareLinks(IReadOnlyList<Server> servers)
+    {
+        if (servers.Count == 0)
+            return;
+
+        var links = new List<string>(servers.Count);
+        var skipped = 0;
+        foreach (var server in servers)
+        {
+            try
+            {
+                links.Add(ShareLink.GetShareLink(server));
+            }
+            catch
+            {
+                skipped++;
+            }
+        }
+
+        if (links.Count > 0)
+        {
+            Copy(string.Join(Environment.NewLine, links));
+            var message = TF("Copied share links for {0} nodes.", "已复制 {0} 个节点的分享链接。", links.Count);
+            if (skipped > 0)
+                message += " " + TF("Skipped {0} unsupported nodes.", "跳过 {0} 个不支持分享的节点。", skipped);
+            _status.Text = message;
+        }
+        else
+        {
+            _status.Text = TF("Skipped {0} unsupported nodes.", "跳过 {0} 个不支持分享的节点。", skipped);
+        }
+    }
+
+    private async Task DeleteServersAsync(IReadOnlyList<Server> servers)
+    {
+        if (servers.Count == 0 || XamlRoot is null || !await ConfirmDeleteAsync(servers))
+            return;
+
+        foreach (var server in servers)
+            Global.Settings.Server.Remove(server);
+        await Configuration.SaveAsync();
+        RefreshCategories();
+    }
+
+    private MenuFlyout BuildNodeMenu(ListViewItem item, Server target)
+    {
+        var menu = new MenuFlyout();
+        menu.Opening += (_, _) =>
+        {
+            menu.Items.Clear();
+            var selected = SelectedServers();
+            if (item.IsSelected && selected.Length > 1)
+            {
+                menu.Items.Add(MenuItem(TF("Test selected ({0})", "测速所选 ({0})", selected.Length), "\uE945",
+                    () => DelayTestHelper.PerformTestAsync(selected, true).Forget()));
+                menu.Items.Add(MenuItem(TF("Copy share links ({0})", "复制分享链接 ({0})", selected.Length), "\uE8C8",
+                    () => CopyShareLinks(selected)));
+                menu.Items.Add(MenuItem(T("Clear selection", "取消选择"), "\uE8E6", ClearSelection));
+                menu.Items.Add(new MenuFlyoutSeparator());
+                menu.Items.Add(MenuItem(TF("Delete selected ({0})", "删除所选 ({0})", selected.Length), "\uE74D",
+                    () => DeleteServersAsync(selected).Forget(), destructive: true));
+                return;
+            }
+
+            menu.Items.Add(MenuItem(T("Edit", "编辑"), "\uE70F", () => EditNodeAsync(target).Forget()));
+            menu.Items.Add(MenuItem(T("Copy share link", "复制分享链接"), "\uE8C8", () => NodeEditor.ShareAsync(XamlRoot, target, false).Forget()));
+            menu.Items.Add(MenuItem(T("QR code", "二维码"), "\uED14", () => NodeEditor.ShareAsync(XamlRoot, target, true).Forget()));
+            menu.Items.Add(MenuItem(T("Test NAT", "测 NAT"), "\uE9D9", () => NodeEditor.TestNatAsync(XamlRoot, target).Forget()));
+            menu.Items.Add(new MenuFlyoutSeparator());
+            menu.Items.Add(MenuItem(T("Delete", "删除"), "\uE74D", () => DeleteServersAsync([target]).Forget(), destructive: true));
+        };
+        return menu;
+    }
+
     private void RefreshNodes()
     {
         var group = SelectedSubscription?.Remark ?? (_categories.SelectedItem as ListViewItem)?.Tag as string;
@@ -244,46 +425,46 @@ public sealed partial class NodesPage : Page
         if (_byDelay)
             nodes = nodes.OrderBy(DelayOrder);
 
-        var selected = (_nodes.SelectedItem as ListViewItem)?.Tag as Server;
-        _delayLabels.Clear();
-        _nodeRows.Clear();
-        foreach (var server in nodes)
+        var selected = SelectedServers().ToHashSet();
+        _suppressSelectionChanged = true;
+        try
         {
-            var count = SceneService.Scenes.Count(s => s.ServerId == server.Id);
-            var delay = Caption("");
-            delay.Width = 59;
-            delay.FontFamily = new FontFamily("Consolas");
-            delay.TextAlignment = TextAlignment.Right;
-            UpdateDelayLabel(server, delay);
-            _delayLabels[server] = delay;
-            var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
-            scenes.Width = 66;
-            var item = new ListViewItem
+            _delayLabels.Clear();
+            _nodeRows.Clear();
+            foreach (var server in nodes)
             {
-                Tag = server, HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                Content = Split(Text(Format.NodeName(server)),
-                    Row(Pill(ServerHelper.GetDisplayName(server.ConfigType)), scenes, delay)),
-                ContextFlyout = Menu(
-                    (T("Edit", "编辑"), async () => await EditNodeAsync(server)),
-                    (T("Copy share link", "复制分享链接"), async () => await NodeEditor.ShareAsync(XamlRoot, server, false)),
-                    (T("QR code", "二维码"), async () => await NodeEditor.ShareAsync(XamlRoot, server, true)),
-                    (T("Test NAT", "测 NAT"), async () => await NodeEditor.TestNatAsync(XamlRoot, server)),
-                    (T("Delete", "删除"), async () =>
-                    {
-                        if (!await ConfirmDeleteAsync([server]))
-                            return;
-                        Global.Settings.Server.Remove(server);
-                        await Configuration.SaveAsync();
-                        RefreshCategories();
-                    }))
-            };
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, Format.NodeName(server));
-            item.DoubleTapped += async (_, _) => await EditNodeAsync(server);
-            AddSelectionIndicator(item);
-            _nodeRows.Add(item);
-            if (server == selected)
-                _nodes.SelectedItem = item;
+                var count = SceneService.Scenes.Count(s => s.ServerId == server.Id);
+                var delay = Caption("");
+                delay.Width = 59;
+                delay.FontFamily = new FontFamily("Consolas");
+                delay.TextAlignment = TextAlignment.Right;
+                UpdateDelayLabel(server, delay);
+                _delayLabels[server] = delay;
+                var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
+                scenes.Width = 66;
+                var item = new ListViewItem
+                {
+                    Tag = server, HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    Content = Split(Text(Format.NodeName(server)),
+                        Row(Pill(ServerHelper.GetDisplayName(server.ConfigType)), scenes, delay))
+                };
+                item.ContextFlyout = BuildNodeMenu(item, server);
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, Format.NodeName(server));
+                item.DoubleTapped += (_, e) =>
+                {
+                    if (_nodes.SelectedItems.Count <= 1 && e.GetPosition(item).X >= 44)
+                        EditNodeAsync(server).Forget();
+                };
+                _nodeRows.Add(item);
+                if (selected.Contains(server))
+                    _nodes.SelectedItems.Add(item);
+            }
         }
+        finally
+        {
+            _suppressSelectionChanged = false;
+        }
+        UpdateBatchBar();
     }
 
     private async Task EditNodeAsync(Server? server, string? type = null)

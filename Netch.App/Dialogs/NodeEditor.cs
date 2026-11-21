@@ -99,17 +99,18 @@ internal static class NodeEditor
         var protocol = server.ConfigType;
 
         var fields = Stack();
+        fields.Width = root.Size.Width > 0 ? Math.Min(460, Math.Max(300, root.Size.Width - 110)) : 460;
         var apply = new List<Func<string?>>();
         var name = Input(T("Name", "名称"), server.Remarks);
         var address = Input(T("Address", "地址"), server.Address);
         var port = Input(T("Port", "端口"), server.Port == 0 ? "" : server.Port.ToString());
         fields.Children.Add(name);
-        fields.Children.Add(TwoColumns(address, port, new GridLength(2, GridUnitType.Star)));
+        fields.Children.Add(TwoColumns(address, port, new GridLength(2, GridUnitType.Star), 10));
 
         static void Show(UIElement element, bool visible) =>
             element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
-        TextBox Field(string label, string? value, Action<string> set, bool multiline = false)
+        TextBox Field(string label, string? value, Action<string> set, bool multiline = false, bool addToFields = true)
         {
             var box = Input(label, value, multiline: multiline);
             if (multiline)
@@ -118,7 +119,8 @@ internal static class NodeEditor
                 box.MaxHeight = 160;
                 ScrollViewer.SetVerticalScrollBarVisibility(box, ScrollBarVisibility.Auto);
             }
-            fields.Children.Add(box);
+            if (addToFields)
+                fields.Children.Add(box);
             apply.Add(() =>
             {
                 if (box.Visibility == Visibility.Visible)
@@ -128,10 +130,11 @@ internal static class NodeEditor
             return box;
         }
 
-        PasswordBox Secret(string label, string? value, Action<string> set)
+        PasswordBox Secret(string label, string? value, Action<string> set, bool addToFields = true)
         {
             var box = new PasswordBox { Header = label, Password = value ?? "" };
-            fields.Children.Add(box);
+            if (addToFields)
+                fields.Children.Add(box);
             apply.Add(() =>
             {
                 if (box.Visibility == Visibility.Visible)
@@ -141,10 +144,11 @@ internal static class NodeEditor
             return box;
         }
 
-        TextBox Number(string label, int? value, Action<int?> set, int min = 0, int max = int.MaxValue)
+        TextBox Number(string label, int? value, Action<int?> set, int min = 0, int max = int.MaxValue, bool addToFields = true)
         {
             var box = Input(label, value?.ToString());
-            fields.Children.Add(box);
+            if (addToFields)
+                fields.Children.Add(box);
             apply.Add(() =>
             {
                 if (box.Visibility != Visibility.Visible)
@@ -162,6 +166,11 @@ internal static class NodeEditor
 
         ComboBox Options(string label, string? value, Action<string> set, params string[] choices)
         {
+            return OptionsCore(label, value, set, addToFields: true, choices);
+        }
+
+        ComboBox OptionsCore(string label, string? value, Action<string> set, bool addToFields, params string[] choices)
+        {
             var list = choices.ToList();
             if (!string.IsNullOrEmpty(value) && !list.Contains(value))
                 list.Insert(0, value);
@@ -171,7 +180,8 @@ internal static class NodeEditor
             var box = Choice(label, list, index);
             box.Header = label;
             box.HorizontalAlignment = HorizontalAlignment.Stretch;
-            fields.Children.Add(box);
+            if (addToFields)
+                fields.Children.Add(box);
             apply.Add(() =>
             {
                 if (box.Visibility == Visibility.Visible)
@@ -181,7 +191,7 @@ internal static class NodeEditor
             return box;
         }
 
-        ComboBox EditableOptions(string label, string? value, Action<string> set, params string[] choices)
+        ComboBox EditableOptions(string label, string? value, Action<string> set, bool addToFields = true, params string[] choices)
         {
             var list = choices.ToList();
             if (!string.IsNullOrEmpty(value) && !list.Contains(value))
@@ -195,7 +205,8 @@ internal static class NodeEditor
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(box, label);
-            fields.Children.Add(box);
+            if (addToFields)
+                fields.Children.Add(box);
             apply.Add(() =>
             {
                 if (box.Visibility == Visibility.Visible)
@@ -218,25 +229,35 @@ internal static class NodeEditor
             return box;
         }
 
-        if (protocol is EConfigType.SOCKS or EConfigType.HTTP or EConfigType.Naive or EConfigType.MASQUE or EConfigType.TUIC)
-            Field(protocol == EConfigType.TUIC ? "UUID" : T("Username", "用户名"), server.Username, s => server.Username = s);
-        Secret(protocol switch
+        var secretLabel = protocol switch
         {
             EConfigType.WireGuard => T("Private key", "私钥"),
             EConfigType.VLESS or EConfigType.VMess => "UUID",
             EConfigType.Hysteria2 => T("Authentication", "认证"),
             _ => T("Password", "密码")
-        }, server.Password, s => server.Password = s);
+        };
+        if (protocol is EConfigType.SOCKS or EConfigType.HTTP or EConfigType.Naive or EConfigType.MASQUE or EConfigType.TUIC)
+        {
+            var userBox = Field(protocol == EConfigType.TUIC ? "UUID" : T("Username", "用户名"), server.Username, s => server.Username = s, addToFields: false);
+            var passBox = Secret(secretLabel, server.Password, s => server.Password = s, addToFields: false);
+            fields.Children.Add(TwoColumns(userBox, passBox, new GridLength(1, GridUnitType.Star), 10));
+        }
+        else
+        {
+            Secret(secretLabel, server.Password, s => server.Password = s);
+        }
 
         ComboBox? vlessFlowBox = null;
         switch (server)
         {
             case ShadowsocksRServer ssr:
                 Options(T("Encryption", "加密"), ssr.EncryptMethod, s => ssr.EncryptMethod = s, Constants.SsrEncryptMethods.ToArray());
-                EditableOptions(T("Protocol", "协议"), ssr.Protocol, s => ssr.Protocol = s, Constants.SsrProtocols.ToArray());
-                Field(T("Protocol parameter", "协议参数"), ssr.ProtocolParam, s => ssr.ProtocolParam = s);
-                EditableOptions(T("Obfuscation", "混淆"), ssr.OBFS, s => ssr.OBFS = s, Constants.SsrObfs.ToArray());
-                Field(T("Obfuscation parameter", "混淆参数"), ssr.OBFSParam, s => ssr.OBFSParam = s);
+                var ssrProtocol = EditableOptions(T("Protocol", "协议"), ssr.Protocol, s => ssr.Protocol = s, addToFields: false, Constants.SsrProtocols.ToArray());
+                var ssrProtocolParam = Field(T("Protocol parameter", "协议参数"), ssr.ProtocolParam, s => ssr.ProtocolParam = s, addToFields: false);
+                fields.Children.Add(TwoColumns(ssrProtocol, ssrProtocolParam, new GridLength(1, GridUnitType.Star), 10));
+                var ssrObfs = EditableOptions(T("Obfuscation", "混淆"), ssr.OBFS, s => ssr.OBFS = s, addToFields: false, Constants.SsrObfs.ToArray());
+                var ssrObfsParam = Field(T("Obfuscation parameter", "混淆参数"), ssr.OBFSParam, s => ssr.OBFSParam = s, addToFields: false);
+                fields.Children.Add(TwoColumns(ssrObfs, ssrObfsParam, new GridLength(1, GridUnitType.Star), 10));
                 break;
             case ShadowsocksServer:
                 Options(T("Encryption", "加密"), extra.SsMethod, s => extra.SsMethod = s, Constants.SsCiphers.ToArray());
@@ -338,18 +359,23 @@ internal static class NodeEditor
                     }
                 }, Constants.None, "salamander", "gecko");
                 var hy2ObfsPassword = Secret(T("Obfuscation password", "混淆密码"), extra.SalamanderPass, s => extra.SalamanderPass = s);
-                var hy2GeckoMin = Field(T("Gecko min packet size", "Gecko 最小包长"), extra.GeckoMinPacketSize, s => extra.GeckoMinPacketSize = s);
-                var hy2GeckoMax = Field(T("Gecko max packet size", "Gecko 最大包长"), extra.GeckoMaxPacketSize, s => extra.GeckoMaxPacketSize = s);
+                var hy2GeckoMin = Field(T("Gecko min packet size", "Gecko 最小包长"), extra.GeckoMinPacketSize, s => extra.GeckoMinPacketSize = s, addToFields: false);
+                var hy2GeckoMax = Field(T("Gecko max packet size", "Gecko 最大包长"), extra.GeckoMaxPacketSize, s => extra.GeckoMaxPacketSize = s, addToFields: false);
+                var hy2GeckoRow = TwoColumns(hy2GeckoMin, hy2GeckoMax, new GridLength(1, GridUnitType.Star), 10);
+                fields.Children.Add(hy2GeckoRow);
                 var hy2Ports = Field(T("Port hopping range", "端口跳跃范围"), extra.Ports, s => extra.Ports = s);
                 var hy2HopInterval = Field(T("Hop interval (s)", "跳跃间隔（秒）"), extra.HopInterval, s => extra.HopInterval = s);
-                Number(T("Upload (Mbps)", "上传（Mbps）"), extra.UpMbps, n => extra.UpMbps = n);
-                Number(T("Download (Mbps)", "下载（Mbps）"), extra.DownMbps, n => extra.DownMbps = n);
+                var hy2Up = Number(T("Upload (Mbps)", "上传（Mbps）"), extra.UpMbps, n => extra.UpMbps = n, addToFields: false);
+                var hy2Down = Number(T("Download (Mbps)", "下载（Mbps）"), extra.DownMbps, n => extra.DownMbps = n, addToFields: false);
+                fields.Children.Add(TwoColumns(hy2Up, hy2Down, new GridLength(1, GridUnitType.Star), 10));
                 void RefreshHy2()
                 {
                     var obfsSelected = hy2Obfs.SelectedItem as string ?? Constants.None;
+                    var isGecko = obfsSelected == "gecko";
                     Show(hy2ObfsPassword, obfsSelected != Constants.None);
-                    Show(hy2GeckoMin, obfsSelected == "gecko");
-                    Show(hy2GeckoMax, obfsSelected == "gecko");
+                    Show(hy2GeckoRow, isGecko);
+                    Show(hy2GeckoMin, isGecko);
+                    Show(hy2GeckoMax, isGecko);
                     Show(hy2HopInterval, !string.IsNullOrWhiteSpace(hy2Ports.Text));
                 }
                 hy2Obfs.SelectionChanged += (_, _) => RefreshHy2();
@@ -440,14 +466,17 @@ internal static class NodeEditor
 
             TextBox? pubKeyBox = null;
             TextBox? shortIdBox = null;
+            Grid? realityKeyRow = null;
             TextBox? spiderXBox = null;
             TextBox? mldsaBox = null;
             TextBox? echBox = null;
             ComboBox? echQueryBox = null;
             if (supportsReality)
             {
-                pubKeyBox = Field(T("Reality public key", "Reality 公钥"), server.PublicKey, s => server.PublicKey = s);
-                shortIdBox = Field(T("Short ID", "短 ID"), server.ShortId, s => server.ShortId = s);
+                pubKeyBox = Field(T("Reality public key", "Reality 公钥"), server.PublicKey, s => server.PublicKey = s, addToFields: false);
+                shortIdBox = Field(T("Short ID", "短 ID"), server.ShortId, s => server.ShortId = s, addToFields: false);
+                realityKeyRow = TwoColumns(pubKeyBox, shortIdBox, new GridLength(1, GridUnitType.Star), 10);
+                fields.Children.Add(realityKeyRow);
                 spiderXBox = Field("SpiderX", server.SpiderX, s => server.SpiderX = s);
                 mldsaBox = Field("ML-DSA-65", server.Mldsa65Verify, s => server.Mldsa65Verify = s);
                 echBox = Field("ECH", server.EchConfigList, s => server.EchConfigList = s);
@@ -469,6 +498,7 @@ internal static class NodeEditor
                 if (insecureBox != null) Show(insecureBox, tlsOnly);
                 Show(certBox, tlsOnly);
                 if (certShaBox != null) Show(certShaBox, tlsOnly);
+                if (realityKeyRow != null) Show(realityKeyRow, reality);
                 if (pubKeyBox != null) Show(pubKeyBox, reality);
                 if (shortIdBox != null) Show(shortIdBox, reality);
                 if (spiderXBox != null) Show(spiderXBox, reality && (xhttp || !string.IsNullOrEmpty(server.SpiderX)));
@@ -514,7 +544,7 @@ internal static class NodeEditor
             return ServerEditorHelper.ValidateForSave(server, util) is { } validationError
                 ? i18N.Translate(validationError)
                 : null;
-        }))
+        }, contentMaxWidth: 560))
             return false;
 
         if (existing != null && Global.Settings.Server.IndexOf(existing) is var index && index >= 0)

@@ -13,7 +13,9 @@
 
     <Grid
         x:Name="Root"
-        Padding="12,14"
+        Width="320"
+        HorizontalAlignment="Left"
+        Padding="14,14,14,12"
         VerticalAlignment="Top"
         RowSpacing="10">
         <Grid.RowDefinitions>
@@ -62,6 +64,7 @@
             Grid.Row="1"
             Margin="0,-2,0,0"
             Height="{x:Bind TileHeight, Mode=OneWay}"
+            MaxHeight="240"
             IsItemInvokedEnabled="True"
             ItemInvoked="Tiles_ItemInvoked"
             ItemsSource="{x:Bind Tiles}"
@@ -98,23 +101,34 @@
 
         <Grid
             Grid.Row="2"
+            ColumnSpacing="6"
             Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <TextBlock
+                Grid.Column="0"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
                 FontFamily="Consolas"
                 FontSize="11"
+                TextTrimming="CharacterEllipsis"
                 Text="{x:Bind DownloadRate(Session.BytesPerSecond), Mode=OneWay}"
                 Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}" />
             <TextBlock
+                Grid.Column="1"
                 HorizontalAlignment="Center"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
                 FontFamily="Consolas"
                 FontSize="11"
+                TextTrimming="CharacterEllipsis"
                 Text="{x:Bind UploadRate(Session.UploadBytesPerSecond), Mode=OneWay}"
                 Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}" />
             <TextBlock
+                Grid.Column="2"
                 HorizontalAlignment="Right"
                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 Style="{StaticResource CaptionTextBlockStyle}"
@@ -129,20 +143,20 @@
             BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
             BorderThickness="0,1,0,0">
             <HyperlinkButton AutomationProperties.Name="{h:Tr Text='Open Netch'}"
-                             Height="15" MinHeight="0" Padding="0" Click="Open_Click">
+                             MinHeight="28" Padding="4,4" VerticalAlignment="Center" Click="Open_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <FontIcon FontSize="11" Glyph="&#xE713;" />
-                    <TextBlock FontSize="11" Text="{h:Tr Text='Open Netch'}" />
+                    <FontIcon FontSize="12" Glyph="&#xE713;" />
+                    <TextBlock FontSize="12" Text="{h:Tr Text='Open Netch'}" />
                 </StackPanel>
             </HyperlinkButton>
             <HyperlinkButton
-                Height="15" MinHeight="0" Padding="0"
+                MinHeight="28" Padding="4,4" VerticalAlignment="Center"
                 HorizontalAlignment="Right"
                 AutomationProperties.Name="{h:Tr Text=Exit}"
                 Click="Exit_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <FontIcon FontSize="11" Glyph="&#xE7E8;" />
-                    <TextBlock FontSize="11" Text="{h:Tr Text=Exit}" />
+                    <FontIcon FontSize="12" Glyph="&#xE7E8;" />
+                    <TextBlock FontSize="12" Text="{h:Tr Text=Exit}" />
                 </StackPanel>
             </HyperlinkButton>
         </Grid>

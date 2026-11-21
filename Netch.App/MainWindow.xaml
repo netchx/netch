@@ -41,6 +41,7 @@
             IsSettingsVisible="False"
             OpenPaneLength="132"
             PaneDisplayMode="Auto"
+            ItemInvoked="NavView_ItemInvoked"
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem Height="41.3" Margin="3,0" Content="{h:Tr Text=Scenes}" Tag="Scenes">

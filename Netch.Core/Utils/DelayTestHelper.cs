@@ -44,18 +44,36 @@ public static class DelayTestHelper
         if (Lock.CurrentCount == 0)
         {
             if (waitFinish)
-                (await Lock.EnterAsync()).Dispose();
-
+            {
+                using var _ = await Lock.EnterAsync();
+            }
             return;
         }
 
+        using var guard = await Lock.EnterAsync();
+        await RunTestsAsync(Global.Settings.Server.ToArray());
+    }
+
+    public static async Task PerformTestAsync(IEnumerable<Server> targets, bool waitFinish = false)
+    {
+        var servers = targets as Server[] ?? targets.ToArray();
+        if (servers.Length == 0)
+            return;
+
+        if (!waitFinish && Lock.CurrentCount == 0)
+            return;
+
         using var _ = await Lock.EnterAsync();
+        await RunTestsAsync(servers);
+    }
+
+    private static async Task RunTestsAsync(Server[] servers)
+    {
+        if (servers.Length == 0)
+            return;
 
         try
         {
-            // Snapshot: subscription updates replace servers from a background
-            // continuation while this timer-driven test may be enumerating.
-            var servers = Global.Settings.Server.ToArray();
             var tasks = servers.Select(async s =>
             {
                 using (await PoolLock.EnterAsync())

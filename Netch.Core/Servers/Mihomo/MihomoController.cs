@@ -73,6 +73,7 @@ public sealed class MihomoController : Guard, IServerController
         {
             UseShellExecute = false,
             CreateNoWindow = true,
+            WindowStyle = ProcessWindowStyle.Hidden,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             StandardOutputEncoding = Encoding.UTF8,

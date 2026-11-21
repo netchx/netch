@@ -46,6 +46,13 @@ public static class NetworkInterfaceUtils
         return NetworkInterface.GetAllNetworkInterfaces().First(expression);
     }
 
+    public static ProcessStartInfo BuildNetshStartInfo(string arguments) => new("netsh.exe", arguments)
+    {
+        UseShellExecute = false,
+        CreateNoWindow = true,
+        WindowStyle = ProcessWindowStyle.Hidden
+    };
+
     public static void SetInterfaceMetric(int interfaceIndex, int? metric = null, AddressFamily addressFamily = AddressFamily.InterNetwork)
     {
         var family = addressFamily == AddressFamily.InterNetworkV6 ? "ipv6" : "ip";
@@ -53,11 +60,8 @@ public static class NetworkInterfaceUtils
         if (metric != null)
             arguments += $"metric={metric} ";
 
-        Process.Start(new ProcessStartInfo("netsh.exe", arguments)
-        {
-            UseShellExecute = false,
-            Verb = "runas"
-        })!.WaitForExit();
+        using var process = Process.Start(BuildNetshStartInfo(arguments));
+        process?.WaitForExit();
     }
 }
 

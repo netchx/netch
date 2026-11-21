@@ -17,6 +17,43 @@
             <Setter Property="Height" Value="17" />
             <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
         </Style>
+        <Style x:Key="PickerFlyoutPresenterStyle" TargetType="FlyoutPresenter">
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="MinWidth" Value="422" />
+            <Setter Property="MaxWidth" Value="422" />
+            <Setter Property="MaxHeight" Value="340" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style x:Key="PickerGroupHeaderContainerStyle" TargetType="ListViewHeaderItem">
+            <Setter Property="MinHeight" Value="28" />
+            <Setter Property="Padding" Value="0,4,0,2" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <DataTemplate x:Key="PickerGroupHeaderTemplate">
+            <Border
+                Padding="8,4"
+                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                CornerRadius="4">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{Binding Name}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Text="{Binding CountText}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
     </ContentDialog.Resources>
     <ContentDialog.CloseButtonStyle>
         <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
@@ -38,7 +75,7 @@
                 AutomationProperties.Name="{h:Tr Text=Icon}"
                 Content="{x:Bind ViewModel.Icon, Mode=OneWay}">
                 <Button.Flyout>
-                    <Flyout x:Name="IconFlyout">
+                    <Flyout x:Name="IconFlyout" Opening="Flyout_Opening">
                         <GridView
                             MaxWidth="248"
                             IsItemClickEnabled="True"
@@ -66,13 +103,135 @@
 
         <StackPanel Spacing="4">
             <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Mode}" />
-            <ComboBox
-                x:Name="ModeSelector" Height="37"
+            <Button
+                x:Name="ModeSelector"
+                Height="37"
+                Padding="10,0"
                 HorizontalAlignment="Stretch"
-                AutomationProperties.Name="{h:Tr Text=Mode}"
-                ItemsSource="{x:Bind ViewModel.Modes}"
-                PlaceholderText="{x:Bind ViewModel.ModePlaceholder}"
-                SelectedItem="{x:Bind ViewModel.SelectedMode, Mode=TwoWay}" />
+                HorizontalContentAlignment="Stretch"
+                AutomationProperties.Name="{x:Bind ViewModel.ModeButtonAutomationName, Mode=OneWay}">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind ViewModel.ModePlaceholder}"
+                        TextTrimming="CharacterEllipsis"
+                        Visibility="{x:Bind ViewModel.NoMode, Mode=OneWay}" />
+                    <Grid ColumnSpacing="6" Visibility="{x:Bind ViewModel.HasMode, Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            Padding="6,1"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource NetchUpdateFill}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="11.5"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                Text="{x:Bind ViewModel.SelectedModeGroupName, Mode=OneWay}" />
+                        </Border>
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.SelectedModeName, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                        <Border
+                            Grid.Column="2"
+                            Padding="6,1"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="11.5"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{x:Bind ViewModel.SelectedModeType, Mode=OneWay}" />
+                        </Border>
+                    </Grid>
+                    <FontIcon
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Glyph="&#xE70D;" />
+                </Grid>
+                <Button.Flyout>
+                    <Flyout
+                        x:Name="ModeFlyout"
+                        FlyoutPresenterStyle="{StaticResource PickerFlyoutPresenterStyle}"
+                        Opened="ModeFlyout_Opened"
+                        Opening="ModeFlyout_Opening"
+                        Placement="BottomEdgeAlignedLeft">
+                        <Grid x:Name="ModeFlyoutRoot" Width="404" RowSpacing="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBox
+                                x:Name="ModeSearchBox"
+                                AutomationProperties.Name="{h:Tr Text='Search modes, groups, or programs…'}"
+                                PlaceholderText="{h:Tr Text='Search modes, groups, or programs…'}"
+                                PreviewKeyDown="ModeSearchBox_PreviewKeyDown"
+                                TextChanged="ModeSearchBox_TextChanged" />
+                            <ListView
+                                x:Name="ModeListView"
+                                Grid.Row="1"
+                                MaxHeight="260"
+                                IsItemClickEnabled="True"
+                                ItemClick="ModeListView_ItemClick"
+                                ItemContainerStyle="{StaticResource NetchCompactRow}"
+                                SelectionMode="Single">
+                                <ListView.GroupStyle>
+                                    <GroupStyle
+                                        HeaderContainerStyle="{StaticResource PickerGroupHeaderContainerStyle}"
+                                        HeaderTemplate="{StaticResource PickerGroupHeaderTemplate}"
+                                        HidesIfEmpty="True" />
+                                </ListView.GroupStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ModeOption">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Text="{x:Bind Name}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <Border
+                                                Grid.Column="1"
+                                                Padding="6,1"
+                                                VerticalAlignment="Center"
+                                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                CornerRadius="4">
+                                                <TextBlock
+                                                    FontSize="11.5"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind TypeName}" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <TextBlock
+                                x:Name="ModeEmptyText"
+                                Grid.Row="1"
+                                Margin="0,24"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{h:Tr Text='No matching modes'}"
+                                Visibility="Collapsed" />
+                        </Grid>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
             <HyperlinkButton
                 x:Name="ModeSettingsLink" Padding="0" Height="29" MinHeight="0" FontSize="13.5"
                 Click="OpenModeSettings_Click"
@@ -82,41 +241,177 @@
 
         <StackPanel Spacing="4" Margin="0,1,0,0">
             <TextBlock Style="{StaticResource SceneFieldLabel}" Text="{h:Tr Text=Node}" />
-            <ComboBox
+            <Button
+                x:Name="NodeSelector"
+                Height="37"
+                Padding="10,0"
                 HorizontalAlignment="Stretch"
-                x:Name="NodeSelector" Height="37"
-                AutomationProperties.Name="{h:Tr Text=Node}"
-                IsTextSearchEnabled="True"
-                ItemsSource="{x:Bind ViewModel.Nodes}"
-                PlaceholderText="{x:Bind ViewModel.NodePlaceholder}"
-                SelectedItem="{x:Bind ViewModel.SelectedNode, Mode=TwoWay}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="vm:NodeOption">
-                        <Grid ColumnSpacing="12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind Label}" TextTrimming="CharacterEllipsis" />
+                HorizontalContentAlignment="Stretch"
+                AutomationProperties.Name="{x:Bind ViewModel.NodeButtonAutomationName, Mode=OneWay}">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="{x:Bind ViewModel.NodePlaceholder}"
+                        TextTrimming="CharacterEllipsis"
+                        Visibility="{x:Bind ViewModel.NoNode, Mode=OneWay}" />
+                    <Grid ColumnSpacing="6" Visibility="{x:Bind ViewModel.HasNode, Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            Padding="6,1"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="4">
                             <TextBlock
-                                Grid.Column="1"
+                                FontSize="11.5"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{x:Bind ViewModel.SelectedNodeGroupName, Mode=OneWay}" />
+                        </Border>
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Text="{x:Bind ViewModel.SelectedNodeName, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                        <Border
+                            Grid.Column="2"
+                            Padding="6,1"
+                            VerticalAlignment="Center"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                            CornerRadius="4">
+                            <TextBlock
+                                FontSize="11.5"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{x:Bind ViewModel.SelectedNodeProtocol, Mode=OneWay}" />
+                        </Border>
+                        <Grid Grid.Column="3" VerticalAlignment="Center">
+                            <TextBlock
+                                FontFamily="Consolas"
+                                FontSize="12"
                                 Foreground="{ThemeResource SystemFillColorSuccessBrush}"
-                                Text="{x:Bind DelayText}"
-                                Visibility="{x:Bind FastDelay}" />
+                                Text="{x:Bind ViewModel.SelectedNodeDelayText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.SelectedNodeFastDelay, Mode=OneWay}" />
                             <TextBlock
-                                Grid.Column="1"
+                                FontFamily="Consolas"
+                                FontSize="12"
                                 Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                Text="{x:Bind DelayText}"
-                                Visibility="{x:Bind SlowDelay}" />
+                                Text="{x:Bind ViewModel.SelectedNodeDelayText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.SelectedNodeSlowDelay, Mode=OneWay}" />
                             <TextBlock
-                                Grid.Column="1"
+                                FontFamily="Consolas"
+                                FontSize="12"
                                 Foreground="{ThemeResource SystemFillColorCriticalBrush}"
-                                Text="{x:Bind DelayText}"
-                                Visibility="{x:Bind Timeout}" />
+                                Text="{x:Bind ViewModel.SelectedNodeDelayText, Mode=OneWay}"
+                                Visibility="{x:Bind ViewModel.SelectedNodeTimeout, Mode=OneWay}" />
                         </Grid>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
-            </ComboBox>
+                    </Grid>
+                    <FontIcon
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Glyph="&#xE70D;" />
+                </Grid>
+                <Button.Flyout>
+                    <Flyout
+                        x:Name="NodeFlyout"
+                        FlyoutPresenterStyle="{StaticResource PickerFlyoutPresenterStyle}"
+                        Opened="NodeFlyout_Opened"
+                        Opening="NodeFlyout_Opening"
+                        Placement="BottomEdgeAlignedLeft">
+                        <Grid x:Name="NodeFlyoutRoot" Width="404" RowSpacing="6">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBox
+                                x:Name="NodeSearchBox"
+                                AutomationProperties.Name="{h:Tr Text='Search nodes, protocols, or subscriptions…'}"
+                                PlaceholderText="{h:Tr Text='Search nodes, protocols, or subscriptions…'}"
+                                PreviewKeyDown="NodeSearchBox_PreviewKeyDown"
+                                TextChanged="NodeSearchBox_TextChanged" />
+                            <ListView
+                                x:Name="NodeListView"
+                                Grid.Row="1"
+                                MaxHeight="260"
+                                IsItemClickEnabled="True"
+                                ItemClick="NodeListView_ItemClick"
+                                ItemContainerStyle="{StaticResource NetchCompactRow}"
+                                SelectionMode="Single">
+                                <ListView.GroupStyle>
+                                    <GroupStyle
+                                        HeaderContainerStyle="{StaticResource PickerGroupHeaderContainerStyle}"
+                                        HeaderTemplate="{StaticResource PickerGroupHeaderTemplate}"
+                                        HidesIfEmpty="True" />
+                                </ListView.GroupStyle>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:NodeOption">
+                                        <Grid ColumnSpacing="8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock
+                                                VerticalAlignment="Center"
+                                                Text="{x:Bind Name}"
+                                                TextTrimming="CharacterEllipsis" />
+                                            <Border
+                                                Grid.Column="1"
+                                                Padding="6,1"
+                                                VerticalAlignment="Center"
+                                                Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                                CornerRadius="4">
+                                                <TextBlock
+                                                    FontSize="11.5"
+                                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                    Text="{x:Bind Protocol}" />
+                                            </Border>
+                                            <Grid Grid.Column="2" VerticalAlignment="Center">
+                                                <TextBlock
+                                                    FontFamily="Consolas"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                    Text="{x:Bind DelayText}"
+                                                    Visibility="{x:Bind FastDelay}" />
+                                                <TextBlock
+                                                    FontFamily="Consolas"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                    Text="{x:Bind DelayText}"
+                                                    Visibility="{x:Bind SlowDelay}" />
+                                                <TextBlock
+                                                    FontFamily="Consolas"
+                                                    FontSize="12"
+                                                    Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                                                    Text="{x:Bind DelayText}"
+                                                    Visibility="{x:Bind Timeout}" />
+                                            </Grid>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <TextBlock
+                                x:Name="NodeEmptyText"
+                                Grid.Row="1"
+                                Margin="0,24"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="{h:Tr Text='No matching nodes'}"
+                                Visibility="Collapsed" />
+                        </Grid>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
         </StackPanel>
 
         <Grid ColumnSpacing="10" Margin="0,2,0,0">

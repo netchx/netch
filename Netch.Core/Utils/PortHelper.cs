@@ -104,7 +104,8 @@ public static class PortHelper
                 Arguments = $" int ipv4 show excludedportrange {portType}",
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             }
         };
 

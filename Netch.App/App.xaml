@@ -154,6 +154,11 @@
                 <Setter Property="Padding" Value="12,3" />
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
             </Style>
+            <Style x:Key="NetchSelectableRow" TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                <Setter Property="MinHeight" Value="33" />
+                <Setter Property="Padding" Value="12,3" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
             <Style x:Key="NetchRowIndicator" TargetType="Border">
                 <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
                 <Setter Property="CornerRadius" Value="2" />
@@ -195,6 +200,9 @@
                 <Setter Property="MinHeight" Value="22" />
                 <Setter Property="Padding" Value="10,2" />
                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="NetchDangerMenuItem" TargetType="MenuFlyoutItem">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
             </Style>
 
             <!-- Let Mica show through the navigation pane. -->

@@ -191,7 +191,7 @@ internal static partial class Downloads
         try
         {
             using var process = Process.Start(new ProcessStartInfo(path, core.VersionArgument)
-                { UseShellExecute = false, RedirectStandardOutput = true, CreateNoWindow = true });
+                { UseShellExecute = false, RedirectStandardOutput = true, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden });
             if (process == null)
                 return "";
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));

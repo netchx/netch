@@ -166,6 +166,12 @@ public sealed partial class MainWindow : Window
         titleBar.ButtonPressedBackgroundColor = dark ? Color.FromArgb(0x0A, 0xFF, 0xFF, 0xFF) : Color.FromArgb(0x06, 0, 0, 0);
     }
 
+    private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItemContainer?.Tag is "Modes" && ContentFrame.Content is ModesPage modes)
+            modes.ReturnToList();
+    }
+
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItemContainer?.Tag is string tag && PageTypes.TryGetValue(tag, out var pageType) && ContentFrame.CurrentSourcePageType != pageType)

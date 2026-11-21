@@ -19,7 +19,7 @@ internal static class AppUpdate
 
             var script = Path.Combine(staging, "install.ps1");
             await File.WriteAllTextAsync(script, Installer, new UTF8Encoding(true));
-            var info = new ProcessStartInfo("powershell.exe") { UseShellExecute = false, CreateNoWindow = true };
+            var info = new ProcessStartInfo("powershell.exe") { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
             foreach (var arg in new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script, "-Previous", Environment.ProcessId.ToString(),
                          "-Source", source, "-Staging", staging, "-Destination", Global.NetchDir })
                 info.ArgumentList.Add(arg);

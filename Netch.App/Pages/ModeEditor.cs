@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.VisualStudio.Threading;
 using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Services;
 using Netch.Controllers;
@@ -19,6 +20,8 @@ namespace Netch.App.Pages;
 internal sealed class ModeEditor : UserControl
 {
     private readonly Mode? _original;
+    private readonly Mode? _template;
+    private readonly Action<bool>? _onClose;
     private readonly TextBox _name;
     private readonly TextBox _group;
     private readonly ComboBox _type;
@@ -31,17 +34,27 @@ internal sealed class ModeEditor : UserControl
     private readonly Dictionary<ModeType, Editor> _drafts = [];
     private sealed record Editor(Mode Mode, UIElement View, Action Read);
 
-    public ModeEditor(ModeType type, Mode? original)
+    public ModeEditor(ModeType type, Mode? original, Action<bool>? onClose = null, Mode? template = null)
     {
         _original = original;
-        _name = Input(T("Name", "名称"), original?.i18NRemark, search: true);
-        _group = Input(T("Group", "分组"), original == null ? "Custom" : ModesPage.GroupOf(original), search: true);
+        _template = template;
+        _onClose = onClose;
+        var initialName = original != null ? original.i18NRemark
+            : template != null ? TF("{0} (copy)", "{0} 副本", template.i18NRemark)
+            : null;
+        var seed = original ?? template;
+        var initialGroup = seed == null ? "Custom" : ModesPage.GroupOf(seed);
+        if (template != null && initialGroup.Length == 0)
+            initialGroup = "Custom";
+        _name = Input(T("Name", "名称"), initialName, search: true);
+        _group = Input(T("Group", "分组"), initialGroup, search: true);
         _group.Width = 142;
         _type = Choice(T("Type", "类型"), Enum.GetValues<ModeType>().Select(Helpers.Format.ModeTypeLongName), (int)type);
         _type.Width = 156;
 
-        var breadcrumb = new BreadcrumbBar { ItemsSource = new[] { T("Modes", "模式"), original?.i18NRemark ?? T("New mode", "新建模式") } };
-        breadcrumb.ItemClicked += (_, e) => { if (e.Index == 0) App.MainWindow?.Navigate("Modes", force: true); };
+        var breadcrumb = new BreadcrumbBar { ItemsSource = new[] { T("Modes", "模式"), initialName ?? T("New mode", "新建模式") } };
+        breadcrumb.ItemClicked += (_, e) => { if (e.Index == 0) Close(saved: false); };
+        var cancel = Button(T("Cancel", "取消"), () => Close(saved: false));
         var verify = Button(T("Validate rules", "验证规则"), () =>
         {
             var valid = ReadAndValidate() != null;
@@ -56,12 +69,20 @@ internal sealed class ModeEditor : UserControl
         {
             var detail = Body(_message, _editor);
             detail.RowSpacing = 0;
-            var layout = Body(Split(breadcrumb, Row(verify, AsyncButton(T("Save", "保存"), SaveAsync, true))),
+            var layout = Body(Split(breadcrumb, Row(cancel, verify, AsyncButton(T("Save", "保存"), SaveAsync, true))),
                 Split(Field(T("Name", "名称"), _name), Row(Field(T("Type", "类型"), _type), Field(T("Group", "分组"), _group))),
                 detail);
             layout.RowSpacing = 9;
             return Helpers.Ui.Page(layout);
         }
+    }
+
+    private void Close(bool saved)
+    {
+        if (_onClose != null)
+            _onClose(saved);
+        else
+            App.MainWindow?.Navigate("Modes", force: true);
     }
 
     private void ShowType()
@@ -76,11 +97,12 @@ internal sealed class ModeEditor : UserControl
 
     private Editor CreateEditor(ModeType type)
     {
+        var source = _original ?? _template;
         switch (type)
         {
             case ModeType.ProcessMode:
             {
-                var original = _original as Redirector;
+                var original = source as Redirector;
                 var mode = new Redirector
                 {
                     FilterTCP = original?.FilterTCP, FilterUDP = original?.FilterUDP, FilterICMP = original?.FilterICMP,
@@ -137,7 +159,7 @@ internal sealed class ModeEditor : UserControl
             }
             case ModeType.TunMode:
             {
-                var original = _original as TunMode;
+                var original = source as TunMode;
                 var global = original?.Network ?? Global.Settings.TUNTAP;
                 var config = new TUNConfig();
                 var mode = new TunMode { Network = config };
@@ -178,7 +200,7 @@ internal sealed class ModeEditor : UserControl
             default:
             {
                 var mode = new ShareMode();
-                var args = Input(T("pcap2socks arguments", "pcap2socks 参数"), (_original as ShareMode)?.Argument ?? mode.Argument);
+                var args = Input(T("pcap2socks arguments", "pcap2socks 参数"), (source as ShareMode)?.Argument ?? mode.Argument);
                 return new Editor(mode, Scroll(Card(Stack(args))), () => mode.Argument = args.Text);
             }
         }
@@ -248,11 +270,37 @@ internal sealed class ModeEditor : UserControl
                 Tag = rule, HorizontalContentAlignment = HorizontalAlignment.Stretch,
                 Content = Split(label, Caption(executables ? T("Regex", "正则") : "CIDR"))
             };
-            item.ContextFlyout = Menu((T("Delete", "删除"), () => list.Items.Remove(item)));
+            async Task EditSingleAsync()
+            {
+                var current = (string)item.Tag;
+                var box = Input(T("Edit rule", "编辑规则"), current);
+                if (!await ShowAsync(list.XamlRoot, T("Edit rule", "编辑规则"), box, T("Apply", "应用"), () =>
+                    {
+                        var updated = box.Text.Trim();
+                        return updated.Length == 0 ? T("Enter a rule.", "请输入规则。") : null;
+                    }))
+                    return;
+
+                var value = box.Text.Trim();
+                if (value == current)
+                    return;
+                if (list.Items.OfType<ListViewItem>().Any(i => i != item && Equals(i.Tag, value)))
+                {
+                    list.Items.Remove(item);
+                    return;
+                }
+                item.Tag = value;
+                label.Text = value;
+            }
+            item.ContextFlyout = IconMenu(
+                MenuItem(T("Edit rule", "编辑规则"), "\uE70F", () => EditSingleAsync().Forget()),
+                MenuItem(T("Copy", "复制"), "\uE8C8", () => Copy((string)item.Tag)),
+                new MenuFlyoutSeparator(),
+                MenuItem(T("Delete", "删除"), "\uE74D", () => list.Items.Remove(item), destructive: true));
             list.Items.Add(item);
         }
 
-        async Task Edit()
+        async Task EditAsync()
         {
             var box = Input(title, string.Join(Environment.NewLine, list.Items.OfType<ListViewItem>().Select(i => (string)i.Tag)),
                 multiline: true);
@@ -264,11 +312,11 @@ internal sealed class ModeEditor : UserControl
                 Add(rule);
         }
 
-        list.DoubleTapped += async (_, _) => await Edit();
+        list.DoubleTapped += (_, _) => EditAsync().Forget();
         foreach (var rule in initial)
             Add(rule);
 
-        var actions = Row(AsyncButton("＋", Edit));
+        var actions = Row(AsyncButton("＋", EditAsync));
         if (executables)
         {
             actions.Children.Add(AsyncButton(T("Choose…", "选择…"), async () =>
@@ -374,7 +422,7 @@ internal sealed class ModeEditor : UserControl
         }
 
         ModeService.Instance.Load(completeSceneDefaults: true);
-        App.MainWindow?.Navigate("Modes", force: true);
+        Close(saved: true);
     }
 
     internal static string NewPath(string group, string name)

@@ -32,21 +32,7 @@ public abstract class Guard
         if (!File.Exists(fileName))
             throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
 
-        Instance = new Process
-        {
-            StartInfo =
-            {
-                FileName = fileName,
-                WorkingDirectory = $"{Global.NetchDir}\\bin",
-                CreateNoWindow = true,
-                UseShellExecute = !RedirectOutput,
-                RedirectStandardOutput = RedirectOutput,
-                StandardOutputEncoding = RedirectOutput ? encoding : null,
-                RedirectStandardError = RedirectOutput,
-                StandardErrorEncoding = RedirectOutput ? encoding : null,
-                WindowStyle = ProcessWindowStyle.Hidden
-            }
-        };
+        Instance = CreateProcess(fileName);
     }
 
     protected string LogPath => Path.Combine(Global.NetchDir, $"logging\\{Name}.log");
@@ -76,22 +62,24 @@ public abstract class Guard
             throw new MessageException(i18N.Translate($"bin\\{mainFile} file not found!"));
 
         Instance.Dispose();
-        Instance = new Process
-        {
-            StartInfo =
-            {
-                FileName = fileName,
-                WorkingDirectory = $"{Global.NetchDir}\\bin",
-                CreateNoWindow = true,
-                UseShellExecute = !RedirectOutput,
-                RedirectStandardOutput = RedirectOutput,
-                StandardOutputEncoding = RedirectOutput ? _encoding : null,
-                RedirectStandardError = RedirectOutput,
-                StandardErrorEncoding = RedirectOutput ? _encoding : null,
-                WindowStyle = ProcessWindowStyle.Hidden
-            }
-        };
+        Instance = CreateProcess(fileName);
     }
+
+    private Process CreateProcess(string fileName) => new()
+    {
+        StartInfo =
+        {
+            FileName = fileName,
+            WorkingDirectory = $"{Global.NetchDir}\\bin",
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = RedirectOutput,
+            StandardOutputEncoding = RedirectOutput ? _encoding : null,
+            RedirectStandardError = RedirectOutput,
+            StandardErrorEncoding = RedirectOutput ? _encoding : null,
+            WindowStyle = ProcessWindowStyle.Hidden
+        }
+    };
 
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {

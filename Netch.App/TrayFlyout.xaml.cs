@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,9 +12,12 @@ using Netch.Enums;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;
+using Windows.Foundation;
 using Windows.Graphics;
 using Windows.Win32;
 using Windows.Win32.Foundation;
+using Windows.Win32.Graphics.Gdi;
+using Windows.Win32.UI.HiDpi;
 using Point = System.Drawing.Point;
 
 namespace Netch.App;
@@ -20,16 +25,18 @@ namespace Netch.App;
 /// <summary>Borderless window opened by a left click on the tray icon; hides itself when it loses focus.</summary>
 public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
 {
-    private const int FlyoutWidth = 310;
     private const int ScreenMargin = 12;
 
     private readonly HWND _hwnd;
     private long _hiddenAt;
+    private Point _lastAnchor;
+    private bool _hasAnchor;
 
     public TrayFlyout()
     {
         InitializeComponent();
-        _hwnd = new HWND(Microsoft.UI.Win32Interop.GetWindowFromWindowId(AppWindow.Id));
+        var hwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(AppWindow.Id);
+        _hwnd = new HWND(hwnd);
 
         var presenter = (OverlappedPresenter)AppWindow.Presenter;
         presenter.SetBorderAndTitleBar(false, false);
@@ -37,7 +44,18 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         presenter.IsMaximizable = false;
         presenter.IsMinimizable = false;
         presenter.IsAlwaysOnTop = true;
-        AppWindow.IsShownInSwitchers = false;
+        try
+        {
+            AppWindow.IsShownInSwitchers = false;
+        }
+        catch (NotImplementedException)
+        {
+            const int gwlExStyle = -20;
+            const nint wsExToolWindow = 0x00000080;
+            const nint wsExAppWindow = 0x00040000;
+            var exStyle = GetWindowLongPtr(hwnd, gwlExStyle);
+            SetWindowLongPtr(hwnd, gwlExStyle, (exStyle & ~wsExAppWindow) | wsExToolWindow);
+        }
 
         Activated += (_, e) =>
         {
@@ -46,6 +64,11 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
 
             AppWindow.Hide();
             _hiddenAt = Environment.TickCount64;
+        };
+        Root.SizeChanged += (_, _) =>
+        {
+            if (AppWindow.IsVisible && _hasAnchor)
+                UpdateBounds(_lastAnchor);
         };
         Session.PropertyChanged += Session_PropertyChanged;
         Closed += (_, _) => Session.PropertyChanged -= Session_PropertyChanged;
@@ -79,25 +102,53 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         if (Environment.TickCount64 - _hiddenAt < 300)
             return;
 
+        _lastAnchor = anchor;
+        _hasAnchor = true;
         LoadTiles();
-
-        var scale = PInvoke.GetDpiForWindow(_hwnd) / 96.0;
-        var border = WindowSize.InvisibleBorder(this);
-        var height = (HasTiles ? TileHeight : 37) + (Session.IsRunning ? 132 : 101);
-        AppWindow.Resize(new SizeInt32((int)Math.Ceiling(FlyoutWidth * scale) + border.Width,
-            (int)Math.Ceiling(height * scale) + border.Height));
-
-        // The outer size includes the window frame, which is what has to fit on screen.
-        var size = AppWindow.Size;
-        var area = DisplayArea.GetFromPoint(new PointInt32(anchor.X, anchor.Y), DisplayAreaFallback.Nearest).WorkArea;
-        var margin = (int)(ScreenMargin * scale);
-        var x = Math.Clamp(anchor.X - size.Width / 2, area.X + margin, area.X + area.Width - size.Width - margin);
-        var y = anchor.Y >= area.Y + area.Height / 2 ? area.Y + area.Height - size.Height - margin : area.Y + margin;
-        AppWindow.Move(new PointInt32(x, y));
+        UpdateBounds(anchor);
 
         AppWindow.Show();
         Activate();
         PInvoke.SetForegroundWindow(_hwnd);
+        DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
+        {
+            if (AppWindow.IsVisible && _hasAnchor)
+                UpdateBounds(_lastAnchor);
+        });
+    }
+
+    private void UpdateBounds(Point anchor)
+    {
+        Root.UpdateLayout();
+        Root.Measure(new Size(Root.Width, double.PositiveInfinity));
+        var desired = Root.DesiredSize;
+        var widthDip = Math.Max(Root.Width, Math.Ceiling(desired.Width));
+        var heightDip = desired.Height > 0 ? Math.Ceiling(desired.Height) : Math.Ceiling(Root.ActualHeight);
+        if (heightDip <= 0)
+            heightDip = HasTiles ? TileHeight + 132 : 148;
+
+        var scale = ScaleAt(anchor);
+        var area = DisplayArea.GetFromPoint(new PointInt32(anchor.X, anchor.Y), DisplayAreaFallback.Nearest).WorkArea;
+        var margin = (int)Math.Ceiling(ScreenMargin * scale);
+        var clientWidth = (int)Math.Ceiling(widthDip * scale);
+        var clientHeight = Math.Min((int)Math.Ceiling(heightDip * scale), Math.Max(100, area.Height - margin * 2));
+        if (AppWindow.ClientSize.Width != clientWidth || AppWindow.ClientSize.Height != clientHeight)
+            AppWindow.ResizeClient(new SizeInt32(clientWidth, clientHeight));
+
+        var size = AppWindow.Size;
+        var x = Math.Clamp(anchor.X - size.Width / 2, area.X + margin, area.X + area.Width - size.Width - margin);
+        var y = anchor.Y >= area.Y + area.Height / 2 ? area.Y + area.Height - size.Height - margin : area.Y + margin;
+        if (AppWindow.Position.X != x || AppWindow.Position.Y != y)
+            AppWindow.Move(new PointInt32(x, y));
+    }
+
+    private double ScaleAt(Point anchor)
+    {
+        var monitor = PInvoke.MonitorFromPoint(anchor, MONITOR_FROM_FLAGS.MONITOR_DEFAULTTONEAREST);
+        if (!monitor.IsNull && PInvoke.GetDpiForMonitor(monitor, MONITOR_DPI_TYPE.MDT_EFFECTIVE_DPI, out var dpiX, out _) == 0 && dpiX > 0)
+            return dpiX / 96.0;
+        var windowDpi = PInvoke.GetDpiForWindow(_hwnd);
+        return (windowDpi > 0 ? windowDpi : 96) / 96.0;
     }
 
     private void LoadTiles()
@@ -116,6 +167,14 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
         if (e.PropertyName is nameof(Session.State) or nameof(Session.ActiveScene) or nameof(Session.Latency))
             foreach (var tile in Tiles)
                 tile.Refresh();
+
+        if (AppWindow.IsVisible && _hasAnchor &&
+            e.PropertyName is nameof(Session.State) or nameof(Session.IsRunning) or nameof(Session.TrafficAvailable) or nameof(Session.ActiveScene) or nameof(Session.Progress))
+            DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
+            {
+                if (AppWindow.IsVisible && _hasAnchor)
+                    UpdateBounds(_lastAnchor);
+            });
     }
 
     public string Headline(State state) => i18N.Translate(state switch
@@ -160,4 +219,10 @@ public sealed partial class TrayFlyout : Window, INotifyPropertyChanged
     }
 
     private async void Exit_Click(object sender, RoutedEventArgs e) => await App.ExitAsync();
+
+    [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static partial nint GetWindowLongPtr(nint hwnd, int index);
+
+    [LibraryImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+    private static partial nint SetWindowLongPtr(nint hwnd, int index, nint newLong);
 }

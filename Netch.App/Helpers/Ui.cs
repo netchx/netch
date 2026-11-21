@@ -175,6 +175,27 @@ internal static class Ui
         return menu;
     }
 
+    public static MenuFlyoutItem MenuItem(string label, string glyph, Action action, bool destructive = false)
+    {
+        var item = new MenuFlyoutItem
+        {
+            Text = label,
+            Icon = new FontIcon { Glyph = glyph }
+        };
+        if (destructive)
+            item.Style = Resource<Style>("NetchDangerMenuItem");
+        item.Click += (_, _) => action();
+        return item;
+    }
+
+    public static MenuFlyout IconMenu(params MenuFlyoutItemBase[] items)
+    {
+        var menu = new MenuFlyout();
+        foreach (var item in items)
+            menu.Items.Add(item);
+        return menu;
+    }
+
     public static ScrollViewer Scroll(UIElement content) => new() { Content = content, HorizontalScrollMode = ScrollMode.Disabled };
 
     public static ListView Categories() => new()
@@ -222,19 +243,29 @@ internal static class Ui
         Margin = new Thickness(0, 0, 0, 2.5)
     };
 
-    public static async Task<bool> ShowAsync(XamlRoot root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null)
+    private static bool _dialogOpen;
+
+    public static async Task<bool> ShowAsync(XamlRoot root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null, double? contentMaxWidth = null)
     {
+        if (root is null || _dialogOpen)
+            return false;
+
         if (body is TextBlock text)
         {
             text.TextWrapping = TextWrapping.Wrap;
             text.TextTrimming = TextTrimming.None;
             text.IsTextSelectionEnabled = true;
         }
+        var scrollContent = body is TextBlock ? body : new Border { Padding = new Thickness(0, 0, 16, 0), Child = body };
+        var scroll = Scroll(scrollContent);
+        scroll.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+        if (root.Size.Height > 0)
+            scroll.MaxHeight = Math.Max(200, root.Size.Height - 230);
         var error = new InfoBar
         {
             Severity = InfoBarSeverity.Error, IsClosable = false, Margin = new Thickness(0, 0, 0, 9)
         };
-        var content = Body(error, Scroll(body));
+        var content = Body(error, scroll);
         content.RowSpacing = 0;
         var dialog = new ContentDialog
         {
@@ -244,6 +275,10 @@ internal static class Ui
             CloseButtonText = confirm == null ? T("Close", "关闭") : T("Cancel", "取消"),
             DefaultButton = confirm == null ? ContentDialogButton.Close : ContentDialogButton.Primary
         };
+        if (root.Size.Height > 0)
+            dialog.Resources["ContentDialogMaxHeight"] = Math.Max(360, root.Size.Height - 40);
+        if (contentMaxWidth.HasValue)
+            dialog.Resources["ContentDialogMaxWidth"] = contentMaxWidth.Value;
         if (apply != null)
             dialog.PrimaryButtonClick += (_, e) =>
             {
@@ -252,7 +287,15 @@ internal static class Ui
                 error.Message = message ?? "";
                 error.IsOpen = e.Cancel;
             };
-        return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        _dialogOpen = true;
+        try
+        {
+            return await dialog.ShowAsync() == ContentDialogResult.Primary;
+        }
+        finally
+        {
+            _dialogOpen = false;
+        }
     }
 
     public static void Copy(string value)

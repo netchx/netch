@@ -1,8 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Netch.App.Helpers;
+using Netch.App.Pages;
 using Netch.Models;
 using Netch.Models.Modes;
+using Netch.Models.Modes.ProcessMode;
 using Netch.Services;
 using Netch.Utils;
 
@@ -48,11 +50,30 @@ public sealed partial class SceneEditorViewModel : ObservableObject
     public partial string SceneName { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanSave), nameof(HasMode), nameof(NamePlaceholder))]
+    [NotifyPropertyChangedFor(
+        nameof(CanSave),
+        nameof(HasMode),
+        nameof(NoMode),
+        nameof(NamePlaceholder),
+        nameof(SelectedModeGroupName),
+        nameof(SelectedModeName),
+        nameof(SelectedModeType),
+        nameof(ModeButtonAutomationName))]
     public partial ModeOption? SelectedMode { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanSave))]
+    [NotifyPropertyChangedFor(
+        nameof(CanSave),
+        nameof(HasNode),
+        nameof(NoNode),
+        nameof(SelectedNodeGroupName),
+        nameof(SelectedNodeName),
+        nameof(SelectedNodeProtocol),
+        nameof(SelectedNodeDelayText),
+        nameof(SelectedNodeFastDelay),
+        nameof(SelectedNodeSlowDelay),
+        nameof(SelectedNodeTimeout),
+        nameof(NodeButtonAutomationName))]
     public partial NodeOption? SelectedNode { get; set; }
 
     [ObservableProperty]
@@ -64,10 +85,88 @@ public sealed partial class SceneEditorViewModel : ObservableObject
 
     public bool HasMode => SelectedMode != null;
 
+    public bool NoMode => !HasMode;
+
+    public bool HasNode => SelectedNode != null;
+
+    public bool NoNode => !HasNode;
+
     public bool CanSave => SelectedMode != null && SelectedNode != null;
+
+    public string SelectedModeGroupName => SelectedMode?.GroupName ?? string.Empty;
+
+    public string SelectedModeName => SelectedMode?.Name ?? string.Empty;
+
+    public string SelectedModeType => SelectedMode?.TypeName ?? string.Empty;
+
+    public string ModeButtonAutomationName => SelectedMode == null ? ModePlaceholder : $"{SelectedMode.GroupName} · {SelectedMode.Name}";
+
+    public string SelectedNodeGroupName => SelectedNode?.GroupName ?? string.Empty;
+
+    public string SelectedNodeName => SelectedNode?.Name ?? string.Empty;
+
+    public string SelectedNodeProtocol => SelectedNode?.Protocol ?? string.Empty;
+
+    public string SelectedNodeDelayText => SelectedNode?.DelayText ?? string.Empty;
+
+    public Visibility SelectedNodeFastDelay => SelectedNode?.FastDelay ?? Visibility.Collapsed;
+
+    public Visibility SelectedNodeSlowDelay => SelectedNode?.SlowDelay ?? Visibility.Collapsed;
+
+    public Visibility SelectedNodeTimeout => SelectedNode?.Timeout ?? Visibility.Collapsed;
+
+    public string NodeButtonAutomationName => SelectedNode == null ? NodePlaceholder : SelectedNode.Label;
 
     /// <summary>An empty name falls back to the mode name.</summary>
     public string NamePlaceholder => SelectedMode?.Mode.i18NRemark ?? string.Empty;
+
+    public IReadOnlyList<ModeOptionGroup> GetGroupedModes(string? query = null)
+    {
+        var filter = query?.Trim() ?? string.Empty;
+        return Modes
+            .Where(m => m.Matches(filter))
+            .GroupBy(m => m.GroupKey, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(g => Format.ModeGroupOrder(g.Key))
+            .ThenBy(g => Format.ModeGroupName(g.Key), StringComparer.OrdinalIgnoreCase)
+            .Select(g => new ModeOptionGroup(g.Key, Format.ModeGroupName(g.Key), g))
+            .ToArray();
+    }
+
+    public IReadOnlyList<NodeOptionGroup> GetGroupedNodes(string? query = null)
+    {
+        var filter = query?.Trim() ?? string.Empty;
+        var filtered = Nodes.Where(n => n.Matches(filter)).ToArray();
+        if (filtered.Length == 0)
+            return [];
+
+        var groups = new List<NodeOptionGroup>();
+        var matchedSubscriptions = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sub in Global.Settings.Subscription)
+        {
+            if (string.IsNullOrWhiteSpace(sub.Remark) || sub.Remark == Constants.DefaultGroup || !matchedSubscriptions.Add(sub.Remark))
+                continue;
+
+            var items = filtered.Where(n => string.Equals(n.GroupKey, sub.Remark, StringComparison.Ordinal)).ToArray();
+            if (items.Length > 0)
+                groups.Add(new NodeOptionGroup(sub.Remark, sub.Remark, items));
+        }
+
+        foreach (var orphan in filtered
+                     .Where(n => !string.IsNullOrEmpty(n.GroupKey)
+                                 && n.GroupKey != Constants.DefaultGroup
+                                 && !matchedSubscriptions.Contains(n.GroupKey))
+                     .GroupBy(n => n.GroupKey, StringComparer.Ordinal)
+                     .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
+        {
+            groups.Add(new NodeOptionGroup(orphan.Key, orphan.Key, orphan));
+        }
+
+        var manual = filtered.Where(n => string.IsNullOrEmpty(n.GroupKey) || n.GroupKey == Constants.DefaultGroup).ToArray();
+        if (manual.Length > 0)
+            groups.Add(new NodeOptionGroup(Constants.DefaultGroup, Ui.T("Added manually", "手动添加"), manual));
+
+        return groups;
+    }
 
     /// <summary>Captures the proposed edits before the asynchronous save.</summary>
     public Action<Scene> CaptureEdits()
@@ -90,28 +189,107 @@ public sealed partial class SceneEditorViewModel : ObservableObject
     }
 }
 
-public sealed class ModeOption(Mode mode)
+public sealed class ModeOptionGroup : List<ModeOption>
 {
-    public Mode Mode { get; } = mode;
+    public ModeOptionGroup(string key, string name, IEnumerable<ModeOption> items) : base(items)
+    {
+        Key = key;
+        Name = name;
+    }
 
-    public override string ToString() => $"{Format.ModeTypeLongName(Mode.Type)} · {Mode.i18NRemark}";
+    public string Key { get; }
+    public string Name { get; }
+    public string CountText => Count.ToString();
+    public override string ToString() => $"{Name} ({Count})";
 }
 
-public sealed class NodeOption(Server server)
+public sealed class NodeOptionGroup : List<NodeOption>
 {
-    public Server Server { get; } = server;
+    public NodeOptionGroup(string key, string name, IEnumerable<NodeOption> items) : base(items)
+    {
+        Key = key;
+        Name = name;
+    }
 
-    public string Name { get; } = Format.NodeName(server);
+    public string Key { get; }
+    public string Name { get; }
+    public string CountText => Count.ToString();
+    public override string ToString() => $"{Name} ({Count})";
+}
 
-    public string Label { get; } = $"{Format.NodeName(server)} · {server.ConfigType} · {server.Group}";
+public sealed class ModeOption
+{
+    public ModeOption(Mode mode)
+    {
+        Mode = mode;
+        GroupKey = ModesPage.GroupOf(mode);
+        GroupName = Format.ModeGroupName(GroupKey);
+        Name = mode.i18NRemark;
+        TypeName = Format.ModeTypeName(mode.Type);
+        var rules = mode is Redirector process
+            ? string.Join(' ', process.Handle.Concat(process.Bypass))
+            : string.Empty;
+        SearchIndex = $"{Name} {GroupName} {GroupKey} {TypeName} {rules}";
+    }
 
-    public string DelayText { get; } = Format.Delay(server.Delay);
+    public Mode Mode { get; }
+
+    public string GroupKey { get; }
+
+    public string GroupName { get; }
+
+    public string Name { get; }
+
+    public string TypeName { get; }
+
+    private string SearchIndex { get; }
+
+    public bool Matches(string query) =>
+        string.IsNullOrEmpty(query) || SearchIndex.Contains(query, StringComparison.OrdinalIgnoreCase);
+
+    public override string ToString() => $"{Format.ModeTypeLongName(Mode.Type)} · {Name}";
+}
+
+public sealed class NodeOption
+{
+    public NodeOption(Server server)
+    {
+        Server = server;
+        Name = Format.NodeName(server);
+        Protocol = ServerHelper.GetDisplayName(server.ConfigType);
+        GroupKey = server.Group;
+        GroupName = string.IsNullOrEmpty(server.Group) || server.Group == Constants.DefaultGroup
+            ? Ui.T("Added manually", "手动添加")
+            : server.Group;
+        Label = $"{Name} · {Protocol} · {GroupName}";
+        DelayText = Format.Delay(server.Delay);
+        SearchIndex = $"{Name} {server.Address} {Protocol} {GroupName}";
+    }
+
+    public Server Server { get; }
+
+    public string Name { get; }
+
+    public string Protocol { get; }
+
+    public string GroupKey { get; }
+
+    public string GroupName { get; }
+
+    public string Label { get; }
+
+    public string DelayText { get; }
+
+    private string SearchIndex { get; }
 
     public Visibility FastDelay => Server.Delay is >= 0 and < 100 ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility SlowDelay => Server.Delay is >= 100 and < 1000 ? Visibility.Visible : Visibility.Collapsed;
 
     public Visibility Timeout => Server.Delay is >= 1000 or < -1 ? Visibility.Visible : Visibility.Collapsed;
+
+    public bool Matches(string query) =>
+        string.IsNullOrEmpty(query) || SearchIndex.Contains(query, StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Used by the combo box text search.</summary>
     public override string ToString() => Name;

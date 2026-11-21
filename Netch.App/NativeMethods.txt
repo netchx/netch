@@ -13,6 +13,7 @@ GetSystemMetricsForDpi
 LoadImage
 InsertMenuItem
 MessageBox
+MonitorFromPoint
 PostMessage
 RegisterClassEx
 RegisterHotKey
@@ -25,6 +26,9 @@ WM_CONTEXTMENU
 WM_HOTKEY
 WM_NULL
 WM_USER
+
+// Shcore.dll
+GetDpiForMonitor
 
 // Shell32.dll
 Shell_NotifyIcon

@@ -23,6 +23,28 @@ public static class Format
         _ => type.ToString()
     });
 
+    public static int ModeGroupOrder(string key) => key switch
+    {
+        "Game" => 0,
+        "Bypass" => 1,
+        "TUNTAP" => 2,
+        "Other" => 3,
+        "Custom" => 4,
+        "" => 5,
+        _ => 6
+    };
+
+    public static string ModeGroupName(string key) => key switch
+    {
+        "Game" => i18N.Translate("Game"),
+        "Bypass" => i18N.Translate("Bypass rules"),
+        "TUNTAP" => "TUN",
+        "Other" => i18N.Translate("Other"),
+        "Custom" => i18N.Translate("Custom"),
+        "" => i18N.Translate("Ungrouped"),
+        _ => key
+    };
+
     public static string TileTitle(string icon, string name) => $"{icon} {name}";
 
     public static string NodeName(Server server) => server.Remarks.IsNullOrWhiteSpace() ? $"{server.Address}:{server.Port}" : server.Remarks;

@@ -38,20 +38,7 @@ namespace Netch.Interops
                 var processPath = Path.Combine(Global.NetchDir, Constants.TUN2SocksFile);
                 Log.Verbose("[tun2socks] Path: {Path}", processPath);
 
-                ProcessStartInfo info = new ProcessStartInfo(processPath)
-                {
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardInput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = false,
-                    StandardErrorEncoding = Encoding.UTF8,
-                    StandardInputEncoding = Encoding.UTF8,
-                    StandardOutputEncoding = Encoding.UTF8
-                };
-
-                foreach (var argument in BuildArgs(interfaceName, proxyHost, proxyPort, username, password))
-                    info.ArgumentList.Add(argument);
+                var info = BuildStartInfo(processPath, interfaceName, proxyHost, proxyPort, username, password);
 
                 process = new Process()
                 {
@@ -194,6 +181,27 @@ namespace Netch.Interops
                 PInvoke.FreeConsole();
                 PInvoke.SetConsoleCtrlHandler(null, false);
             }
+        }
+
+        public static ProcessStartInfo BuildStartInfo(string processPath, string interfaceName, string proxyHost, int proxyPort, string? username = null, string? password = null)
+        {
+            var info = new ProcessStartInfo(processPath)
+            {
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                StandardErrorEncoding = Encoding.UTF8,
+                StandardInputEncoding = Encoding.UTF8,
+                StandardOutputEncoding = Encoding.UTF8
+            };
+
+            foreach (var argument in BuildArgs(interfaceName, proxyHost, proxyPort, username, password))
+                info.ArgumentList.Add(argument);
+
+            return info;
         }
 
         private static string[] BuildArgs(string interfaceName, string host, int port, string? username, string? password)
