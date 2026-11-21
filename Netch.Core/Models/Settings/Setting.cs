@@ -33,9 +33,9 @@ public class Setting
     public bool CheckUpdateWhenOpened { get; set; } = true;
 
     /// <summary>
-    ///     测试所有服务器心跳/秒
+    ///     测试所有服务器心跳/秒（0 为仅手动测速）
     /// </summary>
-    public int DetectionTick { get; set; } = 10;
+    public int DetectionTick { get; set; } = 0;
 
     /// <summary>
     ///     是否关闭窗口时退出
@@ -106,6 +106,31 @@ public class Setting
     ///     服务器测试方式 false.ICMPing true.TCPing
     /// </summary>
     public bool ServerTCPing { get; set; } = true;
+
+    /// <summary>
+    ///     延迟测试模式
+    /// </summary>
+    public DelayTestMode DelayTestMode { get; set; } = DelayTestMode.Hybrid;
+
+    /// <summary>
+    ///     真连接测速 URL
+    /// </summary>
+    public string DelayTestUrl { get; set; } = Constants.DefaultDelayTestUrl;
+
+    /// <summary>
+    ///     延迟测试单次超时（毫秒）
+    /// </summary>
+    public int DelayTestTimeout { get; set; } = Constants.DefaultDelayTestTimeout;
+
+    /// <summary>
+    ///     真连接测速是否执行稳态二次请求（复用同一隧道连接）
+    /// </summary>
+    public bool DelayTestSteadySecondRequest { get; set; } = false;
+
+    /// <summary>
+    ///     测速配置迁移版本
+    /// </summary>
+    public int? DelayTestConfigVersion { get; set; }
 
     /// <summary>
     ///     Socks5 本地端口

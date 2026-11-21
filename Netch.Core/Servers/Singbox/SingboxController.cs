@@ -107,11 +107,86 @@ public sealed class SingboxController : Guard, IServerController
         return config;
     }
 
-    private Dictionary<string, object?> BuildProxy(Server server)
+    internal static Dictionary<string, object?> BuildBatchProbeConfig(
+        IReadOnlyList<(string Tag, Server Server)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        var built = entries.Select(e => (e.Tag, e.Server, Proxy: BuildProxy(e.Server, e.Tag))).ToList();
+        return BuildBatchProbeConfig(built, listenPort, secret);
+    }
+
+    internal static Dictionary<string, object?> BuildBatchProbeConfig(
+        IReadOnlyList<(string Tag, Server Server, Dictionary<string, object?> Proxy)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        var resolver = new Dictionary<string, object?> { ["type"] = "local", ["tag"] = "bootstrap" };
+        if (IPAddress.TryParse(Global.Settings.OutboundDNS, out var dnsAddress))
+        {
+            resolver["type"] = "udp";
+            resolver["server"] = dnsAddress.ToString();
+        }
+
+        var endpoints = new List<Dictionary<string, object?>>();
+        var outbounds = new List<Dictionary<string, object?>>();
+        foreach (var (_, server, proxy) in entries)
+        {
+            if (server.ConfigType is EConfigType.MASQUE or EConfigType.WireGuard)
+                endpoints.Add(proxy);
+            else
+                outbounds.Add(proxy);
+        }
+        outbounds.Add(new Dictionary<string, object?> { ["type"] = "block", ["tag"] = "block" });
+
+        var config = new Dictionary<string, object?>
+        {
+            ["log"] = new Dictionary<string, object?>
+            {
+                ["level"] = "info",
+                ["timestamp"] = true
+            },
+            ["inbounds"] = new[]
+            {
+                new Dictionary<string, object?>
+                {
+                    ["type"] = "socks",
+                    ["tag"] = "probe-in",
+                    ["listen"] = "127.0.0.1",
+                    ["listen_port"] = listenPort,
+                    ["users"] = entries.Select(e => new Dictionary<string, object?>
+                    {
+                        ["username"] = e.Tag,
+                        ["password"] = secret
+                    }).ToArray()
+                }
+            },
+            ["dns"] = new { servers = new[] { resolver } },
+            ["outbounds"] = outbounds,
+            ["route"] = new Dictionary<string, object?>
+            {
+                ["auto_detect_interface"] = !entries.Any(e => e.Server.ConfigType == EConfigType.WireGuard),
+                ["default_domain_resolver"] = "bootstrap",
+                ["rules"] = entries.Select(e => new Dictionary<string, object?>
+                {
+                    ["auth_user"] = new[] { e.Tag },
+                    ["outbound"] = e.Tag
+                }).ToArray(),
+                ["final"] = "block"
+            }
+        };
+
+        if (endpoints.Count > 0)
+            config["endpoints"] = endpoints;
+
+        return config;
+    }
+
+    internal static Dictionary<string, object?> BuildProxy(Server server, string tag = "proxy")
     {
         var extra = server.ProtoExtra;
         if (server.ConfigType == EConfigType.WireGuard)
-            return BuildWireGuard(server);
+            return BuildWireGuard(server, tag);
 
         var tls = BuildTls(server);
 
@@ -120,7 +195,7 @@ public sealed class SingboxController : Guard, IServerController
             var endpoint = new Dictionary<string, object?>
             {
                 ["type"] = "masque-client",
-                ["tag"] = "proxy",
+                ["tag"] = tag,
                 ["server"] = server.Address,
                 ["server_port"] = server.Port,
                 ["username"] = server.Username,
@@ -135,7 +210,7 @@ public sealed class SingboxController : Guard, IServerController
 
         var outbound = new Dictionary<string, object?>
         {
-            ["tag"] = "proxy",
+            ["tag"] = tag,
             ["server"] = server.Address,
             ["server_port"] = server.Port,
             ["tls"] = tls
@@ -338,7 +413,7 @@ public sealed class SingboxController : Guard, IServerController
         if (extra.Uot == true) outbound["udp_over_tcp"] = true;
     }
 
-    private static Dictionary<string, object?> BuildWireGuard(Server server)
+    private static Dictionary<string, object?> BuildWireGuard(Server server, string tag = "proxy")
     {
         var extra = server.ProtoExtra;
         var addresses = Utils.Utils.String2List(extra.WgInterfaceAddress);
@@ -362,7 +437,7 @@ public sealed class SingboxController : Guard, IServerController
         return new()
         {
             ["type"] = "wireguard",
-            ["tag"] = "proxy",
+            ["tag"] = tag,
             ["address"] = addresses.Select(address =>
             {
                 var value = address.Trim();
@@ -489,7 +564,7 @@ public sealed class SingboxController : Guard, IServerController
         return result;
     }
 
-    private static string FindExecutable()
+    internal static string FindExecutable()
     {
         var candidates = new[]
         {

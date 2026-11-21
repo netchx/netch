@@ -36,10 +36,91 @@ public static class V2rayConfigUtils
         return v2rayConfig;
     }
 
-    private static Outbounds4Ray GenerateOutbound(Server server)
+    internal static V2rayConfig GenerateBatchProbeConfig(
+        IReadOnlyList<(string Tag, Server Server)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        var built = entries.Select(e => (e.Tag, e.Server, Outbound: GenerateOutbound(e.Server, e.Tag))).ToList();
+        return GenerateBatchProbeConfig(built, listenPort, secret);
+    }
+
+    internal static V2rayConfig GenerateBatchProbeConfig(
+        IReadOnlyList<(string Tag, Server Server, Outbounds4Ray Outbound)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        var domains = entries
+            .Select(e => e.Server.Address)
+            .Where(address => !string.IsNullOrWhiteSpace(address))
+            .Select(address => $"domain:{address}")
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var hasOutboundDns = !string.IsNullOrWhiteSpace(Global.Settings.OutboundDNS);
+        var dnsServers = new List<object>();
+        if (hasOutboundDns)
+        {
+            dnsServers.Add(new DnsServer4Ray
+            {
+                address = Global.Settings.OutboundDNS,
+                domains = domains.Count > 0 ? domains : null,
+                skipFallback = false
+            });
+        }
+        dnsServers.Add("localhost");
+
+        var v2rayConfig = new V2rayConfig
+        {
+            log = new Log4Ray
+            {
+                loglevel = Constants.LogLevels[2]
+            },
+            dns = new Dns4Ray
+            {
+                servers = dnsServers
+            },
+            inbounds =
+            [
+                new Inbounds4Ray
+                {
+                    tag = "probe-in",
+                    listen = "127.0.0.1",
+                    port = listenPort,
+                    protocol = "socks",
+                    settings = new Inboundsettings4Ray
+                    {
+                        auth = "password",
+                        udp = false,
+                        accounts = entries.Select(e => new AccountsItem4Ray { user = e.Tag, pass = secret }).ToList()
+                    }
+                }
+            ],
+            outbounds =
+            [
+                .. entries.Select(e => e.Outbound),
+                new Outbounds4Ray { tag = "block", protocol = "blackhole" }
+            ],
+            routing = new Routing4Ray
+            {
+                domainStrategy = "AsIs",
+                rules = entries.Select(e => new RulesItem4Ray
+                {
+                    type = "field",
+                    user = [e.Tag],
+                    outboundTag = e.Tag
+                }).ToList()
+            }
+        };
+
+        return v2rayConfig;
+    }
+
+    internal static Outbounds4Ray GenerateOutbound(Server server, string tag = "proxy")
     {
         var outbound = new Outbounds4Ray
         {
+            tag = tag,
             settings = new Outboundsettings4Ray(),
         };
 

@@ -167,29 +167,31 @@ public static class Socks5ServerTestUtils
 
     public static async Task<int?> HttpConnectAsync(SocksServer socks5, CancellationToken ctx)
     {
-        using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ctx);
-        timeoutCts.CancelAfter(Math.Max(1000, Global.Settings.RequestTimeout));
-        ctx = timeoutCts.Token;
+        var timeoutMs = Math.Clamp(Global.Settings.DelayTestTimeout, Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
+        var address = await DnsUtils.LookupAsync(socks5.Address).WaitAsync(ctx);
+        if (address == null)
+            return null;
 
-        var socks5Option = new Socks5CreateOption
-        {
-            Address = await DnsUtils.LookupAsync(socks5.Address).WaitAsync(ctx),
-            Port = (ushort)socks5.Port,
-            UsernamePassword = new UsernamePassword
-            {
-                UserName = socks5.Username,
-                Password = socks5.Password
-            }
-        };
+        if (address.Equals(IPAddress.Any))
+            address = IPAddress.Loopback;
+        else if (address.Equals(IPAddress.IPv6Any))
+            address = IPAddress.IPv6Loopback;
 
-        var stopwatch = Stopwatch.StartNew();
+        var testUri = Uri.TryCreate(Global.Settings.DelayTestUrl, UriKind.Absolute, out var parsed) &&
+                      (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps)
+            ? parsed
+            : new Uri(Constants.DefaultDelayTestUrl);
 
-        var result = await Socks5.Utils.Socks5TestUtils.Socks5ConnectAsync(socks5Option, token: ctx);
+        var delay = await CoreDelayTester.ProbeOverSocks5Async(
+            address.ToString(),
+            (ushort)socks5.Port,
+            socks5.Username,
+            socks5.Password,
+            testUri,
+            timeoutMs,
+            Global.Settings.DelayTestSteadySecondRequest,
+            ctx);
 
-        stopwatch.Stop();
-        if (result)
-            return Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
-
-        return null;
+        return DelayStatus.IsValid(delay) ? delay : null;
     }
 }

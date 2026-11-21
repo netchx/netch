@@ -32,6 +32,11 @@ public static class Constants
     public const string DefaultPrimaryDNS = "1.1.1.1";
     public const string DefaultCNPrimaryDNS = "223.5.5.5";
 
+    public const string DefaultDelayTestUrl = "http://www.gstatic.com/generate_204";
+    public const int DefaultDelayTestTimeout = 3000;
+    public const int MinDelayTestTimeout = 500;
+    public const int MaxDelayTestTimeout = 15000;
+
 
 
 

@@ -282,11 +282,11 @@ public sealed class NodeOption
 
     private string SearchIndex { get; }
 
-    public Visibility FastDelay => Server.Delay is >= 0 and < 100 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility FastDelay => Server.Delay is >= 0 and < 200 ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility SlowDelay => Server.Delay is >= 100 and < 1000 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility SlowDelay => Server.Delay >= 200 ? Visibility.Visible : Visibility.Collapsed;
 
-    public Visibility Timeout => Server.Delay is >= 1000 or < -1 ? Visibility.Visible : Visibility.Collapsed;
+    public Visibility Timeout => DelayStatus.IsFailure(Server.Delay) ? Visibility.Visible : Visibility.Collapsed;
 
     public bool Matches(string query) =>
         string.IsNullOrEmpty(query) || SearchIndex.Contains(query, StringComparison.OrdinalIgnoreCase);

@@ -123,7 +123,7 @@ public sealed partial class SettingsPage : Page
             Setting("文", T("Language", "语言"), language),
             Heading(T("Network", "网络")),
             Setting("⇄", T("Local mixed port", "本地混合端口"), Row(port, lan), T("Allow LAN connections", "允许局域网连接")),
-            Setting("◎", T("Latency test · STUN", "测速方式 · STUN"), AsyncButton(settings.ServerTCPing ? "TCPing ›" : "ICMPing ›", EditProbeAsync)),
+            Setting("◎", T("Latency test · STUN", "测速方式 · STUN"), AsyncButton($"{ProbeModeLabel(settings.DelayTestMode)} ›", EditProbeAsync)),
             Setting("◇", "DNS", AsyncButton("›", EditDnsAsync), T("AioDNS · Outbound DNS", "AioDNS · 出站 DNS")));
 
         var advanced = Stack(
@@ -253,25 +253,104 @@ public sealed partial class SettingsPage : Page
         _settingsError.IsOpen = true;
     }
 
+    private static string ProbeModeLabel(DelayTestMode mode) => mode switch
+    {
+        DelayTestMode.Hybrid => T("Smart hybrid", "智能混合"),
+        DelayTestMode.UrlTest => "URL-Test",
+        DelayTestMode.TCPing => "TCPing",
+        DelayTestMode.ICMPing => "ICMPing",
+        _ => T("Smart hybrid", "智能混合")
+    };
+
     private async Task EditProbeAsync()
     {
         var s = Global.Settings;
-        var method = Choice(T("Latency test", "测速方式"), ["TCPing", "ICMPing"], s.ServerTCPing ? 0 : 1);
+        var method = Choice(
+            T("Latency test", "测速方式"),
+            [
+                T("Smart hybrid (recommended)", "智能混合（推荐）"),
+                T("Real connection (URL-Test)", "真连接测速（URL-Test）"),
+                "TCPing",
+                "ICMPing"
+            ],
+            (int)s.DelayTestMode);
+        method.Header = T("Latency test", "测速方式");
+        method.HorizontalAlignment = HorizontalAlignment.Stretch;
+        var url = Input(T("Test URL", "测速 URL"), s.DelayTestUrl);
+        var timeout = Input(T("Timeout (ms)", "超时时间（毫秒）"), s.DelayTestTimeout.ToString());
+        var steady = new CheckBox
+        {
+            Content = T("Measure steady-state RTT (second request on same tunnel)", "测稳态延迟（同一隧道发第二次请求）"),
+            IsChecked = s.DelayTestSteadySecondRequest
+        };
+        var interval = Input(T("Auto test interval (s, 0 = manual only)", "自动测速间隔（秒，0 为仅手动）"), s.DetectionTick.ToString());
         var stun = Input(T("STUN host", "STUN 主机"), s.STUN_Server);
         var port = Input(T("STUN port", "STUN 端口"), s.STUN_Server_Port.ToString());
-        if (await ShowAsync(XamlRoot, T("Latency test · STUN", "测速方式 · STUN"), Stack(method, stun, port), T("Save", "保存"), () =>
+        if (await ShowAsync(XamlRoot, T("Latency test · STUN", "测速方式 · STUN"),
+            Stack(method, url, timeout, steady, interval, stun, port), T("Save", "保存"), () =>
         {
-            if (Uri.CheckHostName(stun.Text.Trim()) == UriHostNameType.Unknown || !ushort.TryParse(port.Text, out var value) || value == 0)
+            var rawUrl = url.Text.Trim();
+            if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out var parsedUrl) ||
+                (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
+                return T("Enter a valid HTTP or HTTPS test URL.", "请输入有效的 HTTP 或 HTTPS 测速 URL。");
+            if (!int.TryParse(timeout.Text.Trim(), out var timeoutMs) ||
+                timeoutMs < Constants.MinDelayTestTimeout || timeoutMs > Constants.MaxDelayTestTimeout)
+                return TF("Enter a timeout between {0} and {1} ms.", "请输入 {0} 至 {1} 毫秒之间的超时时间。",
+                    Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
+            if (!int.TryParse(interval.Text.Trim(), out var tickSeconds) ||
+                (tickSeconds != 0 && (tickSeconds < 10 || tickSeconds > 86400)))
+                return T("Enter 0 for manual testing, or an interval between 10 and 86400 seconds.", "请输入 0（仅手动）或 10 至 86400 秒之间的间隔。");
+            if (Uri.CheckHostName(stun.Text.Trim()) == UriHostNameType.Unknown || !ushort.TryParse(port.Text.Trim(), out var value) || value == 0)
                 return T("Enter a STUN host and a valid port.", "请输入 STUN 主机及有效端口。");
             return null;
         }))
         {
-            var previous = (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port);
-            var next = (method.SelectedIndex == 0, stun.Text.Trim(), (int)ushort.Parse(port.Text));
+            var nextMode = (DelayTestMode)Math.Clamp(method.SelectedIndex, 0, 3);
+            var nextUrl = url.Text.Trim();
+            var nextTimeout = int.Parse(timeout.Text.Trim());
+            var nextSteady = steady.IsChecked == true;
+            var nextTick = int.Parse(interval.Text.Trim());
+            var nextStun = stun.Text.Trim();
+            var nextStunPort = (int)ushort.Parse(port.Text.Trim());
+
+            var previous = (
+                s.DelayTestMode,
+                s.ServerTCPing,
+                s.DelayTestUrl,
+                s.DelayTestTimeout,
+                s.DelayTestSteadySecondRequest,
+                s.DetectionTick,
+                s.DelayTestConfigVersion,
+                s.STUN_Server,
+                s.STUN_Server_Port);
+
             if (await SaveSettingAsync(
-                () => (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port) = next,
-                () => (s.ServerTCPing, s.STUN_Server, s.STUN_Server_Port) = previous))
+                () =>
+                {
+                    s.DelayTestMode = nextMode;
+                    s.ServerTCPing = nextMode != DelayTestMode.ICMPing;
+                    s.DelayTestUrl = nextUrl;
+                    s.DelayTestTimeout = nextTimeout;
+                    s.DelayTestSteadySecondRequest = nextSteady;
+                    s.DetectionTick = nextTick;
+                    s.DelayTestConfigVersion = 1;
+                    s.STUN_Server = nextStun;
+                    s.STUN_Server_Port = nextStunPort;
+                },
+                () => (
+                    s.DelayTestMode,
+                    s.ServerTCPing,
+                    s.DelayTestUrl,
+                    s.DelayTestTimeout,
+                    s.DelayTestSteadySecondRequest,
+                    s.DetectionTick,
+                    s.DelayTestConfigVersion,
+                    s.STUN_Server,
+                    s.STUN_Server_Port) = previous))
+            {
+                DelayTestHelper.UpdateTick(false);
                 App.MainWindow?.Navigate("Settings", force: true);
+            }
         }
     }
 

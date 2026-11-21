@@ -39,6 +39,7 @@ public static class AppEvents
 
     public static event Action? SubscriptionChanged;
     public static event Action? NodeDelaysChanged;
+    public static event Action<bool, int, int>? DelayTestProgressChanged;
 
     /// <summary>A single mode was removed from <see cref="Global.Modes" />.</summary>
     public static event Action<Mode>? ModeDeleted;
@@ -66,6 +67,8 @@ public static class AppEvents
 
     public static void RaiseSubscriptionChanged() => SubscriptionChanged?.Invoke();
     public static void RaiseNodeDelaysChanged() => NodeDelaysChanged?.Invoke();
+    public static void RaiseDelayTestProgress(bool isTesting, int completed, int total) =>
+        DelayTestProgressChanged?.Invoke(isTesting, completed, total);
 
     public static void RaiseModesChanged() => ModesChanged?.Invoke();
 

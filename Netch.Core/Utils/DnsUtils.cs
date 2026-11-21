@@ -1,8 +1,8 @@
-﻿using DnsClient;
-using Microsoft.VisualStudio.Threading;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using DnsClient;
+using Microsoft.VisualStudio.Threading;
 
 namespace Netch.Utils;
 
@@ -15,129 +15,232 @@ public static class DnsUtils
     /// </summary>
     private const int SystemResolverTimeout = 10000;
 
-    /// <summary>
-    ///     缓存
-    /// </summary>
-    private static readonly ConcurrentDictionary<string, IPAddress> Cache = new();
-    private static readonly ConcurrentDictionary<string, IPAddress> Cache6 = new();
+    private const long CacheTtlMs = 5 * 60 * 1000;
+
+    private readonly record struct CacheEntry(IPAddress[] Addresses, long ExpiresAtTicks);
 
     /// <summary>
-    ///     Lookups used to be serialized behind a single global lock, so one slow
-    ///     hostname delayed every delay test, NAT test and start-up lookup behind
-    ///     it. Lookups now run concurrently and identical requests share one query.
+    ///     TTL-bounded DNS caches split by address family.
     /// </summary>
-    private static readonly ConcurrentDictionary<(string Hostname, AddressFamily Inet, string? Dns), AsyncLazy<IPAddress?>> InFlight = new();
+    private static readonly ConcurrentDictionary<string, CacheEntry> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, CacheEntry> Cache6 = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Lookups run concurrently and identical requests share one query.
+    /// </summary>
+    private static readonly ConcurrentDictionary<(string Hostname, AddressFamily Inet, string? Dns), AsyncLazy<IPAddress[]>> InFlight = new();
+
+    private static readonly ConcurrentDictionary<string, LookupClient> Clients = new(StringComparer.Ordinal);
 
     public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified,
         int timeout = 3000, string? dns = null, bool useCache = true)
     {
+        var addresses = await LookupAllAsync(hostname, inet, timeout, dns, useCache);
+        return addresses.FirstOrDefault();
+    }
+
+    public static async Task<IPAddress[]> LookupAllAsync(
+        string hostname,
+        AddressFamily inet = AddressFamily.Unspecified,
+        int timeout = 3000,
+        string? dns = null,
+        bool useCache = true,
+        CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(hostname))
+            return [];
+
+        hostname = hostname.Trim();
+
         if (IPAddress.TryParse(hostname, out var ip))
         {
-            // AddressFamily 过滤
             if (inet == AddressFamily.Unspecified || ip.AddressFamily == inet)
-                return ip;
+                return [ip];
+
+            return [];
         }
+
+        ct.ThrowIfCancellationRequested();
+
+        if (useCache && GetCached(hostname, inet) is { Length: > 0 } cached)
+            return cached;
+
+        var normalizedDns = string.IsNullOrWhiteSpace(dns) ? null : dns.Trim();
+        var key = (hostname.ToLowerInvariant(), inet, normalizedDns);
+        var lookup = InFlight.GetOrAdd(key,
+            k => new AsyncLazy<IPAddress[]>(async () =>
+            {
+                try
+                {
+                    return await LookupNoCacheAsync(k.Hostname, k.Inet, timeout, k.Dns);
+                }
+                finally
+                {
+                    InFlight.TryRemove(k, out _);
+                }
+            }, null));
 
         try
         {
-            if (useCache && GetCached(hostname, inet) is { } cached)
-                return cached;
-
-            var key = (hostname, inet, string.IsNullOrWhiteSpace(dns) ? null : dns);
-            var lookup = InFlight.GetOrAdd(key,
-                k => new AsyncLazy<IPAddress?>(() => LookupNoCacheAsync(k.Hostname, k.Inet, timeout, k.Dns), null));
-
-            try
-            {
-                return await lookup.GetValueAsync();
-            }
-            finally
-            {
-                InFlight.TryRemove(new KeyValuePair<(string, AddressFamily, string?), AsyncLazy<IPAddress?>>(key, lookup));
-            }
+            return await lookup.GetValueAsync().WaitAsync(ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception e)
         {
             Log.Verbose(e, "Lookup hostname {Hostname} failed", hostname);
+            return [];
+        }
+    }
+
+    private static IPAddress[]? GetCached(string hostname, AddressFamily inet)
+    {
+        return inet switch
+        {
+            AddressFamily.Unspecified => CombineCached(TryGetValid(Cache, hostname), TryGetValid(Cache6, hostname)),
+            AddressFamily.InterNetwork => TryGetValid(Cache, hostname),
+            AddressFamily.InterNetworkV6 => TryGetValid(Cache6, hostname),
+            _ => throw new ArgumentOutOfRangeException(nameof(inet))
+        };
+    }
+
+    private static IPAddress[]? CombineCached(IPAddress[]? v4, IPAddress[]? v6)
+    {
+        if (v4 is { Length: > 0 } && v6 is { Length: > 0 })
+            return [.. v4, .. v6];
+
+        return v4 ?? v6;
+    }
+
+    private static IPAddress[]? TryGetValid(ConcurrentDictionary<string, CacheEntry> cache, string hostname)
+    {
+        if (!cache.TryGetValue(hostname, out var entry))
             return null;
-        }
+
+        if (Environment.TickCount64 < entry.ExpiresAtTicks)
+            return entry.Addresses;
+
+        cache.TryRemove(new KeyValuePair<string, CacheEntry>(hostname, entry));
+        return null;
     }
 
-    private static IPAddress? GetCached(string hostname, AddressFamily inet)
+    private static async Task<IPAddress[]> LookupNoCacheAsync(string hostname, AddressFamily inet, int timeout, string? dns)
     {
-        IPAddress? address;
-        switch (inet)
-        {
-            case AddressFamily.Unspecified:
-                if (Cache.TryGetValue(hostname, out address) || Cache6.TryGetValue(hostname, out address))
-                    return address;
+        IPAddress[] addresses = [];
 
-                return null;
-            case AddressFamily.InterNetwork:
-                return Cache.TryGetValue(hostname, out address) ? address : null;
-            case AddressFamily.InterNetworkV6:
-                return Cache6.TryGetValue(hostname, out address) ? address : null;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(inet));
-        }
+        IPEndPoint? endpoint = null;
+        var hasCustomDns = dns != null && TryParseDnsEndPoint(dns, out endpoint) && endpoint != null;
+        if (hasCustomDns && endpoint != null)
+            addresses = await QueryCustomDnsAsync(hostname, inet, timeout, endpoint);
+
+        if (addresses.Length == 0)
+            addresses = await QuerySystemDnsAsync(hostname, inet, timeout, isFallback: hasCustomDns);
+
+        var filtered = addresses
+            .Where(i => inet == AddressFamily.Unspecified || i.AddressFamily == inet)
+            .OrderBy(i => i.AddressFamily == AddressFamily.InterNetwork ? 0 : 1)
+            .Distinct()
+            .ToArray();
+
+        if (filtered.Length == 0)
+            return [];
+
+        var expiresAt = Environment.TickCount64 + CacheTtlMs;
+        var v4 = filtered.Where(i => i.AddressFamily == AddressFamily.InterNetwork).ToArray();
+        var v6 = filtered.Where(i => i.AddressFamily == AddressFamily.InterNetworkV6).ToArray();
+        if (v4.Length > 0)
+            Cache[hostname] = new CacheEntry(v4, expiresAt);
+        if (v6.Length > 0)
+            Cache6[hostname] = new CacheEntry(v6, expiresAt);
+
+        return filtered;
     }
 
-    private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet, int timeout, string? dns)
+    private static async Task<IPAddress[]> QueryCustomDnsAsync(string hostname, AddressFamily inet, int timeout, IPEndPoint endpoint)
     {
-        IPAddress[] addresses;
-        if (dns == null)
+        var client = Clients.GetOrAdd(endpoint.ToString(), _ => new LookupClient(new LookupClientOptions(endpoint)
         {
-            using var cts = new CancellationTokenSource(Math.Max(timeout, SystemResolverTimeout));
-            addresses = inet == AddressFamily.Unspecified
-                ? await Dns.GetHostAddressesAsync(hostname, cts.Token)
-                : await Dns.GetHostAddressesAsync(hostname, inet, cts.Token);
-        }
-        else
-        {
-            var endpoint = new IPEndPoint(IPAddress.Parse(dns), 53);
-            var options = new LookupClientOptions(endpoint)
-            {
-                Timeout = TimeSpan.FromMilliseconds(timeout),
-                UseCache = false
-            };
-            var lookup = new LookupClient(options);
+            UseCache = false,
+            Retries = 1,
+            Timeout = TimeSpan.FromMilliseconds(3000)
+        }));
 
-            // Query A and AAAA in parallel instead of paying two round trips.
+        using var cts = new CancellationTokenSource(Math.Max(500, timeout));
+        try
+        {
             var ipv4Task = inet is AddressFamily.Unspecified or AddressFamily.InterNetwork
-                ? lookup.QueryAsync(hostname, QueryType.A)
+                ? QuerySingleRecordAsync(client, hostname, QueryType.A, cts.Token)
                 : null;
             var ipv6Task = inet is AddressFamily.Unspecified or AddressFamily.InterNetworkV6
-                ? lookup.QueryAsync(hostname, QueryType.AAAA)
+                ? QuerySingleRecordAsync(client, hostname, QueryType.AAAA, cts.Token)
                 : null;
 
             var list = new List<IPAddress>();
             if (ipv4Task != null)
-                list.AddRange((await ipv4Task).Answers.ARecords().Select(a => a.Address));
-
+                list.AddRange(await ipv4Task);
             if (ipv6Task != null)
-                list.AddRange((await ipv6Task).Answers.AaaaRecords().Select(a => a.Address));
+                list.AddRange(await ipv6Task);
 
-            addresses = list.ToArray();
+            return list.ToArray();
         }
-
-        var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || i.AddressFamily == inet);
-
-        if (result == null)
-            return null;
-
-        switch (result.AddressFamily)
+        catch (Exception e)
         {
-            case AddressFamily.InterNetwork:
-                Cache[hostname] = result;
-                break;
-            case AddressFamily.InterNetworkV6:
-                Cache6[hostname] = result;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(result));
+            Log.Verbose(e, "Custom DNS lookup for {Hostname} via {Dns} failed, falling back to system DNS", hostname, endpoint);
+            return [];
+        }
+    }
+
+    private static async Task<IEnumerable<IPAddress>> QuerySingleRecordAsync(LookupClient client, string hostname, QueryType type, CancellationToken ct)
+    {
+        try
+        {
+            var response = await client.QueryAsync(hostname, type, cancellationToken: ct);
+            return type == QueryType.A
+                ? response.Answers.ARecords().Select(a => a.Address)
+                : response.Answers.AaaaRecords().Select(a => a.Address);
+        }
+        catch (Exception)
+        {
+            return [];
+        }
+    }
+
+    private static async Task<IPAddress[]> QuerySystemDnsAsync(string hostname, AddressFamily inet, int timeout, bool isFallback)
+    {
+        var bounded = isFallback ? Math.Clamp(timeout, 1500, 3000) : Math.Max(timeout, SystemResolverTimeout);
+        using var cts = new CancellationTokenSource(bounded);
+        try
+        {
+            return inet == AddressFamily.Unspecified
+                ? await Dns.GetHostAddressesAsync(hostname, cts.Token)
+                : await Dns.GetHostAddressesAsync(hostname, inet, cts.Token);
+        }
+        catch (Exception e)
+        {
+            Log.Verbose(e, "System DNS lookup for {Hostname} failed", hostname);
+            return [];
+        }
+    }
+
+    private static bool TryParseDnsEndPoint(string dns, out IPEndPoint? endPoint)
+    {
+        if (IPEndPoint.TryParse(dns, out endPoint))
+        {
+            if (endPoint.Port == 0)
+                endPoint = new IPEndPoint(endPoint.Address, 53);
+            return true;
         }
 
-        return result;
+        if (IPAddress.TryParse(dns, out var address))
+        {
+            endPoint = new IPEndPoint(address, 53);
+            return true;
+        }
+
+        endPoint = null;
+        return false;
     }
 
     public static void ClearCache()

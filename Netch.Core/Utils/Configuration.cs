@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.VisualStudio.Threading;
+using Netch.Enums;
 using Netch.JsonConverter;
 using Netch.Models;
 
@@ -131,6 +132,38 @@ public static class Configuration
 
         settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
         settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
+
+        NormalizeDelaySettings(settings);
+    }
+
+    public static void NormalizeDelaySettings(Setting settings)
+    {
+        if (settings.DelayTestConfigVersion is null or < 1)
+        {
+            if (settings.DetectionTick == 10)
+                settings.DetectionTick = 0;
+
+            if (!settings.ServerTCPing)
+                settings.DelayTestMode = DelayTestMode.ICMPing;
+
+            settings.DelayTestConfigVersion = 1;
+        }
+
+        if (settings.DetectionTick < 0)
+            settings.DetectionTick = 0;
+
+        settings.DelayTestTimeout = Math.Clamp(settings.DelayTestTimeout, Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
+
+        if (string.IsNullOrWhiteSpace(settings.DelayTestUrl) ||
+            !Uri.TryCreate(settings.DelayTestUrl.Trim(), UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            settings.DelayTestUrl = Constants.DefaultDelayTestUrl;
+        }
+        else
+        {
+            settings.DelayTestUrl = settings.DelayTestUrl.Trim();
+        }
     }
 
     /// <summary>

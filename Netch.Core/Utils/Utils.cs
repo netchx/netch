@@ -1,6 +1,7 @@
 using DnsClient;
 using MaxMind.GeoIP2;
 using Microsoft.Win32.TaskScheduler;
+using Netch.Models;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -52,11 +53,14 @@ public static class Utils
         }
     }
 
-    public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)
+    public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 3000, CancellationToken ct = default)
     {
+        if (port is <= 0 or > ushort.MaxValue)
+            return DelayStatus.Unreachable;
+
         using var client = new TcpClient(ip.AddressFamily);
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        timeoutCts.CancelAfter(timeout);
+        timeoutCts.CancelAfter(Math.Max(100, timeout));
         var stopwatch = Stopwatch.StartNew();
 
         try
@@ -65,27 +69,49 @@ public static class Utils
             stopwatch.Stop();
             return Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
         }
-        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            stopwatch.Stop();
-            return timeout;
+            throw;
         }
-        catch (SocketException)
+        catch (OperationCanceledException)
         {
             stopwatch.Stop();
-            return timeout;
+            return DelayStatus.Timeout;
+        }
+        catch (SocketException ex)
+        {
+            stopwatch.Stop();
+            return ex.SocketErrorCode == SocketError.TimedOut ? DelayStatus.Timeout : DelayStatus.Unreachable;
         }
     }
 
-    public static async Task<int> ICMPingAsync(IPAddress ip, int timeout = 1000)
+    public static async Task<int> ICMPingAsync(IPAddress ip, int timeout = 3000, CancellationToken ct = default)
     {
+        ct.ThrowIfCancellationRequested();
         using var ping = new Ping();
-        var reply = await ping.SendPingAsync(ip, timeout);
+        try
+        {
+            var reply = await ping.SendPingAsync(ip, TimeSpan.FromMilliseconds(Math.Max(100, timeout)), cancellationToken: ct);
 
-        if (reply.Status == IPStatus.Success)
-            return Convert.ToInt32(reply.RoundtripTime);
-
-        return timeout;
+            return reply.Status switch
+            {
+                IPStatus.Success => Convert.ToInt32(reply.RoundtripTime),
+                IPStatus.TimedOut => DelayStatus.Timeout,
+                _ => DelayStatus.Unreachable
+            };
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            return DelayStatus.Timeout;
+        }
+        catch (PingException)
+        {
+            return DelayStatus.Unreachable;
+        }
     }
 
     public static async Task<string> GetCityCodeAsync(string address)

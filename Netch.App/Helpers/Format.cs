@@ -49,11 +49,15 @@ public static class Format
 
     public static string NodeName(Server server) => server.Remarks.IsNullOrWhiteSpace() ? $"{server.Address}:{server.Port}" : server.Remarks;
 
-    /// <summary>Server delay as shown next to a node: -1 is untested, other negatives and 1000 are failures.</summary>
+    /// <summary>Server delay as shown next to a node: -1 is untested, -5 is testing, other negatives are failures.</summary>
     public static string Delay(int delay) => delay switch
     {
-        -1 => string.Empty,
-        < 0 or >= 1000 => i18N.Translate("Timeout"),
+        DelayStatus.Untested => string.Empty,
+        DelayStatus.Testing => "…",
+        DelayStatus.DnsFailed => i18N.Translate("DNS failed"),
+        DelayStatus.Unreachable => i18N.Translate("Failed"),
+        DelayStatus.Timeout => i18N.Translate("Timeout"),
+        < 0 => i18N.Translate("Timeout"),
         _ => $"{delay} ms"
     };
 

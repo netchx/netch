@@ -7,11 +7,28 @@ namespace Netch.Servers;
 
 public static class CoreSelector
 {
-    public static IServerController CreateController(Server server)
+    internal enum CoreKind
+    {
+        Mihomo,
+        Singbox,
+        Xray
+    }
+
+    internal static CoreKind SelectCore(Server server)
     {
         if (UsesXhttp(server))
-            return CanUseMihomoXhttp(server) ? new MihomoController() : new XrayController();
-        return UsesSingbox(server) ? new SingboxController() : new MihomoController();
+            return CanUseMihomoXhttp(server) ? CoreKind.Mihomo : CoreKind.Xray;
+        return UsesSingbox(server) ? CoreKind.Singbox : CoreKind.Mihomo;
+    }
+
+    public static IServerController CreateController(Server server)
+    {
+        return SelectCore(server) switch
+        {
+            CoreKind.Xray => new XrayController(),
+            CoreKind.Singbox => new SingboxController(),
+            _ => new MihomoController()
+        };
     }
 
     private static bool CanUseMihomoXhttp(Server server)

@@ -12,7 +12,9 @@ public abstract class Server : ICloneable
     ///     延迟
     /// </summary>
     [JsonIgnore]
-    public int Delay { get; private set; } = -1;
+    public int Delay { get; private set; } = DelayStatus.Untested;
+
+    internal void SetDelay(int delay) => Delay = delay;
 
     /// <summary>
     ///     稳定标识，场景按它引用节点；订阅更新时由 <see cref="SubscriptionUtil" /> 沿用
@@ -87,47 +89,50 @@ public abstract class Server : ICloneable
 
     public abstract string MaskedData();
 
+    public bool SupportsTcpPreScreen()
+    {
+        if (ConfigType is EConfigType.Hysteria2 or EConfigType.TUIC or EConfigType.WireGuard or EConfigType.MASQUE)
+            return false;
+
+        if (ConfigType == EConfigType.Naive && ProtoExtra.NaiveQuic == true)
+            return false;
+
+        if (GetNetwork() is "quic" or "kcp" or "hysteria")
+            return false;
+
+        if (ConfigType == EConfigType.Shadowsocks &&
+            ProtoExtra.SsPluginOptions?.Split(';', StringSplitOptions.TrimEntries)
+                .Contains("mode=quic", StringComparer.OrdinalIgnoreCase) == true)
+            return false;
+
+        return true;
+    }
+
     /// <summary>
     ///     测试延迟
     /// </summary>
     /// <returns>延迟</returns>
-    public async Task<int> PingAsync()
+    public Task<int> PingAsync() => PingAsync(CancellationToken.None);
+
+    public async Task<int> PingAsync(CancellationToken ct)
     {
         try
         {
-            var destination = await DnsUtils.LookupAsync(hostname: Address, dns: Global.Settings.OutboundDNS);
-            if (destination == null)
-                return Delay = -2;
+            var timeout = Math.Clamp(Global.Settings.DelayTestTimeout, Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
+            var ips = await DnsUtils.LookupAllAsync(Address, dns: Global.Settings.OutboundDNS, timeout: Math.Min(timeout, 3000), ct: ct);
+            if (ips.Length == 0)
+                return Delay = DelayStatus.DnsFailed;
 
-            const int timeout = 1000;
-
-            async Task<int> PingCoreAsync()
-            {
-                try
-                {
-                    return Global.Settings.ServerTCPing
-                        ? await Utils.Utils.TCPingAsync(destination, Port, timeout)
-                        : await Utils.Utils.ICMPingAsync(destination, timeout);
-                }
-                catch (Exception)
-                {
-                    return -4;
-                }
-            }
-
-            // Take the best of three probes. Waiting for the first one to finish
-            // reported failures (refused/unreachable return immediately) even when
-            // the other probes succeeded.
-            var results = await Task.WhenAll(PingCoreAsync(), PingCoreAsync(), PingCoreAsync());
-            var succeeded = results.Where(r => r >= 0 && r < timeout).ToArray();
-            if (succeeded.Length > 0)
-                return Delay = succeeded.Min();
-
-            return Delay = results.Contains(timeout) ? timeout : results.Max();
+            var useIcmp = Global.Settings.DelayTestMode == DelayTestMode.ICMPing;
+            return Delay = await DelayTestHelper.ProbeRawEndpointAsync(ips, Port, timeout, useIcmp, ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception)
         {
-            return Delay = -4;
+            return Delay = DelayStatus.Unreachable;
         }
     }
 

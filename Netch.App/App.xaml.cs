@@ -33,7 +33,7 @@ public partial class App : Application
         if (SceneService.Initialize())
             Configuration.SaveAsync().Forget();
 
-        DelayTestHelper.UpdateTick(true);
+        DelayTestHelper.UpdateTick(false);
         Session.Current.Attach(DispatcherQueue.GetForCurrentThread());
         Session.Current.PropertyChanged += (_, e) =>
         {
@@ -122,6 +122,7 @@ public partial class App : Application
             return;
 
         IsExiting = true;
+        DelayTestHelper.Cancel();
         (Current as App)?._subscriptions?.Stop();
         _wizard?.Close();
         MainWindow?.AppWindow.Hide();
@@ -131,6 +132,18 @@ public partial class App : Application
         foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
             if (File.Exists(file))
                 File.Delete(file);
+
+        try
+        {
+            var dataDir = Path.Combine(Global.NetchDir, "data");
+            if (Directory.Exists(dataDir))
+                foreach (var probeFile in Directory.EnumerateFiles(dataDir, "probe-*.json"))
+                    File.Delete(probeFile);
+        }
+        catch
+        {
+            // Best-effort cleanup of stale probe configs.
+        }
 
         Tray.Current.Close();
         Current.Exit();

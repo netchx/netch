@@ -155,7 +155,9 @@ public class UiAndCoreEnhancements
         var unusedPort = port == ushort.MaxValue ? (ushort)(port - 1) : (ushort)(port + 1);
 
         var previousTcping = Netch.Global.Settings.ServerTCPing;
+        var previousMode = Netch.Global.Settings.DelayTestMode;
         Netch.Global.Settings.ServerTCPing = true;
+        Netch.Global.Settings.DelayTestMode = Netch.Enums.DelayTestMode.TCPing;
         try
         {
             var target = new SocksServer("127.0.0.1", port);
@@ -168,6 +170,7 @@ public class UiAndCoreEnhancements
         finally
         {
             Netch.Global.Settings.ServerTCPing = previousTcping;
+            Netch.Global.Settings.DelayTestMode = previousMode;
         }
     }
 }

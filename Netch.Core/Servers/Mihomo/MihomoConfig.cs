@@ -21,12 +21,48 @@ internal static class MihomoConfig
         };
     }
 
-    private static Dictionary<string, object?> BuildProxy(Server server, string upstream)
+    internal static Dictionary<string, object?> BuildBatchProbeConfig(
+        IReadOnlyList<(string Tag, Server Server, string Upstream)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        var built = entries.Select(e => (e.Tag, Proxy: BuildProxy(e.Server, e.Upstream, e.Tag))).ToList();
+        return BuildBatchProbeConfig(built, listenPort, secret);
+    }
+
+    internal static Dictionary<string, object?> BuildBatchProbeConfig(
+        IReadOnlyList<(string Tag, Dictionary<string, object?> Proxy)> entries,
+        ushort listenPort,
+        string secret)
+    {
+        return new()
+        {
+            ["log-level"] = "info",
+            ["mode"] = "rule",
+            ["ipv6"] = true,
+            ["listeners"] = new[]
+            {
+                new
+                {
+                    name = "probe",
+                    type = "socks",
+                    listen = "127.0.0.1",
+                    port = listenPort,
+                    udp = false,
+                    users = entries.Select(e => new { username = e.Tag, password = secret }).ToArray()
+                }
+            },
+            ["proxies"] = entries.Select(e => e.Proxy).ToArray(),
+            ["rules"] = entries.Select(e => $"IN-USER,{e.Tag},{e.Tag}").Append("MATCH,REJECT").ToArray()
+        };
+    }
+
+    internal static Dictionary<string, object?> BuildProxy(Server server, string upstream, string name = "upstream")
     {
         var extra = server.ProtoExtra;
         var proxy = new Dictionary<string, object?>
         {
-            ["name"] = "upstream",
+            ["name"] = name,
             ["type"] = server.ConfigType.ToString().ToLowerInvariant(),
             ["server"] = upstream,
             ["port"] = server.Port

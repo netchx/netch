@@ -334,7 +334,7 @@ internal sealed class WelcomeWindow : Window
 
     private UIElement ConfirmStep()
     {
-        var nodes = Global.Settings.Server.OrderBy(server => server.Delay is >= 0 and < 1000 ? server.Delay : int.MaxValue).ToArray();
+        var nodes = Global.Settings.Server.OrderBy(server => DelayStatus.IsValid(server.Delay) ? server.Delay : int.MaxValue).ToArray();
         var index = Array.FindIndex(nodes, server => server.Id == _server?.Id);
         var nodeLabel = T("Node (ordered by latency)", "节点（已按延迟推荐）");
         var selector = new ComboBox

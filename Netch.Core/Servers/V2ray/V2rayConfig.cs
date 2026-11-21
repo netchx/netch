@@ -254,6 +254,8 @@ public class RulesItem4Ray
 
     public List<string>? inboundTag { get; set; }
 
+    public List<string>? user { get; set; }
+
     public string? outboundTag { get; set; }
 
     public string? balancerTag { get; set; }

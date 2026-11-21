@@ -43,6 +43,7 @@ public sealed partial class NodesPage : Page
     private bool _refreshing;
     private bool _suppressSelectionChanged;
     private bool _updatingSubscriptions;
+    private bool _sawDelayTesting;
 
     public NodesPage()
     {
@@ -59,7 +60,13 @@ public sealed partial class NodesPage : Page
         var add = Button(T("+ Node", "＋ 节点"), () => { }, accent: true);
         add.Flyout = Menu(ServerEditorHelper.GetOrderedProtocols()
             .Select(util => (ServerHelper.GetDisplayName(util), (Action)(async () => await EditNodeAsync(null, util.TypeName)))).ToArray());
-        _speed = AsyncButton(T("⚡ Test latency", "⚡ 测速"), () => DelayTestHelper.PerformTestAsync(true));
+        _speed = Button(T("⚡ Test latency", "⚡ 测速"), () =>
+        {
+            if (DelayTestHelper.IsTesting)
+                DelayTestHelper.Cancel();
+            else
+                DelayTestHelper.PerformTestAsync(true).Forget();
+        });
         var sort = Button(T("⇅ Latency", "⇅ 延迟"), () =>
         {
             _byDelay = !_byDelay;
@@ -140,6 +147,9 @@ public sealed partial class NodesPage : Page
     {
         AppEvents.SubscriptionChanged += RefreshSubscriptions;
         AppEvents.NodeDelaysChanged += RefreshDelays;
+        AppEvents.DelayTestProgressChanged += OnDelayTestProgressChanged;
+        UpdateDelayTestUi(DelayTestHelper.IsTesting, DelayTestHelper.CurrentCompleted, DelayTestHelper.CurrentTotal,
+            updateStatus: DelayTestHelper.IsTesting);
         if (e.Parameter is true)
             Loaded += ImportSubscriptionOnLoad;
     }
@@ -148,6 +158,7 @@ public sealed partial class NodesPage : Page
     {
         AppEvents.SubscriptionChanged -= RefreshSubscriptions;
         AppEvents.NodeDelaysChanged -= RefreshDelays;
+        AppEvents.DelayTestProgressChanged -= OnDelayTestProgressChanged;
         Loaded -= ImportSubscriptionOnLoad;
     }
 
@@ -197,22 +208,52 @@ public sealed partial class NodesPage : Page
             focused.Focus(FocusState.Keyboard);
     });
 
-    private static int DelayOrder(Server server) => server.Delay < 0 ? int.MaxValue : server.Delay;
+    private void OnDelayTestProgressChanged(bool isTesting, int completed, int total) =>
+        DispatcherQueue.TryEnqueue(() => UpdateDelayTestUi(isTesting, completed, total, updateStatus: true));
+
+    private void UpdateDelayTestUi(bool isTesting, int completed, int total, bool updateStatus)
+    {
+        _speed.Content = isTesting ? T("⏹ Stop testing", "⏹ 停止测速") : T("⚡ Test latency", "⚡ 测速");
+        UpdateBatchBar();
+
+        if (!updateStatus)
+            return;
+
+        if (isTesting)
+        {
+            _sawDelayTesting = true;
+            _status.Text = total > 0
+                ? TF("Testing latency… {0} / {1}", "正在测速… {0} / {1}", completed, total)
+                : T("Testing latency…", "正在测速…");
+        }
+        else if (_sawDelayTesting)
+        {
+            _sawDelayTesting = false;
+            if (DelayTestHelper.LastRunCancelled)
+                _status.Text = T("Latency test cancelled.", "测速已取消。");
+            else if (total > 0)
+                _status.Text = TF("Tested {0} nodes ({1} reachable).", "已完成 {0} 个节点测速（{1} 个可用）。",
+                    total, DelayTestHelper.LastReachableCount);
+        }
+    }
+
+    private static int DelayOrder(Server server) => DelayStatus.IsValid(server.Delay) ? server.Delay : int.MaxValue;
 
     private static void UpdateDelayLabel(Server server, TextBlock label)
     {
-        var text = server.Delay == -1 ? "—" : Format.Delay(server.Delay);
-        if (label.Text == text)
-            return;
+        var text = server.Delay == DelayStatus.Untested ? "—" : Format.Delay(server.Delay);
+        if (label.Text != text)
+            label.Text = text;
 
-        label.Text = text;
-        label.Style = Resource<Style>(server.Delay switch
+        var style = Resource<Style>(server.Delay switch
         {
-            -1 => "NetchSecondaryText",
-            < 0 or >= 1000 => "NetchErrorText",
-            < 100 => "NetchSuccessText",
+            DelayStatus.Untested or DelayStatus.Testing => "NetchSecondaryText",
+            < 0 => "NetchErrorText",
+            < 200 => "NetchSuccessText",
             _ => "NetchWarningText"
         });
+        if (!ReferenceEquals(label.Style, style))
+            label.Style = style;
     }
 
     private void RefreshCategories(Subscription? select = null, bool selectLocal = false)
@@ -334,7 +375,7 @@ public sealed partial class NodesPage : Page
         _selectAllBtn.IsEnabled = _nodeRows.Count > 0 && count < _nodeRows.Count;
         _clearSelectionBtn.IsEnabled = count > 0;
         _batchTestBtn.Content = TF("Test selected ({0})", "测速所选 ({0})", count);
-        _batchTestBtn.IsEnabled = count > 0;
+        _batchTestBtn.IsEnabled = count > 0 && !DelayTestHelper.IsTesting;
         _batchCopyBtn.Content = TF("Copy share links ({0})", "复制分享链接 ({0})", count);
         _batchCopyBtn.IsEnabled = count > 0;
         _batchDeleteBtn.Content = TF("Delete selected ({0})", "删除所选 ({0})", count);
@@ -405,6 +446,8 @@ public sealed partial class NodesPage : Page
                 return;
             }
 
+            menu.Items.Add(MenuItem(T("Test latency", "测速"), "\uE945",
+                () => DelayTestHelper.PerformTestAsync([target], true).Forget()));
             menu.Items.Add(MenuItem(T("Edit", "编辑"), "\uE70F", () => EditNodeAsync(target).Forget()));
             menu.Items.Add(MenuItem(T("Copy share link", "复制分享链接"), "\uE8C8", () => NodeEditor.ShareAsync(XamlRoot, target, false).Forget()));
             menu.Items.Add(MenuItem(T("QR code", "二维码"), "\uED14", () => NodeEditor.ShareAsync(XamlRoot, target, true).Forget()));
@@ -435,7 +478,7 @@ public sealed partial class NodesPage : Page
             {
                 var count = SceneService.Scenes.Count(s => s.ServerId == server.Id);
                 var delay = Caption("");
-                delay.Width = 59;
+                delay.Width = 72;
                 delay.FontFamily = new FontFamily("Consolas");
                 delay.TextAlignment = TextAlignment.Right;
                 UpdateDelayLabel(server, delay);
@@ -594,7 +637,7 @@ public sealed partial class NodesPage : Page
             return null;
 
         var nodes = Global.Settings.Server
-            .OrderBy(server => server.Delay is >= 0 and < 1000 ? server.Delay : int.MaxValue)
+            .OrderBy(server => DelayStatus.IsValid(server.Delay) ? server.Delay : int.MaxValue)
             .ToArray();
         var preferred = (_nodes.SelectedItem as ListViewItem)?.Tag as Server
             ?? (Session.Current.CurrentScene is { } scene ? SceneService.FindServer(scene) : null);
