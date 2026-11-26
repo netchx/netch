@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Services;
 using Netch.App.Helpers;
 using Netch.Enums;
@@ -22,7 +23,7 @@ internal static class NodeEditor
         return result.Count;
     }
 
-    internal static async Task<(int Count, int Skipped, string Group)> ImportTextAsync(string text, string? filePath = null)
+    internal static async Task<(int Count, int Skipped, string Group)> ImportTextAsync(string text, string? filePath = null, XamlRoot? root = null)
     {
         var imported = ShareLink.ParseText(text, out var skipped);
         if (imported.Count == 0)
@@ -35,6 +36,9 @@ internal static class NodeEditor
             server.Group = group;
             server.IsSub = false;
         }
+        if (root != null)
+            await PromptImportCustomCoresAsync(root, imported);
+
         var nodes = Global.Settings.Server;
         nodes.AddRange(imported);
         try
@@ -48,6 +52,95 @@ internal static class NodeEditor
             throw;
         }
         return (imported.Count, skipped, group);
+    }
+
+    internal static async Task PromptImportCustomCoresAsync(XamlRoot? root, IReadOnlyList<Server> imported, Subscription? subscription = null)
+    {
+        if (root is null || imported.Count == 0)
+            return;
+
+        var matches = CustomCoreHelper.GetImportCustomCoreMatches(imported);
+        if (matches.Count == 0)
+            return;
+
+        var panel = Stack();
+        panel.Spacing = 10;
+        panel.Width = root.Size.Width > 0 ? Math.Min(420, Math.Max(280, root.Size.Width - 110)) : 420;
+
+        var intro = Caption(matches.Count == 1
+            ? TF("Detected {0} imported {1} nodes. Choose whether to bind a custom core:",
+                "已解析 {0} 个 {1} 节点，是否改用自定义核心运行？",
+                matches[0].Servers.Count,
+                ServerHelper.GetDisplayName(matches[0].Protocol))
+            : T("Custom cores are configured for the imported protocols. Choose a core for each protocol:",
+                "导入节点的协议已配置自定义核心，可按协议选择运行核心："));
+        intro.TextWrapping = TextWrapping.Wrap;
+        panel.Children.Add(intro);
+
+        var selectors = new List<(EConfigType Protocol, ComboBox Box, List<(string Id, string Label)> Options)>(matches.Count);
+        foreach (var (protocol, servers, cores) in matches)
+        {
+            var options = new List<(string Id, string Label)>(cores.Count + 2)
+            {
+                (string.Empty, T("Follow default", "跟随默认")),
+                (CustomCoreHelper.BuiltInCoreId, T("Built-in core", "内置核心"))
+            };
+            foreach (var core in cores)
+                options.Add((core.Id, core.Name));
+
+            var preferred = cores.FirstOrDefault(c => c.IsProtocolDefault) ?? cores[0];
+            var defaultIdx = options.FindIndex(o => string.Equals(o.Id, preferred.Id, StringComparison.OrdinalIgnoreCase));
+            if (defaultIdx < 0)
+                defaultIdx = 2;
+
+            var header = TF("{0} ({1} nodes)", "{0}（{1} 个节点）", ServerHelper.GetDisplayName(protocol), servers.Count);
+            var box = Choice(header, options.Select(o => o.Label), defaultIdx);
+            box.Header = header;
+            box.HorizontalAlignment = HorizontalAlignment.Stretch;
+            panel.Children.Add(box);
+            selectors.Add((protocol, box, options));
+        }
+
+        if (!await ShowAsync(
+            root,
+            T("Use custom core for imported nodes?", "为导入的节点指定自定义核心？"),
+            panel,
+            confirm: T("Apply", "应用"),
+            contentMaxWidth: 520,
+            cancel: T("Keep default", "保持默认")))
+        {
+            return;
+        }
+
+        var selections = new Dictionary<EConfigType, string?>(selectors.Count);
+        foreach (var (protocol, box, options) in selectors)
+        {
+            var idx = box.SelectedIndex;
+            selections[protocol] = idx > 0 && idx < options.Count ? options[idx].Id : null;
+        }
+
+        if (subscription != null)
+        {
+            var nonEmpty = selections.Where(kv => !string.IsNullOrWhiteSpace(kv.Value)).ToList();
+            if (nonEmpty.Count == 1 && !CustomCoreHelper.IsBuiltInCoreId(nonEmpty[0].Value))
+            {
+                subscription.CustomCoreId = nonEmpty[0].Value;
+            }
+            else if (nonEmpty.Count == matches.Count &&
+                     nonEmpty.All(kv => CustomCoreHelper.IsBuiltInCoreId(kv.Value)) &&
+                     imported.All(s => matches.Any(m => m.Protocol == s.ConfigType)))
+            {
+                subscription.CustomCoreId = CustomCoreHelper.BuiltInCoreId;
+            }
+            else
+            {
+                CustomCoreHelper.ApplyCustomCoreSelections(imported, selections);
+            }
+        }
+        else
+        {
+            CustomCoreHelper.ApplyCustomCoreSelections(imported, selections);
+        }
     }
 
     public static async Task<string?> RenameGroupAsync(XamlRoot? root, string currentName, bool isSubscription)
@@ -90,7 +183,32 @@ internal static class NodeEditor
         var enabled = new CheckBox { Content = T("Enabled", "启用"), IsChecked = existing?.Enable ?? true };
         var subscription = existing ?? new Subscription();
 
-        if (!await ShowAsync(root, T("Subscription", "订阅"), Stack(name, link, hours, agent, enabled), T("Save", "保存"), () =>
+        var customCores = CustomCoreHelper.GetAll();
+        ComboBox? subCoreBox = null;
+        var subCoreOptions = new List<(string Id, string Label)>();
+        if (customCores.Count > 0 || !string.IsNullOrWhiteSpace(existing?.CustomCoreId))
+        {
+            subCoreOptions.Add((string.Empty, T("Follow protocol default", "跟随协议默认")));
+            subCoreOptions.Add((CustomCoreHelper.BuiltInCoreId, T("Built-in core", "内置核心")));
+            foreach (var core in customCores)
+                subCoreOptions.Add((core.Id, $"{core.Name} ({ServerHelper.GetDisplayName(core.Protocol)})"));
+
+            var currentCoreId = existing?.CustomCoreId?.Trim() ?? string.Empty;
+            var selectedIdx = subCoreOptions.FindIndex(o => string.Equals(o.Id, currentCoreId, StringComparison.OrdinalIgnoreCase));
+            if (selectedIdx < 0)
+                selectedIdx = 0;
+
+            subCoreBox = Choice(T("Running core", "运行核心"), subCoreOptions.Select(o => o.Label), selectedIdx);
+            subCoreBox.Header = T("Running core", "运行核心");
+            subCoreBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+        }
+
+        var subFields = Stack(name, link, hours, agent);
+        if (subCoreBox != null)
+            subFields.Children.Add(subCoreBox);
+        subFields.Children.Add(enabled);
+
+        if (!await ShowAsync(root, T("Subscription", "订阅"), subFields, T("Save", "保存"), () =>
         {
             var remark = name.Text.Trim();
             if (NodeGroupHelper.ValidateGroupName(remark, existing?.Remark) != null)
@@ -107,6 +225,11 @@ internal static class NodeEditor
             subscription.UserAgent = agent.Text.Trim();
             subscription.UpdateIntervalHours = interval;
             subscription.Enable = enabled.IsChecked == true;
+            if (subCoreBox != null)
+            {
+                var idx = subCoreBox.SelectedIndex;
+                subscription.CustomCoreId = idx > 0 && idx < subCoreOptions.Count ? subCoreOptions[idx].Id : null;
+            }
             return null;
         }))
             return null;
@@ -120,7 +243,7 @@ internal static class NodeEditor
         return subscription;
     }
 
-    public static async Task<bool> EditAsync(XamlRoot? root, Server? existing, string? type)
+    public static async Task<bool> EditAsync(XamlRoot? root, Server? existing, string? type, Microsoft.UI.WindowId? windowId = null)
     {
         if (root is null)
             return false;
@@ -136,9 +259,12 @@ internal static class NodeEditor
         var apply = new List<Func<string?>>();
         var name = Input(T("Name", "名称"), server.Remarks);
         var address = Input(T("Address", "地址"), server.Address);
-        var port = Input(T("Port", "端口"), server.Port == 0 ? "" : server.Port.ToString());
+        var port = Input(
+            protocol == EConfigType.ExternalCli ? T("Local SOCKS5 port", "本地 SOCKS5 端口") : T("Port", "端口"),
+            server.Port == 0 ? (protocol == EConfigType.ExternalCli ? "1080" : "") : server.Port.ToString());
         fields.Children.Add(name);
-        fields.Children.Add(TwoColumns(address, port, new GridLength(2, GridUnitType.Star), 10));
+        if (protocol != EConfigType.ExternalCli)
+            fields.Children.Add(TwoColumns(address, port, new GridLength(2, GridUnitType.Star), 10));
 
         static void Show(UIElement element, bool visible) =>
             element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
@@ -277,7 +403,7 @@ internal static class NodeEditor
             var passBox = Secret(secretLabel, server.Password, s => server.Password = s, addToFields: false);
             fields.Children.Add(TwoColumns(userBox, passBox, new GridLength(1, GridUnitType.Star), 10));
         }
-        else
+        else if (protocol != EConfigType.ExternalCli)
         {
             Secret(secretLabel, server.Password, s => server.Password = s);
         }
@@ -617,6 +743,27 @@ internal static class NodeEditor
                 sqCongestion.SelectionChanged += (_, _) => RefreshShadowQuic();
                 RefreshShadowQuic();
                 break;
+            case EConfigType.ExternalCli:
+                var cliExeBox = Field(T("CLI executable", "CLI 可执行文件"), extra.CliExecutable,
+                    s => extra.CliExecutable = CustomCoreHelper.NormalizeExecutableInput(s), addToFields: false);
+                var browseExe = AsyncButton(T("Browse .exe…", "浏览 .exe…"), async () =>
+                {
+                    var ownerWindowId = windowId ?? App.MainWindow?.AppWindow.Id;
+                    if (ownerWindowId is not { } targetWindowId)
+                        return;
+                    var picker = new FileOpenPicker(targetWindowId);
+                    picker.FileTypeFilter.Add(".exe");
+                    if (await picker.PickSingleFileAsync() is { } file)
+                        cliExeBox.Text = file.Path;
+                }, glyph: Icons.OpenFile);
+                browseExe.VerticalAlignment = VerticalAlignment.Bottom;
+                fields.Children.Add(Split(cliExeBox, browseExe, 8));
+                var cliArgsBox = Field(T("CLI arguments", "CLI 启动参数"), extra.CliArguments,
+                    s => extra.CliArguments = s, multiline: true);
+                cliArgsBox.AcceptsReturn = false;
+                cliArgsBox.PlaceholderText = "-s 1.2.3.4 -p 2211 -b 127.0.0.1 -l 1080";
+                fields.Children.Add(port);
+                break;
         }
 
         ComboBox? transportBox = null;
@@ -647,7 +794,7 @@ internal static class NodeEditor
             RefreshTransport();
         }
 
-        if (protocol is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC))
+        if (protocol is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.ExternalCli))
         {
             var initialSecurity = server.StreamSecurity == Constants.StreamSecurityReality
                 ? Constants.StreamSecurityReality
@@ -748,24 +895,64 @@ internal static class NodeEditor
             RefreshSecurity();
         }
 
+        if (protocol != EConfigType.ExternalCli)
+        {
+            var protocolCores = CustomCoreHelper.GetForProtocol(protocol);
+            if (protocolCores.Count > 0 || !string.IsNullOrWhiteSpace(extra.CustomCoreId))
+            {
+                var coreOptions = new List<(string Id, string Label)>
+                {
+                    (string.Empty, T("Follow default", "跟随默认")),
+                    (CustomCoreHelper.BuiltInCoreId, T("Built-in core", "内置核心"))
+                };
+                foreach (var core in protocolCores)
+                    coreOptions.Add((core.Id, core.Name));
+
+                var currentCoreId = extra.CustomCoreId?.Trim() ?? string.Empty;
+                var selectedIdx = coreOptions.FindIndex(o => string.Equals(o.Id, currentCoreId, StringComparison.OrdinalIgnoreCase));
+                if (selectedIdx < 0)
+                    selectedIdx = 0;
+
+                var coreBox = Choice(T("Running core", "运行核心"), coreOptions.Select(o => o.Label), selectedIdx);
+                coreBox.Header = T("Running core", "运行核心");
+                coreBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+                fields.Children.Add(coreBox);
+                apply.Add(() =>
+                {
+                    var idx = coreBox.SelectedIndex;
+                    extra.CustomCoreId = idx > 0 && idx < coreOptions.Count ? coreOptions[idx].Id : null;
+                    return null;
+                });
+            }
+        }
+
         var title = existing == null ? T("Add node", "添加节点") : T("Edit node", "编辑节点");
         if (!await ShowAsync(root, $"{title} · {ServerHelper.GetDisplayName(util)}", fields, T("Save", "保存"), () =>
         {
-            if (address.Text.Trim().Length == 0)
-                return T("Enter an address and a valid port.", "请输入地址及有效端口。");
             ushort number = 0;
-            if (port.Text.Trim().Length > 0)
+            if (protocol == EConfigType.ExternalCli)
             {
-                if (!ushort.TryParse(port.Text, out number) || number == 0)
-                    return T("Enter an address and a valid port.", "请输入地址及有效端口。");
+                if (!ushort.TryParse(port.Text.Trim(), out number) || number == 0)
+                    return T("Enter a port between 1 and 65535.", "请输入 1 至 65535 之间的端口。");
+                server.Address = "127.0.0.1";
             }
-            else if (protocol != EConfigType.Mieru)
+            else
             {
-                return T("Enter an address and a valid port.", "请输入地址及有效端口。");
+                if (address.Text.Trim().Length == 0)
+                    return T("Enter an address and a valid port.", "请输入地址及有效端口。");
+                if (port.Text.Trim().Length > 0)
+                {
+                    if (!ushort.TryParse(port.Text, out number) || number == 0)
+                        return T("Enter an address and a valid port.", "请输入地址及有效端口。");
+                }
+                else if (protocol != EConfigType.Mieru)
+                {
+                    return T("Enter an address and a valid port.", "请输入地址及有效端口。");
+                }
+                server.Address = address.Text.Trim();
             }
 
             server.Remarks = name.Text.Trim();
-            server.Address = address.Text.Trim();
             server.Port = number;
             foreach (var read in apply)
                 if (read() is { } error)

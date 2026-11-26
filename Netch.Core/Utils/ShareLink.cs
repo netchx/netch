@@ -3,6 +3,7 @@ using System.Text.Json;
 using Netch.Enums;
 using Netch.JsonConverter;
 using Netch.Models;
+using Netch.Servers;
 
 namespace Netch.Utils;
 
@@ -10,6 +11,9 @@ public static class ShareLink
 {
     public static string GetShareLink(Server server)
     {
+        if (server.ConfigType == EConfigType.ExternalCli)
+            throw new NotSupportedException(i18N.Translate("External CLI nodes cannot be shared as links."));
+
         var link = ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
         return string.IsNullOrWhiteSpace(link) ? GetNetchLink(server) : link;
     }
@@ -133,16 +137,24 @@ public static class ShareLink
             {
                 Converters = { new ServerConverterWithTypeDiscriminator() }
             });
+        if (server is ExternalCliServer)
+            throw new FormatException(i18N.Translate("External CLI nodes cannot be imported from share links."));
         if (server == null || server.Address.IsNullOrWhiteSpace() || server.Port is < 1 or > ushort.MaxValue)
             throw new FormatException("The Netch link must contain an address and a valid port.");
+        server.ProtoExtra.CustomCoreId = null;
         return server;
     }
 
     public static string GetNetchLink(Server s)
     {
+        if (s.ConfigType == EConfigType.ExternalCli)
+            throw new NotSupportedException(i18N.Translate("External CLI nodes cannot be shared as links."));
+
+        var clone = (Server)s.Clone();
+        clone.ProtoExtra = clone.ProtoExtra with { CustomCoreId = null };
         var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
         jsonSerializerOptions.WriteIndented = false;
-        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize<object>(s, jsonSerializerOptions));
+        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize<object>(clone, jsonSerializerOptions));
     }
 
     #region Utils

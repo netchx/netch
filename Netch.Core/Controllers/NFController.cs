@@ -209,6 +209,18 @@ public class NFController : IModeController
 
                 // Bypass Self
                 Dial(NameList.AIO_BYPNAME, "^" + Global.NetchDir.ToRegexString());
+                if (MainController.ServerController is Guard { ExecutablePath.Length: > 0 } guardController)
+                {
+                    var netchRoot = Path.GetFullPath(Global.NetchDir).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                    var fullExePath = Path.GetFullPath(guardController.ExecutablePath);
+                    var relative = Path.GetRelativePath(netchRoot, fullExePath);
+                    var isInsideNetchDir = !Path.IsPathRooted(relative)
+                        && relative != ".."
+                        && !relative.StartsWith($"..{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                        && !relative.StartsWith($"..{Path.AltDirectorySeparatorChar}", StringComparison.Ordinal);
+                    if (!isInsideNetchDir)
+                        Dial(NameList.AIO_BYPNAME, "^" + fullExePath.ToRegexString() + "$");
+                }
 
                 foreach (var ip in bypassIps)
                 {

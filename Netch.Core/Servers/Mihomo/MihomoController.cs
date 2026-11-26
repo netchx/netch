@@ -12,7 +12,18 @@ namespace Netch.Servers;
 
 public sealed class MihomoController : Guard, IServerController
 {
-    public MihomoController() : base("mihomo.exe", encoding: Encoding.UTF8) { }
+    public MihomoController(string? executablePath = null) : base(ResolveExecutable(executablePath), encoding: Encoding.UTF8)
+    {
+        if (!string.IsNullOrWhiteSpace(executablePath))
+        {
+            var dir = Path.GetDirectoryName(ExecutablePath);
+            if (!string.IsNullOrEmpty(dir))
+                Instance.StartInfo.WorkingDirectory = dir;
+        }
+    }
+
+    private static string ResolveExecutable(string? executablePath) =>
+        string.IsNullOrWhiteSpace(executablePath) ? "mihomo.exe" : CustomCoreHelper.ResolveExecutablePath(executablePath);
 
     public override string Name => "mihomo";
     protected override IEnumerable<string> StartedKeywords => ["Mixed(http+socks)[netch] proxy listening at:"];

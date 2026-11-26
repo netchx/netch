@@ -338,7 +338,7 @@ internal static class Ui
 
     private static bool _dialogOpen;
 
-    public static async Task<bool> ShowAsync(XamlRoot? root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null, double? contentMaxWidth = null)
+    public static async Task<bool> ShowAsync(XamlRoot? root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null, double? contentMaxWidth = null, string? cancel = null)
     {
         if (root is null || _dialogOpen)
             return false;
@@ -363,7 +363,7 @@ internal static class Ui
             XamlRoot = root, RequestedTheme = (root.Content as FrameworkElement)?.RequestedTheme ?? ElementTheme.Default,
             Style = Resource<Style>("DefaultContentDialogStyle"), Title = title,
             Content = content, PrimaryButtonText = confirm ?? "",
-            CloseButtonText = confirm == null ? T("Close", "关闭") : T("Cancel", "取消"),
+            CloseButtonText = cancel ?? (confirm == null ? T("Close", "关闭") : T("Cancel", "取消")),
             DefaultButton = confirm == null ? ContentDialogButton.Close : ContentDialogButton.Primary
         };
         if (root.Size.Height > 0)

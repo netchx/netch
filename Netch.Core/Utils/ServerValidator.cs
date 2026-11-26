@@ -525,9 +525,14 @@ public static class ServerValidator
                     extra.ShadowQuicRecvWindowConn is < 0 || extra.ShadowQuicRecvWindow is < 0)
                     return "Check the required protocol fields.";
                 break;
+
+            case EConfigType.ExternalCli:
+                if (string.IsNullOrWhiteSpace(CustomCoreHelper.NormalizeExecutableInput(extra.CliExecutable)))
+                    return "Enter the CLI executable path.";
+                break;
         }
 
-        if (server.ConfigType is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC))
+        if (server.ConfigType is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.ExternalCli))
         {
             if (!IsValidPemChain(server.Cert))
                 return "Invalid PEM certificate.";

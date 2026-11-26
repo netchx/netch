@@ -92,6 +92,7 @@ public static class MainController
             //或者如果是 Socks5 服务器，且模式控制器支持 Socks5（且不需要本地 HTTP 混合端口）则直接使用该服务器
             var requireLocalHttp = ModeController?.Features.HasFlag(ModeFeature.RequireLocalHttpProxy) == true;
             if (!requireLocalHttp && Server is SocksServer socks5 && socks5.ProtoExtra.Uot != true &&
+                CustomCoreHelper.ResolveForServer(Server) == null &&
                 (ModeController == null ? !socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
             {
 
@@ -103,6 +104,8 @@ public static class MainController
                 Log.Debug("Server Information: {Data}", $"{server.ConfigType} {server.MaskedData()}");
 
                 ServerController = CoreSelector.CreateController(server);
+                if (ServerController is ExternalCliController externalCliController)
+                    externalCliController.RequireLocalHttpProxy = requireLocalHttp;
                 AppEvents.ReportStatus(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");

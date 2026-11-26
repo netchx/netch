@@ -99,6 +99,7 @@ public static class SubscriptionUtil
                     continue;
 
                 server.Id = match.Id;
+                server.ProtoExtra.CustomCoreId = match.ProtoExtra.CustomCoreId;
                 previous.Remove(match);
                 unmatched.Remove(server);
             }

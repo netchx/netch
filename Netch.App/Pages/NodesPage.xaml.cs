@@ -35,6 +35,7 @@ public sealed partial class NodesPage : Page
     private readonly Button _selectAllBtn;
     private readonly Button _clearSelectionBtn;
     private readonly Button _batchTestBtn;
+    private readonly DropDownButton _batchCoreBtn;
     private readonly Button _batchCopyBtn;
     private readonly Button _batchDeleteBtn;
     private enum NodeCategoryKind
@@ -87,15 +88,16 @@ public sealed partial class NodesPage : Page
         _selectAllBtn = Button(T("Select all", "全选"), () => _nodes.SelectAll());
         _clearSelectionBtn = Button(T("Clear selection", "取消选择"), ClearSelection);
         _batchTestBtn = AsyncButton(TF("Test selected ({0})", "测速所选 ({0})", 0), () => DelayTestHelper.PerformTestAsync(SelectedServers(), true), refreshEnabled: UpdateBatchBar);
+        _batchCoreBtn = new DropDownButton { Content = T("Set core", "指定核心") };
         _batchCopyBtn = Button(TF("Copy share links ({0})", "复制分享链接 ({0})", 0), () => CopyShareLinks(SelectedServers()));
         _batchDeleteBtn = AsyncButton(TF("Delete selected ({0})", "删除所选 ({0})", 0), () => DeleteServersAsync(SelectedServers()), refreshEnabled: UpdateBatchBar);
-        foreach (var btn in new[] { _selectAllBtn, _clearSelectionBtn, _batchTestBtn, _batchCopyBtn, _batchDeleteBtn })
+        foreach (var btn in new Control[] { _selectAllBtn, _clearSelectionBtn, _batchTestBtn, _batchCoreBtn, _batchCopyBtn, _batchDeleteBtn })
         {
             btn.MinHeight = 28;
             btn.Padding = new Thickness(10, 4, 10, 4);
         }
 
-        _batchBar = Card(Split(Row(_batchCount, _selectAllBtn, _clearSelectionBtn), Row(_batchTestBtn, _batchCopyBtn, _batchDeleteBtn)), 8);
+        _batchBar = Card(Split(Row(_batchCount, _selectAllBtn, _clearSelectionBtn), Row(_batchTestBtn, _batchCoreBtn, _batchCopyBtn, _batchDeleteBtn)), 8);
         _batchBar.Margin = new Thickness(0, 9, 0, 0);
         _batchBar.Visibility = Visibility.Collapsed;
 
@@ -355,16 +357,27 @@ public sealed partial class NodesPage : Page
             MenuItem(T("Delete", "删除"), Icons.Delete, () => DeleteSubscriptionAsync(sub).Forget(), destructive: true));
     }
 
-    private MenuFlyout BuildImportedGroupMenu(string groupName) => IconMenu(
-        MenuItem(T("Test latency", "测速"), Icons.Flash, () =>
+    private MenuFlyout BuildImportedGroupMenu(string groupName)
+    {
+        var menu = new MenuFlyout();
+        menu.Opening += (_, _) =>
         {
-            var groupNodes = GetImportedGroupServers(groupName);
-            if (groupNodes.Length > 0)
-                DelayTestHelper.PerformTestAsync(groupNodes, true).Forget();
-        }),
-        MenuItem(T("Rename group", "重命名分组"), Icons.Rename, () => RenameGroupAsync(groupName, isSubscription: false).Forget()),
-        new MenuFlyoutSeparator(),
-        MenuItem(T("Delete group", "删除分组"), Icons.Delete, () => DeleteImportedGroupAsync(groupName).Forget(), destructive: true));
+            menu.Items.Clear();
+            menu.Items.Add(MenuItem(T("Test latency", "测速"), Icons.Flash, () =>
+            {
+                var groupNodes = GetImportedGroupServers(groupName);
+                if (groupNodes.Length > 0)
+                    DelayTestHelper.PerformTestAsync(groupNodes, true).Forget();
+            }));
+            var groupTargets = GetImportedGroupServers(groupName);
+            if (TryBuildCoreAssignSubMenu(groupTargets, out var coreSub))
+                menu.Items.Add(coreSub);
+            menu.Items.Add(MenuItem(T("Rename group", "重命名分组"), Icons.Rename, () => RenameGroupAsync(groupName, isSubscription: false).Forget()));
+            menu.Items.Add(new MenuFlyoutSeparator());
+            menu.Items.Add(MenuItem(T("Delete group", "删除分组"), Icons.Delete, () => DeleteImportedGroupAsync(groupName).Forget(), destructive: true));
+        };
+        return menu;
+    }
 
     private static Server[] GetSubscriptionServers(Subscription sub) =>
         Global.Settings.Server.Where(s => s.IsSub && NodeGroupHelper.GroupEquals(s.Group, sub.Remark)).ToArray();
@@ -447,6 +460,13 @@ public sealed partial class NodesPage : Page
                 schedule += TF(" · {0} remaining", " · 剩余 {0}", Format.Bytes(remaining));
             if (sub.Expiration is { } expiration)
                 schedule += TF(" · Expires {0:d}", " · 到期 {0:yyyy-MM-dd}", expiration);
+            if (!string.IsNullOrWhiteSpace(sub.CustomCoreId))
+            {
+                if (CustomCoreHelper.IsBuiltInCoreId(sub.CustomCoreId))
+                    schedule += $" · {T("Built-in core", "内置核心")}";
+                else if (CustomCoreHelper.FindById(sub.CustomCoreId) is { } subCore)
+                    schedule += $" · {subCore.Name}";
+            }
             var updateLabel = T("Update", "更新");
             var update = new SplitButton
             {
@@ -526,11 +546,118 @@ public sealed partial class NodesPage : Page
         _selectAllBtn.IsEnabled = _nodeRows.Count > 0 && count < _nodeRows.Count;
         _clearSelectionBtn.IsEnabled = count > 0;
         _batchTestBtn.Content = TF("Test selected ({0})", "测速所选 ({0})", count);
-        _batchTestBtn.IsEnabled = count > 0 && !DelayTestHelper.IsTesting;
         _batchCopyBtn.Content = TF("Copy share links ({0})", "复制分享链接 ({0})", count);
-        _batchCopyBtn.IsEnabled = count > 0;
         _batchDeleteBtn.Content = TF("Delete selected ({0})", "删除所选 ({0})", count);
         _batchDeleteBtn.IsEnabled = count > 0;
+
+        var selected = SelectedServers();
+        var eligible = selected.Where(s => s.ConfigType != Netch.Enums.EConfigType.ExternalCli).ToArray();
+        _batchTestBtn.IsEnabled = eligible.Length > 0 && !DelayTestHelper.IsTesting;
+        _batchCopyBtn.IsEnabled = eligible.Length > 0;
+
+        var showCoreBtn = HasApplicableCustomCores(eligible);
+        _batchCoreBtn.Visibility = showCoreBtn ? Visibility.Visible : Visibility.Collapsed;
+        if (showCoreBtn)
+        {
+            var menu = new MenuFlyout();
+            PopulateCoreAssignItems(menu.Items, eligible);
+            _batchCoreBtn.Flyout = menu;
+            _batchCoreBtn.IsEnabled = menu.Items.Count > 0;
+        }
+    }
+
+    private static bool HasApplicableCustomCores(IReadOnlyList<Server> eligible)
+    {
+        if (eligible.Count == 0)
+            return false;
+
+        var protocols = eligible.Select(s => s.ConfigType).ToHashSet();
+        return CustomCoreHelper.GetAll().Any(c => protocols.Contains(c.Protocol))
+            || eligible.Any(s => !string.IsNullOrWhiteSpace(s.ProtoExtra.CustomCoreId));
+    }
+
+    private bool TryBuildCoreAssignSubMenu(IReadOnlyList<Server> targets, out MenuFlyoutSubItem subMenu)
+    {
+        subMenu = new MenuFlyoutSubItem
+        {
+            Text = T("Set core", "指定核心"),
+            Icon = new FontIcon { Glyph = Icons.Flash }
+        };
+        var eligible = targets.Where(s => s.ConfigType != Netch.Enums.EConfigType.ExternalCli).ToArray();
+        if (!HasApplicableCustomCores(eligible))
+            return false;
+
+        PopulateCoreAssignItems(subMenu.Items, eligible);
+        return subMenu.Items.Count > 0;
+    }
+
+    private void PopulateCoreAssignItems(IList<MenuFlyoutItemBase> items, IReadOnlyList<Server> targets)
+    {
+        var eligible = targets.Where(s => s.ConfigType != Netch.Enums.EConfigType.ExternalCli).ToArray();
+        if (eligible.Length == 0)
+            return;
+
+        var follow = new MenuFlyoutItem { Text = T("Follow default", "跟随默认") };
+        follow.Click += (_, _) => AssignCustomCoreAsync(eligible, null).Forget();
+        items.Add(follow);
+
+        var builtIn = new MenuFlyoutItem { Text = T("Built-in core", "内置核心") };
+        builtIn.Click += (_, _) => AssignCustomCoreAsync(eligible, CustomCoreHelper.BuiltInCoreId).Forget();
+        items.Add(builtIn);
+
+        var protocols = eligible.Select(s => s.ConfigType).Distinct().ToHashSet();
+        var matchingCores = CustomCoreHelper.GetAll().Where(c => protocols.Contains(c.Protocol)).ToArray();
+        if (matchingCores.Length == 0)
+            return;
+
+        items.Add(new MenuFlyoutSeparator());
+        var multiProto = protocols.Count > 1;
+        foreach (var core in matchingCores)
+        {
+            var label = multiProto ? $"{core.Name} ({ServerHelper.GetDisplayName(core.Protocol)})" : core.Name;
+            var item = new MenuFlyoutItem { Text = label };
+            item.Click += (_, _) => AssignCustomCoreAsync(eligible, core.Id).Forget();
+            items.Add(item);
+        }
+    }
+
+    private async Task AssignCustomCoreAsync(IReadOnlyList<Server> targets, string? coreId)
+    {
+        var isBuiltIn = CustomCoreHelper.IsBuiltInCoreId(coreId);
+        var hasCustomId = !string.IsNullOrWhiteSpace(coreId) && !isBuiltIn;
+        var core = hasCustomId ? CustomCoreHelper.FindById(coreId) : null;
+        if (hasCustomId && core == null)
+            return;
+
+        var assignedId = isBuiltIn ? CustomCoreHelper.BuiltInCoreId : core?.Id;
+        var snapshot = new List<(Server Server, string? OldId)>(targets.Count);
+        foreach (var server in targets)
+        {
+            if (server.ConfigType == Netch.Enums.EConfigType.ExternalCli)
+                continue;
+            if (core != null && server.ConfigType != core.Protocol)
+                continue;
+
+            snapshot.Add((server, server.ProtoExtra.CustomCoreId));
+            server.ProtoExtra.CustomCoreId = assignedId;
+        }
+
+        if (snapshot.Count == 0)
+            return;
+
+        try
+        {
+            await Configuration.SaveAsync(throwOnError: true);
+            RefreshNodes();
+        }
+        catch (Exception e)
+        {
+            foreach (var (server, oldId) in snapshot)
+                server.ProtoExtra.CustomCoreId = oldId;
+            Log.Warning(e, "Assign custom core failed");
+            if (XamlRoot is { } root)
+                await ShowAsync(root, T("Operation failed", "操作失败"), Text(e.Message));
+        }
     }
 
     private void CopyShareLinks(IReadOnlyList<Server> servers)
@@ -586,10 +713,19 @@ public sealed partial class NodesPage : Page
             var selected = SelectedServers();
             if (item.IsSelected && selected.Length > 1)
             {
-                menu.Items.Add(MenuItem(TF("Test selected ({0})", "测速所选 ({0})", selected.Length), "\uE945",
-                    () => DelayTestHelper.PerformTestAsync(selected, true).Forget()));
-                menu.Items.Add(MenuItem(TF("Copy share links ({0})", "复制分享链接 ({0})", selected.Length), "\uE8C8",
-                    () => CopyShareLinks(selected)));
+                var hasEligible = selected.Any(s => s.ConfigType != Netch.Enums.EConfigType.ExternalCli);
+                if (hasEligible)
+                {
+                    menu.Items.Add(MenuItem(TF("Test selected ({0})", "测速所选 ({0})", selected.Length), "\uE945",
+                        () => DelayTestHelper.PerformTestAsync(selected, true).Forget()));
+                }
+                if (TryBuildCoreAssignSubMenu(selected, out var batchCoreSub))
+                    menu.Items.Add(batchCoreSub);
+                if (hasEligible)
+                {
+                    menu.Items.Add(MenuItem(TF("Copy share links ({0})", "复制分享链接 ({0})", selected.Length), "\uE8C8",
+                        () => CopyShareLinks(selected)));
+                }
                 menu.Items.Add(MenuItem(T("Clear selection", "取消选择"), "\uE8E6", ClearSelection));
                 menu.Items.Add(new MenuFlyoutSeparator());
                 menu.Items.Add(MenuItem(TF("Delete selected ({0})", "删除所选 ({0})", selected.Length), "\uE74D",
@@ -597,11 +733,20 @@ public sealed partial class NodesPage : Page
                 return;
             }
 
-            menu.Items.Add(MenuItem(T("Test latency", "测速"), "\uE945",
-                () => DelayTestHelper.PerformTestAsync([target], true).Forget()));
+            var canShareOrTest = target.ConfigType != Netch.Enums.EConfigType.ExternalCli;
+            if (canShareOrTest)
+            {
+                menu.Items.Add(MenuItem(T("Test latency", "测速"), "\uE945",
+                    () => DelayTestHelper.PerformTestAsync([target], true).Forget()));
+            }
             menu.Items.Add(MenuItem(T("Edit", "编辑"), "\uE70F", () => EditNodeAsync(target).Forget()));
-            menu.Items.Add(MenuItem(T("Copy share link", "复制分享链接"), "\uE8C8", () => NodeEditor.ShareAsync(XamlRoot, target, false).Forget()));
-            menu.Items.Add(MenuItem(T("QR code", "二维码"), "\uED14", () => NodeEditor.ShareAsync(XamlRoot, target, true).Forget()));
+            if (TryBuildCoreAssignSubMenu([target], out var singleCoreSub))
+                menu.Items.Add(singleCoreSub);
+            if (canShareOrTest)
+            {
+                menu.Items.Add(MenuItem(T("Copy share link", "复制分享链接"), "\uE8C8", () => NodeEditor.ShareAsync(XamlRoot, target, false).Forget()));
+                menu.Items.Add(MenuItem(T("QR code", "二维码"), "\uED14", () => NodeEditor.ShareAsync(XamlRoot, target, true).Forget()));
+            }
             menu.Items.Add(MenuItem(T("Test NAT", "测 NAT"), "\uE9D9", () => NodeEditor.TestNatAsync(XamlRoot, target).Forget()));
             menu.Items.Add(new MenuFlyoutSeparator());
             menu.Items.Add(MenuItem(T("Delete", "删除"), "\uE74D", () => DeleteServersAsync([target]).Forget(), destructive: true));
@@ -647,11 +792,17 @@ public sealed partial class NodesPage : Page
                 _delayLabels[server] = delay;
                 var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
                 scenes.Width = 66;
+                var coreName = server.ConfigType != Netch.Enums.EConfigType.ExternalCli
+                    ? CustomCoreHelper.ResolveForServer(server)?.Name
+                    : null;
+                var typePill = string.IsNullOrEmpty(coreName)
+                    ? ServerHelper.GetDisplayName(server.ConfigType)
+                    : $"{ServerHelper.GetDisplayName(server.ConfigType)} · {coreName}";
                 var item = new ListViewItem
                 {
                     Tag = server, HorizontalContentAlignment = HorizontalAlignment.Stretch,
                     Content = Split(Text(Format.NodeName(server)),
-                        Row(Pill(ServerHelper.GetDisplayName(server.ConfigType)), scenes, delay))
+                        Row(Pill(typePill), scenes, delay))
                 };
                 item.ContextFlyout = BuildNodeMenu(item, server);
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, Format.NodeName(server));
@@ -699,7 +850,7 @@ public sealed partial class NodesPage : Page
             else
                 text = await ClipboardTextAsync();
 
-            var (count, skipped, group) = await NodeEditor.ImportTextAsync(text, filePath);
+            var (count, skipped, group) = await NodeEditor.ImportTextAsync(text, filePath, XamlRoot);
             _status.Text = count == 0 ? T("No supported nodes found.", "未找到可导入的节点。")
                 : TF("Imported {0} nodes.", "已导入 {0} 个节点。", count);
             if (skipped > 0)

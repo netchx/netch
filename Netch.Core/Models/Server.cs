@@ -92,7 +92,7 @@ public abstract class Server : ICloneable
     public bool SupportsTcpPreScreen()
     {
         if (ConfigType is EConfigType.Hysteria2 or EConfigType.TUIC or EConfigType.WireGuard or EConfigType.MASQUE
-            or EConfigType.ShadowQUIC or EConfigType.AmneziaWG)
+            or EConfigType.ShadowQUIC or EConfigType.AmneziaWG or EConfigType.ExternalCli)
             return false;
 
         if (ConfigType == EConfigType.Naive && ProtoExtra.NaiveQuic == true)
@@ -123,6 +123,9 @@ public abstract class Server : ICloneable
 
     public async Task<int> PingAsync(CancellationToken ct)
     {
+        if (ConfigType == EConfigType.ExternalCli)
+            return Delay = DelayStatus.Untested;
+
         try
         {
             var timeout = Math.Clamp(Global.Settings.DelayTestTimeout, Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
@@ -297,6 +300,11 @@ public record ProtocolExtraItem
 
     // Custom outbound compatibility marker used by v2rayN profiles.
     public bool? IsSingboxEndpoint { get; set; }
+
+    // ExternalCli & protocol custom core override
+    public string? CliExecutable { get; set; }
+    public string? CliArguments { get; set; }
+    public string? CustomCoreId { get; set; }
 
     // group profile
     public string? GroupType { get; set; }

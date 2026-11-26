@@ -98,6 +98,10 @@ public static class ServerEditorHelper
             case EConfigType.AmneziaWG:
                 server.ProtoExtra.WgMtu = 1280;
                 break;
+            case EConfigType.ExternalCli:
+                server.Address = "127.0.0.1";
+                server.Port = 1080;
+                break;
         }
 
         return server;
@@ -264,13 +268,22 @@ public static class ServerEditorHelper
                 if (extra.AwgVersion != 3)
                     ClearAwgV3Options(extra);
                 break;
+
+            case EConfigType.ExternalCli:
+                ClearTlsFields(server);
+                if (string.IsNullOrWhiteSpace(server.Address))
+                    server.Address = "127.0.0.1";
+                extra.CliExecutable = CustomCoreHelper.NormalizeExecutableInput(extra.CliExecutable);
+                extra.CliArguments = CustomCoreHelper.NormalizeArgumentsInput(extra.CliArguments);
+                extra.CustomCoreId = null;
+                break;
         }
 
         if (protocol is EConfigType.VLESS or EConfigType.VMess or EConfigType.Trojan &&
             server.GetNetwork() != nameof(ETransport.xhttp))
             server.Extra = string.Empty;
 
-        if (protocol is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC) &&
+        if (protocol is not (EConfigType.WireGuard or EConfigType.AmneziaWG or EConfigType.ShadowsocksR or EConfigType.SOCKS or EConfigType.Shadowsocks or EConfigType.SSH or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.ExternalCli) &&
             server.StreamSecurity != Constants.StreamSecurity)
         {
             server.Cert = string.Empty;

@@ -143,6 +143,8 @@ public static class Configuration
                 scene.Icon = SceneIcon.NormalizeKey(scene.Icon);
         }
 
+        CustomCoreHelper.NormalizeAll(settings);
+
         if (settings.Profiles.Any(p => settings.Profiles.Any(p1 => p1 != p && p1.Index == p.Index)))
             for (var i = 0; i < settings.Profiles.Count; i++)
                 settings.Profiles[i].Index = i;

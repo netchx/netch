@@ -33,4 +33,6 @@ public class Subscription
     public DateTimeOffset? Expiration { get; set; }
 
     public string UserAgent { get; set; } = string.Empty;
+
+    public string? CustomCoreId { get; set; }
 }

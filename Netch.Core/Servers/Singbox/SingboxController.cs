@@ -13,9 +13,18 @@ namespace Netch.Servers;
 
 public sealed class SingboxController : Guard, IServerController
 {
-    public SingboxController() : base(FindExecutable())
+    public SingboxController(string? executablePath = null) : base(ResolveExecutable(executablePath))
     {
+        if (!string.IsNullOrWhiteSpace(executablePath))
+        {
+            var dir = Path.GetDirectoryName(ExecutablePath);
+            if (!string.IsNullOrEmpty(dir))
+                Instance.StartInfo.WorkingDirectory = dir;
+        }
     }
+
+    private static string ResolveExecutable(string? executablePath) =>
+        string.IsNullOrWhiteSpace(executablePath) ? FindExecutable() : CustomCoreHelper.ResolveExecutablePath(executablePath);
 
     public override string Name => "sing-box";
     protected override IEnumerable<string> StartedKeywords => ["sing-box started"];

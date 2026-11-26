@@ -276,6 +276,8 @@ public static class V2rayConfigUtils
                 outbound.settings.address = dialAddress;
                 outbound.settings.port = server.Port;
                 break;
+            default:
+                throw new MessageException(i18N.TranslateFormat("Xray does not support node type {0}.", server.ConfigType));
         }
 
         outbound.streamSettings = GenBoundStreamSettings(server, outbound, !string.IsNullOrWhiteSpace(serverAddress));

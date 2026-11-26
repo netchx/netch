@@ -22,4 +22,5 @@ public enum EConfigType
     Mieru,
     ShadowQUIC,
     AmneziaWG,
+    ExternalCli,
 }
