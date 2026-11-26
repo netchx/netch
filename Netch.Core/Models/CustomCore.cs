@@ -24,5 +24,9 @@ public class CustomCore
 
     public string ArgumentsTemplate { get; set; } = string.Empty;
 
+    public string ConfigTemplate { get; set; } = string.Empty;
+
+    public string ConfigFileExtension { get; set; } = ".json";
+
     public bool IsProtocolDefault { get; set; }
 }

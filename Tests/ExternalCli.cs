@@ -420,6 +420,179 @@ public class ExternalCli
     }
 
     [TestMethod]
+    public void CustomCoreProtocolCompatibilityPlaceholdersConditionalsAndConfigTemplateWork()
+    {
+        // Protocol compatibility matrix
+        Assert.IsFalse(CustomCoreHelper.SupportsMode(EConfigType.Naive, CustomCoreMode.MihomoConfig));
+        Assert.IsFalse(CustomCoreHelper.SupportsMode(EConfigType.Naive, CustomCoreMode.XrayConfig));
+        Assert.IsTrue(CustomCoreHelper.SupportsMode(EConfigType.Naive, CustomCoreMode.SingboxConfig));
+        Assert.IsTrue(CustomCoreHelper.SupportsMode(EConfigType.Naive, CustomCoreMode.CliArguments));
+
+        Assert.IsFalse(CustomCoreHelper.SupportsMode(EConfigType.ShadowsocksR, CustomCoreMode.SingboxConfig));
+        Assert.IsFalse(CustomCoreHelper.SupportsMode(EConfigType.ShadowsocksR, CustomCoreMode.XrayConfig));
+        Assert.IsTrue(CustomCoreHelper.SupportsMode(EConfigType.ShadowsocksR, CustomCoreMode.MihomoConfig));
+
+        CollectionAssert.AreEquivalent(
+            Enum.GetValues<CustomCoreMode>(),
+            CustomCoreHelper.GetSupportedModes(EConfigType.VLESS).ToArray());
+        Assert.AreEqual(0, CustomCoreHelper.GetSupportedModes(EConfigType.ExternalCli).Count);
+
+        // Validation of incompatible launch mode & config template cross-checks
+        var badMode = new CustomCore
+        {
+            Name = "Naive Mihomo",
+            Protocol = EConfigType.Naive,
+            ExecutablePath = "naive.exe",
+            Mode = CustomCoreMode.MihomoConfig
+        };
+        Assert.AreEqual("The selected launch mode does not support this protocol.", CustomCoreHelper.Validate(badMode));
+
+        var missingConfigBody = new CustomCore
+        {
+            Name = "Hy2",
+            Protocol = EConfigType.Hysteria2,
+            ExecutablePath = "hysteria.exe",
+            Mode = CustomCoreMode.CliArguments,
+            ArgumentsTemplate = "client -c {config_file}",
+            ConfigTemplate = "   "
+        };
+        Assert.AreEqual("Enter the config file template.", CustomCoreHelper.Validate(missingConfigBody));
+
+        var missingConfigRef = new CustomCore
+        {
+            Name = "Hy2",
+            Protocol = EConfigType.Hysteria2,
+            ExecutablePath = "hysteria.exe",
+            Mode = CustomCoreMode.CliArguments,
+            ArgumentsTemplate = "-s {address}",
+            ConfigTemplate = "{}"
+        };
+        Assert.AreEqual("The CLI arguments template must reference the config file placeholder.", CustomCoreHelper.Validate(missingConfigRef));
+
+        // Conditional blocks {?key:...} with space collapsing and fallback {a|b|literal}
+        var ssPreset = CustomCoreHelper.GetPresetsForProtocol(EConfigType.Shadowsocks)[0];
+        var plainSs = new ShadowsocksServer { Address = "1.2.3.4", Port = 8388, Password = "pw", ProtoExtra = { SsMethod = "aes-256-gcm" } };
+        Assert.AreEqual(
+            "-s 1.2.3.4 -p 8388 -b 127.0.0.1 -l 1080 -m aes-256-gcm -k pw",
+            CustomCoreHelper.RenderArguments(ssPreset.ArgumentsTemplate, plainSs, "1.2.3.4", "127.0.0.1", 1080));
+
+        plainSs.ProtoExtra.SsPlugin = "v2ray-plugin";
+        plainSs.ProtoExtra.SsPluginOptions = "tls;host=cdn.example.com";
+        Assert.AreEqual(
+            "-s 1.2.3.4 -p 8388 -b 127.0.0.1 -l 1080 -m aes-256-gcm -k pw --plugin v2ray-plugin --plugin-opts tls;host=cdn.example.com",
+            CustomCoreHelper.RenderArguments(ssPreset.ArgumentsTemplate, plainSs, "1.2.3.4", "127.0.0.1", 1080));
+
+        // Conditional boolean flag + fallback literal + SSR / TUIC / WireGuard tokens
+        var tuic = new TUICServer
+        {
+            Address = "tuic.example.com",
+            Port = 443,
+            Username = "11111111-1111-1111-1111-111111111111",
+            Password = "pw",
+            AllowInsecure = true
+        };
+        Assert.AreEqual(
+            "-u 11111111-1111-1111-1111-111111111111 --sni tuic.example.com --alpn h3 --insecure",
+            CustomCoreHelper.RenderArguments("-u {uuid} --sni {sni|host} --alpn {alpn|h3} {?insecure:--insecure}", tuic, "10.0.0.2", "127.0.0.1", 1080));
+
+        var ssr = new ShadowsocksRServer
+        {
+            Address = "ssr.example.com",
+            Port = 8388,
+            Password = "pw",
+            EncryptMethod = "chacha20",
+            Protocol = "auth_aes128_md5",
+            ProtocolParam = "123:abc",
+            OBFS = "tls1.2_ticket_auth"
+        };
+        Assert.AreEqual(
+            "-s 1.1.1.1 -p 8388 -b 127.0.0.1 -l 1080 -m chacha20 -k pw -O auth_aes128_md5 -G 123:abc -o tls1.2_ticket_auth",
+            CustomCoreHelper.RenderArguments(CustomCoreHelper.GetDefaultCliTemplate(EConfigType.ShadowsocksR), ssr, "1.1.1.1", "127.0.0.1", 1080));
+
+        // JSON config template rendering preserves outer JSON braces, handles nested conditional JSON, and escapes secrets
+        var hy2Preset = CustomCoreHelper.GetPresetsForProtocol(EConfigType.Hysteria2).First(p => !string.IsNullOrWhiteSpace(p.ConfigTemplate));
+        var hy2None = new Hysteria2Server
+        {
+            Address = "hy2.example.com",
+            Port = 443,
+            Password = "pa\"ss\\word",
+            ProtoExtra = { Obfs = Netch.Constants.None }
+        };
+        var hy2NoneJson = CustomCoreHelper.RenderConfigTemplate(hy2Preset.ConfigTemplate, hy2Preset.ConfigFileExtension, hy2None, "9.9.9.9", "127.0.0.1", 2080);
+        using (var docNone = JsonDocument.Parse(hy2NoneJson))
+        {
+            Assert.AreEqual("9.9.9.9:443", docNone.RootElement.GetProperty("server").GetString());
+            Assert.AreEqual("pa\"ss\\word", docNone.RootElement.GetProperty("auth").GetString());
+            Assert.AreEqual("hy2.example.com", docNone.RootElement.GetProperty("tls").GetProperty("sni").GetString());
+            Assert.IsFalse(docNone.RootElement.GetProperty("tls").GetProperty("insecure").GetBoolean());
+            Assert.IsFalse(docNone.RootElement.TryGetProperty("obfs", out _));
+        }
+
+        hy2None.AllowInsecure = true;
+        hy2None.ProtoExtra.Obfs = "salamander";
+        hy2None.ProtoExtra.SalamanderPass = "obfs\"pw";
+        var hy2ObfsJson = CustomCoreHelper.RenderConfigTemplate(hy2Preset.ConfigTemplate, hy2Preset.ConfigFileExtension, hy2None, "9.9.9.9", "127.0.0.1", 2080);
+        using (var docObfs = JsonDocument.Parse(hy2ObfsJson))
+        {
+            Assert.IsTrue(docObfs.RootElement.GetProperty("tls").GetProperty("insecure").GetBoolean());
+            Assert.AreEqual("salamander", docObfs.RootElement.GetProperty("obfs").GetProperty("type").GetString());
+            Assert.AreEqual("obfs\"pw", docObfs.RootElement.GetProperty("obfs").GetProperty("salamander").GetProperty("password").GetString());
+        }
+
+        // YAML config template escapes single/double quotes and unquoted newlines
+        var yamlSample = "server: {address}\nsni: '{sni|host}'\npassword: \"{password}\"";
+        var yamlRendered = CustomCoreHelper.RenderConfigTemplate(yamlSample, ".yaml", new ShadowsocksServer
+        {
+            Address = "example.com",
+            Sni = "o'hara.example.com",
+            Password = "a\"b\nc"
+        }, "1.2.3.4", "127.0.0.1", 1080);
+        Assert.AreEqual("server: 1.2.3.4\nsni: 'o''hara.example.com'\npassword: \"a\\\"b\\nc\"", yamlRendered);
+
+        // Bare \r line endings from WinUI TextBox normalize to \n
+        Assert.AreEqual("line1\nline2\nline3", CustomCoreHelper.NormalizeConfigTemplate("line1\r\nline2\rline3\r"));
+        Assert.AreEqual(
+            "server = \"1.2.3.4\"\npassword = \"p\\nw\"",
+            CustomCoreHelper.RenderConfigTemplate("server = \"{address}\"\rpassword = \"{password}\"\r", ".toml",
+                new ShadowsocksServer { Address = "example.com", Password = "p\nw" }, "1.2.3.4", "127.0.0.1", 1080));
+
+        // TOML and .conf double-quoted newline escaping
+        var tomlEscaped = CustomCoreHelper.RenderConfigTemplate("p = \"{password}\"", ".toml",
+            new ShadowsocksServer { Password = "a\"b\nc\rd" }, "1.2.3.4", "127.0.0.1", 1080);
+        Assert.AreEqual("p = \"a\\\"b\\nc\\rd\"", tomlEscaped);
+        var confEscaped = CustomCoreHelper.RenderConfigTemplate("p = \"{password}\"", ".conf",
+            new ShadowsocksServer { Password = "a\"b\nc\rd" }, "1.2.3.4", "127.0.0.1", 1080);
+        Assert.AreEqual("p = \"a\\\"b\\nc\\rd\"", confEscaped);
+
+        // IPv6 host:port bracketing in presets
+        var hy2V6 = new Hysteria2Server { Address = "2001:db8::2", Port = 443, Password = "pw" };
+        var hy2V6Json = CustomCoreHelper.RenderConfigTemplate(hy2Preset.ConfigTemplate, hy2Preset.ConfigFileExtension, hy2V6, "2001:db8::1", "::1", 2080);
+        using (var docV6 = JsonDocument.Parse(hy2V6Json))
+        {
+            Assert.AreEqual("[2001:db8::1]:443", docV6.RootElement.GetProperty("server").GetString());
+            Assert.AreEqual("[::1]:2080", docV6.RootElement.GetProperty("socks5").GetProperty("listen").GetString());
+        }
+
+        // CoreSelector rejects incompatible custom core mode overrides at runtime
+        var badAwgCore = new CustomCore
+        {
+            Id = "awg-xray-bad",
+            Name = "Bad AWG",
+            Protocol = EConfigType.AmneziaWG,
+            ExecutablePath = Path.Combine(Environment.SystemDirectory, "cmd.exe"),
+            Mode = CustomCoreMode.XrayConfig
+        };
+        Netch.Global.Settings.CustomCores.Add(badAwgCore);
+        var awgNode = new AmneziaWGServer
+        {
+            Address = "1.2.3.4",
+            Port = 51820,
+            ProtoExtra = { CustomCoreId = badAwgCore.Id }
+        };
+        Assert.Throws<Netch.Models.MessageException>(() => CoreSelector.CreateController(awgNode));
+    }
+
+    [TestMethod]
     [DoNotParallelize]
     public async Task DelayTestsSkipExternalCliAndFallbackToTcpForProtocolCliNodes()
     {
@@ -484,6 +657,20 @@ public class ExternalCli
         var ex = await Assert.ThrowsAsync<Netch.Models.MessageException>(() => controller.StartAsync(server));
         StringAssert.Contains(ex.Message, "7");
         await controller.StopAsync();
+
+        var invalidCfgCore = new CustomCore
+        {
+            Id = "invalid-cfg-core",
+            Name = "Invalid Config Core",
+            Protocol = EConfigType.Hysteria2,
+            ExecutablePath = Path.Combine(Environment.SystemDirectory, "cmd.exe"),
+            Mode = CustomCoreMode.CliArguments,
+            ArgumentsTemplate = "-c {config_file}",
+            ConfigTemplate = ""
+        };
+        var cfgController = new ExternalCliController(invalidCfgCore);
+        await Assert.ThrowsAsync<Netch.Models.MessageException>(() => cfgController.StartAsync(new Hysteria2Server { Address = "1.2.3.4", Port = 443, Password = "pw" }));
+        await cfgController.StopAsync();
     }
 
     [TestMethod]
@@ -586,6 +773,64 @@ public class ExternalCli
             {
                 await protoController.StopAsync();
             }
+
+            // CustomCore with config file template writes temp config and deletes it on StopAsync()
+            var dataDir = Path.Combine(Netch.Global.NetchDir, "data");
+            Directory.CreateDirectory(dataDir);
+            var existingConfigs = Directory.GetFiles(dataDir, "custom-core-*.json").ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            using var mockSocks3 = new TcpListener(IPAddress.Loopback, 0);
+            mockSocks3.Start();
+            var socksPort3 = ((IPEndPoint)mockSocks3.LocalEndpoint).Port;
+            using var acceptCts3 = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            var acceptTask3 = Task.Run(async () =>
+            {
+                using var client = await mockSocks3.AcceptTcpClientAsync(acceptCts3.Token);
+                var stream = client.GetStream();
+                var greeting = new byte[3];
+                await stream.ReadExactlyAsync(greeting, acceptCts3.Token);
+                await stream.WriteAsync(new byte[] { 5, 0 }, acceptCts3.Token);
+            }, acceptCts3.Token);
+
+            var cfgCore = new CustomCore
+            {
+                Id = "cfg-template-test",
+                Name = "Config Template Test",
+                Protocol = EConfigType.Hysteria2,
+                ExecutablePath = Path.Combine(Environment.SystemDirectory, "cmd.exe"),
+                Mode = CustomCoreMode.CliArguments,
+                ArgumentsTemplate = "/c if exist {config_file} ping -n 30 127.0.0.1",
+                ConfigTemplate = "{\"server\":\"{address}:{port}\",\"auth\":\"{password}\",\"socks5\":{\"listen\":\"{local_addr}:{local_port}\"}}",
+                ConfigFileExtension = ".json"
+            };
+            Assert.IsNull(CustomCoreHelper.Validate(cfgCore));
+            var hy2Node = new Hysteria2Server { Address = "127.0.0.1", Port = 8443, Password = "pw" };
+            var cfgController = new ExternalCliController(cfgCore)
+            {
+                Socks5LocalPort = (ushort)socksPort3,
+                LocalAddress = "127.0.0.1"
+            };
+            string? createdConfig = null;
+            try
+            {
+                var started3 = await cfgController.StartAsync(hy2Node);
+                await acceptTask3;
+                Assert.AreEqual(socksPort3, started3.Port);
+                createdConfig = Directory.GetFiles(dataDir, "custom-core-*.json")
+                    .FirstOrDefault(p => !existingConfigs.Contains(p));
+                Assert.IsNotNull(createdConfig);
+                Assert.IsTrue(cfgController.Instance.StartInfo.Arguments.Contains(createdConfig, StringComparison.Ordinal));
+                using var doc = JsonDocument.Parse(await File.ReadAllTextAsync(createdConfig));
+                Assert.AreEqual("127.0.0.1:8443", doc.RootElement.GetProperty("server").GetString());
+                Assert.AreEqual($"127.0.0.1:{socksPort3}", doc.RootElement.GetProperty("socks5").GetProperty("listen").GetString());
+            }
+            finally
+            {
+                await cfgController.StopAsync();
+            }
+
+            if (createdConfig != null)
+                Assert.IsFalse(File.Exists(createdConfig));
         }
         finally
         {

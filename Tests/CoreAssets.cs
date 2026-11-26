@@ -229,7 +229,16 @@ public class CoreAssets
             "Keep default",
             "Detected {0} imported {1} nodes. Choose whether to bind a custom core:",
             "Custom cores are configured for the imported protocols. Choose a core for each protocol:",
-            "{0} ({1} nodes)"
+            "{0} ({1} nodes)",
+            "The selected launch mode does not support this protocol.",
+            "Enter the config file template.",
+            "The CLI arguments template must reference the config file placeholder.",
+            "Use config file template",
+            "Config file format",
+            "Config file template",
+            "Live preview",
+            "Click a placeholder to insert",
+            "CLI arguments + config"
         };
 
         try

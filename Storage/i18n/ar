@@ -993,5 +993,14 @@
   "Keep default": "إبقاء الافتراضي",
   "Detected {0} imported {1} nodes. Choose whether to bind a custom core:": "تم استيراد {0} من عقد {1}. اختر ما إذا كنت تريد ربط نواة مخصّصة:",
   "Custom cores are configured for the imported protocols. Choose a core for each protocol:": "توجد نوى مخصّصة للبروتوكولات المستوردة. اختر نواة لكل بروتوكول:",
-  "{0} ({1} nodes)": "{0} ({1} عقد)"
+  "{0} ({1} nodes)": "{0} ({1} عقد)",
+  "The selected launch mode does not support this protocol.": "وضع التشغيل المحدد لا يدعم هذا البروتوكول.",
+  "Enter the config file template.": "أدخل قالب ملف الإعداد.",
+  "The CLI arguments template must reference the config file placeholder.": "يجب أن يشير قالب وسائط CLI إلى العنصر النائب لملف الإعداد.",
+  "Use config file template": "استخدام قالب ملف إعداد",
+  "Config file format": "تنسيق ملف الإعداد",
+  "Config file template": "قالب ملف الإعداد",
+  "Live preview": "معاينة مباشرة",
+  "Click a placeholder to insert": "انقر على عنصر نائب للإدراج",
+  "CLI arguments + config": "وسائط CLI + ملف إعداد"
 }

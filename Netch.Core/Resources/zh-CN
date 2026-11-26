@@ -994,5 +994,14 @@
   "Keep default": "保持默认",
   "Detected {0} imported {1} nodes. Choose whether to bind a custom core:": "已解析 {0} 个 {1} 节点，是否改用自定义核心运行？",
   "Custom cores are configured for the imported protocols. Choose a core for each protocol:": "导入节点的协议已配置自定义核心，可按协议选择运行核心：",
-  "{0} ({1} nodes)": "{0}（{1} 个节点）"
+  "{0} ({1} nodes)": "{0}（{1} 个节点）",
+  "The selected launch mode does not support this protocol.": "当前启动方式不支持所选协议。",
+  "Enter the config file template.": "请输入配置文件模板。",
+  "The CLI arguments template must reference the config file placeholder.": "使用配置文件模板时，参数模板中需引用配置文件占位符。",
+  "Use config file template": "使用配置文件模板",
+  "Config file format": "配置文件格式",
+  "Config file template": "配置文件模板",
+  "Live preview": "实时预览",
+  "Click a placeholder to insert": "点击占位符插入（支持条件段与空值回退）",
+  "CLI arguments + config": "CLI 参数 + 配置模板"
 }

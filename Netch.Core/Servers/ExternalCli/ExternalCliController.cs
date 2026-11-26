@@ -16,6 +16,7 @@ public sealed class ExternalCliController : Guard, IServerController
 
     private readonly CustomCore? _customCore;
     private MihomoController? _httpBridge;
+    private string? _tempConfigPath;
 
     public ExternalCliController(ExternalCliServer server)
         : this(
@@ -75,6 +76,8 @@ public sealed class ExternalCliController : Guard, IServerController
         ushort cliPort;
         ushort bridgePort = 0;
         string arguments;
+        string? renderedConfig = null;
+        string configExt = ".json";
 
         if (_customCore == null)
         {
@@ -90,6 +93,9 @@ public sealed class ExternalCliController : Guard, IServerController
         }
         else
         {
+            if (CustomCoreHelper.Validate(_customCore) is { } validationError)
+                throw new MessageException(i18N.Translate(validationError));
+
             var upstream = (IPAddress.TryParse(Global.Settings.OutboundDNS, out var dns)
                     ? await DnsUtils.LookupAsync(server.Address, dns: dns.ToString(), useCache: false)
                     : null)
@@ -109,7 +115,16 @@ public sealed class ExternalCliController : Guard, IServerController
                 cliPort = this.Socks5LocalPort();
             }
 
-            arguments = CustomCoreHelper.RenderArguments(_customCore.ArgumentsTemplate, server, upstreamIp, cliListenAddress, cliPort);
+            if (!string.IsNullOrWhiteSpace(_customCore.ConfigTemplate))
+            {
+                configExt = CustomCoreHelper.NormalizeConfigExtension(_customCore.ConfigFileExtension);
+                var dataDir = Path.Combine(Global.NetchDir, "data");
+                Directory.CreateDirectory(dataDir);
+                _tempConfigPath = Path.Combine(dataDir, $"custom-core-{Guid.NewGuid():N}{configExt}");
+                renderedConfig = CustomCoreHelper.RenderConfigTemplate(_customCore.ConfigTemplate, configExt, server, upstreamIp, cliListenAddress, cliPort);
+            }
+
+            arguments = CustomCoreHelper.RenderArguments(_customCore.ArgumentsTemplate, server, upstreamIp, cliListenAddress, cliPort, _tempConfigPath);
         }
 
         var probeIp = IPAddress.TryParse(cliListenAddress, out var parsed)
@@ -118,6 +133,9 @@ public sealed class ExternalCliController : Guard, IServerController
 
         try
         {
+            if (renderedConfig != null && _tempConfigPath != null)
+                await File.WriteAllTextAsync(_tempConfigPath, renderedConfig, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+
             await StartGuardAsync(arguments);
             await WaitForSocksReadyAsync(probeIp, cliPort);
 
@@ -180,6 +198,24 @@ public sealed class ExternalCliController : Guard, IServerController
             }
 
             await StopGuardAsync();
+
+            var tempConfig = Interlocked.Exchange(ref _tempConfigPath, null);
+            if (!string.IsNullOrEmpty(tempConfig))
+            {
+                try
+                {
+                    if (File.Exists(tempConfig))
+                        File.Delete(tempConfig);
+                }
+                catch (IOException)
+                {
+                    // Best-effort cleanup of temp config file.
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    // Best-effort cleanup of temp config file.
+                }
+            }
         }
     }
 

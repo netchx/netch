@@ -224,7 +224,10 @@ public sealed partial class SettingsPage : Page
         var rows = new List<UIElement>(cores.Count + 1);
         foreach (var core in cores)
         {
-            var summary = $"{ServerHelper.GetDisplayName(core.Protocol)} · {CustomCoreModeLabel(core.Mode)}" +
+            var modeLabel = core.Mode == CustomCoreMode.CliArguments && !string.IsNullOrWhiteSpace(core.ConfigTemplate)
+                ? T("CLI arguments + config", "CLI 参数 + 配置模板")
+                : CustomCoreModeLabel(core.Mode);
+            var summary = $"{ServerHelper.GetDisplayName(core.Protocol)} · {modeLabel}" +
                 (core.IsProtocolDefault ? $" · {T("Default", "默认")}" : string.Empty);
             var editRow = ActionSettingRow(Icons.Flash, core.Name, SummaryText(summary), () => EditCustomCoreAsync(core),
                 CustomCoreHelper.NormalizeExecutableInput(core.ExecutablePath));
@@ -266,6 +269,14 @@ public sealed partial class SettingsPage : Page
         protocolBox.Header = T("Protocol", "适用协议");
         protocolBox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
+        EConfigType SelectedProtocol()
+        {
+            var pIdx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
+            return Enum.TryParse<EConfigType>(protocols[pIdx].TypeName, out var parsed)
+                ? parsed
+                : EConfigType.Shadowsocks;
+        }
+
         var exeBox = Input(T("CLI executable", "CLI 可执行文件"), existing?.ExecutablePath);
         var browseBtn = AsyncButton(T("Browse .exe…", "浏览 .exe…"), async () =>
         {
@@ -279,10 +290,12 @@ public sealed partial class SettingsPage : Page
         browseBtn.VerticalAlignment = VerticalAlignment.Bottom;
         var exeRow = Split(exeBox, browseBtn, 8);
 
-        var modes = Enum.GetValues<CustomCoreMode>();
+        var currentModes = CustomCoreHelper.GetSupportedModes(initialProtocol).ToArray();
         var initialMode = existing?.Mode ?? CustomCoreMode.CliArguments;
-        var modeIndex = Math.Max(0, Array.IndexOf(modes, initialMode));
-        var modeBox = Choice(T("Launch mode", "启动方式"), modes.Select(CustomCoreModeLabel), modeIndex);
+        if (Array.IndexOf(currentModes, initialMode) < 0)
+            initialMode = CustomCoreMode.CliArguments;
+        var modeIndex = Math.Max(0, Array.IndexOf(currentModes, initialMode));
+        var modeBox = Choice(T("Launch mode", "启动方式"), currentModes.Select(CustomCoreModeLabel), modeIndex);
         modeBox.Header = T("Launch mode", "启动方式");
         modeBox.HorizontalAlignment = HorizontalAlignment.Stretch;
 
@@ -290,20 +303,313 @@ public sealed partial class SettingsPage : Page
             existing?.ArgumentsTemplate ?? CustomCoreHelper.GetDefaultCliTemplate(initialProtocol),
             multiline: true);
         argsBox.AcceptsReturn = false;
-        argsBox.MinHeight = 72;
-        argsBox.MaxHeight = 140;
+        argsBox.MinHeight = 64;
+        argsBox.MaxHeight = 120;
         ScrollViewer.SetVerticalScrollBarVisibility(argsBox, ScrollBarVisibility.Auto);
-        var fillBtn = Button(T("Fill preset", "填入常用参数"), () =>
+
+        var useConfigBox = new CheckBox
         {
-            var idx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
-            if (Enum.TryParse<EConfigType>(protocols[idx].TypeName, out var p))
-                argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(p);
+            Content = T("Use config file template", "使用配置文件模板"),
+            IsChecked = !string.IsNullOrWhiteSpace(existing?.ConfigTemplate)
+        };
+        var initialExtIdx = Math.Max(0, Array.IndexOf(CustomCoreHelper.SupportedConfigExtensions,
+            CustomCoreHelper.NormalizeConfigExtension(existing?.ConfigFileExtension)));
+        var extBox = Choice(T("Config file format", "配置文件格式"), CustomCoreHelper.SupportedConfigExtensions, initialExtIdx);
+        extBox.Header = T("Config file format", "配置文件格式");
+        extBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+        var configBox = Input(T("Config file template", "配置文件模板"), existing?.ConfigTemplate, multiline: true);
+        configBox.FontFamily = new FontFamily("Consolas");
+        configBox.MinHeight = 110;
+        configBox.MaxHeight = 190;
+        ScrollViewer.SetVerticalScrollBarVisibility(configBox, ScrollBarVisibility.Auto);
+        var configPanel = Stack(extBox, configBox);
+
+        TextBox lastFocusedBox = argsBox;
+        argsBox.GotFocus += (_, _) => lastFocusedBox = argsBox;
+        configBox.GotFocus += (_, _) => lastFocusedBox = configBox;
+
+        var chipsHint = Caption(T("Click a placeholder to insert", "点击占位符插入（支持条件段与空值回退）"));
+        var chipsPanel = new StackPanel { Spacing = 4 };
+        void RebuildChips(EConfigType proto)
+        {
+            chipsPanel.Children.Clear();
+            var tokens = CustomCoreHelper.GetPlaceholdersForProtocol(proto);
+            const int maxRowChars = 40;
+            StackPanel? row = null;
+            var rowChars = 0;
+            foreach (var token in tokens)
+            {
+                var weight = token.Length + 4;
+                if (row == null || (row.Children.Count > 0 && rowChars + weight > maxRowChars))
+                {
+                    row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+                    chipsPanel.Children.Add(row);
+                    rowChars = 0;
+                }
+
+                var insertText = "{" + token + "}";
+                var chip = new Button
+                {
+                    Content = insertText,
+                    FontFamily = new FontFamily("Consolas"),
+                    FontSize = 11.5,
+                    Padding = new Thickness(7, 2, 7, 2),
+                    MinHeight = 24,
+                    MinWidth = 0
+                };
+                chip.Click += (_, _) =>
+                {
+                    var target = useConfigBox.IsChecked == true && ReferenceEquals(lastFocusedBox, configBox)
+                        ? configBox
+                        : argsBox;
+                    var text = target.Text ?? string.Empty;
+                    var start = Math.Clamp(target.SelectionStart, 0, text.Length);
+                    var len = Math.Clamp(target.SelectionLength, 0, text.Length - start);
+                    target.Text = text.Remove(start, len).Insert(start, insertText);
+                    target.Focus(FocusState.Programmatic);
+                    target.SelectionStart = start + insertText.Length;
+                    target.SelectionLength = 0;
+                };
+                row.Children.Add(chip);
+                rowChars += weight;
+            }
+        }
+        RebuildChips(initialProtocol);
+
+        var previewArgsText = new TextBlock
+        {
+            FontFamily = new FontFamily("Consolas"),
+            FontSize = 11.5,
+            TextWrapping = TextWrapping.Wrap,
+            IsTextSelectionEnabled = true
+        };
+        var previewConfigText = new TextBlock
+        {
+            FontFamily = new FontFamily("Consolas"),
+            FontSize = 11.5,
+            TextWrapping = TextWrapping.Wrap,
+            IsTextSelectionEnabled = true,
+            Visibility = Visibility.Collapsed
+        };
+        var previewCard = Card(Stack(Caption(T("Live preview", "实时预览")), previewArgsText, previewConfigText), 10);
+
+        void RefreshPreview()
+        {
+            var proto = SelectedProtocol();
+            var sample = CustomCoreHelper.CreateSampleServer(proto);
+            var ext = CustomCoreHelper.SupportedConfigExtensions[
+                Math.Clamp(extBox.SelectedIndex, 0, CustomCoreHelper.SupportedConfigExtensions.Length - 1)];
+            var usingCfg = useConfigBox.IsChecked == true;
+            var fakeConfigPath = usingCfg ? $@"data\custom-core-preview{ext}" : null;
+            var previewPort = Global.Settings.Socks5LocalPort is > 0 ? Global.Settings.Socks5LocalPort : (ushort)2801;
+
+            var renderedArgs = CustomCoreHelper.RenderArguments(argsBox.Text, sample, "1.2.3.4", "127.0.0.1", previewPort, fakeConfigPath);
+            previewArgsText.Text = string.IsNullOrEmpty(renderedArgs) ? "—" : renderedArgs;
+
+            if (usingCfg && !string.IsNullOrWhiteSpace(configBox.Text))
+            {
+                var renderedCfg = CustomCoreHelper.RenderConfigTemplate(configBox.Text, ext, sample, "1.2.3.4", "127.0.0.1", previewPort);
+                if (renderedCfg.Length > 600)
+                    renderedCfg = renderedCfg[..600] + "\n…";
+                previewConfigText.Text = renderedCfg;
+                previewConfigText.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                previewConfigText.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        var syncing = false;
+        var initialConfigPreset = CustomCoreHelper.GetPresetsForProtocol(initialProtocol)
+            .FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.ConfigTemplate));
+        var previousDefaultArgs = CustomCoreHelper.NormalizeArgumentsInput(CustomCoreHelper.GetDefaultCliTemplate(initialProtocol));
+        var previousDefaultConfig = CustomCoreHelper.NormalizeConfigTemplate(initialConfigPreset?.ConfigTemplate);
+        var previousDefaultConfigArgs = CustomCoreHelper.NormalizeArgumentsInput(initialConfigPreset?.ArgumentsTemplate);
+        StackPanel? argsPanel = null;
+
+        void UpdateArgsPanelVisibility()
+        {
+            var idx = Math.Clamp(modeBox.SelectedIndex, 0, currentModes.Length - 1);
+            var isCliArgs = currentModes[idx] == CustomCoreMode.CliArguments;
+            if (argsPanel != null)
+                argsPanel.Visibility = isCliArgs ? Visibility.Visible : Visibility.Collapsed;
+            configPanel.Visibility = isCliArgs && useConfigBox.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+            if (isCliArgs && string.IsNullOrWhiteSpace(argsBox.Text))
+                argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(SelectedProtocol());
+            RefreshPreview();
+        }
+
+        void ApplyPreset(CustomCorePreset preset)
+        {
+            syncing = true;
+            try
+            {
+                argsBox.Text = preset.ArgumentsTemplate;
+                if (!string.IsNullOrWhiteSpace(preset.ConfigTemplate))
+                {
+                    useConfigBox.IsChecked = true;
+                    extBox.SelectedIndex = Math.Max(0, Array.IndexOf(CustomCoreHelper.SupportedConfigExtensions,
+                        CustomCoreHelper.NormalizeConfigExtension(preset.ConfigFileExtension)));
+                    configBox.Text = preset.ConfigTemplate;
+                }
+                else
+                {
+                    useConfigBox.IsChecked = false;
+                    configBox.Text = string.Empty;
+                }
+            }
+            finally
+            {
+                syncing = false;
+            }
+            var selectedProto = SelectedProtocol();
+            var cfgPreset = CustomCoreHelper.GetPresetsForProtocol(selectedProto)
+                .FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.ConfigTemplate));
+            previousDefaultArgs = CustomCoreHelper.NormalizeArgumentsInput(CustomCoreHelper.GetDefaultCliTemplate(selectedProto));
+            previousDefaultConfig = CustomCoreHelper.NormalizeConfigTemplate(cfgPreset?.ConfigTemplate);
+            previousDefaultConfigArgs = CustomCoreHelper.NormalizeArgumentsInput(cfgPreset?.ArgumentsTemplate);
+            UpdateArgsPanelVisibility();
+        }
+
+        Button? fillBtn = null;
+        fillBtn = Button(T("Fill preset", "填入常用参数"), () =>
+        {
+            var presets = CustomCoreHelper.GetPresetsForProtocol(SelectedProtocol());
+            if (presets.Count <= 1)
+            {
+                if (presets.Count == 1)
+                    ApplyPreset(presets[0]);
+                return;
+            }
+
+            var menu = new MenuFlyout();
+            foreach (var preset in presets)
+            {
+                var captured = preset;
+                var item = new MenuFlyoutItem { Text = captured.Name };
+                item.Click += (_, _) => ApplyPreset(captured);
+                menu.Items.Add(item);
+            }
+            if (fillBtn != null)
+                menu.ShowAt(fillBtn);
         });
         fillBtn.VerticalAlignment = VerticalAlignment.Center;
-        var argsHint = Caption(TF("Placeholders: {0}", "占位符：{0}",
-            "{address} {port} {local_addr} {local_port} {method} {password} {username}"));
-        argsHint.TextWrapping = TextWrapping.Wrap;
-        var argsPanel = Stack(argsBox, Split(argsHint, fillBtn, 8));
+
+        argsPanel = Stack(argsBox, chipsHint, chipsPanel, Split(useConfigBox, fillBtn, 8), configPanel, previewCard);
+
+        protocolBox.SelectionChanged += (_, _) =>
+        {
+            if (syncing)
+                return;
+
+            var nextProto = SelectedProtocol();
+            var prevMode = currentModes[Math.Clamp(modeBox.SelectedIndex, 0, currentModes.Length - 1)];
+            currentModes = CustomCoreHelper.GetSupportedModes(nextProto).ToArray();
+            var nextModeIdx = Array.IndexOf(currentModes, prevMode);
+            if (nextModeIdx < 0)
+                nextModeIdx = 0;
+
+            syncing = true;
+            try
+            {
+                modeBox.ItemsSource = currentModes.Select(CustomCoreModeLabel).ToArray();
+                modeBox.SelectedIndex = nextModeIdx;
+                RebuildChips(nextProto);
+
+                var nextDefaultArgs = CustomCoreHelper.GetDefaultCliTemplate(nextProto);
+                var nextConfigPreset = CustomCoreHelper.GetPresetsForProtocol(nextProto)
+                    .FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.ConfigTemplate));
+                if (existing == null)
+                {
+                    if (useConfigBox.IsChecked == true && nextConfigPreset != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(configBox.Text) ||
+                            string.Equals(CustomCoreHelper.NormalizeConfigTemplate(configBox.Text), previousDefaultConfig, StringComparison.Ordinal))
+                        {
+                            extBox.SelectedIndex = Math.Max(0, Array.IndexOf(CustomCoreHelper.SupportedConfigExtensions,
+                                CustomCoreHelper.NormalizeConfigExtension(nextConfigPreset.ConfigFileExtension)));
+                            configBox.Text = nextConfigPreset.ConfigTemplate;
+                        }
+                        if (string.IsNullOrWhiteSpace(argsBox.Text) ||
+                            string.Equals(CustomCoreHelper.NormalizeArgumentsInput(argsBox.Text), previousDefaultConfigArgs, StringComparison.Ordinal))
+                        {
+                            argsBox.Text = nextConfigPreset.ArgumentsTemplate;
+                        }
+                    }
+                    else if (useConfigBox.IsChecked != true &&
+                        (string.IsNullOrWhiteSpace(argsBox.Text) ||
+                         string.Equals(CustomCoreHelper.NormalizeArgumentsInput(argsBox.Text), previousDefaultArgs, StringComparison.Ordinal)))
+                    {
+                        argsBox.Text = nextDefaultArgs;
+                    }
+                }
+                previousDefaultArgs = CustomCoreHelper.NormalizeArgumentsInput(nextDefaultArgs);
+                previousDefaultConfig = CustomCoreHelper.NormalizeConfigTemplate(nextConfigPreset?.ConfigTemplate);
+                previousDefaultConfigArgs = CustomCoreHelper.NormalizeArgumentsInput(nextConfigPreset?.ArgumentsTemplate);
+            }
+            finally
+            {
+                syncing = false;
+            }
+
+            UpdateArgsPanelVisibility();
+        };
+
+        modeBox.SelectionChanged += (_, _) =>
+        {
+            if (!syncing)
+                UpdateArgsPanelVisibility();
+        };
+
+        void OnUseConfigToggled()
+        {
+            if (syncing)
+                return;
+
+            if (useConfigBox.IsChecked == true)
+            {
+                var configPreset = CustomCoreHelper.GetPresetsForProtocol(SelectedProtocol())
+                    .FirstOrDefault(p => !string.IsNullOrWhiteSpace(p.ConfigTemplate));
+                syncing = true;
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(configBox.Text) && configPreset != null)
+                    {
+                        extBox.SelectedIndex = Math.Max(0, Array.IndexOf(CustomCoreHelper.SupportedConfigExtensions,
+                            CustomCoreHelper.NormalizeConfigExtension(configPreset.ConfigFileExtension)));
+                        configBox.Text = configPreset.ConfigTemplate;
+                    }
+                    if (!argsBox.Text.Contains("{config_file}", StringComparison.OrdinalIgnoreCase))
+                        argsBox.Text = configPreset?.ArgumentsTemplate ?? "-c {config_file}";
+                }
+                finally
+                {
+                    syncing = false;
+                }
+            }
+            else if (argsBox.Text.Contains("{config_file}", StringComparison.OrdinalIgnoreCase))
+            {
+                syncing = true;
+                try
+                {
+                    argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(SelectedProtocol());
+                }
+                finally
+                {
+                    syncing = false;
+                }
+            }
+
+            UpdateArgsPanelVisibility();
+        }
+
+        useConfigBox.Checked += (_, _) => OnUseConfigToggled();
+        useConfigBox.Unchecked += (_, _) => OnUseConfigToggled();
+        extBox.SelectionChanged += (_, _) => { if (!syncing) RefreshPreview(); };
+        argsBox.TextChanged += (_, _) => { if (!syncing) RefreshPreview(); };
+        configBox.TextChanged += (_, _) => { if (!syncing) RefreshPreview(); };
 
         var defaultBox = new CheckBox
         {
@@ -311,23 +617,10 @@ public sealed partial class SettingsPage : Page
             IsChecked = existing?.IsProtocolDefault ?? false
         };
 
-        void SyncModeUi()
-        {
-            var idx = Math.Clamp(modeBox.SelectedIndex, 0, modes.Length - 1);
-            var isCliArgs = modes[idx] == CustomCoreMode.CliArguments;
-            argsPanel.Visibility = isCliArgs ? Visibility.Visible : Visibility.Collapsed;
-            if (isCliArgs && string.IsNullOrWhiteSpace(argsBox.Text))
-            {
-                var pIdx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
-                if (Enum.TryParse<EConfigType>(protocols[pIdx].TypeName, out var p))
-                    argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(p);
-            }
-        }
-        modeBox.SelectionChanged += (_, _) => SyncModeUi();
-        SyncModeUi();
+        UpdateArgsPanelVisibility();
 
         var editor = Stack(nameBox, protocolBox, exeRow, modeBox, argsPanel, defaultBox);
-        editor.Width = XamlRoot?.Size.Width > 0 ? Math.Min(460, Math.Max(300, XamlRoot.Size.Width - 110)) : 460;
+        editor.Width = XamlRoot?.Size.Width > 0 ? Math.Min(480, Math.Max(320, XamlRoot.Size.Width - 110)) : 480;
 
         CustomCore? candidate = null;
         var title = existing == null
@@ -335,11 +628,11 @@ public sealed partial class SettingsPage : Page
             : T("Edit protocol custom core", "编辑协议自定义核心");
         if (!await ShowAsync(XamlRoot, title, editor, T("Save", "保存"), () =>
         {
-            var pIdx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
-            if (!Enum.TryParse<EConfigType>(protocols[pIdx].TypeName, out var selectedProto))
-                selectedProto = EConfigType.Shadowsocks;
-            var mIdx = Math.Clamp(modeBox.SelectedIndex, 0, modes.Length - 1);
-            var selectedMode = modes[mIdx];
+            var selectedProto = SelectedProtocol();
+            var mIdx = Math.Clamp(modeBox.SelectedIndex, 0, currentModes.Length - 1);
+            var selectedMode = currentModes[mIdx];
+            var selectedExt = CustomCoreHelper.SupportedConfigExtensions[
+                Math.Clamp(extBox.SelectedIndex, 0, CustomCoreHelper.SupportedConfigExtensions.Length - 1)];
 
             candidate = new CustomCore
             {
@@ -348,7 +641,9 @@ public sealed partial class SettingsPage : Page
                 Protocol = selectedProto,
                 ExecutablePath = CustomCoreHelper.NormalizeExecutableInput(exeBox.Text),
                 Mode = selectedMode,
-                ArgumentsTemplate = selectedMode == CustomCoreMode.CliArguments ? argsBox.Text.Trim() : string.Empty,
+                ArgumentsTemplate = selectedMode == CustomCoreMode.CliArguments ? CustomCoreHelper.NormalizeArgumentsInput(argsBox.Text) : string.Empty,
+                ConfigTemplate = selectedMode == CustomCoreMode.CliArguments && useConfigBox.IsChecked == true ? CustomCoreHelper.NormalizeConfigTemplate(configBox.Text) : string.Empty,
+                ConfigFileExtension = CustomCoreHelper.NormalizeConfigExtension(selectedExt),
                 IsProtocolDefault = defaultBox.IsChecked == true
             };
             return CustomCoreHelper.Validate(candidate) is { } err ? i18N.Translate(err) : null;
@@ -364,6 +659,8 @@ public sealed partial class SettingsPage : Page
                 ExecutablePath = c.ExecutablePath,
                 Mode = c.Mode,
                 ArgumentsTemplate = c.ArgumentsTemplate,
+                ConfigTemplate = c.ConfigTemplate,
+                ConfigFileExtension = c.ConfigFileExtension,
                 IsProtocolDefault = c.IsProtocolDefault
             })
             .ToList();

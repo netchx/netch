@@ -993,5 +993,14 @@
   "Keep default": "Оставить по умолчанию",
   "Detected {0} imported {1} nodes. Choose whether to bind a custom core:": "Найдено {0} импортированных узлов {1}. Выберите, назначить ли пользовательское ядро:",
   "Custom cores are configured for the imported protocols. Choose a core for each protocol:": "Для импортированных протоколов настроены пользовательские ядра. Выберите ядро для каждого протокола:",
-  "{0} ({1} узлов)": "{0} ({1} узлов)"
+  "{0} ({1} nodes)": "{0} ({1} узлов)",
+  "The selected launch mode does not support this protocol.": "Выбранный режим запуска не поддерживает этот протокол.",
+  "Enter the config file template.": "Введите шаблон файла конфигурации.",
+  "The CLI arguments template must reference the config file placeholder.": "Шаблон аргументов CLI должен содержать подстановку файла конфигурации.",
+  "Use config file template": "Использовать шаблон конфигурации",
+  "Config file format": "Формат файла конфигурации",
+  "Config file template": "Шаблон файла конфигурации",
+  "Live preview": "Предпросмотр",
+  "Click a placeholder to insert": "Нажмите на подстановку для вставки",
+  "CLI arguments + config": "Аргументы CLI + конфиг"
 }

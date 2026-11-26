@@ -54,6 +54,9 @@ public static class CoreSelector
 
         if (CustomCoreHelper.ResolveForServer(server) is { } customCore)
         {
+            if (!CustomCoreHelper.SupportsMode(server.ConfigType, customCore.Mode))
+                throw new MessageException(i18N.Translate("The selected launch mode does not support this protocol."));
+
             return customCore.Mode switch
             {
                 CustomCoreMode.CliArguments => new ExternalCliController(customCore),

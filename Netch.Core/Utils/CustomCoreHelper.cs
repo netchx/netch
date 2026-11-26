@@ -1,5 +1,7 @@
 using System.Globalization;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using Netch.Enums;
 using Netch.Models;
 using Netch.Servers;
@@ -7,9 +9,45 @@ using Netch.Services;
 
 namespace Netch.Utils;
 
+public sealed record CustomCorePreset(string Name, string ArgumentsTemplate, string ConfigTemplate = "", string ConfigFileExtension = ".json");
+
 public static class CustomCoreHelper
 {
     public const string BuiltInCoreId = "__builtin__";
+
+    public static readonly string[] SupportedConfigExtensions = [".json", ".yaml", ".toml", ".conf", ".txt"];
+
+    public static string NormalizeConfigExtension(string? raw)
+    {
+        var ext = (raw ?? string.Empty).Trim().ToLowerInvariant();
+        if (ext.Length > 0 && ext[0] != '.')
+            ext = "." + ext;
+        if (ext == ".yml")
+            ext = ".yaml";
+
+        return Array.IndexOf(SupportedConfigExtensions, ext) >= 0 ? ext : ".json";
+    }
+
+    public static bool SupportsMode(EConfigType protocol, CustomCoreMode mode)
+    {
+        if (protocol == EConfigType.ExternalCli || !Enum.IsDefined(protocol))
+            return false;
+
+        return mode switch
+        {
+            CustomCoreMode.CliArguments => true,
+            CustomCoreMode.MihomoConfig => protocol is not (EConfigType.Naive or EConfigType.MASQUE),
+            CustomCoreMode.SingboxConfig => protocol is not (EConfigType.ShadowsocksR or EConfigType.TrustTunnel
+                or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.AmneziaWG),
+            CustomCoreMode.XrayConfig => protocol is EConfigType.SOCKS or EConfigType.HTTP or EConfigType.VLESS
+                or EConfigType.VMess or EConfigType.Shadowsocks or EConfigType.Trojan
+                or EConfigType.WireGuard or EConfigType.Hysteria2 or EConfigType.MASQUE,
+            _ => false
+        };
+    }
+
+    public static IReadOnlyList<CustomCoreMode> GetSupportedModes(EConfigType protocol) =>
+        Enum.GetValues<CustomCoreMode>().Where(mode => SupportsMode(protocol, mode)).ToArray();
 
     public static bool IsBuiltInCoreId(string? id) =>
         string.Equals(id?.Trim(), BuiltInCoreId, StringComparison.OrdinalIgnoreCase);
@@ -32,6 +70,17 @@ public static class CustomCoreHelper
             .Replace("\r\n", " ", StringComparison.Ordinal)
             .Replace('\r', ' ')
             .Replace('\n', ' ')
+            .Trim();
+    }
+
+    public static string NormalizeConfigTemplate(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return string.Empty;
+
+        return raw
+            .Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Replace('\r', '\n')
             .Trim();
     }
 
@@ -130,56 +179,373 @@ public static class CustomCoreHelper
             return "Enter the CLI executable path.";
         if (!Enum.IsDefined(core.Mode))
             return "Choose a launch mode for the custom core.";
-        if (core.Mode == CustomCoreMode.CliArguments && string.IsNullOrWhiteSpace(core.ArgumentsTemplate))
-            return "Enter the CLI arguments template.";
+        if (!SupportsMode(core.Protocol, core.Mode))
+            return "The selected launch mode does not support this protocol.";
+        if (core.Mode == CustomCoreMode.CliArguments)
+        {
+            if (string.IsNullOrWhiteSpace(core.ArgumentsTemplate))
+                return "Enter the CLI arguments template.";
+
+            var usesConfigPlaceholder = core.ArgumentsTemplate.Contains("{config_file}", StringComparison.OrdinalIgnoreCase);
+            var hasConfigTemplate = !string.IsNullOrWhiteSpace(core.ConfigTemplate);
+            if (usesConfigPlaceholder && !hasConfigTemplate)
+                return "Enter the config file template.";
+            if (hasConfigTemplate && !usesConfigPlaceholder)
+                return "The CLI arguments template must reference the config file placeholder.";
+        }
 
         return null;
     }
 
-    public static string GetDefaultCliTemplate(EConfigType protocol) => protocol switch
+    public static IReadOnlyList<string> GetPlaceholdersForProtocol(EConfigType protocol)
     {
-        EConfigType.Shadowsocks or EConfigType.ShadowsocksR =>
-            "-s {address} -p {port} -b {local_addr} -l {local_port} -m {method} -k {password}",
+        var list = new List<string> { "address", "host", "port", "local_addr", "local_port", "remarks" };
+        switch (protocol)
+        {
+            case EConfigType.Shadowsocks:
+                list.AddRange(["method", "password", "plugin", "plugin_opts", "uot"]);
+                break;
+            case EConfigType.ShadowsocksR:
+                list.AddRange(["method", "password", "ssr_protocol", "ssr_protocol_param", "ssr_obfs", "ssr_obfs_param"]);
+                break;
+            case EConfigType.VLESS:
+                list.AddRange(["uuid", "network", "security", "sni", "flow", "alpn", "fingerprint", "request_host", "path", "public_key", "short_id", "spider_x", "vless_encryption", "insecure"]);
+                break;
+            case EConfigType.VMess:
+                list.AddRange(["uuid", "alter_id", "vmess_security", "network", "security", "sni", "alpn", "fingerprint", "request_host", "path", "insecure"]);
+                break;
+            case EConfigType.Trojan:
+                list.AddRange(["password", "network", "security", "sni", "flow", "alpn", "fingerprint", "request_host", "path", "public_key", "short_id", "insecure"]);
+                break;
+            case EConfigType.Hysteria2:
+                list.AddRange(["password", "sni", "alpn", "obfs", "obfs_password", "up_mbps", "down_mbps", "ports", "hop_interval", "insecure"]);
+                break;
+            case EConfigType.TUIC:
+                list.AddRange(["uuid", "password", "sni", "alpn", "congestion", "udp_relay_mode", "insecure"]);
+                break;
+            case EConfigType.AnyTLS:
+                list.AddRange(["password", "sni", "alpn", "fingerprint", "insecure"]);
+                break;
+            case EConfigType.Naive:
+                list.AddRange(["username", "password", "sni", "naive_quic", "congestion", "uot"]);
+                break;
+            case EConfigType.MASQUE:
+                list.AddRange(["username", "password", "sni", "masque_path", "insecure"]);
+                break;
+            case EConfigType.ShadowTLS:
+                list.AddRange(["method", "password", "sni", "shadowtls_version", "shadowtls_password", "uot"]);
+                break;
+            case EConfigType.TrustTunnel:
+                list.AddRange(["username", "password", "sni", "trusttunnel_quic", "insecure"]);
+                break;
+            case EConfigType.Mieru:
+                list.AddRange(["username", "password", "mieru_transport", "mieru_port_range"]);
+                break;
+            case EConfigType.ShadowQUIC:
+                list.AddRange(["username", "password", "sni", "alpn", "congestion", "shadowquic_versions"]);
+                break;
+            case EConfigType.WireGuard or EConfigType.AmneziaWG:
+                list.AddRange(["private_key", "public_key", "preshared_key", "interface_addr", "reserved", "mtu"]);
+                break;
+            case EConfigType.SSH:
+                list.AddRange(["username", "password", "private_key"]);
+                break;
+            case EConfigType.HTTP:
+                list.AddRange(["username", "password", "security", "sni", "alpn", "insecure"]);
+                break;
+            case EConfigType.SOCKS:
+                list.AddRange(["username", "password", "uot"]);
+                break;
+        }
+
+        list.Add("config_file");
+        return list;
+    }
+
+    public static IReadOnlyList<CustomCorePreset> GetPresetsForProtocol(EConfigType protocol) => protocol switch
+    {
+        EConfigType.Shadowsocks =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -b {local_addr} -l {local_port} -m {method} -k {password} {?plugin:--plugin {plugin}} {?plugin_opts:--plugin-opts {plugin_opts}}"),
+            new CustomCorePreset("shadowsocks-rust (JSON)", "-c {config_file}",
+                "{\n  \"server\": \"{address}\",\n  \"server_port\": {port},\n  \"method\": \"{method}\",\n  \"password\": \"{password}\",\n  \"local_address\": \"{local_addr}\",\n  \"local_port\": {local_port}{?plugin:,\n  \"plugin\": \"{plugin}\"}{?plugin_opts:,\n  \"plugin_opts\": \"{plugin_opts}\"}\n}",
+                ".json")
+        ],
+        EConfigType.ShadowsocksR =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -b {local_addr} -l {local_port} -m {method} -k {password} -O {ssr_protocol} {?ssr_protocol_param:-G {ssr_protocol_param}} -o {ssr_obfs} {?ssr_obfs_param:-g {ssr_obfs_param}}")
+        ],
+        EConfigType.Naive =>
+        [
+            new CustomCorePreset("NaiveProxy (CLI)", "--listen=socks://{local_addr_port} --proxy=https://{username}:{password}@{host_port}"),
+            new CustomCorePreset("NaiveProxy (JSON)", "{config_file}",
+                "{\n  \"listen\": \"socks://{local_addr_port}\",\n  \"proxy\": \"https://{username}:{password}@{host_port}\"\n}",
+                ".json")
+        ],
+        EConfigType.Hysteria2 =>
+        [
+            new CustomCorePreset("CLI", "-s {address_port} -k {password} -b {local_addr_port} {?sni:--sni {sni}} {?insecure:--insecure}"),
+            new CustomCorePreset("Hysteria2 (JSON)", "client -c {config_file}",
+                "{\n  \"server\": \"{address_port}\",\n  \"auth\": \"{password}\",\n  \"tls\": {\n    \"sni\": \"{sni|host}\",\n    \"insecure\": {insecure|false}\n  }{?obfs:,\n  \"obfs\": {\n    \"type\": \"{obfs}\",\n    \"{obfs}\": {\n      \"password\": \"{obfs_password}\"\n    }\n  }},\n  \"socks5\": {\n    \"listen\": \"{local_addr_port}\"\n  }\n}",
+                ".json")
+        ],
+        EConfigType.TUIC =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -u {uuid} -k {password} -b {local_addr} -l {local_port} {?sni:--sni {sni}}"),
+            new CustomCorePreset("tuic-client (JSON)", "-c {config_file}",
+                "{\n  \"relay\": {\n    \"server\": \"{host_port}\",\n    \"ip\": \"{address}\",\n    \"uuid\": \"{uuid}\",\n    \"password\": \"{password}\",\n    \"congestion_control\": \"{congestion|bbr}\",\n    \"alpn\": [\"{alpn|h3}\"]\n  },\n  \"local\": {\n    \"server\": \"{local_addr_port}\"\n  }\n}",
+                ".json")
+        ],
+        EConfigType.VLESS =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -u {uuid} -b {local_addr} -l {local_port} {?sni:--sni {sni}} {?flow:--flow {flow}}"),
+            new CustomCorePreset("JSON", "-c {config_file}",
+                "{\n  \"listen\": \"{local_addr_port}\",\n  \"server\": \"{address}\",\n  \"port\": {port},\n  \"uuid\": \"{uuid}\",\n  \"network\": \"{network|tcp}\",\n  \"sni\": \"{sni|host}\",\n  \"flow\": \"{flow}\"\n}",
+                ".json")
+        ],
+        EConfigType.VMess =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -u {uuid} -b {local_addr} -l {local_port} {?sni:--sni {sni}}"),
+            new CustomCorePreset("JSON", "-c {config_file}",
+                "{\n  \"listen\": \"{local_addr_port}\",\n  \"server\": \"{address}\",\n  \"port\": {port},\n  \"uuid\": \"{uuid}\",\n  \"security\": \"{vmess_security|auto}\",\n  \"network\": \"{network|tcp}\",\n  \"sni\": \"{sni|host}\"\n}",
+                ".json")
+        ],
+        EConfigType.Trojan or EConfigType.AnyTLS =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -k {password} -b {local_addr} -l {local_port} {?sni:--sni {sni}} {?insecure:--insecure}"),
+            new CustomCorePreset("JSON", "-c {config_file}",
+                "{\n  \"listen\": \"{local_addr_port}\",\n  \"server\": \"{address}\",\n  \"port\": {port},\n  \"password\": \"{password}\",\n  \"sni\": \"{sni|host}\",\n  \"insecure\": {insecure|false}\n}",
+                ".json")
+        ],
+        EConfigType.WireGuard or EConfigType.AmneziaWG =>
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -k {private_key} --peer-key {public_key} -b {local_addr} -l {local_port}"),
+            new CustomCorePreset("JSON", "-c {config_file}",
+                "{\n  \"listen\": \"{local_addr_port}\",\n  \"endpoint\": \"{address_port}\",\n  \"private_key\": \"{private_key}\",\n  \"public_key\": \"{public_key}\",\n  \"address\": \"{interface_addr}\",\n  \"mtu\": {mtu|1280}\n}",
+                ".json")
+        ],
         _ =>
-            "-s {address} -p {port} -b {local_addr} -l {local_port}"
+        [
+            new CustomCorePreset("CLI", "-s {address} -p {port} -b {local_addr} -l {local_port} {?username:-u {username}} {?password:-k {password}} {?sni:--sni {sni}}"),
+            new CustomCorePreset("JSON", "-c {config_file}",
+                "{\n  \"listen\": \"{local_addr_port}\",\n  \"server\": \"{address}\",\n  \"port\": {port},\n  \"username\": \"{username}\",\n  \"password\": \"{password}\",\n  \"sni\": \"{sni|host}\"\n}",
+                ".json")
+        ]
     };
 
-    public static string RenderArguments(string? template, Server server, string resolvedAddress, string localAddress, ushort localPort)
+    public static string GetDefaultCliTemplate(EConfigType protocol) =>
+        GetPresetsForProtocol(protocol)[0].ArgumentsTemplate;
+
+    public static Server CreateSampleServer(EConfigType protocol)
+    {
+        var server = ServerEditorHelper.CreateDefault(ServerHelper.GetUtilByTypeName(protocol.ToString()));
+        server.Remarks = "Example";
+        server.Address = "proxy.example.com";
+        if (server.Port <= 0)
+            server.Port = 443;
+
+        switch (protocol)
+        {
+            case EConfigType.Shadowsocks:
+                server.Port = 8388;
+                server.Password = "secret";
+                server.ProtoExtra.SsMethod = "aes-256-gcm";
+                break;
+            case EConfigType.ShadowsocksR:
+                server.Port = 8388;
+                server.Password = "secret";
+                if (server is ShadowsocksRServer ssr)
+                {
+                    ssr.EncryptMethod = "aes-256-cfb";
+                    ssr.Protocol = "origin";
+                    ssr.OBFS = "plain";
+                }
+                break;
+            case EConfigType.SOCKS:
+                server.Port = 1080;
+                server.Username = "user";
+                server.Password = "pass";
+                break;
+            case EConfigType.HTTP:
+                server.Username = "user";
+                server.Password = "pass";
+                server.Sni = "proxy.example.com";
+                break;
+            case EConfigType.SSH:
+                server.Username = "root";
+                server.Password = "secret";
+                break;
+            case EConfigType.VMess or EConfigType.VLESS:
+                server.Password = "00000000-0000-0000-0000-000000000000";
+                server.Sni = "proxy.example.com";
+                break;
+            case EConfigType.Trojan or EConfigType.AnyTLS or EConfigType.Hysteria2:
+                server.Password = "secret";
+                server.Sni = "proxy.example.com";
+                if (protocol == EConfigType.Hysteria2)
+                    server.ProtoExtra.Ports = "443,20000-30000";
+                break;
+            case EConfigType.TUIC:
+                server.Username = "00000000-0000-0000-0000-000000000000";
+                server.Password = "secret";
+                server.Sni = "proxy.example.com";
+                server.Alpn = "h3";
+                server.ProtoExtra.CongestionControl = "bbr";
+                server.ProtoExtra.TuicUdpRelayMode = "native";
+                break;
+            case EConfigType.Naive or EConfigType.TrustTunnel or EConfigType.MASQUE or EConfigType.ShadowQUIC or EConfigType.Mieru:
+                server.Username = "user";
+                server.Password = "secret";
+                server.Sni = "proxy.example.com";
+                break;
+            case EConfigType.WireGuard or EConfigType.AmneziaWG:
+                server.Port = 51820;
+                server.Password = "<private-key>";
+                server.ProtoExtra.WgPublicKey = "<public-key>";
+                server.ProtoExtra.WgInterfaceAddress = "10.0.0.2/32";
+                server.ProtoExtra.WgMtu = 1280;
+                break;
+            case EConfigType.ShadowTLS:
+                server.Password = "ss-secret";
+                server.Sni = "cdn.example.com";
+                server.ProtoExtra.SsMethod = "aes-256-gcm";
+                server.ProtoExtra.ShadowTlsPassword = "tls-secret";
+                server.ProtoExtra.ShadowTlsVersion = 3;
+                break;
+        }
+
+        return server;
+    }
+
+    public static string RenderArguments(string? template, Server server, string resolvedAddress, string localAddress, ushort localPort, string? configFilePath = null)
     {
         ArgumentNullException.ThrowIfNull(server);
-        if (string.IsNullOrWhiteSpace(template))
-            return string.Empty;
-
-        var method = server is ShadowsocksRServer ssr
-            ? ssr.EncryptMethod ?? string.Empty
-            : server.ProtoExtra.SsMethod ?? string.Empty;
-
-        var tokens = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["address"] = resolvedAddress,
-            ["host"] = server.Address ?? string.Empty,
-            ["port"] = server.Port.ToString(CultureInfo.InvariantCulture),
-            ["local_addr"] = localAddress,
-            ["local_port"] = localPort.ToString(CultureInfo.InvariantCulture),
-            ["username"] = server.Username ?? string.Empty,
-            ["password"] = server.Password ?? string.Empty,
-            ["method"] = method,
-            ["sni"] = server.Sni ?? string.Empty,
-            ["plugin"] = server.ProtoExtra.SsPlugin ?? string.Empty,
-            ["plugin_opts"] = server.ProtoExtra.SsPluginOptions ?? string.Empty
-        };
-
         var input = NormalizeArgumentsInput(template);
         if (input.Length == 0)
             return string.Empty;
 
+        var tokens = BuildTokenMap(server, resolvedAddress, localAddress, localPort, configFilePath);
         var sb = new StringBuilder(input.Length + 32);
         var inQuotes = false;
         var precedingBackslashes = 0;
 
-        for (var i = 0; i < input.Length; i++)
+        RenderCliSegment(input, tokens, sb, ref inQuotes, ref precedingBackslashes);
+        return sb.ToString().Trim();
+    }
+
+    public static string RenderConfigTemplate(string? template, string? fileExtension, Server server, string resolvedAddress, string localAddress, ushort localPort)
+    {
+        ArgumentNullException.ThrowIfNull(server);
+        var normalized = NormalizeConfigTemplate(template);
+        if (normalized.Length == 0)
+            return string.Empty;
+
+        var ext = NormalizeConfigExtension(fileExtension);
+        var tokens = BuildTokenMap(server, resolvedAddress, localAddress, localPort);
+        var sb = new StringBuilder(normalized.Length + 64);
+        var inDoubleQuotes = false;
+        var inSingleQuotes = false;
+        var precedingBackslashes = 0;
+
+        RenderConfigSegment(normalized, ext, tokens, sb, ref inDoubleQuotes, ref inSingleQuotes, ref precedingBackslashes);
+        return sb.ToString();
+    }
+
+    private static Dictionary<string, string> BuildTokenMap(
+        Server server,
+        string resolvedAddress,
+        string localAddress,
+        ushort localPort,
+        string? configFilePath = null)
+    {
+        var extra = server.ProtoExtra;
+        var ssr = server as ShadowsocksRServer;
+        var method = ssr?.EncryptMethod ?? extra.SsMethod ?? string.Empty;
+        var uuid = server.ConfigType == EConfigType.TUIC ? server.Username ?? string.Empty : server.Password ?? string.Empty;
+        var publicKey = !string.IsNullOrWhiteSpace(extra.WgPublicKey) ? extra.WgPublicKey : server.PublicKey ?? string.Empty;
+        var privateKey = server.ConfigType == EConfigType.SSH
+            ? (extra.SshPrivateKey ?? string.Empty)
+            : (server.Password ?? string.Empty);
+        var obfs = string.Equals(extra.Obfs, Constants.None, StringComparison.OrdinalIgnoreCase)
+            ? string.Empty
+            : extra.Obfs ?? string.Empty;
+        var host = server.Address ?? string.Empty;
+        var portText = server.Port.ToString(CultureInfo.InvariantCulture);
+        var localPortText = localPort.ToString(CultureInfo.InvariantCulture);
+
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
-            var ch = input[i];
+            ["address"] = resolvedAddress,
+            ["address_port"] = $"{ProxyUri.Host(resolvedAddress)}:{portText}",
+            ["host"] = host,
+            ["host_port"] = $"{ProxyUri.Host(host)}:{portText}",
+            ["port"] = portText,
+            ["local_addr"] = localAddress,
+            ["local_addr_port"] = $"{ProxyUri.Host(localAddress)}:{localPortText}",
+            ["local_port"] = localPortText,
+            ["remarks"] = server.Remarks ?? string.Empty,
+            ["username"] = server.Username ?? string.Empty,
+            ["password"] = server.Password ?? string.Empty,
+            ["uuid"] = uuid,
+            ["method"] = method,
+            ["plugin"] = extra.SsPlugin ?? string.Empty,
+            ["plugin_opts"] = extra.SsPluginOptions ?? string.Empty,
+            ["ssr_protocol"] = ssr?.Protocol ?? string.Empty,
+            ["ssr_protocol_param"] = ssr?.ProtocolParam ?? string.Empty,
+            ["ssr_obfs"] = ssr?.OBFS ?? string.Empty,
+            ["ssr_obfs_param"] = ssr?.OBFSParam ?? string.Empty,
+            ["network"] = server.Network ?? string.Empty,
+            ["header_type"] = server.HeaderType ?? string.Empty,
+            ["request_host"] = server.RequestHost ?? string.Empty,
+            ["path"] = server.Path ?? string.Empty,
+            ["security"] = server.StreamSecurity ?? string.Empty,
+            ["sni"] = server.Sni ?? string.Empty,
+            ["alpn"] = server.Alpn ?? string.Empty,
+            ["fingerprint"] = server.Fingerprint ?? string.Empty,
+            ["insecure"] = server.AllowInsecure == true ? "true" : string.Empty,
+            ["flow"] = extra.Flow ?? string.Empty,
+            ["alter_id"] = extra.AlterId?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            ["vmess_security"] = extra.VmessSecurity ?? string.Empty,
+            ["vless_encryption"] = extra.VlessEncryption ?? string.Empty,
+            ["public_key"] = publicKey,
+            ["short_id"] = server.ShortId ?? string.Empty,
+            ["spider_x"] = server.SpiderX ?? string.Empty,
+            ["obfs"] = obfs,
+            ["obfs_password"] = extra.SalamanderPass ?? string.Empty,
+            ["up_mbps"] = extra.UpMbps?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            ["down_mbps"] = extra.DownMbps?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            ["ports"] = extra.Ports ?? string.Empty,
+            ["hop_interval"] = extra.HopInterval ?? string.Empty,
+            ["congestion"] = extra.CongestionControl ?? string.Empty,
+            ["udp_relay_mode"] = extra.TuicUdpRelayMode ?? string.Empty,
+            ["naive_quic"] = extra.NaiveQuic == true ? "true" : string.Empty,
+            ["uot"] = extra.Uot == true ? "true" : string.Empty,
+            ["private_key"] = privateKey,
+            ["preshared_key"] = extra.WgPresharedKey ?? string.Empty,
+            ["interface_addr"] = extra.WgInterfaceAddress ?? string.Empty,
+            ["reserved"] = extra.WgReserved ?? string.Empty,
+            ["mtu"] = extra.WgMtu?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            ["shadowtls_version"] = extra.ShadowTlsVersion?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+            ["shadowtls_password"] = extra.ShadowTlsPassword ?? string.Empty,
+            ["masque_path"] = extra.MasquePath ?? string.Empty,
+            ["mieru_transport"] = extra.MieruTransport ?? string.Empty,
+            ["mieru_port_range"] = extra.MieruPortRange ?? string.Empty,
+            ["shadowquic_versions"] = extra.ShadowQuicVersions ?? string.Empty,
+            ["trusttunnel_quic"] = extra.TrustTunnelQuic == true ? "true" : string.Empty,
+            ["config_file"] = configFilePath ?? string.Empty
+        };
+    }
+
+    private static void RenderCliSegment(
+        string segment,
+        IReadOnlyDictionary<string, string> tokens,
+        StringBuilder sb,
+        ref bool inQuotes,
+        ref int precedingBackslashes)
+    {
+        for (var i = 0; i < segment.Length; i++)
+        {
+            var ch = segment[i];
             if (ch == '\\')
             {
                 precedingBackslashes++;
@@ -200,24 +566,230 @@ public static class CustomCoreHelper
 
             if (ch == '{')
             {
-                var close = input.IndexOf('}', i + 1);
-                if (close > i + 1)
+                if (TryParseConditional(segment, i, tokens, out var condBody, out var condMatched, out var condClose))
                 {
-                    var key = input[(i + 1)..close];
-                    if (tokens.TryGetValue(key, out var val))
+                    if (condMatched)
                     {
-                        var followedByQuote = inQuotes && close + 1 < input.Length && input[close + 1] == '"';
-                        sb.Append(FormatWindowsArgValue(val, inQuotes, followedByQuote));
-                        i = close;
+                        RenderCliSegment(condBody, tokens, sb, ref inQuotes, ref precedingBackslashes);
+                    }
+                    else if (!inQuotes && sb.Length > 0 && char.IsWhiteSpace(sb[^1]) &&
+                             condClose + 1 < segment.Length && char.IsWhiteSpace(segment[condClose + 1]))
+                    {
+                        i = condClose + 1;
                         continue;
                     }
+
+                    i = condClose;
+                    continue;
+                }
+
+                if (TryResolvePlaceholder(segment, i, tokens, out var val, out var close))
+                {
+                    var followedByQuote = inQuotes && close + 1 < segment.Length && segment[close + 1] == '"';
+                    sb.Append(FormatWindowsArgValue(val, inQuotes, followedByQuote));
+                    i = close;
+                    continue;
                 }
             }
 
             sb.Append(ch);
         }
+    }
 
-        return sb.ToString();
+    private static void RenderConfigSegment(
+        string segment,
+        string ext,
+        IReadOnlyDictionary<string, string> tokens,
+        StringBuilder sb,
+        ref bool inDoubleQuotes,
+        ref bool inSingleQuotes,
+        ref int precedingBackslashes)
+    {
+        for (var i = 0; i < segment.Length; i++)
+        {
+            var ch = segment[i];
+            if (ch is '\r' or '\n')
+            {
+                if (ext != ".json")
+                {
+                    inDoubleQuotes = false;
+                    inSingleQuotes = false;
+                }
+                precedingBackslashes = 0;
+                sb.Append(ch);
+                continue;
+            }
+
+            if (ch == '\\' && !inSingleQuotes)
+            {
+                precedingBackslashes++;
+                sb.Append(ch);
+                continue;
+            }
+
+            if (ch == '"' && !inSingleQuotes)
+            {
+                if (precedingBackslashes % 2 == 0)
+                    inDoubleQuotes = !inDoubleQuotes;
+                precedingBackslashes = 0;
+                sb.Append(ch);
+                continue;
+            }
+
+            if (ch == '\'' && ext != ".json" && !inDoubleQuotes)
+            {
+                precedingBackslashes = 0;
+                if (inSingleQuotes && i + 1 < segment.Length && segment[i + 1] == '\'')
+                {
+                    sb.Append("''");
+                    i++;
+                    continue;
+                }
+
+                inSingleQuotes = !inSingleQuotes;
+                sb.Append(ch);
+                continue;
+            }
+
+            precedingBackslashes = 0;
+
+            if (ch == '{')
+            {
+                if (TryParseConditional(segment, i, tokens, out var condBody, out var condMatched, out var condClose))
+                {
+                    if (condMatched)
+                        RenderConfigSegment(condBody, ext, tokens, sb, ref inDoubleQuotes, ref inSingleQuotes, ref precedingBackslashes);
+
+                    i = condClose;
+                    continue;
+                }
+
+                if (TryResolvePlaceholder(segment, i, tokens, out var val, out var close))
+                {
+                    sb.Append(FormatConfigValue(val, ext, inDoubleQuotes, inSingleQuotes));
+                    i = close;
+                    continue;
+                }
+            }
+
+            sb.Append(ch);
+        }
+    }
+
+    private static bool TryParseConditional(
+        string text,
+        int startIndex,
+        IReadOnlyDictionary<string, string> tokens,
+        out string body,
+        out bool matched,
+        out int closeIndex)
+    {
+        body = string.Empty;
+        matched = false;
+        closeIndex = -1;
+
+        if (startIndex + 2 >= text.Length || text[startIndex + 1] != '?')
+            return false;
+
+        var colon = text.IndexOf(':', startIndex + 2);
+        if (colon <= startIndex + 2)
+            return false;
+
+        var key = text[(startIndex + 2)..colon].Trim();
+        if (!IsValidTokenIdentifier(key) || !tokens.TryGetValue(key, out var rawVal))
+            return false;
+
+        var depth = 1;
+        for (var pos = colon + 1; pos < text.Length; pos++)
+        {
+            if (text[pos] == '{')
+            {
+                depth++;
+            }
+            else if (text[pos] == '}')
+            {
+                depth--;
+                if (depth == 0)
+                {
+                    body = text[(colon + 1)..pos];
+                    matched = !string.IsNullOrEmpty(rawVal);
+                    closeIndex = pos;
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryResolvePlaceholder(
+        string text,
+        int startIndex,
+        IReadOnlyDictionary<string, string> tokens,
+        out string value,
+        out int closeIndex)
+    {
+        value = string.Empty;
+        closeIndex = -1;
+
+        var close = text.IndexOf('}', startIndex + 1);
+        if (close <= startIndex + 1)
+            return false;
+
+        var expr = text[(startIndex + 1)..close];
+        if (expr.IndexOfAny(['{', '\r', '\n', '"', ':']) >= 0)
+            return false;
+
+        var parts = expr.Split('|');
+        var primaryKey = parts[0].Trim();
+        if (!IsValidTokenIdentifier(primaryKey) || !tokens.ContainsKey(primaryKey))
+            return false;
+
+        for (var p = 0; p < parts.Length; p++)
+        {
+            var part = parts[p].Trim();
+            if (IsValidTokenIdentifier(part) && tokens.TryGetValue(part, out var candidate))
+            {
+                if (!string.IsNullOrEmpty(candidate))
+                {
+                    value = candidate;
+                    break;
+                }
+            }
+            else if (p == parts.Length - 1)
+            {
+                value = part;
+                break;
+            }
+        }
+
+        closeIndex = close;
+        return true;
+    }
+
+    private static bool IsValidTokenIdentifier(string key) =>
+        key.Length > 0 && key.All(c => char.IsAsciiLetterOrDigit(c) || c == '_');
+
+    private static string FormatConfigValue(string value, string ext, bool inDoubleQuotes, bool inSingleQuotes)
+    {
+        if (ext == ".json")
+            return JsonEncodedText.Encode(value, JavaScriptEncoder.UnsafeRelaxedJsonEscaping).ToString();
+
+        if (inSingleQuotes)
+            return NormalizeArgumentsInput(value).Replace("'", "''", StringComparison.Ordinal);
+
+        if (inDoubleQuotes)
+        {
+            return ext is ".yaml" or ".toml"
+                ? JsonEncodedText.Encode(value, JavaScriptEncoder.UnsafeRelaxedJsonEscaping).ToString()
+                : value.Replace("\\", "\\\\", StringComparison.Ordinal)
+                    .Replace("\"", "\\\"", StringComparison.Ordinal)
+                    .Replace("\r\n", "\\n", StringComparison.Ordinal)
+                    .Replace("\n", "\\n", StringComparison.Ordinal)
+                    .Replace("\r", "\\r", StringComparison.Ordinal);
+        }
+
+        return NormalizeArgumentsInput(value);
     }
 
     public static IReadOnlyList<(EConfigType Protocol, IReadOnlyList<Server> Servers, IReadOnlyList<CustomCore> Cores)> GetImportCustomCoreMatches(
@@ -283,6 +855,8 @@ public static class CustomCoreHelper
         core.Name = (core.Name ?? string.Empty).Trim();
         core.ExecutablePath = NormalizeExecutableInput(core.ExecutablePath);
         core.ArgumentsTemplate = NormalizeArgumentsInput(core.ArgumentsTemplate);
+        core.ConfigFileExtension = NormalizeConfigExtension(core.ConfigFileExtension);
+        core.ConfigTemplate = core.Mode == CustomCoreMode.CliArguments ? NormalizeConfigTemplate(core.ConfigTemplate) : string.Empty;
 
         foreach (var server in Global.Settings.Server ?? [])
         {
@@ -358,6 +932,8 @@ public static class CustomCoreHelper
             if (!Enum.IsDefined(core.Mode))
                 core.Mode = CustomCoreMode.CliArguments;
             core.ArgumentsTemplate = NormalizeArgumentsInput(core.ArgumentsTemplate);
+            core.ConfigFileExtension = NormalizeConfigExtension(core.ConfigFileExtension);
+            core.ConfigTemplate = core.Mode == CustomCoreMode.CliArguments ? NormalizeConfigTemplate(core.ConfigTemplate) : string.Empty;
 
             if (core.IsProtocolDefault && !defaultProtocols.Add(core.Protocol))
                 core.IsProtocolDefault = false;
