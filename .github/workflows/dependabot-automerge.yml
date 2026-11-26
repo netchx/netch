@@ -13,7 +13,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success' &&
       startsWith(github.event.workflow_run.head_branch, 'dependabot/') &&
       github.event.workflow_run.head_repository.id == github.event.repository.id &&
-      github.event.workflow_run.pull_requests[0].base.ref == 'main'
+      github.event.workflow_run.pull_requests[0].base.ref == 'v2'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -26,9 +26,10 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           eligible=$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '
-            .state == "open" and (.draft | not) and .base.ref == "main"
+            .state == "open" and (.draft | not) and .base.ref == "v2"
             and .user.login == "dependabot[bot]"
           ')
           if [ "$eligible" = true ]; then
-            gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --squash --match-head-commit "$PR_HEAD_SHA"
+            gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --match-head-commit "$PR_HEAD_SHA" \
+              || gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --auto --squash --match-head-commit "$PR_HEAD_SHA"
           fi

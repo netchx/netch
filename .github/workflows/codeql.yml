@@ -1,0 +1,56 @@
+name: CodeQL
+on:
+  push:
+    branches: [v2]
+  pull_request:
+    branches: [v2]
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: csharp
+            build-mode: none
+          - language: go
+            build-mode: autobuild
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+
+      - name: Setup Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v7.1.0
+        with:
+          go-version: stable
+          cache-dependency-path: |
+            Other/aiodns/go.mod
+            Other/aiodns/go.sum
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4.39.5
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4.39.5
+        with:
+          category: "/language:${{ matrix.language }}"
