@@ -203,7 +203,7 @@ public class Setting
 
     public string ModeRepository { get; set; } = "netchx/netch";
 
-    public string ModeBranch { get; set; } = "main";
+    public string ModeBranch { get; set; } = "v2";
 
     public string ModeRepositoryPath { get; set; } = "Storage/mode";
 

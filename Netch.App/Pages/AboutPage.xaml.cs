@@ -45,7 +45,7 @@ public sealed partial class AboutPage : Page
         var names = Caption("sing-box · Mihomo · Xray-core · tun2socks · WinTUN · pcap2socks · NetFilter SDK · Serilog · Stun.Net · Windows App SDK");
         names.TextWrapping = TextWrapping.Wrap;
         var credits = Stack(Text(T("Open-source acknowledgments", "开源致谢"), strong: true), names,
-            Row(Caption("GPL-3.0"), Link(T("View license", "查看许可证"), UpdateChecker.ProjectUrl + "/blob/main/LICENSE")));
+            Row(Caption("GPL-3.0"), Link(T("View license", "查看许可证"), UpdateChecker.ProjectUrl + "/blob/v2/LICENSE")));
         var logo = Center(new Image
         {
             Width = 80,

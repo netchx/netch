@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/NetchX/Netch/actions/workflows/build.yml"><img src="https://github.com/NetchX/Netch/actions/workflows/build.yml/badge.svg?branch=main" alt="Build" /></a>
+  <a href="https://github.com/NetchX/Netch/actions/workflows/build.yml"><img src="https://github.com/NetchX/Netch/actions/workflows/build.yml/badge.svg?branch=v2" alt="Build" /></a>
   <a href="https://github.com/NetchX/Netch/releases"><img src="https://img.shields.io/github/v/release/NetchX/Netch?include_prereleases&style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square" alt="GPLv3" /></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-0078D6?style=flat-square" alt="Windows x64" />

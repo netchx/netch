@@ -27,7 +27,11 @@ param (
 	# never packaged.
 	[Parameter()]
 	[switch]
-	$UseCache
+	$UseCache,
+
+	[Parameter()]
+	[string]
+	$Version = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -212,20 +216,30 @@ try {
 	Write-Host
 	Write-Host 'Building Netch (WinUI)'
 
+	$publishArgs = @(
+		'-c', $Configuration
+		'-r', 'win-x64'
+		"-p:Platform=x64"
+		"-p:SelfContained=$SelfContained"
+		"-p:PublishSingleFile=$PublishSingleFile"
+		"-p:PublishReadyToRun=$PublishReadyToRun"
+		"-p:PublishReadyToRunShowWarnings=$PublishReadyToRun"
+		"-p:IncludeNativeLibrariesForSelfExtract=$SelfContained"
+		"-p:IncludeAllContentForSelfExtract=$True"
+		"-p:EnableCompressionInSingleFile=$True"
+		'-o', $netchPublishPath
+	)
+	if (-not [string]::IsNullOrWhiteSpace($Version)) {
+		$normalizedVersion = $Version.Trim().TrimStart('v', 'V')
+		if ($normalizedVersion -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$') {
+			throw "Invalid Version '$Version'. Expected SemVer (for example: 2.0.0 or 2.0.0-beta1)."
+		}
+		$publishArgs += "-p:Version=$normalizedVersion"
+	}
+	$publishArgs += $project
+
 	Invoke-Native -Name 'dotnet publish' -Command {
-		dotnet publish `
-			-c $Configuration `
-			-r 'win-x64' `
-			-p:Platform='x64' `
-			-p:SelfContained=$SelfContained `
-			-p:PublishSingleFile=$PublishSingleFile `
-			-p:PublishReadyToRun=$PublishReadyToRun `
-			-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
-			-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
-			-p:IncludeAllContentForSelfExtract=$True `
-			-p:EnableCompressionInSingleFile=$True `
-			-o $netchPublishPath `
-			$project
+		dotnet publish @publishArgs
 	}
 	Copy-Item -Force "$netchPublishPath\$executable" $OutputPath
 	$looseFiles = Get-ChildItem -LiteralPath $netchPublishPath -Recurse -File |

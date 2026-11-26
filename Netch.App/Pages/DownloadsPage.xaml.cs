@@ -309,7 +309,7 @@ public sealed partial class DownloadsPage : Page
             {
                 Orientation = Orientation.Horizontal,
                 Spacing = 5,
-                Children = { Caption(currentVersion), GlyphIcon(Icons.ChevronRight, 10, Resource<Brush>("TextFillColorSecondaryBrush")), Caption(release!.tag_name) }
+                Children = { Caption(currentVersion), GlyphIcon(Icons.ChevronRight, 10, Resource<Brush>("TextFillColorSecondaryBrush")), Caption("v" + release!.tag_name.TrimStart('v', 'V')) }
             }
             : Caption(currentVersion);
         var appMeta = Stack(Text("Netch", 15, true), versionLine);

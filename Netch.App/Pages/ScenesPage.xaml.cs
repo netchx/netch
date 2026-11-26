@@ -219,7 +219,7 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
         var months = Downloads.LastRulesSynchronized is { } last ? (int)((DateTimeOffset.Now - last).TotalDays / 30) : 0;
         var label = string.Equals(Global.Settings.ModeRepository, "netchx/netch", StringComparison.OrdinalIgnoreCase)
-            && Global.Settings.ModeBranch == "main" && Global.Settings.ModeRepositoryPath == "Storage/mode"
+            && Global.Settings.ModeBranch == "v2" && Global.Settings.ModeRepositoryPath == "Storage/mode"
                 ? Ui.T("Bundled mode rules", "内置模式规则")
                 : Ui.T("Mode rules", "模式规则");
         RulesNoticeText.Text = months > 0

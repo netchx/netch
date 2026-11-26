@@ -32,7 +32,7 @@ public struct SuffixVersion : IComparable, IComparable<SuffixVersion>
 
         // Release tags may contain a project prefix, for example
         // "Netch1.9.9" or "v1.9.9-beta1".
-        var versionMatch = Regex.Match(value.Trim(), @"\d+(?:\.\d+){1,3}(?:-[A-Za-z]+\d+)?");
+        var versionMatch = Regex.Match(value.Trim(), @"\d+(?:\.\d+){1,3}(?:-[A-Za-z]+\.?\d+)?");
         if (!versionMatch.Success)
             throw new FormatException($"Invalid version: {value}");
 
@@ -48,7 +48,7 @@ public struct SuffixVersion : IComparable, IComparable<SuffixVersion>
                 throw new Exception("suffix WhiteSpace");
             default:
             {
-                var match = Regex.Match(suffix, @"(?<suffix>\D+)(?<num>\d+)");
+                var match = Regex.Match(suffix, @"^(?<suffix>[A-Za-z]+)\.?(?<num>\d+)$");
                 if (!match.Success)
                     throw new Exception();
 

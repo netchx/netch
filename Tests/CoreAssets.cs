@@ -5,6 +5,7 @@ using System.Net;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Netch.Controllers;
+using Netch.Models;
 using Netch.Models.GitHubRelease;
 using Netch.Models.Modes.ProcessMode;
 using Netch.Servers;
@@ -236,7 +237,7 @@ public class CoreAssets
         {
             UpdateChecker.LatestRelease = new Release
             {
-                tag_name = "v2.0.2",
+                tag_name = "2.0.2",
                 body = $"""
                     ## 亮点
 
@@ -244,18 +245,18 @@ public class CoreAssets
 
                     ## 下载与启动
 
-                    1. 下载 `Netch-v2.0.2-winui-x64.zip`。
+                    1. 下载 `Netch-2.0.2-winui-x64.zip`。
 
                     ## SHA256
 
                     | 文件 | SHA256 |
                     | --- | --- |
-                    | `Netch-v2.0.2-winui-x64.zip` | `{expectedHash}` |
+                    | `Netch-2.0.2-winui-x64.zip` | `{expectedHash}` |
                     """
             };
 
             var (fileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            Assert.AreEqual("Netch-v2.0.2-winui-x64.zip", fileName);
+            Assert.AreEqual("Netch-2.0.2-winui-x64.zip", fileName);
             Assert.AreEqual(expectedHash, sha256);
         }
         finally
@@ -268,7 +269,13 @@ public class CoreAssets
     [DoNotParallelize]
     public void PrereleaseVersionOrderingAndBilingualReleaseNotesParseCorrectly()
     {
-        Assert.AreEqual("2.0.0-beta3", UpdateChecker.Version);
+        Assert.AreEqual("2.0.0", UpdateChecker.Version);
+        Assert.AreEqual("2.0.0", UpdateChecker.ResolveVersion("2.0.0"));
+        Assert.AreEqual("2.0.0-beta4", UpdateChecker.ResolveVersion("2.0.0-beta4"));
+        Assert.AreEqual("2.0.0-beta4", UpdateChecker.ResolveVersion("2.0.0-beta4+19c547e"));
+        Assert.AreEqual("2.0.1", UpdateChecker.ResolveVersion("v2.0.1"));
+        Assert.AreEqual("2.0.0", UpdateChecker.ResolveVersion(string.Empty, new Version(2, 0, 0, 0)));
+
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0-beta1", "1.9.7") > 0);
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0-beta2", "2.0.0-beta1") > 0);
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0-beta3", "2.0.0-beta2") > 0);
@@ -276,6 +283,9 @@ public class CoreAssets
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0", "2.0.0-beta1") > 0);
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0", "2.0.0-beta2") > 0);
         Assert.IsTrue(VersionUtil.CompareVersion("2.0.0", "2.0.0-beta3") > 0);
+        Assert.IsTrue(VersionUtil.CompareVersion("2.0.0", "2.0.0-beta.1") > 0);
+        Assert.IsTrue(VersionUtil.CompareVersion("2.0.0-beta.2", "2.0.0-beta.1") > 0);
+        Assert.IsTrue(VersionUtil.CompareVersion("1.15.0", "1.15.0-alpha.7") > 0);
         Assert.AreEqual(0, VersionUtil.CompareVersion("2.0.0-beta1", "2.0.0-beta1"));
 
         var original = UpdateChecker.LatestRelease;
@@ -284,7 +294,7 @@ public class CoreAssets
         {
             UpdateChecker.LatestRelease = new Release
             {
-                tag_name = "v2.0.0-beta1",
+                tag_name = "2.0.0-beta1",
                 prerelease = true,
                 body = $"""
                     > [!NOTE]
@@ -298,14 +308,14 @@ public class CoreAssets
 
                     ## 下载与启动 / Download & Launch
 
-                    1. 下载 `Netch-v2.0.0-beta1-winui-x64.zip`。
-                    2. Download `Netch-v2.0.0-beta1-winui-x64.zip`.
+                    1. 下载 `Netch-2.0.0-beta1-winui-x64.zip`。
+                    2. Download `Netch-2.0.0-beta1-winui-x64.zip`.
 
                     ## SHA256
 
                     | 文件 / File | SHA256 |
                     | --- | --- |
-                    | `Netch-v2.0.0-beta1-winui-x64.zip` | `{expectedHash}` |
+                    | `Netch-2.0.0-beta1-winui-x64.zip` | `{expectedHash}` |
                     """
             };
 
@@ -316,12 +326,46 @@ public class CoreAssets
             Assert.IsFalse(content.Contains("SHA256", StringComparison.Ordinal));
 
             var (fileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
-            Assert.AreEqual("Netch-v2.0.0-beta1-winui-x64.zip", fileName);
+            Assert.AreEqual("Netch-2.0.0-beta1-winui-x64.zip", fileName);
             Assert.AreEqual(expectedHash, sha256);
         }
         finally
         {
             UpdateChecker.LatestRelease = original;
         }
+    }
+
+    [TestMethod]
+    public void DefaultModeBranchIsV2AndMigratesUntouchedMain()
+    {
+        var defaults = new Setting();
+        Assert.AreEqual("v2", defaults.ModeBranch);
+
+        var untouched = new Setting
+        {
+            ModeRepository = "netchx/netch",
+            ModeBranch = "main",
+            ModeRepositoryPath = "Storage/mode"
+        };
+        Configuration.CheckSetting(untouched);
+        Assert.AreEqual("v2", untouched.ModeBranch);
+
+        var customRepo = new Setting
+        {
+            ModeRepository = "custom/netch",
+            ModeBranch = "main",
+            ModeRepositoryPath = "Storage/mode"
+        };
+        Configuration.CheckSetting(customRepo);
+        Assert.AreEqual("main", customRepo.ModeBranch);
+
+        var customBranch = new Setting
+        {
+            ModeRepository = "netchx/netch",
+            ModeBranch = "dev",
+            ModeRepositoryPath = "Storage/mode"
+        };
+        Configuration.CheckSetting(customBranch);
+        Assert.AreEqual("dev", customBranch.ModeBranch);
     }
 }

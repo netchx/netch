@@ -112,7 +112,7 @@ public static class Configuration
         }
     }
 
-    private static void CheckSetting(Setting settings)
+    internal static void CheckSetting(Setting settings)
     {
         settings.Profiles.RemoveAll(p => p.ServerRemark == string.Empty || p.ModeRemark == string.Empty);
 
@@ -165,6 +165,13 @@ public static class Configuration
             settings.WebProxy.PacPort = 2803;
         if (string.IsNullOrWhiteSpace(settings.WebProxy.DefaultBypass))
             settings.WebProxy.DefaultBypass = WebProxyConfig.DefaultBypassValue;
+
+        if (string.Equals(settings.ModeRepository, "netchx/netch", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(settings.ModeBranch, "main", StringComparison.Ordinal) &&
+            string.Equals(settings.ModeRepositoryPath, "Storage/mode", StringComparison.Ordinal))
+        {
+            settings.ModeBranch = "v2";
+        }
 
         NormalizeDelaySettings(settings);
     }

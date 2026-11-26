@@ -2,11 +2,11 @@ name: Netch Release CI
 on:
   push:
     tags:
-      - '*.*.*'
+      - '[0-9]*.*.*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Dry-run package version label (does not publish a GitHub Release)'
+        description: 'Dry-run package version label (no leading v, e.g. 2.0.0 or 2.0.0-beta1; does not publish a GitHub Release)'
         required: false
         default: ''
         type: string
@@ -21,6 +21,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
+
+      - name: Resolve version
+        shell: pwsh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          $semVerPattern = '^\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$'
+          $rawTag = if ($env:EVENT_NAME -eq 'workflow_dispatch' -and -not [string]::IsNullOrWhiteSpace($env:INPUT_VERSION)) {
+            $env:INPUT_VERSION.Trim()
+          }
+          else {
+            $env:REF_NAME
+          }
+          $isSemVer = $rawTag -match $semVerPattern
+          if ($env:EVENT_NAME -eq 'push' -and -not $isSemVer) {
+            throw "Release tag '$rawTag' must be a SemVer tag without a leading 'v' (for example: 2.0.0 or 2.0.0-beta1)."
+          }
+          if ($env:EVENT_NAME -eq 'workflow_dispatch' -and -not [string]::IsNullOrWhiteSpace($env:INPUT_VERSION) -and -not $isSemVer) {
+            $candidate = $rawTag.TrimStart('v', 'V')
+            if ($candidate -match $semVerPattern) {
+              $rawTag = $candidate
+              $isSemVer = $true
+            }
+          }
+          $releaseTag = $rawTag -replace '[^0-9A-Za-z._-]', '-'
+          $buildVersion = if ($isSemVer) { $rawTag } else { '' }
+          echo "RELEASE_TAG=$releaseTag" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "BUILD_VERSION=$buildVersion" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "WINUI_PACKAGE_NAME=Netch-$releaseTag-winui-x64" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6.1.0
@@ -91,24 +122,21 @@ jobs:
           if ($env:MSYS2_LOCATION) {
             $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
           }
-          .\build.ps1 -Configuration Release -OutputPath release -UseCache
+          $buildArgs = @{
+            Configuration = 'Release'
+            OutputPath = 'release'
+            UseCache = $true
+          }
+          if (-not [string]::IsNullOrWhiteSpace($env:BUILD_VERSION)) {
+            $buildArgs.Version = $env:BUILD_VERSION
+          }
+          .\build.ps1 @buildArgs
           if ($LASTEXITCODE -ne 0) { throw 'WinUI build failed.' }
 
       - name: Package
         shell: pwsh
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          INPUT_VERSION: ${{ inputs.version }}
-          REF_NAME: ${{ github.ref_name }}
         run: |
-          $rawTag = if ($env:EVENT_NAME -eq 'workflow_dispatch' -and -not [string]::IsNullOrWhiteSpace($env:INPUT_VERSION)) {
-            $env:INPUT_VERSION.Trim()
-          }
-          else {
-            $env:REF_NAME
-          }
-          $releaseTag = $rawTag -replace '[^0-9A-Za-z._-]', '-'
-          $winui = "Netch-$releaseTag-winui-x64"
+          $winui = $Env:WINUI_PACKAGE_NAME
           $winuiPackage = Join-Path $PWD 'release'
           $modeRoot = Join-Path $winuiPackage 'mode'
           $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
@@ -118,17 +146,15 @@ jobs:
           for ($i = 0; $i -lt $modes.Count; $i++) {
             $blobs[[IO.Path]::GetRelativePath($modeRoot, $modes[$i].FullName)] = $ids[$i]
           }
-          @{ Source='netchx/netch/main/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
+          @{ Source='netchx/netch/v2/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
             Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
           [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, (Join-Path $PWD "$winui.zip"))
-          echo "RELEASE_TAG=$releaseTag" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "WINUI_PACKAGE_NAME=$winui" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Release notes
         shell: pwsh
         run: |
           # Release body = docs/release-notes/<version>.md (Markdown) + download
-          # instructions + SHA256 table. Tag v2.0.1 reads 2.0.1.md.
+          # instructions + SHA256 table. Tag 2.0.0 reads 2.0.0.md.
           $winui = $Env:WINUI_PACKAGE_NAME
           $version = $Env:RELEASE_TAG.TrimStart('v', 'V')
           $notesFile = Join-Path 'docs\release-notes' "$version.md"

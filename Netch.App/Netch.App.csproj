@@ -19,7 +19,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <IsPackable>false</IsPackable>
-    <FileVersion>2.0.0</FileVersion>
     <!-- event handler async void Warning -->
     <NoWarn>$(NoWarn);VSTHRD100</NoWarn>
     <UseWinUI>true</UseWinUI>

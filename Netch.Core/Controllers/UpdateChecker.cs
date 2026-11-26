@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -16,10 +17,31 @@ public static class UpdateChecker
     public const string Name = @"Netch";
     public const string Copyright = @"Copyright © 2019 - 2026";
 
-    public const string AssemblyVersion = @"2.0.0";
-    private const string Suffix = @"beta3";
+    public static readonly string Version = ResolveVersion();
 
-    public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
+    internal static string ResolveVersion(string? informationalVersion = null, Version? assemblyVersion = null)
+    {
+        var raw = informationalVersion
+            ?? typeof(UpdateChecker).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(raw))
+        {
+            var plus = raw.IndexOf('+');
+            if (plus >= 0)
+                raw = raw[..plus];
+
+            raw = raw.Trim().TrimStart('v', 'V');
+            if (raw.Length > 0)
+                return raw;
+        }
+
+        var ver = assemblyVersion ?? typeof(UpdateChecker).Assembly.GetName().Version;
+        if (ver != null)
+            return ver.Revision > 0
+                ? $"{ver.Major}.{ver.Minor}.{ver.Build}.{ver.Revision}"
+                : $"{ver.Major}.{ver.Minor}.{Math.Max(0, ver.Build)}";
+
+        return "0.0.0";
+    }
 
     public static Release LatestRelease = new();
 
