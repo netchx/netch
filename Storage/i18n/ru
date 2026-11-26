@@ -949,5 +949,7 @@
   "System maintenance": "Обслуживание системы",
   "Flush the DNS cache and remove Netch firewall rules": "Очистить системный кэш DNS и удалить правила брандмауэра Netch",
   "Clear Windows system proxy and PAC settings": "Очистить настройки системного прокси Windows и PAC",
-  "Remove the netfilter2 service": "Удалить службу драйвера netfilter2"
+  "Remove the netfilter2 service": "Удалить службу драйвера netfilter2",
+  "Self-contained": "Автономная",
+  "Framework-dependent": "Зависимая от среды"
 }

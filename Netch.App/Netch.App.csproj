@@ -24,7 +24,7 @@
     <UseWinUI>true</UseWinUI>
     <WindowsPackageType>None</WindowsPackageType>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-    <SelfContained>true</SelfContained>
+    <SelfContained Condition="'$(SelfContained)' == ''">true</SelfContained>
     <EnableMsixTooling>true</EnableMsixTooling>
     <!-- Program.Main runs the single-instance check and core start-up before XAML starts. -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
@@ -39,6 +39,11 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyMetadata Include="DeploymentMode" Value="self-contained" Condition="'$(SelfContained)' == 'true'" />
+    <AssemblyMetadata Include="DeploymentMode" Value="framework-dependent" Condition="'$(SelfContained)' != 'true'" />
+  </ItemGroup>
 
   <ItemGroup>
     <Using Include="Serilog" />

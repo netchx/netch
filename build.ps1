@@ -111,8 +111,8 @@ function Test-ShouldBuild {
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 try {
-	if (-not $SelfContained -or -not $PublishSingleFile) {
-		throw 'WinUI portable builds require SelfContained and PublishSingleFile.'
+	if (-not $PublishSingleFile) {
+		throw 'WinUI portable builds require PublishSingleFile.'
 	}
 
 	if ( Test-Path -Path $OutputPath ) {
@@ -212,21 +212,26 @@ try {
 
 	$executable = 'Netch.App.exe'
 	$project = '.\Netch.App\Netch.App.csproj'
-	$netchPublishPath = ".\Netch.App\bin\publish-single\$Configuration"
+	$deploymentMode = if ($SelfContained) { 'self-contained' } else { 'framework-dependent' }
+	$selfContainedProp = if ($SelfContained) { 'true' } else { 'false' }
+	$netchPublishPath = ".\Netch.App\bin\publish-single\$Configuration\$deploymentMode"
+	if (Test-Path -LiteralPath $netchPublishPath) {
+		Remove-Item -Recurse -Force -LiteralPath $netchPublishPath
+	}
 	Write-Host
-	Write-Host 'Building Netch (WinUI)'
+	Write-Host "Building Netch (WinUI, $deploymentMode)"
 
 	$publishArgs = @(
 		'-c', $Configuration
 		'-r', 'win-x64'
 		"-p:Platform=x64"
-		"-p:SelfContained=$SelfContained"
-		"-p:PublishSingleFile=$PublishSingleFile"
+		"-p:SelfContained=$selfContainedProp"
+		"-p:PublishSingleFile=true"
 		"-p:PublishReadyToRun=$PublishReadyToRun"
 		"-p:PublishReadyToRunShowWarnings=$PublishReadyToRun"
-		"-p:IncludeNativeLibrariesForSelfExtract=$SelfContained"
-		"-p:IncludeAllContentForSelfExtract=$True"
-		"-p:EnableCompressionInSingleFile=$True"
+		"-p:IncludeNativeLibrariesForSelfExtract=true"
+		"-p:IncludeAllContentForSelfExtract=true"
+		"-p:EnableCompressionInSingleFile=$selfContainedProp"
 		'-o', $netchPublishPath
 	)
 	if (-not [string]::IsNullOrWhiteSpace($Version)) {

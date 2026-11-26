@@ -20,10 +20,13 @@ public sealed partial class AboutPage : Page
         var admin = new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
         var driver = DriverStatus();
         var directory = Configuration.DataDirectoryFullName;
+        var deployment = UpdateChecker.IsSelfContained
+            ? T("Self-contained", "自带框架")
+            : T("Framework-dependent", "系统框架");
         var data = new (string Key, string Value)[]
         {
             (T("System", "系统"), RuntimeInformation.OSDescription),
-            (T("Runtime", "运行时"), RuntimeInformation.FrameworkDescription),
+            (T("Runtime", "运行时"), $"{RuntimeInformation.FrameworkDescription} ({deployment})"),
             (T("Privileges", "权限"), admin ? T("Administrator", "管理员") : T("Standard user", "标准用户")),
             (T("NF driver", "NF 驱动"), driver),
             (T("Data directory", "数据目录"), directory)

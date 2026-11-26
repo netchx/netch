@@ -161,8 +161,7 @@ internal static partial class Downloads
         {
             var releases = await ReleasesAsync($"{UpdateChecker.Owner}/{UpdateChecker.Repo}");
             AppRelease = releases.FirstOrDefault();
-            AppAsset = AppRelease?.assets?.FirstOrDefault(asset => asset.name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
-                && asset.name.Contains("winui", StringComparison.OrdinalIgnoreCase) && asset.name.Contains("x64", StringComparison.OrdinalIgnoreCase));
+            AppAsset = UpdateChecker.SelectReleaseAsset(AppRelease?.assets, UpdateChecker.IsSelfContained);
             if (AppRelease != null && IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
                 Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
         }

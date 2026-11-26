@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Reflection;
+using System.Reflection.Emit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Netch.Controllers;
 using Netch.Models;
@@ -187,7 +188,9 @@ public class CoreAssets
             "ShadowQUIC versions must be v1 or v2.",
             "AmneziaWG supports at most one IPv4 and one IPv6 local address.",
             "AmneziaWG Jmin cannot exceed Jmax.",
-            "AmneziaWG H1-H4 must be unsigned integers or min-max ranges."
+            "AmneziaWG H1-H4 must be unsigned integers or min-max ranges.",
+            "Self-contained",
+            "Framework-dependent"
         };
 
         try
@@ -258,6 +261,79 @@ public class CoreAssets
             var (fileName, sha256) = UpdateChecker.GetLatestUpdateFileNameAndHash();
             Assert.AreEqual("Netch-2.0.2-winui-x64.zip", fileName);
             Assert.AreEqual(expectedHash, sha256);
+        }
+        finally
+        {
+            UpdateChecker.LatestRelease = original;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void UpdateCheckerSelectsDeploymentMatchingAssetAndDualSha256Rows()
+    {
+        var scAsset = new Asset { name = "Netch-2.0.1-winui-x64-self-contained.zip" };
+        var fddAsset = new Asset { name = "Netch-2.0.1-winui-x64-framework-dependent.zip" };
+        var legacyAsset = new Asset { name = "Netch-2.0.0-winui-x64.zip" };
+
+        Assert.AreEqual(scAsset.name, UpdateChecker.SelectReleaseAsset([fddAsset, scAsset], selfContained: true)?.name);
+        Assert.AreEqual(fddAsset.name, UpdateChecker.SelectReleaseAsset([fddAsset, scAsset], selfContained: false)?.name);
+        Assert.AreEqual(scAsset.name, UpdateChecker.SelectReleaseAsset([scAsset, fddAsset], selfContained: true)?.name);
+        Assert.AreEqual(fddAsset.name, UpdateChecker.SelectReleaseAsset([scAsset, fddAsset], selfContained: false)?.name);
+
+        Assert.AreEqual(legacyAsset.name, UpdateChecker.SelectReleaseAsset([legacyAsset], selfContained: true)?.name);
+        Assert.AreEqual(legacyAsset.name, UpdateChecker.SelectReleaseAsset([legacyAsset], selfContained: false)?.name);
+
+        Assert.IsNull(UpdateChecker.SelectReleaseAsset([fddAsset], selfContained: true));
+        Assert.AreEqual(fddAsset.name, UpdateChecker.SelectReleaseAsset([fddAsset], selfContained: false)?.name);
+
+        Assert.AreEqual(scAsset.name, UpdateChecker.SelectReleaseAsset([scAsset], selfContained: true)?.name);
+        Assert.AreEqual(scAsset.name, UpdateChecker.SelectReleaseAsset([scAsset], selfContained: false)?.name);
+
+        Assert.IsNull(UpdateChecker.SelectReleaseAsset(null, selfContained: true));
+        Assert.IsNull(UpdateChecker.SelectReleaseAsset([new Asset { name = "Netch-2.0.1-winui-arm64.zip" }], selfContained: false));
+
+        Assert.IsTrue(UpdateChecker.ResolveIsSelfContained(typeof(CoreAssets).Assembly));
+        var ctor = typeof(AssemblyMetadataAttribute).GetConstructor([typeof(string), typeof(string)])!;
+        var fddAsm = AssemblyBuilder.DefineDynamicAssembly(
+            new AssemblyName("Netch.Test.Fdd"),
+            AssemblyBuilderAccess.Run,
+            [new CustomAttributeBuilder(ctor, ["DeploymentMode", UpdateChecker.FrameworkDependentDeploymentMode])]);
+        var scAsm = AssemblyBuilder.DefineDynamicAssembly(
+            new AssemblyName("Netch.Test.Sc"),
+            AssemblyBuilderAccess.Run,
+            [new CustomAttributeBuilder(ctor, ["DeploymentMode", UpdateChecker.SelfContainedDeploymentMode])]);
+        Assert.IsFalse(UpdateChecker.ResolveIsSelfContained(fddAsm));
+        Assert.IsTrue(UpdateChecker.ResolveIsSelfContained(scAsm));
+
+        var original = UpdateChecker.LatestRelease;
+        const string scHash = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+        const string fddHash = "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
+        try
+        {
+            UpdateChecker.LatestRelease = new Release
+            {
+                tag_name = "2.0.1",
+                body = $"""
+                    ## 中文更新日志
+                    - 双打包格式支持。
+
+                    ## SHA256
+
+                    | 文件 / File | SHA256 |
+                    | --- | --- |
+                    | `Netch-2.0.1-winui-x64-self-contained.zip` | `{scHash}` |
+                    | `Netch-2.0.1-winui-x64-framework-dependent.zip` | `{fddHash}` |
+                    """
+            };
+
+            var (defaultFile, defaultHash) = UpdateChecker.GetLatestUpdateFileNameAndHash();
+            Assert.AreEqual("Netch-2.0.1-winui-x64-self-contained.zip", defaultFile);
+            Assert.AreEqual(scHash, defaultHash);
+
+            var (fddFile, resolvedFddHash) = UpdateChecker.GetLatestUpdateFileNameAndHash("framework-dependent");
+            Assert.AreEqual("Netch-2.0.1-winui-x64-framework-dependent.zip", fddFile);
+            Assert.AreEqual(fddHash, resolvedFddHash);
         }
         finally
         {

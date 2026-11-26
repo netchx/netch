@@ -770,5 +770,7 @@
   "System maintenance": "نگهداری سیستم",
   "Flush the DNS cache and remove Netch firewall rules": "پاک‌سازی حافظه نهان DNS سیستم و حذف قوانین فایروال Netch",
   "Clear Windows system proxy and PAC settings": "پاک کردن تنظیمات پراکسی سیستم ویندوز و PAC",
-  "Remove the netfilter2 service": "حذف سرویس درایور netfilter2"
+  "Remove the netfilter2 service": "حذف سرویس درایور netfilter2",
+  "Self-contained": "مستقل",
+  "Framework-dependent": "وابسته به چارچوب سیستم"
 }

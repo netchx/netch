@@ -89,6 +89,9 @@ jobs:
             $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
           }
           .\build.ps1 -Configuration Release -OutputPath release -UseCache
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI self-contained build failed.' }
+          .\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false -UseCache
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI framework-dependent build failed.' }
 
       - name: Build RedirectorTester
         shell: pwsh

@@ -950,5 +950,7 @@
   "System maintenance": "系统维护",
   "Flush the DNS cache and remove Netch firewall rules": "清理系统 DNS 缓存并移除 Netch 防火墙规则",
   "Clear Windows system proxy and PAC settings": "清除 Windows 系统代理与 PAC 自动配置",
-  "Remove the netfilter2 service": "移除 netfilter2 驱动服务"
+  "Remove the netfilter2 service": "移除 netfilter2 驱动服务",
+  "Self-contained": "自带框架",
+  "Framework-dependent": "系统框架"
 }

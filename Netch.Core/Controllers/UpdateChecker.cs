@@ -16,8 +16,46 @@ public static class UpdateChecker
 
     public const string Name = @"Netch";
     public const string Copyright = @"Copyright © 2019 - 2026";
+    public const string SelfContainedDeploymentMode = "self-contained";
+    public const string FrameworkDependentDeploymentMode = "framework-dependent";
 
     public static readonly string Version = ResolveVersion();
+    public static readonly bool IsSelfContained = ResolveIsSelfContained();
+
+    internal static bool ResolveIsSelfContained(Assembly? entryAssembly = null)
+    {
+        var assembly = entryAssembly ?? Assembly.GetEntryAssembly();
+        var mode = assembly?.GetCustomAttributes<AssemblyMetadataAttribute>()
+            .FirstOrDefault(attr => string.Equals(attr.Key, "DeploymentMode", StringComparison.OrdinalIgnoreCase))
+            ?.Value;
+        return !string.Equals(mode?.Trim(), FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static Asset? SelectReleaseAsset(IEnumerable<Asset>? assets, bool selfContained)
+    {
+        if (assets == null)
+            return null;
+
+        var candidates = assets
+            .Where(asset => asset != null
+                && !string.IsNullOrEmpty(asset.name)
+                && asset.name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                && asset.name.Contains("winui", StringComparison.OrdinalIgnoreCase)
+                && asset.name.Contains("x64", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (candidates.Count == 0)
+            return null;
+
+        if (selfContained)
+        {
+            return candidates.FirstOrDefault(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase))
+                ?? candidates.FirstOrDefault(asset => !asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return candidates.FirstOrDefault(asset => asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase))
+            ?? candidates.FirstOrDefault(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase))
+            ?? candidates[0];
+    }
 
     internal static string ResolveVersion(string? informationalVersion = null, Version? assemblyVersion = null)
     {

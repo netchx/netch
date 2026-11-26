@@ -770,5 +770,7 @@
   "System maintenance": "システムメンテナンス",
   "Flush the DNS cache and remove Netch firewall rules": "システム DNS キャッシュをクリアし、Netch ファイアウォール規則を削除します",
   "Clear Windows system proxy and PAC settings": "Windows のシステムプロキシと PAC 設定をクリアします",
-  "Remove the netfilter2 service": "netfilter2 ドライバーサービスを削除します"
+  "Remove the netfilter2 service": "netfilter2 ドライバーサービスを削除します",
+  "Self-contained": "自己完結型",
+  "Framework-dependent": "フレームワーク依存"
 }

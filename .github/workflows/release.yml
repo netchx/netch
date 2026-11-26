@@ -51,7 +51,8 @@ jobs:
           $buildVersion = if ($isSemVer) { $rawTag } else { '' }
           echo "RELEASE_TAG=$releaseTag" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
           echo "BUILD_VERSION=$buildVersion" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
-          echo "WINUI_PACKAGE_NAME=Netch-$releaseTag-winui-x64" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "WINUI_SELF_CONTAINED_PACKAGE_NAME=Netch-$releaseTag-winui-x64-self-contained" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          echo "WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME=Netch-$releaseTag-winui-x64-framework-dependent" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v6.1.0
@@ -122,40 +123,49 @@ jobs:
           if ($env:MSYS2_LOCATION) {
             $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
           }
-          $buildArgs = @{
+          $commonArgs = @{
             Configuration = 'Release'
-            OutputPath = 'release'
             UseCache = $true
           }
           if (-not [string]::IsNullOrWhiteSpace($env:BUILD_VERSION)) {
-            $buildArgs.Version = $env:BUILD_VERSION
+            $commonArgs.Version = $env:BUILD_VERSION
           }
-          .\build.ps1 @buildArgs
-          if ($LASTEXITCODE -ne 0) { throw 'WinUI build failed.' }
+          .\build.ps1 @commonArgs -OutputPath 'release-self-contained' -SelfContained $true
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI self-contained build failed.' }
+          .\build.ps1 @commonArgs -OutputPath 'release-framework-dependent' -SelfContained $false
+          if ($LASTEXITCODE -ne 0) { throw 'WinUI framework-dependent build failed.' }
 
       - name: Package
         shell: pwsh
         run: |
-          $winui = $Env:WINUI_PACKAGE_NAME
-          $winuiPackage = Join-Path $PWD 'release'
-          $modeRoot = Join-Path $winuiPackage 'mode'
-          $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
-          $ids = @($modes.FullName | git hash-object --no-filters --stdin-paths)
-          if ($LASTEXITCODE -ne 0 -or $modes.Count -ne $ids.Count) { throw 'Mode manifest generation failed.' }
-          $blobs = [ordered]@{}
-          for ($i = 0; $i -lt $modes.Count; $i++) {
-            $blobs[[IO.Path]::GetRelativePath($modeRoot, $modes[$i].FullName)] = $ids[$i]
+          $targets = @(
+            @{ Directory = 'release-self-contained'; PackageName = $Env:WINUI_SELF_CONTAINED_PACKAGE_NAME },
+            @{ Directory = 'release-framework-dependent'; PackageName = $Env:WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }
+          )
+          foreach ($target in $targets) {
+            $winuiPackage = Join-Path $PWD $target.Directory
+            $modeRoot = Join-Path $winuiPackage 'mode'
+            $modes = @(Get-ChildItem -LiteralPath $modeRoot -File -Recurse | Where-Object Extension -In '.txt','.json')
+            $ids = @($modes.FullName | git hash-object --no-filters --stdin-paths)
+            if ($LASTEXITCODE -ne 0 -or $modes.Count -ne $ids.Count) { throw 'Mode manifest generation failed.' }
+            $blobs = [ordered]@{}
+            for ($i = 0; $i -lt $modes.Count; $i++) {
+              $blobs[[IO.Path]::GetRelativePath($modeRoot, $modes[$i].FullName)] = $ids[$i]
+            }
+            @{ Source='netchx/netch/v2/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
+              Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
+            $zipPath = Join-Path $PWD "$($target.PackageName).zip"
+            [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, $zipPath)
+            Write-Host "Packaged $($target.PackageName).zip ($([math]::Round((Get-Item -LiteralPath $zipPath).Length / 1MB, 2)) MB)"
           }
-          @{ Source='netchx/netch/v2/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
-            Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
-          [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, (Join-Path $PWD "$winui.zip"))
 
       - name: Release notes
         shell: pwsh
         run: |
           # Release body = docs/release-notes/<version>.md (Markdown) + download
           # instructions + SHA256 table. Tag 2.0.0 reads 2.0.0.md.
-          $winui = $Env:WINUI_PACKAGE_NAME
+          $scPkg = $Env:WINUI_SELF_CONTAINED_PACKAGE_NAME
+          $fddPkg = $Env:WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME
           $version = $Env:RELEASE_TAG.TrimStart('v', 'V')
           $notesFile = Join-Path 'docs\release-notes' "$version.md"
 
@@ -167,26 +177,34 @@ jobs:
             $notes = "## 更新内容 / What's Changed`n`n详见 [README 更新日志](https://github.com/${{ github.repository }}#更新日志) / See the [README changelog](https://github.com/${{ github.repository }}#更新日志) for details."
           }
 
-          $winuiHash = (Get-FileHash "$winui.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $scHash = (Get-FileHash "$scPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $fddHash = (Get-FileHash "$fddPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
 
           $lines = @(
             $notes
             ''
             '## 下载与启动 / Download & Launch'
             ''
-            "1. 下载 ``$winui.zip``，完整解压并保留压缩包内的目录结构（包括 ``bin/``、``mode/``、``logging/``、``data/`` 与 ``licenses/``）。"
+            "- **自带框架版（推荐多数用户）**：下载 ``$scPkg.zip``，已内置 ``.NET 10`` 与 Windows App SDK 运行时，开箱即用。"
+            "- **系统框架版（体积更小）**：下载 ``$fddPkg.zip``，使用系统已安装的 **.NET 10 Desktop Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。"
+            ''
+            '1. 两个版本均为单文件便携包，请完整解压并保留压缩包内的目录结构（包括 `bin/`、`mode/`、`logging/`、`data/` 与 `licenses/`）。'
             '2. 右键 `Netch.App.exe`，选择“以管理员身份运行”。'
             ''
-            "1. Download ``$winui.zip`` and extract the entire archive while preserving its directory layout (``bin/``, ``mode/``, ``logging/``, ``data/``, and ``licenses/``)."
+            "- **Self-contained (recommended for most users)**: Download ``$scPkg.zip`` with bundled ``.NET 10`` and Windows App SDK runtimes."
+            "- **Framework-dependent (smaller download)**: Download ``$fddPkg.zip`` to use the system **.NET 10 Desktop Runtime (x64)** (Windows App SDK remains bundled); install [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0) if not already present."
+            ''
+            '1. Both archives are single-file portable bundles; extract the entire archive while preserving its directory layout (`bin/`, `mode/`, `logging/`, `data/`, and `licenses/`).'
             '2. Right-click `Netch.App.exe` and choose **Run as administrator**.'
             ''
-            '从要求外置运行时 DLL 的旧版目录版升级时，请手动解压便携包。 / When upgrading from an older directory-based build with external runtime DLLs, extract this portable archive manually.'
+            '从要求外置运行时 DLL 的旧版目录版升级时，请手动解压便携包。 / When upgrading from an older directory-based build with external runtime DLLs, extract either portable archive manually.'
             ''
             '## SHA256'
             ''
             '| 文件 / File | SHA256 |'
             '| --- | --- |'
-            "| ``$winui.zip`` | ``$winuiHash`` |"
+            "| ``$scPkg.zip`` | ``$scHash`` |"
+            "| ``$fddPkg.zip`` | ``$fddHash`` |"
             ''
             '[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)'
           )
@@ -204,4 +222,13 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
           draft: false
           body_path: release-notes.md
-          files: ${{ env.WINUI_PACKAGE_NAME }}.zip
+          files: ${{ env.WINUI_SELF_CONTAINED_PACKAGE_NAME }}.zip
+
+      - name: Upload framework-dependent asset
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" "${{ env.WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }}.zip" --repo "${{ github.repository }}" --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Uploading framework-dependent asset failed.' }

@@ -949,5 +949,7 @@
   "System maintenance": "صيانة النظام",
   "Flush the DNS cache and remove Netch firewall rules": "مسح ذاكرة التخزين المؤقت لـ DNS وإزالة قواعد جدار حماية Netch",
   "Clear Windows system proxy and PAC settings": "مسح إعدادات وكيل نظام Windows وPAC",
-  "Remove the netfilter2 service": "إزالة خدمة برنامج التشغيل netfilter2"
+  "Remove the netfilter2 service": "إزالة خدمة برنامج التشغيل netfilter2",
+  "Self-contained": "مضمّن الإطار",
+  "Framework-dependent": "يعتمد على إطار النظام"
 }

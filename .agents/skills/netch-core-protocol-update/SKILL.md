@@ -95,7 +95,8 @@ Validate [Netch.Core/Resources/zh-CN](../../../Netch.Core/Resources/zh-CN) with 
 
 When preparing portable packages (see repo root `AGENTS.md` and [.github/workflows/release.yml](../../../.github/workflows/release.yml)):
 
-- **WinUI package**: `./build.ps1 -Configuration Release -OutputPath release` -> verify root `Netch.App.exe`, sibling `bin/sing_box/libcronet.dll`, `bin/`, `mode/`, `logging/`, `data/`, and `licenses/` (`LICENSE`, `NOTICE.txt`, `Components.md`).
+- **WinUI self-contained single-file package (default)**: `./build.ps1 -Configuration Release -OutputPath release` (or `-SelfContained $true`) -> verify root `Netch.App.exe`, sibling `bin/sing_box/libcronet.dll`, `bin/`, `mode/`, `logging/`, `data/`, and `licenses/` (`LICENSE`, `NOTICE.txt`, `Components.md`).
+- **WinUI framework-dependent single-file package (requires system `.NET 10 Desktop Runtime (x64)`)**: `./build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false` -> verify the same single-file directory layout with only `Netch.App.exe` at the root.
 
 ---
 

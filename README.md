@@ -78,7 +78,9 @@ Netch 当前支持 **19 种** 代理协议，支持剪贴板 URI、Clash YAML �
 
 ## 快速开始
 
-1. 前往 [Releases](https://github.com/NetchX/Netch/releases) 下载 Windows x64 压缩包并完整解压。
+1. 前往 [Releases](https://github.com/NetchX/Netch/releases) 下载 Windows x64 单文件便携包并完整解压：
+   - **自带框架版**（`*-winui-x64-self-contained.zip`，推荐多数用户）：已内置 `.NET 10` 与 Windows App SDK 运行时，开箱即用。
+   - **系统框架版**（`*-winui-x64-framework-dependent.zip`，体积更小）：使用系统已安装的 **.NET 10 Desktop Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。
 2. 以管理员身份运行 `Netch.App.exe`。
 3. 在「节点」页导入订阅、Clash YAML 或剪贴板分享链接，并执行测速。
 4. 在「场景」页选择加速模式与节点，点击卡片即可开始加速；进程模式下可在「连接」页实时查看连接并热调整进程 / IP 规则。
@@ -90,10 +92,13 @@ Netch 当前支持 **19 种** 代理协议，支持剪贴板 URI、Clash YAML �
 ```powershell
 git clone https://github.com/NetchX/Netch.git
 cd Netch
+# 自带 .NET 10 运行时的单文件便携包（默认）
 .\build.ps1 -Configuration Release -OutputPath release
+# 使用系统 .NET 10 Desktop Runtime (x64) 的单文件便携包
+.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false
 ```
 
-构建完成后，直接运行 `release\Netch.App.exe`。
+构建完成后，直接运行输出目录中的 `Netch.App.exe`。
 
 ## 致谢
 
