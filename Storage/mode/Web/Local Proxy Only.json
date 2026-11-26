@@ -1,0 +1,15 @@
+{
+  "type": "WebProxyMode",
+  "remark": {
+    "zh-CN": "仅本地代理（手动）",
+    "en": "Local Proxy Only (Manual)"
+  },
+  "strategy": "Manual",
+  "pacPreset": "ProxyList",
+  "defaultProxy": false,
+  "bypassLan": true,
+  "handle": [],
+  "bypass": [],
+  "pacScriptPath": null,
+  "pacRuleUrl": null
+}

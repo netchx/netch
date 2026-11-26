@@ -1,0 +1,15 @@
+{
+  "type": "WebProxyMode",
+  "remark": {
+    "zh-CN": "全局网页代理",
+    "en": "Global Web Proxy"
+  },
+  "strategy": "Global",
+  "pacPreset": "ProxyList",
+  "defaultProxy": false,
+  "bypassLan": true,
+  "handle": [],
+  "bypass": [],
+  "pacScriptPath": null,
+  "pacRuleUrl": null
+}

@@ -22,3 +22,6 @@ obj/
 
 # Logs
 *.log
+
+# Local UI design docs
+/docs/winui3/

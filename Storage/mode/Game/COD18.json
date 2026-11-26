@@ -1,7 +1,8 @@
 {
   "type": "ProcessMode",
   "remark": {
-    "zh-CN": "COD18"
+    "zh-CN": "COD18",
+    "en": "COD18"
   },
   "handle": [
     "\\\\Battlestate Games\\\\",

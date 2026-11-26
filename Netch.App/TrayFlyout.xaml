@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="Netch.App.TrayFlyout"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:Netch.App.Controls"
+    xmlns:h="using:Netch.App.Helpers"
+    xmlns:vm="using:Netch.App.ViewModels"
+    Title="Netch">
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid
+        x:Name="Root"
+        Width="320"
+        HorizontalAlignment="Left"
+        Padding="14,14,14,12"
+        VerticalAlignment="Top"
+        RowSpacing="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Ellipse
+                        Width="8"
+                        Height="8"
+                        Fill="{ThemeResource SystemFillColorSuccessBrush}"
+                        Visibility="{x:Bind Session.IsRunning, Mode=OneWay}" />
+                    <TextBlock Style="{StaticResource BodyStrongTextBlockStyle}" Text="{x:Bind Headline(Session.State), Mode=OneWay}" />
+                </StackPanel>
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Text="{x:Bind Subline(Session.State, Session.ActiveScene, Session.Progress), Mode=OneWay}"
+                    TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+            <Button
+                Grid.Column="1"
+                Padding="12,4"
+                AutomationProperties.Name="{h:Tr Text=Disconnect}"
+                Click="Disconnect_Click"
+                CornerRadius="14"
+                Style="{StaticResource AccentButtonStyle}"
+                Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon FontSize="12" Glyph="&#xE7E8;" />
+                    <TextBlock Text="{x:Bind DisconnectLabel()}" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <ItemsView
+            Grid.Row="1"
+            Margin="0,-2,-14,0"
+            Padding="0,0,16,0"
+            Height="{x:Bind TileHeight, Mode=OneWay}"
+            MaxHeight="240"
+            IsItemInvokedEnabled="True"
+            ItemInvoked="Tiles_ItemInvoked"
+            ItemsSource="{x:Bind Tiles}"
+            SelectionMode="None"
+            Visibility="{x:Bind HasTiles, Mode=OneWay}">
+            <ItemsView.Layout>
+                <UniformGridLayout
+                    ItemsStretch="Fill"
+                    MaximumRowsOrColumns="2"
+                    MinColumnSpacing="6"
+                    MinItemHeight="54"
+                    MinItemWidth="120"
+                    MinRowSpacing="6" />
+            </ItemsView.Layout>
+            <ItemsView.ItemTemplate>
+                <DataTemplate x:DataType="vm:SceneCard">
+                    <ItemContainer AutomationProperties.Name="{x:Bind Name, Mode=OneWay}" CornerRadius="6"
+                                   ToolTipService.ToolTip="{x:Bind Name, Mode=OneWay}">
+                        <c:SceneTile
+                            DetailText="{x:Bind TileDetail, Mode=OneWay}"
+                            IconGlyph="{x:Bind IconGlyph, Mode=OneWay}"
+                            State="{x:Bind TileState, Mode=OneWay}"
+                            TitleText="{x:Bind Name, Mode=OneWay}" />
+                    </ItemContainer>
+                </DataTemplate>
+            </ItemsView.ItemTemplate>
+        </ItemsView>
+        <TextBlock
+            Grid.Row="1"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+            Style="{StaticResource CaptionTextBlockStyle}"
+            Text="{h:Tr Text='Pin scenes from the menu of a scene card to switch them here.'}"
+            TextWrapping="Wrap"
+            Visibility="{x:Bind NoTiles, Mode=OneWay}" />
+
+        <Grid
+            Grid.Row="2"
+            ColumnSpacing="6"
+            Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel
+                Grid.Column="0"
+                Orientation="Horizontal"
+                Spacing="4"
+                Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}">
+                <FontIcon
+                    FontSize="10"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Glyph="&#xE74B;" />
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="Consolas"
+                    FontSize="11"
+                    TextTrimming="CharacterEllipsis"
+                    Text="{x:Bind DownloadRate(Session.BytesPerSecond), Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="4"
+                Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}">
+                <FontIcon
+                    FontSize="10"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Glyph="&#xE74A;" />
+                <TextBlock
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    FontFamily="Consolas"
+                    FontSize="11"
+                    TextTrimming="CharacterEllipsis"
+                    Text="{x:Bind UploadRate(Session.UploadBytesPerSecond), Mode=OneWay}" />
+            </StackPanel>
+            <TextBlock
+                Grid.Column="2"
+                HorizontalAlignment="Right"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                FontFamily="Consolas"
+                FontSize="11"
+                Text="{x:Bind NatText(Session.NatResult), Mode=OneWay}" />
+        </Grid>
+
+        <Grid
+            Grid.Row="3"
+            Padding="0,8,0,0"
+            BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0">
+            <HyperlinkButton AutomationProperties.Name="{h:Tr Text='Open Netch'}"
+                             MinHeight="28" Padding="4,4" VerticalAlignment="Center" Click="Open_Click">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon FontSize="12" Glyph="&#xE713;" />
+                    <TextBlock FontSize="12" Text="{h:Tr Text='Open Netch'}" />
+                </StackPanel>
+            </HyperlinkButton>
+            <HyperlinkButton
+                MinHeight="28" Padding="4,4" VerticalAlignment="Center"
+                HorizontalAlignment="Right"
+                AutomationProperties.Name="{h:Tr Text=Exit}"
+                Click="Exit_Click">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon FontSize="12" Glyph="&#xE7E8;" />
+                    <TextBlock FontSize="12" Text="{h:Tr Text=Exit}" />
+                </StackPanel>
+            </HyperlinkButton>
+        </Grid>
+    </Grid>
+</Window>

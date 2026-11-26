@@ -21,7 +21,7 @@ param (
 	[bool]
 	$PublishReadyToRun = $False,
 
-	# Reuse existing component outputs (Netch\bin, Redirector\bin, RouteHelper\bin)
+	# Reuse existing publish and native outputs
 	# instead of building them. CI restores those folders from a cache keyed by
 	# the source hash; local builds should always compile so a stale binary is
 	# never packaged.
@@ -71,17 +71,46 @@ function Resolve-MSBuild {
 		}
 	}
 
-	throw 'MSBuild not found. Install Visual Studio 2022 with "Desktop development with C++", or run from Developer PowerShell for VS.'
+	throw 'MSBuild not found. Install Visual Studio 2026 with "Desktop development with C++", or run from Developer PowerShell for VS.'
+}
+
+function Test-OtherCoresCurrent {
+	$expectedHashes = @{
+		'.\Other\release\aiodns.bin'                      = $null
+		'.\Other\release\pcap2socks.exe'                  = 'de84f4a32c8c9d4888197345d52ba793e4bdf510614852e76f336f627e43def3'
+		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'f08d327819f722da3ee3f591cb7e9e36b06640a92b3f63f5073a454be29be35f'
+		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
+		'.\Other\release\xray.exe'                        = '1ca7a2cf61ba2c5d20b21a80d405b57933939751081cb289f07bd8ddf7cc3185'
+		'.\Other\release\mihomo.exe'                      = $null
+	}
+
+	foreach ($entry in $expectedHashes.GetEnumerator()) {
+		if (-Not (Test-Path $entry.Key)) {
+			return $false
+		}
+		if ($entry.Value) {
+			$actual = (Get-FileHash $entry.Key -Algorithm SHA256).Hash.ToLowerInvariant()
+			if ($actual -ne $entry.Value) {
+				return $false
+			}
+		}
+	}
+
+	return $true
 }
 
 function Test-ShouldBuild {
-	param ([string] $Path)
+	param ([string[]] $Files)
 
-	return (-Not $UseCache) -or (-Not (Test-Path $Path))
+	return (-Not $UseCache) -or ((Test-Path -LiteralPath $Files -PathType Leaf) -contains $false)
 }
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 try {
+	if (-not $SelfContained -or -not $PublishSingleFile) {
+		throw 'WinUI portable builds require SelfContained and PublishSingleFile.'
+	}
+
 	if ( Test-Path -Path $OutputPath ) {
 		Remove-Item -Recurse -Force $OutputPath
 	}
@@ -90,13 +119,11 @@ try {
 	Push-Location $OutputPath
 	try {
 		New-Item -ItemType Directory -Name 'bin' | Out-Null
-		Copy-Item -Recurse -Force '..\Storage\i18n' '.'
 		Copy-Item -Recurse -Force '..\Storage\mode' '.'
 		Copy-Item -Force '..\Storage\stun.txt' 'bin'
 		Copy-Item -Force '..\Storage\nfdriver.sys' 'bin'
+		Copy-Item -Recurse -Force '..\Storage\sing_box' 'bin'
 		Copy-Item -Force '..\Storage\aiodns.conf' 'bin'
-		Copy-Item -Force '..\Storage\tun2socks-windows-amd64-v3.exe' 'bin'
-		Copy-Item -Force '..\Storage\README.md' 'bin'
 
 		# The GeoIP database is only used to show the exit country. A network
 		# hiccup should not fail the whole build when a local copy is available.
@@ -114,14 +141,41 @@ try {
 				Write-Warning "Download GeoIP database failed and no local copy exists: $_"
 			}
 		}
+
+		New-Item -ItemType Directory -Name 'pac' -Path 'bin' -Force | Out-Null
+		foreach ($pacName in @('proxy-list.txt', 'gfw.txt', 'direct-list.txt')) {
+			$pacTarget = "bin\pac\$pacName"
+			$pacFallback = "..\Storage\pac\$pacName"
+			$downloaded = $false
+			foreach ($pacUrl in @(
+				"https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/$pacName",
+				"https://cdn.jsdelivr.net/gh/Loyalsoldier/v2ray-rules-dat@release/$pacName"
+			)) {
+				try {
+					Invoke-WebRequest -Uri $pacUrl -OutFile $pacTarget
+					$downloaded = $true
+					break
+				}
+				catch {
+					Write-Warning "Download PAC rule $pacName from $pacUrl failed: $_"
+				}
+			}
+			if (-not $downloaded) {
+				if (Test-Path $pacFallback) {
+					Write-Warning "Using local fallback $pacFallback for PAC rule $pacName"
+					Copy-Item -Force $pacFallback $pacTarget
+				}
+				else {
+					Write-Warning "Download PAC rule $pacName failed and no local copy exists."
+				}
+			}
+		}
 	}
 	finally {
 		Pop-Location
 	}
 
-	$xrayBinary = '.\Other\release\xray.exe'
-	$xrayCurrent = (Test-Path $xrayBinary) -and ((Get-FileHash $xrayBinary -Algorithm SHA256).Hash.ToLowerInvariant() -eq 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15')
-	if ( -Not $xrayCurrent -or -Not ( Test-Path '.\Other\release\v2ray-sn.exe' ) ) {
+	if (-Not (Test-OtherCoresCurrent)) {
 		# Scripts extracted from a downloaded archive carry the "downloaded from
 		# the internet" mark, which a RemoteSigned execution policy refuses to
 		# run. They are part of this source tree, so clear the mark first.
@@ -141,41 +195,63 @@ try {
 			throw "Building proxy cores failed with exit code $LASTEXITCODE"
 		}
 	}
-	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
-	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
-	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin"
-
-	# Copy the bundled wintun.dll last so the version kept in Storage is not
-	# replaced by the one downloaded by Other\wintun.
-	Copy-Item -Force '.\Storage\wintun.dll' "$OutputPath\bin"
-
-	if ( Test-ShouldBuild ".\Netch\bin\$Configuration" ) {
-		Write-Host
-		Write-Host 'Building Netch'
-
-		Invoke-Native -Name 'dotnet publish' -Command {
-			dotnet publish `
-				-c $Configuration `
-				-r 'win-x64' `
-				-p:Platform='x64' `
-				-p:SelfContained=$SelfContained `
-				-p:PublishSingleFile=$PublishSingleFile `
-				-p:PublishReadyToRun=$PublishReadyToRun `
-				-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
-				-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
-				-o ".\Netch\bin\$Configuration" `
-				'.\Netch\Netch.csproj'
+	elseif (-not $UseCache) {
+		$aiodnsBinary = Get-Item -LiteralPath '.\Other\release\aiodns.bin'
+		$aiodnsSources = Get-ChildItem -Path '.\Other\aiodns\*' -File -Recurse -Include '*.go', 'go.mod', 'go.sum', 'build.ps1'
+		if ($aiodnsSources | Where-Object LastWriteTimeUtc -gt $aiodnsBinary.LastWriteTimeUtc) {
+			Invoke-Native -Name 'Build AioDNS' -Command { & .\Other\aiodns\build.ps1 }
 		}
 	}
-	Copy-Item -Force ".\Netch\bin\$Configuration\Netch.exe" $OutputPath
+	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
+	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
+	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin" -Exclude 'v2ray-sn.exe'
 
-	$needsNative = (Test-ShouldBuild ".\Redirector\bin\$Configuration") -or (Test-ShouldBuild ".\RouteHelper\bin\$Configuration")
-	if ($needsNative) {
+	$executable = 'Netch.App.exe'
+	$project = '.\Netch.App\Netch.App.csproj'
+	$netchPublishPath = ".\Netch.App\bin\publish-single\$Configuration"
+	Write-Host
+	Write-Host 'Building Netch (WinUI)'
+
+	Invoke-Native -Name 'dotnet publish' -Command {
+		dotnet publish `
+			-c $Configuration `
+			-r 'win-x64' `
+			-p:Platform='x64' `
+			-p:SelfContained=$SelfContained `
+			-p:PublishSingleFile=$PublishSingleFile `
+			-p:PublishReadyToRun=$PublishReadyToRun `
+			-p:PublishReadyToRunShowWarnings=$PublishReadyToRun `
+			-p:IncludeNativeLibrariesForSelfExtract=$SelfContained `
+			-p:IncludeAllContentForSelfExtract=$True `
+			-p:EnableCompressionInSingleFile=$True `
+			-o $netchPublishPath `
+			$project
+	}
+	Copy-Item -Force "$netchPublishPath\$executable" $OutputPath
+	$looseFiles = Get-ChildItem -LiteralPath $netchPublishPath -Recurse -File |
+		Where-Object { $_.Name -ne $executable -and $_.Extension -ne '.pdb' }
+	if ($looseFiles) {
+		throw "WinUI publish left files outside the EXE: $($looseFiles.Name -join ', ')"
+	}
+	foreach ($directory in 'data', 'logging', 'licenses') {
+		New-Item -ItemType Directory -Path (Join-Path $OutputPath $directory) | Out-Null
+	}
+	$licensePath = Join-Path $OutputPath 'licenses'
+	Copy-Item -Force '.\LICENSE', '.\NOTICE.txt' $licensePath
+	Copy-Item -Force '.\Storage\README.md' (Join-Path $licensePath 'Components.md')
+	if (-not (Test-Path -LiteralPath (Join-Path $OutputPath 'bin\sing_box\libcronet.dll') -PathType Leaf)) {
+		throw 'Missing bin\sing_box\libcronet.dll in build output.'
+	}
+
+	$redirectorPath = ".\Redirector\bin\$Configuration"
+	$buildRedirector = Test-ShouldBuild "$redirectorPath\Redirector.bin", "$redirectorPath\nfapi.dll", "$redirectorPath\Redirector.pdb"
+	$buildRouteHelper = Test-ShouldBuild ".\RouteHelper\bin\$Configuration\RouteHelper.bin"
+	if ($buildRedirector -or $buildRouteHelper) {
 		$msbuild = Resolve-MSBuild
 		Write-Host "Using MSBuild: $msbuild"
 	}
 
-	if ( Test-ShouldBuild ".\Redirector\bin\$Configuration" ) {
+	if ($buildRedirector) {
 		Write-Host
 		Write-Host 'Building Redirector'
 
@@ -187,10 +263,10 @@ try {
 				'.\Redirector\Redirector.vcxproj'
 		}
 	}
-	Copy-Item -Force ".\Redirector\bin\$Configuration\nfapi.dll"      "$OutputPath\bin"
-	Copy-Item -Force ".\Redirector\bin\$Configuration\Redirector.bin" "$OutputPath\bin"
+	Copy-Item -Force "$redirectorPath\nfapi.dll"      "$OutputPath\bin"
+	Copy-Item -Force "$redirectorPath\Redirector.bin" "$OutputPath\bin"
 
-	if ( Test-ShouldBuild ".\RouteHelper\bin\$Configuration" ) {
+	if ($buildRouteHelper) {
 		Write-Host
 		Write-Host 'Building RouteHelper'
 

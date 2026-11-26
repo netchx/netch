@@ -1,7 +1,8 @@
 {
   "type": "ProcessMode",
   "remark": {
-    "zh-CN": "Global"
+    "zh-CN": "Global",
+    "en": "Global"
   },
   "handle": [
     ".*"

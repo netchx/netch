@@ -35,8 +35,20 @@
     <ClCompile Include="DNSHandler.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="ConnectionTracker.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="IpFilter.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConnectionTracker.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="IpFilter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
     <ClInclude Include="EventHandler.h">
       <Filter>Header</Filter>
     </ClInclude>

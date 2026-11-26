@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Netch.App.Controls.SceneTile"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid
+        x:Name="Root"
+        Height="54"
+        Padding="9,8"
+        Background="{ThemeResource ControlFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="6">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="Normal" />
+                <VisualState x:Name="Active">
+                    <VisualState.Setters>
+                        <Setter Target="Root.Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                        <Setter Target="Root.BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                        <Setter Target="TileIcon.Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        <Setter Target="Title.Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                        <Setter Target="Detail.Foreground" Value="{ThemeResource TextOnAccentFillColorSecondaryBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Unavailable">
+                    <VisualState.Setters>
+                        <Setter Target="Detail.Foreground" Value="{ThemeResource SystemFillColorCautionBrush}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <StackPanel Spacing="2">
+            <Grid ColumnSpacing="6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <FontIcon
+                    x:Name="TileIcon"
+                    FontSize="13"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed" />
+                <TextBlock
+                    x:Name="Title"
+                    Grid.Column="1"
+                    FontSize="13"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    TextWrapping="NoWrap"
+                    TextTrimming="CharacterEllipsis" />
+            </Grid>
+            <TextBlock
+                x:Name="Detail"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                FontSize="12"
+                Style="{StaticResource CaptionTextBlockStyle}"
+                TextWrapping="NoWrap"
+                TextTrimming="CharacterEllipsis" />
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,38 @@
+// User32.dll
+AppendMenu
+ChangeWindowMessageFilterEx
+CreatePopupMenu
+CreateWindowEx
+DefWindowProc
+DestroyIcon
+DestroyMenu
+DestroyWindow
+GetCursorPos
+GetDpiForWindow
+GetSystemMetricsForDpi
+LoadImage
+InsertMenuItem
+MessageBox
+MonitorFromPoint
+PostMessage
+RegisterClassEx
+RegisterHotKey
+RegisterWindowMessage
+SetForegroundWindow
+TrackPopupMenuEx
+UnregisterHotKey
+WM_APP
+WM_CONTEXTMENU
+WM_HOTKEY
+WM_NULL
+WM_USER
+
+// Shcore.dll
+GetDpiForMonitor
+
+// Shell32.dll
+Shell_NotifyIcon
+NOTIFYICON_VERSION_4
+
+// Kernel32.dll
+GetModuleHandle

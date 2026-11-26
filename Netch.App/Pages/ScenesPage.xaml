@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Netch.App.Pages.ScenesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:h="using:Netch.App.Helpers"
+    xmlns:vm="using:Netch.App.ViewModels"
+    Loaded="ScenesPage_Loaded"
+    Unloaded="ScenesPage_Unloaded">
+
+    <Page.Resources>
+        <Style x:Key="StatValueStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="StatLabelStyle" BasedOn="{StaticResource CaptionTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style x:Key="StatButtonStyle" BasedOn="{StaticResource DefaultButtonStyle}" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="6,2" />
+        </Style>
+
+        <DataTemplate x:Key="SceneTemplate" x:DataType="vm:SceneCard">
+            <ItemContainer AutomationProperties.Name="{x:Bind Name, Mode=OneWay}" CornerRadius="8">
+                <ItemContainer.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Click="Edit_Click" Tag="{x:Bind}" Text="{h:Tr Text=Edit}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70F;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Click="Duplicate_Click" Tag="{x:Bind}" Text="{h:Tr Text=Duplicate}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8C8;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem Click="ChangeNode_Click" Tag="{x:Bind}" Text="{h:Tr Text='Change node'}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8AB;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <ToggleMenuFlyoutItem
+                            Click="Pin_Click"
+                            IsChecked="{x:Bind IsPinned, Mode=OneWay}"
+                            Tag="{x:Bind}"
+                            Text="{h:Tr Text='Pin to tray'}" />
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem Click="Delete_Click" Tag="{x:Bind}" Text="{h:Tr Text=Delete}">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE74D;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </ItemContainer.ContextFlyout>
+
+                <Grid
+                    MinHeight="126"
+                    Padding="12,10"
+                    Background="{ThemeResource NetchSurface}"
+                    BorderBrush="{ThemeResource NetchStroke}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    RowSpacing="4">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Border
+                        Width="28"
+                        Height="28"
+                        HorizontalAlignment="Left"
+                        Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                        CornerRadius="6">
+                        <FontIcon
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            FontSize="15"
+                            Glyph="{x:Bind IconGlyph, Mode=OneWay}" />
+                    </Border>
+                    <FontIcon
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        FontSize="12"
+                        Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                        Glyph="&#xE718;"
+                        Visibility="{x:Bind IsPinned, Mode=OneWay}" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        Text="{x:Bind Name, Mode=OneWay}"
+                        TextWrapping="NoWrap"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Grid.Row="2"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind Summary, Mode=OneWay}"
+                        TextTrimming="CharacterEllipsis" />
+                    <Grid Grid.Row="3" VerticalAlignment="Bottom">
+                        <TextBlock
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Status, Mode=OneWay}"
+                            Visibility="{x:Bind IsNormal, Mode=OneWay}" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Status, Mode=OneWay}"
+                            Visibility="{x:Bind IsActive, Mode=OneWay}" />
+                        <TextBlock
+                            Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Status, Mode=OneWay}"
+                            Visibility="{x:Bind IsUnavailable, Mode=OneWay}" />
+                        <TextBlock
+                            HorizontalAlignment="Right"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Hotkey, Mode=OneWay}" />
+                    </Grid>
+                    <Border
+                        Grid.RowSpan="4"
+                        Margin="-12,-10"
+                        BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="2"
+                        CornerRadius="8"
+                        IsHitTestVisible="False"
+                        Visibility="{x:Bind IsActive, Mode=OneWay}" />
+                </Grid>
+            </ItemContainer>
+        </DataTemplate>
+
+    </Page.Resources>
+
+    <Grid x:Name="SceneSurface" Margin="{StaticResource PageMargin}">
+        <Grid Visibility="{x:Bind HasScenes, Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel x:Name="Alerts" Margin="0,0,0,12" Spacing="0" Visibility="Collapsed">
+                <InfoBar
+                    Title="{h:Tr Text='Start failed'}"
+                    Closed="ErrorBar_Closed"
+                    IsOpen="{x:Bind HasText(Session.ErrorMessage), Mode=OneWay}"
+                    Message="{x:Bind Session.ErrorMessage, Mode=OneWay}"
+                    Severity="Error">
+                    <InfoBar.ActionButton>
+                        <Button Click="OpenLogs_Click" Content="{h:Tr Text='Open logs'}" />
+                    </InfoBar.ActionButton>
+                </InfoBar>
+                <InfoBar
+                    Title="{h:Tr Text='Hotkey unavailable'}"
+                    IsOpen="{x:Bind HasText(Tray.HotkeyConflicts), Mode=OneWay}"
+                    Message="{x:Bind HotkeyConflictText(Tray.HotkeyConflicts), Mode=OneWay}"
+                    Severity="Warning" />
+            </StackPanel>
+
+            <Grid
+                Grid.Row="1"
+                Padding="16,14"
+                Background="{ThemeResource NetchSurface}"
+                BorderBrush="{ThemeResource NetchStroke}"
+                BorderThickness="1"
+                ColumnSpacing="16"
+                CornerRadius="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    Width="66"
+                    Height="66"
+                    Padding="0"
+                    AutomationProperties.Name="{x:Bind PowerLabel(Session.State), Mode=OneWay}"
+                    Click="PowerButton_Click"
+                    CornerRadius="33"
+                    IsEnabled="{x:Bind CanUsePower(Session.IsBusy, HasScenes), Mode=OneWay}"
+                    Style="{x:Bind PowerButtonStyle(Session.State), Mode=OneWay}"
+                    ToolTipService.ToolTip="{x:Bind PowerLabel(Session.State), Mode=OneWay}">
+                    <FontIcon FontSize="22" Glyph="&#xE7E8;" />
+                </Button>
+
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse
+                            Width="8"
+                            Height="8"
+                            Fill="{ThemeResource SystemFillColorSuccessBrush}"
+                            Visibility="{x:Bind Session.IsRunning, Mode=OneWay}" />
+                        <TextBlock
+                            FontSize="15"
+                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Headline(Session.State, Session.ActiveScene), Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Text="{x:Bind Subline(Session.State, Session.ActiveScene, Session.Elapsed, Session.Progress), Mode=OneWay}"
+                        TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    Visibility="{x:Bind Session.IsRunning, Mode=OneWay}">
+                    <Polyline
+                        x:Name="Sparkline"
+                        Width="94"
+                        Height="42"
+                        VerticalAlignment="Center"
+                        Stroke="{ThemeResource AccentFillColorDefaultBrush}"
+                        StrokeLineJoin="Round"
+                        StrokeThickness="2" />
+                    <Button
+                        Click="Latency_Click"
+                        AutomationProperties.Name="{h:Tr Text='Retest latency'}"
+                        Style="{StaticResource StatButtonStyle}"
+                        ToolTipService.ToolTip="{h:Tr Text='Test again'}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatValueStyle}" Text="{x:Bind LatencyText(Session.Latency, Session.LatencyTesting), Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource StatLabelStyle}" Text="{h:Tr Text=Latency}" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        Click="Nat_Click"
+                        AutomationProperties.Name="{h:Tr Text='Retest NAT'}"
+                        Style="{StaticResource StatButtonStyle}"
+                        ToolTipService.ToolTip="{x:Bind NatTip(Session.NatResult), Mode=OneWay}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource StatValueStyle}" Text="{x:Bind NatText(Session.NatResult, Session.NatTesting), Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource StatLabelStyle}" Text="NAT" />
+                        </StackPanel>
+                    </Button>
+                    <StackPanel Padding="6,2" Visibility="{x:Bind Session.TrafficAvailable, Mode=OneWay}">
+                        <TextBlock Style="{StaticResource StatValueStyle}" Text="{x:Bind h:Format.Rate(Session.BytesPerSecond), Mode=OneWay}" />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="4">
+                            <FontIcon FontSize="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Glyph="&#xE896;" />
+                            <TextBlock Style="{StaticResource StatLabelStyle}" Text="{x:Bind TotalText(Session.TotalBytes), Mode=OneWay}" />
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="2" Margin="0,12,0,0">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{h:Tr Text=Scenes}" />
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                    <ToggleButton x:Name="SortByRecent" Click="SortByRecent_Click"
+                                  AutomationProperties.Name="{h:Tr Text='Sort by recent use'}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE8CB;" />
+                            <TextBlock Text="{h:Tr Text='Recently used'}" />
+                        </StackPanel>
+                    </ToggleButton>
+                    <Button Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}"
+                            AutomationProperties.Name="{h:Tr Text='New scene'}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE710;" />
+                            <TextBlock Text="{h:Tr Text='New scene'}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <ItemsView
+                Grid.Row="3"
+                Margin="0,11,-16,16"
+                Padding="0,0,16,0"
+                IsItemInvokedEnabled="True"
+                ItemInvoked="SceneWall_ItemInvoked"
+                ItemTemplate="{StaticResource SceneTemplate}"
+                ItemsSource="{x:Bind Cards}"
+                SelectionMode="None">
+                <ItemsView.Layout>
+                    <UniformGridLayout
+                        ItemsStretch="Fill"
+                        MaximumRowsOrColumns="3"
+                        MinColumnSpacing="10"
+                        MinItemHeight="127"
+                        MinItemWidth="200"
+                        MinRowSpacing="11" />
+                </ItemsView.Layout>
+            </ItemsView>
+        </Grid>
+
+        <Grid Visibility="{x:Bind IsEmpty, Mode=OneWay}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="9.5">
+                <Border
+                    x:Name="EmptyIcon"
+                    Width="71"
+                    Height="71"
+                    HorizontalAlignment="Center"
+                    Background="{ThemeResource NetchUpdateFill}"
+                    CornerRadius="18">
+                    <FontIcon
+                        FontSize="28"
+                        Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                        Glyph="&#xF0E2;" />
+                </Border>
+                <TextBlock
+                    x:Name="EmptyTitle"
+                    Height="24"
+                    HorizontalAlignment="Center"
+                    FontSize="17.7"
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Text="{h:Tr Text='No scenes yet'}" />
+                <TextBlock
+                    x:Name="EmptyDescription"
+                    MaxWidth="320"
+                    HorizontalAlignment="Center"
+                    FontSize="13"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    LineHeight="21"
+                    LineStackingStrategy="BlockLineHeight"
+                    Text="{h:Tr Text='A scene uses one node and one acceleration mode.'}"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap" />
+                <StackPanel
+                    x:Name="EmptyActions"
+                    Margin="0,7,0,0"
+                    HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="9.5">
+                    <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
+                            AutomationProperties.Name="{h:Tr Text='New scene'}"
+                            Visibility="{x:Bind HasNodes, Mode=OneWay}"
+                            Click="NewScene_Click" Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon FontSize="12" Glyph="&#xE710;" />
+                            <TextBlock Text="{h:Tr Text='New scene'}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Height="29" MinHeight="0" Padding="13,0" FontSize="13.5"
+                            Click="ImportSubscription_Click" Content="{h:Tr Text='Import subscription'}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Visibility="{x:Bind NeedsNodes, Mode=OneWay}" />
+                    <HyperlinkButton Height="29" MinHeight="0" Padding="0" FontSize="13.5"
+                                     Click="OpenWizard_Click" Content="{h:Tr Text='Open wizard'}" />
+                </StackPanel>
+            </StackPanel>
+            <Border x:Name="RulesNotice" Grid.Row="1" MinHeight="48.5" Margin="0,12,0,0"
+                    Padding="14,5" Style="{StaticResource NetchUpdateNotice}" Visibility="Collapsed">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Width="21" Height="21" CornerRadius="11" VerticalAlignment="Center"
+                            Background="{ThemeResource AccentFillColorDefaultBrush}">
+                        <FontIcon FontSize="12"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                  Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                  Glyph="&#xE946;" />
+                    </Border>
+                    <TextBlock x:Name="RulesNoticeText" Grid.Column="1" VerticalAlignment="Center"
+                               FontSize="13.5" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" />
+                    <Button Grid.Column="2" Width="68" Height="29" MinHeight="0" Padding="0"
+                            VerticalAlignment="Center" Click="DownloadRules_Click"
+                            Content="{h:Tr Text='Go to Downloads'}" />
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</Page>

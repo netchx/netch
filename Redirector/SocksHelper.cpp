@@ -2,13 +2,30 @@
 
 #include "Utils.h"
 
-extern wstring tgtHost;
-extern wstring tgtPort;
-extern string tgtUsername;
-extern string tgtPassword;
-
 constexpr DWORD SocksHandshakeTimeoutMs = 4000;
 constexpr long long UdpRetryCooldownMs = 2000;
+
+namespace
+{
+	mutex g_udpIoLock;
+	condition_variable g_udpIoCv;
+	int g_activeUdpIoOps = 0;
+
+	void AcquireUdpIoOp()
+	{
+		lock_guard<mutex> lg(g_udpIoLock);
+		++g_activeUdpIoOps;
+	}
+
+	void ReleaseUdpIoOp()
+	{
+		lock_guard<mutex> lg(g_udpIoLock);
+		if (g_activeUdpIoOps > 0)
+			--g_activeUdpIoOps;
+		if (g_activeUdpIoOps == 0)
+			g_udpIoCv.notify_all();
+	}
+}
 
 static void ClearSocketTimeout(SOCKET socket)
 {
@@ -46,7 +63,7 @@ static bool ReceiveExactly(SOCKET socket, char* buffer, int length)
 
 SOCKET SocksHelper::Connect()
 {
-	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	auto client = WSASocketW(AF_INET6, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
 	if (client == INVALID_SOCKET)
 	{
 		printf("[Redirector][SocksHelper::Connect] Create socket failed: %d\n", WSAGetLastError());
@@ -67,7 +84,15 @@ SOCKET SocksHelper::Connect()
 	timeval timeout{};
 	timeout.tv_sec = 4;
 
-	if (!WSAConnectByNameW(client, (LPWSTR)tgtHost.c_str(), (LPWSTR)tgtPort.c_str(), NULL, NULL, NULL, NULL, &timeout, NULL))
+	wstring hostCopy;
+	wstring portCopy;
+	{
+		shared_lock<shared_mutex> sl(configLock);
+		hostCopy = tgtHost;
+		portCopy = tgtPort;
+	}
+
+	if (!WSAConnectByNameW(client, const_cast<LPWSTR>(hostCopy.c_str()), const_cast<LPWSTR>(portCopy.c_str()), NULL, NULL, NULL, NULL, &timeout, NULL))
 	{
 		printf("[Redirector][SocksHelper::Connect] Connect to remote server failed: %d\n", WSAGetLastError());
 
@@ -75,9 +100,12 @@ SOCKET SocksHelper::Connect()
 		return INVALID_SOCKET;
 	}
 
+	// Required after WSAConnectByNameW so shutdown()/getpeername() see full connected state.
+	setsockopt(client, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0);
+
 	// WSAConnectByName has a connect timeout, but SOCKS negotiation uses
 	// blocking recv calls. Bound both directions so an unresponsive proxy
-	// cannot pin a redirector callback thread indefinitely.
+	// cannot pin a worker thread indefinitely.
 	const DWORD ioTimeout = SocksHandshakeTimeoutMs;
 	setsockopt(client, SOL_SOCKET, SO_RCVTIMEO, (const char*)&ioTimeout, sizeof(ioTimeout));
 	setsockopt(client, SOL_SOCKET, SO_SNDTIMEO, (const char*)&ioTimeout, sizeof(ioTimeout));
@@ -100,15 +128,30 @@ SOCKET SocksHelper::Connect()
 
 bool SocksHelper::Handshake(SOCKET client)
 {
+	string userCopy;
+	string passCopy;
+	{
+		shared_lock<shared_mutex> sl(configLock);
+		userCopy = tgtUsername;
+		passCopy = tgtPassword;
+	}
+
+	if (userCopy.length() > 255 || passCopy.length() > 255)
+	{
+		puts("[Redirector][SocksHelper::Handshake] SOCKS5 credentials are limited to 255 bytes");
+		return false;
+	}
+
+	const bool hasAuth = !userCopy.empty() || !passCopy.empty();
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 
 	/* Client Hello */
 	buffer[0] = 0x05;
-	buffer[1] = 0x02;
+	buffer[1] = hasAuth ? 0x02 : 0x01;
 	buffer[2] = 0x00;
 	buffer[3] = 0x02;
-	if (!SendAll(client, buffer, 4))
+	if (!SendAll(client, buffer, hasAuth ? 4 : 3))
 	{
 		printf("[Redirector][SocksHelper::Handshake] Send client hello failed: %d\n", WSAGetLastError());
 		return false;
@@ -121,27 +164,27 @@ bool SocksHelper::Handshake(SOCKET client)
 		return false;
 	}
 
+	if (buffer[0] != 0x05)
+		return false;
+
 	/* Authentication */
 	if (buffer[1] == 0x02)
 	{
+		if (!hasAuth)
+			return false;
+
 		memset(buffer, 0, sizeof(buffer));
 		buffer[0] = 0x01;
 
-		if (tgtUsername.length() > 255 || tgtPassword.length() > 255)
-		{
-			puts("[Redirector][SocksHelper::Handshake] SOCKS5 credentials are limited to 255 bytes");
-			return false;
-		}
-
-		BYTE ulength = static_cast<BYTE>(tgtUsername.length());
-		BYTE plength = static_cast<BYTE>(tgtPassword.length());
+		BYTE ulength = static_cast<BYTE>(userCopy.length());
+		BYTE plength = static_cast<BYTE>(passCopy.length());
 
 		/* Username */
 		buffer[1] = 0x00;
 		if (ulength != 0)
 		{
 			buffer[1] = ulength;
-			memcpy(buffer + 1 + 1, tgtUsername.c_str(), ulength);
+			memcpy(buffer + 1 + 1, userCopy.c_str(), ulength);
 		}
 
 		/* Password */
@@ -149,11 +192,11 @@ bool SocksHelper::Handshake(SOCKET client)
 		if (plength != 0)
 		{
 			buffer[1 + 1 + ulength] = plength;
-			memcpy(buffer + 1 + 1 + ulength + 1, tgtPassword.c_str(), plength);
+			memcpy(buffer + 1 + 1 + ulength + 1, passCopy.c_str(), plength);
 		}
 
 		auto length = 1 + 1 + ulength + 1 + plength;
-		if (!SendAll(client, buffer, length))
+		if (!SendAll(client, buffer, static_cast<int>(length)))
 		{
 			printf("[Redirector][SocksHelper::Handshake] Send authentication request failed: %d\n", WSAGetLastError());
 			return false;
@@ -166,7 +209,7 @@ bool SocksHelper::Handshake(SOCKET client)
 			return false;
 		}
 
-		if (buffer[1] != 0x00)
+		if (buffer[0] != 0x01 || buffer[1] != 0x00)
 		{
 			puts("[Redirector][SocksHelper::Handshake] Authentication failed");
 			return false;
@@ -180,7 +223,7 @@ bool SocksHelper::Handshake(SOCKET client)
 	return true;
 }
 
-bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
+bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr, bool resolveDomain)
 {
 	memset(addr, 0, sizeof(SOCKADDR_IN6));
 	unsigned char addrType;
@@ -237,6 +280,9 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 		if (!ReceiveExactly(client, (char*)&port, sizeof(port)))
 			return false;
 
+		if (!resolveDomain)
+			return true;
+
 		addrinfo hints{};
 		hints.ai_socktype = SOCK_DGRAM;
 		addrinfo* resolved = NULL;
@@ -271,6 +317,49 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 		printf("[Redirector][SocksHelper::SplitAddr] Unsupported address family: %d\n", addrType);
 		return false;
 	}
+
+	return true;
+}
+
+bool SocksHelper::UnpackSocks5UdpPacket(const char* buffer, int length, PSOCKADDR_IN6 target, int* payloadOffset, int* payloadLength)
+{
+	if (buffer == nullptr || length < 4 || buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
+		return false;
+
+	SOCKADDR_IN6 addr{};
+	int headerLength = 0;
+	if (buffer[3] == 0x01)
+	{
+		if (length < 10)
+			return false;
+		auto ipv4 = (PSOCKADDR_IN)&addr;
+		ipv4->sin_family = AF_INET;
+
+		memcpy(&ipv4->sin_addr, buffer + 4, 4);
+		memcpy(&ipv4->sin_port, buffer + 8, 2);
+		headerLength = 10;
+	}
+	else if (buffer[3] == 0x04)
+	{
+		if (length < 22)
+			return false;
+		addr.sin6_family = AF_INET6;
+
+		memcpy(&addr.sin6_addr, buffer + 4, 16);
+		memcpy(&addr.sin6_port, buffer + 20, 2);
+		headerLength = 22;
+	}
+	else
+	{
+		return false;
+	}
+
+	if (target != nullptr)
+		memcpy(target, &addr, sizeof(SOCKADDR_IN6));
+	if (payloadOffset != nullptr)
+		*payloadOffset = headerLength;
+	if (payloadLength != nullptr)
+		*payloadLength = length - headerLength;
 
 	return true;
 }
@@ -335,22 +424,33 @@ static bool ReplaceWildcardAddressFromPeer(SOCKET client, PSOCKADDR_IN6 address)
 
 SocksHelper::TCP::~TCP()
 {
-	if (this->tcpSocket != INVALID_SOCKET)
-	{
-		closesocket(this->tcpSocket);
+	Close();
+}
 
-		this->tcpSocket = INVALID_SOCKET;
+void SocksHelper::TCP::Close()
+{
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET s = tcpSocket.exchange(INVALID_SOCKET);
+	if (s != INVALID_SOCKET)
+	{
+		shutdown(s, SD_BOTH);
+		closesocket(s);
 	}
 }
 
 bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 {
-	this->tcpSocket = SocksHelper::Connect();
-	if (this->tcpSocket == INVALID_SOCKET)
+	const SOCKET s = SocksHelper::Connect();
+	if (s == INVALID_SOCKET)
 		return false;
 
-	if (!SocksHelper::Handshake(this->tcpSocket))
+	tcpSocket.store(s);
+
+	if (!SocksHelper::Handshake(s))
+	{
+		Close();
 		return false;
+	}
 
 	/* Connect Request */
 	if (target->sin6_family == AF_INET)
@@ -365,9 +465,10 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		memcpy(buffer + 4, &addr->sin_addr, 4);
 		memcpy(buffer + 8, &addr->sin_port, 2);
 
-		if (!SendAll(this->tcpSocket, buffer, 10))
+		if (!SendAll(s, buffer, 10))
 		{
 			printf("[Redirector][SocksHelper::TCP::Connect] Send connect request failed: %d\n", WSAGetLastError());
+			Close();
 			return false;
 		}
 	}
@@ -383,43 +484,54 @@ bool SocksHelper::TCP::Connect(PSOCKADDR_IN6 target)
 		memcpy(buffer + 4, &addr->sin6_addr, 16);
 		memcpy(buffer + 20, &addr->sin6_port, 2);
 
-		if (!SendAll(this->tcpSocket, buffer, sizeof(buffer)))
+		if (!SendAll(s, buffer, sizeof(buffer)))
 		{
 			printf("[Redirector][SocksHelper::TCP::Connect] Send connect request failed: %d\n", WSAGetLastError());
+			Close();
 			return false;
 		}
 	}
 
 	/* Server Response */
 	char buffer[3];
-	if (!ReceiveExactly(this->tcpSocket, buffer, 3))
+	if (!ReceiveExactly(s, buffer, 3))
 	{
 		printf("[Redirector][SocksHelper::TCP::Connect] Receive server response failed: %d\n", WSAGetLastError());
+		Close();
 		return false;
 	}
 
-	if (buffer[1] != 0x00)
+	if (buffer[0] != 0x05 || buffer[1] != 0x00)
+	{
+		Close();
 		return false;
+	}
 
 	SOCKADDR_IN6 addr;
-	const bool connected = SocksHelper::SplitAddr(this->tcpSocket, &addr);
+	const bool connected = SocksHelper::SplitAddr(s, &addr, false);
 	if (connected)
-		ClearSocketTimeout(this->tcpSocket);
+		ClearSocketTimeout(s);
+	else
+		Close();
 	return connected;
 }
 
 int SocksHelper::TCP::Send(const char* buffer, int length)
 {
-	if (this->tcpSocket != INVALID_SOCKET)
-		return SendAll(this->tcpSocket, buffer, length) ? length : SOCKET_ERROR;
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET s = tcpSocket.load();
+	if (s != INVALID_SOCKET)
+		return SendAll(s, buffer, length) ? length : SOCKET_ERROR;
 
 	return SOCKET_ERROR;
 }
 
 int SocksHelper::TCP::Read(char* buffer, int length)
 {
-	if (this->tcpSocket != INVALID_SOCKET)
-		return recv(this->tcpSocket, buffer, length, 0);
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET s = tcpSocket.load();
+	if (s != INVALID_SOCKET)
+		return recv(s, buffer, length, 0);
 
 	return SOCKET_ERROR;
 }
@@ -432,9 +544,11 @@ SocksHelper::UDP::~UDP()
 void SocksHelper::UDP::Stop()
 {
 	stopping = true;
+	ready = false;
 	retryAfterMs = chrono::duration_cast<chrono::milliseconds>(
 		chrono::steady_clock::now().time_since_epoch()).count() + UdpRetryCooldownMs;
 
+	lock_guard<mutex> lg(ioLock_);
 	const SOCKET tcp = tcpSocket.exchange(INVALID_SOCKET);
 	if (tcp != INVALID_SOCKET)
 	{
@@ -446,27 +560,57 @@ void SocksHelper::UDP::Stop()
 		closesocket(udp);
 }
 
-void SocksHelper::UDP::Run(std::shared_ptr<UDP> remote)
+void SocksHelper::UDP::NotifyClosed()
 {
-	// SOCKS5 UDP ASSOCIATE keeps its control TCP connection open; it does
-	// not echo incoming control bytes. Observe closure to end the session.
-	char buffer[1];
-	while (!remote->stopping)
+	if (!closeNotified_.exchange(true) && onClose_)
+		onClose_();
+}
+
+static bool IsSameUdpEndpoint(const SOCKADDR_IN6& from, const SOCKADDR_IN6& expected)
+{
+	if (expected.sin6_family == AF_INET)
 	{
-		const SOCKET tcp = remote->tcpSocket;
-		if (tcp == INVALID_SOCKET || recv(tcp, buffer, sizeof(buffer), 0) <= 0)
-			break;
+		const auto* exp4 = reinterpret_cast<const SOCKADDR_IN*>(&expected);
+		if (from.sin6_family == AF_INET)
+		{
+			const auto* from4 = reinterpret_cast<const SOCKADDR_IN*>(&from);
+			return from4->sin_port == exp4->sin_port &&
+				from4->sin_addr.S_un.S_addr == exp4->sin_addr.S_un.S_addr;
+		}
+		if (from.sin6_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&from.sin6_addr))
+		{
+			return from.sin6_port == exp4->sin_port &&
+				memcmp(from.sin6_addr.u.Byte + 12, &exp4->sin_addr, sizeof(IN_ADDR)) == 0;
+		}
+		return false;
 	}
-	remote->Stop();
+
+	if (expected.sin6_family == AF_INET6)
+	{
+		if (from.sin6_family == AF_INET6)
+		{
+			return from.sin6_port == expected.sin6_port &&
+				memcmp(&from.sin6_addr, &expected.sin6_addr, sizeof(IN6_ADDR)) == 0;
+		}
+		if (from.sin6_family == AF_INET && IN6_IS_ADDR_V4MAPPED(&expected.sin6_addr))
+		{
+			const auto* from4 = reinterpret_cast<const SOCKADDR_IN*>(&from);
+			return from4->sin_port == expected.sin6_port &&
+				memcmp(expected.sin6_addr.u.Byte + 12, &from4->sin_addr, sizeof(IN_ADDR)) == 0;
+		}
+	}
+
+	return false;
 }
 
 bool SocksHelper::UDP::Associate()
 {
-	this->tcpSocket = SocksHelper::Connect();
-	if (this->tcpSocket == INVALID_SOCKET)
+	const SOCKET s = SocksHelper::Connect();
+	if (s == INVALID_SOCKET)
 		return false;
+	tcpSocket.store(s);
 
-	if (!SocksHelper::Handshake(this->tcpSocket))
+	if (!SocksHelper::Handshake(s))
 		return false;
 
 	char buffer[10]{};
@@ -474,43 +618,44 @@ bool SocksHelper::UDP::Associate()
 	buffer[1] = 0x03;
 	buffer[3] = 0x01;
 
-	if (!SendAll(this->tcpSocket, buffer, 10))
+	if (!SendAll(s, buffer, 10))
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] Send udp associate request failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
-	if (!ReceiveExactly(this->tcpSocket, buffer, 3))
+	if (!ReceiveExactly(s, buffer, 3))
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] Receive udp associate response failed: %d\n", WSAGetLastError());
 		return false;
 	}
 
-	if (buffer[1] != 0x00)
+	if (buffer[0] != 0x05 || buffer[1] != 0x00)
 	{
 		printf("[Redirector][SocksHelper::UDP::Associate] UDP associate failed: %d\n", buffer[1]);
 		return false;
 	}
 
-	if (!SocksHelper::SplitAddr(this->tcpSocket, &this->address))
+	if (!SocksHelper::SplitAddr(s, &this->address))
 		return false;
 
-	if (IsWildcardAddress(&this->address) && !ReplaceWildcardAddressFromPeer(this->tcpSocket, &this->address))
+	if (IsWildcardAddress(&this->address) && !ReplaceWildcardAddressFromPeer(s, &this->address))
 	{
 		puts("[Redirector][SocksHelper::UDP::Associate] SOCKS server returned an unusable wildcard address");
 		return false;
 	}
 
-	ClearSocketTimeout(this->tcpSocket);
+	ClearSocketTimeout(s);
 	return true;
 }
 
 bool SocksHelper::UDP::CreateUDP()
 {
+	SOCKET u = INVALID_SOCKET;
 	if (this->address.sin6_family == AF_INET)
 	{
-		this->udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		if (this->udpSocket == INVALID_SOCKET)
+		u = WSASocketW(AF_INET, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
+		if (u == INVALID_SOCKET)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv4 socket failed: %d\n", WSAGetLastError());
 			return false;
@@ -520,18 +665,27 @@ bool SocksHelper::UDP::CreateUDP()
 		memset(&bindaddr, 0, sizeof(SOCKADDR_IN));
 		bindaddr.sin_family = AF_INET;
 
-		if (bind(this->udpSocket, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
+		if (::bind(u, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN)) == SOCKET_ERROR)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Listen IPv4 socket failed: %d\n", WSAGetLastError());
+			closesocket(u);
 			return false;
 		}
 	}
 	else
 	{
-		this->udpSocket = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
-		if (this->udpSocket == INVALID_SOCKET)
+		u = WSASocketW(AF_INET6, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
+		if (u == INVALID_SOCKET)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Create IPv6 socket failed: %d\n", WSAGetLastError());
+			return false;
+		}
+
+		int v6only = 0;
+		if (setsockopt(u, IPPROTO_IPV6, IPV6_V6ONLY, (const char*)&v6only, sizeof(v6only)) == SOCKET_ERROR)
+		{
+			printf("[Redirector][SocksHelper::UDP::CreateUDP] Set IPV6_V6ONLY=0 failed: %d\n", WSAGetLastError());
+			closesocket(u);
 			return false;
 		}
 
@@ -539,41 +693,207 @@ bool SocksHelper::UDP::CreateUDP()
 		memset(&bindaddr, 0, sizeof(SOCKADDR_IN6));
 		bindaddr.sin6_family = AF_INET6;
 
-		if (bind(this->udpSocket, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN6)) == SOCKET_ERROR)
+		if (::bind(u, (PSOCKADDR)&bindaddr, sizeof(SOCKADDR_IN6)) == SOCKET_ERROR)
 		{
 			printf("[Redirector][SocksHelper::UDP::CreateUDP] Listen IPv6 socket failed: %d\n", WSAGetLastError());
+			closesocket(u);
 			return false;
 		}
 	}
 
-	// The default UDP buffers are small; a burst of game and voice packets can
-	// overflow them and the kernel silently drops the excess.
+	// Preserve 1 MiB UDP buffers so game/voice bursts are not silently dropped.
 	const int udpBufferSize = 1024 * 1024;
-	setsockopt(this->udpSocket, SOL_SOCKET, SO_RCVBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
-	setsockopt(this->udpSocket, SOL_SOCKET, SO_SNDBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
+	setsockopt(u, SOL_SOCKET, SO_RCVBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
+	setsockopt(u, SOL_SOCKET, SO_SNDBUF, (const char*)&udpBufferSize, sizeof(udpBufferSize));
 
 	// An ICMP error for one game destination must not break the shared UDP relay.
 	BOOL reportConnectionReset = FALSE;
 	DWORD returned = 0;
-	WSAIoctl(this->udpSocket, SIO_UDP_CONNRESET, &reportConnectionReset,
+	WSAIoctl(u, SIO_UDP_CONNRESET, &reportConnectionReset,
 		sizeof(reportConnectionReset), NULL, 0, &returned, NULL, NULL);
 
-	thread(SocksHelper::UDP::Run, shared_from_this()).detach();
+	this->udpSocket.store(u);
 	return true;
+}
+
+bool SocksHelper::UDP::StartAsync(PacketCallback onPacket, CloseCallback onClose)
+{
+	if (stopping.load())
+		return false;
+
+	const SOCKET tcp = tcpSocket.load();
+	const SOCKET udp = udpSocket.load();
+	if (tcp == INVALID_SOCKET || udp == INVALID_SOCKET)
+		return false;
+
+	if (!IocpPool::Associate(reinterpret_cast<HANDLE>(tcp)) ||
+		!IocpPool::Associate(reinterpret_cast<HANDLE>(udp)))
+		return false;
+
+	onPacket_ = std::move(onPacket);
+	onClose_ = std::move(onClose);
+	ctrlOp_ = std::make_unique<CtrlRecvOp>();
+	recvOp_ = std::make_unique<UdpRecvOp>();
+
+	if (!PostCtrlRecv() || !PostUdpRecv())
+	{
+		Stop();
+		NotifyClosed();
+		return false;
+	}
+
+	{
+		lock_guard<mutex> lg(ioLock_);
+		if (stopping.load())
+			return false;
+		ready = true;
+	}
+
+	return true;
+}
+
+bool SocksHelper::UDP::PostCtrlRecv()
+{
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET tcp = tcpSocket.load();
+	if (tcp == INVALID_SOCKET || stopping.load() || !ctrlOp_)
+		return false;
+
+	ZeroMemory(&ctrlOp_->overlapped, sizeof(OVERLAPPED));
+	ctrlOp_->complete = &UDP::CtrlComplete;
+	ctrlOp_->flags = 0;
+	ctrlOp_->owner = shared_from_this();
+
+	AcquireUdpIoOp();
+	WSABUF wbuf{ 1, ctrlOp_->buf };
+	const int rc = WSARecv(tcp, &wbuf, 1, NULL, &ctrlOp_->flags, &ctrlOp_->overlapped, NULL);
+	if (rc == SOCKET_ERROR)
+	{
+		const int err = WSAGetLastError();
+		if (err != WSA_IO_PENDING)
+		{
+			ctrlOp_->owner.reset();
+			ReleaseUdpIoOp();
+			return false;
+		}
+	}
+	return true;
+}
+
+bool SocksHelper::UDP::PostUdpRecv()
+{
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET udp = udpSocket.load();
+	if (udp == INVALID_SOCKET || stopping.load() || !recvOp_)
+		return false;
+
+	ZeroMemory(&recvOp_->overlapped, sizeof(OVERLAPPED));
+	recvOp_->complete = &UDP::RecvComplete;
+	recvOp_->flags = 0;
+	recvOp_->fromLen = sizeof(SOCKADDR_IN6);
+	memset(&recvOp_->fromAddr, 0, sizeof(recvOp_->fromAddr));
+	recvOp_->owner = shared_from_this();
+
+	AcquireUdpIoOp();
+	WSABUF wbuf{ static_cast<ULONG>(recvOp_->buf.size()), recvOp_->buf.data() };
+	const int rc = WSARecvFrom(udp, &wbuf, 1, NULL, &recvOp_->flags,
+		reinterpret_cast<PSOCKADDR>(&recvOp_->fromAddr), &recvOp_->fromLen, &recvOp_->overlapped, NULL);
+	if (rc == SOCKET_ERROR)
+	{
+		const int err = WSAGetLastError();
+		if (err != WSA_IO_PENDING)
+		{
+			recvOp_->owner.reset();
+			ReleaseUdpIoOp();
+			return false;
+		}
+	}
+	return true;
+}
+
+void SocksHelper::UDP::CtrlComplete(IocpOperation* op, DWORD error, DWORD bytes)
+{
+	auto* ctrl = static_cast<CtrlRecvOp*>(op);
+	auto owner = std::move(ctrl->owner);
+	if (!owner)
+	{
+		ReleaseUdpIoOp();
+		return;
+	}
+
+	if (error == NO_ERROR && bytes > 0 && !owner->stopping.load())
+	{
+		const bool reposted = owner->PostCtrlRecv();
+		if (!reposted)
+		{
+			owner->Stop();
+			owner->NotifyClosed();
+		}
+		owner.reset();
+		ReleaseUdpIoOp();
+		return;
+	}
+
+	owner->Stop();
+	owner->NotifyClosed();
+	owner.reset();
+	ReleaseUdpIoOp();
+}
+
+void SocksHelper::UDP::RecvComplete(IocpOperation* op, DWORD error, DWORD bytes)
+{
+	auto* recv = static_cast<UdpRecvOp*>(op);
+	auto owner = std::move(recv->owner);
+	if (!owner)
+	{
+		ReleaseUdpIoOp();
+		return;
+	}
+
+	const bool truncated = (error == ERROR_MORE_DATA || error == WSAEMSGSIZE);
+	if ((error == NO_ERROR || truncated) && !owner->stopping.load())
+	{
+		if (error == NO_ERROR && owner->onPacket_ && IsSameUdpEndpoint(recv->fromAddr, owner->address))
+		{
+			SOCKADDR_IN6 remoteAddr{};
+			int payloadOffset = 0;
+			int payloadLength = 0;
+			if (UnpackSocks5UdpPacket(recv->buf.data(), static_cast<int>(bytes), &remoteAddr, &payloadOffset, &payloadLength))
+				owner->onPacket_(remoteAddr, recv->buf.data() + payloadOffset, payloadLength);
+		}
+
+		const bool reposted = owner->PostUdpRecv();
+		if (!reposted)
+		{
+			owner->Stop();
+			owner->NotifyClosed();
+		}
+		owner.reset();
+		ReleaseUdpIoOp();
+		return;
+	}
+
+	owner->Stop();
+	owner->NotifyClosed();
+	owner.reset();
+	ReleaseUdpIoOp();
+}
+
+void SocksHelper::UDP::WaitAllIoDrained()
+{
+	unique_lock<mutex> ul(g_udpIoLock);
+	g_udpIoCv.wait(ul, []() { return g_activeUdpIoOps == 0; });
 }
 
 int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 {
-	if (this->udpSocket == INVALID_SOCKET)
+	if (target == nullptr)
 		return SOCKET_ERROR;
 
 	if (target->sin6_family != AF_INET && target->sin6_family != AF_INET6)
 		return SOCKET_ERROR;
 
 	const int headerLength = target->sin6_family == AF_INET ? 10 : 22;
-	// The SOCKS5 envelope is part of the UDP payload sent to the proxy.
-	// Keep the complete datagram within the IPv4 UDP payload limit, which is
-	// also safe when the proxy address is IPv6.
 	constexpr int maxUdpPayloadLength = 65507;
 	if (length < 0 || length > maxUdpPayloadLength - headerLength)
 		return SOCKET_ERROR;
@@ -594,8 +914,7 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 		memcpy(header + 20, &target->sin6_port, 2);
 	}
 
-	// Send the SOCKS5 header and game payload as one datagram without copying
-	// the payload into a temporary contiguous buffer on every packet.
+	// Scatter-gather send avoiding an extra payload copy per packet.
 	WSABUF buffers[2] = {
 		{ static_cast<ULONG>(headerLength), header },
 		{ static_cast<ULONG>(length), const_cast<char*>(buffer) }
@@ -603,7 +922,13 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 	DWORD bytesSent = 0;
 	const DWORD bufferCount = length > 0 ? 2 : 1;
 	const int dataLength = headerLength + length;
-	const int sendResult = WSASendTo(this->udpSocket, buffers, bufferCount, &bytesSent, 0,
+
+	lock_guard<mutex> lg(ioLock_);
+	const SOCKET udp = this->udpSocket.load();
+	if (udp == INVALID_SOCKET || stopping.load())
+		return SOCKET_ERROR;
+
+	const int sendResult = WSASendTo(udp, buffers, bufferCount, &bytesSent, 0,
 		(PSOCKADDR)&this->address,
 		(this->address.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6)),
 		NULL, NULL);
@@ -623,7 +948,8 @@ int SocksHelper::UDP::Send(PSOCKADDR_IN6 target, const char* buffer, int length)
 
 int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, int* payloadOffset, PTIMEVAL timeout)
 {
-	if (this->udpSocket == INVALID_SOCKET || length < 4)
+	const SOCKET udp = this->udpSocket.load();
+	if (udp == INVALID_SOCKET || length < 4)
 		return SOCKET_ERROR;
 	if (payloadOffset != NULL)
 		*payloadOffset = 0;
@@ -644,58 +970,29 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, int* 
 			wait.tv_usec = static_cast<long>(remaining % 1000000);
 			fd_set fds;
 			FD_ZERO(&fds);
-			FD_SET(this->udpSocket, &fds);
+			FD_SET(udp, &fds);
 
-			const int ready = select(NULL, &fds, NULL, NULL, &wait);
-			if (ready == 0 || ready == SOCKET_ERROR)
-				return ready;
+			const int readyStatus = select(NULL, &fds, NULL, NULL, &wait);
+			if (readyStatus == 0 || readyStatus == SOCKET_ERROR)
+				return readyStatus;
 		}
 
-		const int size = recvfrom(this->udpSocket, buffer, length, 0, NULL, NULL);
+		const int size = recvfrom(udp, buffer, length, 0, NULL, NULL);
 		if (size == SOCKET_ERROR)
 		{
-			// A truncated or malformed datagram does not invalidate the association.
 			if (WSAGetLastError() == WSAEMSGSIZE)
 				continue;
 			return SOCKET_ERROR;
 		}
-		if (size < 4 || buffer[0] != 0 || buffer[1] != 0 || buffer[2] != 0)
+
+		int offset = 0;
+		int payloadLen = 0;
+		if (!UnpackSocks5UdpPacket(buffer, size, target, &offset, &payloadLen))
 			continue;
 
-		SOCKADDR_IN6 addr{};
-		int headerLength;
-		if (buffer[3] == 0x01)
-		{
-			if (size < 10)
-				continue;
-			auto ipv4 = (PSOCKADDR_IN)&addr;
-			ipv4->sin_family = AF_INET;
-
-			memcpy(&ipv4->sin_addr, buffer + 4, 4);
-			memcpy(&ipv4->sin_port, buffer + 8, 2);
-			headerLength = 10;
-		}
-		else if (buffer[3] == 0x04)
-		{
-			if (size < 22)
-				continue;
-			addr.sin6_family = AF_INET6;
-
-			memcpy(&addr.sin6_addr, buffer + 4, 16);
-			memcpy(&addr.sin6_port, buffer + 20, 2);
-			headerLength = 22;
-		}
-		else
-		{
-			continue;
-		}
-
-		if (target != NULL)
-			memcpy(target, &addr, sizeof(SOCKADDR_IN6));
 		if (payloadOffset != NULL)
-			*payloadOffset = headerLength;
-
-		return size - headerLength;
+			*payloadOffset = offset;
+		return payloadLen;
 	}
 }
 

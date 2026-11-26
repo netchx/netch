@@ -21,13 +21,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -74,9 +74,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>nfapi.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>COPY /Y $(ProjectDir)static\nfapi.dll $(TargetDir) &gt; NUL 2&gt;&amp;1</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -97,14 +94,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>nfapi.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>COPY /Y $(ProjectDir)static\nfapi.dll $(TargetDir) &gt; NUL 2&gt;&amp;1</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Based.cpp" />
+    <ClCompile Include="ConnectionTracker.cpp" />
     <ClCompile Include="DNSHandler.cpp" />
     <ClCompile Include="EventHandler.cpp" />
+    <ClCompile Include="IocpPool.cpp" />
+    <ClCompile Include="IpFilter.cpp" />
     <ClCompile Include="IPEventHandler.cpp" />
     <ClCompile Include="Redirector.cpp" />
     <ClCompile Include="SocksHelper.cpp" />
@@ -112,8 +109,11 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConnectionTracker.h" />
     <ClInclude Include="DNSHandler.h" />
     <ClInclude Include="EventHandler.h" />
+    <ClInclude Include="IocpPool.h" />
+    <ClInclude Include="IpFilter.h" />
     <ClInclude Include="IPEventHandler.h" />
     <ClInclude Include="Based.h" />
     <ClInclude Include="SocksHelper.h" />
@@ -121,6 +121,11 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyNfApi" AfterTargets="Build">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\static\nfapi.dll"
+          DestinationFolder="$(TargetDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>

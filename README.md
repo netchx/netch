@@ -1,237 +1,128 @@
 <p align="center">
-  <img src="Netch/Resources/Netch.png" width="128" alt="Netch logo" />
+  <img src="Netch.App/Assets/Netch.png" width="112" alt="Netch" />
 </p>
 
 <h1 align="center">Netch</h1>
 
 <p align="center">
-  Windows x64 游戏与应用流量代理客户端<br />
-  A lightweight proxy client for Windows, optimized for game traffic and UDP relay.
+  专为游戏加速打造的 Windows x64 开源网络代理客户端<br />
+  An open-source Windows proxy client built for low-latency game acceleration.
 </p>
 
 <p align="center">
-  <a href="https://github.com/cbear2024/netch/actions/workflows/build.yml"><img src="https://github.com/cbear2024/netch/actions/workflows/build.yml/badge.svg?branch=main" alt="Build" /></a>
-  <a href="https://github.com/cbear2024/netch/releases"><img src="https://img.shields.io/github/v/release/cbear2024/netch?style=flat-square" alt="Release" /></a>
-  <img src="https://img.shields.io/badge/version-2.0.1-brightgreen?style=flat-square" alt="Version 2.0.1" />
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat-square" alt="GPLv3" /></a>
+  <a href="https://github.com/NetchX/Netch/actions/workflows/build.yml"><img src="https://github.com/NetchX/Netch/actions/workflows/build.yml/badge.svg?branch=main" alt="Build" /></a>
+  <a href="https://github.com/NetchX/Netch/releases"><img src="https://img.shields.io/github/v/release/NetchX/Netch?include_prereleases&style=flat-square" alt="Release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square" alt="GPLv3" /></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-0078D6?style=flat-square" alt="Windows x64" />
 </p>
 
 > [!IMPORTANT]
-> 这是 Netch 的社区维护分支（当前版本 **2.0.1**），并非 NetchX 官方发行版。程序需要管理员权限来加载网络驱动和修改系统路由。
+> Netch 需要管理员权限以加载网络驱动并配置系统路由。
 
-当前维护者：[@cbear2024](https://github.com/cbear2024) · 项目地址：[cbear2024/netch](https://github.com/cbear2024/netch)
+## 核心能力
 
-## 主要特性
-
-- **按进程加速**：通过 Netfilter 驱动接管指定游戏或应用的 TCP/UDP 流量，无需修改目标程序；支持“包括子进程”，可覆盖启动器拉起的游戏和反作弊。
-- **内置游戏规则**：“游戏合集”模式一次覆盖 EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2 及常见反作弊。
-- **低延迟转发**：游戏 TCP 关闭 Nagle，UDP 散布/聚集发送，转发线程高优先级运行，代理 DNS 复用同一个 UDP 关联。
-- **多协议多核心**：Xray-core、SagerNet v2ray-core 与 sing-box 按节点类型自动选择，支持 VLESS/VMess/Trojan、Shadowsocks、WireGuard、Hysteria2、TUIC、AnyTLS 等。
-- **三种工作模式**：进程模式、TUN 模式和共享模式（局域网设备共享代理）。
-- **连通性检测**：显示 HTTP 延迟、出口国家与 UDP NAT 类型。
-
-## 2.0.1 亮点
-
-- 代理 DNS 复用连接，首次访问不再为每个域名单独握手。
-- 加速期间提升 Netch 与代理核心的进程优先级，并关闭 Windows 电源节流（EcoQoS）。
-- 新增“游戏合集”进程模式；进程规则不区分大小写，子进程沿父进程链最多追溯 6 层。
-- 修复测速、NAT/HTTP 检测、订阅更新等多处缺陷；构建脚本可在普通 PowerShell 中运行。
-
-完整内容见下方 [更新日志](#更新日志)。
+- **面向游戏优化的转发链路**：TCP 关闭 Nagle（`TCP_NODELAY`），UDP 散布/聚集转发与大缓冲区抗突发丢包，代理 DNS 复用长连接；加速期间自动提升转发线程与核心进程优先级并关闭 Windows 电源节流（EcoQoS）。
+- **场景化一键加速**：将“加速模式 + 节点”组合为场景卡片，支持全局快捷键切换、托盘置顶、开机自启与启动即连。
+- **内置游戏规则与精细分流**：自带“游戏合集”及数十款热门游戏与平台规则，进程模式支持子进程沿父进程链追溯（覆盖启动器 → 游戏本体 → 反作弊服务）及目标 IPv4 / IPv6 / CIDR 代理与绕过过滤。
+- **实时连接监控与热规则调试**：提供「连接」页面实时查看活跃连接（独立上传 / 下载速率与点击列排序）与连接日志，可选开启 Windows Kernel ETW 观测未匹配 / 直连进程流量，支持在加速期间暂存并热应用进程与目标 IP 规则（含系统关键进程安全防护）。
+- **日常网页与系统代理**：提供 PAC 自动分流、全局系统代理与仅本地端口（HTTP/SOCKS5 混合）三种网页代理策略，内置海外代理列表、精简 GFWList 与绕过中国大陆规则集，支持自定义域名规则/PAC 脚本及异常退出自动恢复系统代理。
+- **多核心自动调度**：按节点协议与传输特性自动分流至 Mihomo、sing-box 或 Xray-core，开箱即用。
+- **联机质量诊断**：内置混合测速（Hybrid / 真连接 / TCPing / ICMPing）、出口国家识别与 RFC 5780 UDP NAT 类型检测。
+- **内建更新与规则同步**：应用内一键检查、更新与回滚核心组件，在线比对并同步游戏模式规则与 PAC 域名规则表，支持直连、代理与 GitHub 镜像通道。
+- **现代桌面体验**：WinUI 3 原生界面与深浅色主题，支持剪贴板 URI、Clash YAML、订阅链接导入与二维码分享，内置 7 种界面语言（简体中文 / 繁體中文 / English / 日本語 / Русский / العربية / فارسی）并支持外置 `i18n/` 自定义词典。
 
 ## 工作模式
 
-| 模式 | 说明 |
-| --- | --- |
-| 进程模式（`ProcessMode`） | 使用 Netfilter 驱动按进程拦截流量，适合游戏和指定应用，其他程序不受影响。 |
-| TUN 模式（`TunMode`） | 使用 WinTUN 创建虚拟网卡，按路由规则接管流量。 |
-| 共享模式（`ShareMode`） | 基于 WinPcap/Npcap（pcap2socks），为局域网内的主机或游戏机提供代理。 |
+| 模式 | 机制 | 适用场景 |
+| --- | --- | --- |
+| **进程模式** | NetFilter 驱动按进程路径与目标 IP/CIDR 拦截 | PC 游戏首选，精准接管游戏与反作弊，支持实时连接监控与热规则 |
+| **TUN 模式** | WinTUN + tun2socks + AioDNS | 难捕获游戏、UWP 与全局/分流路由 |
+| **共享模式** | pcap2socks 抓包（需 Npcap 兼容） | 主机（PS / Xbox / Switch）及局域网 |
+| **网页代理** | 混合端口 + WinINet / PAC 系统代理 | 浏览器与日常网页，免驱动、无 UDP 要求 |
 
 ## 支持协议
 
-| 协议 | 代理核心 |
-| --- | --- |
-| SOCKS5 | 直接使用（模式不支持认证时经 SagerNet v2ray-core 转换） |
-| HTTP | SagerNet v2ray-core |
-| VLESS、VMess、Trojan（TLS / REALITY） | Xray-core |
-| VLESS、VMess、Trojan（无 TLS 的旧传输） | SagerNet v2ray-core |
-| Shadowsocks | Xray-core 或 SagerNet v2ray-core（按加密方式选择） |
-| WireGuard、Hysteria2、MASQUE | Xray-core |
-| TUIC、AnyTLS、NaiveProxy | sing-box（需自行放置 `bin\sing-box.exe`） |
+Netch 当前支持 **19 种** 代理协议，支持剪贴板 URI、Clash YAML 与订阅导入，并按特性自动选择对应核心：
+
+| 协议 | UDP | 默认核心 | 扩展核心 |
+| --- | :---: | --- | --- |
+| **VLESS** / **VMess** / **Trojan** | ✅ | Mihomo | Xray-core · sing-box |
+| **Shadowsocks** | ✅ UoT | Mihomo | Xray-core · sing-box |
+| **ShadowsocksR** | ✅ | Mihomo | — |
+| **ShadowTLS** | ⚠️ UoT | Mihomo | sing-box |
+| **Hysteria2** / **TUIC** / **AnyTLS** | ✅ | Mihomo | sing-box |
+| **TrustTunnel** / **Mieru** / **ShadowQUIC** | ✅ | Mihomo | — |
+| **WireGuard** / **AmneziaWG** | ✅ | Mihomo | sing-box（WireGuard） |
+| **NaiveProxy** | ❌ | sing-box | 附带 `libcronet.dll` |
+| **MASQUE** | ✅ | sing-box | 需 `>= 1.15.0-alpha.7` |
+| **SOCKS5** | ✅ UoT | 直连 / Mihomo | sing-box（UoT） |
+| **HTTP / HTTPS** / **SSH** | ❌ | Mihomo | sing-box |
+
+✅ 原生支持 UDP · ✅ UoT 支持 UDP 及 UoT · ⚠️ UoT 需开启 UoT · ❌ 不支持 UDP
+
+<details>
+<summary>查看多核心自动分流细则</summary>
+
+- **VLESS / VMess / Trojan**：VLESS 标准 XHTTP 由 Mihomo 处理；XHTTP 高级特性（REALITY / HTTP/3 等）及 VMess / Trojan 的 XHTTP 由 Xray-core 处理；QUIC、明文 H2、Trojan H2 / 明文及自定义 PEM 由 sing-box 处理。
+- **Shadowsocks / ShadowsocksR**：Shadowsocks 支持 `obfs-local`、`v2ray-plugin` 与 `ssd://`，XHTTP 由 Xray-core 处理，`v2ray-plugin` QUIC 模式及自定义 PEM 由 sing-box 处理；ShadowsocksR 支持 `ssr://` 与 Clash YAML 导入。
+- **ShadowTLS**：v2/v3（含 UoT）由 Mihomo 处理；v1 或自定义 PEM 证书由 sing-box 处理。
+- **Hysteria2 / TUIC / AnyTLS**：Hysteria2 短跳跃间隔（`<5s`）/ `hop-interval-max` / `bbr-profile` 及三者的自定义 PEM 证书由 sing-box 处理。
+- **TrustTunnel / Mieru / ShadowQUIC**：均由内置 Mihomo 原生处理并支持 UDP（TrustTunnel 支持 `tt://` / `trusttunnel://`、HTTP/2、HTTP/3 QUIC、内联 PEM 与 ECH；Mieru 支持 `mierus://` / `mieru://`、`TCP`/`UDP` 传输与单段 `port-range`；ShadowQUIC 支持 `shadowquic://`、0-RTT 与 BBR/Brutal）。
+- **WireGuard / AmneziaWG / SOCKS5 / MASQUE**：WireGuard 同地址族多接口地址由 sing-box 处理，AmneziaWG（支持 `amneziawg://` / `awg://`、`wg://` 自动识别与 Clash `amnezia-wg-option`）由 Mihomo 处理；SOCKS5 在进程 / TUN / 共享模式支持时直连、网页代理模式经本地混合端口转接、开启 UoT 时由 sing-box 处理；MASQUE 基于 CONNECT-IP，需在下载页替换为支持 `masque-client` 的 sing-box 版本（如 `>= 1.15.0-alpha.7`）。
+- **HTTP / HTTPS / SSH**：HTTP 多值 Header / ALPN / Fingerprint / PEM，以及 SSH 自定义 `client-version` 由 sing-box 处理。
+
+</details>
+
+> [!NOTE]
+> 游戏加速（进程 / TUN / 共享模式）通常依赖 UDP 转发。`HTTP / HTTPS`、`SSH`、`NaiveProxy` 不支持 UDP，适合用于网页代理模式；`ShadowTLS` 用于游戏加速需开启 UDP over TCP（UoT）。使用需要 UDP 的模式时，请同时确认服务端已开启 UDP 转发。
 
 ## 快速开始
 
-1. 从 [Releases](https://github.com/cbear2024/netch/releases) 下载并解压程序。
-2. 以管理员身份运行 `Netch.exe`。
-3. 导入订阅或手动添加节点。
-4. 选择节点和工作模式，然后点击“启动”。
-5. 点击状态栏中的 NAT 结果可以重新执行 UDP 检测。
-
-## 游戏加速建议
-
-- **使用“游戏合集”模式**：在模式列表中选择“游戏合集：EA + Steam + Rockstar/GTA + PUBG + CS2 + 反作弊（含子进程）”。规则按安装路径匹配，游戏装在任意磁盘或游戏库目录都能识别；局域网流量直连。
-- **Steam 下载也会走代理**：该模式会代理 Steam 客户端本身。大量下载游戏前，可临时切换到只代理游戏的“Steam Games”模式。
-- **每次只能启用一个模式**：需要的游戏不在合集中时，可在“模式”菜单中新建进程模式，或复制 `mode\Game` 下的规则文件自行修改。
-- **进程优先级优化**：默认开启。加速期间 Netch、xray、sing-box、tun2socks、pcap2socks 以“高于正常”优先级运行，并退出电源节流。如需关闭，在 `data\settings.json` 中设置 `"GameProcessBoost": false`。
-- **进程规则写法**：每条规则是一个对进程完整路径做搜索的正则表达式（ECMAScript 语法，不区分大小写），例如 `\\steamapps\\` 匹配所有 Steam 游戏库中的程序，`\\cs2\.exe$` 只匹配 `cs2.exe`。
-
-### VLESS + WebSocket
-
-VLESS + WebSocket 配置由 Xray-core 处理。请确保地址、端口、UUID、WebSocket 路径、Host/SNI 和 TLS 设置与服务端一致。节点、服务端和所选工作模式都必须支持 UDP，UDP 转发才能正常工作。
-
-较新的 Xray-core 不接受部分旧配置中的 `Allow Insecure`。连接失败时，应优先使用有效证书并关闭该选项，而不是跳过证书校验。
-
-## UDP 与 NAT 检测
-
-NAT 检测通过当前节点的 SOCKS5 UDP 通道访问 STUN 服务器，整个检测最长 20 秒。结果含义如下：
-
-| 结果 | 含义 |
-| --- | --- |
-| `1` | Endpoint-Independent Mapping，并且过滤行为适合入站打洞。 |
-| `2` | 地址映射较宽松，但过滤行为更严格。 |
-| `3` | Address/Port-Dependent Mapping，通常不利于 P2P 打洞。 |
-| `NoUDP` | STUN Binding 请求未通过当前代理通道完成。 |
-| `Timeout` | DNS、代理握手或 STUN 请求超过总超时。 |
-| `UnsupportedServer` | STUN 服务器不支持完整的 RFC 5780 映射/过滤测试，不等同于节点不支持 UDP。 |
-
-> Google 等部分公共 STUN 服务只支持基础 Binding。它们可以返回公网地址，但可能无法完成 NAT 类型分类。遇到 `UnsupportedServer` 时，请在设置中更换支持 RFC 5780 的 STUN 服务器后重试。
-
-## 代理核心
-
-- **Xray-core**：构建脚本下载固定版本并校验 SHA-256，用于 TLS、REALITY、Vision、XHTTP、WebSocket、WireGuard、Hysteria2 等配置。
-- **SagerNet v2ray-core**（`v2ray-sn.exe`）：用于 Xray 已移除的旧传输和部分 Shadowsocks 加密方式。
-- **sing-box**：用于 TUIC、AnyTLS 和 NaiveProxy。构建脚本不会打包，请将 Windows x64 版 `sing-box.exe` 放到 `bin\` 或 `bin\sing_box\` 目录。
+1. 前往 [Releases](https://github.com/NetchX/Netch/releases) 下载 Windows x64 压缩包并完整解压。
+2. 以管理员身份运行 `Netch.App.exe`。
+3. 在「节点」页导入订阅、Clash YAML 或剪贴板分享链接，并执行测速。
+4. 在「场景」页选择加速模式与节点，点击卡片即可开始加速；进程模式下可在「连接」页实时查看连接并热调整进程 / IP 规则。
 
 ## 从源码构建
 
-### 环境要求
-
-- Windows 10/11 x64
-- Visual Studio 2022，并安装“使用 C++ 的桌面开发”工作负载
-- .NET SDK 10（已使用 `10.0.402` 验证；应用目标框架为 `net8.0-windows`）
-- PowerShell 5.1 或更高版本
-- 可访问 NuGet 和构建脚本所需下载地址的网络
-
-在普通 PowerShell 或 Developer PowerShell for Visual Studio 中执行：
+需要 Windows 10 1809+ / Windows 11 x64、Visual Studio 2026（含“使用 C++ 的桌面开发”工作负载）、.NET 10 SDK、PowerShell 5.1+（重新构建 AioDNS 另需 Go 1.26+ 与 x64 MinGW GCC）。
 
 ```powershell
-git clone https://github.com/cbear2024/netch.git
-cd netch
-dotnet restore .\Netch\Netch.csproj
+git clone https://github.com/NetchX/Netch.git
+cd Netch
 .\build.ps1 -Configuration Release -OutputPath release
 ```
 
-完整发布文件位于 `release` 目录。`build.ps1` 会构建 .NET 前端、Redirector、RouteHelper 和所需代理核心，并生成可直接运行的目录结构：
+构建完成后，直接运行 `release\Netch.App.exe`。
 
-- 不在 PATH 中的 `msbuild` 会通过 `vswhere` 自动定位。
-- 从压缩包解压的子脚本带有“来自网络”标记时，会被自动解除，无需修改执行策略。
-- 默认每次都重新编译各组件，避免打包旧二进制。CI 从缓存恢复各组件的 `bin` 目录后使用 `-UseCache` 跳过编译：
+## 致谢
 
-```powershell
-.\build.ps1 -Configuration Release -OutputPath release -UseCache
-```
+Netch 的实现离不开以下优秀的开源项目、驱动与数据维护者，谨此致谢：
 
-### 分组件调试构建
+### 核心与转发组件
 
-```powershell
-dotnet build .\Netch\Netch.csproj -c Debug -p:Platform=x64
-msbuild .\Redirector\Redirector.vcxproj /p:Configuration=Debug /p:Platform=x64
-msbuild .\RouteHelper\RouteHelper.vcxproj /p:Configuration=Debug /p:Platform=x64
-```
+- [Mihomo](https://github.com/MetaCubeX/mihomo) — 默认多协议代理核心
+- [sing-box](https://github.com/SagerNet/sing-box) — NaiveProxy、MASQUE 及扩展协议核心（附带 [NaiveProxy](https://github.com/klzgrad/naiveproxy) `libcronet.dll` 运行时）
+- [Xray-core](https://github.com/XTLS/Xray-core) — XHTTP 等特性代理核心
+- [tun2socks](https://github.com/xjasonlyu/tun2socks) — TUN 模式流量转发引擎
+- [pcap2socks](https://github.com/zhxie/pcap2socks) — 局域网共享模式转发引擎
+- [miekg/dns](https://github.com/miekg/dns) — AioDNS 底层 DNS 解析库
 
-Debug 版 Redirector 会在控制台输出每个连接和 DNS 包的匹配日志，便于调试进程规则。
+### 驱动与系统依赖
 
-### 发布新版本
+- [NetFilter SDK](https://www.netfiltersdk.com/) — 进程模式内核驱动（`nfdriver.sys` / `nfapi.dll`）
+- [WinTUN](https://www.wintun.net/) — TUN 模式三层虚拟网卡驱动（`wintun.dll`）
+- [Npcap](https://nmap.org/npcap/) / [WinPcap](https://www.winpcap.org/) — 共享模式运行所需的抓包驱动
 
-1. 在 `docs/release-notes/` 下新建 `<版本号>.md`（例如 `2.0.1.md`），用 Markdown 编写本次更新内容。
-2. 推送形如 `v2.0.1` 的标签，Release 工作流会构建程序，并把该文件内容、下载说明与 SHA256 表格一起作为 Release 正文发布。
+### 外部数据与检测
 
-```powershell
-git tag v2.0.1
-git push origin v2.0.1
-```
+- [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) & [MaxMind GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) — 节点出口国家/地区识别数据库
+- [Loyalsoldier/v2ray-rules-dat](https://github.com/Loyalsoldier/v2ray-rules-dat) — 网页代理 PAC 域名规则表（`proxy-list`、`gfw`、`direct-list`）来源
+- [NatTypeTester / Stun.Net](https://github.com/HMBSbige/NatTypeTester) — RFC 5780 UDP NAT 检测实现与预设 STUN 列表
+- [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list) — AioDNS 国内域名分流列表来源
+- [china_ip_list](https://github.com/17mon/china_ip_list) — 国内 IP 段分流规则参考来源
 
-## 目录结构
+## 社区与许可证
 
-| 目录 | 内容 |
-| --- | --- |
-| `Netch` | WinForms 界面、配置、节点管理和代理核心编排。 |
-| `Redirector` | 基于 Netfilter 的 TCP/UDP 流量重定向组件。 |
-| `RouteHelper` | 路由与网络辅助组件。 |
-| `Other` | Xray、SagerNet 等代理核心的构建和打包脚本。 |
-| `Storage` | 模式规则（`mode`，游戏规则在 `mode\Game`）、翻译、STUN 列表和运行时资源。 |
-
-## 故障排查
-
-- **启动失败**：确认以管理员身份运行，安全软件未阻止驱动或 `bin` 目录中的组件。
-- **游戏没有被加速**：确认所选模式的规则能匹配游戏的完整路径；启动器拉起的游戏需要开启“包括子进程”。Debug 版构建可在控制台看到每个进程的匹配结果。
-- **反作弊报网络错误**：确认反作弊服务（如 `BEService`、`EasyAntiCheat`、`EAAntiCheat`）也在规则内，“游戏合集”模式已包含这些服务。
-- **TUN 模式网页首屏较慢**：在 AioDNS 设置中优先使用 `udp://DNS:53`；`tcp://` 和 `tls://` 仍可用于需要 TCP DNS 的网络。UDP 返回截断响应时会自动回退到 TCP。
-- **TCP 可用但 UDP 失败**：检查节点、服务端和模式是否支持 UDP，并查看日志中的 SOCKS UDP 或 STUN 错误。
-- **VLESS + WebSocket 无法连接**：依次核对 UUID、路径、Host/SNI、TLS 和服务端反向代理配置。
-- **TUIC / AnyTLS / NaiveProxy 无法启动**：确认 `bin\sing-box.exe` 存在，并查看 `logging\sing-box.log`。
-- **NAT 显示 `UnsupportedServer`**：更换支持 RFC 5780 的 STUN 服务器；这通常不是代理节点故障。
-- **构建失败**：确认已安装 Visual Studio 2022 的 C++ x64 工具链与 .NET SDK；提示 `MSBuild not found` 时，在 Visual Studio Installer 中补装“使用 C++ 的桌面开发”。
-
-## 更新日志
-
-### 2.0.1
-
-本版本围绕游戏加速的延迟、稳定性和资源占用做了一轮全面优化，并修复了若干缺陷。
-
-#### 网络转发（Redirector）
-
-- **代理 DNS 复用连接**：进程模式下的 DNS 查询共享一个长期存在的 SOCKS5 UDP 关联，按 DNS 事务 ID 多路复用。之前每次查询都要重新握手、创建套接字和两个线程，使用 VLESS/VMess/Trojan 等协议时还会额外建立一次 TLS 连接。连续多次无响应时会自动重建关联。（`Redirector/DNSHandler.cpp`）
-- **转发线程高优先级**：TCP 接入/转发、UDP 接收、DNS 转发线程以 `THREAD_PRIORITY_HIGHEST` 运行，游戏占满 CPU 时转发不再排队。（`Redirector/Utils.cpp`）
-- **UDP 缓冲区 1 MiB**：减少游戏与语音突发流量时的系统丢包。（`Redirector/SocksHelper.cpp`）
-- **TCP 转发缓冲区 16 KiB**：原为 1446 字节，降低大流量时的系统调用次数，小包延迟不变。（`Redirector/TCPHandler.cpp`）
-- **Release 版不再逐连接/逐包输出日志**，ICMP 模拟延迟不再阻塞驱动回调线程。（`Redirector/EventHandler.cpp`、`Redirector/IPEventHandler.cpp`）
-- **进程规则不区分大小写**，与 Windows 路径行为一致。（`Redirector/Redirector.cpp`）
-- **“包括子进程”沿父进程链最多追溯 6 层**：原来只检查直接父进程，启动器 → 引导程序 → 游戏的多层启动会漏掉。使用进程创建时间排除 PID 复用造成的误匹配。（`Redirector/EventHandler.cpp`）
-
-#### 进程调度
-
-- 加速期间将 Netch、xray、sing-box、tun2socks、pcap2socks 提升到“高于正常”优先级，并关闭 Windows 电源节流（EcoQoS）；停止后 Netch 恢复默认。可在 `data\settings.json` 中设置 `"GameProcessBoost": false` 关闭。（`Netch/Utils/ProcessTuning.cs`）
-- 进程模式的流量统计改为读取 Redirector 计数，不再启动系统级内核网络追踪（ETW），降低游戏时的 CPU 占用。（`Netch/Utils/Bandwidth.cs`）
-
-#### 游戏规则
-
-- 新增进程模式“游戏合集”：EA App + EA 游戏、Steam + Steam 游戏、Rockstar Games + GTA 全家桶、PUBG、CS2，包含 EasyAntiCheat、BattlEye、EA AntiCheat、FACEIT 等反作弊与子进程，局域网流量直连。（`Storage/mode/Game/Game Collection (EA Steam Rockstar PUBG CS2).json`）
-
-#### 缺陷修复与性能
-
-- DNS 解析去掉全局锁，改为并发解析并合并相同查询，系统解析器增加超时。（`Netch/Utils/DnsUtils.cs`）
-- 节点测速取三次探测中的最佳成功结果，不再因最先返回的失败结果误报。（`Netch/Models/Server.cs`）
-- 修复进程模式规则校验的延迟求值问题，规则被清空后又被重新注册。（`Netch/Controllers/NFController.cs`）
-- 修复快速停止/启动时 NAT 与 HTTP 检测互相释放取消令牌的竞争；NAT 检测增加 20 秒总超时，HTTP 检测遵循“请求超时”设置，界面不再停留在“Testing”。（`Netch/Forms/MainForm.cs`、`Netch/Utils/Socks5ServerTestUtils.cs`、`Netch/Controllers/MainController.cs`）
-- 修复单节点测速未等待结果、启动后测速间隔为 0 时的死循环、每秒整窗重绘、通过代理更新订阅失败后代理未停止。（`Netch/Forms/MainForm.cs`）
-- 代理核心启动改为事件驱动，核心提前退出时立即报错，不再等满 50 秒。（`Netch/Controllers/Guard.cs`）
-- GeoIP 数据库只加载一次，`Ping` 对象正确释放；防火墙规则每次运行只检查一次；TUN 模式并行解析、更快检测虚拟网卡。（`Netch/Utils/Utils.cs`、`Netch/Utils/Firewall.cs`、`Netch/Controllers/TUNController.cs`）
-- 移除已不再使用的 SSH、ShadowsocksR、Socks5（旧版）和 Trojan 控制器实现，相关节点改由 Xray / SagerNet / sing-box 处理。
-- 两个 GBK 编码的源文件转为 UTF-8；启用可空注解上下文，消除约 670 条 CS8632 警告。
-
-#### 构建
-
-- `build.ps1` 出错即停止；本地默认总是重新编译，CI 使用 `-UseCache`；GeoIP 下载失败时回退到本地文件；自动通过 vswhere 定位 MSBuild，普通 PowerShell 也能构建；自动解除子脚本的网络下载标记。
-- CI 更新到当前版本的 Actions，显式安装 .NET SDK，移除未使用的 Rust 步骤，收紧权限。
-
-### 2.0.0 及更早
-
-- 为游戏 TCP 连接启用 `TCP_NODELAY`，减少小包交互延迟。
-- UDP 转发采用散布/聚集发送，减少每包复制与临时内存分配。
-- 支持最大合法 UDP 数据报，并容错处理 Windows UDP reset 与异常数据报。
-- SOCKS 和 STUN 地址并行解析。
-- UDP NAT 检测使用明确的单步超时，支持取消、IPv4 优先和 IPv6 回退。
-- 停止代理或检测失败时能够可靠回收资源。
-- 引入官方 Xray-core 处理现代代理配置，修复 Redirector 的 TCP/UDP 内存安全与 Windows 11 停止卡死问题。
-
-## 上游与社区
-
-- 上游项目：[NetchX/Netch](https://github.com/NetchX/Netch)
-- 相关分支：[BoyceLig/Netch](https://github.com/BoyceLig/Netch)
 - Telegram：[频道](https://t.me/netch_channel) · [群组](https://t.me/netch_group)
-
-## 许可证
-
-本项目基于 [GNU General Public License v3.0](LICENSE) 发布。第三方组件适用其各自许可证。
+- 本项目基于 [GNU General Public License v3.0](LICENSE) 发布，各第三方组件遵循其各自许可证（详见 [NOTICE.txt](NOTICE.txt)）。

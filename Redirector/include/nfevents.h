@@ -11,7 +11,6 @@
 
 #ifndef _NFEVENTS_H
 #define _NFEVENTS_H
-#pragma warning(disable: 26812)
 
 /**
 *	Return status codes
@@ -26,7 +25,6 @@ typedef enum _NF_STATUS
 	NF_STATUS_REBOOT_REQUIRED	= -5
 } NF_STATUS;
 
-#define _C_API
 #ifndef _C_API
 
 	#define NFAPI_NS	nfapi::
@@ -38,7 +36,7 @@ typedef enum _NF_STATUS
 
 	namespace nfapi
 	{
-		#include <nfdriver.h>
+		#include "nfdriver_data.h"
 
 		/**
 		*	Filtering events
@@ -226,7 +224,7 @@ typedef enum _NF_STATUS
 	{
 	#endif
 
-	#include <nfdriver.h>
+	#include "nfdriver_data.h"
 
 	#pragma pack(push, 1)
 

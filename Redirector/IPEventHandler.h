@@ -3,6 +3,12 @@
 #define IPEVENTHANDLER_H
 #include "Based.h"
 
+namespace IPEventHandler
+{
+	bool INIT();
+	void FREE();
+}
+
 void ipSend(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options);
 void ipReceive(const char* buffer, int length, PNF_IP_PACKET_OPTIONS options);
 

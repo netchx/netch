@@ -1,3 +1,9 @@
 /bin
 /obj
 /*.vcxproj.user
+/Tests/bin
+/Tests/obj
+*.exe
+*.pdb
+*.ilk
+*.obj

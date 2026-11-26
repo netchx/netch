@@ -17,7 +17,7 @@ updates:
       - "automatic"
 
   - package-ecosystem: "gomod"
-    directory: "/"
+    directory: "/Other/aiodns"
     schedule:
       interval: "daily"
       time: "00:00"

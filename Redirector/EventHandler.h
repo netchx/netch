@@ -4,9 +4,13 @@
 #include "Based.h"
 #include "SocksHelper.h"
 
+#include "ConnectionTracker.h"
+
 bool eh_init();
 void eh_free();
 void eh_clearProcessCache();
+bool eh_closeUdpFlow(ENDPOINT_ID id, uint64_t connId);
+void eh_closeAllUdpFlows();
 
 void threadStart();
 void threadEnd();
@@ -24,7 +28,5 @@ void udpSend(ENDPOINT_ID id, const unsigned char* target, const char* buffer, in
 void udpCanReceive(ENDPOINT_ID id);
 void udpReceive(ENDPOINT_ID id, const unsigned char* target, const char* buffer, int length, PNF_UDP_OPTIONS options);
 void udpClosed(ENDPOINT_ID id, PNF_UDP_CONN_INFO info);
-
-void udpReceiveHandler(ENDPOINT_ID id, std::shared_ptr<SocksHelper::UDP> remote, PNF_UDP_OPTIONS options);
 
 #endif

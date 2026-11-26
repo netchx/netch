@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Application
+    x:Class="Netch.App.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="NetchUpdateFill" Color="#E5EFFA" />
+                    <SolidColorBrush x:Key="NetchModifiedFill" Color="#FDE7E9" />
+                    <SolidColorBrush x:Key="NetchInfoStroke" Color="#D0E0F0" />
+                    <SolidColorBrush x:Key="NetchWarningFill" Color="#FFF4CE" />
+                    <SolidColorBrush x:Key="NetchWarningStroke" Color="#F0DCA8" />
+                    <SolidColorBrush x:Key="TrayMenuBackground" Color="#F6F6F6" />
+                    <SolidColorBrush x:Key="TrayMenuForeground" Color="#1B1B1B" />
+                    <SolidColorBrush x:Key="TrayMenuSecondary" Color="#616161" />
+                    <SolidColorBrush x:Key="TrayMenuSelection" Color="#EBEBEB" />
+                    <SolidColorBrush x:Key="TrayMenuAccent" Color="#005FB8" />
+                    <SolidColorBrush x:Key="NetchPageBackground" Color="#FBFBFB" />
+                    <SolidColorBrush x:Key="NetchSurface" Color="#D9FFFFFF" />
+                    <SolidColorBrush x:Key="NetchStroke" Color="#E5E5E5" />
+                    <LinearGradientBrush x:Key="NetchShellFill" StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Offset="0" Color="#EEF2F8" />
+                        <GradientStop Offset="0.6" Color="#F5F1F6" />
+                        <GradientStop Offset="1" Color="#F3F3F3" />
+                    </LinearGradientBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="NetchUpdateFill" Color="#2660CDFF" />
+                    <SolidColorBrush x:Key="NetchModifiedFill" Color="#26FF99A4" />
+                    <SolidColorBrush x:Key="NetchInfoStroke" Color="#4060CDFF" />
+                    <SolidColorBrush x:Key="NetchWarningFill" Color="#1AFCE100" />
+                    <SolidColorBrush x:Key="NetchWarningStroke" Color="#40FCE100" />
+                    <SolidColorBrush x:Key="TrayMenuBackground" Color="#2C2C2C" />
+                    <SolidColorBrush x:Key="TrayMenuForeground" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="TrayMenuSecondary" Color="#C5C5C5" />
+                    <SolidColorBrush x:Key="TrayMenuSelection" Color="#393939" />
+                    <SolidColorBrush x:Key="TrayMenuAccent" Color="#60CDFF" />
+                    <SolidColorBrush x:Key="NetchPageBackground" Color="#272727" />
+                    <SolidColorBrush x:Key="NetchSurface" Color="#2D2D2D" />
+                    <SolidColorBrush x:Key="NetchStroke" Color="#14FFFFFF" />
+                    <LinearGradientBrush x:Key="NetchShellFill" StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Offset="0" Color="#1F2530" />
+                        <GradientStop Offset="0.55" Color="#22202A" />
+                        <GradientStop Offset="1" Color="#202020" />
+                    </LinearGradientBrush>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="HighContrast">
+                    <SolidColorBrush x:Key="NetchUpdateFill" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchModifiedFill" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchInfoStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NetchWarningFill" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchWarningStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NetchPageBackground" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchSurface" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
+                    <SolidColorBrush x:Key="NetchShellFill" Color="{ThemeResource SystemColorWindowColor}" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+
+            <Style x:Key="NetchShellFallback" TargetType="Grid">
+                <Setter Property="Background" Value="{ThemeResource NetchShellFill}" />
+            </Style>
+
+            <Thickness x:Key="PageMargin">20,17,19,16</Thickness>
+
+            <Style x:Key="NetchStep" TargetType="Border">
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="NetchStepCurrent" TargetType="Border">
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+            </Style>
+
+            <Style x:Key="NetchStepDone" TargetType="Border">
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Background" Value="{ThemeResource SystemFillColorSuccessBrush}" />
+            </Style>
+            <Style x:Key="NetchStepLabel" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+            </Style>
+            <DataTemplate x:Key="NetchWizardNodeTemplate">
+                <Grid ColumnSpacing="8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Padding="6,1" CornerRadius="4" VerticalAlignment="Center"
+                            Background="{ThemeResource SubtleFillColorSecondaryBrush}">
+                        <TextBlock Text="{Binding GroupName}" FontSize="11.5" MaxWidth="116"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </Border>
+                    <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis" />
+                    <Grid Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock FontFamily="Consolas" Text="{Binding DelayText}"
+                                   Visibility="{Binding FastDelay}" Foreground="{ThemeResource SystemFillColorSuccessBrush}" />
+                        <TextBlock FontFamily="Consolas" Text="{Binding DelayText}"
+                                   Visibility="{Binding SlowDelay}" Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                        <TextBlock FontFamily="Consolas" Text="{Binding DelayText}"
+                                   Visibility="{Binding Timeout}" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                        <TextBlock FontFamily="Consolas" Text="{Binding PendingDelayText}"
+                                   Visibility="{Binding PendingDelay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </Grid>
+                </Grid>
+            </DataTemplate>
+            <Style x:Key="NetchWizardTab" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="10,6" />
+            </Style>
+            <Style x:Key="NetchWizardTabActive" TargetType="Button" BasedOn="{StaticResource NetchWizardTab}">
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchInfoStroke}" />
+                <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+            <Style x:Key="NetchWizardOptionCard" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="12,10" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Background" Value="{ThemeResource NetchSurface}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchStroke}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="NetchWizardOptionCardActive" TargetType="Button" BasedOn="{StaticResource NetchWizardOptionCard}">
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1.5" />
+                <Setter Property="Padding" Value="11.5,9.5" />
+            </Style>
+            <Style x:Key="NetchDivider" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+            </Style>
+
+            <Style x:Key="NetchCard" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource NetchSurface}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchStroke}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+            <Style x:Key="NetchWizardPreviewCard" TargetType="Border" BasedOn="{StaticResource NetchCard}">
+                <Setter Property="BorderBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1.5" />
+                <Setter Property="Padding" Value="14,11" />
+            </Style>
+            <Style x:Key="NetchWizardPreviewBadge" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchInfoStroke}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Width" Value="38" />
+                <Setter Property="Height" Value="38" />
+            </Style>
+            <Style x:Key="NetchWizardPreviewIcon" TargetType="FontIcon">
+                <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+            </Style>
+            <Style x:Key="NetchWizardStatusStrip" TargetType="Border">
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="10,7" />
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchWizardToggleCard" TargetType="Border">
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="Padding" Value="12,6" />
+                <Setter Property="MinHeight" Value="40" />
+                <Setter Property="Background" Value="{ThemeResource ControlFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="NetchWizardChip" TargetType="Border">
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="Padding" Value="9,3,4,3" />
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchInfoStroke}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="NetchWarningStrip" TargetType="Border" BasedOn="{StaticResource NetchCard}">
+                <Setter Property="Background" Value="{ThemeResource NetchWarningFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchWarningStroke}" />
+                <Setter Property="CornerRadius" Value="7" />
+            </Style>
+            <Style x:Key="NetchWarningIcon" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource SystemFillColorCautionBrush}" />
+            </Style>
+            <Style x:Key="NetchPrimaryText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+            </Style>
+            <Style x:Key="NetchSecondaryText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchWarningText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCautionBrush}" />
+            </Style>
+            <Style x:Key="NetchErrorText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+            </Style>
+            <Style x:Key="NetchSuccessText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorSuccessBrush}" />
+            </Style>
+            <Style x:Key="NetchStepDoneIcon" TargetType="FontIcon">
+                <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+            </Style>
+            <Style x:Key="NetchSuccessIcon" TargetType="FontIcon">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorSuccessBrush}" />
+            </Style>
+            <Style x:Key="NetchErrorIcon" TargetType="FontIcon">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+            </Style>
+            <Style x:Key="NetchSecondaryIcon" TargetType="FontIcon">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchCompactRow" TargetType="ListViewItem">
+                <Setter Property="MinHeight" Value="33" />
+                <Setter Property="Padding" Value="12,3" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="NetchSelectableRow" TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                <Setter Property="MinHeight" Value="33" />
+                <Setter Property="Padding" Value="12,3" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="NetchRowIndicator" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+                <Setter Property="CornerRadius" Value="2" />
+            </Style>
+            <Style x:Key="NetchInlineButton" TargetType="Button">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="Width" Value="29" />
+                <Setter Property="Height" Value="25" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchActiveRow" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchPill" TargetType="Border">
+                <Setter Property="CornerRadius" Value="5" />
+                <Setter Property="Background" Value="{ThemeResource SubtleFillColorSecondaryBrush}" />
+            </Style>
+            <Style x:Key="NetchUpdatedPill" TargetType="Border" BasedOn="{StaticResource NetchPill}">
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+            </Style>
+            <Style x:Key="NetchModifiedPill" TargetType="Border" BasedOn="{StaticResource NetchPill}">
+                <Setter Property="Background" Value="{ThemeResource NetchModifiedFill}" />
+            </Style>
+            <Style x:Key="NetchUpdateNotice" TargetType="Border" BasedOn="{StaticResource NetchCard}">
+                <Setter Property="Background" Value="{ThemeResource NetchUpdateFill}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource NetchInfoStroke}" />
+                <Setter Property="CornerRadius" Value="7" />
+            </Style>
+            <Style x:Key="NetchAccentText" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+            </Style>
+            <Style x:Key="NetchLogItem" TargetType="ListViewItem">
+                <Setter Property="MinHeight" Value="22" />
+                <Setter Property="Padding" Value="10,2" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
+            <Style x:Key="NetchDangerMenuItem" TargetType="MenuFlyoutItem">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+            </Style>
+            <Style x:Key="NetchSettingRowButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+                <Setter Property="MinHeight" Value="42" />
+                <Setter Property="Padding" Value="11,6" />
+            </Style>
+            <Style x:Key="NetchDangerButton" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource SystemFillColorCriticalBrush}" />
+            </Style>
+
+            <!-- Let Mica show through the navigation pane. -->
+            <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent" />
+            <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

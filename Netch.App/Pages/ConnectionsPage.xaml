@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Netch.App.Pages.ConnectionsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:h="using:Netch.App.Helpers">
+    <Grid Margin="{StaticResource PageMargin}">
+        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="{h:Tr Text=Connections}" />
+    </Grid>
+</Page>

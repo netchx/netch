@@ -1,27 +1,20 @@
 #include "DNSHandler.h"
 
+#include "IocpPool.h"
 #include "SocksHelper.h"
 #include "Utils.h"
 
-extern bool dnsProx;
-extern string dnsHost;
-extern USHORT dnsPort;
-
 SOCKADDR_IN6 dnsAddr;
-constexpr size_t DnsResponseBufferSize = 65535;
 
 namespace
 {
-	// Proxied DNS used to open a new SOCKS5 control connection, perform a UDP
-	// ASSOCIATE and spawn two threads for every single query. With remote
-	// protocols that map one UDP association to one upstream session (VLESS,
-	// VMess, Trojan, ...) that also meant a fresh TLS handshake to the proxy
-	// server per lookup. Queries now share one long-lived association and are
-	// multiplexed by rewriting the DNS transaction ID.
 	constexpr auto DnsQueryTimeout = chrono::seconds(5);
+	constexpr auto DirectDnsQueryTimeout = chrono::seconds(4);
 	constexpr size_t MaxPendingQueries = 4096;
+	constexpr size_t MaxPendingSetupQueue = 512;
 	constexpr size_t RecycleAfterUnansweredQueries = 3;
 	constexpr long long RelayRetryCooldownMs = 1000;
+	constexpr size_t DnsResponseBufferSize = 65535;
 
 	struct DnsQuery
 	{
@@ -40,23 +33,85 @@ namespace
 		chrono::steady_clock::time_point expires;
 	};
 
-	struct DnsRelay
+	struct DnsRelay : enable_shared_from_this<DnsRelay>
 	{
 		shared_ptr<SocksHelper::UDP> udp;
-
 		mutex lock;
 		unordered_map<USHORT, PendingQuery> pending;
 		USHORT nextId = 0;
 		size_t unansweredExpired = 0;
 	};
 
-	mutex relayLock;
-	shared_ptr<DnsRelay> currentRelay;
+	struct DirectDnsState;
 
-	// Serializes the slow SOCKS handshake so a burst of queries creates one
-	// association instead of one per waiting thread.
-	mutex relaySetupLock;
-	atomic<long long> relayRetryAfterMs{ 0 };
+	struct DirectRecvOp : IocpOperation
+	{
+		shared_ptr<DirectDnsState> owner;
+		vector<char> buf = vector<char>(DnsResponseBufferSize);
+		SOCKADDR_IN6 fromAddr{};
+		INT fromLen = sizeof(SOCKADDR_IN6);
+		DWORD flags = 0;
+	};
+
+	struct DirectDnsState : enable_shared_from_this<DirectDnsState>
+	{
+		atomic<SOCKET> sock{ INVALID_SOCKET };
+		mutex sockLock;
+		atomic<bool> stopping{ false };
+		int activeOps = 0;
+		mutex ioLock;
+		condition_variable ioCv;
+
+		mutex lock;
+		unordered_map<USHORT, PendingQuery> pending;
+		USHORT nextId = 0;
+		unique_ptr<DirectRecvOp> recvOp;
+
+		void Close()
+		{
+			lock_guard<mutex> sl(sockLock);
+			stopping = true;
+			const SOCKET s = sock.exchange(INVALID_SOCKET);
+			if (s != INVALID_SOCKET)
+				closesocket(s);
+		}
+
+		void AcquireIoOp()
+		{
+			lock_guard<mutex> lg(ioLock);
+			++activeOps;
+		}
+
+		void ReleaseIoOp()
+		{
+			lock_guard<mutex> lg(ioLock);
+			if (activeOps > 0)
+				--activeOps;
+			if (activeOps == 0)
+				ioCv.notify_all();
+		}
+
+		void WaitDrained()
+		{
+			unique_lock<mutex> ul(ioLock);
+			ioCv.wait(ul, [this]() { return activeOps == 0; });
+		}
+	};
+
+	mutex g_relayLock;
+	shared_ptr<DnsRelay> g_currentRelay;
+	mutex g_relaySetupLock;
+	atomic<long long> g_relayRetryAfterMs{ 0 };
+
+	mutex g_directLock;
+	shared_ptr<DirectDnsState> g_directState;
+
+	mutex g_workerLock;
+	condition_variable g_workerCv;
+	deque<DnsQuery> g_setupQueue;
+	vector<thread> g_setupWorkers;
+	atomic<bool> g_stopping{ true };
+	bool g_dnsInitialized = false;
 
 	long long NowMs()
 	{
@@ -66,88 +121,114 @@ namespace
 
 	vector<char> CopyOptions(PNF_UDP_OPTIONS options)
 	{
-		// NF_UDP_OPTIONS ends with a one byte flexible array.
-		vector<char> copy(sizeof(NF_UDP_OPTIONS) + options->optionsLength);
-		memcpy(copy.data(), options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
+		if (options == nullptr)
+			return {};
+		const size_t optLen = options->optionsLength > 0 ? static_cast<size_t>(options->optionsLength) : 0;
+		const size_t total = offsetof(NF_UDP_OPTIONS, options) + optLen;
+		vector<char> copy(total);
+		memcpy(copy.data(), options, total);
 		return copy;
+	}
+
+	bool IsSameDnsEndpoint(const SOCKADDR_IN6& from, const SOCKADDR_IN6& expected)
+	{
+		if (expected.sin6_family == AF_INET)
+		{
+			const auto* exp4 = reinterpret_cast<const SOCKADDR_IN*>(&expected);
+			if (from.sin6_family == AF_INET)
+			{
+				const auto* from4 = reinterpret_cast<const SOCKADDR_IN*>(&from);
+				return from4->sin_port == exp4->sin_port &&
+					from4->sin_addr.S_un.S_addr == exp4->sin_addr.S_un.S_addr;
+			}
+			if (from.sin6_family == AF_INET6 && IN6_IS_ADDR_V4MAPPED(&from.sin6_addr))
+			{
+				return from.sin6_port == exp4->sin_port &&
+					memcmp(from.sin6_addr.u.Byte + 12, &exp4->sin_addr, sizeof(IN_ADDR)) == 0;
+			}
+			return false;
+		}
+
+		if (expected.sin6_family == AF_INET6 && from.sin6_family == AF_INET6)
+		{
+			return from.sin6_port == expected.sin6_port &&
+				memcmp(&from.sin6_addr, &expected.sin6_addr, sizeof(IN6_ADDR)) == 0;
+		}
+
+		return false;
 	}
 
 	void StopRelay(const shared_ptr<DnsRelay>& relay)
 	{
-		relay->udp->Stop();
+		if (!relay)
+			return;
 
-		lock_guard<mutex> lg(relayLock);
-		if (currentRelay == relay)
-			currentRelay.reset();
+		relay->udp->Stop();
+		{
+			lock_guard<mutex> lg(g_relayLock);
+			if (g_currentRelay == relay)
+				g_currentRelay.reset();
+		}
+		lock_guard<mutex> pl(relay->lock);
+		relay->pending.clear();
 	}
 
-	void RelayReceiveLoop(shared_ptr<DnsRelay> relay)
+	void HandleRelayPacket(const weak_ptr<DnsRelay>& weakRelay, const SOCKADDR_IN6& remote, const char* data, int size)
 	{
-		BoostRelayThread();
+		if (g_stopping.load() || data == nullptr || size < 12 || !IsSameDnsEndpoint(remote, dnsAddr))
+			return;
 
-		vector<char> buffer(DnsResponseBufferSize);
+		auto relay = weakRelay.lock();
+		if (!relay || relay->udp->stopping.load())
+			return;
 
-		while (!relay->udp->stopping)
+		USHORT wireId = 0;
+		memcpy(&wireId, data, sizeof(wireId));
+
+		PendingQuery query;
 		{
-			int payloadOffset = 0;
-			const int size = relay->udp->Read(NULL, buffer.data(), static_cast<int>(buffer.size()), &payloadOffset, NULL);
-			if (size == SOCKET_ERROR)
-				break;
-			if (size < 2)
-				continue;
+			lock_guard<mutex> lg(relay->lock);
+			auto it = relay->pending.find(wireId);
+			if (it == relay->pending.end())
+				return;
 
-			char* payload = buffer.data() + payloadOffset;
-			USHORT wireId = 0;
-			memcpy(&wireId, payload, sizeof(wireId));
-
-			PendingQuery query;
-			{
-				lock_guard<mutex> lg(relay->lock);
-				auto it = relay->pending.find(wireId);
-				if (it == relay->pending.end())
-					continue;
-
-				query = move(it->second);
-				relay->pending.erase(it);
-				relay->unansweredExpired = 0;
-			}
-
-			memcpy(payload, &query.originalId, sizeof(query.originalId));
-			nf_udpPostReceive(query.id, (PBYTE)&query.target, payload, size, (PNF_UDP_OPTIONS)query.options.data());
+			query = std::move(it->second);
+			relay->pending.erase(it);
+			relay->unansweredExpired = 0;
 		}
 
-		StopRelay(relay);
-
-		lock_guard<mutex> lg(relay->lock);
-		relay->pending.clear();
+		vector<char> mutablePacket(data, data + size);
+		memcpy(mutablePacket.data(), &query.originalId, sizeof(query.originalId));
+		PNF_UDP_OPTIONS opts = query.options.empty() ? nullptr : reinterpret_cast<PNF_UDP_OPTIONS>(query.options.data());
+		nf_udpPostReceive(query.id, reinterpret_cast<PBYTE>(&query.target), mutablePacket.data(), size, opts);
 	}
 
 	shared_ptr<DnsRelay> GetRelay(bool allowConnect)
 	{
 		{
-			lock_guard<mutex> lg(relayLock);
-			if (currentRelay && !currentRelay->udp->stopping)
-				return currentRelay;
+			lock_guard<mutex> lg(g_relayLock);
+			if (g_currentRelay && !g_currentRelay->udp->stopping.load())
+				return g_currentRelay;
 		}
 
-		if (!allowConnect)
+		if (!allowConnect || g_stopping.load())
 			return nullptr;
 
-		lock_guard<mutex> setup(relaySetupLock);
+		lock_guard<mutex> setup(g_relaySetupLock);
 		{
-			lock_guard<mutex> lg(relayLock);
-			if (currentRelay && !currentRelay->udp->stopping)
-				return currentRelay;
+			lock_guard<mutex> lg(g_relayLock);
+			if (g_currentRelay && !g_currentRelay->udp->stopping.load())
+				return g_currentRelay;
 		}
 
-		if (NowMs() < relayRetryAfterMs.load())
+		if (g_stopping.load() || NowMs() < g_relayRetryAfterMs.load())
 			return nullptr;
 
 		auto udp = make_shared<SocksHelper::UDP>();
 		if (!udp->Associate() || !udp->CreateUDP())
 		{
 			udp->Stop();
-			relayRetryAfterMs = NowMs() + RelayRetryCooldownMs;
+			g_relayRetryAfterMs = NowMs() + RelayRetryCooldownMs;
 			return nullptr;
 		}
 
@@ -155,12 +236,30 @@ namespace
 		relay->udp = udp;
 		relay->nextId = static_cast<USHORT>(GetTickCount64());
 
+		weak_ptr<DnsRelay> weakRelay = relay;
+		if (!udp->StartAsync(
+			[weakRelay](const SOCKADDR_IN6& remote, const char* data, int size)
+			{
+				HandleRelayPacket(weakRelay, remote, data, size);
+			},
+			[weakRelay]()
+			{
+				if (auto locked = weakRelay.lock())
+					StopRelay(locked);
+			}))
 		{
-			lock_guard<mutex> lg(relayLock);
-			currentRelay = relay;
+			udp->Stop();
+			g_relayRetryAfterMs = NowMs() + RelayRetryCooldownMs;
+			return nullptr;
 		}
 
-		thread(RelayReceiveLoop, relay).detach();
+		lock_guard<mutex> lg(g_relayLock);
+		if (g_stopping.load())
+		{
+			udp->Stop();
+			return nullptr;
+		}
+		g_currentRelay = relay;
 		return relay;
 	}
 
@@ -197,8 +296,6 @@ namespace
 				}
 			}
 
-			// The association can stay open while the upstream path is dead.
-			// Recycle it once several queries in a row went unanswered.
 			if (relay->unansweredExpired >= RecycleAfterUnansweredQueries)
 			{
 				recycle = true;
@@ -213,7 +310,7 @@ namespace
 					wireId = relay->nextId++;
 				} while (relay->pending.find(wireId) != relay->pending.end());
 
-				relay->pending.emplace(wireId, move(pending));
+				relay->pending.emplace(wireId, std::move(pending));
 			}
 		}
 
@@ -227,7 +324,13 @@ namespace
 		memcpy(packet.data(), &wireId, sizeof(wireId));
 
 		const int length = static_cast<int>(packet.size());
-		if (relay->udp->Send(&dnsAddr, packet.data(), length) != length)
+		int sent = SOCKET_ERROR;
+		{
+			lock_guard<mutex> sl(relay->udp->sendLock);
+			if (!relay->udp->stopping.load())
+				sent = relay->udp->Send(&dnsAddr, packet.data(), length);
+		}
+		if (sent != length)
 		{
 			{
 				lock_guard<mutex> lg(relay->lock);
@@ -240,63 +343,241 @@ namespace
 		return true;
 	}
 
-	void SendViaNewRelay(DnsQuery query)
-	{
-		SendViaRelay(query, true);
-	}
-}
+	bool PostDirectRecv(const shared_ptr<DirectDnsState>& state);
 
-void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
-{
-	const auto family = dnsAddr.sin6_family == AF_INET ? AF_INET : AF_INET6;
-	auto remote = socket(family, SOCK_DGRAM, IPPROTO_UDP);
-	if (remote != INVALID_SOCKET)
+	void OnDirectRecvComplete(IocpOperation* op, DWORD error, DWORD bytes)
 	{
+		auto* recvOp = static_cast<DirectRecvOp*>(op);
+		auto state = std::move(recvOp->owner);
+		if (!state)
+			return;
+
+		const bool truncated = (error == ERROR_MORE_DATA || error == WSAEMSGSIZE);
+		if ((error == NO_ERROR || truncated) && !state->stopping.load() && !g_stopping.load())
+		{
+			if (error == NO_ERROR && bytes >= 12 && IsSameDnsEndpoint(recvOp->fromAddr, dnsAddr))
+			{
+				USHORT wireId = 0;
+				memcpy(&wireId, recvOp->buf.data(), sizeof(wireId));
+
+				PendingQuery query;
+				bool found = false;
+				{
+					lock_guard<mutex> lg(state->lock);
+					auto it = state->pending.find(wireId);
+					if (it != state->pending.end())
+					{
+						query = std::move(it->second);
+						state->pending.erase(it);
+						found = true;
+					}
+				}
+
+				if (found)
+				{
+					memcpy(recvOp->buf.data(), &query.originalId, sizeof(query.originalId));
+					PNF_UDP_OPTIONS opts = query.options.empty() ? nullptr : reinterpret_cast<PNF_UDP_OPTIONS>(query.options.data());
+					nf_udpPostReceive(
+						query.id,
+						reinterpret_cast<PBYTE>(&query.target),
+						recvOp->buf.data(),
+						static_cast<int>(bytes),
+						opts);
+				}
+			}
+
+			if (!PostDirectRecv(state))
+				state->Close();
+		}
+		else
+		{
+			state->Close();
+		}
+
+		auto* statePtr = state.get();
+		statePtr->ReleaseIoOp();
+	}
+
+	bool PostDirectRecv(const shared_ptr<DirectDnsState>& state)
+	{
+		lock_guard<mutex> sl(state->sockLock);
+		const SOCKET s = state->sock.load();
+		if (s == INVALID_SOCKET || state->stopping.load() || g_stopping.load() || !state->recvOp)
+			return false;
+
+		ZeroMemory(&state->recvOp->overlapped, sizeof(OVERLAPPED));
+		state->recvOp->complete = &OnDirectRecvComplete;
+		state->recvOp->flags = 0;
+		state->recvOp->fromLen = sizeof(SOCKADDR_IN6);
+		memset(&state->recvOp->fromAddr, 0, sizeof(state->recvOp->fromAddr));
+		state->recvOp->owner = state;
+
+		state->AcquireIoOp();
+
+		WSABUF wbuf{ static_cast<ULONG>(state->recvOp->buf.size()), state->recvOp->buf.data() };
+		const int rc = WSARecvFrom(s, &wbuf, 1, NULL, &state->recvOp->flags,
+			reinterpret_cast<PSOCKADDR>(&state->recvOp->fromAddr), &state->recvOp->fromLen,
+			&state->recvOp->overlapped, NULL);
+		if (rc == SOCKET_ERROR)
+		{
+			const int err = WSAGetLastError();
+			if (err != WSA_IO_PENDING)
+			{
+				state->recvOp->owner.reset();
+				state->ReleaseIoOp();
+				return false;
+			}
+		}
+		return true;
+	}
+
+	shared_ptr<DirectDnsState> EnsureDirectState()
+	{
+		{
+			lock_guard<mutex> lg(g_directLock);
+			if (g_directState && !g_directState->stopping.load() && g_directState->sock.load() != INVALID_SOCKET)
+				return g_directState;
+		}
+
+		lock_guard<mutex> lg(g_directLock);
+		if (g_stopping.load())
+			return nullptr;
+		if (g_directState && !g_directState->stopping.load() && g_directState->sock.load() != INVALID_SOCKET)
+			return g_directState;
+
+		const int family = dnsAddr.sin6_family == AF_INET ? AF_INET : AF_INET6;
+		const SOCKET s = WSASocketW(family, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
+		if (s == INVALID_SOCKET)
+			return nullptr;
+
 		bool bound = false;
 		if (family == AF_INET)
 		{
 			SOCKADDR_IN addr{};
 			addr.sin_family = AF_INET;
-			bound = bind(remote, (PSOCKADDR)&addr, sizeof(addr)) != SOCKET_ERROR;
+			bound = ::bind(s, reinterpret_cast<PSOCKADDR>(&addr), sizeof(addr)) != SOCKET_ERROR;
 		}
 		else
 		{
+			int v6only = 0;
+			setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&v6only), sizeof(v6only));
 			SOCKADDR_IN6 addr;
 			IN6ADDR_SETANY(&addr);
-			bound = bind(remote, (PSOCKADDR)&addr, sizeof(addr)) != SOCKET_ERROR;
+			bound = ::bind(s, reinterpret_cast<PSOCKADDR>(&addr), sizeof(addr)) != SOCKET_ERROR;
 		}
-
-		if (bound)
+		if (!bound)
 		{
-			const int targetLength = family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
-			if (sendto(remote, packet, length, 0, (PSOCKADDR)&dnsAddr, targetLength) == length)
-			{
-				timeval timeout{};
-				timeout.tv_sec = 4;
-
-				fd_set fds;
-				FD_ZERO(&fds);
-				FD_SET(remote, &fds);
-
-				int size = select(NULL, &fds, NULL, NULL, &timeout);
-				if (size != 0 && size != SOCKET_ERROR)
-				{
-					vector<char> buffer(DnsResponseBufferSize);
-
-					size = recvfrom(remote, buffer.data(), static_cast<int>(buffer.size()), 0, NULL, NULL);
-					if (size != 0 && size != SOCKET_ERROR)
-						nf_udpPostReceive(id, (PBYTE)target, buffer.data(), size, option);
-				}
-			}
+			closesocket(s);
+			return nullptr;
 		}
+
+		const int udpBufferSize = 256 * 1024;
+		setsockopt(s, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&udpBufferSize), sizeof(udpBufferSize));
+		setsockopt(s, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&udpBufferSize), sizeof(udpBufferSize));
+		BOOL reportConnReset = FALSE;
+		DWORD returned = 0;
+		WSAIoctl(s, SIO_UDP_CONNRESET, &reportConnReset, sizeof(reportConnReset), NULL, 0, &returned, NULL, NULL);
+
+		if (!IocpPool::Associate(reinterpret_cast<HANDLE>(s)))
+		{
+			closesocket(s);
+			return nullptr;
+		}
+
+		auto state = make_shared<DirectDnsState>();
+		state->sock.store(s);
+		state->nextId = static_cast<USHORT>(GetTickCount64());
+		state->recvOp = make_unique<DirectRecvOp>();
+		if (!PostDirectRecv(state))
+		{
+			state->Close();
+			state->WaitDrained();
+			return nullptr;
+		}
+
+		g_directState = state;
+		return state;
 	}
 
-	if (remote != INVALID_SOCKET)
-		closesocket(remote);
+	bool SendViaDirect(const DnsQuery& query)
+	{
+		auto state = EnsureDirectState();
+		if (!state)
+			return false;
 
-	delete target;
-	delete[] packet;
-	delete[] option;
+		PendingQuery pending;
+		pending.id = query.id;
+		pending.target = query.target;
+		pending.options = query.options;
+		memcpy(&pending.originalId, query.packet.data(), sizeof(pending.originalId));
+
+		const auto now = chrono::steady_clock::now();
+		pending.expires = now + DirectDnsQueryTimeout;
+
+		USHORT wireId = 0;
+		{
+			lock_guard<mutex> lg(state->lock);
+			for (auto it = state->pending.begin(); it != state->pending.end();)
+			{
+				if (it->second.expires <= now)
+					it = state->pending.erase(it);
+				else
+					++it;
+			}
+			if (state->pending.size() >= MaxPendingQueries)
+				return false;
+
+			do
+			{
+				wireId = state->nextId++;
+			} while (state->pending.find(wireId) != state->pending.end());
+			state->pending.emplace(wireId, std::move(pending));
+		}
+
+		vector<char> packet = query.packet;
+		memcpy(packet.data(), &wireId, sizeof(wireId));
+
+		const int targetLength = dnsAddr.sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
+		const int len = static_cast<int>(packet.size());
+		int sentBytes = SOCKET_ERROR;
+		{
+			lock_guard<mutex> sl(state->sockLock);
+			const SOCKET s = state->sock.load();
+			if (s != INVALID_SOCKET && !state->stopping.load())
+				sentBytes = sendto(s, packet.data(), len, 0, reinterpret_cast<PSOCKADDR>(&dnsAddr), targetLength);
+		}
+		if (sentBytes != len)
+		{
+			lock_guard<mutex> lg(state->lock);
+			state->pending.erase(wireId);
+			return false;
+		}
+
+		return true;
+	}
+
+	void DnsWorkerLoop()
+	{
+		BoostRelayThread();
+
+		for (;;)
+		{
+			DnsQuery query;
+			{
+				unique_lock<mutex> ul(g_workerLock);
+				g_workerCv.wait(ul, []() { return g_stopping.load() || !g_setupQueue.empty(); });
+				if (g_stopping.load() && g_setupQueue.empty())
+					break;
+				query = std::move(g_setupQueue.front());
+				g_setupQueue.pop_front();
+			}
+
+			if (g_stopping.load())
+				continue;
+
+			SendViaRelay(query, true);
+		}
+	}
 }
 
 bool DNSHandler::INIT()
@@ -305,83 +586,140 @@ bool DNSHandler::INIT()
 
 	memset(&dnsAddr, 0, sizeof(dnsAddr));
 
+	string hostCopy;
+	{
+		shared_lock<shared_mutex> sl(configLock);
+		hostCopy = dnsHost;
+	}
+	const USHORT port = dnsPort.load();
+	if (port == 0)
+		return false;
+
+	bool parsed = false;
 	auto ipv4 = (PSOCKADDR_IN)&dnsAddr;
-	if (inet_pton(AF_INET, dnsHost.c_str(), &ipv4->sin_addr) == 1)
+	if (inet_pton(AF_INET, hostCopy.c_str(), &ipv4->sin_addr) == 1)
 	{
 		ipv4->sin_family = AF_INET;
-		ipv4->sin_port = htons(dnsPort);
-		return true;
+		ipv4->sin_port = htons(port);
+		parsed = true;
 	}
-
-	auto ipv6 = (PSOCKADDR_IN6)&dnsAddr;
-	if (inet_pton(AF_INET6, dnsHost.c_str(), &ipv6->sin6_addr) == 1)
+	else
 	{
-		ipv6->sin6_family = AF_INET6;
-		ipv6->sin6_port = htons(dnsPort);
-		return true;
+		auto ipv6 = (PSOCKADDR_IN6)&dnsAddr;
+		if (inet_pton(AF_INET6, hostCopy.c_str(), &ipv6->sin6_addr) == 1)
+		{
+			ipv6->sin6_family = AF_INET6;
+			ipv6->sin6_port = htons(port);
+			parsed = true;
+		}
 	}
 
-	return false;
+	if (!parsed)
+		return false;
+
+	if (!IocpPool::Init())
+		return false;
+	g_dnsInitialized = true;
+
+	g_stopping = false;
+	try
+	{
+		for (int i = 0; i < 2; ++i)
+			g_setupWorkers.emplace_back(DnsWorkerLoop);
+	}
+	catch (...)
+	{
+		DNSHandler::FREE();
+		return false;
+	}
+
+	return true;
 }
 
 void DNSHandler::FREE()
 {
-	shared_ptr<DnsRelay> relay;
+	g_stopping = true;
+	g_workerCv.notify_all();
+
+	for (auto& w : g_setupWorkers)
 	{
-		lock_guard<mutex> lg(relayLock);
-		relay.swap(currentRelay);
+		if (w.joinable())
+			w.join();
+	}
+	g_setupWorkers.clear();
+
+	{
+		lock_guard<mutex> lg(g_workerLock);
+		g_setupQueue.clear();
 	}
 
+	shared_ptr<DnsRelay> relay;
+	{
+		lock_guard<mutex> lg(g_relayLock);
+		relay.swap(g_currentRelay);
+	}
 	if (relay)
-		relay->udp->Stop();
+		StopRelay(relay);
 
-	relayRetryAfterMs = 0;
+	shared_ptr<DirectDnsState> direct;
+	{
+		lock_guard<mutex> lg(g_directLock);
+		direct.swap(g_directState);
+	}
+	if (direct)
+	{
+		direct->Close();
+		direct->WaitDrained();
+		lock_guard<mutex> lg(direct->lock);
+		direct->pending.clear();
+	}
+
+	g_relayRetryAfterMs = 0;
+	SocksHelper::UDP::WaitAllIoDrained();
+	if (std::exchange(g_dnsInitialized, false))
+		IocpPool::Shutdown();
 }
 
 bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)
 {
+	if (target == nullptr)
+		return false;
 	if (target->sin6_family == AF_INET)
 		return ((PSOCKADDR_IN)target)->sin_port == htons(53);
-	else
+	if (target->sin6_family == AF_INET6)
 		return target->sin6_port == htons(53);
+	return false;
 }
 
 void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
 {
-	if (length <= 0)
+	// DNS header is 12 bytes; reject short/invalid datagrams.
+	if (target == nullptr || packet == nullptr || length < 12 || g_stopping.load())
+		return;
+	if (target->sin6_family != AF_INET && target->sin6_family != AF_INET6)
 		return;
 
-	if (dnsProx)
+	DnsQuery query;
+	query.id = id;
+	const size_t addrLen = target->sin6_family == AF_INET ? sizeof(SOCKADDR_IN) : sizeof(SOCKADDR_IN6);
+	memcpy(&query.target, target, addrLen);
+	query.options = CopyOptions(options);
+	query.packet.assign(packet, packet + length);
+
+	if (dnsProx.load())
 	{
-		// A DNS message starts with a 12 byte header; anything shorter is
-		// malformed and cannot be multiplexed by transaction ID.
-		if (length < 12)
-			return;
-
-		DnsQuery query;
-		query.id = id;
-		memcpy(&query.target, target, sizeof(SOCKADDR_IN6));
-		query.options = CopyOptions(options);
-		query.packet.assign(packet, packet + length);
-
-		// Fast path: the shared association already exists, so sending is a
-		// single non-blocking datagram and needs no extra thread.
 		if (SendViaRelay(query, false))
 			return;
 
-		// Establishing the association blocks on the SOCKS handshake; never
-		// do that on the Netfilter callback thread.
-		thread(SendViaNewRelay, move(query)).detach();
+		{
+			lock_guard<mutex> lg(g_workerLock);
+			if (g_stopping.load() || g_setupQueue.size() >= MaxPendingSetupQueue)
+				return;
+			g_setupQueue.push_back(std::move(query));
+		}
+		g_workerCv.notify_one();
 		return;
 	}
 
-	auto remote = new SOCKADDR_IN6();
-	auto buffer = new char[length]();
-	auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength];
-
-	memcpy(remote, target, sizeof(SOCKADDR_IN6));
-	memcpy(buffer, packet, length);
-	memcpy(option, options, sizeof(NF_UDP_OPTIONS) + options->optionsLength - 1);
-
-	thread(HandleClientDNS, id, remote, buffer, length, option).detach();
+	SendViaDirect(query);
 }

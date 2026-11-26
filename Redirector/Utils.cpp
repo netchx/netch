@@ -5,28 +5,32 @@ void BoostRelayThread()
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
 }
 
-string ws2s(wstring str)
+string ws2s(const wstring& str)
 {
-	auto length = WideCharToMultiByte(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), NULL, 0, NULL, NULL);
-	auto buffer = new char[length + 1]();
+	if (str.empty())
+		return {};
 
-	WideCharToMultiByte(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), buffer, length, NULL, NULL);
+	const int srcLen = static_cast<int>(str.length());
+	const int length = WideCharToMultiByte(CP_UTF8, 0, str.data(), srcLen, NULL, 0, NULL, NULL);
+	if (length <= 0)
+		return {};
 
-	auto data = string(buffer);
-	delete[] buffer;
-
+	string data(static_cast<size_t>(length), '\0');
+	WideCharToMultiByte(CP_UTF8, 0, str.data(), srcLen, data.data(), length, NULL, NULL);
 	return data;
 }
 
-wstring s2ws(string str)
+wstring s2ws(const string& str)
 {
-	auto length = MultiByteToWideChar(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), NULL, 0);
-	auto buffer = new wchar_t[length + 1]();
+	if (str.empty())
+		return {};
 
-	MultiByteToWideChar(CP_ACP, 0, str.c_str(), static_cast<int>(str.length()), buffer, length);
+	const int srcLen = static_cast<int>(str.length());
+	const int length = MultiByteToWideChar(CP_UTF8, 0, str.data(), srcLen, NULL, 0);
+	if (length <= 0)
+		return {};
 
-	auto data = wstring(buffer);
-	delete[] buffer;
-
+	wstring data(static_cast<size_t>(length), L'\0');
+	MultiByteToWideChar(CP_UTF8, 0, str.data(), srcLen, data.data(), length);
 	return data;
 }

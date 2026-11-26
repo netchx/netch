@@ -3,19 +3,32 @@
 #define BASED_H
 #include <stdio.h>
 
-#include <map>
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <cctype>
+#include <cerrno>
+#include <chrono>
+#include <condition_variable>
+#include <cstddef>
+#include <cstdint>
+#include <deque>
+#include <functional>
+#include <iostream>
+#include <iterator>
 #include <list>
+#include <map>
+#include <memory>
+#include <mutex>
 #include <queue>
 #include <regex>
-#include <mutex>
-#include <chrono>
+#include <shared_mutex>
 #include <string>
-#include <vector>
 #include <thread>
-#include <iostream>
-#include <memory>
-#include <atomic>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
+#include <vector>
 
 #include <WinSock2.h>
 #include <MSWSock.h>
@@ -25,6 +38,7 @@
 #include <mstcpip.h>
 #include <Windows.h>
 
+#define _C_API
 #include <nfapi.h>
 
 using namespace std;
@@ -63,7 +77,72 @@ typedef enum _AIO_TYPE {
 
 	AIO_CLRNAME,
 	AIO_ADDNAME,
-	AIO_BYPNAME
+	AIO_BYPNAME,
+
+	AIO_CLRIP,
+	AIO_ADDIP,
+	AIO_BYPIP,
+
+	AIO_TRACKCONNECTIONS,
+	AIO_TRACKUNMATCHED,
+
+	AIO_BEGINRULES,
+	AIO_COMMITRULES
 } AIO_TYPE;
+
+extern atomic<bool> filterLoopback;
+extern atomic<bool> filterIntranet;
+extern atomic<bool> filterParent;
+extern atomic<bool> filterICMP;
+extern atomic<bool> filterTCP;
+extern atomic<bool> filterUDP;
+extern atomic<bool> filterDNS;
+
+extern atomic<DWORD> icmping;
+
+extern atomic<bool> dnsOnly;
+extern atomic<bool> dnsProx;
+extern string dnsHost;
+extern atomic<USHORT> dnsPort;
+
+extern wstring tgtHost;
+extern wstring tgtPort;
+extern string tgtUsername;
+extern string tgtPassword;
+extern shared_mutex configLock;
+
+#include "IpFilter.h"
+
+struct ProcessRuleEntry
+{
+	wregex regex;
+	string patternUtf8;
+};
+
+enum class RuleOpResult
+{
+	Invalid = 0,
+	Staged = 1,
+	Applied = 2
+};
+
+bool RuleBeginTransaction();
+bool RuleCommitTransaction();
+void RuleResetTransaction();
+RuleOpResult RuleClearNames();
+RuleOpResult RuleAddBypassName(const wchar_t* value);
+RuleOpResult RuleAddHandleName(const wchar_t* value);
+RuleOpResult RuleClearIps();
+RuleOpResult RuleAddBypassIp(const wchar_t* value);
+RuleOpResult RuleAddHandleIp(const wchar_t* value);
+
+extern atomic<bool> trackConnections;
+extern atomic<bool> trackUnmatched;
+
+extern vector<ProcessRuleEntry> bypassList;
+extern vector<ProcessRuleEntry> handleList;
+extern vector<IpCidrRule> bypassIpList;
+extern vector<IpCidrRule> handleIpList;
+extern shared_mutex ruleLock;
 
 #endif

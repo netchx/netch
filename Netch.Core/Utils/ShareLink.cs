@@ -1,0 +1,233 @@
+﻿using System.Text;
+using System.Text.Json;
+using Netch.Enums;
+using Netch.JsonConverter;
+using Netch.Models;
+
+namespace Netch.Utils;
+
+public static class ShareLink
+{
+    public static string GetShareLink(Server server)
+    {
+        var link = ServerHelper.GetUtilByTypeName(server.ConfigType.ToString()).GetShareLink(server);
+        return string.IsNullOrWhiteSpace(link) ? GetNetchLink(server) : link;
+    }
+
+    public static List<Server> ParseText(string text) => ParseText(text, out _);
+
+    public static List<Server> ParseText(string text, out int skipped)
+    {
+        text = text.TrimStart('\uFEFF');
+        try
+        {
+            text = URLSafeBase64Decode(text);
+        }
+        catch
+        {
+            // ignored
+        }
+
+        if (ClashProxyList.TryParse(text, out skipped) is { } clashServers)
+            return clashServers;
+
+        var list = new List<Server>();
+        var lineCount = 0;
+        var failedLineCount = 0;
+
+        foreach (var line in text.GetLines())
+        {
+            var trimmed = line.Trim();
+            if (trimmed.Length == 0)
+                continue;
+
+            lineCount++;
+            try
+            {
+                var parsed = ParseUri(trimmed).Where(node => node is not null).ToList();
+                if (parsed.Count == 0)
+                {
+                    failedLineCount++;
+                    Log.Warning("Share link line produced no server. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(trimmed), lineCount, trimmed.Length);
+                    continue;
+                }
+
+                list.AddRange(parsed);
+            }
+            catch (Exception e)
+            {
+                failedLineCount++;
+                Log.Error(e, "Parse servers from share link error. Scheme: {Scheme}, line: {LineNumber}, length: {LineLength}", GetSafeScheme(trimmed), lineCount, trimmed.Length);
+            }
+        }
+
+        skipped = failedLineCount;
+        Log.Information("Parsed {ServerCount} server(s) from {LineCount} share-link line(s); {FailedLineCount} line(s) failed", list.Count, lineCount, failedLineCount);
+        return list;
+    }
+
+    private static IEnumerable<Server> ParseUri(in string text)
+    {
+        var list = new List<Server>();
+
+        if (text.StartsWith("tg://socks?", StringComparison.OrdinalIgnoreCase) ||
+            text.StartsWith("https://t.me/socks?", StringComparison.OrdinalIgnoreCase))
+        {
+            var util = ServerHelper.GetUtilByTypeName(nameof(EConfigType.SOCKS));
+            var parsed = util.ParseUri(text);
+            if (parsed != null)
+                list.AddRange(parsed.Where(node => node is not null && util.CheckServer(node)));
+        }
+        else if (text.StartsWith("Netch://", StringComparison.OrdinalIgnoreCase))
+        {
+            list.Add(ParseNetchUri(text));
+        }
+        else
+        {
+            var scheme = GetUriScheme(text);
+            var util = ServerHelper.GetUtilByUriScheme(scheme);
+            if (util != null)
+            {
+                var parsed = util.ParseUri(text);
+                if (parsed != null)
+                {
+                    list.AddRange(parsed.Where(node => node is not null &&
+                        ServerHelper.GetUtilByTypeName(node.ConfigType.ToString()).CheckServer(node)));
+                }
+            }
+            else
+                Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
+        }
+
+        foreach (var node in list.Where(node => node is not null && !node.Remarks.IsNullOrWhiteSpace()))
+            node.Remarks = RemoveEmoji(node.Remarks);
+
+        return list;
+    }
+
+    private static string GetSafeScheme(string text)
+    {
+        try
+        {
+            return GetUriScheme(text);
+        }
+        catch
+        {
+            return "<invalid>";
+        }
+    }
+
+    public static string GetUriScheme(string text)
+    {
+        var endIndex = text.IndexOf("://", StringComparison.Ordinal);
+        if (endIndex == -1)
+            throw new UriFormatException("Text is not a URI");
+
+        return text.Substring(0, endIndex);
+    }
+
+    private static Server ParseNetchUri(string text)
+    {
+        var server = JsonSerializer.Deserialize<Server>(URLSafeBase64Decode(text["Netch://".Length..]),
+            new JsonSerializerOptions
+            {
+                Converters = { new ServerConverterWithTypeDiscriminator() }
+            });
+        if (server == null || server.Address.IsNullOrWhiteSpace() || server.Port is < 1 or > ushort.MaxValue)
+            throw new FormatException("The Netch link must contain an address and a valid port.");
+        return server;
+    }
+
+    public static string GetNetchLink(Server s)
+    {
+        var jsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
+        jsonSerializerOptions.WriteIndented = false;
+        return "Netch://" + URLSafeBase64Encode(JsonSerializer.Serialize<object>(s, jsonSerializerOptions));
+    }
+
+    #region Utils
+
+    /// <summary>
+    ///     URL 传输安全的 Base64 解码
+    /// </summary>
+    /// <param name="text">需要解码的字符串</param>
+    /// <returns>解码后的字符串</returns>
+    public static string URLSafeBase64Decode(string text)
+    {
+        var clean = string.Concat(text.Where(c => !char.IsWhiteSpace(c)))
+            .Replace('-', '+')
+            .Replace('_', '/');
+        return Encoding.UTF8.GetString(
+            Convert.FromBase64String(clean.PadRight(clean.Length + (4 - clean.Length % 4) % 4, '=')));
+    }
+
+    /// <summary>
+    ///     URL 传输安全的 Base64 加密
+    /// </summary>
+    /// <param name="text">需要加密的字符串</param>
+    /// <returns>加密后的字符串</returns>
+    public static string URLSafeBase64Encode(string text)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(text)).Replace("+", "-").Replace("/", "_").Replace("=", "");
+    }
+
+    private static string RemoveEmoji(string text)
+    {
+        byte[] emojiBytes = { 240, 159 };
+        var remark = Encoding.UTF8.GetBytes(text);
+        var startIndex = 0;
+        while (remark.Length > startIndex + 1 && remark[startIndex] == emojiBytes[0] && remark[startIndex + 1] == emojiBytes[1])
+            startIndex += 4;
+
+        return Encoding.UTF8.GetString(remark.Skip(startIndex).ToArray()).Trim();
+    }
+
+    public static string UnBase64String(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "";
+
+        var bytes = Convert.FromBase64String(value);
+        return Encoding.UTF8.GetString(bytes);
+    }
+
+    public static string ToBase64String(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "";
+
+        var bytes = Encoding.UTF8.GetBytes(value);
+        return Convert.ToBase64String(bytes);
+    }
+
+    public static Dictionary<string, string> ParseParam(string paramStr)
+    {
+        var paramsDict = new Dictionary<string, string>();
+        var obfsParams = paramStr.Split('&');
+        foreach (var p in obfsParams)
+            if (p.IndexOf('=') > 0)
+            {
+                var index = p.IndexOf('=');
+                var key = p.Substring(0, index);
+                var val = p.Substring(index + 1);
+                paramsDict[key] = val;
+            }
+
+        return paramsDict;
+    }
+
+    public static IEnumerable<string> GetLines(this string str, bool removeEmptyLines = true)
+    {
+        using var sr = new StringReader(str);
+        string? line;
+        while ((line = sr.ReadLine()) != null)
+        {
+            if (removeEmptyLines && string.IsNullOrWhiteSpace(line))
+                continue;
+
+            yield return line;
+        }
+    }
+
+    #endregion
+}

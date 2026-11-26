@@ -1,0 +1,15 @@
+{
+  "type": "WebProxyMode",
+  "remark": {
+    "zh-CN": "PAC 网页代理（海外列表）",
+    "en": "PAC Web Proxy (Proxy List)"
+  },
+  "strategy": "Pac",
+  "pacPreset": "ProxyList",
+  "defaultProxy": false,
+  "bypassLan": true,
+  "handle": [],
+  "bypass": [],
+  "pacScriptPath": null,
+  "pacRuleUrl": null
+}

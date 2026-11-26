@@ -1,10 +1,10 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 $ErrorActionPreference = 'Stop'
 
-$version = 'v26.10.21'
+$version = 'v26.11.9'
 $archive = Join-Path $PWD 'Xray-windows-64.zip'
-$expectedSha256 = 'fc58c39ee2f2717b4c54d28d374362389e5319b20ae44aea76ea45a5243ec827'
-$expectedBinarySha256 = 'c77a00eb84fb93ae044c2d771a1cabcc033b81e487253fbc35b12df6879c1e15'
+$expectedSha256 = '1262522266337b824f07beb8e1375786b437683b3890105469088f8e17e0a69d'
+$expectedBinarySha256 = '1ca7a2cf61ba2c5d20b21a80d405b57933939751081cb289f07bd8ddf7cc3185'
 
 try {
     Invoke-WebRequest -Uri "https://github.com/XTLS/Xray-core/releases/download/$version/Xray-windows-64.zip" -OutFile $archive
@@ -28,4 +28,8 @@ try {
     }
     finally { $zip.Dispose() }
 }
-finally { Remove-Item $archive -ErrorAction SilentlyContinue }
+finally {
+    Remove-Item $archive -ErrorAction SilentlyContinue
+    Pop-Location
+}
+exit 0

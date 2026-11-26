@@ -11,7 +11,8 @@
 
 #ifndef _NFAPI_H
 #define _NFAPI_H
-#include <nfevents.h>
+
+#include "nfevents.h"
 
 #ifdef _NFAPI_STATIC_LIB
 	#define NFAPI_API

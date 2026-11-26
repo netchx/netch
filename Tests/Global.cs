@@ -23,7 +23,7 @@ namespace Tests
             byte[] bytes = new byte[16];
             var str = "example";
 
-            SHA1 sha1 = new SHA1CryptoServiceProvider();
+            using SHA1 sha1 = SHA1.Create();
             byte[] StrBytes = Encoding.UTF8.GetBytes(str);
 
             List<byte> byteSource = new List<byte>();
@@ -31,7 +31,6 @@ namespace Tests
             byteSource.AddRange(StrBytes);
 
             byte[] Sha1Bytes = sha1.ComputeHash(byteSource.ToArray()).Skip(0).Take(16).ToArray();
-            sha1.Dispose();
 
             //UUIDv5: [254 181 68 49 48 27 82 187 166 221 225 233 62 129 187 158]
 

@@ -1,0 +1,88 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <RootNamespace>Netch.App</RootNamespace>
+    <Configurations>Debug;Release</Configurations>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Netch.ico</ApplicationIcon>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <IsPackable>false</IsPackable>
+    <FileVersion>2.0.0</FileVersion>
+    <!-- event handler async void Warning -->
+    <NoWarn>$(NoWarn);VSTHRD100</NoWarn>
+    <UseWinUI>true</UseWinUI>
+    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <SelfContained>true</SelfContained>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <!-- Program.Main runs the single-instance check and core start-up before XAML starts. -->
+    <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutputPath>bin\x64\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="Serilog" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="HMBSbige.SingleInstance" Version="7.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading" Version="18.12.1" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.371">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="QRCoder" Version="1.9.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Netch.Core\Netch.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Remove="NativeMethods.txt" />
+  </ItemGroup>
+
+  <!-- WindowsAppSDK's CreateWinRTRegistration omits PublishSingleFile from its Inputs,
+       so switching between dotnet build and single-file dotnet publish reuses a stale manifest
+       without %MICROSOFT_WINDOWSAPPRUNTIME_BASE_DIRECTORY% SxS redirection. -->
+  <Target Name="_InvalidateStaleSingleFileManifest" BeforeTargets="CreateWinRTRegistration" Condition="'$(WindowsAppSDKSelfContained)' == 'true'">
+    <PropertyGroup>
+      <_SingleFileManifestDir>$(IntermediateOutputPath)Manifests\</_SingleFileManifestDir>
+      <_SingleFileManifestDir Condition="'$(SelfContainedIntermediateOutputPath)' != ''">$(SelfContainedIntermediateOutputPath)Manifests\</_SingleFileManifestDir>
+      <_ExpectedSingleFileFlag>false</_ExpectedSingleFileFlag>
+      <_ExpectedSingleFileFlag Condition="'$(PublishSingleFile)' == 'true'">true</_ExpectedSingleFileFlag>
+      <_ManifestModeFile>$(_SingleFileManifestDir)singlefile.mode</_ManifestModeFile>
+      <_PreviousSingleFileFlag Condition="Exists('$(_ManifestModeFile)')">$([System.IO.File]::ReadAllText('$(_ManifestModeFile)').Trim())</_PreviousSingleFileFlag>
+    </PropertyGroup>
+    <Delete Files="$(_SingleFileManifestDir)app.manifest;$(_SingleFileManifestDir)WindowsAppSDK.manifest"
+            Condition="'$(_PreviousSingleFileFlag)' != '$(_ExpectedSingleFileFlag)'" />
+    <MakeDir Directories="$(_SingleFileManifestDir)" />
+    <WriteLinesToFile File="$(_ManifestModeFile)" Lines="$(_ExpectedSingleFileFlag)" Overwrite="true"
+                      Condition="'$(_PreviousSingleFileFlag)' != '$(_ExpectedSingleFileFlag)'" />
+  </Target>
+
+</Project>
