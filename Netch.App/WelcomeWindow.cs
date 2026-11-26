@@ -580,7 +580,7 @@ internal sealed class WelcomeWindow : Window
     private async Task EditNewNodeAsync(string typeName)
     {
         var before = Global.Settings.Server.Count;
-        if (!await NodeEditor.EditAsync(_root.XamlRoot, null, typeName))
+        if (!await NodeEditor.EditAsync(_root.XamlRoot, null, typeName, AppWindow.Id))
             return;
 
         _nodesDirtyForDelayTest = true;
@@ -620,7 +620,7 @@ internal sealed class WelcomeWindow : Window
             if (await readInput() is not { } input)
                 return;
 
-            var (count, skipped, group) = await NodeEditor.ImportTextAsync(input.Text, input.FilePath);
+            var (count, skipped, group) = await NodeEditor.ImportTextAsync(input.Text, input.FilePath, _closed ? null : _root.XamlRoot);
             if (count == 0)
             {
                 if (_closed)
@@ -777,7 +777,10 @@ internal sealed class WelcomeWindow : Window
 
             _nodesDirtyForDelayTest = true;
             var subServers = Global.Settings.Server
-                .Where(s => s.IsSub && NodeGroupHelper.GroupEquals(s.Group, subscription.Remark));
+                .Where(s => s.IsSub && NodeGroupHelper.GroupEquals(s.Group, subscription.Remark))
+                .ToArray();
+            if (isNew && !_closed)
+                await NodeEditor.PromptImportCustomCoresAsync(_root.XamlRoot, subServers, subscription);
             var summary = FormatProtocolSummary(subServers);
             AppEvents.RaiseSubscriptionChanged();
             if (!_closed)

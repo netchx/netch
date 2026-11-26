@@ -129,10 +129,12 @@ public static class CoreDelayTester
             return;
 
         var buckets = targets
-            .GroupBy(item => CoreSelector.SelectCore(item.Server))
+            .Select(item => (Item: item, Probe: CoreSelector.ResolveProbeCore(item.Server)))
+            .GroupBy(x => (x.Probe.Kind, Key: x.Probe.CustomExecutablePath?.ToLowerInvariant()))
             .Select(group => RunCoreBucketAsync(
-                group.Key,
-                group.ToList(),
+                group.Key.Kind,
+                group.First().Probe.CustomExecutablePath,
+                group.Select(x => x.Item).ToList(),
                 testUri,
                 timeoutMs,
                 steadySecondRequest,
@@ -146,6 +148,7 @@ public static class CoreDelayTester
 
     private static async Task RunCoreBucketAsync(
         CoreSelector.CoreKind coreKind,
+        string? customExecutablePath,
         List<(Server Server, IPAddress PrimaryIp)> items,
         Uri testUri,
         int timeoutMs,
@@ -155,7 +158,35 @@ public static class CoreDelayTester
         Func<Server, int?>? missingCoreFallback,
         CancellationToken ct)
     {
-        var exePath = GetCoreExecutablePath(coreKind);
+        if (coreKind == CoreSelector.CoreKind.ExternalCli)
+        {
+            foreach (var (server, _) in items)
+                onResult(server, missingCoreFallback?.Invoke(server) ?? DelayStatus.Untested);
+            return;
+        }
+
+        var isCustomCore = !string.IsNullOrWhiteSpace(customExecutablePath);
+
+        string exePath;
+        if (isCustomCore && CoreExecutableResolver == null)
+        {
+            try
+            {
+                exePath = CustomCoreHelper.ResolveExecutablePath(customExecutablePath);
+            }
+            catch (MessageException ex)
+            {
+                Log.Warning("Delay test skipped for custom {Core}: {Reason}", coreKind, ex.Message);
+                foreach (var (server, _) in items)
+                    onResult(server, missingCoreFallback?.Invoke(server) ?? DelayStatus.Unreachable);
+                return;
+            }
+        }
+        else
+        {
+            exePath = GetCoreExecutablePath(coreKind);
+        }
+
         if (!File.Exists(exePath))
         {
             Log.Warning("Delay test skipped for {Core}: executable not found at {Path}", coreKind, exePath);
@@ -164,12 +195,13 @@ public static class CoreDelayTester
             return;
         }
 
-        await RunCoreSliceAsync(coreKind, exePath, items, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
+        await RunCoreSliceAsync(coreKind, exePath, isCustomCore, items, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
     }
 
     private static async Task RunCoreSliceAsync(
         CoreSelector.CoreKind coreKind,
         string exePath,
+        bool isCustomCore,
         IReadOnlyList<(Server Server, IPAddress PrimaryIp)> items,
         Uri testUri,
         int timeoutMs,
@@ -283,13 +315,18 @@ public static class CoreDelayTester
                 _ => throw new ArgumentOutOfRangeException(nameof(coreKind))
             };
 
+            var exeDir = Path.GetDirectoryName(exePath);
+            var workingDir = isCustomCore
+                ? (!string.IsNullOrEmpty(exeDir) ? exeDir : (Directory.Exists(binDir) ? binDir : Global.NetchDir))
+                : (Directory.Exists(binDir) ? binDir : (!string.IsNullOrEmpty(exeDir) ? exeDir : Global.NetchDir));
+
             process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = exePath,
                     Arguments = arguments,
-                    WorkingDirectory = Directory.Exists(binDir) ? binDir : Path.GetDirectoryName(exePath) ?? Global.NetchDir,
+                    WorkingDirectory = workingDir,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -392,8 +429,8 @@ public static class CoreDelayTester
             var left = validEntries.Take(mid).Select(e => (e.Server, e.PrimaryIp)).ToList();
             var right = validEntries.Skip(mid).Select(e => (e.Server, e.PrimaryIp)).ToList();
             Log.Information("Bisecting {Core} probe batch ({Count} nodes) after startup failure", coreKind, validEntries.Count);
-            await RunCoreSliceAsync(coreKind, exePath, left, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
-            await RunCoreSliceAsync(coreKind, exePath, right, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
+            await RunCoreSliceAsync(coreKind, exePath, isCustomCore, left, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
+            await RunCoreSliceAsync(coreKind, exePath, isCustomCore, right, testUri, timeoutMs, steadySecondRequest, globalConcurrency, onResult, ct);
         }
     }
 

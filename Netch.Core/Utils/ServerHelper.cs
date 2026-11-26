@@ -24,6 +24,7 @@ public static class ServerHelper
         nameof(EConfigType.SOCKS) => "SOCKS5",
         nameof(EConfigType.HTTP) => "HTTP / HTTPS",
         nameof(EConfigType.ShadowsocksR) => "ShadowsocksR (SSR)",
+        nameof(EConfigType.ExternalCli) => i18N.Translate("External CLI"),
         _ => util.FullName
     };
 

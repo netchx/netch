@@ -44,7 +44,7 @@ public class NodeEditors
         {
             "HTTP", "SOCKS", "Shadowsocks", "ShadowsocksR", "VLESS", "Hysteria2",
             "Trojan", "VMess", "WireGuard", "TUIC", "AnyTLS", "Naive", "MASQUE", "ShadowTLS", "SSH",
-            "TrustTunnel", "Mieru", "ShadowQUIC", "AmneziaWG"
+            "TrustTunnel", "Mieru", "ShadowQUIC", "AmneziaWG", "ExternalCli"
         }, protocols.Select(util => util.TypeName).ToArray());
 
         foreach (var util in protocols)
@@ -97,6 +97,10 @@ public class NodeEditors
 
         var awg = ServerEditorHelper.CreateDefault(ServerHelper.GetUtilByTypeName(nameof(EConfigType.AmneziaWG)));
         Assert.AreEqual(1280, awg.ProtoExtra.WgMtu);
+
+        var externalCli = ServerEditorHelper.CreateDefault(ServerHelper.GetUtilByTypeName(nameof(EConfigType.ExternalCli)));
+        Assert.AreEqual("127.0.0.1", externalCli.Address);
+        Assert.AreEqual(1080, externalCli.Port);
 
         try
         {

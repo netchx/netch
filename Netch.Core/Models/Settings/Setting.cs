@@ -207,6 +207,8 @@ public class Setting
 
     public string ModeRepositoryPath { get; set; } = "Storage/mode";
 
+    public List<CustomCore> CustomCores { get; set; } = new();
+
     #region Migration
 
     [Obsolete]

@@ -49,6 +49,8 @@ public abstract class Guard
 
     public Process Instance { get; private set; }
 
+    public string ExecutablePath => Instance.StartInfo.FileName;
+
     protected void ChangeMainFile(string mainFile)
     {
         if (_started)

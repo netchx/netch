@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.VisualStudio.Threading;
+using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Helpers;
 using Netch.App.Services;
 using Netch.Controllers;
@@ -199,6 +200,7 @@ public sealed partial class SettingsPage : Page
             NonNegativeIntValidator, () => hysteria.HopInterval, n => hysteria.HopInterval = n);
 
         return Stack(
+            BuildCustomCoresGroup(),
             Group("Xray / sing-box",
                 SettingRow(Icons.Lock, T("TLS fingerprint", "TLS 指纹"), fingerprint),
                 SettingRow(Icons.Filter, T("Fragment initial packets", "分片"), fragment),
@@ -214,6 +216,209 @@ public sealed partial class SettingsPage : Page
                 SettingRow(Icons.Upload, T("Upload (Mbps)", "上传（Mbps）"), upMbps),
                 SettingRow(Icons.Download, T("Download (Mbps)", "下载（Mbps）"), downMbps),
                 SettingRow(Icons.Refresh, T("Hop interval (s)", "跳跃间隔（秒）"), hopInterval)));
+    }
+
+    private StackPanel BuildCustomCoresGroup()
+    {
+        var cores = CustomCoreHelper.GetAll();
+        var rows = new List<UIElement>(cores.Count + 1);
+        foreach (var core in cores)
+        {
+            var summary = $"{ServerHelper.GetDisplayName(core.Protocol)} · {CustomCoreModeLabel(core.Mode)}" +
+                (core.IsProtocolDefault ? $" · {T("Default", "默认")}" : string.Empty);
+            var editRow = ActionSettingRow(Icons.Flash, core.Name, SummaryText(summary), () => EditCustomCoreAsync(core),
+                CustomCoreHelper.NormalizeExecutableInput(core.ExecutablePath));
+            var deleteBtn = IconButton(Icons.Delete, T("Delete", "删除"), () => DeleteCustomCoreAsync(core).Forget());
+            deleteBtn.VerticalAlignment = VerticalAlignment.Center;
+            deleteBtn.Margin = new Thickness(0, 0, 10, 0);
+            rows.Add(Split(editRow, deleteBtn, 4));
+        }
+
+        var addSummary = cores.Count == 0
+            ? T("Optional", "可选")
+            : TF("{0} configured", "已配置 {0} 项", cores.Count);
+        rows.Add(ActionSettingRow(Icons.Add, T("Add protocol custom core", "添加协议自定义核心"),
+            SummaryText(addSummary), () => EditCustomCoreAsync(null),
+            T("Bind custom CLI or modified core binary per protocol", "为指定协议绑定自定义 CLI 或魔改内核程序")));
+
+        return Group(T("Protocol custom cores", "协议自定义核心"), rows.ToArray());
+    }
+
+    private static string CustomCoreModeLabel(CustomCoreMode mode) => mode switch
+    {
+        CustomCoreMode.MihomoConfig => T("Reuse Mihomo config", "复用 Mihomo 配置"),
+        CustomCoreMode.SingboxConfig => T("Reuse sing-box config", "复用 sing-box 配置"),
+        CustomCoreMode.XrayConfig => T("Reuse Xray config", "复用 Xray 配置"),
+        _ => T("CLI arguments", "CLI 启动参数")
+    };
+
+    private async Task EditCustomCoreAsync(CustomCore? existing)
+    {
+        var protocols = ServerEditorHelper.GetOrderedProtocols()
+            .Where(util => util.TypeName != nameof(EConfigType.ExternalCli))
+            .ToArray();
+        var initialProtocol = existing?.Protocol ?? EConfigType.Shadowsocks;
+        var protoIndex = Math.Max(0, Array.FindIndex(protocols, u =>
+            Enum.TryParse<EConfigType>(u.TypeName, out var parsed) && parsed == initialProtocol));
+
+        var nameBox = Input(T("Name", "名称"), existing?.Name);
+        var protocolBox = Choice(T("Protocol", "适用协议"), protocols.Select(ServerHelper.GetDisplayName), protoIndex);
+        protocolBox.Header = T("Protocol", "适用协议");
+        protocolBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+        var exeBox = Input(T("CLI executable", "CLI 可执行文件"), existing?.ExecutablePath);
+        var browseBtn = AsyncButton(T("Browse .exe…", "浏览 .exe…"), async () =>
+        {
+            if (App.MainWindow is not { } window)
+                return;
+            var picker = new FileOpenPicker(window.AppWindow.Id);
+            picker.FileTypeFilter.Add(".exe");
+            if (await picker.PickSingleFileAsync() is { } file)
+                exeBox.Text = file.Path;
+        }, glyph: Icons.OpenFile);
+        browseBtn.VerticalAlignment = VerticalAlignment.Bottom;
+        var exeRow = Split(exeBox, browseBtn, 8);
+
+        var modes = Enum.GetValues<CustomCoreMode>();
+        var initialMode = existing?.Mode ?? CustomCoreMode.CliArguments;
+        var modeIndex = Math.Max(0, Array.IndexOf(modes, initialMode));
+        var modeBox = Choice(T("Launch mode", "启动方式"), modes.Select(CustomCoreModeLabel), modeIndex);
+        modeBox.Header = T("Launch mode", "启动方式");
+        modeBox.HorizontalAlignment = HorizontalAlignment.Stretch;
+
+        var argsBox = Input(T("Arguments template", "参数模板"),
+            existing?.ArgumentsTemplate ?? CustomCoreHelper.GetDefaultCliTemplate(initialProtocol),
+            multiline: true);
+        argsBox.AcceptsReturn = false;
+        argsBox.MinHeight = 72;
+        argsBox.MaxHeight = 140;
+        ScrollViewer.SetVerticalScrollBarVisibility(argsBox, ScrollBarVisibility.Auto);
+        var fillBtn = Button(T("Fill preset", "填入常用参数"), () =>
+        {
+            var idx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
+            if (Enum.TryParse<EConfigType>(protocols[idx].TypeName, out var p))
+                argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(p);
+        });
+        fillBtn.VerticalAlignment = VerticalAlignment.Center;
+        var argsHint = Caption(TF("Placeholders: {0}", "占位符：{0}",
+            "{address} {port} {local_addr} {local_port} {method} {password} {username}"));
+        argsHint.TextWrapping = TextWrapping.Wrap;
+        var argsPanel = Stack(argsBox, Split(argsHint, fillBtn, 8));
+
+        var defaultBox = new CheckBox
+        {
+            Content = T("Set as default core for this protocol", "设为该协议默认核心"),
+            IsChecked = existing?.IsProtocolDefault ?? false
+        };
+
+        void SyncModeUi()
+        {
+            var idx = Math.Clamp(modeBox.SelectedIndex, 0, modes.Length - 1);
+            var isCliArgs = modes[idx] == CustomCoreMode.CliArguments;
+            argsPanel.Visibility = isCliArgs ? Visibility.Visible : Visibility.Collapsed;
+            if (isCliArgs && string.IsNullOrWhiteSpace(argsBox.Text))
+            {
+                var pIdx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
+                if (Enum.TryParse<EConfigType>(protocols[pIdx].TypeName, out var p))
+                    argsBox.Text = CustomCoreHelper.GetDefaultCliTemplate(p);
+            }
+        }
+        modeBox.SelectionChanged += (_, _) => SyncModeUi();
+        SyncModeUi();
+
+        var editor = Stack(nameBox, protocolBox, exeRow, modeBox, argsPanel, defaultBox);
+        editor.Width = XamlRoot?.Size.Width > 0 ? Math.Min(460, Math.Max(300, XamlRoot.Size.Width - 110)) : 460;
+
+        CustomCore? candidate = null;
+        var title = existing == null
+            ? T("Add protocol custom core", "添加协议自定义核心")
+            : T("Edit protocol custom core", "编辑协议自定义核心");
+        if (!await ShowAsync(XamlRoot, title, editor, T("Save", "保存"), () =>
+        {
+            var pIdx = Math.Clamp(protocolBox.SelectedIndex, 0, protocols.Length - 1);
+            if (!Enum.TryParse<EConfigType>(protocols[pIdx].TypeName, out var selectedProto))
+                selectedProto = EConfigType.Shadowsocks;
+            var mIdx = Math.Clamp(modeBox.SelectedIndex, 0, modes.Length - 1);
+            var selectedMode = modes[mIdx];
+
+            candidate = new CustomCore
+            {
+                Id = existing?.Id ?? Guid.NewGuid().ToString("N"),
+                Name = nameBox.Text.Trim(),
+                Protocol = selectedProto,
+                ExecutablePath = CustomCoreHelper.NormalizeExecutableInput(exeBox.Text),
+                Mode = selectedMode,
+                ArgumentsTemplate = selectedMode == CustomCoreMode.CliArguments ? argsBox.Text.Trim() : string.Empty,
+                IsProtocolDefault = defaultBox.IsChecked == true
+            };
+            return CustomCoreHelper.Validate(candidate) is { } err ? i18N.Translate(err) : null;
+        }, contentMaxWidth: 560) || candidate == null)
+            return;
+
+        var snapshot = Global.Settings.CustomCores
+            .Select(c => new CustomCore
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Protocol = c.Protocol,
+                ExecutablePath = c.ExecutablePath,
+                Mode = c.Mode,
+                ArgumentsTemplate = c.ArgumentsTemplate,
+                IsProtocolDefault = c.IsProtocolDefault
+            })
+            .ToList();
+        var serverOverrides = existing == null
+            ? new List<(Server Server, string? CoreId)>()
+            : Global.Settings.Server
+                .Where(s => string.Equals(s.ProtoExtra.CustomCoreId, candidate.Id, StringComparison.OrdinalIgnoreCase))
+                .Select(s => (Server: s, CoreId: s.ProtoExtra.CustomCoreId))
+                .ToList();
+
+        if (await SaveSettingAsync(
+            () => CustomCoreHelper.Save(candidate),
+            () =>
+            {
+                Global.Settings.CustomCores = snapshot;
+                foreach (var (s, oldId) in serverOverrides)
+                    s.ProtoExtra.CustomCoreId = oldId;
+            }))
+        {
+            ShowCategory(SettingsCategory.Cores);
+        }
+    }
+
+    private async Task DeleteCustomCoreAsync(CustomCore core)
+    {
+        var title = TF("Delete custom core \"{0}\"?", "删除自定义核心「{0}」？", core.Name);
+        if (!await ShowAsync(XamlRoot, title,
+            Text(T("Nodes and subscriptions using this core will revert to the default behavior.",
+                "使用此核心的节点与订阅将恢复默认运行方式。")),
+            T("Delete", "删除")))
+            return;
+
+        var coresSnapshot = Global.Settings.CustomCores.ToList();
+        var serverOverrides = Global.Settings.Server
+            .Where(s => string.Equals(s.ProtoExtra.CustomCoreId, core.Id, StringComparison.OrdinalIgnoreCase))
+            .Select(s => (Server: s, CoreId: s.ProtoExtra.CustomCoreId))
+            .ToList();
+        var subOverrides = Global.Settings.Subscription
+            .Where(s => string.Equals(s.CustomCoreId, core.Id, StringComparison.OrdinalIgnoreCase))
+            .Select(s => (Sub: s, CoreId: s.CustomCoreId))
+            .ToList();
+
+        if (await SaveSettingAsync(
+            () => CustomCoreHelper.Delete(core.Id),
+            () =>
+            {
+                Global.Settings.CustomCores = coresSnapshot;
+                foreach (var (s, oldId) in serverOverrides)
+                    s.ProtoExtra.CustomCoreId = oldId;
+                foreach (var (s, oldId) in subOverrides)
+                    s.CustomCoreId = oldId;
+            }))
+        {
+            ShowCategory(SettingsCategory.Cores);
+        }
     }
 
     private StackPanel UpdatesPane()

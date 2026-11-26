@@ -11,18 +11,58 @@ public static class CoreSelector
     {
         Mihomo,
         Singbox,
-        Xray
+        Xray,
+        ExternalCli
     }
 
     internal static CoreKind SelectCore(Server server)
     {
+        return ResolveProbeCore(server).Kind;
+    }
+
+    internal static (CoreKind Kind, string? CustomExecutablePath) ResolveProbeCore(Server server)
+    {
+        if (server.ConfigType == EConfigType.ExternalCli)
+            return (CoreKind.ExternalCli, null);
+
+        if (CustomCoreHelper.ResolveForServer(server) is { } customCore)
+        {
+            var kind = customCore.Mode switch
+            {
+                CustomCoreMode.CliArguments => CoreKind.ExternalCli,
+                CustomCoreMode.SingboxConfig => CoreKind.Singbox,
+                CustomCoreMode.XrayConfig => CoreKind.Xray,
+                _ => CoreKind.Mihomo
+            };
+            return (kind, CustomCoreHelper.NormalizeExecutableInput(customCore.ExecutablePath));
+        }
+
         if (UsesXhttp(server))
-            return CanUseMihomoXhttp(server) ? CoreKind.Mihomo : CoreKind.Xray;
-        return UsesSingbox(server) ? CoreKind.Singbox : CoreKind.Mihomo;
+            return (CanUseMihomoXhttp(server) ? CoreKind.Mihomo : CoreKind.Xray, null);
+
+        return (UsesSingbox(server) ? CoreKind.Singbox : CoreKind.Mihomo, null);
     }
 
     public static IServerController CreateController(Server server)
     {
+        if (server.ConfigType == EConfigType.ExternalCli)
+        {
+            return server is ExternalCliServer externalCli
+                ? new ExternalCliController(externalCli)
+                : throw new MessageException("Invalid External CLI server configuration.");
+        }
+
+        if (CustomCoreHelper.ResolveForServer(server) is { } customCore)
+        {
+            return customCore.Mode switch
+            {
+                CustomCoreMode.CliArguments => new ExternalCliController(customCore),
+                CustomCoreMode.SingboxConfig => new SingboxController(customCore.ExecutablePath),
+                CustomCoreMode.XrayConfig => new XrayController(customCore.ExecutablePath),
+                _ => new MihomoController(customCore.ExecutablePath)
+            };
+        }
+
         return SelectCore(server) switch
         {
             CoreKind.Xray => new XrayController(),
@@ -53,7 +93,7 @@ public static class CoreSelector
 
     private static bool UsesSingbox(Server server)
     {
-        if (server.ConfigType is EConfigType.TrustTunnel or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.AmneziaWG)
+        if (server.ConfigType is EConfigType.TrustTunnel or EConfigType.Mieru or EConfigType.ShadowQUIC or EConfigType.AmneziaWG or EConfigType.ExternalCli)
             return false;
 
         var network = server.Network?.Trim().ToLowerInvariant();

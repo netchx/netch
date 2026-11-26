@@ -231,8 +231,20 @@ public static class DelayTestHelper
                 : new Uri(Constants.DefaultDelayTestUrl);
 
             // Step A: Concurrent DNS resolution per unique hostname.
+            var testableServers = new List<Server>(servers.Length);
+            foreach (var s in servers)
+            {
+                if (s.ConfigType == EConfigType.ExternalCli)
+                    ReportResult(s, DelayStatus.Untested);
+                else
+                    testableServers.Add(s);
+            }
+
+            if (testableServers.Count == 0)
+                return;
+
             var dnsResults = new ConcurrentDictionary<string, IPAddress[]>(StringComparer.OrdinalIgnoreCase);
-            var uniqueHosts = servers
+            var uniqueHosts = testableServers
                 .Select(s => s.Address?.Trim() ?? string.Empty)
                 .Where(h => h.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -255,8 +267,8 @@ public static class DelayTestHelper
                 await Task.WhenAll(dnsTasks);
             }
 
-            var resolved = new List<(Server Server, IPAddress[] Ips)>(servers.Length);
-            foreach (var s in servers)
+            var resolved = new List<(Server Server, IPAddress[] Ips)>(testableServers.Count);
+            foreach (var s in testableServers)
             {
                 var host = s.Address?.Trim() ?? string.Empty;
                 if (host.Length == 0 || !dnsResults.TryGetValue(host, out var ips) || ips.Length == 0)
