@@ -70,7 +70,7 @@ jobs:
 
       - name: Setup C++
         id: msys2
-        uses: msys2/setup-msys2@v2.33.0
+        uses: msys2/setup-msys2@v2.34.0
         if: steps.check_other.outputs.files_exists == 'false'
         with:
           msystem: UCRT64
