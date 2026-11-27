@@ -395,7 +395,7 @@ public class CoreAssets
     [DoNotParallelize]
     public void PrereleaseVersionOrderingAndBilingualReleaseNotesParseCorrectly()
     {
-        Assert.AreEqual("2.0.0", UpdateChecker.Version);
+        Assert.AreEqual("2.1.0", UpdateChecker.Version);
         Assert.AreEqual("2.0.0", UpdateChecker.ResolveVersion("2.0.0"));
         Assert.AreEqual("2.0.0-beta4", UpdateChecker.ResolveVersion("2.0.0-beta4"));
         Assert.AreEqual("2.0.0-beta4", UpdateChecker.ResolveVersion("2.0.0-beta4+19c547e"));
