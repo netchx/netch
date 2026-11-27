@@ -3,6 +3,7 @@ using Netch.App.Helpers;
 using Netch.App.Services;
 using Netch.Enums;
 using Netch.Models;
+using Netch.Models.Modes;
 using Netch.Services;
 using Netch.Utils;
 
@@ -31,6 +32,17 @@ public sealed partial class SceneCard : ObservableObject
     /// <summary>Mode type and node, e.g. "Process · HK 01".</summary>
     [ObservableProperty]
     public partial string Summary { get; private set; } = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasModeBadges), nameof(NoModeBadges))]
+    public partial IReadOnlyList<SceneModeBadge> ModeBadges { get; private set; } = Array.Empty<SceneModeBadge>();
+
+    [ObservableProperty]
+    public partial string NodeNameText { get; private set; } = string.Empty;
+
+    public bool HasModeBadges => ModeBadges.Count > 0;
+
+    public bool NoModeBadges => ModeBadges.Count == 0;
 
     [ObservableProperty]
     public partial string Status { get; private set; } = string.Empty;
@@ -65,16 +77,23 @@ public sealed partial class SceneCard : ObservableObject
     {
         var session = Session.Current;
         var server = SceneService.FindServer(Scene);
-        var mode = SceneService.FindMode(Scene);
+        var modes = SceneService.FindModes(Scene);
+        var missingModes = SceneService.FindMissingModeIds(Scene);
+        var modeUnavailable = modes.Count == 0 || missingModes.Count > 0;
 
         Name = Scene.Name;
         Icon = SceneIcon.NormalizeKey(Scene.Icon);
         IconGlyph = SceneIcon.ToGlyph(Icon);
         Hotkey = Scene.Hotkey ?? string.Empty;
         IsPinned = Scene.PinnedToTray;
-        Summary = $"{(mode == null ? "—" : Format.ModeTypeName(mode.Type))} · {(server == null ? "—" : Format.NodeName(server))}";
+        var nodeName = server == null ? "—" : Format.NodeName(server);
+        Summary = $"{(modes.Count == 0 ? "—" : Format.ModeTypesSummary(modes))} · {nodeName}";
+        NodeNameText = nodeName;
+        var badges = Format.GetModeTypeBadges(modes).Select(b => new SceneModeBadge(b.Type, b.Label)).ToArray();
+        if (!ModeBadges.SequenceEqual(badges))
+            ModeBadges = badges;
         IsActive = session.ActiveScene == Scene && !session.IsIdle;
-        IsUnavailable = !IsActive && (server == null || mode == null);
+        IsUnavailable = !IsActive && (server == null || modeUnavailable);
         Status = session.State switch
         {
             _ when IsUnavailable => i18N.Translate(server == null ? "Node unavailable" : "Mode unavailable"),
@@ -88,4 +107,12 @@ public sealed partial class SceneCard : ObservableObject
             ? session.IsRunning && session.Latency is { } latency ? $"{latency} ms" : Status
             : IsUnavailable ? Status : server == null ? "—" : Format.NodeName(server);
     }
+}
+
+public sealed record SceneModeBadge(ModeType Type, string Label)
+{
+    public bool IsProcess => Type == ModeType.ProcessMode;
+    public bool IsWebProxy => Type == ModeType.WebProxyMode;
+    public bool IsTun => Type == ModeType.TunMode;
+    public bool IsShare => Type == ModeType.ShareMode;
 }

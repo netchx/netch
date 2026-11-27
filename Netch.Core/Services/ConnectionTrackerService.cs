@@ -104,6 +104,9 @@ public sealed class ConnectionTrackerService
 
     public Redirector? ActiveMode => _nfController?.CurrentMode;
 
+    public IReadOnlyList<Redirector> ActiveSourceProcessModes =>
+        MainController.SourceModes.OfType<Redirector>().ToArray();
+
     public bool HasUnsavedHotRules => PendingHotRules.HasChanges;
 
     public string LogFilePath => _logFilePathOverride ?? Path.Combine(Global.NetchDir, "logging", "nf-connections.log");

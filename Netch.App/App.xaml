@@ -12,6 +12,7 @@
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <SolidColorBrush x:Key="NetchUpdateFill" Color="#E5EFFA" />
+                    <SolidColorBrush x:Key="NetchSuccessFill" Color="#E3F5E4" />
                     <SolidColorBrush x:Key="NetchModifiedFill" Color="#FDE7E9" />
                     <SolidColorBrush x:Key="NetchInfoStroke" Color="#D0E0F0" />
                     <SolidColorBrush x:Key="NetchWarningFill" Color="#FFF4CE" />
@@ -32,6 +33,7 @@
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="NetchUpdateFill" Color="#2660CDFF" />
+                    <SolidColorBrush x:Key="NetchSuccessFill" Color="#266CCB5F" />
                     <SolidColorBrush x:Key="NetchModifiedFill" Color="#26FF99A4" />
                     <SolidColorBrush x:Key="NetchInfoStroke" Color="#4060CDFF" />
                     <SolidColorBrush x:Key="NetchWarningFill" Color="#1AFCE100" />
@@ -52,6 +54,7 @@
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="HighContrast">
                     <SolidColorBrush x:Key="NetchUpdateFill" Color="{ThemeResource SystemColorWindowColor}" />
+                    <SolidColorBrush x:Key="NetchSuccessFill" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NetchModifiedFill" Color="{ThemeResource SystemColorWindowColor}" />
                     <SolidColorBrush x:Key="NetchInfoStroke" Color="{ThemeResource SystemColorWindowTextColor}" />
                     <SolidColorBrush x:Key="NetchWarningFill" Color="{ThemeResource SystemColorWindowColor}" />

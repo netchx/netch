@@ -78,11 +78,8 @@ public sealed partial class SceneEditorDialog : ContentDialog
     private void ModeFlyout_Opened(object sender, object e)
     {
         ModeSearchBox.Focus(FocusState.Programmatic);
-        if (ViewModel.SelectedMode != null)
-        {
-            ModeListView.SelectedItem = ViewModel.SelectedMode;
-            ModeListView.ScrollIntoView(ViewModel.SelectedMode);
-        }
+        if (ViewModel.SelectedModes.FirstOrDefault() is { } first)
+            ModeListView.ScrollIntoView(first);
     }
 
     private void ModeSearchBox_TextChanged(object sender, TextChangedEventArgs e) => RefreshModeGroups();
@@ -94,10 +91,11 @@ public sealed partial class SceneEditorDialog : ContentDialog
             ModeListView.Focus(FocusState.Keyboard);
             e.Handled = true;
         }
-        else if (e.Key == VirtualKey.Enter && _modeGroups.Source is IReadOnlyList<ModeOptionGroup> groups && groups.Count > 0 && groups[0].Count > 0)
+        else if (e.Key == VirtualKey.Enter && _modeGroups.Source is IReadOnlyList<ModeOptionGroup> groups)
         {
-            ViewModel.SelectedMode = groups[0][0];
-            ModeFlyout.Hide();
+            var firstAvailable = groups.SelectMany(g => g).FirstOrDefault(o => o.IsAvailable);
+            if (firstAvailable != null)
+                ViewModel.ToggleMode(firstAvailable);
             e.Handled = true;
         }
     }
@@ -105,10 +103,7 @@ public sealed partial class SceneEditorDialog : ContentDialog
     private void ModeListView_ItemClick(object sender, ItemClickEventArgs e)
     {
         if (e.ClickedItem is ModeOption option)
-        {
-            ViewModel.SelectedMode = option;
-            ModeFlyout.Hide();
-        }
+            ViewModel.ToggleMode(option);
     }
 
     private void RefreshModeGroups()
@@ -117,8 +112,6 @@ public sealed partial class SceneEditorDialog : ContentDialog
         _modeGroups.Source = groups;
         ModeListView.ItemsSource = _modeGroups.View;
         ModeEmptyText.Visibility = groups.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (ViewModel.SelectedMode != null && groups.Any(g => g.Contains(ViewModel.SelectedMode)))
-            ModeListView.SelectedItem = ViewModel.SelectedMode;
     }
 
     private void NodeFlyout_Opening(object sender, object e)
@@ -183,11 +176,30 @@ public sealed partial class SceneEditorDialog : ContentDialog
         IconFlyout.Hide();
     }
 
-    private void OpenModeSettings_Click(object sender, RoutedEventArgs e)
+    private void EmptyModeButton_Click(object sender, RoutedEventArgs e) => ModeFlyout.ShowAt(ModeSelector);
+
+    private void OpenSelectedModeSettings_Click(object sender, RoutedEventArgs e)
     {
-        ModeToOpen = ViewModel.SelectedMode?.Mode;
-        Hide();
+        if (sender is FrameworkElement { Tag: ModeOption option })
+        {
+            ModeToOpen = option.Mode;
+            Hide();
+        }
     }
+
+    private void RemoveSelectedMode_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: ModeOption option })
+            ViewModel.RemoveMode(option);
+    }
+
+    private void ClearModes_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ClearModes();
+        RefreshModeGroups();
+    }
+
+    private void DoneModes_Click(object sender, RoutedEventArgs e) => ModeFlyout.Hide();
 
     /// <summary>Records the pressed combination; Backspace or Delete clears it, Tab, Enter and Escape keep their usual meaning.</summary>
     private void HotkeyBox_PreviewKeyDown(object sender, KeyRoutedEventArgs e)

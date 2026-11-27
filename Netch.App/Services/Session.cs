@@ -140,12 +140,22 @@ public sealed partial class Session : ObservableObject
     internal async Task StartCoreAsync(Scene scene)
     {
         var server = SceneService.FindServer(scene);
-        var mode = SceneService.FindMode(scene);
-        if (server == null || mode == null)
+        var modeIds = scene.GetEffectiveModeIds();
+        var missingModeIds = SceneService.FindMissingModeIds(scene);
+        var modes = SceneService.FindModes(scene);
+        if (server == null || modeIds.Count == 0 || missingModeIds.Count > 0)
         {
             ErrorMessage = i18N.Translate(server == null
                 ? "The node of this scene no longer exists. Choose another node."
-                : "The mode of this scene no longer exists. Edit the scene to choose another mode.");
+                : modeIds.Count <= 1
+                    ? "The mode of this scene no longer exists. Edit the scene to choose another mode."
+                    : "One or more modes in this scene no longer exist. Edit the scene to update its modes.");
+            return;
+        }
+
+        if (!ModeComposer.ValidateSelection(modes, out var validationError))
+        {
+            ErrorMessage = validationError;
             return;
         }
 
@@ -158,7 +168,7 @@ public sealed partial class Session : ObservableObject
         State = State.Starting;
         try
         {
-            await MainController.StartAsync(server, mode);
+            await MainController.StartAsync(server, modes);
         }
         catch (Exception e)
         {
@@ -181,7 +191,7 @@ public sealed partial class Session : ObservableObject
 
         _probeCts = new CancellationTokenSource();
         TestLatencyAsync(_probeCts.Token).Forget();
-        if (mode is not Models.Modes.WebProxyMode.WebProxyMode)
+        if (modes.Any(mode => mode is not Models.Modes.WebProxyMode.WebProxyMode))
             TestNatAsync(_probeCts.Token).Forget();
         PingNodeAsync(server, _probeCts.Token).Forget();
     }

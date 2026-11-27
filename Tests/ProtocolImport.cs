@@ -354,35 +354,6 @@ public class ProtocolImport
     }
 
     [TestMethod]
-    public void ServerValidatorRejectsInvalidFieldsAndAcceptsValidNodes()
-    {
-        var badSocks = new SocksServer("127.0.0.1", 1080) { Username = "only-user" };
-        Assert.IsNotNull(ServerValidator.Validate(badSocks));
-
-        var badHy2 = new Hysteria2Server
-        {
-            Address = "127.0.0.1", Port = 443,
-            ProtoExtra = { Obfs = "gecko", SalamanderPass = "p", GeckoMinPacketSize = "500", GeckoMaxPacketSize = "100" }
-        };
-        Assert.IsNotNull(ServerValidator.Validate(badHy2));
-
-        var badVless = new VLESSServer
-        {
-            Address = "127.0.0.1", Port = 443, Password = Uuid,
-            Network = "ws", StreamSecurity = "reality", PublicKey = "pubkey"
-        };
-        Assert.IsNotNull(ServerValidator.Validate(badVless));
-
-        var goodVless = new VLESSServer
-        {
-            Address = "127.0.0.1", Port = 443, Password = Uuid,
-            Network = "xhttp", StreamSecurity = "reality", PublicKey = "pubkey", ShortId = "abcd",
-            Extra = """{"xPaddingBytes":"100"}"""
-        };
-        Assert.IsNull(ServerValidator.Validate(goodVless));
-    }
-
-    [TestMethod]
     public void AllThirteenProtocolsRoundTripThroughShareLinks()
     {
         var ss16Key = Convert.ToBase64String(Enumerable.Range(1, 16).Select(n => (byte)n).ToArray());

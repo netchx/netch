@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.Threading;
 using Netch.Enums;
 using Netch.Interfaces;
@@ -19,15 +20,25 @@ public static class MainController
 
     public static Mode? Mode { get; private set; }
 
+    public static IReadOnlyList<Mode> Modes { get; private set; } = Array.Empty<Mode>();
+
+    public static IReadOnlyList<Mode> SourceModes { get; private set; } = Array.Empty<Mode>();
+
     public static IServerController? ServerController { get; private set; }
 
     public static IModeController? ModeController { get; private set; }
 
+    public static IReadOnlyList<IModeController> ModeControllers { get; private set; } = Array.Empty<IModeController>();
+
     private static readonly AsyncSemaphore Lock = new(1);
 
-    public static void EnsureUdpCompatibility(Server server, Mode? mode)
+    [OverloadResolutionPriority(1)]
+    public static void EnsureUdpCompatibility(Server server, Mode? mode) =>
+        EnsureUdpCompatibility(server, mode == null ? Array.Empty<Mode>() : [mode]);
+
+    public static void EnsureUdpCompatibility(Server server, IReadOnlyList<Mode> modes)
     {
-        if (!ModeRequiresUdp(mode) || ServerSupportsUdp(server))
+        if (!modes.Any(ModeRequiresUdp) || ServerSupportsUdp(server))
             return;
 
         throw new MessageException(i18N.TranslateFormat(
@@ -55,13 +66,36 @@ public static class MainController
             _ => false
         };
 
-    public static async Task StartAsync(Server server, Mode? mode = null)
+    [OverloadResolutionPriority(1)]
+    public static Task StartAsync(Server server, Mode? mode = null) =>
+        StartAsync(server, mode == null ? Array.Empty<Mode>() : [mode]);
+
+    public static async Task StartAsync(Server server, IReadOnlyList<Mode> modes)
     {
+        ArgumentNullException.ThrowIfNull(server);
+        ArgumentNullException.ThrowIfNull(modes);
+
         using var releaser = await Lock.EnterAsync();
 
-        Log.Information("Start MainController: {Server} {Mode}", $"{server.ConfigType}", mode == null ? "Null" : $"[{(int)mode.Type}]{mode.i18NRemark}");
+        ModeComposition? composition = null;
+        if (modes.Count > 0)
+        {
+            composition = ModeComposer.Compose(modes);
+            foreach (var warning in composition.Warnings)
+                Log.Warning("Mode composition warning: {Warning}", warning);
+        }
 
-        EnsureUdpCompatibility(server, mode);
+        var sourceModes = composition?.SourceModes ?? Array.Empty<Mode>();
+        var effectiveModes = composition?.EffectiveModes ?? Array.Empty<Mode>();
+
+        Log.Information(
+            "Start MainController: {Server} {Modes}",
+            $"{server.ConfigType}",
+            effectiveModes.Count == 0
+                ? "Null"
+                : string.Join(" + ", effectiveModes.Select(m => $"[{(int)m.Type}]{m.i18NRemark}")));
+
+        EnsureUdpCompatibility(server, effectiveModes);
 
         if (await DnsUtils.LookupAsync(server.Address) == null)
             throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
@@ -75,27 +109,23 @@ public static class MainController
             await StopCoreAsync();
 
             Server = server;
-            Mode = mode;
+            SourceModes = sourceModes;
+            Modes = effectiveModes;
+            Mode = effectiveModes.FirstOrDefault();
 
             await Task.WhenAll(Task.Run(NativeMethods.RefreshDNSCache), Task.Run(Firewall.AddNetchFwRules));
 
-            if (mode != null)
-            {
-                ModeController = ModeService.GetModeControllerByType(mode.Type, out var modePort, out var portName);
-
-
-                if (modePort != null)
-                    TryReleaseTcpPort((ushort)modePort, portName);
-            }
+            var requireLocalHttp = effectiveModes.Any(m =>
+                ModeService.GetModeFeatures(m.Type).HasFlag(ModeFeature.RequireLocalHttpProxy));
+            var allSupportSocks5Auth = effectiveModes.Count == 0 || effectiveModes.All(m =>
+                ModeService.GetModeFeatures(m.Type).HasFlag(ModeFeature.SupportSocks5Auth));
 
             //如果是 Socks5 服务器且没有密码
             //或者如果是 Socks5 服务器，且模式控制器支持 Socks5（且不需要本地 HTTP 混合端口）则直接使用该服务器
-            var requireLocalHttp = ModeController?.Features.HasFlag(ModeFeature.RequireLocalHttpProxy) == true;
             if (!requireLocalHttp && Server is SocksServer socks5 && socks5.ProtoExtra.Uot != true &&
                 CustomCoreHelper.ResolveForServer(Server) == null &&
-                (ModeController == null ? !socks5.Auth() : (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth))))
+                (!socks5.Auth() || allSupportSocks5Auth))
             {
-
                 Socks5Server = socks5;
             }
             else
@@ -115,11 +145,23 @@ public static class MainController
                 StatusPortInfoText.UpdateShareLan();
             }
 
-            // Start Mode Controller
-            if (mode != null && ModeController != null && Socks5Server != null)
+            // Start Mode Controllers
+            if (effectiveModes.Count > 0 && Socks5Server != null)
             {
-                AppEvents.ReportStatus(i18N.TranslateFormat("Starting {0}", ModeController.Name));
-                await ModeController.StartAsync(Socks5Server, mode);
+                var startedControllers = new List<IModeController>(effectiveModes.Count);
+                foreach (var effectiveMode in effectiveModes)
+                {
+                    var controller = ModeService.GetModeControllerByType(effectiveMode.Type, out var modePort, out var portName);
+                    startedControllers.Add(controller);
+                    ModeControllers = startedControllers.ToArray();
+                    ModeController ??= controller;
+
+                    if (modePort != null)
+                        TryReleaseTcpPort((ushort)modePort, portName);
+
+                    AppEvents.ReportStatus(i18N.TranslateFormat("Starting {0}", controller.Name));
+                    await controller.StartAsync(Socks5Server, effectiveMode);
+                }
 
                 // Process mode forwards game traffic on Redirector threads inside
                 // this process; keep it responsive while games load the CPU.
@@ -154,18 +196,33 @@ public static class MainController
 
     private static async Task StopCoreAsync()
     {
-        if (ServerController == null && ModeController == null && Socks5Server == null && Server == null && Mode == null)
+        if (ServerController == null &&
+            ModeController == null &&
+            ModeControllers.Count == 0 &&
+            Socks5Server == null &&
+            Server == null &&
+            Mode == null &&
+            Modes.Count == 0 &&
+            SourceModes.Count == 0)
+        {
             return;
+        }
 
         Log.Information("Stop Main Controller");
         StatusPortInfoText.Reset();
 
+        var controllersToStop = new List<IModeController>();
+        for (var i = ModeControllers.Count - 1; i >= 0; i--)
+            controllersToStop.Add(ModeControllers[i]);
+        if (ModeController != null && !controllersToStop.Contains(ModeController))
+            controllersToStop.Add(ModeController);
+
         // Stop mode/driver consumers before tearing down the local proxy core.
-        if (ModeController != null)
+        foreach (var controller in controllersToStop)
         {
             try
             {
-                await ModeController.StopAsync();
+                await controller.StopAsync();
             }
             catch (Exception e)
             {
@@ -185,11 +242,14 @@ public static class MainController
             }
         }
 
+        ModeControllers = Array.Empty<IModeController>();
         ModeController = null;
+        Modes = Array.Empty<Mode>();
+        SourceModes = Array.Empty<Mode>();
+        Mode = null;
         ServerController = null;
         Socks5Server = null;
         Server = null;
-        Mode = null;
 
         using var current = Process.GetCurrentProcess();
         ProcessTuning.Restore(current);

@@ -59,7 +59,9 @@ public class DelayTest
             new AnyTLSServer { Address = "1.2.3.4", Port = 443, Password = "pw" },
             new NaiveServer { Address = "1.2.3.4", Port = 443, Username = "u", Password = "p", ProtoExtra = { NaiveQuic = false } },
             new ShadowTLSServer { Address = "1.2.3.4", Port = 443, Password = "pw", ProtoExtra = { ShadowTlsPassword = "hpw" } },
-            new SSHServer { Address = "1.2.3.4", Port = 22, Username = "root", Password = "pw" }
+            new SSHServer { Address = "1.2.3.4", Port = 22, Username = "root", Password = "pw" },
+            new TrustTunnelServer { Address = "1.2.3.4", Port = 443, Username = "u", Password = "p", ProtoExtra = { TrustTunnelQuic = false } },
+            new MieruServer { Address = "1.2.3.4", Port = 2010, Username = "u", Password = "p", ProtoExtra = { MieruTransport = "TCP" } }
         ];
 
         foreach (var server in tcpServers)
@@ -72,6 +74,11 @@ public class DelayTest
             new WireGuardServer { Address = "1.2.3.4", Port = 51820, Password = WgKey, PublicKey = WgKey, ProtoExtra = { WgInterfaceAddress = "10.0.0.2/32" } },
             new MASQUEServer { Address = "1.2.3.4", Port = 443 },
             new NaiveServer { Address = "1.2.3.4", Port = 443, Username = "u", Password = "p", ProtoExtra = { NaiveQuic = true } },
+            new TrustTunnelServer { Address = "1.2.3.4", Port = 443, Username = "u", Password = "p", ProtoExtra = { TrustTunnelQuic = true } },
+            new MieruServer { Address = "1.2.3.4", Port = 2010, Username = "u", Password = "p", ProtoExtra = { MieruTransport = "UDP" } },
+            new ShadowQUICServer { Address = "1.2.3.4", Port = 443, Username = "u", Password = "p" },
+            new AmneziaWGServer { Address = "1.2.3.4", Port = 51820, Password = WgKey, PublicKey = WgKey, ProtoExtra = { WgInterfaceAddress = "10.0.0.2/32" } },
+            new ExternalCliServer { Address = "127.0.0.1", Port = 1080, ProtoExtra = { CliExecutable = "cli.exe" } },
             new VMessServer { Address = "1.2.3.4", Port = 443, Password = Uuid, Network = "quic" },
             new VMessServer { Address = "1.2.3.4", Port = 443, Password = Uuid, Network = "kcp" },
             new ShadowsocksServer { Address = "1.2.3.4", Port = 443, Password = "pw", ProtoExtra = { SsPlugin = "v2ray-plugin", SsPluginOptions = "mode=quic;host=example.com" } }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +18,7 @@ using Netch.Models.Modes;
 using Netch.Models.Modes.ProcessMode;
 using Netch.Models.Modes.ShareMode;
 using Netch.Models.Modes.TunMode;
+using Netch.Models.Modes.WebProxyMode;
 using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
@@ -23,6 +26,7 @@ using Netch.Utils;
 namespace Tests;
 
 [TestClass]
+[DoNotParallelize]
 public class Scenes
 {
     private Setting _savedSettings;
@@ -571,6 +575,217 @@ public class Scenes
         Assert.IsFalse(importedNode.IsSub);
     }
 
+    [TestMethod]
+    public void SceneMultiModeMigrationReplacementAndDuplicationWork()
+    {
+        var legacyJson = """{"Id":"s1","Name":"Legacy","ModeId":"Game\\Steam.json","ServerId":"n1"}""";
+        var legacy = JsonSerializer.Deserialize<Scene>(legacyJson)!;
+        legacy.NormalizeModes();
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json" }, legacy.ModeIds.ToArray());
+        Assert.AreEqual(@"Game\Steam.json", legacy.ModeId);
+        Assert.IsTrue(legacy.UsesMode(@"game\steam.json"));
+
+        Assert.IsTrue(legacy.AddModeId(@"Game\Discord.json"));
+        Assert.IsFalse(legacy.AddModeId(@"game\discord.json"));
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json", @"Game\Discord.json" }, legacy.ModeIds.ToArray());
+        Assert.AreEqual(@"Game\Steam.json", legacy.ModeId);
+
+        legacy.HotRuleModeId = @"Game\Discord.json";
+        Assert.IsTrue(legacy.ReplaceModeId(@"game\discord.json", @"Custom\Discord.json"));
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json", @"Custom\Discord.json" }, legacy.ModeIds.ToArray());
+        Assert.AreEqual(@"Custom\Discord.json", legacy.HotRuleModeId);
+        Assert.IsFalse(legacy.ReplaceModeId(@"Missing\Mode.json", @"Custom\X.json"));
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json", @"Custom\Discord.json" }, legacy.ModeIds.ToArray());
+        Assert.IsTrue(legacy.ReplaceModeId(@"Game\Steam.json", @"custom\discord.json"));
+        CollectionAssert.AreEqual(new[] { @"custom\discord.json" }, legacy.ModeIds.ToArray());
+
+        var copy = legacy.Duplicate("Legacy copy");
+        CollectionAssert.AreEqual(new[] { @"custom\discord.json" }, copy.ModeIds.ToArray());
+        Assert.AreEqual(@"custom\discord.json", copy.ModeId);
+        Assert.AreEqual(legacy.ServerId, copy.ServerId);
+        Assert.IsNull(copy.HotRuleModeId);
+
+        legacy.SetModeIds([@"Game\Steam.json"]);
+        Assert.IsNull(legacy.HotRuleModeId);
+
+        var whitespaceFallback = new Scene { ModeId = @" Game\Fallback.json ", ModeIds = [" ", "\t"] };
+        CollectionAssert.AreEqual(new[] { @"Game\Fallback.json" }, whitespaceFallback.GetEffectiveModeIds().ToArray());
+    }
+
+    [TestMethod]
+    public void ConfigurationCheckSettingNormalizesSceneModesAndHotRuleMode()
+    {
+        var legacy = new Scene { Id = "s1", ModeId = @" Game\Steam.json ", HotRuleModeId = " " };
+        var validOverlay = new Scene
+        {
+            Id = "s2",
+            ModeIds = [" ", @"Game\Steam.json", @"GAME\STEAM.JSON", @" Custom\Overlay.json "],
+            HotRuleModeId = @" Custom\Overlay.json "
+        };
+        var orphanOverlay = new Scene
+        {
+            Id = "s3",
+            ModeIds = [@"Game\Steam.json"],
+            HotRuleModeId = @"Custom\Removed.json"
+        };
+
+        var settings = new Setting { Scenes = [legacy, validOverlay, orphanOverlay] };
+        var checkSetting = typeof(Configuration).GetMethod("CheckSetting", BindingFlags.Static | BindingFlags.NonPublic)!;
+        checkSetting.Invoke(null, [settings]);
+
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json" }, legacy.ModeIds.ToArray());
+        Assert.AreEqual(@"Game\Steam.json", legacy.ModeId);
+        Assert.IsNull(legacy.HotRuleModeId);
+
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json", @"Custom\Overlay.json" }, validOverlay.ModeIds.ToArray());
+        Assert.AreEqual(@"Game\Steam.json", validOverlay.ModeId);
+        Assert.AreEqual(@"Custom\Overlay.json", validOverlay.HotRuleModeId);
+
+        CollectionAssert.AreEqual(new[] { @"Game\Steam.json" }, orphanOverlay.ModeIds.ToArray());
+        Assert.IsNull(orphanOverlay.HotRuleModeId);
+    }
+
+    [TestMethod]
+    public void ModeServiceFeaturesMatchModeControllersAndRejectUnknownType()
+    {
+        foreach (var type in new[] { ModeType.ProcessMode, ModeType.TunMode, ModeType.WebProxyMode })
+        {
+            var controller = ModeService.GetModeControllerByType(type, out _, out _);
+            Assert.AreEqual(controller.Features, ModeService.GetModeFeatures(type));
+        }
+
+        // PcapController's constructor derives from Guard and checks bin\pcap2socks.exe on disk;
+        // compare Features without running file checks in test output.
+        var shareController = (IModeController)RuntimeHelpers.GetUninitializedObject(typeof(PcapController));
+        Assert.AreEqual(shareController.Features, ModeService.GetModeFeatures(ModeType.ShareMode));
+
+        Assert.ThrowsExactly<MessageException>(() => ModeService.GetModeFeatures((ModeType)999));
+    }
+
+    [TestMethod]
+    public void SceneServiceFindModesAndMissingModeIdsTrackPartialAvailability()
+    {
+        var steam = new Redirector { FullName = Path.Combine(ModeService.Instance.ModeDirectoryFullName, "Game", "Steam.json") };
+        var pac = new WebProxyMode { FullName = Path.Combine(ModeService.Instance.ModeDirectoryFullName, "Web", "PAC.json") };
+        Netch.Global.Modes.AddRange([steam, pac]);
+
+        var validScene = new Scene();
+        validScene.SetModeIds([@"Game\Steam.json", @"Web\PAC.json"]);
+        CollectionAssert.AreEqual(new Mode[] { steam, pac }, SceneService.FindModes(validScene).ToArray());
+        Assert.IsEmpty(SceneService.FindMissingModeIds(validScene));
+        Assert.IsTrue(SceneService.HasValidModes(validScene));
+
+        var partialMissing = new Scene();
+        partialMissing.SetModeIds([@"Game\Steam.json", @"Custom\Deleted.json"]);
+        CollectionAssert.AreEqual(new Mode[] { steam }, SceneService.FindModes(partialMissing).ToArray());
+        CollectionAssert.AreEqual(new[] { @"Custom\Deleted.json" }, SceneService.FindMissingModeIds(partialMissing).ToArray());
+        Assert.IsFalse(SceneService.HasValidModes(partialMissing));
+
+        var emptyScene = new Scene();
+        Assert.IsFalse(SceneService.HasValidModes(emptyScene));
+    }
+
+    [TestMethod]
+    public void MainControllerEnsureUdpCompatibilityChecksAllModesInCollection()
+    {
+        var ssh = new SSHServer { Address = "127.0.0.1", Port = 22, Username = "root", Password = "pw" };
+        var http = new HttpServer("127.0.0.1", 8080);
+        var web = new WebProxyMode();
+        var udpProcess = new Redirector { FilterUDP = true, FilterDNS = false };
+        var tcpOnlyProcess = new Redirector { FilterUDP = false, FilterDNS = false };
+
+        MainController.EnsureUdpCompatibility(ssh, [web, tcpOnlyProcess]);
+        MainController.EnsureUdpCompatibility(http, [web, tcpOnlyProcess]);
+
+        Assert.ThrowsExactly<MessageException>(() => MainController.EnsureUdpCompatibility(ssh, [web, udpProcess]));
+        Assert.ThrowsExactly<MessageException>(() => MainController.EnsureUdpCompatibility(http, [web, udpProcess]));
+    }
+
+    [TestMethod]
+    public async Task MainControllerStartRejectsInvalidAndUdpIncompatibleMultiModeCombinations()
+    {
+        var socks = new SocksServer("127.0.0.1", 1080);
+        var ssh = new SSHServer { Address = "127.0.0.1", Port = 22, Username = "root", Password = "pw" };
+        var tun = new TunMode { FullName = "tun.json" };
+        var proc = new Redirector { FullName = "proc.json", FilterUDP = false, FilterDNS = false };
+        var udpProc = new Redirector { FullName = "udp.json", FilterUDP = true, FilterDNS = false };
+        var web = new WebProxyMode { FullName = "web.json" };
+
+        await Assert.ThrowsExactlyAsync<MessageException>(() => MainController.StartAsync(socks, [tun, proc]));
+        AssertMainControllerCleared();
+
+        await Assert.ThrowsExactlyAsync<MessageException>(() => MainController.StartAsync(ssh, [web, udpProc]));
+        AssertMainControllerCleared();
+    }
+
+    [TestMethod]
+    public async Task MainControllerStopOrdersMultipleModeControllersInReverseBeforeServerAndClearsState()
+    {
+        var log = new List<string>();
+        SeedMainControllerState(log, new FakeModeController(log, "nf"), new FakeModeController(log, "web"));
+
+        await MainController.StopAsync();
+
+        CollectionAssert.AreEqual(new[] { "web.stop", "nf.stop", "server.stop" }, log);
+        AssertMainControllerCleared();
+    }
+
+    [TestMethod]
+    public async Task MainControllerStopContinuesTeardownWhenModeControllerThrows()
+    {
+        var log = new List<string>();
+        SeedMainControllerState(log, new FakeModeController(log, "nf"), new FakeModeController(log, "web", throwOnStop: true));
+
+        await MainController.StopAsync();
+
+        CollectionAssert.AreEqual(new[] { "web.throw", "nf.stop", "server.stop" }, log);
+        AssertMainControllerCleared();
+    }
+
+    [TestMethod]
+    public void ConnectionTrackerActiveSourceProcessModesFiltersMainControllerSourceModes()
+    {
+        var proc1 = new Redirector { FullName = "p1.json" };
+        var web = new WebProxyMode { FullName = "web.json" };
+        var proc2 = new Redirector { FullName = "p2.json" };
+        var share = new ShareMode { FullName = "share.json" };
+
+        SetMainControllerProperty("SourceModes", new Mode[] { proc1, web, proc2, share });
+        try
+        {
+            var tracker = new ConnectionTrackerService();
+            CollectionAssert.AreEqual(new[] { proc1, proc2 }, tracker.ActiveSourceProcessModes.ToArray());
+        }
+        finally
+        {
+            SetMainControllerProperty("SourceModes", Array.Empty<Mode>());
+        }
+    }
+
+    private static void SeedMainControllerState(List<string> log, params IModeController[] modeControllers)
+    {
+        SetMainControllerProperty("ModeControllers", modeControllers);
+        SetMainControllerProperty("ModeController", modeControllers[0]);
+        SetMainControllerProperty("ServerController", new FakeServerController(log));
+        SetMainControllerProperty("Socks5Server", new SocksServer("127.0.0.1", 2801));
+        SetMainControllerProperty("Server", new SocksServer("127.0.0.1", 1080));
+        SetMainControllerProperty("SourceModes", new Mode[] { new Redirector(), new WebProxyMode() });
+        SetMainControllerProperty("Modes", new Mode[] { new Redirector(), new WebProxyMode() });
+        SetMainControllerProperty("Mode", new Redirector());
+    }
+
+    private static void AssertMainControllerCleared()
+    {
+        Assert.IsEmpty(MainController.ModeControllers.ToArray());
+        Assert.IsNull(MainController.ModeController);
+        Assert.IsEmpty(MainController.Modes.ToArray());
+        Assert.IsEmpty(MainController.SourceModes.ToArray());
+        Assert.IsNull(MainController.ServerController);
+        Assert.IsNull(MainController.Socks5Server);
+        Assert.IsNull(MainController.Server);
+        Assert.IsNull(MainController.Mode);
+    }
+
     private static void SetMainControllerProperty(string name, object value)
     {
         var prop = typeof(MainController).GetProperty(name, BindingFlags.Public | BindingFlags.Static)!;
@@ -590,14 +805,20 @@ public class Scenes
         }
     }
 
-    private sealed class FakeModeController(List<string> log) : IModeController
+    private sealed class FakeModeController(List<string> log, string tag = "mode", bool throwOnStop = false) : IModeController
     {
         public string Name => "FakeMode";
         public ModeFeature Features => ModeFeature.SupportSocks5Auth;
         public Task StartAsync(SocksServer s, Mode mode) => Task.CompletedTask;
         public Task StopAsync()
         {
-            log.Add("mode.stop");
+            if (throwOnStop)
+            {
+                log.Add($"{tag}.throw");
+                throw new InvalidOperationException("Simulated stop failure");
+            }
+
+            log.Add($"{tag}.stop");
             return Task.CompletedTask;
         }
     }

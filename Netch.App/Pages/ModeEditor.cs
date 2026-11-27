@@ -672,19 +672,25 @@ internal sealed class ModeEditor : UserControl
         var newId = SceneService.GetModeId(mode);
         if (oldId != null && !oldId.Equals(newId, StringComparison.OrdinalIgnoreCase))
         {
-            var scenes = SceneService.Scenes.Where(scene => scene.ModeId.Equals(oldId, StringComparison.OrdinalIgnoreCase)).ToArray();
+            var scenes = SceneService.Scenes.Where(scene => scene.UsesMode(oldId)).ToArray();
             if (scenes.Length > 0)
             {
+                var snapshots = scenes
+                    .Select(scene => (Scene: scene, ModeIds: scene.GetEffectiveModeIds().ToArray(), HotRuleModeId: scene.HotRuleModeId))
+                    .ToArray();
                 foreach (var scene in scenes)
-                    scene.ModeId = newId;
+                    scene.ReplaceModeId(oldId, newId);
                 try
                 {
                     await Configuration.SaveAsync(throwOnError: true);
                 }
                 catch
                 {
-                    foreach (var scene in scenes)
-                        scene.ModeId = oldId;
+                    foreach (var snapshot in snapshots)
+                    {
+                        snapshot.Scene.SetModeIds(snapshot.ModeIds);
+                        snapshot.Scene.HotRuleModeId = snapshot.HotRuleModeId;
+                    }
                     File.Delete(mode.FullName);
                     Report(T("Could not save scene references. Check the configuration file and try again.",
                         "无法保存场景引用，请检查配置文件后重试。"), InfoBarSeverity.Error);
@@ -695,8 +701,7 @@ internal sealed class ModeEditor : UserControl
 
         ModeService.Instance.Load(completeSceneDefaults: true);
         if (Session.Current.IsRunning && Session.Current.ActiveScene is { } activeScene &&
-            (string.Equals(activeScene.ModeId, newId, StringComparison.OrdinalIgnoreCase) ||
-             (oldId != null && string.Equals(activeScene.ModeId, oldId, StringComparison.OrdinalIgnoreCase))))
+            (activeScene.UsesMode(newId) || (oldId != null && activeScene.UsesMode(oldId))))
         {
             Session.Current.StartAsync(activeScene).Forget();
         }

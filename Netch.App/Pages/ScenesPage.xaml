@@ -24,7 +24,10 @@
         </Style>
 
         <DataTemplate x:Key="SceneTemplate" x:DataType="vm:SceneCard">
-            <ItemContainer AutomationProperties.Name="{x:Bind Name, Mode=OneWay}" CornerRadius="8">
+            <ItemContainer
+                AutomationProperties.HelpText="{x:Bind Summary, Mode=OneWay}"
+                AutomationProperties.Name="{x:Bind Name, Mode=OneWay}"
+                CornerRadius="8">
                 <ItemContainer.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Click="Edit_Click" Tag="{x:Bind}" Text="{h:Tr Text=Edit}">
@@ -95,12 +98,93 @@
                         Text="{x:Bind Name, Mode=OneWay}"
                         TextWrapping="NoWrap"
                         TextTrimming="CharacterEllipsis" />
-                    <TextBlock
+                    <Grid
                         Grid.Row="2"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        Text="{x:Bind Summary, Mode=OneWay}"
-                        TextTrimming="CharacterEllipsis" />
+                        MinHeight="18"
+                        ColumnSpacing="6"
+                        ToolTipService.ToolTip="{x:Bind Summary, Mode=OneWay}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <ItemsControl
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False"
+                            ItemsSource="{x:Bind ModeBadges, Mode=OneWay}"
+                            Visibility="{x:Bind HasModeBadges, Mode=OneWay}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="4" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SceneModeBadge">
+                                    <Grid>
+                                        <Border
+                                            Padding="5,1"
+                                            Background="{ThemeResource NetchUpdateFill}"
+                                            CornerRadius="4"
+                                            Visibility="{x:Bind IsProcess}">
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                Text="{x:Bind Label}"
+                                                TextWrapping="NoWrap" />
+                                        </Border>
+                                        <Border
+                                            Padding="5,1"
+                                            Background="{ThemeResource NetchSuccessFill}"
+                                            CornerRadius="4"
+                                            Visibility="{x:Bind IsWebProxy}">
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{ThemeResource SystemFillColorSuccessBrush}"
+                                                Text="{x:Bind Label}"
+                                                TextWrapping="NoWrap" />
+                                        </Border>
+                                        <Border
+                                            Padding="5,1"
+                                            Background="{ThemeResource NetchWarningFill}"
+                                            CornerRadius="4"
+                                            Visibility="{x:Bind IsTun}">
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                Text="{x:Bind Label}"
+                                                TextWrapping="NoWrap" />
+                                        </Border>
+                                        <Border
+                                            Padding="5,1"
+                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                            CornerRadius="4"
+                                            Visibility="{x:Bind IsShare}">
+                                            <TextBlock
+                                                FontSize="11"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                Text="{x:Bind Label}"
+                                                TextWrapping="NoWrap" />
+                                        </Border>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind NodeNameText, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis"
+                            Visibility="{x:Bind HasModeBadges, Mode=OneWay}" />
+                        <TextBlock
+                            Grid.ColumnSpan="2"
+                            VerticalAlignment="Center"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Summary, Mode=OneWay}"
+                            TextTrimming="CharacterEllipsis"
+                            Visibility="{x:Bind NoModeBadges, Mode=OneWay}" />
+                    </Grid>
                     <Grid Grid.Row="3" VerticalAlignment="Bottom">
                         <TextBlock
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -338,7 +422,7 @@
                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                     LineHeight="21"
                     LineStackingStrategy="BlockLineHeight"
-                    Text="{h:Tr Text='A scene uses one node and one acceleration mode.'}"
+                    Text="{h:Tr Text='A scene pairs one node with one or more acceleration modes.'}"
                     TextAlignment="Center"
                     TextWrapping="Wrap" />
                 <StackPanel

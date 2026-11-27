@@ -140,7 +140,10 @@ public static class Configuration
         if (settings.Scenes != null)
         {
             foreach (var scene in settings.Scenes)
+            {
                 scene.Icon = SceneIcon.NormalizeKey(scene.Icon);
+                scene.NormalizeModes();
+            }
         }
 
         CustomCoreHelper.NormalizeAll(settings);

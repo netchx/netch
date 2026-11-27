@@ -598,8 +598,9 @@ internal static partial class Downloads
     public static bool InUse(CorePackage core) => Session.Current.IsRunning && (core.Name switch
     {
         "Xray-core" => MainController.ServerController?.Name == "Xray",
-        "WinTUN" => MainController.ModeController is TUNController,
+        "WinTUN" => MainController.ModeControllers.Any(c => c is TUNController) || MainController.ModeController is TUNController,
         _ => core.Name.Equals(MainController.ServerController?.Name, StringComparison.OrdinalIgnoreCase) ||
+             MainController.ModeControllers.Any(c => core.Name.Equals(c.Name, StringComparison.OrdinalIgnoreCase)) ||
              core.Name.Equals(MainController.ModeController?.Name, StringComparison.OrdinalIgnoreCase)
     });
 
@@ -631,8 +632,7 @@ internal static partial class Downloads
             return;
 
         if (Session.Current.IsRunning && Session.Current.ActiveScene is { } activeScene &&
-            MainController.Mode is WebProxyMode activeWeb &&
-            activeWeb.Strategy == WebProxyStrategy.Pac &&
+            MainController.Modes.OfType<WebProxyMode>().FirstOrDefault() is { Strategy: WebProxyStrategy.Pac } activeWeb &&
             updatedPresets.Contains(activeWeb.PacPreset))
         {
             if (App.MainWindow is { } window)

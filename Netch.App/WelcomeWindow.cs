@@ -1583,8 +1583,9 @@ internal sealed class WelcomeWindow : Window
             var scene = new Scene
             {
                 Name = finalName, Icon = _target == AccelerateTarget.Process ? SceneIcon.Gamepad : SceneIcon.Globe,
-                ServerId = _server.Id, ModeId = modeId, PinnedToTray = true
+                ServerId = _server.Id, PinnedToTray = true
             };
+            scene.SetModeIds([modeId]);
             if (_autoConnect)
             {
                 var previousStartup = Global.Settings.RunAtStartup;

@@ -25,6 +25,44 @@ public static class Format
         _ => type.ToString()
     });
 
+    private static readonly ModeType[] ModeSummaryOrder =
+    [
+        ModeType.ProcessMode,
+        ModeType.TunMode,
+        ModeType.WebProxyMode,
+        ModeType.ShareMode
+    ];
+
+    public static IReadOnlyList<(ModeType Type, int Count, string Label)> GetModeTypeBadges(IReadOnlyList<Mode> modes)
+    {
+        if (modes.Count == 0)
+            return Array.Empty<(ModeType, int, string)>();
+
+        var badges = new List<(ModeType Type, int Count, string Label)>(ModeSummaryOrder.Length);
+        foreach (var type in ModeSummaryOrder)
+        {
+            var count = modes.Count(m => m.Type == type);
+            if (count == 0)
+                continue;
+
+            var label = ModeTypeName(type);
+            badges.Add((type, count, count > 1 ? $"{label} ×{count}" : label));
+        }
+
+        return badges;
+    }
+
+    public static string ModeTypesSummary(IReadOnlyList<Mode> modes, bool longName = false)
+    {
+        if (modes.Count == 0)
+            return "—";
+
+        if (modes.Count == 1)
+            return longName ? ModeTypeLongName(modes[0].Type) : ModeTypeName(modes[0].Type);
+
+        return string.Join(" + ", GetModeTypeBadges(modes).Select(b => b.Label));
+    }
+
     public static int ModeGroupOrder(string key) => key switch
     {
         "Game" => 0,

@@ -104,6 +104,15 @@ public class ModeService
         Global.Modes.Remove(mode);
     }
 
+    public static ModeFeature GetModeFeatures(ModeType type) => type switch
+    {
+        ModeType.ProcessMode => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth,
+        ModeType.TunMode => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth,
+        ModeType.ShareMode => ModeFeature.SupportSocks5Auth,
+        ModeType.WebProxyMode => ModeFeature.SupportIPv6 | ModeFeature.SupportSocks5Auth | ModeFeature.RequireLocalHttpProxy,
+        _ => throw new MessageException("Unknown Mode Type")
+    };
+
     public static IModeController GetModeControllerByType(ModeType type, out ushort? port, out string portName)
     {
         port = null;

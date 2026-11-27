@@ -159,10 +159,10 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         if (state != State.Started)
             return progress ?? i18N.Translate(state.ToString());
 
-        var mode = SceneService.FindMode(scene);
+        var modes = SceneService.FindModes(scene);
         var server = SceneService.FindServer(scene);
         return string.Join(" · ",
-            mode == null ? "—" : Format.ModeTypeLongName(mode.Type),
+            modes.Count == 0 ? "—" : Format.ModeTypesSummary(modes, longName: modes.Count == 1),
             server == null ? "—" : Format.NodeName(server),
             i18N.TranslateFormat("Running for {0}", Format.Elapsed(elapsed)));
     }
@@ -292,7 +292,7 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
 
     private async Task EditSceneAsync(Scene? scene, bool changeNode = false)
     {
-        var oldMode = scene?.ModeId;
+        var oldModeIds = scene?.GetEffectiveModeIds().ToArray() ?? Array.Empty<string>();
         var oldServer = scene?.ServerId;
 
         var dialog = new SceneEditorDialog(scene, changeNode);
@@ -302,7 +302,7 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
             try
             {
                 var apply = dialog.ViewModel.CaptureEdits();
-                var draft = scene == null ? new Scene() : new Scene { Id = scene.Id, LastUsed = scene.LastUsed };
+                var draft = scene == null ? new Scene() : new Scene { Id = scene.Id, LastUsed = scene.LastUsed, HotRuleModeId = scene.HotRuleModeId };
                 apply(draft);
                 var settings = Global.Settings.ShallowCopy();
                 settings.Scenes = SceneService.Scenes.Select(item => item == scene ? draft : item).ToList();
@@ -351,7 +351,8 @@ public sealed partial class ScenesPage : Page, INotifyPropertyChanged
         LoadCards();
 
         // A changed node or mode only takes effect on a restart; do it for the running scene.
-        if (scene != null && Session.IsRunning && Session.ActiveScene == scene && (scene.ModeId != oldMode || scene.ServerId != oldServer))
+        if (scene != null && Session.IsRunning && Session.ActiveScene == scene &&
+            (!oldModeIds.SequenceEqual(scene.GetEffectiveModeIds(), StringComparer.OrdinalIgnoreCase) || scene.ServerId != oldServer))
             await Session.StartAsync(scene);
     }
 

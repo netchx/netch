@@ -297,7 +297,7 @@ public sealed partial class ModesPage : Page
             return;
 
         var modeIds = targets.Select(SceneService.GetModeId).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var refCount = SceneService.Scenes.Count(s => modeIds.Contains(s.ModeId));
+        var refCount = SceneService.Scenes.Count(s => modeIds.Any(s.UsesMode));
         string body;
         if (targets.Count == 1)
         {
@@ -388,7 +388,7 @@ public sealed partial class ModesPage : Page
                 var origin = Downloads.Origin(path);
                 if (_source.SelectedIndex > 0 && _source.SelectedIndex - 1 != (int)origin)
                     continue;
-                var count = SceneService.Scenes.Count(s => string.Equals(s.ModeId, path, StringComparison.OrdinalIgnoreCase));
+                var count = SceneService.Scenes.Count(s => s.UsesMode(path));
                 var references = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
                 references.TextAlignment = TextAlignment.Right;
                 var referenceColumn = new Grid

@@ -4,6 +4,7 @@ using Microsoft.Diagnostics.Tracing.Session;
 using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
+using Netch.Interfaces;
 using Netch.Services;
 
 namespace Netch.Utils;
@@ -53,10 +54,16 @@ public static class Bandwidth
         var generation = Volatile.Read(ref _generation);
         bool Current() => generation == Volatile.Read(ref _generation);
 
+        var activeControllers = MainController.ModeControllers.Count > 0
+            ? MainController.ModeControllers
+            : MainController.ModeController is { } single
+                ? new IModeController[] { single }
+                : Array.Empty<IModeController>();
+
         // Process mode: the redirector already counts every forwarded byte.
         // Avoid a system-wide kernel network trace, which raises an event for
         // every packet on the machine and costs CPU while gaming.
-        if (MainController.ModeController is NFController)
+        if (activeControllers.Count == 1 && activeControllers[0] is NFController)
         {
             Interlocked.Exchange(ref received, 0UL);
             AppEvents.SetBandwidthAvailable(true);
@@ -88,17 +95,20 @@ public static class Bandwidth
         }
 
         if (!processes.Any())
-            switch (MainController.ModeController)
+        {
+            foreach (var controller in activeControllers)
             {
-                case null:
-                    break;
-                case TUNController when Interops.TUN2Socks.ActiveProcess is { } tun:
-                    processes.Add(tun);
-                    break;
-                case Guard guard:
-                    processes.Add(guard.Instance);
-                    break;
+                switch (controller)
+                {
+                    case TUNController when Interops.TUN2Socks.ActiveProcess is { } tun:
+                        processes.Add(tun);
+                        break;
+                    case Guard guard:
+                        processes.Add(guard.Instance);
+                        break;
+                }
             }
+        }
 
         var pidHastSet = processes.Select(instance => instance.Id).ToHashSet();
 

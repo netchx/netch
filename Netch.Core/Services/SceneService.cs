@@ -18,7 +18,10 @@ public static class SceneService
         if (settings.Scenes != null)
         {
             foreach (var scene in settings.Scenes)
+            {
                 scene.Icon = SceneIcon.NormalizeKey(scene.Icon);
+                scene.NormalizeModes();
+            }
             return false;
         }
 
@@ -32,7 +35,8 @@ public static class SceneService
         var mode = Global.Modes[LegacySelectionIndex(settings.ModeComboBoxSelectedIndex, Global.Modes.Count)];
         var modeId = GetModeId(mode);
         var selected = scenes.Find(scene => scene.ServerId == server.Id &&
-            string.Equals(scene.ModeId, modeId, StringComparison.OrdinalIgnoreCase));
+            scene.GetEffectiveModeIds().Count == 1 &&
+            scene.UsesMode(modeId));
         if (selected == null)
         {
             selected = CreateScene(mode.i18NRemark.ValueOrDefault() ?? Path.GetFileNameWithoutExtension(modeId), mode, server);
@@ -53,25 +57,63 @@ public static class SceneService
         return CreateScene(profile.ProfileName.IsNullOrWhiteSpace() ? profile.ModeRemark : profile.ProfileName, mode, server);
     }
 
-    private static Scene CreateScene(string name, Mode? mode, Server? server) => new()
+    private static Scene CreateScene(string name, Mode? mode, Server? server)
     {
-        Name = name,
-        Icon = mode?.Type switch
+        var scene = new Scene
         {
-            ModeType.TunMode => SceneIcon.Globe,
-            ModeType.WebProxyMode => SceneIcon.Globe,
-            ModeType.ShareMode => SceneIcon.Console,
-            _ => SceneIcon.Gamepad
-        },
-        ModeId = mode == null ? string.Empty : GetModeId(mode),
-        ServerId = server?.Id ?? string.Empty
-    };
+            Name = name,
+            Icon = mode?.Type switch
+            {
+                ModeType.TunMode => SceneIcon.Globe,
+                ModeType.WebProxyMode => SceneIcon.Globe,
+                ModeType.ShareMode => SceneIcon.Console,
+                _ => SceneIcon.Gamepad
+            },
+            ServerId = server?.Id ?? string.Empty
+        };
+        scene.SetModeIds(mode == null ? Array.Empty<string>() : [GetModeId(mode)]);
+        return scene;
+    }
 
     public static string GetModeId(Mode mode) => ModeService.Instance.GetRelativePath(mode.FullName);
 
-    public static Mode? FindMode(Scene scene) => scene.ModeId.Length == 0
-        ? null
-        : Global.Modes.FirstOrDefault(m => string.Equals(GetModeId(m), scene.ModeId, StringComparison.OrdinalIgnoreCase));
+    public static Mode? FindMode(Scene scene) => FindModes(scene).FirstOrDefault();
+
+    public static IReadOnlyList<Mode> FindModes(Scene scene)
+    {
+        var ids = scene.GetEffectiveModeIds();
+        if (ids.Count == 0)
+            return Array.Empty<Mode>();
+
+        var modes = new List<Mode>(ids.Count);
+        foreach (var id in ids)
+        {
+            var found = Global.Modes.FirstOrDefault(m => string.Equals(GetModeId(m), id, StringComparison.OrdinalIgnoreCase));
+            if (found != null)
+                modes.Add(found);
+        }
+
+        return modes;
+    }
+
+    public static IReadOnlyList<string> FindMissingModeIds(Scene scene)
+    {
+        var ids = scene.GetEffectiveModeIds();
+        if (ids.Count == 0)
+            return Array.Empty<string>();
+
+        var missing = new List<string>();
+        foreach (var id in ids)
+        {
+            if (!Global.Modes.Any(m => string.Equals(GetModeId(m), id, StringComparison.OrdinalIgnoreCase)))
+                missing.Add(id);
+        }
+
+        return missing;
+    }
+
+    public static bool HasValidModes(Scene scene) =>
+        scene.GetEffectiveModeIds().Count > 0 && FindMissingModeIds(scene).Count == 0;
 
     public static Server? FindServer(Scene scene) => scene.ServerId.Length == 0
         ? null

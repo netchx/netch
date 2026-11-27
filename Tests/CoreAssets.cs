@@ -28,21 +28,6 @@ public class CoreAssets
 
     [TestMethod]
     [DoNotParallelize]
-    public void ChineseTranslationLoads()
-    {
-        try
-        {
-            i18N.Load("zh-CN");
-            Assert.AreNotEqual("Start", i18N.Translate("Start"));
-        }
-        finally
-        {
-            i18N.Load("en-US");
-        }
-    }
-
-    [TestMethod]
-    [DoNotParallelize]
     [DataRow("zh-CN", "已导入 3 个节点。")]
     [DataRow("zh-TW", "已匯入 3 個節點。")]
     [DataRow("zh-HK", "已匯入 3 個節點。")]
@@ -238,7 +223,24 @@ public class CoreAssets
             "Config file template",
             "Live preview",
             "Click a placeholder to insert",
-            "CLI arguments + config"
+            "CLI arguments + config",
+            "A scene pairs one node with one or more acceleration modes.",
+            "Select at least one mode.",
+            "TUN mode cannot be combined with other mode types.",
+            "Only one Web Proxy mode can be selected.",
+            "Only one Share mode can be selected.",
+            "One or more modes in this scene no longer exist. Edit the scene to update its modes.",
+            "Loopback filtering was disabled to prevent conflicts with Web Proxy mode.",
+            "IP allowlists were relaxed to all IPs because another selected process mode proxies all IPs.",
+            "Multiple DNS hosts were configured; using the first custom value.",
+            "TUN adapter settings differ across modes; using the first mode's network configuration.",
+            "Conflicting TUN routes were resolved in favor of bypass rules.",
+            "Select modes",
+            "TUN conflict",
+            "Max 1",
+            "Save to scene rules",
+            "Create & attach scene rules",
+            "{0} (Rules)"
         };
 
         try
