@@ -26,7 +26,6 @@ public sealed partial class NodesPage : Page
     private readonly Dictionary<Server, TextBlock> _delayLabels = [];
     private readonly TextBox _filter = Input(T("Filter nodes", "筛选节点"), search: true);
     private readonly ContentControl _subscription = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
-    private readonly ContentControl _details = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock _status = Caption("");
     private readonly DropDownButton _updateAll;
     private readonly Button _speed;
@@ -98,7 +97,6 @@ public sealed partial class NodesPage : Page
         }
 
         _batchBar = Card(Split(Row(_batchCount, _selectAllBtn, _clearSelectionBtn), Row(_batchTestBtn, _batchCoreBtn, _batchCopyBtn, _batchDeleteBtn)), 8);
-        _batchBar.Margin = new Thickness(0, 9, 0, 0);
         _batchBar.Visibility = Visibility.Collapsed;
 
         _categories.SelectionChanged += (_, _) => { if (!_refreshing) RefreshSelection(); };
@@ -136,20 +134,12 @@ public sealed partial class NodesPage : Page
             }
         };
 
-        var filterSection = new StackPanel
-        {
-            Children =
-            {
-                Split(_filter, Row(_speed, sort)),
-                _batchBar
-            }
-        };
+        var topSection = Stack(_subscription, _status, Split(_filter, Row(_speed, sort)), _batchBar);
 
         Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, _updateAll, addSubscription, add),
-            TwoColumns(_categories, Body(_details, filterSection, Card(_nodes, 2)), new GridLength(165))));
+            TwoColumns(_categories, Body(topSection, Card(_nodes, 2)), new GridLength(165))));
         _nodes.ItemContainerStyle = Resource<Style>("NetchSelectableRow");
         _nodes.ItemsSource = _nodeRows;
-        _details.Content = new StackPanel { Children = { _subscription, _status } };
         _status.Visibility = Visibility.Collapsed;
         _status.RegisterPropertyChangedCallback(TextBlock.TextProperty,
             (_, _) => _status.Visibility = _status.Text.Length > 0 ? Visibility.Visible : Visibility.Collapsed);
