@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
@@ -77,7 +78,7 @@ internal static partial class Downloads
     public static DownloadTransfer? ActiveTransfer { get; private set; }
     public static Dictionary<CorePackage, List<UpdateChoice>> Versions { get; } = [];
     public static Dictionary<CorePackage, string> Installed { get; } = [];
-    public static Dictionary<string, string> Errors { get; } = [];
+    public static ConcurrentDictionary<string, string> Errors { get; } = [];
     public static List<RuleChange> Rules { get; private set; } = [];
     public static int RemoteRuleCount { get; private set; }
     public static string RemoteTree { get; private set; } = "";
@@ -90,12 +91,19 @@ internal static partial class Downloads
     public static DateTimeOffset? LastPacSynchronized => _pacManifest.SynchronizedAt;
     public static Release? AppRelease { get; private set; }
     public static Asset? AppAsset { get; private set; }
+    public static DateTimeOffset? RateLimitResetUtc { get; private set; }
+    public static bool IsApiRateLimited => RateLimitResetUtc is { } reset && reset > DateTimeOffset.UtcNow;
     public static List<DownloadEntry> History { get; } = ReadJson<List<DownloadEntry>>(HistoryPath) ?? [];
     public static bool Checking { get; private set; }
     public static bool Applying { get; private set; }
     public static int PendingPacCount => PacRuleService.RemotePresets.Count(IsPacUpdateAvailable);
     public static int PendingCount => Rules.Count + Cores.Count(core => AvailableCore(core) != null) + PendingPacCount;
     private static readonly Dictionary<CorePackage, DateTime> CoreChecked = [];
+    private static readonly object CacheLock = new();
+    private static readonly UpdateCacheStore CacheStore = new(Path.Combine(Configuration.DataDirectoryFullName, "update-cache.json"));
+    private static UpdateCacheState _cache = new();
+    private static bool _cacheLoaded;
+    private sealed record ApiFetchResult(string? Body, bool FromCache, bool NotModified, string? RateLimitError);
     private static string HistoryPath => Path.Combine(Configuration.DataDirectoryFullName, "downloads.json");
     private static string BaseRulesPath => Path.Combine(ModeService.Instance.ModeDirectoryFullName, ModeService.ManifestFileName);
     private static string PacManifestPath => Path.Combine(PacRuleService.GetUserRuleDirectory(), ModeService.ManifestFileName);
@@ -115,8 +123,133 @@ internal static partial class Downloads
         public Dictionary<string, string> Versions { get; init; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
-    public static async Task CheckAsync()
+    public static string? FormatRateLimitError()
     {
+        if (RateLimitResetUtc is not { } reset || reset <= DateTimeOffset.UtcNow)
+            return null;
+
+        return Helpers.Ui.TF("GitHub API rate limit reached; resets at {0:HH:mm}.",
+            "已触发 GitHub API 速率限制，预计 {0:HH:mm} 恢复。", reset.ToLocalTime());
+    }
+
+    private static void EnsureCacheLoaded()
+    {
+        lock (CacheLock)
+        {
+            if (_cacheLoaded)
+                return;
+
+            _cache = CacheStore.Load();
+            _cacheLoaded = true;
+
+            if (_cache.RateLimitResetUtc is { } reset && reset > DateTimeOffset.UtcNow)
+                RateLimitResetUtc = reset;
+            else
+            {
+                RateLimitResetUtc = null;
+                _cache.RateLimitResetUtc = null;
+            }
+
+            if (_cache.LastCheckedUtc is { } lastChecked)
+                LastChecked = lastChecked.LocalDateTime;
+
+            if (!string.IsNullOrWhiteSpace(_cache.RemotePacVersion))
+                RemotePacVersion = _cache.RemotePacVersion;
+
+            if (_cache.AppRelease is { } cachedApp &&
+                !string.IsNullOrWhiteSpace(cachedApp.TagName) &&
+                (!cachedApp.Prerelease || Global.Settings.CheckBetaUpdate))
+            {
+                AppRelease = new Release
+                {
+                    tag_name = cachedApp.TagName,
+                    html_url = cachedApp.HtmlUrl,
+                    prerelease = cachedApp.Prerelease
+                };
+                AppAsset = !string.IsNullOrWhiteSpace(cachedApp.AssetName) && !string.IsNullOrWhiteSpace(cachedApp.AssetDownloadUrl)
+                    ? new Asset { name = cachedApp.AssetName, browser_download_url = cachedApp.AssetDownloadUrl }
+                    : null;
+            }
+
+            foreach (var core in Cores)
+            {
+                var restored = new List<UpdateChoice>();
+                if (_cache.CoreLatest.TryGetValue(core.Name, out var latestEntry))
+                {
+                    restored.Add(FromCachedEntry(latestEntry));
+                    CoreChecked[core] = latestEntry.CheckedAtUtc.LocalDateTime;
+                }
+                if (_cache.CoreHistory.TryGetValue(core.Name, out var history))
+                {
+                    foreach (var entry in history.Entries)
+                        restored.Add(FromCachedEntry(entry));
+                    if (!CoreChecked.ContainsKey(core))
+                        CoreChecked[core] = history.FetchedAtUtc.LocalDateTime;
+                }
+                if (restored.Count > 0)
+                    Versions[core] = MergeChoices(restored);
+            }
+
+            if (string.Equals(_cache.RulesSourceKey, SourceKey, StringComparison.OrdinalIgnoreCase) &&
+                _cache.ApiResponses.TryGetValue(RulesTreeApiUrl(), out var cachedTree) &&
+                !string.IsNullOrWhiteSpace(cachedTree.Body))
+            {
+                try { ApplyRulesTreeJson(cachedTree.Body); }
+                catch (Exception ex) { Log.Debug(ex, "Restore cached rules tree failed"); }
+            }
+        }
+    }
+
+    private static void SaveCache()
+    {
+        lock (CacheLock)
+            CacheStore.Save(_cache);
+    }
+
+    private static UpdateChoice FromCachedEntry(CachedUpdateEntry entry) =>
+        new(entry.Version, entry.Url, entry.ReleaseUrl) { Prerelease = entry.Prerelease };
+
+    private static CachedUpdateEntry ToCachedEntry(UpdateChoice choice, DateTimeOffset checkedAtUtc) =>
+        new()
+        {
+            Version = choice.Version,
+            Url = choice.Url,
+            ReleaseUrl = choice.ReleaseUrl,
+            Prerelease = choice.Prerelease,
+            CheckedAtUtc = checkedAtUtc
+        };
+
+    private static List<UpdateChoice> MergeChoices(IEnumerable<UpdateChoice> choices) =>
+        choices
+            .DistinctBy(c => c.Version, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(c => c.Prerelease)
+            .ThenByDescending(c => c.Version, new VersionUtil.VersionComparer())
+            .ToList();
+
+    public static async Task CheckOnStartupAsync()
+    {
+        EnsureCacheLoaded();
+        await PopulateInstalledAsync();
+        Changed?.Invoke();
+
+        DateTimeOffset? lastAuto;
+        lock (CacheLock)
+            lastAuto = _cache.LastAutoCheckUtc;
+
+        if (!GitHubRateLimitPolicy.ShouldRunAutoCheck(Global.Settings.AutoCheckUpdateIntervalHours, lastAuto, DateTimeOffset.UtcNow))
+            return;
+
+        if (Global.Settings.DownloadChannel == DownloadChannel.Proxy && MainController.Socks5Server == null)
+            return;
+
+        await CheckAsync(isAuto: true);
+    }
+
+    public static Task CheckAsync() => CheckAsync(isAuto: false);
+
+    public static async Task CheckAsync(bool isAuto)
+    {
+        EnsureCacheLoaded();
         if (Checking || Applying)
             return;
         Checking = true;
@@ -127,16 +260,26 @@ internal static partial class Downloads
             var results = await Task.WhenAll(Cores.Select(async core =>
             {
                 var version = await ReadVersionAsync(core);
-                try { return (Core: core, Version: version, Choices: await FetchCoreAsync(core), Error: (string?)null); }
-                catch (Exception e) { return (Core: core, Version: version, Choices: (List<UpdateChoice>?)null, Error: (string?)e.Message); }
+                try { return (Core: core, Version: version, Result: await FetchCoreAsync(core), Error: (string?)null); }
+                catch (Exception e) { return (Core: core, Version: version, Result: ((List<UpdateChoice>? Choices, string? Warning)?)null, Error: (string?)e.Message); }
             }));
+
+            var nowUtc = DateTimeOffset.UtcNow;
             foreach (var result in results)
             {
                 Installed[result.Core] = result.Version;
-                if (result.Choices != null)
+                if (result.Result is { Choices: { } choices })
                 {
-                    Versions[result.Core] = result.Choices;
+                    Versions[result.Core] = choices;
                     CoreChecked[result.Core] = DateTime.Now;
+                    var latestStable = choices.FirstOrDefault(c => !c.Prerelease);
+                    if (latestStable != null)
+                    {
+                        lock (CacheLock)
+                            _cache.CoreLatest[result.Core.Name] = ToCachedEntry(latestStable, nowUtc);
+                    }
+                    if (!string.IsNullOrWhiteSpace(result.Result.Value.Warning))
+                        Errors[result.Core.Name] = result.Result.Value.Warning;
                 }
                 else if (result.Error != null)
                 {
@@ -145,8 +288,29 @@ internal static partial class Downloads
                         : Helpers.Ui.TF("Version unavailable. {0}", "暂无法确认版本。{0}", result.Error);
                 }
             }
-            await Task.WhenAll(CheckRulesAsync(), CheckApplicationAsync(), CheckPacRulesAsync());
-            LastChecked = DateTime.Now;
+            var rulesTask = CheckRulesAsync();
+            var appTask = CheckApplicationAsync();
+            var pacTask = CheckPacRulesAsync();
+            await Task.WhenAll(rulesTask, appTask, pacTask);
+            var anyCoreOk = results.Any(r => r.Result is { Choices: not null });
+            var anyDataSucceeded = anyCoreOk || await rulesTask || await appTask || await pacTask;
+            if (anyDataSucceeded)
+            {
+                LastChecked = DateTime.Now;
+                lock (CacheLock)
+                {
+                    _cache.LastCheckedUtc = nowUtc;
+                    _cache.LastAutoCheckUtc = nowUtc;
+                    _cache.RemotePacVersion = RemotePacVersion;
+                }
+                SaveCache();
+            }
+            else if (isAuto && IsApiRateLimited)
+            {
+                lock (CacheLock)
+                    _cache.LastAutoCheckUtc = nowUtc;
+                SaveCache();
+            }
         }
         finally
         {
@@ -155,17 +319,125 @@ internal static partial class Downloads
         }
     }
 
-    private static async Task CheckApplicationAsync()
+    private static async Task<bool> CheckApplicationAsync()
     {
         try
         {
-            var releases = await ReleasesAsync($"{UpdateChecker.Owner}/{UpdateChecker.Repo}");
-            AppRelease = releases.FirstOrDefault();
-            AppAsset = UpdateChecker.SelectReleaseAsset(AppRelease?.assets, UpdateChecker.IsSelfContained);
-            if (AppRelease != null && IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
-                Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
+            if (!Global.Settings.CheckBetaUpdate)
+            {
+                return await FetchLatestApplicationAsync();
+            }
+
+            var url = $"https://api.github.com/repos/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases?per_page=20";
+            var apiResult = await FetchApiCachedAsync(url);
+            if (apiResult.Body != null)
+            {
+                var releases = (JsonSerializer.Deserialize<List<Release>>(apiResult.Body) ?? [])
+                    .Where(r => !r.draft && (Global.Settings.CheckBetaUpdate || !r.prerelease))
+                    .ToList();
+                AppRelease = releases.FirstOrDefault();
+                AppAsset = UpdateChecker.SelectReleaseAsset(AppRelease?.assets, UpdateChecker.IsSelfContained);
+                if (AppRelease != null && IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
+                    Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
+
+                if (AppRelease != null)
+                {
+                    lock (CacheLock)
+                    {
+                        _cache.AppRelease = new CachedAppReleaseEntry
+                        {
+                            TagName = AppRelease.tag_name ?? string.Empty,
+                            HtmlUrl = AppRelease.html_url ?? string.Empty,
+                            Prerelease = AppRelease.prerelease,
+                            AssetName = AppAsset?.name,
+                            AssetDownloadUrl = AppAsset?.browser_download_url,
+                            CheckedAtUtc = DateTimeOffset.UtcNow
+                        };
+                    }
+                }
+                if (apiResult.RateLimitError != null)
+                    Errors[UpdateChecker.Name] = apiResult.RateLimitError;
+                return true;
+            }
+
+            var ok = await FetchLatestApplicationAsync();
+            if (apiResult.RateLimitError != null && !Errors.ContainsKey(UpdateChecker.Name))
+                Errors[UpdateChecker.Name] = apiResult.RateLimitError;
+            return ok;
         }
-        catch (Exception e) { Errors[UpdateChecker.Name] = e.Message; }
+        catch (Exception e)
+        {
+            Errors[UpdateChecker.Name] = e.Message;
+            return false;
+        }
+    }
+
+    private static async Task<bool> FetchLatestApplicationAsync()
+    {
+        using var client = CreateClient();
+        var prefix = $"https://github.com/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases";
+        using var page = await client.GetAsync(Request(prefix + "/latest"), HttpCompletionOption.ResponseHeadersRead);
+        if (page.StatusCode == HttpStatusCode.NotFound)
+        {
+            AppRelease = null;
+            AppAsset = null;
+            lock (CacheLock)
+                _cache.AppRelease = null;
+            return true;
+        }
+        page.EnsureSuccessStatusCode();
+        var finalUri = page.RequestMessage?.RequestUri;
+        var tag = finalUri?.Segments.LastOrDefault()?.Trim('/');
+        if (finalUri == null || string.IsNullOrWhiteSpace(tag)
+            || !finalUri.AbsolutePath.TrimEnd('/').EndsWith($"/{UpdateChecker.Owner}/{UpdateChecker.Repo}/releases/tag/{tag}", StringComparison.OrdinalIgnoreCase))
+        {
+            // Repository may only contain prereleases right now.
+            AppRelease = null;
+            AppAsset = null;
+            lock (CacheLock)
+                _cache.AppRelease = null;
+            return true;
+        }
+
+        Asset? resolvedAsset = null;
+        if (IsNewer(tag, UpdateChecker.Version))
+        {
+            var candidates = GitHubRateLimitPolicy.GetApplicationAssetCandidates(tag, UpdateChecker.IsSelfContained);
+            foreach (var candidateName in candidates)
+            {
+                var downloadUrl = $"{prefix}/download/{tag}/{candidateName}";
+                if (await TryVerifyAssetAsync(client, downloadUrl))
+                {
+                    resolvedAsset = new Asset { name = candidateName, browser_download_url = downloadUrl };
+                    break;
+                }
+            }
+        }
+
+        AppRelease = new Release
+        {
+            tag_name = tag,
+            html_url = $"{prefix}/tag/{tag}",
+            prerelease = false
+        };
+        AppAsset = resolvedAsset;
+
+        if (IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
+            Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
+
+        lock (CacheLock)
+        {
+            _cache.AppRelease = new CachedAppReleaseEntry
+            {
+                TagName = AppRelease.tag_name,
+                HtmlUrl = AppRelease.html_url,
+                Prerelease = false,
+                AssetName = AppAsset?.name,
+                AssetDownloadUrl = AppAsset?.browser_download_url,
+                CheckedAtUtc = DateTimeOffset.UtcNow
+            };
+        }
+        return true;
     }
 
     public static bool IsNewer(string available, string installed)
@@ -194,7 +466,7 @@ internal static partial class Downloads
         return PacRuleService.IsUpdateAvailable(status, InstalledPacVersion(preset, status), RemotePacVersion);
     }
 
-    private static async Task CheckPacRulesAsync()
+    private static async Task<bool> CheckPacRulesAsync()
     {
         try
         {
@@ -210,8 +482,13 @@ internal static partial class Downloads
             }
 
             RemotePacVersion = tag;
+            return true;
         }
-        catch (Exception e) { Errors["PAC"] = e.Message; }
+        catch (Exception e)
+        {
+            Errors["PAC"] = e.Message;
+            return false;
+        }
     }
 
     public static UpdateChoice? LatestStable(CorePackage core) =>
@@ -227,6 +504,7 @@ internal static partial class Downloads
 
     public static async Task PopulateInstalledAsync()
     {
+        EnsureCacheLoaded();
         var pending = Cores.Where(core => !Installed.ContainsKey(core)).ToArray();
         var values = await Task.WhenAll(pending.Select(ReadVersionAsync));
         for (var i = 0; i < pending.Length; i++)
@@ -275,38 +553,145 @@ internal static partial class Downloads
     [GeneratedRegex(@"^mihomo-windows-amd64-v1-(alpha-[0-9a-f]{7,40})\.zip$")]
     private static partial Regex MihomoAlphaAsset();
 
-    private static async Task<List<UpdateChoice>> FetchCoreAsync(CorePackage core)
+    private static async Task<(List<UpdateChoice> Choices, string? Warning)> FetchCoreAsync(CorePackage core)
     {
         if (core.Repo.Length == 0)
         {
             using var client = CreateClient();
             var page = await client.GetStringAsync("https://www.wintun.net/");
-            return Regex.Matches(page, @"(?:https://www\.wintun\.net)?/?builds/wintun-(?<version>\d+\.\d+\.\d+)\.zip")
+            var list = Regex.Matches(page, @"(?:https://www\.wintun\.net)?/?builds/wintun-(?<version>\d+\.\d+\.\d+)\.zip")
                 .Select(match => match.Groups["version"].Value).Distinct()
                 .OrderByDescending(version => Version.Parse(version))
                 .Select(version => new UpdateChoice(version, $"https://www.wintun.net/builds/{core.Asset(version)}", "https://www.wintun.net/"))
                 .ToList();
+            return (list, null);
         }
 
-        List<Release> releases;
-        try { releases = await ReleasesAsync(core.Repo); }
-        catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests)
+        if (!Global.Settings.CheckBetaUpdate)
         {
             var latest = await FetchLatestCoreAsync(core);
-            var cached = Versions.GetValueOrDefault(core) ?? [];
-            if (core.Name == "Mihomo" && Global.Settings.CheckBetaUpdate)
-            {
-                var alpha = await FetchMihomoAlphaAsync(core);
-                if (alpha != null)
-                    cached = cached.Where(choice => !choice.Version.StartsWith("alpha-", StringComparison.Ordinal))
-                        .Append(alpha).ToList();
-            }
-            return new[] { latest }.Concat(cached).DistinctBy(choice => choice.Version).ToList();
+            var existing = Versions.GetValueOrDefault(core) ?? [];
+            return (MergeChoices([latest, .. existing]), null);
         }
 
+        var apiUrl = $"https://api.github.com/repos/{core.Repo}/releases?per_page=20";
+        var apiResult = await FetchApiCachedAsync(apiUrl);
+        if (apiResult.Body != null && apiResult.RateLimitError == null)
+        {
+            var releases = (JsonSerializer.Deserialize<List<Release>>(apiResult.Body) ?? [])
+                .Where(r => !r.draft && (Global.Settings.CheckBetaUpdate || !r.prerelease))
+                .ToList();
+            var choices = SelectCoreChoices(core, releases);
+            if (!choices.Any(choice => !choice.Prerelease))
+                choices.Insert(0, await FetchLatestCoreAsync(core));
+            var now = DateTimeOffset.UtcNow;
+            lock (CacheLock)
+            {
+                _cache.CoreHistory[core.Name] = new CachedCoreHistory
+                {
+                    IncludePrerelease = Global.Settings.CheckBetaUpdate,
+                    FetchedAtUtc = now,
+                    Entries = choices.Select(c => ToCachedEntry(c, now)).ToList()
+                };
+            }
+            return (choices, null);
+        }
+
+        var fallbackLatest = await FetchLatestCoreAsync(core);
+        var cached = Versions.GetValueOrDefault(core) ?? [];
+        if (apiResult.Body != null)
+        {
+            var cachedReleases = (JsonSerializer.Deserialize<List<Release>>(apiResult.Body) ?? [])
+                .Where(r => !r.draft && (Global.Settings.CheckBetaUpdate || !r.prerelease))
+                .ToList();
+            cached = SelectCoreChoices(core, cachedReleases);
+        }
+        if (core.Name == "Mihomo" && Global.Settings.CheckBetaUpdate)
+        {
+            var alpha = await FetchMihomoAlphaAsync(core);
+            if (alpha != null)
+                cached = cached.Where(choice => !choice.Version.StartsWith("alpha-", StringComparison.Ordinal))
+                    .Append(alpha).ToList();
+        }
+        return (MergeChoices([fallbackLatest, .. cached]), apiResult.RateLimitError);
+    }
+
+    public static async Task<List<UpdateChoice>> LoadCoreHistoryAsync(CorePackage core)
+    {
+        EnsureCacheLoaded();
+        var existing = (Versions.GetValueOrDefault(core) ?? [])
+            .Where(c => !c.Prerelease || Global.Settings.CheckBetaUpdate)
+            .ToArray();
+        if (core.Repo.Length == 0)
+        {
+            if (Versions.TryGetValue(core, out var existingWinTun) && existingWinTun.Count > 0)
+                return existingWinTun;
+
+            var fetched = (await FetchCoreAsync(core)).Choices;
+            Versions[core] = fetched;
+            Changed?.Invoke();
+            return fetched;
+        }
+
+        CachedCoreHistory? cachedHistory;
+        lock (CacheLock)
+            _cache.CoreHistory.TryGetValue(core.Name, out cachedHistory);
+
+        if (cachedHistory != null &&
+            cachedHistory.IncludePrerelease == Global.Settings.CheckBetaUpdate &&
+            DateTimeOffset.UtcNow - cachedHistory.FetchedAtUtc < TimeSpan.FromHours(1))
+        {
+            var fresh = MergeChoices(existing.Concat(cachedHistory.Entries.Select(FromCachedEntry)));
+            Versions[core] = fresh;
+            return fresh;
+        }
+
+        if (IsApiRateLimited)
+        {
+            if (cachedHistory != null && cachedHistory.Entries.Count > 0)
+            {
+                var merged = MergeChoices(existing.Concat(
+                    cachedHistory.Entries.Select(FromCachedEntry)
+                        .Where(c => !c.Prerelease || Global.Settings.CheckBetaUpdate)));
+                Versions[core] = merged;
+                return merged;
+            }
+
+            if (existing.Length > 1)
+                return existing.ToList();
+
+            throw new InvalidOperationException(FormatRateLimitError() ?? "GitHub API rate limit reached.");
+        }
+
+        var apiUrl = $"https://api.github.com/repos/{core.Repo}/releases?per_page=20";
+        var apiResult = await FetchApiCachedAsync(apiUrl);
+        if (apiResult.Body == null)
+            throw new InvalidOperationException(apiResult.RateLimitError ?? Helpers.Ui.T("Could not load version history.", "无法加载历史版本。"));
+
+        var releases = (JsonSerializer.Deserialize<List<Release>>(apiResult.Body) ?? [])
+            .Where(r => !r.draft && (Global.Settings.CheckBetaUpdate || !r.prerelease))
+            .ToList();
         var choices = SelectCoreChoices(core, releases);
         if (!choices.Any(choice => !choice.Prerelease))
-            choices.Insert(0, await FetchLatestCoreAsync(core));
+        {
+            try { choices.Insert(0, await FetchLatestCoreAsync(core)); }
+            catch (Exception ex) { Log.Debug(ex, "Fallback latest release lookup for {Core} failed", core.Name); }
+        }
+        choices = MergeChoices(existing.Concat(choices));
+
+        var now = DateTimeOffset.UtcNow;
+        lock (CacheLock)
+        {
+            _cache.CoreHistory[core.Name] = new CachedCoreHistory
+            {
+                IncludePrerelease = Global.Settings.CheckBetaUpdate,
+                FetchedAtUtc = now,
+                Entries = choices.Select(c => ToCachedEntry(c, now)).ToList()
+            };
+        }
+        SaveCache();
+        Versions[core] = choices;
+        Changed?.Invoke();
         return choices;
     }
 
@@ -335,10 +720,10 @@ internal static partial class Downloads
         using var page = await client.GetAsync(Request(prefix + "/latest"), HttpCompletionOption.ResponseHeadersRead);
         page.EnsureSuccessStatusCode();
         var release = page.RequestMessage?.RequestUri;
-        var tag = release?.Segments.LastOrDefault();
-        if (release == null || tag == null
-            || !release.AbsolutePath.EndsWith($"/{core.Repo}/releases/tag/{tag}", StringComparison.OrdinalIgnoreCase)
-            || !Version.TryParse(tag.TrimStart('v', 'V'), out _))
+        var tag = release?.Segments.LastOrDefault()?.Trim('/');
+        if (release == null || string.IsNullOrWhiteSpace(tag)
+            || !release.AbsolutePath.TrimEnd('/').EndsWith($"/{core.Repo}/releases/tag/{tag}", StringComparison.OrdinalIgnoreCase)
+            || (!SuffixVersion.TryParse(tag.TrimStart('v', 'V'), out _) && !Version.TryParse(tag.TrimStart('v', 'V'), out _)))
             throw new InvalidDataException("GitHub did not resolve the latest release tag.");
 
         var version = tag.TrimStart('v', 'V');
@@ -371,20 +756,89 @@ internal static partial class Downloads
 
     private static async Task VerifyAssetAsync(HttpClient client, string url)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Head, Request(url));
-        using var asset = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-        asset.EnsureSuccessStatusCode();
+        if (!await TryVerifyAssetAsync(client, url))
+            throw new HttpRequestException($"Release asset not accessible: {url}", null, HttpStatusCode.NotFound);
     }
 
-    private static async Task<List<Release>> ReleasesAsync(string repo)
+    private static async Task<bool> TryVerifyAssetAsync(HttpClient client, string url)
     {
-        using var client = CreateClient();
-        var json = await client.GetStringAsync(Request($"https://api.github.com/repos/{repo}/releases?per_page=20"));
-        return (JsonSerializer.Deserialize<List<Release>>(json) ?? [])
-            .Where(r => !r.draft && (Global.Settings.CheckBetaUpdate || !r.prerelease)).ToList();
+        var target = Request(url);
+        using var request = new HttpRequestMessage(HttpMethod.Head, target);
+        using var asset = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+        if (asset.IsSuccessStatusCode)
+            return true;
+
+        if (asset.StatusCode == HttpStatusCode.MethodNotAllowed)
+        {
+            using var getReq = new HttpRequestMessage(HttpMethod.Get, target);
+            getReq.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(0, 0);
+            using var getResp = await client.SendAsync(getReq, HttpCompletionOption.ResponseHeadersRead);
+            return getResp.IsSuccessStatusCode;
+        }
+
+        return false;
     }
 
-    private static HttpClient CreateClient()
+    private static async Task<ApiFetchResult> FetchApiCachedAsync(string url)
+    {
+        CachedApiResponse? cached;
+        lock (CacheLock)
+            _cache.ApiResponses.TryGetValue(url, out cached);
+
+        if (IsApiRateLimited)
+            return new ApiFetchResult(cached?.Body, FromCache: cached != null, NotModified: false, FormatRateLimitError());
+
+        using var client = CreateClient(isGitHubApi: true);
+        using var request = new HttpRequestMessage(HttpMethod.Get, Request(url));
+        if (cached != null && !string.IsNullOrWhiteSpace(cached.ETag))
+            request.Headers.TryAddWithoutValidation("If-None-Match", cached.ETag);
+
+        using var response = await client.SendAsync(request, HttpCompletionOption.ResponseContentRead);
+        var nowUtc = DateTimeOffset.UtcNow;
+        if (GitHubRateLimitPolicy.TryParseRateLimitReset(response.StatusCode, response.Headers, nowUtc, out var resetUtc))
+        {
+            lock (CacheLock)
+            {
+                _cache.RateLimitResetUtc = resetUtc;
+                RateLimitResetUtc = resetUtc;
+            }
+            SaveCache();
+        }
+
+        if (response.StatusCode == HttpStatusCode.NotModified && cached != null)
+        {
+            lock (CacheLock)
+                cached.FetchedAtUtc = nowUtc;
+            SaveCache();
+            return new ApiFetchResult(cached.Body, FromCache: true, NotModified: true, null);
+        }
+
+        if (response.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests)
+        {
+            var err = FormatRateLimitError() ?? $"GitHub API rate limit reached (HTTP {(int)response.StatusCode}).";
+            return new ApiFetchResult(cached?.Body, FromCache: cached != null, NotModified: false, err);
+        }
+
+        response.EnsureSuccessStatusCode();
+        var body = await response.Content.ReadAsStringAsync();
+        var etag = response.Headers.ETag?.ToString();
+        if (string.IsNullOrWhiteSpace(etag) && response.Headers.TryGetValues("ETag", out var etags))
+            etag = etags.FirstOrDefault();
+
+        lock (CacheLock)
+        {
+            _cache.ApiResponses[url] = new CachedApiResponse
+            {
+                ETag = etag,
+                Body = body,
+                FetchedAtUtc = nowUtc
+            };
+        }
+        SaveCache();
+        return new ApiFetchResult(body, FromCache: false, NotModified: false, null);
+    }
+
+    private static HttpClient CreateClient(bool isGitHubApi = false)
     {
         string? proxy = null;
         if (Global.Settings.DownloadChannel == DownloadChannel.Proxy)
@@ -394,7 +848,14 @@ internal static partial class Downloads
                 throw new InvalidOperationException(Helpers.Ui.T("Connect a scene to use the current proxy.", "请先连接场景，再通过当前代理下载。"));
             proxy = WebUtil.BuildSocks5ProxyUri(server);
         }
-        return WebUtil.CreateHttpClient(proxyServer: proxy);
+        var client = WebUtil.CreateHttpClient(proxyServer: proxy);
+        if (isGitHubApi)
+        {
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+            client.DefaultRequestHeaders.TryAddWithoutValidation("X-GitHub-Api-Version", "2022-11-28");
+        }
+        return client;
     }
 
     private static string Request(string url)
@@ -409,52 +870,77 @@ internal static partial class Downloads
         string.Join('/', Global.Settings.ModeRepository.Split('/').Concat([Global.Settings.ModeBranch])
             .Concat(Global.Settings.ModeRepositoryPath.Split('/')).Concat(path.Replace('\\', '/').Split('/')).Select(Uri.EscapeDataString));
 
-    private static async Task CheckRulesAsync()
+    private static string RulesTreeApiUrl()
+    {
+        var branch = Uri.EscapeDataString(Global.Settings.ModeBranch);
+        return $"https://api.github.com/repos/{Global.Settings.ModeRepository}/git/trees/{branch}?recursive=1";
+    }
+
+    private static async Task<bool> CheckRulesAsync()
     {
         try
         {
-            using var client = CreateClient();
-            var branch = Uri.EscapeDataString(Global.Settings.ModeBranch);
-            var url = $"https://api.github.com/repos/{Global.Settings.ModeRepository}/git/trees/{branch}?recursive=1";
-            using var response = JsonDocument.Parse(await client.GetStringAsync(Request(url)));
-            if (response.RootElement.GetProperty("truncated").GetBoolean())
-                throw new InvalidDataException("The GitHub tree response is incomplete.");
-            var prefix = Global.Settings.ModeRepositoryPath.Trim('/') + "/";
-            var tree = response.RootElement.GetProperty("tree");
-            var files = tree.EnumerateArray()
-                .Where(item => item.GetProperty("type").GetString() == "blob")
-                .Select(item => (Path: item.GetProperty("path").GetString()!, Sha: item.GetProperty("sha").GetString()!))
-                .Where(item => item.Path.StartsWith(prefix, StringComparison.Ordinal))
-                .Select(item => (Path: item.Path[prefix.Length..].Replace('/', Path.DirectorySeparatorChar), item.Sha))
-                .Where(item => Path.GetExtension(item.Path).ToLowerInvariant() is ".txt" or ".json" && !Path.IsPathRooted(item.Path)
-                    && item.Path.Split(Path.DirectorySeparatorChar).All(part => part is not ("." or "..") && part.IndexOfAny(Path.GetInvalidFileNameChars()) < 0))
-                .ToArray();
-            if (files.Length == 0)
-                throw new InvalidDataException("No mode files were found in the configured source.");
-            RemoteTree = response.RootElement.GetProperty("sha").GetString() ?? "";
-            RemoteRuleCount = files.Length;
-            var next = new List<RuleChange>();
-            if (_manifest.Source != SourceKey)
-                _manifest = new RuleManifest { Source = SourceKey };
-            foreach (var (path, sha) in files)
+            var apiResult = await FetchApiCachedAsync(RulesTreeApiUrl());
+            if (apiResult.Body != null)
             {
-                var (raw, normalized) = LocalBlobs(path);
-                if (raw == sha || normalized == sha)
+                ApplyRulesTreeJson(apiResult.Body);
+                lock (CacheLock)
                 {
-                    _manifest.Blobs[path] = sha;
-                    continue;
+                    _cache.RulesSourceKey = SourceKey;
+                    _cache.RulesTreeSha = RemoteTree;
+                    _cache.RemoteRuleCount = RemoteRuleCount;
                 }
-
-                _manifest.Blobs.TryGetValue(path, out var baseline);
-                var local = baseline != null && baseline == normalized ? normalized : raw;
-                var kind = Classify(local, sha, baseline);
-                if (kind.HasValue)
-                    next.Add(new RuleChange(path, sha, raw, kind.Value));
             }
-            Rules = next;
-            WriteJson(BaseRulesPath, _manifest);
+            if (apiResult.RateLimitError != null)
+                Errors["Rules"] = apiResult.RateLimitError;
+            return apiResult.Body != null;
         }
-        catch (Exception e) { Errors["Rules"] = e.Message; }
+        catch (Exception e)
+        {
+            Errors["Rules"] = e.Message;
+            return false;
+        }
+    }
+
+    private static void ApplyRulesTreeJson(string json)
+    {
+        using var response = JsonDocument.Parse(json);
+        if (response.RootElement.GetProperty("truncated").GetBoolean())
+            throw new InvalidDataException("The GitHub tree response is incomplete.");
+        var prefix = Global.Settings.ModeRepositoryPath.Trim('/') + "/";
+        var tree = response.RootElement.GetProperty("tree");
+        var files = tree.EnumerateArray()
+            .Where(item => item.GetProperty("type").GetString() == "blob")
+            .Select(item => (Path: item.GetProperty("path").GetString()!, Sha: item.GetProperty("sha").GetString()!))
+            .Where(item => item.Path.StartsWith(prefix, StringComparison.Ordinal))
+            .Select(item => (Path: item.Path[prefix.Length..].Replace('/', Path.DirectorySeparatorChar), item.Sha))
+            .Where(item => Path.GetExtension(item.Path).ToLowerInvariant() is ".txt" or ".json" && !Path.IsPathRooted(item.Path)
+                && item.Path.Split(Path.DirectorySeparatorChar).All(part => part is not ("." or "..") && part.IndexOfAny(Path.GetInvalidFileNameChars()) < 0))
+            .ToArray();
+        if (files.Length == 0)
+            throw new InvalidDataException("No mode files were found in the configured source.");
+        RemoteTree = response.RootElement.GetProperty("sha").GetString() ?? "";
+        RemoteRuleCount = files.Length;
+        var next = new List<RuleChange>();
+        if (_manifest.Source != SourceKey)
+            _manifest = new RuleManifest { Source = SourceKey };
+        foreach (var (path, sha) in files)
+        {
+            var (raw, normalized) = LocalBlobs(path);
+            if (raw == sha || normalized == sha)
+            {
+                _manifest.Blobs[path] = sha;
+                continue;
+            }
+
+            _manifest.Blobs.TryGetValue(path, out var baseline);
+            var local = baseline != null && baseline == normalized ? normalized : raw;
+            var kind = Classify(local, sha, baseline);
+            if (kind.HasValue)
+                next.Add(new RuleChange(path, sha, raw, kind.Value));
+        }
+        Rules = next;
+        WriteJson(BaseRulesPath, _manifest);
     }
 
     internal static RuleChangeKind? Classify(string? local, string remote, string? baseline)
@@ -506,9 +992,17 @@ internal static partial class Downloads
 
     public static void SourceChanged()
     {
+        EnsureCacheLoaded();
         Rules = [];
         RemoteRuleCount = 0;
         RemoteTree = "";
+        lock (CacheLock)
+        {
+            _cache.RulesSourceKey = null;
+            _cache.RulesTreeSha = null;
+            _cache.RemoteRuleCount = 0;
+        }
+        SaveCache();
         Changed?.Invoke();
     }
 
@@ -743,7 +1237,7 @@ internal static partial class Downloads
             _pacManifest.SynchronizedAt = DateTimeOffset.UtcNow;
             Directory.CreateDirectory(Path.GetDirectoryName(PacManifestPath)!);
             WriteJson(PacManifestPath, _pacManifest);
-            Errors.Remove("PAC");
+            Errors.TryRemove("PAC", out _);
 
             ReportProgress(transfer, new TransferProgress(100, 0));
             var versionLabel = !string.IsNullOrWhiteSpace(customUrl) ? "custom" : usedTag ?? PacRuleService.Branch;

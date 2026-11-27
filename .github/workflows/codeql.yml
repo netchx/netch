@@ -29,20 +29,9 @@ jobs:
             build-mode: none
           - language: csharp
             build-mode: none
-          - language: go
-            build-mode: autobuild
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
-
-      - name: Setup Go
-        if: matrix.language == 'go'
-        uses: actions/setup-go@v7.1.0
-        with:
-          go-version: stable
-          cache-dependency-path: |
-            Other/aiodns/go.mod
-            Other/aiodns/go.sum
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4.39.5

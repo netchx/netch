@@ -338,9 +338,20 @@ internal static class Ui
 
     private static bool _dialogOpen;
 
+    internal static bool TryAcquireDialogSlot()
+    {
+        if (_dialogOpen)
+            return false;
+
+        _dialogOpen = true;
+        return true;
+    }
+
+    internal static void ReleaseDialogSlot() => _dialogOpen = false;
+
     public static async Task<bool> ShowAsync(XamlRoot? root, string title, UIElement body, string? confirm = null, Func<string?>? apply = null, double? contentMaxWidth = null, string? cancel = null)
     {
-        if (root is null || _dialogOpen)
+        if (root is null || !TryAcquireDialogSlot())
             return false;
 
         if (body is TextBlock text)
@@ -378,14 +389,13 @@ internal static class Ui
                 error.Message = message ?? "";
                 error.IsOpen = e.Cancel;
             };
-        _dialogOpen = true;
         try
         {
             return await dialog.ShowAsync() == ContentDialogResult.Primary;
         }
         finally
         {
-            _dialogOpen = false;
+            ReleaseDialogSlot();
         }
     }
 

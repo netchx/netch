@@ -62,6 +62,33 @@ public sealed partial class MainWindow : Window
 
         NavView.SelectedItem = NavView.MenuItems[0];
         Services.Downloads.Changed += UpdateDownloadBadge;
+        Services.Session.Current.DependencyCheckFailed += OnDependencyCheckFailed;
+        Closed += (_, _) =>
+        {
+            Services.Downloads.Changed -= UpdateDownloadBadge;
+            Services.Session.Current.DependencyCheckFailed -= OnDependencyCheckFailed;
+        };
+    }
+
+    private async void OnDependencyCheckFailed(Models.Scene scene, string scopeTitle, IReadOnlyList<Models.DependencyIssue> issues)
+    {
+        try
+        {
+            BringToFront();
+            if (RootGrid.XamlRoot is not { } root)
+            {
+                Services.Session.Current.ErrorMessage = new Models.DependencyException(scopeTitle, issues).Message;
+                return;
+            }
+
+            if (!await Dialogs.DependencyDialog.ShowAsync(root, scene, scopeTitle, issues, () => Services.Session.Current.StartAsync(scene)))
+                Services.Session.Current.ErrorMessage = new Models.DependencyException(scopeTitle, issues).Message;
+        }
+        catch (Exception e)
+        {
+            Log.Warning(e, "Failed to show dependency dialog");
+            Services.Session.Current.ErrorMessage = new Models.DependencyException(scopeTitle, issues).Message;
+        }
     }
 
     private void UpdateDownloadBadge()

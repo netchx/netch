@@ -20,6 +20,7 @@ namespace Netch.App.Pages;
 public sealed partial class SettingsPage : Page
 {
     private static readonly object OptionalDividerTag = new();
+    private static readonly object AddCustomSentinel = new();
 
     private enum SettingsCategory
     {
@@ -139,7 +140,9 @@ public sealed partial class SettingsPage : Page
 
         var lan = SettingToggle(settings.LocalAddress, b => b ? "0.0.0.0" : "127.0.0.1", address => settings.LocalAddress = address);
 
-        var probeSummary = SummaryText($"{ProbeModeLabel(settings.DelayTestMode)} · {settings.DelayTestTimeout} ms");
+        static string ProbeSummary(Setting setting) =>
+            $"{ProbeModeLabel(setting.DelayTestMode)} · {setting.DelayTestTimeout} ms · {EndpointPresetHelper.FormatStunEndpoint(setting.STUN_Server, setting.STUN_Server_Port)}";
+        var probeSummary = SummaryText(ProbeSummary(settings));
         var webProxySummary = SummaryText(TF("Port {0}", "端口 {0}", settings.WebProxy.PacPort));
         var dnsSummary = SummaryText(settings.OutboundDNS, mono: true);
 
@@ -151,7 +154,7 @@ public sealed partial class SettingsPage : Page
                 ActionSettingRow(Icons.Probe, T("Latency test · STUN", "测速方式 · STUN"), probeSummary, async () =>
                 {
                     await EditProbeAsync();
-                    probeSummary.Text = $"{ProbeModeLabel(settings.DelayTestMode)} · {settings.DelayTestTimeout} ms";
+                    probeSummary.Text = ProbeSummary(settings);
                 }),
                 ActionSettingRow(Icons.Globe, T("Web proxy · PAC", "网页代理 · PAC"), webProxySummary, async () =>
                 {
@@ -822,13 +825,34 @@ public sealed partial class SettingsPage : Page
 
         channel.SelectionChanged += (_, _) => SelectChannelAsync().Forget();
 
+        var intervals = Constants.AutoCheckUpdateIntervals;
+        var intervalLabels = new[]
+        {
+            T("Off", "关闭"),
+            T("Every 6 hours", "每 6 小时"),
+            T("Every 12 hours", "每 12 小时"),
+            T("Daily", "每天"),
+            T("Weekly", "每周")
+        };
+        var currentIntervalIndex = Math.Max(0, intervals.ToList().IndexOf(settings.AutoCheckUpdateIntervalHours));
+        var autoUpdate = Choice(T("Automatic update checks", "自动检查更新"), intervalLabels, currentIntervalIndex);
+        BindSelection(
+            autoUpdate,
+            index => intervals[index],
+            () => settings.AutoCheckUpdateIntervalHours,
+            hours =>
+            {
+                settings.AutoCheckUpdateIntervalHours = hours;
+                settings.CheckUpdateWhenOpened = hours > 0;
+            });
+
         return Stack(
             Group(T("Download channel", "下载通道"),
                 SettingRow(Icons.Download, T("Download channel", "下载通道"), channel),
                 mirrorRow),
             Group(T("Automatic checks", "自动检查"),
-                SettingRow(Icons.Refresh, T("Check for updates at launch", "启动时检查更新"),
-                    SettingToggle(settings.CheckUpdateWhenOpened, v => settings.CheckUpdateWhenOpened = v),
+                SettingRow(Icons.Refresh, T("Automatic update checks", "自动检查更新"),
+                    autoUpdate,
                     T("App, cores and mode rules", "程序、核心和模式规则")),
                 SettingRow(Icons.Cloud, T("Update subscriptions at launch", "打开时自动更新订阅"),
                     SettingToggle(settings.UpdateServersWhenOpened, v => settings.UpdateServersWhenOpened = v)),
@@ -1148,9 +1172,262 @@ public sealed partial class SettingsPage : Page
         _ => T("Smart hybrid", "智能混合")
     };
 
+    private (UIElement Control, Func<string> GetValue, Func<List<string>> GetCustomItems, Func<string?> CommitPendingInput) CustomizableChoice(
+        string label,
+        IReadOnlyList<string> presets,
+        IEnumerable<string> customItems,
+        string? initialValue,
+        string placeholder,
+        Func<string, (bool Valid, string Normalized, string? Error)> validate)
+    {
+        var workingCustom = customItems.ToList();
+        var initialTrimmed = (initialValue ?? string.Empty).Trim();
+        if (initialTrimmed.Length > 0 &&
+            !presets.Any(p => string.Equals(p.Trim(), initialTrimmed, StringComparison.OrdinalIgnoreCase)))
+        {
+            var (valid, normalized, _) = validate(initialTrimmed);
+            if (valid && normalized.Length > 0)
+            {
+                initialTrimmed = normalized;
+                EndpointPresetHelper.RecordCustomValue(workingCustom, presets, normalized);
+            }
+        }
+
+        var box = new ComboBox
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            FontFamily = new FontFamily("Consolas")
+        };
+        AutomationProperties.SetName(box, label);
+
+        var deleteBtn = IconButton(Icons.Delete, T("Remove custom entry", "删除自定义项"));
+        deleteBtn.VerticalAlignment = VerticalAlignment.Center;
+        deleteBtn.Margin = new Thickness(6, 0, 0, 0);
+        var selectRow = Split(box, deleteBtn, 0);
+
+        var inlineInput = new TextBox
+        {
+            PlaceholderText = placeholder,
+            FontFamily = new FontFamily("Consolas"),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        AutomationProperties.SetName(inlineInput, T("Add custom…", "添加自定义…"));
+
+        var inlineError = new TextBlock
+        {
+            FontSize = 12,
+            Style = Resource<Style>("NetchErrorText"),
+            TextWrapping = TextWrapping.Wrap,
+            Visibility = Visibility.Collapsed
+        };
+
+        var selectedValue = string.Empty;
+        var syncing = false;
+
+        ComboBoxItem? FindItem(string value) =>
+            box.Items.OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Tag is string tag && string.Equals(tag, value, StringComparison.OrdinalIgnoreCase));
+
+        void RefreshDeleteButton()
+        {
+            deleteBtn.Visibility = EndpointPresetHelper.IsCustomValue(workingCustom, presets, selectedValue)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+
+        void RebuildItems(string? targetSelection)
+        {
+            var options = EndpointPresetHelper.BuildOptions(presets, workingCustom, targetSelection);
+            var target = options.FirstOrDefault(o => string.Equals(o, targetSelection?.Trim(), StringComparison.OrdinalIgnoreCase))
+                ?? options.FirstOrDefault()
+                ?? string.Empty;
+
+            syncing = true;
+            try
+            {
+                // Detach selected visual content before clearing items so WinUI never hits stale parent errors.
+                box.SelectedIndex = -1;
+                box.Items.Clear();
+
+                foreach (var option in options)
+                {
+                    if (EndpointPresetHelper.IsCustomValue(workingCustom, presets, option))
+                    {
+                        var textBlock = Text(option);
+                        textBlock.FontFamily = new FontFamily("Consolas");
+                        box.Items.Add(new ComboBoxItem
+                        {
+                            Tag = option,
+                            Content = Split(textBlock, Pill(T("Custom", "自定义")), 8),
+                            HorizontalContentAlignment = HorizontalAlignment.Stretch
+                        });
+                    }
+                    else
+                    {
+                        box.Items.Add(new ComboBoxItem
+                        {
+                            Tag = option,
+                            Content = option,
+                            FontFamily = new FontFamily("Consolas")
+                        });
+                    }
+                }
+
+                box.Items.Add(new ComboBoxItem
+                {
+                    Tag = AddCustomSentinel,
+                    Content = IconContent(Icons.Add, T("Add custom…", "添加自定义…"), iconSize: 12, spacing: 6),
+                    Foreground = Resource<Brush>("AccentTextFillColorPrimaryBrush"),
+                    FontFamily = FontFamily.XamlAutoFontFamily,
+                    BorderThickness = new Thickness(0, 1, 0, 0),
+                    BorderBrush = Resource<Brush>("CardStrokeColorDefaultBrush"),
+                    Margin = new Thickness(0, 2, 0, 0)
+                });
+
+                var selectedItem = FindItem(target)
+                    ?? box.Items.OfType<ComboBoxItem>().FirstOrDefault(i => i.Tag is string);
+                box.SelectedItem = selectedItem;
+                selectedValue = selectedItem?.Tag as string ?? string.Empty;
+                RefreshDeleteButton();
+            }
+            finally
+            {
+                syncing = false;
+            }
+        }
+
+        var inlineRow = new Grid
+        {
+            ColumnSpacing = 6,
+            Visibility = Visibility.Collapsed
+        };
+
+        void EnterInlineMode()
+        {
+            inlineInput.Text = string.Empty;
+            inlineError.Visibility = Visibility.Collapsed;
+            selectRow.Visibility = Visibility.Collapsed;
+            inlineRow.Visibility = Visibility.Visible;
+            _ = DispatcherQueue.TryEnqueue(() => inlineInput.Focus(FocusState.Programmatic));
+        }
+
+        void CancelInline()
+        {
+            inlineInput.Text = string.Empty;
+            inlineError.Visibility = Visibility.Collapsed;
+            inlineRow.Visibility = Visibility.Collapsed;
+            selectRow.Visibility = Visibility.Visible;
+        }
+
+        string? TryCommitInline()
+        {
+            var (valid, normalized, error) = validate(inlineInput.Text.Trim());
+            if (!valid || string.IsNullOrWhiteSpace(normalized))
+            {
+                var message = error ?? T("Setting could not be changed", "无法更改设置");
+                inlineError.Text = message;
+                inlineError.Visibility = Visibility.Visible;
+                return message;
+            }
+
+            EndpointPresetHelper.RecordCustomValue(workingCustom, presets, normalized);
+            inlineInput.Text = string.Empty;
+            inlineError.Visibility = Visibility.Collapsed;
+            inlineRow.Visibility = Visibility.Collapsed;
+            selectRow.Visibility = Visibility.Visible;
+            RebuildItems(normalized);
+            return null;
+        }
+
+        string? CommitPendingInput()
+        {
+            if (inlineRow.Visibility != Visibility.Visible)
+                return null;
+
+            if (string.IsNullOrWhiteSpace(inlineInput.Text))
+            {
+                CancelInline();
+                return null;
+            }
+
+            return TryCommitInline();
+        }
+
+        var confirmBtn = Button(T("Add", "添加"), () => TryCommitInline(), accent: true);
+        confirmBtn.VerticalAlignment = VerticalAlignment.Center;
+        var cancelBtn = Button(T("Cancel", "取消"), CancelInline);
+        cancelBtn.VerticalAlignment = VerticalAlignment.Center;
+
+        inlineRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        inlineRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        inlineRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        inlineRow.Children.Add(inlineInput);
+        Grid.SetColumn(confirmBtn, 1);
+        Grid.SetColumn(cancelBtn, 2);
+        inlineRow.Children.Add(confirmBtn);
+        inlineRow.Children.Add(cancelBtn);
+
+        inlineInput.TextChanged += (_, _) => inlineError.Visibility = Visibility.Collapsed;
+        inlineInput.KeyDown += (_, e) =>
+        {
+            if (e.Key == VirtualKey.Enter)
+            {
+                e.Handled = true;
+                TryCommitInline();
+            }
+            else if (e.Key == VirtualKey.Escape)
+            {
+                e.Handled = true;
+                CancelInline();
+            }
+        };
+
+        box.SelectionChanged += (_, _) =>
+        {
+            if (syncing)
+                return;
+
+            if (box.SelectedItem is ComboBoxItem { Tag: var tag })
+            {
+                if (ReferenceEquals(tag, AddCustomSentinel))
+                {
+                    syncing = true;
+                    try { box.SelectedItem = FindItem(selectedValue); }
+                    finally { syncing = false; }
+                    EnterInlineMode();
+                }
+                else if (tag is string value)
+                {
+                    selectedValue = value;
+                    RefreshDeleteButton();
+                }
+            }
+        };
+
+        deleteBtn.Click += (_, _) =>
+        {
+            if (!EndpointPresetHelper.RemoveCustomValue(workingCustom, presets, selectedValue))
+                return;
+            RebuildItems(presets.FirstOrDefault());
+        };
+
+        RebuildItems(initialTrimmed);
+
+        var header = new TextBlock { Text = label };
+        var container = new StackPanel
+        {
+            Spacing = 4,
+            Children = { header, selectRow, inlineRow, inlineError }
+        };
+
+        return (container, () => selectedValue, () => workingCustom.ToList(), CommitPendingInput);
+    }
+
     private async Task EditProbeAsync()
     {
         var s = Global.Settings;
+        var stunPresets = Socks5ServerTestUtils.GetStunPresetEndpoints();
         var method = Choice(
             T("Latency test", "测速方式"),
             [
@@ -1162,7 +1439,29 @@ public sealed partial class SettingsPage : Page
             Enum.IsDefined(s.DelayTestMode) ? (int)s.DelayTestMode : 0);
         method.Header = T("Latency test", "测速方式");
         method.HorizontalAlignment = HorizontalAlignment.Stretch;
-        var url = Input(T("Test URL", "测速 URL"), s.DelayTestUrl);
+
+        static (bool Valid, string Normalized, string? Error) ValidateTestUrl(string raw)
+        {
+            if (Uri.TryCreate(raw, UriKind.Absolute, out var parsed) &&
+                (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps))
+                return (true, raw, null);
+            return (false, string.Empty, T("Enter a valid HTTP or HTTPS test URL.", "请输入有效的 HTTP 或 HTTPS 测速 URL。"));
+        }
+
+        static (bool Valid, string Normalized, string? Error) ValidateStun(string raw)
+        {
+            if (EndpointPresetHelper.TryParseStunEndpoint(raw, out var host, out var port))
+                return (true, EndpointPresetHelper.FormatStunEndpoint(host, port), null);
+            return (false, string.Empty, T("Enter a valid STUN server (host or host:port).", "请输入有效的 STUN 服务器（主机或 主机:端口）。"));
+        }
+
+        var urlChoice = CustomizableChoice(
+            T("Test URL", "测速 URL"),
+            Constants.DelayTestUrlPresets,
+            s.CustomDelayTestUrls,
+            s.DelayTestUrl,
+            "https://example.com/generate_204",
+            ValidateTestUrl);
         var timeout = Input(T("Timeout (ms)", "超时时间（毫秒）"), s.DelayTestTimeout.ToString());
         var steady = new CheckBox
         {
@@ -1170,15 +1469,40 @@ public sealed partial class SettingsPage : Page
             IsChecked = s.DelayTestSteadySecondRequest
         };
         var interval = Input(T("Auto test interval (s, 0 = manual only)", "自动测速间隔（秒，0 为仅手动）"), s.DetectionTick.ToString());
-        var stun = Input(T("STUN host", "STUN 主机"), s.STUN_Server);
-        var port = Input(T("STUN port", "STUN 端口"), s.STUN_Server_Port.ToString());
-        if (await ShowAsync(XamlRoot, T("Latency test · STUN", "测速方式 · STUN"),
-            Stack(method, url, timeout, steady, interval, stun, port), T("Save", "保存"), () =>
+        var stunChoice = CustomizableChoice(
+            T("STUN server", "STUN 服务器"),
+            stunPresets,
+            s.CustomStunServers,
+            EndpointPresetHelper.FormatStunEndpoint(s.STUN_Server, s.STUN_Server_Port),
+            "stun.example.com:3478",
+            ValidateStun);
+
+        void SyncMethodVisibility()
         {
-            var rawUrl = url.Text.Trim();
-            if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out var parsedUrl) ||
-                (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
-                return T("Enter a valid HTTP or HTTPS test URL.", "请输入有效的 HTTP 或 HTTPS 测速 URL。");
+            var needsUrl = method.SelectedIndex is 0 or 1;
+            var vis = needsUrl ? Visibility.Visible : Visibility.Collapsed;
+            urlChoice.Control.Visibility = vis;
+            steady.Visibility = vis;
+        }
+        method.SelectionChanged += (_, _) => SyncMethodVisibility();
+        SyncMethodVisibility();
+
+        var editor = Stack(method, urlChoice.Control, timeout, steady, interval, stunChoice.Control);
+        editor.Width = XamlRoot?.Size.Width > 0 ? Math.Min(440, Math.Max(320, XamlRoot.Size.Width - 110)) : 440;
+
+        if (await ShowAsync(XamlRoot, T("Latency test · STUN", "测速方式 · STUN"),
+            editor, T("Save", "保存"), () =>
+        {
+            var needsUrl = method.SelectedIndex is 0 or 1;
+            if (needsUrl)
+            {
+                if (urlChoice.CommitPendingInput() is { } urlErr)
+                    return urlErr;
+                var rawUrl = urlChoice.GetValue();
+                if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out var parsedUrl) ||
+                    (parsedUrl.Scheme != Uri.UriSchemeHttp && parsedUrl.Scheme != Uri.UriSchemeHttps))
+                    return T("Enter a valid HTTP or HTTPS test URL.", "请输入有效的 HTTP 或 HTTPS 测速 URL。");
+            }
             if (!int.TryParse(timeout.Text.Trim(), out var timeoutMs) ||
                 timeoutMs < Constants.MinDelayTestTimeout || timeoutMs > Constants.MaxDelayTestTimeout)
                 return TF("Enter a timeout between {0} and {1} ms.", "请输入 {0} 至 {1} 毫秒之间的超时时间。",
@@ -1186,29 +1510,40 @@ public sealed partial class SettingsPage : Page
             if (!int.TryParse(interval.Text.Trim(), out var tickSeconds) ||
                 (tickSeconds != 0 && (tickSeconds < 10 || tickSeconds > 86400)))
                 return T("Enter 0 for manual testing, or an interval between 10 and 86400 seconds.", "请输入 0（仅手动）或 10 至 86400 秒之间的间隔。");
-            if (Uri.CheckHostName(stun.Text.Trim()) == UriHostNameType.Unknown || !ushort.TryParse(port.Text.Trim(), out var value) || value == 0)
-                return T("Enter a STUN host and a valid port.", "请输入 STUN 主机及有效端口。");
+            if (stunChoice.CommitPendingInput() is { } stunErr)
+                return stunErr;
+            if (!EndpointPresetHelper.TryParseStunEndpoint(stunChoice.GetValue(), out _, out _))
+                return T("Enter a valid STUN server (host or host:port).", "请输入有效的 STUN 服务器（主机或 主机:端口）。");
             return null;
-        }))
+        }, contentMaxWidth: 520))
         {
             var nextMode = (DelayTestMode)Math.Clamp(method.SelectedIndex, 0, 3);
-            var nextUrl = url.Text.Trim();
+            var needsUrl = nextMode is DelayTestMode.Hybrid or DelayTestMode.UrlTest;
+            var nextUrl = needsUrl ? urlChoice.GetValue() : s.DelayTestUrl;
+            var nextCustomUrls = urlChoice.GetCustomItems();
+            if (needsUrl)
+                EndpointPresetHelper.RecordCustomValue(nextCustomUrls, Constants.DelayTestUrlPresets, nextUrl);
+
             var nextTimeout = int.Parse(timeout.Text.Trim());
             var nextSteady = steady.IsChecked == true;
             var nextTick = int.Parse(interval.Text.Trim());
-            var nextStun = stun.Text.Trim();
-            var nextStunPort = (int)ushort.Parse(port.Text.Trim());
+            EndpointPresetHelper.TryParseStunEndpoint(stunChoice.GetValue(), out var nextStun, out var nextStunPort);
+            var formattedStun = EndpointPresetHelper.FormatStunEndpoint(nextStun, nextStunPort);
+            var nextCustomStuns = stunChoice.GetCustomItems();
+            EndpointPresetHelper.RecordCustomValue(nextCustomStuns, stunPresets, formattedStun);
 
             var previous = (
                 s.DelayTestMode,
                 s.ServerTCPing,
                 s.DelayTestUrl,
+                CustomDelayTestUrls: s.CustomDelayTestUrls.ToList(),
                 s.DelayTestTimeout,
                 s.DelayTestSteadySecondRequest,
                 s.DetectionTick,
                 s.DelayTestConfigVersion,
                 s.STUN_Server,
-                s.STUN_Server_Port);
+                s.STUN_Server_Port,
+                CustomStunServers: s.CustomStunServers.ToList());
 
             if (await SaveSettingAsync(
                 () =>
@@ -1216,23 +1551,29 @@ public sealed partial class SettingsPage : Page
                     s.DelayTestMode = nextMode;
                     s.ServerTCPing = nextMode != DelayTestMode.ICMPing;
                     s.DelayTestUrl = nextUrl;
+                    s.CustomDelayTestUrls = nextCustomUrls;
                     s.DelayTestTimeout = nextTimeout;
                     s.DelayTestSteadySecondRequest = nextSteady;
                     s.DetectionTick = nextTick;
                     s.DelayTestConfigVersion = 1;
                     s.STUN_Server = nextStun;
                     s.STUN_Server_Port = nextStunPort;
+                    s.CustomStunServers = nextCustomStuns;
                 },
-                () => (
-                    s.DelayTestMode,
-                    s.ServerTCPing,
-                    s.DelayTestUrl,
-                    s.DelayTestTimeout,
-                    s.DelayTestSteadySecondRequest,
-                    s.DetectionTick,
-                    s.DelayTestConfigVersion,
-                    s.STUN_Server,
-                    s.STUN_Server_Port) = previous))
+                () =>
+                {
+                    s.DelayTestMode = previous.DelayTestMode;
+                    s.ServerTCPing = previous.ServerTCPing;
+                    s.DelayTestUrl = previous.DelayTestUrl;
+                    s.CustomDelayTestUrls = previous.CustomDelayTestUrls;
+                    s.DelayTestTimeout = previous.DelayTestTimeout;
+                    s.DelayTestSteadySecondRequest = previous.DelayTestSteadySecondRequest;
+                    s.DetectionTick = previous.DetectionTick;
+                    s.DelayTestConfigVersion = previous.DelayTestConfigVersion;
+                    s.STUN_Server = previous.STUN_Server;
+                    s.STUN_Server_Port = previous.STUN_Server_Port;
+                    s.CustomStunServers = previous.CustomStunServers;
+                }))
             {
                 DelayTestHelper.UpdateTick(false);
             }
@@ -1268,22 +1609,110 @@ public sealed partial class SettingsPage : Page
     private async Task EditDnsAsync()
     {
         var settings = Global.Settings;
-        var china = Input(T("AioDNS domestic upstream", "AioDNS 国内上游"), settings.AioDNS.ChinaDNS);
-        var other = Input(T("AioDNS international upstream", "AioDNS 国外上游"), settings.AioDNS.OtherDNS);
-        var outbound = Input(T("Outbound DNS", "出站 DNS"), settings.OutboundDNS);
-        if (await ShowAsync(XamlRoot, "DNS", Stack(china, other, outbound), T("Save", "保存"), () =>
+
+        static (bool Valid, string Normalized, string? Error) ValidateDnsEndpoint(string raw)
         {
-            if (china.Text.Trim().Length == 0 || other.Text.Trim().Length == 0 || !IPAddress.TryParse(outbound.Text.Trim(), out _))
-                return T("Enter upstream DNS addresses and an outbound IP.", "请输入上游 DNS 地址和出站 DNS IP。");
+            if (DnsEndpoint.TryParse(raw, out var ep))
+                return (true, ep.Normalized, null);
+            return (false, string.Empty, T(
+                "Enter a valid upstream DNS endpoint (udp://, tcp://, tls://, or https://).",
+                "请输入有效的上游 DNS 地址（支持 udp://、tcp://、tls://、https://）。"));
+        }
+
+        static (bool Valid, string Normalized, string? Error) ValidateOutboundIp(string raw)
+        {
+            if (DnsEndpoint.TryParseStrictIpAddress(raw, out var ip))
+                return (true, ip.ToString(), null);
+            return (false, string.Empty, T("Enter a valid IPv4 or IPv6 address.", "请输入有效的 IPv4 或 IPv6 地址。"));
+        }
+
+        var chinaChoice = CustomizableChoice(
+            T("AioDNS domestic upstream", "AioDNS 国内上游"),
+            Constants.AioDnsChinaPresets,
+            settings.AioDNS.CustomChinaDns,
+            settings.AioDNS.ChinaDNS,
+            "udp:// / tls:// / https://",
+            ValidateDnsEndpoint);
+        var otherChoice = CustomizableChoice(
+            T("AioDNS international upstream", "AioDNS 国外上游"),
+            Constants.AioDnsOtherPresets,
+            settings.AioDNS.CustomOtherDns,
+            settings.AioDNS.OtherDNS,
+            "udp:// / tls:// / https://",
+            ValidateDnsEndpoint);
+        var outboundChoice = CustomizableChoice(
+            T("Outbound DNS", "出站 DNS"),
+            Constants.OutboundDnsPresets,
+            settings.CustomOutboundDns,
+            settings.OutboundDNS,
+            "223.5.5.5",
+            ValidateOutboundIp);
+
+        var editor = Stack(chinaChoice.Control, otherChoice.Control, outboundChoice.Control);
+        editor.Width = XamlRoot?.Size.Width > 0 ? Math.Min(440, Math.Max(320, XamlRoot.Size.Width - 110)) : 440;
+
+        if (await ShowAsync(XamlRoot, "DNS", editor, T("Save", "保存"), () =>
+        {
+            if (chinaChoice.CommitPendingInput() is { } chinaErr)
+                return chinaErr;
+            if (otherChoice.CommitPendingInput() is { } otherErr)
+                return otherErr;
+            if (outboundChoice.CommitPendingInput() is { } outboundErr)
+                return outboundErr;
+            if (!DnsEndpoint.TryParse(chinaChoice.GetValue(), out _) ||
+                !DnsEndpoint.TryParse(otherChoice.GetValue(), out _) ||
+                !DnsEndpoint.TryParseStrictIpAddress(outboundChoice.GetValue(), out _))
+            {
+                return T("Enter valid upstream DNS endpoints (udp://, tcp://, tls://, or https://) and an outbound DNS IP.",
+                    "请输入有效的上游 DNS 地址（支持 udp://、tcp://、tls://、https://）和出站 DNS IP。");
+            }
             return null;
-        }))
+        }, contentMaxWidth: 520))
         {
-            var previous = (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS);
-            var next = (DnsUtils.AppendPort(china.Text.Trim()), DnsUtils.AppendPort(other.Text.Trim()), outbound.Text.Trim());
+            if (!DnsEndpoint.TryParse(chinaChoice.GetValue(), out var chinaEndpoint) ||
+                !DnsEndpoint.TryParse(otherChoice.GetValue(), out var otherEndpoint) ||
+                !DnsEndpoint.TryParseStrictIpAddress(outboundChoice.GetValue(), out var outboundIp))
+                return;
+
+            var nextChina = chinaEndpoint.Normalized;
+            var nextOther = otherEndpoint.Normalized;
+            var nextOutbound = outboundIp.ToString();
+
+            var nextCustomChina = chinaChoice.GetCustomItems();
+            var nextCustomOther = otherChoice.GetCustomItems();
+            var nextCustomOutbound = outboundChoice.GetCustomItems();
+            EndpointPresetHelper.RecordCustomValue(nextCustomChina, Constants.AioDnsChinaPresets, nextChina);
+            EndpointPresetHelper.RecordCustomValue(nextCustomOther, Constants.AioDnsOtherPresets, nextOther);
+            EndpointPresetHelper.RecordCustomValue(nextCustomOutbound, Constants.OutboundDnsPresets, nextOutbound);
+
+            var previous = (
+                China: settings.AioDNS.ChinaDNS,
+                Other: settings.AioDNS.OtherDNS,
+                Outbound: settings.OutboundDNS,
+                CustomChina: settings.AioDNS.CustomChinaDns.ToList(),
+                CustomOther: settings.AioDNS.CustomOtherDns.ToList(),
+                CustomOutbound: settings.CustomOutboundDns.ToList());
+
             if (await SaveSettingAsync(
-                () => (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS) = next,
-                () => (settings.AioDNS.ChinaDNS, settings.AioDNS.OtherDNS, settings.OutboundDNS) = previous) &&
-                !string.Equals(previous.OutboundDNS, settings.OutboundDNS, StringComparison.OrdinalIgnoreCase))
+                () =>
+                {
+                    settings.AioDNS.ChinaDNS = nextChina;
+                    settings.AioDNS.OtherDNS = nextOther;
+                    settings.OutboundDNS = nextOutbound;
+                    settings.AioDNS.CustomChinaDns = nextCustomChina;
+                    settings.AioDNS.CustomOtherDns = nextCustomOther;
+                    settings.CustomOutboundDns = nextCustomOutbound;
+                },
+                () =>
+                {
+                    settings.AioDNS.ChinaDNS = previous.China;
+                    settings.AioDNS.OtherDNS = previous.Other;
+                    settings.OutboundDNS = previous.Outbound;
+                    settings.AioDNS.CustomChinaDns = previous.CustomChina;
+                    settings.AioDNS.CustomOtherDns = previous.CustomOther;
+                    settings.CustomOutboundDns = previous.CustomOutbound;
+                }) &&
+                !string.Equals(previous.Outbound, settings.OutboundDNS, StringComparison.OrdinalIgnoreCase))
             {
                 DnsUtils.ClearCache();
             }

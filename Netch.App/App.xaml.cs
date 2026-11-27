@@ -61,8 +61,7 @@ public partial class App : Application
         _subscriptions.Start();
         UpdateSubscriptionsAsync(Global.Settings.UpdateServersWhenOpened).Forget();
 
-        if (Global.Settings.CheckUpdateWhenOpened)
-            Downloads.CheckAsync().Forget();
+        Downloads.CheckOnStartupAsync().Forget();
     }
 
     private async Task UpdateSubscriptionsAsync(bool all)

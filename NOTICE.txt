@@ -25,7 +25,6 @@ Copyright (c) MetaCubeX and contributors: Mihomo (GPL-3.0)
 https://github.com/MetaCubeX/mihomo/tree/v1.19.34
 Copyright (c) 2018 WireGuard LLC.(@WireGuard): Wintun Network Adapter (GPL-3.0)
 Copyright (c) 2019 xᴊᴀsᴏɴʟʏᴜ(@xjasonlyu): tun2socks (GPL-3.0)
-Copyright (c) 2010 Miek Gieben(@miekg): dns (BSD)
 Copyright (c) 2020 Xie Zhihao(@zhxie): pcap2socks (MIT)
 Copyright (c) MaxMind, Inc.: GeoLite2 Database (GeoLite2 EULA, CC BY-SA 4.0)
 Copyright (c) 2020 Project X Community(@XTLS): Xray-core (MPL-2.0)

@@ -19,6 +19,8 @@ public class TUNController : IModeController
 
     private readonly DNSController _aioDnsController = new();
     private TunMode _mode = new();
+    private SocksServer? _socksServer;
+    private string? _resolvedProxyAddress;
     private readonly List<IPAddress> _serverRemoteAddresses = new();
     private TUNConfig _tunConfig = new();
 
@@ -43,6 +45,7 @@ public class TUNController : IModeController
             throw new InvalidOperationException();
 
         _mode = tunMode;
+        _socksServer = server;
         _tunConfig = tunMode.Network ?? Global.Settings.TUNTAP;
         ValidateConfiguration(_mode, _tunConfig);
 
@@ -71,7 +74,8 @@ public class TUNController : IModeController
         if (!File.Exists(Path.Combine(Global.NetchDir, Constants.WintunDllFile)))
             throw new MessageException($"Missing {Constants.WintunDllFile}.");
 
-        var proxyHost = ProxyUri.Host(await server.AutoResolveHostnameAsync());
+        _resolvedProxyAddress = await server.AutoResolveHostnameAsync();
+        var proxyHost = ProxyUri.Host(_resolvedProxyAddress);
         var username = server.Auth() ? server.Username : null;
         var password = server.Auth() ? server.Password : null;
 
@@ -171,6 +175,8 @@ public class TUNController : IModeController
             }
 
             _ipv6Configured = false;
+            _socksServer = null;
+            _resolvedProxyAddress = null;
             _serverRemoteAddresses.Clear();
             _outbound6 = null;
         }
@@ -238,6 +244,36 @@ public class TUNController : IModeController
         AppEvents.ReportStatus(i18N.Translate("Setup Route Table Rule"));
         var tunNetworkInterface = NetworkInterfaceUtils.Get(_tun.InterfaceIndex);
 
+        DnsEndpoint? chinaEndpoint = null;
+        DnsEndpoint? otherEndpoint = null;
+        IReadOnlyList<IPAddress>? chinaBootstrapIps = null;
+        IReadOnlyList<IPAddress>? otherBootstrapIps = null;
+        SocksServer? otherProxy = null;
+
+        if (!_tunConfig.UseCustomDNS)
+        {
+            chinaEndpoint = DnsEndpoint.TryParse(Global.Settings.AioDNS.ChinaDNS, out var parsedChina)
+                ? parsedChina
+                : throw new MessageException($"Invalid AioDNS domestic upstream: {Global.Settings.AioDNS.ChinaDNS}");
+            otherEndpoint = DnsEndpoint.TryParse(Global.Settings.AioDNS.OtherDNS, out var parsedOther)
+                ? parsedOther
+                : throw new MessageException($"Invalid AioDNS international upstream: {Global.Settings.AioDNS.OtherDNS}");
+
+            // Resolve DNS upstream hostnames before mutating the system route table
+            // so OutboundDNS queries are not caught by 0.0.0.0/0 handle rules.
+            chinaBootstrapIps = await ResolveEndpointIpsAsync(chinaEndpoint, _outbound6.HasValue, "AioDNS domestic");
+
+            if (otherEndpoint.Transport is DnsTransport.Https or DnsTransport.Tls or DnsTransport.Tcp && _socksServer != null)
+            {
+                var resolvedProxyHost = _resolvedProxyAddress ?? _socksServer.Address;
+                otherProxy = _socksServer.Auth()
+                    ? new SocksServer(resolvedProxyHost, (ushort)_socksServer.Port, _socksServer.Username, _socksServer.Password)
+                    : new SocksServer(resolvedProxyHost, (ushort)_socksServer.Port);
+            }
+            else
+                otherBootstrapIps = await ResolveEndpointIpsAsync(otherEndpoint, _ipv6Configured, "AioDNS international");
+        }
+
         foreach (var serverRemoteAddress in _serverRemoteAddresses)
         {
             var template = GetTemplate(_outbound, _outbound6, serverRemoteAddress);
@@ -263,13 +299,20 @@ public class TUNController : IModeController
 
             tunNetworkInterface.SetDns(_tunConfig.DNS);
         }
-        else
+        else if (chinaBootstrapIps != null)
         {
-            EnsureHostRoute(_outbound, _outbound6, Global.Settings.AioDNS.ChinaDNS);
-            EnsureHostRoute(_tun, _ipv6Configured ? _tun6 : null, Global.Settings.AioDNS.OtherDNS);
-            tunNetworkInterface.SetDns("127.0.0.1");
+            foreach (var ip in chinaBootstrapIps)
+                EnsureAddressHostRoute(_outbound, _outbound6, ip);
+
+            if (otherBootstrapIps != null)
+            {
+                foreach (var ip in otherBootstrapIps)
+                    EnsureAddressHostRoute(_tun, _ipv6Configured ? _tun6 : null, ip);
+            }
+
+            await _aioDnsController.StartAsync(chinaBootstrapIps, otherBootstrapIps, otherProxy);
             _dnsInitialized = true;
-            await _aioDnsController.StartAsync();
+            tunNetworkInterface.SetDns("127.0.0.1");
             Log.Information("TUN DNS is routed to local AioDNS at 127.0.0.1:{Port}", Global.Settings.AioDNS.ListenPort);
         }
 
@@ -315,12 +358,32 @@ public class TUNController : IModeController
         }
     }
 
-    private void EnsureHostRoute(NetRoute ipv4Template, NetRoute? ipv6Template, string endpoint)
+    private static async Task<IReadOnlyList<IPAddress>> ResolveEndpointIpsAsync(
+        DnsEndpoint endpoint,
+        bool allowIPv6,
+        string label)
     {
-        var host = Utils.Utils.GetHostFromUri(endpoint);
-        if (!IPAddress.TryParse(host, out var address))
-            throw new MessageException($"DNS endpoint must be an IP address for TUN routing: {endpoint}");
+        if (endpoint.TryGetIpAddress() is { } literalIp)
+        {
+            if (literalIp.AddressFamily == AddressFamily.InterNetworkV6 && !allowIPv6)
+                throw new MessageException($"No IPv6 route template is available for {literalIp}.");
+            return [literalIp];
+        }
 
+        var resolved = await DnsUtils.LookupAllAsync(endpoint.Host, dns: Global.Settings.OutboundDNS, timeout: 3000, useCache: false);
+        var routable = resolved
+            .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork ||
+                         (ip.AddressFamily == AddressFamily.InterNetworkV6 && allowIPv6))
+            .ToArray();
+
+        if (routable.Length == 0)
+            throw new MessageException($"Could not resolve {label} DNS endpoint host: {endpoint.Host}");
+
+        return routable;
+    }
+
+    private void EnsureAddressHostRoute(NetRoute ipv4Template, NetRoute? ipv6Template, IPAddress address)
+    {
         var template = GetTemplate(ipv4Template, ipv6Template, address);
         EnsureTrackedRoute(template.FillTemplate(
             address.ToString(),
@@ -378,8 +441,9 @@ public class TUNController : IModeController
         if (_tunConfig.BypassIPs.Concat(_mode.Bypass).Any(IsIPv6Route))
             return true;
 
-        return IPAddress.TryParse(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), out var dns) &&
-               dns.AddressFamily == AddressFamily.InterNetworkV6;
+        return !_tunConfig.UseCustomDNS &&
+               DnsEndpoint.TryParse(Global.Settings.AioDNS.ChinaDNS, out var china) &&
+               china.TryGetIpAddress() is { AddressFamily: AddressFamily.InterNetworkV6 };
     }
 
     private static bool IsIPv4(string value)

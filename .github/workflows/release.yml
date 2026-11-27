@@ -91,38 +91,15 @@ jobs:
         id: check_other
         uses: andstor/file-existence-action@v3.1.0
         with:
-          files: Other/release/aiodns.bin, Other/release/pcap2socks.exe, Other/release/tun2socks-windows-amd64-v3.exe, Other/release/wintun.dll, Other/release/xray.exe, Other/release/mihomo.exe
+          files: Other/release/pcap2socks.exe, Other/release/tun2socks-windows-amd64-v3.exe, Other/release/wintun.dll, Other/release/xray.exe, Other/release/mihomo.exe
           ignore_case: true
-
-      - name: Setup Go
-        uses: actions/setup-go@v7.1.0
-        if: steps.check_other.outputs.files_exists == 'false'
-        with:
-          go-version: stable
-          cache-dependency-path: |
-            Other/aiodns/go.mod
-            Other/aiodns/go.sum
-
-      - name: Setup C++
-        id: msys2
-        uses: msys2/setup-msys2@v2.34.0
-        if: steps.check_other.outputs.files_exists == 'false'
-        with:
-          msystem: UCRT64
-          update: true
-          install: mingw-w64-ucrt-x86_64-gcc
 
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v3
 
       - name: Build
         shell: pwsh
-        env:
-          MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
         run: |
-          if ($env:MSYS2_LOCATION) {
-            $env:PATH = "$(Join-Path $env:MSYS2_LOCATION 'ucrt64/bin');$env:PATH"
-          }
           $commonArgs = @{
             Configuration = 'Release'
             UseCache = $true

@@ -96,6 +96,7 @@ public static class MainController
                 : string.Join(" + ", effectiveModes.Select(m => $"[{(int)m.Type}]{m.i18NRemark}")));
 
         EnsureUdpCompatibility(server, effectiveModes);
+        EnvironmentChecker.EnsureReady(server, effectiveModes);
 
         if (await DnsUtils.LookupAsync(server.Address) == null)
             throw new MessageException(i18N.Translate("Lookup Server hostname failed"));

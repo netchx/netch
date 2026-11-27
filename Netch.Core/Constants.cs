@@ -11,6 +11,7 @@ public static class Constants
     public const string NFDriver = "bin\\nfdriver.sys";
     public const string STUNServersFile = "bin\\stun.txt";
     public const string DefaultStunServer = "stun.fitauto.ru";
+    public const int DefaultStunPort = 3478;
 
     public const string LogFile = "logging\\application.log";
 
@@ -36,6 +37,62 @@ public static class Constants
     public const int DefaultDelayTestTimeout = 3000;
     public const int MinDelayTestTimeout = 500;
     public const int MaxDelayTestTimeout = 15000;
+    public const int DefaultAutoCheckUpdateIntervalHours = 24;
+
+    public static readonly IReadOnlyList<int> AutoCheckUpdateIntervals = [0, 6, 12, 24, 168];
+
+    public static readonly IReadOnlyList<string> DelayTestUrlPresets =
+    [
+        "http://www.gstatic.com/generate_204",
+        "https://cp.cloudflare.com/generate_204",
+        "https://www.google.com/generate_204",
+        "http://captive.apple.com/hotspot-detect.html",
+        "http://www.msftconnecttest.com/connecttest.txt"
+    ];
+
+    public static readonly IReadOnlyList<string> DefaultStunServers =
+    [
+        "stun.fitauto.ru",
+        "stun.m-online.net",
+        "stun.mixvoip.com",
+        "stun.voipgate.com",
+        "stun.t-online.de",
+        "stun.srce.hr",
+        "stun.aa.net.uk",
+        "stun.miwifi.com"
+    ];
+
+    public static readonly IReadOnlyList<string> AioDnsChinaPresets =
+    [
+        "udp://223.5.5.5:53",
+        "udp://119.29.29.29:53",
+        "https://223.5.5.5/dns-query",
+        "https://dns.alidns.com/dns-query",
+        "https://doh.pub/dns-query",
+        "tls://223.5.5.5:853"
+    ];
+
+    public static readonly IReadOnlyList<string> AioDnsOtherPresets =
+    [
+        "udp://1.1.1.1:53",
+        "udp://8.8.8.8:53",
+        "https://1.1.1.1/dns-query",
+        "https://cloudflare-dns.com/dns-query",
+        "https://8.8.8.8/dns-query",
+        "https://dns.google/dns-query",
+        "https://dns.quad9.net/dns-query",
+        "tls://1.1.1.1:853"
+    ];
+
+    public static readonly IReadOnlyList<string> OutboundDnsPresets =
+    [
+        "223.5.5.5",
+        "119.29.29.29",
+        "114.114.114.114",
+        "1.1.1.1",
+        "8.8.8.8",
+        "9.9.9.9"
+    ];
 
 
 

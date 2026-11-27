@@ -17,88 +17,98 @@
 </p>
 
 > [!IMPORTANT]
-> Netch 需要管理员权限以加载网络驱动并配置系统路由。
+> 需 **Windows 10 1809+ / Windows 11 x64** 与**管理员权限**；请完整解压后运行 `Netch.App.exe`。
 
-## 核心能力
+## 核心特性
 
-- **面向游戏优化的转发链路**：TCP 关闭 Nagle（`TCP_NODELAY`），UDP 散布/聚集转发与大缓冲区抗突发丢包，代理 DNS 复用长连接；加速期间自动提升转发线程与核心进程优先级并关闭 Windows 电源节流（EcoQoS）。
-- **场景化一键加速**：将“加速模式 + 节点”组合为场景卡片，支持全局快捷键切换、托盘置顶、开机自启与启动即连。
-- **内置游戏规则与精细分流**：自带“游戏合集”及数十款热门游戏与平台规则，进程模式支持子进程沿父进程链追溯（覆盖启动器 → 游戏本体 → 反作弊服务）及目标 IPv4 / IPv6 / CIDR 代理与绕过过滤。
-- **实时连接监控与热规则调试**：提供「连接」页面实时查看活跃连接（独立上传 / 下载速率与点击列排序）与连接日志，可选开启 Windows Kernel ETW 观测未匹配 / 直连进程流量，支持在加速期间暂存并热应用进程与目标 IP 规则（含系统关键进程安全防护）。
-- **日常网页与系统代理**：提供 PAC 自动分流、全局系统代理与仅本地端口（HTTP/SOCKS5 混合）三种网页代理策略，内置海外代理列表、精简 GFWList 与绕过中国大陆规则集，支持自定义域名规则/PAC 脚本及异常退出自动恢复系统代理。
-- **多核心自动调度**：按节点协议与传输特性自动分流至 Mihomo、sing-box 或 Xray-core，开箱即用。
-- **联机质量诊断**：内置混合测速（Hybrid / 真连接 / TCPing / ICMPing）、出口国家识别与 RFC 5780 UDP NAT 类型检测。
-- **内建更新与规则同步**：应用内一键检查、更新与回滚核心组件，在线比对并同步游戏模式规则与 PAC 域名规则表，支持直连、代理与 GitHub 镜像通道。
-- **现代桌面体验**：WinUI 3 原生界面与深浅色主题，支持剪贴板 URI、Clash YAML、订阅链接导入与二维码分享，内置 7 种界面语言（简体中文 / 繁體中文 / English / 日本語 / Русский / العربية / فارسی）并支持外置 `i18n/` 自定义词典。
+- **低延迟游戏转发**：面向游戏优化的 TCP/UDP 转发与进程优先级提升；内置百余套游戏规则，支持子进程链回溯与目标 IP/CIDR 过滤。
+- **场景化加速**：将「节点 + 模式」组合为场景卡片，支持多模式组合、托盘菜单、全局快捷键、开机自启与启动即连。
+- **多核心与自定义扩展**：按协议与传输特性自动调度 **Mihomo**（默认）、**sing-box** 或 **Xray-core**，支持 **External CLI** 与按协议自定义核心。
+- **连接监控与网页代理**：进程模式支持实时连接速率、ETW 直连观测与热调规则；网页代理支持 PAC 分流、全局代理与本地混合端口（HTTP/SOCKS5）。
+- **测速诊断与内置维护**：内置 Hybrid / URLTest / TCPing / ICMPing 测速、GeoIP 与 RFC 5780 NAT 检测，支持应用内核心/规则更新回滚与运行依赖自检。
+- **WinUI 3 桌面体验**：深浅色主题，支持剪贴板 URI、Clash YAML、二维码分享与首次向导，内置 7 种语言并支持外置 `i18n/` 词典。
 
 ## 工作模式
 
-| 模式 | 机制 | 适用场景 |
-| --- | --- | --- |
-| **进程模式** | NetFilter 驱动按进程路径与目标 IP/CIDR 拦截 | PC 游戏首选，精准接管游戏与反作弊，支持实时连接监控与热规则 |
-| **TUN 模式** | WinTUN + tun2socks + AioDNS | 难捕获游戏、UWP 与全局/分流路由 |
-| **共享模式** | pcap2socks 抓包（需 Npcap 兼容） | 主机（PS / Xbox / Switch）及局域网 |
-| **网页代理** | 混合端口 + WinINet / PAC 系统代理 | 浏览器与日常网页，免驱动、无 UDP 要求 |
+| 模式 | 机制 | 适用场景 | 额外条件 |
+| --- | --- | --- | --- |
+| **进程模式** | NetFilter 驱动（`nfdriver.sys`）按进程与目标 IP 拦截 | PC 游戏首选，支持实时连接监控与热规则 | 系统 BFE 服务需运行 |
+| **TUN 模式** | WinTUN + tun2socks + 内置 AioDNS（UDP / TCP / DoT / DoH） | 难捕获游戏、UWP 与全局/分流路由 | CPU 需支持 AVX2 (`x86-64-v3`) |
+| **共享模式** | `pcap2socks` 抓包转发 | 主机（PS / Xbox / Switch）及局域网设备 | 需安装 Npcap 与 VC++ x64 |
+| **网页代理** | 本地混合端口 + WinINet / PAC 系统代理 | 浏览器与日常网页，免驱动、无 UDP 要求 | 无 |
+
+> [!TIP]
+> 单场景支持多选**进程模式**并叠加**网页代理**或**共享模式**并发运行；**TUN 模式**可多选合并路由，但与上述三类模式互斥。
 
 ## 支持协议
 
-Netch 当前支持 **19 种** 代理协议，支持剪贴板 URI、Clash YAML 与订阅导入，并按特性自动选择对应核心：
+内置支持 **19 种**代理协议，并支持 **External CLI 外部节点** 与 **按协议自定义核心**：
 
-| 协议 | UDP | 默认核心 | 扩展核心 |
+| 协议 | UDP | 默认核心 | 扩展 / 备注 |
 | --- | :---: | --- | --- |
-| **VLESS** / **VMess** / **Trojan** | ✅ | Mihomo | Xray-core · sing-box |
-| **Shadowsocks** | ✅ UoT | Mihomo | Xray-core · sing-box |
+| **VLESS** / **VMess** / **Trojan** | ✅ | Mihomo | Xray-core（XHTTP）· sing-box |
+| **Shadowsocks** | ✅ UoT | Mihomo | Xray-core（XHTTP）· sing-box |
 | **ShadowsocksR** | ✅ | Mihomo | — |
-| **ShadowTLS** | ⚠️ UoT | Mihomo | sing-box |
+| **ShadowTLS** | ⚠️ UoT | Mihomo | sing-box（v1 / 自定义 PEM） |
 | **Hysteria2** / **TUIC** / **AnyTLS** | ✅ | Mihomo | sing-box |
 | **TrustTunnel** / **Mieru** / **ShadowQUIC** | ✅ | Mihomo | — |
-| **WireGuard** / **AmneziaWG** | ✅ | Mihomo | sing-box（WireGuard） |
-| **NaiveProxy** | ❌ | sing-box | 附带 `libcronet.dll` |
-| **MASQUE** | ✅ | sing-box | 需 `>= 1.15.0-alpha.7` |
+| **WireGuard** / **AmneziaWG** | ✅ | Mihomo | sing-box（WireGuard 多接口地址） |
+| **NaiveProxy** | ❌ | sing-box | 随附 `libcronet.dll` |
+| **MASQUE** | ✅ | sing-box | 需在下载页替换为 `>= 1.15.0-alpha.7` |
 | **SOCKS5** | ✅ UoT | 直连 / Mihomo | sing-box（UoT） |
 | **HTTP / HTTPS** / **SSH** | ❌ | Mihomo | sing-box |
+| **External CLI**（外部命令行节点） | 按核心而定 | 第三方 CLI | 可直出 SOCKS5；网页代理经 Mihomo 桥接 HTTP |
 
 ✅ 原生支持 UDP · ✅ UoT 支持 UDP 及 UoT · ⚠️ UoT 需开启 UoT · ❌ 不支持 UDP
 
 <details>
-<summary>查看多核心自动分流细则</summary>
+<summary>查看多核心自动分流与自定义核心细则</summary>
 
-- **VLESS / VMess / Trojan**：VLESS 标准 XHTTP 由 Mihomo 处理；XHTTP 高级特性（REALITY / HTTP/3 等）及 VMess / Trojan 的 XHTTP 由 Xray-core 处理；QUIC、明文 H2、Trojan H2 / 明文及自定义 PEM 由 sing-box 处理。
-- **Shadowsocks / ShadowsocksR**：Shadowsocks 支持 `obfs-local`、`v2ray-plugin` 与 `ssd://`，XHTTP 由 Xray-core 处理，`v2ray-plugin` QUIC 模式及自定义 PEM 由 sing-box 处理；ShadowsocksR 支持 `ssr://` 与 Clash YAML 导入。
-- **ShadowTLS**：v2/v3（含 UoT）由 Mihomo 处理；v1 或自定义 PEM 证书由 sing-box 处理。
-- **Hysteria2 / TUIC / AnyTLS**：Hysteria2 短跳跃间隔（`<5s`）/ `hop-interval-max` / `bbr-profile` 及三者的自定义 PEM 证书由 sing-box 处理。
-- **TrustTunnel / Mieru / ShadowQUIC**：均由内置 Mihomo 原生处理并支持 UDP（TrustTunnel 支持 `tt://` / `trusttunnel://`、HTTP/2、HTTP/3 QUIC、内联 PEM 与 ECH；Mieru 支持 `mierus://` / `mieru://`、`TCP`/`UDP` 传输与单段 `port-range`；ShadowQUIC 支持 `shadowquic://`、0-RTT 与 BBR/Brutal）。
-- **WireGuard / AmneziaWG / SOCKS5 / MASQUE**：WireGuard 同地址族多接口地址由 sing-box 处理，AmneziaWG（支持 `amneziawg://` / `awg://`、`wg://` 自动识别与 Clash `amnezia-wg-option`）由 Mihomo 处理；SOCKS5 在进程 / TUN / 共享模式支持时直连、网页代理模式经本地混合端口转接、开启 UoT 时由 sing-box 处理；MASQUE 基于 CONNECT-IP，需在下载页替换为支持 `masque-client` 的 sing-box 版本（如 `>= 1.15.0-alpha.7`）。
-- **HTTP / HTTPS / SSH**：HTTP 多值 Header / ALPN / Fingerprint / PEM，以及 SSH 自定义 `client-version` 由 sing-box 处理。
+- **VLESS / VMess / Trojan**：VLESS 标准 XHTTP 由 Mihomo 处理；XHTTP 高级特性（REALITY / HTTP/3 等）及 VMess / Trojan 的 XHTTP 由 Xray-core 处理；QUIC、明文 H2、Trojan H2/明文及自定义 PEM 由 sing-box 处理。
+- **Shadowsocks / ShadowsocksR**：Shadowsocks 支持 `obfs-local`、`v2ray-plugin` 与 `ssd://`，XHTTP 由 Xray-core 处理，`v2ray-plugin` QUIC 模式与自定义 PEM 由 sing-box 处理；ShadowsocksR 支持 `ssr://` 与 Clash YAML 导入。
+- **ShadowTLS / Hysteria2 / TUIC / AnyTLS**：ShadowTLS v2/v3 由 Mihomo 处理，v1 或自定义 PEM 由 sing-box 处理；Hysteria2 短跳跃间隔（`<5s`）/ `hop-interval-max` / `bbr-profile` 及三者的自定义 PEM 由 sing-box 处理。
+- **TrustTunnel / Mieru / ShadowQUIC / AmneziaWG**：均由内置 Mihomo 原生处理并支持 UDP（TrustTunnel 支持 `tt://` / HTTP/2 / HTTP/3 QUIC / ECH；Mieru 支持 `mierus://` / `TCP`/`UDP`；ShadowQUIC 支持 `shadowquic://` / 0-RTT；AmneziaWG 支持 `amneziawg://` / `awg://`）。
+- **WireGuard / SOCKS5 / MASQUE / HTTP / SSH**：WireGuard 同地址族多接口地址、SOCKS5 UoT、HTTP 多值 Header / ALPN / Fingerprint / PEM 与 SSH 自定义 `client-version` 由 sing-box 处理；MASQUE 需自行将 sing-box 更新至 `>= 1.15.0-alpha.7`。
+- **按协议自定义核心**：在「设置 → 自定义核心」中可按协议绑定外部核心及配置模板，按「节点 → 订阅 → 协议默认 → 内置核心」优先级解析。
 
 </details>
 
 > [!NOTE]
-> 游戏加速（进程 / TUN / 共享模式）通常依赖 UDP 转发。`HTTP / HTTPS`、`SSH`、`NaiveProxy` 不支持 UDP，适合用于网页代理模式；`ShadowTLS` 用于游戏加速需开启 UDP over TCP（UoT）。使用需要 UDP 的模式时，请同时确认服务端已开启 UDP 转发。
+> 游戏加速（进程 / TUN / 共享模式）通常依赖 UDP 转发；`HTTP / HTTPS`、`SSH`、`NaiveProxy` 不支持 UDP，`ShadowTLS` 需开启 UoT，同时需确认服务端已开启 UDP 转发。
 
-## 快速开始
+## 安装与环境依赖
 
-1. 前往 [Releases](https://github.com/NetchX/Netch/releases) 下载 Windows x64 单文件便携包并完整解压：
-   - **自带框架版**（`*-winui-x64-self-contained.zip`，推荐多数用户）：已内置 `.NET 10` 与 Windows App SDK 运行时，开箱即用。
-   - **系统框架版**（`*-winui-x64-framework-dependent.zip`，体积更小）：使用系统已安装的 **.NET 10 Desktop Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。
-2. 以管理员身份运行 `Netch.App.exe`。
-3. 在「节点」页导入订阅、Clash YAML 或剪贴板分享链接，并执行测速。
-4. 在「场景」页选择加速模式与节点，点击卡片即可开始加速；进程模式下可在「连接」页实时查看连接并热调整进程 / IP 规则。
+| 发行包 / 场景 | 手动依赖 | 安装与说明 |
+| --- | :---: | --- |
+| **自带框架版** `*-winui-x64-self-contained.zip`（推荐） | **零依赖** | 已内置 `.NET 10` 与 `Windows App SDK 2.7`，除**共享模式**外解压即用。 |
+| **系统框架版** `*-winui-x64-framework-dependent.zip` | **1 项** | 需先安装 **[.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)**（`winget install Microsoft.DotNet.DesktopRuntime.10`，仅装基础 `.NET Runtime` 无法启动）。 |
+| **仅启用共享模式**（主机 / 局域网，两包均同） | **2 项** | 1. **[Npcap](https://npcap.com/)**：安装时**必须勾选 `Install Npcap in WinPcap API-compatible Mode`**。<br />2. **[VC++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)**（`winget install Microsoft.VCRedist.2015+.x64`），用于 `bin/pcap2socks.exe`。 |
+
+<details>
+<summary>常见问题</summary>
+
+- **提示缺少 `bin/` 文件**：通常为安全软件隔离了 `nfdriver.sys`、`Redirector.bin`、`nfapi.dll`、`RouteHelper.bin`、`wintun.dll` 或 `bin/sing_box/libcronet.dll`，将目录加入白名单后重新解压即可。
+- **老电脑或虚拟机 TUN 启动失败**：`bin/tun2socks-windows-amd64-v3.exe` 要求 CPU 支持 **AVX2（`x86-64-v3`）**（虚拟机需开启 AVX2 透传），不支持时请改用进程模式或网页代理。
+- **ARM64 Windows**：可在 x64 仿真下运行主界面与**网页代理模式**，但无法加载 x64 内核驱动（`nfdriver.sys` / `wintun.dll`），进程模式与 TUN 模式不可用。
+
+</details>
+
+### 快速开始
+
+1. 从 [Releases](https://github.com/NetchX/Netch/releases) 下载对应发行包，解压后运行 `Netch.App.exe`。
+2. 通过首次向导或在「节点」页导入订阅、Clash YAML 或剪贴板 URI 并测速。
+3. 在「场景」页选择模式与节点，点击卡片即可开始加速。
 
 ## 从源码构建
 
-需要 Windows 10 1809+ / Windows 11 x64、Visual Studio 2026（含“使用 C++ 的桌面开发”工作负载）、.NET 10 SDK、PowerShell 5.1+（重新构建 AioDNS 另需 Go 1.26+ 与 x64 MinGW GCC）。
+需 Visual Studio 2026（“使用 C++ 的桌面开发”工作负载）与 .NET 10 SDK：
 
 ```powershell
 git clone https://github.com/NetchX/Netch.git
 cd Netch
-# 自带 .NET 10 运行时的单文件便携包（默认）
-.\build.ps1 -Configuration Release -OutputPath release
-# 使用系统 .NET 10 Desktop Runtime (x64) 的单文件便携包
-.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false
+.\build.ps1 -Configuration Release -OutputPath release                                        # 自带 .NET 10 运行时（默认）
+.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false # 系统 .NET 10 Desktop Runtime
 ```
-
-构建完成后，直接运行输出目录中的 `Netch.App.exe`。
 
 ## 致谢
 
@@ -111,7 +121,6 @@ Netch 的实现离不开以下优秀的开源项目、驱动与数据维护者�
 - [Xray-core](https://github.com/XTLS/Xray-core) — XHTTP 等特性代理核心
 - [tun2socks](https://github.com/xjasonlyu/tun2socks) — TUN 模式流量转发引擎
 - [pcap2socks](https://github.com/zhxie/pcap2socks) — 局域网共享模式转发引擎
-- [miekg/dns](https://github.com/miekg/dns) — AioDNS 底层 DNS 解析库
 
 ### 驱动与系统依赖
 
@@ -129,5 +138,4 @@ Netch 的实现离不开以下优秀的开源项目、驱动与数据维护者�
 
 ## 社区与许可证
 
-- Telegram：[频道](https://t.me/netch_channel) · [群组](https://t.me/netch_group)
-- 本项目基于 [GNU General Public License v3.0](LICENSE) 发布，各第三方组件遵循其各自许可证（详见 [NOTICE.txt](NOTICE.txt)）。
+Telegram：[频道](https://t.me/netch_channel) · [群组](https://t.me/netch_group) · 基于 [GNU General Public License v3.0](LICENSE) 发布，各第三方组件遵循各自许可证（详见 [NOTICE.txt](NOTICE.txt)）。

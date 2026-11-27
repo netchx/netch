@@ -43,7 +43,7 @@ public sealed partial class DownloadsPage : Page
     public DownloadsPage()
     {
         InitializeComponent();
-        _check = AsyncButton(T("Check updates", "检查更新"), Downloads.CheckAsync, glyph: Icons.Refresh);
+        _check = AsyncButton(T("Check updates", "检查更新"), () => Downloads.CheckAsync(isAuto: false), glyph: Icons.Refresh);
         _apply = AsyncButton("", ApplyAsync, true, ChangeApply);
         _tabs.Items.Add(DownloadCategory(T("App and cores", "程序与核心"), _coreCount, _coreDetail));
         _tabs.Items.Add(DownloadCategory(T("Mode rules", "模式规则"), _rulesCount, _rulesDetail));
@@ -123,7 +123,7 @@ public sealed partial class DownloadsPage : Page
         Downloads.ProgressChanged += UpdateProgress;
         if (e.Parameter is true) _tabs.SelectedIndex = TabRules;
         else if (e.Parameter is "pac") _tabs.SelectedIndex = TabPac;
-        else if (e.Parameter is "check") _ = Downloads.CheckAsync();
+        else if (e.Parameter is "check") _ = Downloads.CheckAsync(isAuto: false);
         _ = Downloads.PopulateInstalledAsync();
         Refresh();
     }
@@ -151,7 +151,15 @@ public sealed partial class DownloadsPage : Page
             TabPac => Downloads.Errors.Where(error => error.Key == "PAC"),
             _ => []
         };
-        var warning = string.Join(" · ", reasons.Select(item => item.Key + " · " + item.Value));
+        var warningParts = reasons.Select(item => item.Key + " · " + item.Value).ToList();
+        if (Downloads.FormatRateLimitError() is { } rateMsg)
+        {
+            if (_tabs.SelectedIndex == TabRules && !Downloads.Errors.ContainsKey("Rules"))
+                warningParts.Add(rateMsg);
+            else if (_tabs.SelectedIndex == TabCores && Global.Settings.CheckBetaUpdate && warningParts.Count == 0)
+                warningParts.Add(rateMsg);
+        }
+        var warning = string.Join(" · ", warningParts);
         _notice.Severity = InfoBarSeverity.Warning;
         _notice.Message = warning;
         _notice.IsOpen = warning.Length > 0;
@@ -213,8 +221,8 @@ public sealed partial class DownloadsPage : Page
             var update = Downloads.AvailableCore(core);
             var inUse = Downloads.InUse(core);
             var options = new List<(string, Action)>();
-            if (versions?.Count > 0)
-                options.Add((T("Choose version", "指定版本"), () => ChooseVersionAsync(core, versions).Forget()));
+            if (core.Repo.Length > 0 || versions?.Count > 0)
+                options.Add((T("Choose version", "指定版本"), () => ChooseVersionAsync(core).Forget()));
             if (Downloads.HasRollback(core))
                 options.Add((T("Rollback", "回滚"), () => RollbackCoreAsync(core).Forget()));
             options.Add((T("Open release", "打开 Release"), () => Utils.Utils.Open(next?.ReleaseUrl ??
@@ -302,7 +310,7 @@ public sealed partial class DownloadsPage : Page
             MinHeight = 40, Child = TwoColumns(icon, reconnectText, GridLength.Auto)
         };
         var currentVersion = "v" + UpdateChecker.Version;
-        var release = Downloads.AppRelease;
+        var release = Downloads.AppRelease is { } r && (!r.prerelease || Global.Settings.CheckBetaUpdate) ? r : null;
         var appAvailable = release != null && Downloads.AppAsset != null && Downloads.IsNewer(release.tag_name, UpdateChecker.Version);
         UIElement versionLine = appAvailable
             ? new StackPanel
@@ -738,10 +746,34 @@ public sealed partial class DownloadsPage : Page
         }
     }
 
-    private async Task ChooseVersionAsync(CorePackage core, List<UpdateChoice> choices)
+    private async Task ChooseVersionAsync(CorePackage core)
     {
+        List<UpdateChoice> loaded;
+        try
+        {
+            loaded = await Downloads.LoadCoreHistoryAsync(core);
+        }
+        catch (Exception e)
+        {
+            if (_present && XamlRoot is { } root)
+                await ShowAsync(root, core.Name, Text(e.Message));
+            return;
+        }
+
+        var current = Downloads.Installed.GetValueOrDefault(core) ?? "";
+        var choices = loaded.Where(choice => !choice.Prerelease ||
+            Global.Settings.CheckBetaUpdate && !string.Equals(choice.Version, current, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (choices.Count == 0)
+        {
+            if (_present && XamlRoot is { } root)
+                await ShowAsync(root, core.Name, Text(T("No versions available.", "暂无可用版本。")));
+            return;
+        }
+
         var version = Choice(T("Version", "版本"), choices.Select(choice => choice.Version));
-        if (await ShowAsync(XamlRoot, core.Name, version, T("Download", "下载")))
+        if (_present && XamlRoot is { } dialogRoot &&
+            await ShowAsync(dialogRoot, core.Name, version, T("Download", "下载")) &&
+            version.SelectedIndex >= 0)
             await Downloads.InstallAsync(core, choices[version.SelectedIndex]);
     }
 

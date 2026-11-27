@@ -13,6 +13,8 @@ public class Setting
     /// </summary>
     public string OutboundDNS { get; set; } = "223.5.5.5";
 
+    public List<string> CustomOutboundDns { get; set; } = new();
+
     public RedirectorConfig Redirector { get; set; } = new();
 
     /// <summary>
@@ -33,6 +35,11 @@ public class Setting
     ///     是否打开软件时检查更新
     /// </summary>
     public bool CheckUpdateWhenOpened { get; set; } = true;
+
+    /// <summary>
+    ///     自动检查更新间隔（小时）；-1 表示尚未迁移，0 表示关闭
+    /// </summary>
+    public int AutoCheckUpdateIntervalHours { get; set; } = -1;
 
     /// <summary>
     ///     测试所有服务器心跳/秒（0 为仅手动测速）
@@ -119,6 +126,8 @@ public class Setting
     /// </summary>
     public string DelayTestUrl { get; set; } = Constants.DefaultDelayTestUrl;
 
+    public List<string> CustomDelayTestUrls { get; set; } = new();
+
     /// <summary>
     ///     延迟测试单次超时（毫秒）
     /// </summary>
@@ -162,7 +171,9 @@ public class Setting
     /// <summary>
     ///     STUN测试服务器
     /// </summary>
-    public int STUN_Server_Port { get; set; } = 3478;
+    public int STUN_Server_Port { get; set; } = Constants.DefaultStunPort;
+
+    public List<string> CustomStunServers { get; set; } = new();
 
     /// <summary>
     ///     订阅链接列表

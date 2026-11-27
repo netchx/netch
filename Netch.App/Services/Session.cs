@@ -86,6 +86,8 @@ public sealed partial class Session : ObservableObject
 
     public bool IsRunning => State == State.Started;
 
+    public event Action<Scene, string, IReadOnlyList<DependencyIssue>>? DependencyCheckFailed;
+
     /// <summary>Must run on the UI thread before anything else uses the session.</summary>
     public void Attach(DispatcherQueue dispatcher)
     {
@@ -169,6 +171,16 @@ public sealed partial class Session : ObservableObject
         try
         {
             await MainController.StartAsync(server, modes);
+        }
+        catch (DependencyException dep)
+        {
+            Progress = null;
+            State = State.Stopped;
+            if (DependencyCheckFailed is { } handler)
+                handler(scene, dep.ScopeTitle, dep.Issues);
+            else
+                ErrorMessage = dep.Message;
+            return;
         }
         catch (Exception e)
         {

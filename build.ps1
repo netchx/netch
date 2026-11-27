@@ -80,7 +80,6 @@ function Resolve-MSBuild {
 
 function Test-OtherCoresCurrent {
 	$expectedHashes = @{
-		'.\Other\release\aiodns.bin'                      = $null
 		'.\Other\release\pcap2socks.exe'                  = 'de84f4a32c8c9d4888197345d52ba793e4bdf510614852e76f336f627e43def3'
 		'.\Other\release\tun2socks-windows-amd64-v3.exe'  = 'f08d327819f722da3ee3f591cb7e9e36b06640a92b3f63f5073a454be29be35f'
 		'.\Other\release\wintun.dll'                      = 'e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce'
@@ -199,14 +198,9 @@ try {
 			throw "Building proxy cores failed with exit code $LASTEXITCODE"
 		}
 	}
-	elseif (-not $UseCache) {
-		$aiodnsBinary = Get-Item -LiteralPath '.\Other\release\aiodns.bin'
-		$aiodnsSources = Get-ChildItem -Path '.\Other\aiodns\*' -File -Recurse -Include '*.go', 'go.mod', 'go.sum', 'build.ps1'
-		if ($aiodnsSources | Where-Object LastWriteTimeUtc -gt $aiodnsBinary.LastWriteTimeUtc) {
-			Invoke-Native -Name 'Build AioDNS' -Command { & .\Other\aiodns\build.ps1 }
-		}
+	if (Test-Path '.\Other\release\*.bin') {
+		Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
 	}
-	Copy-Item -Force '.\Other\release\*.bin' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.dll' "$OutputPath\bin"
 	Copy-Item -Force '.\Other\release\*.exe' "$OutputPath\bin" -Exclude 'v2ray-sn.exe'
 

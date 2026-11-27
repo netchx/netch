@@ -15,12 +15,3 @@ updates:
       timezone: "Asia/Shanghai"
     labels:
       - "automatic"
-
-  - package-ecosystem: "gomod"
-    directory: "/Other/aiodns"
-    schedule:
-      interval: "daily"
-      time: "00:00"
-      timezone: "Asia/Shanghai"
-    labels:
-      - "automatic"

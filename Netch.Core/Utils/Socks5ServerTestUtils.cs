@@ -22,6 +22,15 @@ public static class Socks5ServerTestUtils
 
     private static readonly TimeSpan StunDnsTimeout = TimeSpan.FromSeconds(3);
 
+    public static IReadOnlyList<string> GetStunPresetEndpoints()
+    {
+        var presets = LoadStunServers()
+            .Select(server => EndpointPresetHelper.FormatStunEndpoint(server.Hostname, server.Port))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        return presets.Length > 0 ? presets : Constants.DefaultStunServers;
+    }
+
     public static IReadOnlyList<StunServer> LoadStunServers()
     {
         var servers = new List<StunServer>();

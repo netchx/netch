@@ -25,6 +25,8 @@ FreeConsole
 GenerateConsoleCtrlEvent
 SetConsoleCtrlHandler
 GlobalFree
+IsWow64Process2
+IMAGE_FILE_MACHINE
 
 // Wininet.dll
 InternetQueryOption

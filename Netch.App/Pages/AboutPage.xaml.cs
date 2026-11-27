@@ -6,6 +6,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Netch.App.Helpers;
 using Netch.Controllers;
+using Netch.Models;
+using Netch.Services;
 using Netch.Utils;
 using static Netch.App.Helpers.Ui;
 
@@ -23,26 +25,37 @@ public sealed partial class AboutPage : Page
         var deployment = UpdateChecker.IsSelfContained
             ? T("Self-contained", "自带框架")
             : T("Framework-dependent", "系统框架");
-        var data = new (string Key, string Value)[]
+        var env = EnvironmentChecker.Inspect(Global.NetchDir);
+        var osText = env.IsArm64Emulated
+            ? $"{RuntimeInformation.OSDescription} (ARM64)"
+            : RuntimeInformation.OSDescription;
+        var envSummary = SummarizeEnvironment(env);
+        var envDetail = EnvironmentChecker.FormatDiagnostics(env);
+        var data = new (string Key, string Value, string? Tooltip)[]
         {
-            (T("System", "系统"), RuntimeInformation.OSDescription),
-            (T("Runtime", "运行时"), $"{RuntimeInformation.FrameworkDescription} ({deployment})"),
-            (T("Privileges", "权限"), admin ? T("Administrator", "管理员") : T("Standard user", "标准用户")),
-            (T("NF driver", "NF 驱动"), driver),
-            (T("Data directory", "数据目录"), directory)
+            (T("System", "系统"), osText, null),
+            (T("Runtime", "运行时"), $"{RuntimeInformation.FrameworkDescription} ({deployment})", null),
+            (T("Privileges", "权限"), admin ? T("Administrator", "管理员") : T("Standard user", "标准用户"), null),
+            (T("NF driver", "NF 驱动"), driver, null),
+            (T("Environment", "运行环境"), envSummary, envDetail),
+            (T("Data directory", "数据目录"), directory, null)
         };
         var diag = Stack(Text(T("Runtime information", "运行信息"), strong: true));
         diag.Spacing = 5.25;
-        foreach (var (label, value) in data)
+        foreach (var (label, value, tooltip) in data)
         {
             var field = Caption(label);
-            field.Width = 69;
+            field.Width = 76;
             var detail = Text(value);
-            ToolTipService.SetToolTip(detail, value);
-            diag.Children.Add(TwoColumns(field, detail, new GridLength(69)));
+            ToolTipService.SetToolTip(detail, tooltip ?? value);
+            diag.Children.Add(TwoColumns(field, detail, new GridLength(76)));
         }
+        var copyPayload = $"Netch {UpdateChecker.Version} · {RuntimeInformation.ProcessArchitecture}\n"
+            + string.Join("\n", data.Select(row => $"{row.Key}: {row.Value}"))
+            + "\n"
+            + envDetail;
         diag.Children.Add(Row(Button(T("Copy diagnostics", "复制诊断信息"), () =>
-            Copy($"Netch {UpdateChecker.Version} · {RuntimeInformation.ProcessArchitecture}\n" + string.Join("\n", data.Select(row => $"{row.Key}: {row.Value}"))), glyph: Icons.Copy),
+            Copy(copyPayload), glyph: Icons.Copy),
             Button(T("Open directory", "打开目录"), () => Utils.Utils.Open(directory), glyph: Icons.FolderOpen)));
 
         var names = Caption("sing-box · Mihomo · Xray-core · tun2socks · WinTUN · pcap2socks · NetFilter SDK · Serilog · Stun.Net · Windows App SDK");
@@ -100,6 +113,25 @@ public sealed partial class AboutPage : Page
         link.MinHeight = 0;
         link.Padding = new Thickness(12, 4, 12, 4);
         return link;
+    }
+
+    private static string SummarizeEnvironment(EnvironmentReport env)
+    {
+        var items = new List<string>();
+        if (env.AllMissingBinFiles.Count > 0)
+            items.Add(TF("Missing {0} files", "缺失 {0} 个文件", env.AllMissingBinFiles.Count));
+        if (env.IsBfeRunning == false)
+            items.Add(T("BFE stopped", "BFE 未运行"));
+        if (!env.SupportsAvx2V3)
+            items.Add(T("No AVX2", "无 AVX2"));
+        if (env.Npcap == NpcapStatus.MissingWinPcapCompat)
+            items.Add(T("Npcap no compat", "Npcap 未开兼容"));
+        else if (env.Npcap == NpcapStatus.Missing)
+            items.Add(T("No Npcap", "未装 Npcap"));
+        if (!env.HasVcRedistX64)
+            items.Add(T("No VC++ x64", "缺 VC++ x64"));
+
+        return items.Count == 0 ? T("All checks passed", "全部正常") : string.Join(" · ", items);
     }
 
     private static string DriverStatus()

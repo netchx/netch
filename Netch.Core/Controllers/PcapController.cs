@@ -80,7 +80,7 @@ public class PcapController : Guard, IModeController
                 })
                 .Forget();
 
-            throw new MessageException("Pleases install pcap2socks's dependency");
+            throw new MessageException(i18N.Translate("Please install Npcap (with WinPcap API-compatible mode) and Visual C++ 2015-2022 Redistributable (x64)."));
         }
 
         Utils.Utils.Open(LogPath);

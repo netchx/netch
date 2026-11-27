@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Net;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.VisualStudio.Threading;
 using Netch.Enums;
@@ -155,6 +156,7 @@ public static class Configuration
         // The original defaults used TCP DNS for both split-DNS upstreams.
         // Migrate only those untouched defaults; explicitly customized DNS
         // transports remain unchanged.
+        settings.AioDNS ??= new();
         var legacyChinaDns = $"tcp://{Constants.DefaultCNPrimaryDNS}:53";
         var legacyOtherDns = $"tcp://{Constants.DefaultPrimaryDNS}:53";
         if (string.Equals(settings.AioDNS.ChinaDNS, legacyChinaDns, StringComparison.OrdinalIgnoreCase))
@@ -162,8 +164,52 @@ public static class Configuration
         if (string.Equals(settings.AioDNS.OtherDNS, legacyOtherDns, StringComparison.OrdinalIgnoreCase))
             settings.AioDNS.OtherDNS = $"udp://{Constants.DefaultPrimaryDNS}:53";
 
-        settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
-        settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
+        settings.AioDNS.ChinaDNS = DnsEndpoint.Normalize(settings.AioDNS.ChinaDNS, $"udp://{Constants.DefaultCNPrimaryDNS}:53");
+        settings.AioDNS.OtherDNS = DnsEndpoint.Normalize(settings.AioDNS.OtherDNS, $"udp://{Constants.DefaultPrimaryDNS}:53");
+        settings.AioDNS.CustomChinaDns = EndpointPresetHelper.NormalizeCustomList(
+            settings.AioDNS.CustomChinaDns,
+            Constants.AioDnsChinaPresets,
+            raw => DnsEndpoint.TryParse(raw, out var ep) ? ep.Normalized : null);
+        settings.AioDNS.CustomOtherDns = EndpointPresetHelper.NormalizeCustomList(
+            settings.AioDNS.CustomOtherDns,
+            Constants.AioDnsOtherPresets,
+            raw => DnsEndpoint.TryParse(raw, out var ep) ? ep.Normalized : null);
+
+        settings.CustomOutboundDns = EndpointPresetHelper.NormalizeCustomList(
+            settings.CustomOutboundDns,
+            Constants.OutboundDnsPresets,
+            raw => DnsEndpoint.TryParseStrictIpAddress(raw, out var ip) ? ip.ToString() : null);
+
+        settings.CustomDelayTestUrls = EndpointPresetHelper.NormalizeCustomList(
+            settings.CustomDelayTestUrls,
+            Constants.DelayTestUrlPresets,
+            raw => Uri.TryCreate(raw, UriKind.Absolute, out var parsed) &&
+                   (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps)
+                ? raw
+                : null);
+
+        settings.CustomStunServers = EndpointPresetHelper.NormalizeCustomList(
+            settings.CustomStunServers,
+            Socks5ServerTestUtils.GetStunPresetEndpoints(),
+            raw => EndpointPresetHelper.TryParseStunEndpoint(raw, out var host, out var port)
+                ? EndpointPresetHelper.FormatStunEndpoint(host, port)
+                : null);
+
+        if (settings.AutoCheckUpdateIntervalHours < 0)
+        {
+            settings.AutoCheckUpdateIntervalHours = settings.CheckUpdateWhenOpened
+                ? Constants.DefaultAutoCheckUpdateIntervalHours
+                : 0;
+        }
+        else if (!Constants.AutoCheckUpdateIntervals.Contains(settings.AutoCheckUpdateIntervalHours))
+        {
+            settings.AutoCheckUpdateIntervalHours = settings.AutoCheckUpdateIntervalHours <= 0
+                ? 0
+                : Constants.AutoCheckUpdateIntervals.Where(h => h > 0)
+                    .OrderBy(h => Math.Abs(h - settings.AutoCheckUpdateIntervalHours))
+                    .First();
+        }
+        settings.CheckUpdateWhenOpened = settings.AutoCheckUpdateIntervalHours > 0;
 
         settings.WebProxy ??= new();
         if (settings.WebProxy.PacPort == 0)

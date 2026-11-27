@@ -9,7 +9,7 @@
 | bin/tun2socks-windows-amd64-v3.exe、wintun.dll | TUN 转发与虚拟网卡。https://github.com/xjasonlyu/tun2socks · https://www.wintun.net |
 | bin/nfdriver.sys、nfapi.dll、Redirector.bin | 进程模式驱动与转发组件。Redirector 由本仓库构建。 |
 | bin/RouteHelper.bin | 路由辅助组件，由本仓库构建。 |
-| bin/aiodns.bin、aiodns.conf | DNS 辅助组件与规则。 |
+| bin/aiodns.conf | 内置 AioDNS 域名分流规则。 |
 | bin/pac/proxy-list.txt、gfw.txt、direct-list.txt | 网页代理 PAC 域名规则表。https://github.com/Loyalsoldier/v2ray-rules-dat |
 | bin/GeoLite2-Country.mmdb | 可选的出口国家识别数据。https://github.com/Loyalsoldier/geoip |
 | bin/stun.txt | NAT 测试服务器列表。 |
