@@ -12,7 +12,6 @@ using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.VisualStudio.Threading;
 using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Helpers;
 using Netch.App.Services;

@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.VisualStudio.Threading;
 using Netch.App.Helpers;
 using Netch.App.Services;
 using Netch.Controllers;

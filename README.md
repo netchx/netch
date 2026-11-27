@@ -94,8 +94,8 @@
 
 | 发行包 / 场景 | 手动依赖 | 安装与说明 |
 | --- | :---: | --- |
-| **自带框架版** `*-winui-x64-self-contained.zip`（推荐） | **零依赖** | 已内置 `.NET 10` 与 `Windows App SDK 2.7`，除**共享模式**外解压即用。 |
-| **系统框架版** `*-winui-x64-framework-dependent.zip` | **1 项** | 需先安装 **[.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)**（`winget install Microsoft.DotNet.DesktopRuntime.10`，仅装基础 `.NET Runtime` 无法启动）。 |
+| **自带框架版** `*-winui-x64-self-contained.zip / .7z`（推荐） | **零依赖** | 已内置 `.NET 10` 与 `Windows App SDK 2.7`，除**共享模式**外解压即用。 |
+| **系统框架版** `*-winui-x64-framework-dependent.zip / .7z` | **1 项** | 需先安装 **[.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)**（`winget install Microsoft.DotNet.Runtime.10`）。 |
 | **仅启用共享模式**（主机 / 局域网，两包均同） | **2 项** | 1. **[Npcap](https://npcap.com/)**：安装时**必须勾选 `Install Npcap in WinPcap API-compatible Mode`**。<br />2. **[VC++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)**（`winget install Microsoft.VCRedist.2015+.x64`），用于 `bin/pcap2socks.exe`。 |
 
 <a id="faq"></a>
@@ -123,7 +123,7 @@
 git clone https://github.com/NetchX/Netch.git
 cd Netch
 .\build.ps1 -Configuration Release -OutputPath release                                        # 自带 .NET 10 运行时（默认）
-.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false # 系统 .NET 10 Desktop Runtime
+.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false # 系统 .NET 10 Runtime
 ```
 
 ## 致谢
@@ -148,7 +148,7 @@ Netch 的实现离不开以下优秀的开源项目、驱动与数据维护者�
 
 - [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) & [MaxMind GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) — 节点出口国家/地区识别数据库
 - [Loyalsoldier/v2ray-rules-dat](https://github.com/Loyalsoldier/v2ray-rules-dat) — 网页代理 PAC 域名规则表（`proxy-list`、`gfw`、`direct-list`）来源
-- [NatTypeTester / Stun.Net](https://github.com/HMBSbige/NatTypeTester) — RFC 5780 UDP NAT 检测实现与预设 STUN 列表
+- [NatTypeTester](https://github.com/HMBSbige/NatTypeTester) — RFC 5780 UDP NAT 检测与预设 STUN 列表参考
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list) — AioDNS 国内域名分流列表来源
 - [china_ip_list](https://github.com/17mon/china_ip_list) — 国内 IP 段分流规则参考来源
 

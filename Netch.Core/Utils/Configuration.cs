@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.VisualStudio.Threading;
 using Netch.Enums;
 using Netch.JsonConverter;
 using Netch.Models;
@@ -23,7 +22,7 @@ public static class Configuration
 
     private const string BackupFileName = "settings.json.bak";
 
-    private static readonly AsyncReaderWriterLock _lock = new(null);
+    private static readonly AsyncLock _lock = new();
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = Global.NewCustomJsonSerializerOptions();
 
@@ -43,7 +42,7 @@ public static class Configuration
                 return;
             }
 
-            await using var _ = await _lock.ReadLockAsync();
+            await using var _ = await _lock.EnterAsync();
 
             if (await LoadCoreAsync(FileFullName))
                 return;
@@ -271,12 +270,12 @@ public static class Configuration
 
     public static async Task SaveAsync(Setting settings, bool throwOnError)
     {
-        if (_lock.IsWriteLockHeld)
+        if (_lock.IsLockHeld)
             return;
 
         try
         {
-            await using var _ = await _lock.WriteLockAsync();
+            await using var _ = await _lock.EnterAsync();
             await WriteSettingsAsync(settings);
         }
         catch (Exception e)
@@ -289,7 +288,7 @@ public static class Configuration
 
     public static async Task ApplyChangeAsync(Action apply, Action restore)
     {
-        await using var _ = await _lock.WriteLockAsync();
+        await using var _ = await _lock.EnterAsync();
         try
         {
             apply();

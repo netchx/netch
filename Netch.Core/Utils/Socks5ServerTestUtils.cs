@@ -3,12 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using Netch.Models;
 using Netch.Servers;
-using Socks5.Models;
-using STUN;
-using STUN.Client;
-using STUN.Enums;
-using STUN.Proxy;
-using STUN.StunResult;
 
 namespace Netch.Utils;
 
@@ -72,15 +66,6 @@ public static class Socks5ServerTestUtils
             if (socksAddress == null)
                 return new NatTypeTestResult { Result = "Lookup Server hostname failed" };
 
-            var socksOption = new Socks5CreateOption
-            {
-                Address = socksAddress,
-                Port = (ushort)socks5.Port,
-                UsernamePassword = new UsernamePassword { UserName = socks5.Username, Password = socks5.Password }
-            };
-            var local = new IPEndPoint(socksAddress.AddressFamily == AddressFamily.InterNetworkV6
-                ? IPAddress.IPv6Any : IPAddress.Any, 0);
-
             for (var index = 0; index < servers.Count; index++)
             {
                 var server = servers[index];
@@ -89,12 +74,16 @@ public static class Socks5ServerTestUtils
                     continue;
 
                 // Filtering must start on a fresh UDP association for each STUN server.
-                using var client = new StunClient5389UDP(new IPEndPoint(ip, server.Port), local, new Socks5UdpProxy(local, socksOption));
+                using var client = new StunClient5389Udp(
+                    new IPEndPoint(ip, server.Port),
+                    socksAddress,
+                    (ushort)socks5.Port,
+                    socks5.Username,
+                    socks5.Password);
                 await client.ConnectProxyAsync(token);
                 try
                 {
                     await client.QueryAsync(token);
-                    // Stun.Net also treats cancellation as a missing STUN response.
                     token.ThrowIfCancellationRequested();
                 }
                 catch (OperationCanceledException) when (!ctx.IsCancellationRequested && client.State.PublicEndPoint != null)

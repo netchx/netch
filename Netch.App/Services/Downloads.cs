@@ -6,7 +6,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Models.GitHubRelease;

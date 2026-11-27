@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
-using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Netch.Controllers;
 using Netch.Enums;

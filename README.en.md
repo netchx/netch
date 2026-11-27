@@ -94,8 +94,8 @@ Built-in support for **19 proxy protocols**, plus **External CLI** nodes and **p
 
 | Package / Scenario | Manual Dependencies | Notes |
 | --- | :---: | --- |
-| **Self-Contained** `*-winui-x64-self-contained.zip` (Recommended) | **None** | Bundles `.NET 10` and `Windows App SDK 2.7`. Extract and run (except **Share Mode**). |
-| **Framework-Dependent** `*-winui-x64-framework-dependent.zip` | **1** | Requires **[.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)** (`winget install Microsoft.DotNet.DesktopRuntime.10`; base `.NET Runtime` alone will not launch). |
+| **Self-Contained** `*-winui-x64-self-contained.zip / .7z` (Recommended) | **None** | Bundles `.NET 10` and `Windows App SDK 2.7`. Extract and run (except **Share Mode**). |
+| **Framework-Dependent** `*-winui-x64-framework-dependent.zip / .7z` | **1** | Requires **[.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)** (`winget install Microsoft.DotNet.Runtime.10`). |
 | **Share Mode Only** (Console / LAN, applies to both packages) | **2** | 1. **[Npcap](https://npcap.com/)**: You **must check `Install Npcap in WinPcap API-compatible Mode`** during setup.<br />2. **[VC++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)** (`winget install Microsoft.VCRedist.2015+.x64`), required by `bin/pcap2socks.exe`. |
 
 <a id="faq"></a>
@@ -123,7 +123,7 @@ Requires Visual Studio 2026 ("Desktop development with C++" workload) and the .N
 git clone https://github.com/NetchX/Netch.git
 cd Netch
 .\build.ps1 -Configuration Release -OutputPath release                                        # Self-contained .NET 10 runtime (default)
-.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false # System .NET 10 Desktop Runtime
+.\build.ps1 -Configuration Release -OutputPath release-framework-dependent -SelfContained $false # System .NET 10 Runtime
 ```
 
 ## Acknowledgments
@@ -148,7 +148,7 @@ Netch builds upon the work of these open-source projects, driver vendors, and da
 
 - [Loyalsoldier/geoip](https://github.com/Loyalsoldier/geoip) & [MaxMind GeoLite2](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) — Geolocation database for exit node country/region detection
 - [Loyalsoldier/v2ray-rules-dat](https://github.com/Loyalsoldier/v2ray-rules-dat) — Domain lists (`proxy-list`, `gfw`, `direct-list`) for Web Proxy PAC rules
-- [NatTypeTester / Stun.Net](https://github.com/HMBSbige/NatTypeTester) — RFC 5780 UDP NAT detection and preset STUN server list
+- [NatTypeTester](https://github.com/HMBSbige/NatTypeTester) — RFC 5780 UDP NAT detection and preset STUN server list reference
 - [dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list) — China domain list source for AioDNS split DNS
 - [china_ip_list](https://github.com/17mon/china_ip_list) — Reference list for China IP range split routing
 

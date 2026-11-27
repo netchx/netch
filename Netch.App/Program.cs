@@ -1,6 +1,5 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Microsoft.VisualStudio.Threading;
 using Netch.Services;
 using Netch.Utils;
 using SingleInstance;

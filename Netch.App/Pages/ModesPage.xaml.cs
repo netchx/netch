@@ -3,7 +3,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.VisualStudio.Threading;
 using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Helpers;
 using Netch.App.Services;

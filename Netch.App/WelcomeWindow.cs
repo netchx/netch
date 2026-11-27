@@ -6,7 +6,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 using Microsoft.Windows.Storage.Pickers;
 using Netch.App.Dialogs;

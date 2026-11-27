@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using Microsoft.Diagnostics.Tracing.Parsers;
 using Microsoft.Diagnostics.Tracing.Session;
-using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Interfaces;

@@ -115,6 +115,14 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
+          $sevenZip = (Get-Command '7z' -ErrorAction SilentlyContinue)?.Source
+          if (-not $sevenZip -and (Test-Path 'C:\Program Files\7-Zip\7z.exe')) {
+            $sevenZip = 'C:\Program Files\7-Zip\7z.exe'
+          }
+          if (-not $sevenZip) {
+            throw '7z.exe not found on runner.'
+          }
+
           $targets = @(
             @{ Directory = 'release-self-contained'; PackageName = $Env:WINUI_SELF_CONTAINED_PACKAGE_NAME },
             @{ Directory = 'release-framework-dependent'; PackageName = $Env:WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }
@@ -132,8 +140,21 @@ jobs:
             @{ Source='netchx/netch/v2/Storage/mode'; Blobs=$blobs } | ConvertTo-Json -Depth 4 |
               Set-Content -LiteralPath (Join-Path $modeRoot '.manifest.json') -Encoding utf8
             $zipPath = Join-Path $PWD "$($target.PackageName).zip"
-            [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, $zipPath)
-            Write-Host "Packaged $($target.PackageName).zip ($([math]::Round((Get-Item -LiteralPath $zipPath).Length / 1MB, 2)) MB)"
+            [IO.Compression.ZipFile]::CreateFromDirectory($winuiPackage, $zipPath, [IO.Compression.CompressionLevel]::SmallestSize, $false)
+
+            $sevenZipPath = Join-Path $PWD "$($target.PackageName).7z"
+            if (Test-Path -LiteralPath $sevenZipPath) {
+              Remove-Item -Force -LiteralPath $sevenZipPath
+            }
+            Push-Location $winuiPackage
+            try {
+              & $sevenZip a -t7z -mx=9 -ms=on -bd -- $sevenZipPath *
+              if ($LASTEXITCODE -ne 0) { throw "7z packaging failed for $($target.PackageName).7z" }
+            }
+            finally {
+              Pop-Location
+            }
+            Write-Host "Packaged $($target.PackageName).zip ($([math]::Round((Get-Item -LiteralPath $zipPath).Length / 1MB, 2)) MB) and $($target.PackageName).7z ($([math]::Round((Get-Item -LiteralPath $sevenZipPath).Length / 1MB, 2)) MB)"
           }
 
       - name: Release notes
@@ -154,22 +175,24 @@ jobs:
             $notes = "## 更新内容 / What's Changed`n`n详见 [README 更新日志](https://github.com/${{ github.repository }}#更新日志) / See the [README changelog](https://github.com/${{ github.repository }}#更新日志) for details."
           }
 
-          $scHash = (Get-FileHash "$scPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
-          $fddHash = (Get-FileHash "$fddPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $scZipHash = (Get-FileHash "$scPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $sc7zHash = (Get-FileHash "$scPkg.7z" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $fddZipHash = (Get-FileHash "$fddPkg.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          $fdd7zHash = (Get-FileHash "$fddPkg.7z" -Algorithm SHA256).Hash.ToLowerInvariant()
 
           $lines = @(
             $notes
             ''
             '## 下载与启动 / Download & Launch'
             ''
-            "- **自带框架版（推荐多数用户）**：下载 ``$scPkg.zip``，已内置 ``.NET 10`` 与 Windows App SDK 运行时，开箱即用。"
-            "- **系统框架版（体积更小）**：下载 ``$fddPkg.zip``，使用系统已安装的 **.NET 10 Desktop Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。"
+            "- **自带框架版（推荐多数用户）**：下载 ``$scPkg.7z``（体积更小，需 7-Zip 等工具解压）或 ``$scPkg.zip``（Windows 原生解压 / 应用内自动更新使用），已内置 ``.NET 10`` 与 Windows App SDK 运行时，开箱即用。"
+            "- **系统框架版（体积更小）**：下载 ``$fddPkg.7z`` 或 ``$fddPkg.zip``，使用系统已安装的 **.NET 10 Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。"
             ''
             '1. 两个版本均为单文件便携包，请完整解压并保留压缩包内的目录结构（包括 `bin/`、`mode/`、`logging/`、`data/` 与 `licenses/`）。'
             '2. 右键 `Netch.App.exe`，选择“以管理员身份运行”。'
             ''
-            "- **Self-contained (recommended for most users)**: Download ``$scPkg.zip`` with bundled ``.NET 10`` and Windows App SDK runtimes."
-            "- **Framework-dependent (smaller download)**: Download ``$fddPkg.zip`` to use the system **.NET 10 Desktop Runtime (x64)** (Windows App SDK remains bundled); install [.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0) if not already present."
+            "- **Self-contained (recommended for most users)**: Download ``$scPkg.7z`` (smaller download, requires 7-Zip or similar) or ``$scPkg.zip`` (native Windows extraction / in-app updater) with bundled ``.NET 10`` and Windows App SDK runtimes."
+            "- **Framework-dependent (smaller download)**: Download ``$fddPkg.7z`` or ``$fddPkg.zip`` to use the system **.NET 10 Runtime (x64)** (Windows App SDK remains bundled); install [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0) if not already present."
             ''
             '1. Both archives are single-file portable bundles; extract the entire archive while preserving its directory layout (`bin/`, `mode/`, `logging/`, `data/`, and `licenses/`).'
             '2. Right-click `Netch.App.exe` and choose **Run as administrator**.'
@@ -180,8 +203,10 @@ jobs:
             ''
             '| 文件 / File | SHA256 |'
             '| --- | --- |'
-            "| ``$scPkg.zip`` | ``$scHash`` |"
-            "| ``$fddPkg.zip`` | ``$fddHash`` |"
+            "| ``$scPkg.zip`` | ``$scZipHash`` |"
+            "| ``$fddPkg.zip`` | ``$fddZipHash`` |"
+            "| ``$scPkg.7z`` | ``$sc7zHash`` |"
+            "| ``$fddPkg.7z`` | ``$fdd7zHash`` |"
             ''
             '[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)'
           )
@@ -201,11 +226,16 @@ jobs:
           body_path: release-notes.md
           files: ${{ env.WINUI_SELF_CONTAINED_PACKAGE_NAME }}.zip
 
-      - name: Upload framework-dependent asset
+      - name: Upload additional release assets
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload "${{ github.ref_name }}" "${{ env.WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }}.zip" --repo "${{ github.repository }}" --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'Uploading framework-dependent asset failed.' }
+          $extraAssets = @(
+            "${{ env.WINUI_SELF_CONTAINED_PACKAGE_NAME }}.7z"
+            "${{ env.WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }}.zip"
+            "${{ env.WINUI_FRAMEWORK_DEPENDENT_PACKAGE_NAME }}.7z"
+          )
+          gh release upload "${{ github.ref_name }}" @extraAssets --repo "${{ github.repository }}" --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Uploading additional release assets failed.' }

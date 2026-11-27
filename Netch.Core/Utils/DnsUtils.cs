@@ -2,7 +2,6 @@
 using System.Net;
 using System.Net.Sockets;
 using DnsClient;
-using Microsoft.VisualStudio.Threading;
 
 namespace Netch.Utils;
 
@@ -82,7 +81,7 @@ public static class DnsUtils
                 {
                     InFlight.TryRemove(k, out _);
                 }
-            }, null));
+            }));
 
         try
         {

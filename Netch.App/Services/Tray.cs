@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.Drawing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
-using Microsoft.VisualStudio.Threading;
 using Netch.Models;
 using Netch.Services;
 using Netch.Utils;

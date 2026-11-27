@@ -5,11 +5,9 @@ Copyright (c) 2019 AmazingDM and Contributors
 Libraries that have been used in Netch are listed below (Not in order):
 Copyright (c) .NET Foundation and Contributors(@dotnet): .NET (MIT)
 Copyright (c) Microsoft Corporation(@microsoft): CsWin32 (MIT)
-Copyright (c) Microsoft Corporation(@microsoft): Microsoft.VisualStudio.Threading (MIT)
 Copyright (c) .NET Foundation and Contributors(@microsoft): Microsoft.Diagnostics.Tracing.TraceEvent (MIT)
 Copyright (c) 2013 Serilog Contributors(@serilog): Serilog (Apache-2.0)
 Copyright (c) 2020 Bruce Wayne(@HMBSbige): WindowsJobAPI (MIT)
-Copyright (c) 2018 Bruce Wayne(@HMBSbige): Stun.Net (MIT)
 Copyright (c) 2020 Bruce Wayne(@HMBSbige): HMBSbige.SingleInstance (MIT)
 Copyright (c) 2013 MaxMind, Inc.(@maxmind): MaxMind.GeoIP2 (Apache-2.0)
 Copyright (c) 2016 Soroush(@falahati): WindowsFirewallHelper (MIT)
