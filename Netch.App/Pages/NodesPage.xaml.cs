@@ -10,7 +10,9 @@ using Netch.App.Dialogs;
 using Netch.App.Helpers;
 using Netch.App.Services;
 using Netch.App.ViewModels;
+using Netch.Enums;
 using Netch.Models;
+using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
 using Windows.System;
@@ -28,7 +30,8 @@ public sealed partial class NodesPage : Page
     private readonly ContentControl _subscription = new() { HorizontalContentAlignment = HorizontalAlignment.Stretch };
     private readonly TextBlock _status = Caption("");
     private readonly DropDownButton _updateAll;
-    private readonly Button _speed;
+    private readonly SplitButton _urlTestBtn;
+    private readonly SplitButton _tcpingBtn;
     private readonly Border _batchBar;
     private readonly TextBlock _batchCount = Caption("");
     private readonly Button _selectAllBtn;
@@ -49,7 +52,9 @@ public sealed partial class NodesPage : Page
 
     private SplitButton? _updateSelected;
     private NodeCategorySelection? SelectedCategory => (_categories.SelectedItem as ListViewItem)?.Tag as NodeCategorySelection;
-    private bool _byDelay;
+    private NodeSortField _sortField = NodeSortField.None;
+    private bool _sortDescending;
+    private readonly Dictionary<NodeSortField, (Button Button, string Label, TextBlock Text)> _sortHeaders = new();
     private bool _refreshing;
     private bool _suppressSelectionChanged;
     private bool _updatingSubscriptions;
@@ -71,18 +76,8 @@ public sealed partial class NodesPage : Page
         var add = Button(T("Node", "节点"), () => { }, accent: true, glyph: Icons.Add);
         add.Flyout = Menu(ServerEditorHelper.GetOrderedProtocols()
             .Select(util => (ServerHelper.GetDisplayName(util), (Action)(() => EditNodeAsync(null, util.TypeName).Forget()))).ToArray());
-        _speed = Button(T("Test latency", "测速"), () =>
-        {
-            if (DelayTestHelper.IsTesting)
-                DelayTestHelper.Cancel();
-            else
-                DelayTestHelper.PerformTestAsync(true).Forget();
-        }, glyph: Icons.Flash);
-        var sort = Button(T("Latency", "延迟"), () =>
-        {
-            _byDelay = !_byDelay;
-            RefreshNodes();
-        }, glyph: Icons.Sort);
+        _urlTestBtn = CreateDelayTestSplitButton(DelayTestMode.Hybrid, isTcping: false);
+        _tcpingBtn = CreateDelayTestSplitButton(DelayTestMode.TCPing, isTcping: true);
 
         _selectAllBtn = Button(T("Select all", "全选"), () => _nodes.SelectAll());
         _clearSelectionBtn = Button(T("Clear selection", "取消选择"), ClearSelection);
@@ -134,10 +129,26 @@ public sealed partial class NodesPage : Page
             }
         };
 
-        var topSection = Stack(_subscription, _status, Split(_filter, Row(_speed, sort)), _batchBar);
+        var topSection = Stack(_subscription, _status, Split(_filter, Row(_urlTestBtn, _tcpingBtn)), _batchBar);
+
+        var nodeHeaderStrip = BuildNodeHeaderStrip();
+        UpdateSortHeaders();
+        var listSurface = new Grid
+        {
+            RowSpacing = 4,
+            RowDefinitions =
+            {
+                new RowDefinition { Height = GridLength.Auto },
+                new RowDefinition { Height = new GridLength(1, GridUnitType.Star) }
+            },
+            Children = { nodeHeaderStrip, _nodes }
+        };
+        Grid.SetRow(_nodes, 1);
+        var listCard = Card(listSurface, 2);
+        listCard.Padding = new Thickness(2, 6, 2, 2);
 
         Content = Ui.Page(Body(Header(T("Nodes", "节点"), import, _updateAll, addSubscription, add),
-            TwoColumns(_categories, Body(topSection, Card(_nodes, 2)), new GridLength(165))));
+            TwoColumns(_categories, Body(topSection, listCard), new GridLength(165))));
         _nodes.ItemContainerStyle = Resource<Style>("NetchSelectableRow");
         _nodes.ItemsSource = _nodeRows;
         _status.Visibility = Visibility.Collapsed;
@@ -181,10 +192,13 @@ public sealed partial class NodesPage : Page
         foreach (var (server, label) in _delayLabels)
             UpdateDelayLabel(server, label);
 
-        if (!_byDelay)
+        if (_sortField != NodeSortField.Delay)
             return;
 
-        var ordered = _nodeRows.OrderBy(item => DelayOrder((Server)item.Tag)).ToArray();
+        var rowsByServer = _nodeRows.ToDictionary(item => (Server)item.Tag);
+        var ordered = NodeSortHelper.Sort(rowsByServer.Keys, NodeSortField.Delay, _sortDescending)
+            .Select(server => rowsByServer[server])
+            .ToArray();
         if (_nodeRows.SequenceEqual(ordered))
             return;
 
@@ -216,12 +230,13 @@ public sealed partial class NodesPage : Page
 
     private void UpdateDelayTestUi(bool isTesting, int completed, int total, bool updateStatus)
     {
-        SetButtonContent(_speed,
-            isTesting ? T("Stop testing", "停止测速") : T("Test latency", "测速"),
-            isTesting ? Icons.Stop : Icons.Flash);
+        UpdateDelayTestButtons();
         UpdateBatchBar();
 
         if (!updateStatus)
+            return;
+
+        if (!isTesting && DelayTestHelper.IsTesting)
             return;
 
         if (isTesting)
@@ -242,7 +257,213 @@ public sealed partial class NodesPage : Page
         }
     }
 
-    private static int DelayOrder(Server server) => DelayStatus.IsValid(server.Delay) ? server.Delay : int.MaxValue;
+    private SplitButton CreateDelayTestSplitButton(DelayTestMode mode, bool isTcping)
+    {
+        var button = new SplitButton();
+        button.Click += (_, _) =>
+        {
+            var isThisRunning = DelayTestHelper.IsTesting && (isTcping
+                ? DelayTestHelper.ActiveMode == DelayTestMode.TCPing
+                : DelayTestHelper.ActiveMode != DelayTestMode.TCPing);
+            if (isThisRunning)
+                DelayTestHelper.Cancel();
+            else
+                StartDelayTest(TestableDisplayedServers(), mode);
+        };
+
+        var menu = new MenuFlyout();
+        menu.Opening += (_, _) =>
+        {
+            menu.Items.Clear();
+            var visible = TestableDisplayedServers();
+            var all = TestableAllServers();
+
+            var visibleItem = new MenuFlyoutItem
+            {
+                Text = isTcping
+                    ? TF("TCP latency · visible ({0})", "TCP 延迟 · 当前列表 ({0})", visible.Length)
+                    : TF("URL test · visible ({0})", "URL 测速 · 当前列表 ({0})", visible.Length),
+                IsEnabled = visible.Length > 0
+            };
+            visibleItem.Click += (_, _) => StartDelayTest(visible, mode);
+            menu.Items.Add(visibleItem);
+
+            var allItem = new MenuFlyoutItem
+            {
+                Text = isTcping
+                    ? TF("TCP latency · all ({0})", "TCP 延迟 · 全部节点 ({0})", all.Length)
+                    : TF("URL test · all ({0})", "URL 测速 · 全部节点 ({0})", all.Length),
+                IsEnabled = all.Length > 0
+            };
+            allItem.Click += (_, _) => StartDelayTest(all, mode);
+            menu.Items.Add(allItem);
+        };
+        button.Flyout = menu;
+        return button;
+    }
+
+    private void UpdateDelayTestButtons()
+    {
+        var isTesting = DelayTestHelper.IsTesting;
+        var tcpingActive = isTesting && DelayTestHelper.ActiveMode == DelayTestMode.TCPing;
+        var urlActive = isTesting && !tcpingActive;
+        var hasAnyTestable = Global.Settings.Server.Any(IsTestableServer);
+
+        SetSplitButtonState(
+            _urlTestBtn,
+            urlActive ? T("Stop testing", "停止测速") : T("URL test", "URL 测速"),
+            urlActive ? Icons.Stop : Icons.Flash,
+            urlActive
+                ? T("Stop testing", "停止测速")
+                : T("Test real URL latency for visible nodes (Smart hybrid)", "测试当前显示列表的真实 URL 延迟（智能混合）"),
+            isTesting || hasAnyTestable);
+
+        SetSplitButtonState(
+            _tcpingBtn,
+            tcpingActive ? T("Stop testing", "停止测速") : T("TCP latency", "TCP 延迟"),
+            tcpingActive ? Icons.Stop : Icons.Probe,
+            tcpingActive
+                ? T("Stop testing", "停止测速")
+                : T("Test TCPing latency for visible nodes", "测试当前显示列表的 TCPing 延迟"),
+            isTesting || hasAnyTestable);
+    }
+
+    private static void SetSplitButtonState(SplitButton button, string label, string glyph, string tooltip, bool isEnabled)
+    {
+        if (button.Content == null ||
+            !string.Equals(Microsoft.UI.Xaml.Automation.AutomationProperties.GetName(button), label, StringComparison.Ordinal))
+        {
+            button.Content = IconContent(glyph, label);
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, label);
+        }
+
+        if (!string.Equals(ToolTipService.GetToolTip(button) as string, tooltip, StringComparison.Ordinal))
+            ToolTipService.SetToolTip(button, tooltip);
+
+        button.IsEnabled = isEnabled;
+    }
+
+    private static bool IsTestableServer(Server server) =>
+        server.ConfigType != EConfigType.ExternalCli;
+
+    private Server[] DisplayedServers() =>
+        _nodeRows.Select(item => item.Tag).OfType<Server>().ToArray();
+
+    private Server[] TestableDisplayedServers() =>
+        DisplayedServers().Where(IsTestableServer).ToArray();
+
+    private static Server[] TestableAllServers() =>
+        Global.Settings.Server.Where(IsTestableServer).ToArray();
+
+    private void StartDelayTest(Server[] targets, DelayTestMode mode)
+    {
+        if (targets.Length == 0)
+        {
+            _status.Text = T("No testable nodes in current list.", "当前列表没有可测速的节点。");
+            return;
+        }
+
+        DelayTestHelper.PerformTestAsync(targets, waitFinish: true, modeOverride: mode).Forget();
+    }
+
+    private static Grid CreateNodeRowGrid(Thickness? margin = null)
+    {
+        var grid = new Grid { ColumnSpacing = 9 };
+        if (margin.HasValue)
+            grid.Margin = margin.Value;
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.35, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.75, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(66) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(72) });
+        return grid;
+    }
+
+    private Grid BuildNodeHeaderStrip()
+    {
+        var grid = CreateNodeRowGrid(new Thickness(44, 0, 12 + Ui.ScrollBarGutter, 0));
+        grid.Children.Add(SortableHeaderCol(T("Name", "名称"), 0, NodeSortField.Name));
+        grid.Children.Add(SortableHeaderCol(T("Core", "核心"), 1, NodeSortField.Core));
+        grid.Children.Add(SortableHeaderCol(T("Latency", "延迟"), 3, NodeSortField.Delay, HorizontalAlignment.Right));
+        return grid;
+    }
+
+    private Button SortableHeaderCol(string label, int col, NodeSortField sortField, HorizontalAlignment align = HorizontalAlignment.Left)
+    {
+        var tb = Caption(label);
+        tb.FontSize = 12;
+        tb.TextTrimming = TextTrimming.CharacterEllipsis;
+        tb.HorizontalAlignment = align;
+        tb.VerticalAlignment = VerticalAlignment.Center;
+
+        var btn = new Button
+        {
+            Content = tb,
+            Style = Resource<Style>("NetchWizardTab"),
+            BorderThickness = new Thickness(0),
+            Padding = new Thickness(3, 2, 3, 2),
+            Margin = new Thickness(-3, 0, -3, 0),
+            MinWidth = 0,
+            MinHeight = 0,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = align,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        btn.Click += (_, _) => ToggleNodeSort(sortField);
+        Grid.SetColumn(btn, col);
+        _sortHeaders[sortField] = (btn, label, tb);
+        return btn;
+    }
+
+    private void ToggleNodeSort(NodeSortField field)
+    {
+        if (_sortField != field)
+        {
+            _sortField = field;
+            _sortDescending = false;
+        }
+        else if (!_sortDescending)
+        {
+            _sortDescending = true;
+        }
+        else
+        {
+            _sortField = NodeSortField.None;
+            _sortDescending = false;
+        }
+
+        UpdateSortHeaders();
+        RefreshNodes();
+    }
+
+    private void UpdateSortHeaders()
+    {
+        foreach (var (field, (btn, label, tb)) in _sortHeaders)
+        {
+            if (field == _sortField)
+            {
+                var arrow = _sortDescending ? "↓" : "↑";
+                tb.Text = $"{label} {arrow}";
+                tb.Style = Resource<Style>("NetchAccentText");
+                tb.FontWeight = Microsoft.UI.Text.FontWeights.SemiBold;
+                var dirText = _sortDescending ? T("descending", "降序") : T("ascending", "升序");
+                var nextHint = !_sortDescending
+                    ? T("click to sort descending", "点击切换降序")
+                    : T("click to reset", "点击恢复默认排序");
+                var tip = TF("{0}: {1} ({2})", "{0}：{1}（{2}）", label, dirText, nextHint);
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tip);
+                ToolTipService.SetToolTip(btn, tip);
+            }
+            else
+            {
+                tb.Text = label;
+                tb.Style = Resource<Style>("NetchSecondaryText");
+                tb.FontWeight = Microsoft.UI.Text.FontWeights.Normal;
+                var tip = TF("Sort by {0}", "点击按{0}排序", label);
+                Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, tip);
+                ToolTipService.SetToolTip(btn, tip);
+            }
+        }
+    }
 
     private static void UpdateDelayLabel(Server server, TextBlock label)
     {
@@ -749,7 +970,7 @@ public sealed partial class NodesPage : Page
     private void RefreshNodes()
     {
         var selection = SelectedCategory;
-        var nodes = Global.Settings.Server.ToArray().Where(server =>
+        var nodes = NodeSortHelper.Sort(Global.Settings.Server.ToArray().Where(server =>
         {
             var inCategory = selection?.Kind switch
             {
@@ -763,9 +984,7 @@ public sealed partial class NodesPage : Page
             return inCategory &&
                    (Format.NodeName(server).Contains(_filter.Text, StringComparison.OrdinalIgnoreCase) ||
                     (server.Address ?? "").Contains(_filter.Text, StringComparison.OrdinalIgnoreCase));
-        });
-        if (_byDelay)
-            nodes = nodes.OrderBy(DelayOrder);
+        }), _sortField, _sortDescending);
 
         var selected = SelectedServers().ToHashSet();
         _suppressSelectionChanged = true;
@@ -775,26 +994,39 @@ public sealed partial class NodesPage : Page
             _nodeRows.Clear();
             foreach (var server in nodes)
             {
+                var rowGrid = CreateNodeRowGrid();
+                rowGrid.Children.Add(Text(Format.NodeName(server)));
+
+                var coreName = CoreSelector.GetCoreDisplayName(server);
+                var typePill = server.ConfigType == EConfigType.ExternalCli
+                    ? coreName
+                    : $"{ServerHelper.GetDisplayName(server.ConfigType)} · {coreName}";
+                var pill = Pill(typePill);
+                pill.HorizontalAlignment = HorizontalAlignment.Left;
+                ToolTipService.SetToolTip(pill, typePill);
+                Grid.SetColumn(pill, 1);
+                rowGrid.Children.Add(pill);
+
                 var count = SceneService.Scenes.Count(s => s.ServerId == server.Id);
+                var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
+                scenes.VerticalAlignment = VerticalAlignment.Center;
+                Grid.SetColumn(scenes, 2);
+                rowGrid.Children.Add(scenes);
+
                 var delay = Caption("");
-                delay.Width = 72;
                 delay.FontFamily = new FontFamily("Consolas");
                 delay.TextAlignment = TextAlignment.Right;
+                delay.HorizontalAlignment = HorizontalAlignment.Stretch;
+                delay.VerticalAlignment = VerticalAlignment.Center;
                 UpdateDelayLabel(server, delay);
                 _delayLabels[server] = delay;
-                var scenes = Caption(count == 0 ? "" : TF("{0} scenes", "{0} 个场景", count));
-                scenes.Width = 66;
-                var coreName = server.ConfigType != Netch.Enums.EConfigType.ExternalCli
-                    ? CustomCoreHelper.ResolveForServer(server)?.Name
-                    : null;
-                var typePill = string.IsNullOrEmpty(coreName)
-                    ? ServerHelper.GetDisplayName(server.ConfigType)
-                    : $"{ServerHelper.GetDisplayName(server.ConfigType)} · {coreName}";
+                Grid.SetColumn(delay, 3);
+                rowGrid.Children.Add(delay);
+
                 var item = new ListViewItem
                 {
                     Tag = server, HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                    Content = Split(Text(Format.NodeName(server)),
-                        Row(Pill(typePill), scenes, delay))
+                    Content = rowGrid
                 };
                 item.ContextFlyout = BuildNodeMenu(item, server);
                 Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(item, Format.NodeName(server));
@@ -812,6 +1044,7 @@ public sealed partial class NodesPage : Page
         {
             _suppressSelectionChanged = false;
         }
+        UpdateDelayTestButtons();
         UpdateBatchBar();
     }
 

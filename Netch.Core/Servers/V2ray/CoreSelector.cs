@@ -20,6 +20,23 @@ public static class CoreSelector
         return ResolveProbeCore(server).Kind;
     }
 
+    public static string GetCoreDisplayName(Server server)
+    {
+        ArgumentNullException.ThrowIfNull(server);
+        if (server.ConfigType == EConfigType.ExternalCli)
+            return ServerHelper.GetDisplayName(EConfigType.ExternalCli);
+
+        if (CustomCoreHelper.ResolveForServer(server) is { } customCore)
+            return customCore.Name;
+
+        return SelectBuiltInCore(server) switch
+        {
+            CoreKind.Singbox => "sing-box",
+            CoreKind.Xray => "Xray",
+            _ => "mihomo"
+        };
+    }
+
     internal static (CoreKind Kind, string? CustomExecutablePath) ResolveProbeCore(Server server)
     {
         if (server.ConfigType == EConfigType.ExternalCli)
@@ -37,10 +54,15 @@ public static class CoreSelector
             return (kind, CustomCoreHelper.NormalizeExecutableInput(customCore.ExecutablePath));
         }
 
-        if (UsesXhttp(server))
-            return (CanUseMihomoXhttp(server) ? CoreKind.Mihomo : CoreKind.Xray, null);
+        return (SelectBuiltInCore(server), null);
+    }
 
-        return (UsesSingbox(server) ? CoreKind.Singbox : CoreKind.Mihomo, null);
+    private static CoreKind SelectBuiltInCore(Server server)
+    {
+        if (UsesXhttp(server))
+            return CanUseMihomoXhttp(server) ? CoreKind.Mihomo : CoreKind.Xray;
+
+        return UsesSingbox(server) ? CoreKind.Singbox : CoreKind.Mihomo;
     }
 
     public static IServerController CreateController(Server server)

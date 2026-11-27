@@ -1087,5 +1087,22 @@
   "Npcap no compat": "Npcap без совм.",
   "No Npcap": "Нет Npcap",
   "No VC++ x64": "Нет VC++ x64",
-  "All checks passed": "Всё в порядке"
+  "All checks passed": "Всё в порядке",
+  "Core": "Ядро",
+  "URL test": "URL-тест",
+  "TCP latency": "TCP-задержка",
+  "URL test · visible ({0})": "URL-тест · текущий список ({0})",
+  "URL test · all ({0})": "URL-тест · все узлы ({0})",
+  "TCP latency · visible ({0})": "TCP-задержка · текущий список ({0})",
+  "TCP latency · all ({0})": "TCP-задержка · все узлы ({0})",
+  "Test real URL latency for visible nodes (Smart hybrid)": "Проверить реальную задержку URL для видимых узлов (умный гибрид)",
+  "Test TCPing latency for visible nodes": "Проверить задержку TCPing для видимых узлов",
+  "No testable nodes in current list.": "В текущем списке нет узлов для тестирования.",
+  "Sort by {0}": "Сортировать по: {0}",
+  "ascending": "по возрастанию",
+  "descending": "по убыванию",
+  "click to sort ascending": "нажмите для сортировки по возрастанию",
+  "click to sort descending": "нажмите для сортировки по убыванию",
+  "click to reset": "нажмите для сброса",
+  "{0}: {1} ({2})": "{0}: {1} ({2})"
 }

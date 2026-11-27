@@ -1,13 +1,17 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Netch.Controllers;
+using Netch.Enums;
 using Netch.Models;
 using Netch.Servers;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Tests;
@@ -171,6 +175,240 @@ public class UiAndCoreEnhancements
         {
             Netch.Global.Settings.ServerTCPing = previousTcping;
             Netch.Global.Settings.DelayTestMode = previousMode;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void CoreSelectorDisplayNameCoversBuiltInCustomAndExternalCli()
+    {
+        var previousCores = new List<CustomCore>(Netch.Global.Settings.CustomCores);
+        var previousSubs = new List<Subscription>(Netch.Global.Settings.Subscription);
+        try
+        {
+            Netch.Global.Settings.CustomCores.Clear();
+            Netch.Global.Settings.Subscription.Clear();
+
+            var plainVless = new VLESSServer { Address = "1.1.1.1", Port = 443, Password = "uuid" };
+            var xhttpMihomo = new VLESSServer { Address = "1.1.1.1", Port = 443, Password = "uuid", Network = "xhttp" };
+            var xhttpXray = new VLESSServer
+            {
+                Address = "1.1.1.1",
+                Port = 443,
+                Password = "uuid",
+                Network = "xhttp",
+                StreamSecurity = "reality",
+                PublicKey = "pub"
+            };
+            var naive = new NaiveServer { Address = "1.1.1.1", Port = 443, Password = "pw" };
+            var socksUot = new SocksServer("1.1.1.1", 1080) { ProtoExtra = { Uot = true } };
+            var cli = new ExternalCliServer { Address = "127.0.0.1", Port = 1080 };
+
+            Assert.AreEqual("mihomo", CoreSelector.GetCoreDisplayName(plainVless));
+            Assert.AreEqual("mihomo", CoreSelector.GetCoreDisplayName(xhttpMihomo));
+            Assert.AreEqual("Xray", CoreSelector.GetCoreDisplayName(xhttpXray));
+            Assert.AreEqual("sing-box", CoreSelector.GetCoreDisplayName(naive));
+            Assert.AreEqual("sing-box", CoreSelector.GetCoreDisplayName(socksUot));
+            Assert.AreEqual(ServerHelper.GetDisplayName(EConfigType.ExternalCli), CoreSelector.GetCoreDisplayName(cli));
+
+            var defaultCore = new CustomCore
+            {
+                Id = "ss-default",
+                Name = "SS-Rust",
+                Protocol = EConfigType.Shadowsocks,
+                ExecutablePath = "ss.exe",
+                Mode = CustomCoreMode.CliArguments,
+                ArgumentsTemplate = "-s {address}",
+                IsProtocolDefault = true
+            };
+            var subCore = new CustomCore
+            {
+                Id = "ss-sub",
+                Name = "SS-Sub",
+                Protocol = EConfigType.Shadowsocks,
+                ExecutablePath = "ss-sub.exe",
+                Mode = CustomCoreMode.CliArguments,
+                ArgumentsTemplate = "-s {address}"
+            };
+            var nodeCore = new CustomCore
+            {
+                Id = "ss-node",
+                Name = "SS-Node",
+                Protocol = EConfigType.Shadowsocks,
+                ExecutablePath = "ss-node.exe",
+                Mode = CustomCoreMode.CliArguments,
+                ArgumentsTemplate = "-s {address}"
+            };
+            Netch.Global.Settings.CustomCores.AddRange([defaultCore, subCore, nodeCore]);
+            Netch.Global.Settings.Subscription.Add(new Subscription
+            {
+                Remark = "SubA",
+                Link = "https://example.com/sub",
+                CustomCoreId = subCore.Id
+            });
+
+            var ssDefault = new ShadowsocksServer { Address = "1.1.1.1", Port = 8388, IsSub = false };
+            var ssSub = new ShadowsocksServer { Address = "1.1.1.1", Port = 8388, IsSub = true, Group = "SubA" };
+            var ssNode = new ShadowsocksServer
+            {
+                Address = "1.1.1.1",
+                Port = 8388,
+                IsSub = true,
+                Group = "SubA",
+                ProtoExtra = { CustomCoreId = nodeCore.Id }
+            };
+            var ssBuiltIn = new ShadowsocksServer
+            {
+                Address = "1.1.1.1",
+                Port = 8388,
+                IsSub = true,
+                Group = "SubA",
+                ProtoExtra = { CustomCoreId = CustomCoreHelper.BuiltInCoreId }
+            };
+
+            Assert.AreEqual("SS-Rust", CoreSelector.GetCoreDisplayName(ssDefault));
+            Assert.AreEqual("SS-Sub", CoreSelector.GetCoreDisplayName(ssSub));
+            Assert.AreEqual("SS-Node", CoreSelector.GetCoreDisplayName(ssNode));
+            Assert.AreEqual("mihomo", CoreSelector.GetCoreDisplayName(ssBuiltIn));
+        }
+        finally
+        {
+            Netch.Global.Settings.CustomCores.Clear();
+            Netch.Global.Settings.CustomCores.AddRange(previousCores);
+            Netch.Global.Settings.Subscription.Clear();
+            Netch.Global.Settings.Subscription.AddRange(previousSubs);
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void NodeSortHelperSortsByNameCoreAndDelay()
+    {
+        var previousCores = new List<CustomCore>(Netch.Global.Settings.CustomCores);
+        var previousSubs = new List<Subscription>(Netch.Global.Settings.Subscription);
+        try
+        {
+            Netch.Global.Settings.CustomCores.Clear();
+            Netch.Global.Settings.Subscription.Clear();
+
+            var nMihomoB = new VLESSServer { Remarks = "Beta", Address = "2.2.2.2", Port = 443 };
+            var nMihomoA = new SocksServer("1.1.1.1", 1080) { Remarks = "" }; // display name falls back to 1.1.1.1:1080
+            var nSingbox = new NaiveServer { Remarks = "Alpha", Address = "3.3.3.3", Port = 443 };
+            var nXray = new VLESSServer
+            {
+                Remarks = "Gamma",
+                Address = "4.4.4.4",
+                Port = 443,
+                Network = "xhttp",
+                StreamSecurity = "reality",
+                PublicKey = "pub"
+            };
+            var nDns = new SocksServer("5.5.5.5", 1080) { Remarks = "DnsNode" };
+            var nUnreachable = new SocksServer("6.6.6.6", 1080) { Remarks = "FailNode" };
+            var nTimeout = new SocksServer("7.7.7.7", 1080) { Remarks = "TimeoutNode" };
+            var nUntested = new SocksServer("8.8.8.8", 1080) { Remarks = "UntestedNode" };
+            var nTesting = new SocksServer("9.9.9.9", 1080) { Remarks = "TestingNode" };
+
+            nMihomoB.SetDelay(180);
+            nMihomoA.SetDelay(45);
+            nSingbox.SetDelay(320);
+            nXray.SetDelay(90);
+            nDns.SetDelay(DelayStatus.DnsFailed);
+            nUnreachable.SetDelay(DelayStatus.Unreachable);
+            nTimeout.SetDelay(DelayStatus.Timeout);
+            nUntested.SetDelay(DelayStatus.Untested);
+            nTesting.SetDelay(DelayStatus.Testing);
+
+            Server[] input = [nMihomoB, nSingbox, nXray, nMihomoA];
+
+            CollectionAssert.AreEqual(
+                input,
+                NodeSortHelper.Sort(input, NodeSortField.None, descending: false).ToArray());
+
+            CollectionAssert.AreEqual(
+                new Server[] { nMihomoA, nSingbox, nMihomoB, nXray },
+                NodeSortHelper.Sort(input, NodeSortField.Name, descending: false, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            CollectionAssert.AreEqual(
+                new Server[] { nXray, nMihomoB, nSingbox, nMihomoA },
+                NodeSortHelper.Sort(input, NodeSortField.Name, descending: true, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            // Core ascending: mihomo (SOCKS5 before VLESS by protocol display name) -> sing-box -> Xray
+            CollectionAssert.AreEqual(
+                new Server[] { nMihomoA, nMihomoB, nSingbox, nXray },
+                NodeSortHelper.Sort(input, NodeSortField.Core, descending: false, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            // Core descending: Xray -> sing-box -> mihomo (secondary tie-breakers stay ascending)
+            CollectionAssert.AreEqual(
+                new Server[] { nXray, nSingbox, nMihomoA, nMihomoB },
+                NodeSortHelper.Sort(input, NodeSortField.Core, descending: true, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            Server[] delayInput = [nDns, nSingbox, nTesting, nMihomoA, nTimeout, nMihomoB, nUntested, nUnreachable, nXray];
+            CollectionAssert.AreEqual(
+                new Server[] { nMihomoA, nXray, nMihomoB, nSingbox, nTesting, nUntested, nTimeout, nUnreachable, nDns },
+                NodeSortHelper.Sort(delayInput, NodeSortField.Delay, descending: false, StringComparer.OrdinalIgnoreCase).ToArray());
+
+            // Delay descending keeps invalid/untested states pinned at the bottom in deterministic order
+            CollectionAssert.AreEqual(
+                new Server[] { nSingbox, nMihomoB, nXray, nMihomoA, nTesting, nUntested, nTimeout, nUnreachable, nDns },
+                NodeSortHelper.Sort(delayInput, NodeSortField.Delay, descending: true, StringComparer.OrdinalIgnoreCase).ToArray());
+        }
+        finally
+        {
+            Netch.Global.Settings.CustomCores.Clear();
+            Netch.Global.Settings.CustomCores.AddRange(previousCores);
+            Netch.Global.Settings.Subscription.Clear();
+            Netch.Global.Settings.Subscription.AddRange(previousSubs);
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task DelayTestModeOverrideDoesNotMutateGlobalSetting()
+    {
+        using var listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        listener.Start();
+        var openPort = (ushort)((System.Net.IPEndPoint)listener.LocalEndpoint).Port;
+
+        using var closedSocket = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Loopback, 0);
+        closedSocket.Start();
+        var closedPort = (ushort)((System.Net.IPEndPoint)closedSocket.LocalEndpoint).Port;
+        closedSocket.Stop();
+
+        var previousMode = Netch.Global.Settings.DelayTestMode;
+        var previousTimeout = Netch.Global.Settings.DelayTestTimeout;
+        Netch.Global.Settings.DelayTestMode = DelayTestMode.ICMPing;
+        Netch.Global.Settings.DelayTestTimeout = 3500;
+
+        DelayTestMode? observedActiveMode = null;
+        void CaptureActiveMode(bool isTesting, int completed, int total)
+        {
+            if (isTesting)
+                observedActiveMode = DelayTestHelper.ActiveMode;
+        }
+
+        AppEvents.DelayTestProgressChanged += CaptureActiveMode;
+        try
+        {
+            var openTarget = new SocksServer("127.0.0.1", openPort);
+            var closedTarget = new SocksServer("127.0.0.1", closedPort);
+
+            await DelayTestHelper.PerformTestAsync(
+                [openTarget, closedTarget],
+                waitFinish: true,
+                modeOverride: DelayTestMode.TCPing);
+
+            Assert.AreEqual(DelayTestMode.TCPing, observedActiveMode);
+            Assert.IsNull(DelayTestHelper.ActiveMode);
+            Assert.AreEqual(DelayTestMode.ICMPing, Netch.Global.Settings.DelayTestMode);
+            Assert.IsTrue(DelayStatus.IsValid(openTarget.Delay), $"Expected valid TCPing delay >= 0, actual {openTarget.Delay}");
+            Assert.AreEqual(DelayStatus.Unreachable, closedTarget.Delay);
+        }
+        finally
+        {
+            AppEvents.DelayTestProgressChanged -= CaptureActiveMode;
+            Netch.Global.Settings.DelayTestMode = previousMode;
+            Netch.Global.Settings.DelayTestTimeout = previousTimeout;
         }
     }
 }

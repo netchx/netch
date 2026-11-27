@@ -1088,5 +1088,22 @@
   "Npcap no compat": "Npcap 未开兼容",
   "No Npcap": "未装 Npcap",
   "No VC++ x64": "缺 VC++ x64",
-  "All checks passed": "全部正常"
+  "All checks passed": "全部正常",
+  "Core": "核心",
+  "URL test": "URL 测速",
+  "TCP latency": "TCP 延迟",
+  "URL test · visible ({0})": "URL 测速 · 当前列表 ({0})",
+  "URL test · all ({0})": "URL 测速 · 全部节点 ({0})",
+  "TCP latency · visible ({0})": "TCP 延迟 · 当前列表 ({0})",
+  "TCP latency · all ({0})": "TCP 延迟 · 全部节点 ({0})",
+  "Test real URL latency for visible nodes (Smart hybrid)": "测试当前显示列表的真实 URL 延迟（智能混合）",
+  "Test TCPing latency for visible nodes": "测试当前显示列表的 TCPing 延迟",
+  "No testable nodes in current list.": "当前列表没有可测速的节点。",
+  "Sort by {0}": "点击按{0}排序",
+  "ascending": "升序",
+  "descending": "降序",
+  "click to sort ascending": "点击切换升序",
+  "click to sort descending": "点击切换降序",
+  "click to reset": "点击恢复默认排序",
+  "{0}: {1} ({2})": "{0}：{1}（{2}）"
 }

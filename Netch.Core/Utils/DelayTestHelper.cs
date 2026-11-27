@@ -28,6 +28,8 @@ public static class DelayTestHelper
 
     private static volatile bool _isTesting;
 
+    private static int _activeMode = -1;
+
     static DelayTestHelper()
     {
         Timer = new Timer
@@ -36,7 +38,7 @@ public static class DelayTestHelper
             AutoReset = true
         };
 
-        Timer.Elapsed += (_, _) => PerformCoreAsync(null, waitFinish: false, fromTimer: true, CancellationToken.None).Forget();
+        Timer.Elapsed += (_, _) => PerformCoreAsync(null, waitFinish: false, fromTimer: true, CancellationToken.None, modeOverride: null).Forget();
     }
 
     public static bool Enabled
@@ -50,6 +52,15 @@ public static class DelayTestHelper
     }
 
     public static bool IsTesting => _isTesting;
+
+    public static DelayTestMode? ActiveMode
+    {
+        get
+        {
+            var raw = Volatile.Read(ref _activeMode);
+            return raw >= 0 ? (DelayTestMode)raw : null;
+        }
+    }
 
     public static int CurrentCompleted { get; private set; }
 
@@ -88,19 +99,20 @@ public static class DelayTestHelper
 
     /// <param name="waitFinish">if does not get lock, block until last release</param>
     /// <param name="ct">cancellation token for the test run</param>
-    public static Task PerformTestAsync(bool waitFinish = false, CancellationToken ct = default) =>
-        PerformCoreAsync(null, waitFinish, fromTimer: false, ct);
+    /// <param name="modeOverride">optional delay test mode for this run without modifying saved settings</param>
+    public static Task PerformTestAsync(bool waitFinish = false, CancellationToken ct = default, DelayTestMode? modeOverride = null) =>
+        PerformCoreAsync(null, waitFinish, fromTimer: false, ct, modeOverride);
 
-    public static Task PerformTestAsync(IEnumerable<Server> targets, bool waitFinish = false, CancellationToken ct = default)
+    public static Task PerformTestAsync(IEnumerable<Server> targets, bool waitFinish = false, CancellationToken ct = default, DelayTestMode? modeOverride = null)
     {
         var servers = targets as Server[] ?? targets.ToArray();
         if (servers.Length == 0)
             return Task.CompletedTask;
 
-        return PerformCoreAsync(servers, waitFinish, fromTimer: false, ct);
+        return PerformCoreAsync(servers, waitFinish, fromTimer: false, ct, modeOverride);
     }
 
-    private static async Task PerformCoreAsync(Server[]? explicitTargets, bool waitFinish, bool fromTimer, CancellationToken ct)
+    private static async Task PerformCoreAsync(Server[]? explicitTargets, bool waitFinish, bool fromTimer, CancellationToken ct, DelayTestMode? modeOverride)
     {
         long myGen = 0;
         long expectedCancelGen;
@@ -145,7 +157,7 @@ public static class DelayTestHelper
             if (servers.Length == 0)
                 return;
 
-            await RunTestsAsync(servers, fromTimer, myGen, expectedCancelGen, ct);
+            await RunTestsAsync(servers, fromTimer, myGen, expectedCancelGen, modeOverride, ct);
         }
         finally
         {
@@ -154,8 +166,10 @@ public static class DelayTestHelper
         }
     }
 
-    private static async Task RunTestsAsync(Server[] servers, bool fromTimer, long myGen, long expectedCancelGen, CancellationToken ct)
+    private static async Task RunTestsAsync(Server[] servers, bool fromTimer, long myGen, long expectedCancelGen, DelayTestMode? modeOverride, CancellationToken ct)
     {
+        var settings = Global.Settings;
+        var mode = modeOverride ?? settings.DelayTestMode;
         using var runCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         lock (StateLock)
         {
@@ -170,6 +184,7 @@ public static class DelayTestHelper
             }
 
             _activeCts = runCts;
+            Volatile.Write(ref _activeMode, (int)mode);
             _isTesting = true;
         }
 
@@ -220,8 +235,6 @@ public static class DelayTestHelper
         try
         {
             var token = runCts.Token;
-            var settings = Global.Settings;
-            var mode = settings.DelayTestMode;
             var timeoutMs = Math.Clamp(settings.DelayTestTimeout, Constants.MinDelayTestTimeout, Constants.MaxDelayTestTimeout);
             var steadySecond = settings.DelayTestSteadySecondRequest;
             var outboundDns = settings.OutboundDNS;
@@ -423,6 +436,7 @@ public static class DelayTestHelper
             {
                 if (ReferenceEquals(_activeCts, runCts))
                     _activeCts = null;
+                Volatile.Write(ref _activeMode, -1);
                 _isTesting = false;
             }
 

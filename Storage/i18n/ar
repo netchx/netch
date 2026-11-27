@@ -1087,5 +1087,22 @@
   "Npcap no compat": "توافق Npcap معطل",
   "No Npcap": "لا يوجد Npcap",
   "No VC++ x64": "نقص VC++ x64",
-  "All checks passed": "جميع الفحوصات سليمة"
+  "All checks passed": "جميع الفحوصات سليمة",
+  "Core": "النواة",
+  "URL test": "اختبار URL",
+  "TCP latency": "زمن استجابة TCP",
+  "URL test · visible ({0})": "اختبار URL · القائمة الحالية ({0})",
+  "URL test · all ({0})": "اختبار URL · جميع العقد ({0})",
+  "TCP latency · visible ({0})": "زمن استجابة TCP · القائمة الحالية ({0})",
+  "TCP latency · all ({0})": "زمن استجابة TCP · جميع العقد ({0})",
+  "Test real URL latency for visible nodes (Smart hybrid)": "اختبار زمن استجابة URL الفعلي للعقد الظاهرة (هجين ذكي)",
+  "Test TCPing latency for visible nodes": "اختبار زمن استجابة TCPing للعقد الظاهرة",
+  "No testable nodes in current list.": "لا توجد عقد قابلة للاختبار في القائمة الحالية.",
+  "Sort by {0}": "الفرز حسب {0}",
+  "ascending": "تصاعدي",
+  "descending": "تنازلي",
+  "click to sort ascending": "انقر للفرز التصاعدي",
+  "click to sort descending": "انقر للفرز التنازلي",
+  "click to reset": "انقر لإعادة الضبط",
+  "{0}: {1} ({2})": "{0}: {1} ({2})"
 }
