@@ -611,7 +611,7 @@
   "The {0} port is used by {1}.": "المنفذ {0} مستخدم من قبل {1}.",
   "This Hysteria2 Realm configuration is missing separate credentials required by sing-box.": "يفتقد تكوين Hysteria2 Realm هذا بيانات اعتماد منفصلة يتطلبها sing-box.",
   "This Hysteria2 Realm node is missing separate relay credentials.": "تفتقد عقدة Hysteria2 Realm هذه بيانات اعتماد ترحيل منفصلة.",
-  "This release has no WinUI x64 ZIP.": "لا يحتوي هذا الإصدار على حزمة WinUI x64 ZIP.",
+  "This release has no WinUI x64 package.": "لا يحتوي هذا الإصدار على حزمة WinUI x64.",
   "TLS fingerprint": "بصمة TLS",
   "TLS security": "أمان TLS",
   "Transport": "النقل",

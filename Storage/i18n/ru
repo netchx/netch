@@ -611,7 +611,7 @@
   "The {0} port is used by {1}.": "Порт {0} занят: {1}.",
   "This Hysteria2 Realm configuration is missing separate credentials required by sing-box.": "В этой конфигурации Hysteria2 Realm отсутствуют отдельные учетные данные, требуемые sing-box.",
   "This Hysteria2 Realm node is missing separate relay credentials.": "В этом узле Hysteria2 Realm отсутствуют отдельные учетные данные ретрансляции.",
-  "This release has no WinUI x64 ZIP.": "В этом релизе нет архива WinUI x64 ZIP.",
+  "This release has no WinUI x64 package.": "В этом релизе нет пакета WinUI x64.",
   "TLS fingerprint": "Отпечаток TLS",
   "TLS security": "Защита TLS",
   "Transport": "Транспорт",

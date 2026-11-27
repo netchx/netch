@@ -612,7 +612,7 @@
   "The {0} port is used by {1}.": "{0} 端口已被 {1} 占用。",
   "This Hysteria2 Realm configuration is missing separate credentials required by sing-box.": "此 Hysteria2 Realm 配置缺少 sing-box 所需的独立凭据字段。",
   "This Hysteria2 Realm node is missing separate relay credentials.": "此 Hysteria2 Realm 节点缺少独立的中继凭据。",
-  "This release has no WinUI x64 ZIP.": "该版本未提供 WinUI x64 ZIP。",
+  "This release has no WinUI x64 package.": "该版本未提供 WinUI x64 安装包。",
   "TLS fingerprint": "TLS 指纹",
   "TLS security": "TLS 安全",
   "Transport": "传输",

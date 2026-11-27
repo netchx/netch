@@ -185,21 +185,19 @@ public class AsyncPrimitivesTests
     }
 
     [TestMethod]
-    public void UpdateCheckerSelectsZipOver7zAndParsesFourRowSha256Table()
+    public void UpdateCheckerPrefers7zOverZipAndHandles7zOnlyReleases()
     {
-        var assets = new[]
-        {
-            new Asset { name = "Netch-2.0.1-winui-x64-self-contained.7z" },
-            new Asset { name = "Netch-2.0.1-winui-x64-self-contained.zip" },
-            new Asset { name = "Netch-2.0.1-winui-x64-framework-dependent.7z" },
-            new Asset { name = "Netch-2.0.1-winui-x64-framework-dependent.zip" }
-        };
+        var sc7z = new Asset { name = "Netch-2.0.1-winui-x64-self-contained.7z" };
+        var scZip = new Asset { name = "Netch-2.0.1-winui-x64-self-contained.zip" };
+        var fdd7z = new Asset { name = "Netch-2.0.1-winui-x64-framework-dependent.7z" };
+        var fddZip = new Asset { name = "Netch-2.0.1-winui-x64-framework-dependent.zip" };
 
-        var sc = UpdateChecker.SelectReleaseAsset(assets, selfContained: true);
-        var fdd = UpdateChecker.SelectReleaseAsset(assets, selfContained: false);
-
-        Assert.AreEqual("Netch-2.0.1-winui-x64-self-contained.zip", sc?.name);
-        Assert.AreEqual("Netch-2.0.1-winui-x64-framework-dependent.zip", fdd?.name);
+        Assert.AreEqual(sc7z.name, UpdateChecker.SelectReleaseAsset([fddZip, scZip, fdd7z, sc7z], selfContained: true)?.name);
+        Assert.AreEqual(fdd7z.name, UpdateChecker.SelectReleaseAsset([scZip, fddZip, sc7z, fdd7z], selfContained: false)?.name);
+        Assert.AreEqual(scZip.name, UpdateChecker.SelectReleaseAsset([scZip, fdd7z], selfContained: true)?.name);
+        Assert.AreEqual(sc7z.name, UpdateChecker.SelectReleaseAsset([sc7z, fdd7z], selfContained: true)?.name);
+        Assert.AreEqual(fdd7z.name, UpdateChecker.SelectReleaseAsset([sc7z, fdd7z], selfContained: false)?.name);
+        Assert.IsNull(UpdateChecker.SelectReleaseAsset([fdd7z], selfContained: true));
 
         var scZipSha = new string('a', 64);
         var fddZipSha = new string('b', 64);
@@ -225,6 +223,21 @@ public class AsyncPrimitivesTests
 
             Assert.AreEqual(("Netch-2.0.1-winui-x64-self-contained.zip", scZipSha), UpdateChecker.GetLatestUpdateFileNameAndHash());
             Assert.AreEqual(("Netch-2.0.1-winui-x64-framework-dependent.zip", fddZipSha), UpdateChecker.GetLatestUpdateFileNameAndHash("framework-dependent"));
+
+            UpdateChecker.LatestRelease = new Release
+            {
+                body = $$"""
+                    ## SHA256
+
+                    | 文件 / File | SHA256 |
+                    | --- | --- |
+                    | `Netch-2.1.2-winui-x64-self-contained.7z` | `{{sc7zSha}}` |
+                    | `Netch-2.1.2-winui-x64-framework-dependent.7z` | `{{fdd7zSha}}` |
+                    """
+            };
+
+            Assert.AreEqual(("Netch-2.1.2-winui-x64-self-contained.7z", sc7zSha), UpdateChecker.GetLatestUpdateFileNameAndHash());
+            Assert.AreEqual(("Netch-2.1.2-winui-x64-framework-dependent.7z", fdd7zSha), UpdateChecker.GetLatestUpdateFileNameAndHash("framework-dependent"));
         }
         finally
         {

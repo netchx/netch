@@ -534,7 +534,7 @@
   "These hotkeys are already in use and do not work: {0}": "این میانبرها هم‌اکنون در حال استفاده‌اند و کار نمی‌کنند: {0}",
   "This Hysteria2 Realm configuration is missing separate credentials required by sing-box.": "این پیکربندی Hysteria2 Realm فاقد اطلاعات احراز هویت جداگانه مورد نیاز sing-box است.",
   "This Hysteria2 Realm node is missing separate relay credentials.": "این گره Hysteria2 Realm فاقد اطلاعات احراز هویت جداگانه رله است.",
-  "This release has no WinUI x64 ZIP.": "این انتشار فایل ZIP برای WinUI x64 ندارد.",
+  "This release has no WinUI x64 package.": "این انتشار بسته WinUI x64 ندارد.",
   "Timeout": "پایان مهلت",
   "TLS fingerprint": "اثر انگشت TLS",
   "TLS security": "امنیت TLS",

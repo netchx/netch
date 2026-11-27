@@ -185,14 +185,14 @@ jobs:
             ''
             '## 下载与启动 / Download & Launch'
             ''
-            "- **自带框架版（推荐多数用户）**：下载 ``$scPkg.7z``（体积更小，需 7-Zip 等工具解压）或 ``$scPkg.zip``（Windows 原生解压 / 应用内自动更新使用），已内置 ``.NET 10`` 与 Windows App SDK 运行时，开箱即用。"
-            "- **系统框架版（体积更小）**：下载 ``$fddPkg.7z`` 或 ``$fddPkg.zip``，使用系统已安装的 **.NET 10 Runtime (x64)**（仍内置 Windows App SDK）；若系统未安装，请先下载安装 [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。"
+            "- **自带框架版（推荐）**：下载 ``$scPkg.7z``（体积更小，推荐使用，``2.1.1+`` 应用内更新默认使用）或 ``$scPkg.zip``（Windows 原生解压 / 供 ``2.0.0`` 应用内更新），已内置 ``.NET 10`` 与 Windows App SDK 运行时，开箱即用。"
+            "- **系统框架版（更轻量）**：下载 ``$fddPkg.7z`` 或 ``$fddPkg.zip``，复用系统 **.NET 10 Runtime (x64)**（仍内置 Windows App SDK）；未安装时请先获取 [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)。"
             ''
             '1. 两个版本均为单文件便携包，请完整解压并保留压缩包内的目录结构（包括 `bin/`、`mode/`、`logging/`、`data/` 与 `licenses/`）。'
             '2. 右键 `Netch.App.exe`，选择“以管理员身份运行”。'
             ''
-            "- **Self-contained (recommended for most users)**: Download ``$scPkg.7z`` (smaller download, requires 7-Zip or similar) or ``$scPkg.zip`` (native Windows extraction / in-app updater) with bundled ``.NET 10`` and Windows App SDK runtimes."
-            "- **Framework-dependent (smaller download)**: Download ``$fddPkg.7z`` or ``$fddPkg.zip`` to use the system **.NET 10 Runtime (x64)** (Windows App SDK remains bundled); install [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0) if not already present."
+            "- **Self-contained (recommended)**: Download ``$scPkg.7z`` (smaller download, recommended, default for ``2.1.1+`` in-app updates) or ``$scPkg.zip`` (native Windows extraction / in-app updates from ``2.0.0``) with bundled ``.NET 10`` and Windows App SDK runtimes."
+            "- **Framework-dependent (lightweight)**: Download ``$fddPkg.7z`` or ``$fddPkg.zip`` to use the system **.NET 10 Runtime (x64)** (Windows App SDK remains bundled); install [.NET 10 Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0) if needed."
             ''
             '1. Both archives are single-file portable bundles; extract the entire archive while preserving its directory layout (`bin/`, `mode/`, `logging/`, `data/`, and `licenses/`).'
             '2. Right-click `Netch.App.exe` and choose **Run as administrator**.'

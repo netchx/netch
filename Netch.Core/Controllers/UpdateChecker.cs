@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Netch.Models.GitHubRelease;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Controllers;
@@ -38,8 +39,7 @@ public static class UpdateChecker
 
         var candidates = assets
             .Where(asset => asset != null
-                && !string.IsNullOrEmpty(asset.name)
-                && asset.name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)
+                && UpdateArchiveExtractor.IsSupportedArchiveName(asset.name)
                 && asset.name.Contains("winui", StringComparison.OrdinalIgnoreCase)
                 && asset.name.Contains("x64", StringComparison.OrdinalIgnoreCase))
             .ToList();
@@ -48,13 +48,27 @@ public static class UpdateChecker
 
         if (selfContained)
         {
-            return candidates.FirstOrDefault(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase))
-                ?? candidates.FirstOrDefault(asset => !asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase));
+            return SelectPreferredArchive(candidates.Where(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase)))
+                ?? SelectPreferredArchive(candidates.Where(asset => !asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase)));
         }
 
-        return candidates.FirstOrDefault(asset => asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase))
-            ?? candidates.FirstOrDefault(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase))
-            ?? candidates[0];
+        return SelectPreferredArchive(candidates.Where(asset => asset.name.Contains(FrameworkDependentDeploymentMode, StringComparison.OrdinalIgnoreCase)))
+            ?? SelectPreferredArchive(candidates.Where(asset => asset.name.Contains(SelfContainedDeploymentMode, StringComparison.OrdinalIgnoreCase)))
+            ?? SelectPreferredArchive(candidates);
+    }
+
+    private static Asset? SelectPreferredArchive(IEnumerable<Asset> candidates)
+    {
+        Asset? zipFallback = null;
+        foreach (var candidate in candidates)
+        {
+            if (candidate.name.EndsWith(".7z", StringComparison.OrdinalIgnoreCase))
+                return candidate;
+
+            zipFallback ??= candidate;
+        }
+
+        return zipFallback;
     }
 
     internal static string ResolveVersion(string? informationalVersion = null, Version? assemblyVersion = null)

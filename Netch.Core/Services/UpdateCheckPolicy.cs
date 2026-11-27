@@ -80,18 +80,23 @@ public static class GitHubRateLimitPolicy
             ? [cleanTag]
             : new[] { cleanTag, rawTag };
 
-        var result = new List<string>(tags.Length * 3);
+        var result = new List<string>(tags.Length * 6);
         foreach (var t in tags)
         {
             if (selfContained)
             {
+                result.Add($"Netch-{t}-winui-x64-self-contained.7z");
                 result.Add($"Netch-{t}-winui-x64-self-contained.zip");
+                result.Add($"Netch-{t}-winui-x64.7z");
                 result.Add($"Netch-{t}-winui-x64.zip");
             }
             else
             {
+                result.Add($"Netch-{t}-winui-x64-framework-dependent.7z");
                 result.Add($"Netch-{t}-winui-x64-framework-dependent.zip");
+                result.Add($"Netch-{t}-winui-x64-self-contained.7z");
                 result.Add($"Netch-{t}-winui-x64-self-contained.zip");
+                result.Add($"Netch-{t}-winui-x64.7z");
                 result.Add($"Netch-{t}-winui-x64.zip");
             }
         }

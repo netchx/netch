@@ -1,9 +1,11 @@
 #nullable enable
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Netch.Services;
 
@@ -69,9 +71,13 @@ public class UpdateThrottleTests
         CollectionAssert.AreEqual(
             new[]
             {
+                "Netch-2.0.1-winui-x64-self-contained.7z",
                 "Netch-2.0.1-winui-x64-self-contained.zip",
+                "Netch-2.0.1-winui-x64.7z",
                 "Netch-2.0.1-winui-x64.zip",
+                "Netch-v2.0.1-winui-x64-self-contained.7z",
                 "Netch-v2.0.1-winui-x64-self-contained.zip",
+                "Netch-v2.0.1-winui-x64.7z",
                 "Netch-v2.0.1-winui-x64.zip"
             },
             sc.ToArray());
@@ -80,11 +86,72 @@ public class UpdateThrottleTests
         CollectionAssert.AreEqual(
             new[]
             {
+                "Netch-2.0.1-winui-x64-framework-dependent.7z",
                 "Netch-2.0.1-winui-x64-framework-dependent.zip",
+                "Netch-2.0.1-winui-x64-self-contained.7z",
                 "Netch-2.0.1-winui-x64-self-contained.zip",
+                "Netch-2.0.1-winui-x64.7z",
                 "Netch-2.0.1-winui-x64.zip"
             },
             fdd.ToArray());
+    }
+
+    [TestMethod]
+    public void UpdateArchiveExtractorExtractsZipSolid7zAndRejectsUnsupported()
+    {
+        const string solid7zBase64 = "N3q8ryccAAS7kqfO9AAAAAAAAAAiAAAAAAAAAII10CDgAD4ALl0ANxmItlqknB9TjpwS5ZMlf1O3S59X3rEJ55shAUh7VejGEYzFp4Xpj6IKm9QQIAAAAIEzB64P0VujJKCQoHdexUAYkWpwUsECIlKXQnp+hmiI0d+Ei0VNBSMJnP9JMx025UQFmZcyGLoGaZYUzeQtkcdHYs18vU1wXxjPRi+7ZIkWmdxrtR0sh+PAHlGXytjeiGgkWHckthjnFOuedlWdh0w3eAiwY7wkjosTcV0uzrekHHfz6cv0XbOEOJkcxmJhBs1xWSJzA3N/HoymRWLPaH0T52WhonvSKE+dYHanFrj1tKWBEB+V363xpyxAFwY2AQmAvgAHCwEAASMDAQEFXQAQAAAMgU4KAeYkFfAAAA==";
+
+        var tempDir = Directory.CreateTempSubdirectory("netch-archive-extract-test-");
+        try
+        {
+            var zipPath = Path.Combine(tempDir.FullName, "update.zip");
+            using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+            {
+                WriteEntry(zip, "Netch.App.exe", "zip-app-payload");
+                WriteEntry(zip, "bin/nfdriver.sys", "zip-nfdriver-payload");
+                WriteEntry(zip, "bin/sing_box/libcronet.dll", "zip-cronet-payload");
+            }
+
+            var zipOut = Path.Combine(tempDir.FullName, "out-zip");
+            UpdateArchiveExtractor.ExtractToDirectory(zipPath, zipOut);
+            Assert.AreEqual("zip-app-payload", File.ReadAllText(Path.Combine(zipOut, "Netch.App.exe")));
+            Assert.AreEqual("zip-nfdriver-payload", File.ReadAllText(Path.Combine(zipOut, "bin", "nfdriver.sys")));
+            Assert.AreEqual("zip-cronet-payload", File.ReadAllText(Path.Combine(zipOut, "bin", "sing_box", "libcronet.dll")));
+
+            var sevenZipBytes = Convert.FromBase64String(solid7zBase64);
+            var sevenZipPath = Path.Combine(tempDir.FullName, "update.7z");
+            File.WriteAllBytes(sevenZipPath, sevenZipBytes);
+
+            var sevenZipOut = Path.Combine(tempDir.FullName, "out-7z");
+            UpdateArchiveExtractor.ExtractToDirectory(sevenZipPath, sevenZipOut);
+            Assert.AreEqual("app-exe-payload", File.ReadAllText(Path.Combine(sevenZipOut, "Netch.App.exe")));
+            Assert.AreEqual("nfdriver-payload", File.ReadAllText(Path.Combine(sevenZipOut, "bin", "nfdriver.sys")));
+            Assert.AreEqual("redirector-payload", File.ReadAllText(Path.Combine(sevenZipOut, "bin", "Redirector.bin")));
+            Assert.AreEqual("cronet-payload", File.ReadAllText(Path.Combine(sevenZipOut, "bin", "sing_box", "libcronet.dll")));
+
+            // Signature detection should not rely on the file extension.
+            var neutralPath = Path.Combine(tempDir.FullName, "update.tmp");
+            File.WriteAllBytes(neutralPath, sevenZipBytes);
+            var neutralOut = Path.Combine(tempDir.FullName, "out-tmp");
+            UpdateArchiveExtractor.ExtractToDirectory(neutralPath, neutralOut);
+            Assert.AreEqual("app-exe-payload", File.ReadAllText(Path.Combine(neutralOut, "Netch.App.exe")));
+
+            var invalidPath = Path.Combine(tempDir.FullName, "corrupt.bin");
+            File.WriteAllBytes(invalidPath, Encoding.ASCII.GetBytes("not-an-archive"));
+            Assert.ThrowsExactly<InvalidDataException>(() =>
+                UpdateArchiveExtractor.ExtractToDirectory(invalidPath, Path.Combine(tempDir.FullName, "out-invalid")));
+        }
+        finally
+        {
+            tempDir.Delete(recursive: true);
+        }
+
+        static void WriteEntry(ZipArchive archive, string entryName, string content)
+        {
+            var entry = archive.CreateEntry(entryName);
+            using var writer = new StreamWriter(entry.Open(), new UTF8Encoding(false));
+            writer.Write(content);
+        }
     }
 
     [TestMethod]

@@ -337,7 +337,7 @@ internal static partial class Downloads
                 AppRelease = releases.FirstOrDefault();
                 AppAsset = UpdateChecker.SelectReleaseAsset(AppRelease?.assets, UpdateChecker.IsSelfContained);
                 if (AppRelease != null && IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
-                    Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
+                    Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 package.", "该版本未提供 WinUI x64 安装包。");
 
                 if (AppRelease != null)
                 {
@@ -422,7 +422,7 @@ internal static partial class Downloads
         AppAsset = resolvedAsset;
 
         if (IsNewer(AppRelease.tag_name, UpdateChecker.Version) && AppAsset == null)
-            Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 ZIP.", "该版本未提供 WinUI x64 ZIP。");
+            Errors[UpdateChecker.Name] = Helpers.Ui.T("This release has no WinUI x64 package.", "该版本未提供 WinUI x64 安装包。");
 
         lock (CacheLock)
         {
@@ -1422,8 +1422,9 @@ internal static partial class Downloads
 
     private static async Task<string> DownloadApplicationAsync(DownloadTransfer transfer)
     {
-        var asset = AppAsset ?? throw new InvalidOperationException("This release has no WinUI x64 ZIP.");
-        var file = Path.Combine(Path.GetTempPath(), $"Netch-update-{Guid.NewGuid():N}.zip");
+        var asset = AppAsset ?? throw new InvalidOperationException("This release has no WinUI x64 package.");
+        var extension = asset.name.EndsWith(".7z", StringComparison.OrdinalIgnoreCase) ? ".7z" : ".zip";
+        var file = Path.Combine(Path.GetTempPath(), $"Netch-update-{Guid.NewGuid():N}{extension}");
         using var client = CreateClient();
         using var response = await client.GetAsync(Request(asset.browser_download_url), HttpCompletionOption.ResponseHeadersRead);
         response.EnsureSuccessStatusCode();

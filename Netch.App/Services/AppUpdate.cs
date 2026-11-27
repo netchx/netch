@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Text;
+using Netch.Services;
 
 namespace Netch.App.Services;
 
@@ -11,7 +11,7 @@ internal static class AppUpdate
         var staging = Directory.CreateTempSubdirectory("netch-update-").FullName;
         try
         {
-            ZipFile.ExtractToDirectory(archive, staging);
+            await Task.Run(() => UpdateArchiveExtractor.ExtractToDirectory(archive, staging));
             var source = File.Exists(Path.Combine(staging, "Netch.App.exe")) ? staging : Path.Combine(staging, "Netch");
             foreach (var relative in new[] { "Netch.App.exe", @"bin\nfdriver.sys", @"bin\Redirector.bin" })
                 if (!File.Exists(Path.Combine(source, relative)))

@@ -534,7 +534,7 @@
   "These hotkeys are already in use and do not work: {0}": "次のホットキーはすでに使用されているため利用できません: {0}",
   "This Hysteria2 Realm configuration is missing separate credentials required by sing-box.": "この Hysteria2 Realm 設定に sing-box が必要とする個別の認証情報がありません。",
   "This Hysteria2 Realm node is missing separate relay credentials.": "この Hysteria2 Realm ノードに個別のリレー認証情報がありません。",
-  "This release has no WinUI x64 ZIP.": "このリリースに WinUI x64 ZIP はありません。",
+  "This release has no WinUI x64 package.": "このリリースに WinUI x64 パッケージはありません。",
   "Timeout": "タイムアウト",
   "TLS fingerprint": "TLS フィンガープリント",
   "TLS security": "TLS セキュリティ",

@@ -13,6 +13,7 @@ Copyright (c) 2013 MaxMind, Inc.(@maxmind): MaxMind.GeoIP2 (Apache-2.0)
 Copyright (c) 2016 Soroush(@falahati): WindowsFirewallHelper (MIT)
 Copyright (c) 2003 David Hall(@dahall): TaskScheduler (MIT)
 Copyright (c) 2021 tom-englert.de(@tom-englert): Nullable.Extended.Analyzer (MIT)
+Copyright (c) 2025 Adam Hathcock(@adamhathcock): SharpCompress (MIT)
 
 Copyright (c) 2009 The Go Authors(@golang): Go (BSD)
 Copyright (c) Vitaly Sidorov: NetFilterSDK
