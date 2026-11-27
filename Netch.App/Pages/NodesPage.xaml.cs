@@ -348,13 +348,15 @@ public sealed partial class NodesPage : Page
     {
         var update = MenuItem(T("Update", "更新"), Icons.Refresh, () => UpdateSubscriptionsAsync(sub, useProxy: false).Forget());
         update.IsEnabled = !_updatingSubscriptions && sub.Enable;
-        return IconMenu(
+        var menu = IconMenu(
             update,
             MenuItem(T("Rename group", "重命名分组"), Icons.Rename, () => RenameGroupAsync(sub.Remark, isSubscription: true).Forget()),
             MenuItem(T("Edit", "编辑"), Icons.Edit, () => EditSubscriptionAsync(sub).Forget()),
             MenuItem(T("Copy link", "复制链接"), Icons.Copy, () => Copy(sub.Link)),
             new MenuFlyoutSeparator(),
             MenuItem(T("Delete", "删除"), Icons.Delete, () => DeleteSubscriptionAsync(sub).Forget(), destructive: true));
+        menu.Opening += (_, _) => update.IsEnabled = !_updatingSubscriptions && sub.Enable;
+        return menu;
     }
 
     private MenuFlyout BuildImportedGroupMenu(string groupName)
@@ -918,15 +920,16 @@ public sealed partial class NodesPage : Page
         _updateAll.IsEnabled = false;
         if (_updateSelected != null)
             _updateSelected.IsEnabled = false;
+        var executed = false;
         try
         {
-            var executed = true;
             if (!useProxy)
             {
                 if (single != null)
                     await SubscriptionUtil.UpdateServerAsync(single);
                 else
                     await SubscriptionUtil.UpdateServersAsync();
+                executed = true;
             }
             else
             {
@@ -937,10 +940,7 @@ public sealed partial class NodesPage : Page
             }
 
             if (executed)
-            {
                 await Configuration.SaveAsync();
-                RefreshCategories();
-            }
         }
         catch (Exception e)
         {
@@ -951,9 +951,16 @@ public sealed partial class NodesPage : Page
         finally
         {
             _updatingSubscriptions = false;
-            _updateAll.IsEnabled = Global.Settings.Subscription.Any(s => s.Enable);
-            if (_updateSelected != null)
-                _updateSelected.IsEnabled = SelectedCategory?.Subscription?.Enable ?? false;
+            if (executed)
+            {
+                RefreshCategories();
+            }
+            else
+            {
+                _updateAll.IsEnabled = Global.Settings.Subscription.Any(s => s.Enable);
+                if (_updateSelected != null)
+                    _updateSelected.IsEnabled = SelectedCategory?.Subscription?.Enable ?? false;
+            }
         }
     }
 
