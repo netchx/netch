@@ -5,8 +5,7 @@
 <h1 align="center">Netch</h1>
 
 <p align="center">
-  专为游戏加速打造的 Windows x64 开源网络代理客户端<br />
-  An open-source Windows proxy client built for low-latency game acceleration.
+  专为游戏加速打造的 Windows x64 开源网络代理客户端
 </p>
 
 <p align="center">
@@ -14,6 +13,21 @@
   <a href="https://github.com/NetchX/Netch/releases"><img src="https://img.shields.io/github/v/release/NetchX/Netch?include_prereleases&style=flat-square" alt="Release" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square" alt="GPLv3" /></a>
   <img src="https://img.shields.io/badge/platform-Windows%20x64-0078D6?style=flat-square" alt="Windows x64" />
+</p>
+
+<p align="center">
+  <b>简体中文</b> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#核心特性">核心特性</a> ·
+  <a href="#工作模式">工作模式</a> ·
+  <a href="#支持协议">支持协议</a> ·
+  <a href="#安装与环境依赖">安装与依赖</a> ·
+  <a href="#faq">常见问题</a> ·
+  <a href="#从源码构建">从源码构建</a> ·
+  <a href="https://github.com/NetchX/Netch/releases">下载 Releases</a>
 </p>
 
 > [!IMPORTANT]
@@ -84,6 +98,8 @@
 | **系统框架版** `*-winui-x64-framework-dependent.zip` | **1 项** | 需先安装 **[.NET 10 Desktop Runtime (x64)](https://dotnet.microsoft.com/download/dotnet/10.0)**（`winget install Microsoft.DotNet.DesktopRuntime.10`，仅装基础 `.NET Runtime` 无法启动）。 |
 | **仅启用共享模式**（主机 / 局域网，两包均同） | **2 项** | 1. **[Npcap](https://npcap.com/)**：安装时**必须勾选 `Install Npcap in WinPcap API-compatible Mode`**。<br />2. **[VC++ 2015–2022 Redistributable (x64)](https://aka.ms/vs/17/release/vc_redist.x64.exe)**（`winget install Microsoft.VCRedist.2015+.x64`），用于 `bin/pcap2socks.exe`。 |
 
+<a id="faq"></a>
+
 <details>
 <summary>常见问题</summary>
 
@@ -93,7 +109,7 @@
 
 </details>
 
-### 快速开始
+## 快速开始
 
 1. 从 [Releases](https://github.com/NetchX/Netch/releases) 下载对应发行包，解压后运行 `Netch.App.exe`。
 2. 通过首次向导或在「节点」页导入订阅、Clash YAML 或剪贴板 URI 并测速。
